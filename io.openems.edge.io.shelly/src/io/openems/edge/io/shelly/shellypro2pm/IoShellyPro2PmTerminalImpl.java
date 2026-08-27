@@ -12,7 +12,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.Result;
 import io.openems.common.utils.JsonUtils;
@@ -53,6 +53,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("Device")
 public class IoShellyPro2PmTerminalImpl extends AbstractOpenemsComponent
 		implements IoShellyPro2PmTerminal, ShellyMeteredSwitch, ShellySwitch, SinglePhaseMeter, ElectricityMeter,
 		DigitalOutput, TimedataProvider, OpenemsComponent, EventHandler {
@@ -68,8 +69,6 @@ public class IoShellyPro2PmTerminalImpl extends AbstractOpenemsComponent
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
-	@Reference
-	private ConfigurationAdmin cm;
 
 	public IoShellyPro2PmTerminalImpl() {
 		super(//
@@ -83,7 +82,8 @@ public class IoShellyPro2PmTerminalImpl extends AbstractOpenemsComponent
 		);
 	}
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.device_id})(enabled=true))")
 	protected void setDevice(IoShellyPro2PmDevice device) {
 		this.device.set(device);
 	}
@@ -94,9 +94,6 @@ public class IoShellyPro2PmTerminalImpl extends AbstractOpenemsComponent
 		this.meterType = config.type();
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Device", config.device_id())) {
-			return;
-		}
 
 		var device = this.device.get();
 		if (config.enabled() && device != null) {
