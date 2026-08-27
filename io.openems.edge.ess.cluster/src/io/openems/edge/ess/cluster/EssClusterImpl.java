@@ -1,19 +1,19 @@
 package io.openems.edge.ess.cluster;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,6 +50,7 @@ import io.openems.edge.ess.power.api.Power;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("Ess")
 public class EssClusterImpl extends AbstractOpenemsComponent implements EssCluster, ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, ModbusSlave, EventHandler, StartStoppable {
 
@@ -63,15 +65,8 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	@Reference
 	protected ComponentManager componentManager;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Ess.Cluster)))")
-
+	@Reference(name = "Ess", policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
+			target = "(&(id=${config.ess_ids})(enabled=true)(!(service.factoryPid=Ess.Cluster)))")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		this.esss.add(ess);
 		this.channelManager.deactivate();
@@ -99,12 +94,9 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		this.config = config;
 		this.activate(context, config.id(), config.alias(), config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_ids())) {
-			return;
-		}
 		this.channelManager.activate(this.esss);
 	}
 
