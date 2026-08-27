@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
-import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextChannelValueTypeHelper;
 
 @Component(scope = ServiceScope.PROTOTYPE)
@@ -33,9 +32,7 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 				channelValue.getChannelId(), mappingDefinition)
 				.orElseThrow(() -> new PlcNextGdsDataMappingException(
 						"No mapping found for channelId '" + channelValue.getChannelId() + "'"));
-		String variablePath = "/" +
-                dataInstanceName + ".." +
-                channelToVariableMappingDefinition.getIdentifier();
+		String variablePath = "/" + dataInstanceName + ".." + channelToVariableMappingDefinition.getIdentifier();
 
 		return PlcNextChannelValueTypeHelper.buildVariableToWrite(variablePath, channelValue.getValue(),
 				channelValue.getChannelId().doc(), stationId);
@@ -49,7 +46,8 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 		List<JsonElement> mappedValues = new ArrayList<>();
 
 		for (PlcNextGdsDataMappedValue channelValue : channelValues) {
-			JsonElement mappedValue = mapSingleValueToGdsData(channelValue, dataInstanceName, stationId, mappingDefinition);
+			JsonElement mappedValue = mapSingleValueToGdsData(channelValue, dataInstanceName, stationId,
+					mappingDefinition);
 
 			if (Objects.nonNull(mappedValue)) {
 				mappedValues.add(mappedValue);
@@ -63,13 +61,13 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 	/**
 	 * Search for mapping definition by channel ID
 	 * 
-	 * @param channelId				the channel ID to search for
-	 * @param varMappingDefinitions	list of mapping definitions
-	 * @return	@link{Optional} containing mapping definition or empty optional
+	 * @param channelId             the channel ID to search for
+	 * @param varMappingDefinitions list of mapping definitions
+	 * @return @link{Optional} containing mapping definition or empty optional
 	 */
 	Optional<PlcNextGdsDataMappingDefinition> getMappingByChannelId(ChannelId channelId,
 			PlcNextGdsDataMappingDefinition[] varMappingDefinitions) {
-		
+
 		return Stream.of(varMappingDefinitions).filter(item -> item.getChannelId().name().equals(channelId.name()))
 				.findFirst();
 	}

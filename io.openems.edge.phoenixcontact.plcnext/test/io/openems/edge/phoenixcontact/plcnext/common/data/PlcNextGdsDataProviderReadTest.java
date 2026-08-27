@@ -1,8 +1,8 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.google.gson.JsonArray;
@@ -27,7 +27,6 @@ import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
-import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService.TimeEndpoint;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
@@ -47,7 +46,7 @@ public class PlcNextGdsDataProviderReadTest {
 	private PlcNextGdsDataProviderImpl dataProvider;
 	private String accessToken;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() {
 		dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables", "MeasurementDevice",
 				"meter0");
@@ -55,7 +54,7 @@ public class PlcNextGdsDataProviderReadTest {
 
 		mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
 		when(mockDummyBridgeHttp.createService(any())).thenReturn(new HttpBridgeTimeServiceImpl(mockDummyBridgeHttp, //
-				new DummyBridgeHttpExecutor(), new DummyEndpointFetcher()));
+				new DummyBridgeHttpExecutor()));
 
 		mockTokenManager = Mockito.mock(PlcNextTokenManagerImpl.class);
 
@@ -87,18 +86,18 @@ public class PlcNextGdsDataProviderReadTest {
 				dataProviderConfig);
 
 		// check
-		Assert.assertNotNull(result);
+		Assertions.assertNotNull(result);
 
-		Assert.assertEquals(HttpMethod.POST, result.method());
-		Assert.assertEquals(expectedReqUrl, result.url());
+		Assertions.assertEquals(HttpMethod.POST, result.method());
+		Assertions.assertEquals(expectedReqUrl, result.url());
 
 		System.out.println("ECHO: expected headers: " + expectedReqHeaders);
 		System.out.println("ECHO: current headers: " + result.properties());
-		Assert.assertEquals(expectedReqHeaders, result.properties());
+		Assertions.assertEquals(expectedReqHeaders, result.properties());
 
 		System.out.println("ECHO: expected body: " + expectedReqBody);
 		System.out.println("ECHO: current body: " + result.body());
-		Assert.assertEquals(expectedReqBody, result.body());
+		Assertions.assertEquals(expectedReqBody, result.body());
 	}
 
 	@Test
@@ -126,18 +125,18 @@ public class PlcNextGdsDataProviderReadTest {
 				dataProviderConfig);
 
 		// check
-		Assert.assertNotNull(result);
+		Assertions.assertNotNull(result);
 
-		Assert.assertEquals(HttpMethod.POST, result.method());
-		Assert.assertEquals(expectedReqUrl, result.url());
+		Assertions.assertEquals(HttpMethod.POST, result.method());
+		Assertions.assertEquals(expectedReqUrl, result.url());
 
 		System.out.println("ECHO: expected headers: " + expectedReqHeaders);
 		System.out.println("ECHO: current headers: " + result.properties());
-		Assert.assertEquals(expectedReqHeaders, result.properties());
+		Assertions.assertEquals(expectedReqHeaders, result.properties());
 
 		System.out.println("ECHO: expected body: " + expectedReqBody);
 		System.out.println("ECHO: current body: " + result.body());
-		Assert.assertEquals(expectedReqBody, result.body());
+		Assertions.assertEquals(expectedReqBody, result.body());
 	}
 
 	@Test
@@ -159,18 +158,18 @@ public class PlcNextGdsDataProviderReadTest {
 				dataProviderConfig);
 
 		// check
-		Assert.assertNotNull(result);
+		Assertions.assertNotNull(result);
 
-		Assert.assertEquals(HttpMethod.POST, result.method());
-		Assert.assertEquals(expectedReqUrl, result.url());
+		Assertions.assertEquals(HttpMethod.POST, result.method());
+		Assertions.assertEquals(expectedReqUrl, result.url());
 
 		System.out.println("ECHO: expected headers: " + expectedReqHeaders);
 		System.out.println("ECHO: current headers: " + result.properties());
-		Assert.assertEquals(expectedReqHeaders, result.properties());
+		Assertions.assertEquals(expectedReqHeaders, result.properties());
 
 		System.out.println("ECHO: expected body: " + expectedReqBody);
 		System.out.println("ECHO: current body: " + result.body());
-		Assert.assertEquals(expectedReqBody, result.body());
+		Assertions.assertEquals(expectedReqBody, result.body());
 	}
 
 	@Test
@@ -244,7 +243,7 @@ public class PlcNextGdsDataProviderReadTest {
 				.join();
 
 		// check
-		Assert.assertNotNull(result);
+		Assertions.assertNotNull(result);
 	}
 
 	@Test
@@ -282,8 +281,8 @@ public class PlcNextGdsDataProviderReadTest {
 				.thenThrow(CompletionException.class);
 
 		// test + check
-		assertThrows(CompletionException.class, () -> 
-			dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null).join());
+		assertThrows(CompletionException.class,
+				() -> dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null).join());
 	}
 
 	@Test
@@ -295,11 +294,11 @@ public class PlcNextGdsDataProviderReadTest {
 		when(mockTokenManager.hasValidToken()).thenReturn(false);
 		when(mockTokenManager.fetchToken(any())).thenReturn( //
 				CompletableFuture.completedFuture(null));
-		
+
 		when(mockDummyBridgeHttp.requestJson(any(Endpoint.class)))//
 				.thenThrow(CompletionException.class);
 
-		// test 
+		// test
 		CompletableFuture<JsonObject> result = dataProvider.readDataFromRestApi( //
 				variableIdentifiers, dataProviderConfig, null);
 
@@ -323,13 +322,13 @@ public class PlcNextGdsDataProviderReadTest {
 						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		// test
-		PlcNextCreateSessionResponse createSessionResponse = dataProvider
-				.createOrFetchSessionID(dataProviderConfig).join();
+		PlcNextCreateSessionResponse createSessionResponse = dataProvider.createOrFetchSessionID(dataProviderConfig)
+				.join();
 
 		// check
-		Assert.assertNotNull(createSessionResponse);
-		Assert.assertEquals(sessionId, createSessionResponse.sessionId());
-		Assert.assertNotNull(createSessionResponse.sessionTimeout());
+		Assertions.assertNotNull(createSessionResponse);
+		Assertions.assertEquals(sessionId, createSessionResponse.sessionId());
+		Assertions.assertNotNull(createSessionResponse.sessionTimeout());
 	}
 
 	@Test
@@ -341,9 +340,9 @@ public class PlcNextGdsDataProviderReadTest {
 		when(mockDummyBridgeHttp.requestJson(any()))//
 				.thenThrow(CompletionException.class);
 
-		// test 
-		CompletableFuture<PlcNextCreateSessionResponse> result = 
-				dataProvider.createOrFetchSessionID(dataProviderConfig);
+		// test
+		CompletableFuture<PlcNextCreateSessionResponse> result = dataProvider
+				.createOrFetchSessionID(dataProviderConfig);
 
 		// check
 		assertNotNull(result);
@@ -359,17 +358,17 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
+		TimeEndpoint<HttpResponse<String>> te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(te);
+		Assertions.assertNotNull(te);
 
 		// test trigger
-		te.onResult().accept(HttpResponse.ok("{ 'sessionID': '" + sessionId + "'}"));
+		te.onResult().apply(HttpResponse.ok("{ 'sessionID': '" + sessionId + "'}"));
 
 		// check trigger
-		Assert.assertEquals(sessionId, dataProvider.sessionId);
+		Assertions.assertEquals(sessionId, dataProvider.sessionId);
 	}
 
 	@Test
@@ -380,17 +379,17 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
+		TimeEndpoint<HttpResponse<String>> te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(te);
+		Assertions.assertNotNull(te);
 
 		// test trigger
-		te.onResult().accept(HttpResponse.ok("{}"));
+		te.onResult().apply(HttpResponse.ok("{}"));
 
 		// check trigger
-		Assert.assertNull(dataProvider.sessionId);
+		Assertions.assertNull(dataProvider.sessionId);
 	}
 
 	@Test
@@ -401,17 +400,17 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
+		TimeEndpoint<HttpResponse<String>> te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(te);
+		Assertions.assertNotNull(te);
 
 		// test trigger
 		te.onError().accept(new HttpError.ResponseError(HttpStatus.UNAUTHORIZED, "{}"));
 
 		// check trigger
-		Assert.assertNull(dataProvider.sessionId);
+		Assertions.assertNull(dataProvider.sessionId);
 	}
 
 	@Test
@@ -422,16 +421,16 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
+		TimeEndpoint<HttpResponse<String>> te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(te);
+		Assertions.assertNotNull(te);
 
 		// test trigger
-		te.onResult().accept(new HttpResponse<String>(HttpStatus.CONFLICT, Map.of(), "{}"));
+		te.onResult().apply(new HttpResponse<String>(HttpStatus.CONFLICT, Map.of(), "{}"));
 
 		// check trigger
-		Assert.assertNull(dataProvider.sessionId);
+		Assertions.assertNull(dataProvider.sessionId);
 	}
 }

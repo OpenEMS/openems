@@ -1,11 +1,11 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
@@ -16,7 +16,7 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 	private PlcNextGdsDataToChannelMapperImpl dataMapper;
 	private String instanceName;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() {
 		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
 		instanceName = "MeasurementDevice.";
@@ -51,12 +51,12 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 
 		JsonObject responseBody = new JsonObject();
 		responseBody.addProperty("path", instanceName + "energyMeasurement");
-		responseBody.addProperty("value", (String)null);
+		responseBody.addProperty("value", (String) null);
 		responseBody.add("error", errorObject);
 
 		// test
-		 PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
-                 PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
+		PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
+				PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
 
 		// check
 		assertNull(result);

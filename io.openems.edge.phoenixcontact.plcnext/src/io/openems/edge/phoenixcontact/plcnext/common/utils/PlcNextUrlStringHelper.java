@@ -11,9 +11,9 @@ public final class PlcNextUrlStringHelper {
 	/**
 	 * Joins the given path with given base URL considering slashes where required
 	 * 
-	 * @param baseUrl	the base URL to join
-	 * @param path		the path to join
-	 * @return	joined base URL and path
+	 * @param baseUrl the base URL to join
+	 * @param path    the path to join
+	 * @return joined base URL and path
 	 */
 	public static String buildUrlString(String baseUrl, String path) {
 		StringBuilder urlStringBuilder = new StringBuilder(baseUrl);

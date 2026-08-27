@@ -50,7 +50,7 @@ public interface PlcNextGdsDataProvider {
 	/**
 	 * Deactivates session maintenance mechanism
 	 * 
-	 * @param config	config to be used to fetch the data
+	 * @param config config to be used to fetch the data
 	 */
 	void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config);
 

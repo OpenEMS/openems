@@ -1,5 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
+import static org.osgi.service.component.annotations.ReferenceScope.PROTOTYPE_REQUIRED;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -10,7 +12,6 @@ import java.util.concurrent.CompletionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +27,14 @@ import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelpe
 @Component(scope = ServiceScope.PROTOTYPE)
 public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 
-	private static final Logger log = LoggerFactory.getLogger(PlcNextTokenManagerImpl.class);
-
+	private final Logger log = LoggerFactory.getLogger(PlcNextTokenManagerImpl.class);
 	private final BridgeHttp http;
 
 	private String token;
 	private ZonedDateTime tokenExpiery;
 
 	@Activate
-	public PlcNextTokenManagerImpl(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http) {
+	public PlcNextTokenManagerImpl(@Reference(scope = PROTOTYPE_REQUIRED) BridgeHttp http) {
 		this.http = http;
 	}
 
@@ -45,39 +45,42 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 
 	@Override
 	public synchronized CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig) {
-		if (!hasValidToken()) {
+		if (!this.hasValidToken()) {
 			log.info("Start fetching authentication");
-			CompletableFuture<PlcNextAuthAndAccessTokenDTO> authTokenFuture = fetchAuthToken(authClientConfig);
+			final var authTokenFuture = this.fetchAuthToken(authClientConfig);
 			if (Objects.isNull(authTokenFuture) || authTokenFuture.isCompletedExceptionally()) {
 				log.error("Fetching auth token failed! Cannot continue fetching the access token!");
-				resetTokenAndExpiery();
+				this.resetTokenAndExpiery();
 				return CompletableFuture.failedFuture(new NullPointerException());
 			}
+			final var accessTokenFuture = authTokenFuture //
+					.thenCompose(code -> this.fetchAccessToken(code, authClientConfig));
 
-			CompletableFuture<PlcNextAuthAndAccessTokenDTO> accessTokenFuture = authTokenFuture
-					.thenCompose(code -> fetchAccessToken(code, authClientConfig));
 			if (Objects.isNull(accessTokenFuture) || accessTokenFuture.isCompletedExceptionally()) {
 				log.error("Fetching access token failed! Cannot continue processing response.");
-				resetTokenAndExpiery();
+				this.resetTokenAndExpiery();
 				return CompletableFuture.failedFuture(new NullPointerException());
 			}
 
 			return accessTokenFuture.thenApply(combinedToken -> {
 				if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
 					log.debug("Fetching access token has been successful.");
-					token = combinedToken.getAccessToken();
-					tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+					this.token = combinedToken.getAccessToken();
+					this.tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
 							.plusSeconds(combinedToken.getExpiresIn());
+
 				} else if (Objects.isNull(combinedToken)) {
 					log.error("No token information returned!");
-					resetTokenAndExpiery();
+					this.resetTokenAndExpiery();
+
 				} else {
 					log.error("No access token or expiery information returned!");
-					resetTokenAndExpiery();
+					this.resetTokenAndExpiery();
 				}
 				log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
 				return null;
 			});
+
 		} else {
 			log.info("Token still valid, skipping token refresh.");
 			return CompletableFuture.completedFuture(null);
@@ -85,19 +88,20 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	}
 
 	private void resetTokenAndExpiery() {
-		log.info("Resetting token and token expiery");
-		token = null;
-		tokenExpiery = null;
+		this.log.info("Resetting token and token expiery");
+		this.token = null;
+		this.tokenExpiery = null;
 	}
 
 	@Override
 	public synchronized boolean hasValidToken() {
-		return Objects.nonNull(this.token) && //
-				Objects.nonNull(tokenExpiery) && !tokenExpiery.isBefore(ZonedDateTime.now());
+		return Objects.nonNull(this.token) //
+				&& Objects.nonNull(this.tokenExpiery) //
+				&& !this.tokenExpiery.isBefore(ZonedDateTime.now());
 	}
 
 	/**
-	 * Creates endpoint configuration to fetch an auth token from REST-API
+	 * Creates endpoint configuration to fetch an auth token from REST-API.
 	 * 
 	 * @param config represents the authentication configuration
 	 * @return configured endpoint to be called
@@ -113,17 +117,17 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	}
 
 	/**
-	 * Fetches new valid auth token for REST-API, required to fetch an access token
+	 * Fetches new valid auth token for REST-API, required to fetch an access token.
 	 * 
 	 * @param config represents the authentication configuration
 	 * @return @link{CompletableFuture} covering the auth token and timeout
 	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDTO> fetchAuthToken(PlcNextAuthConfig config) {
-		Endpoint authTokenEndpoint = buildAuthTokenEndpointRepresentation(config);
-		log.info("Fetching bearer token from endpoint URL: '{}'", authTokenEndpoint.url());
+		Endpoint authTokenEndpoint = this.buildAuthTokenEndpointRepresentation(config);
+		this.log.info("Fetching bearer token from endpoint URL: '{}'", authTokenEndpoint.url());
 
 		try {
-			return http.requestJson(authTokenEndpoint) //
+			return this.http.requestJson(authTokenEndpoint) //
 					.thenApply(authTokenResponse -> {
 
 						if (HttpStatus.OK == authTokenResponse.status()) {
@@ -152,14 +156,11 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	 * @param config represents the authentication configuration
 	 * @return configured endpoint to be called
 	 */
-	Endpoint buildAccessTokenEndpointRepresentation(
-			PlcNextAuthAndAccessTokenDTO authAndAccessToken,
+	Endpoint buildAccessTokenEndpointRepresentation(PlcNextAuthAndAccessTokenDTO authAndAccessToken,
 			PlcNextAuthConfig config) {
 		String requestBody = new StringBuilder("{ \"code\": \"").append(authAndAccessToken.getCode()).append("\", ")
-				.append("\"grant_type\": \"authorization_code\", ")
-				.append("\"username\": \"").append(config.username()).append("\", ")
-				.append("\"password\": \"").append(config.password()).append("\" }")
-				.toString();
+				.append("\"grant_type\": \"authorization_code\", ").append("\"username\": \"").append(config.username())
+				.append("\", ").append("\"password\": \"").append(config.password()).append("\" }").toString();
 		Map<String, String> headers = Map.of(//
 				"Content-Type", "application/json");
 		String accessTokenUrlString = PlcNextUrlStringHelper.buildUrlString(config.authUrl(), PATH_ACCESS_TOKEN);

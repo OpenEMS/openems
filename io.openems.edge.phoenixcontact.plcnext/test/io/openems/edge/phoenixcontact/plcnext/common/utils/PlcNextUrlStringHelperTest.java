@@ -1,7 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.common.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PlcNextUrlStringHelperTest {
 
@@ -14,7 +14,7 @@ public class PlcNextUrlStringHelperTest {
 
 		String result = PlcNextUrlStringHelper.buildUrlString(baseUrl, resourcePath);
 
-		Assert.assertEquals(EXPECTED_RESULT, result);
+		Assertions.assertEquals(EXPECTED_RESULT, result);
 	}
 
 	@Test
@@ -24,7 +24,7 @@ public class PlcNextUrlStringHelperTest {
 
 		String result = PlcNextUrlStringHelper.buildUrlString(baseUrl, resourcePath);
 
-		Assert.assertEquals(EXPECTED_RESULT, result);
+		Assertions.assertEquals(EXPECTED_RESULT, result);
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class PlcNextUrlStringHelperTest {
 
 		String result = PlcNextUrlStringHelper.buildUrlString(baseUrl, resourcePath);
 
-		Assert.assertEquals(EXPECTED_RESULT, result);
+		Assertions.assertEquals(EXPECTED_RESULT, result);
 	}
 
 	@Test
@@ -44,6 +44,6 @@ public class PlcNextUrlStringHelperTest {
 
 		String result = PlcNextUrlStringHelper.buildUrlString(baseUrl, resourcePath);
 
-		Assert.assertEquals(EXPECTED_RESULT, result);
+		Assertions.assertEquals(EXPECTED_RESULT, result);
 	}
 }

@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 
 /**
- * Data mapper used to write data to controller 
+ * Data mapper used to write data to controller
  */
 public interface PlcNextChannelToGdsDataMapper {
 
@@ -21,7 +21,7 @@ public interface PlcNextChannelToGdsDataMapper {
 	 * 
 	 * @param channelValue      represents the channel and value to be mapped
 	 * @param dataInstanceName  the configured instance name
-	 * @param stationId			identifier of the component instance
+	 * @param stationId         identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return mapped value
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
@@ -29,15 +29,14 @@ public interface PlcNextChannelToGdsDataMapper {
 	 */
 	JsonElement mapSingleValueToGdsData(PlcNextGdsDataMappedValue channelValue, //
 			String dataInstanceName, String stationId, //
-			PlcNextGdsDataMappingDefinition[] mappingDefinition)
-					throws PlcNextGdsDataMappingException;
+			PlcNextGdsDataMappingDefinition[] mappingDefinition) throws PlcNextGdsDataMappingException;
 
 	/**
 	 * Extracts all incoming variables in JSON format.
 	 * 
 	 * @param channelValues     represents a list of channel and values to be mapped
 	 * @param dataInstanceName  the configured instance name
-	 * @param stationId			identifier of the component instance
+	 * @param stationId         identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return list of mapped values
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
@@ -45,7 +44,6 @@ public interface PlcNextChannelToGdsDataMapper {
 	 */
 	List<JsonElement> mapAllValuesToGdsData(List<PlcNextGdsDataMappedValue> channelValues, //
 			String dataInstanceName, String stationId, //
-			PlcNextGdsDataMappingDefinition[] mappingDefinition)
-					throws PlcNextGdsDataMappingException;
+			PlcNextGdsDataMappingDefinition[] mappingDefinition) throws PlcNextGdsDataMappingException;
 
 }

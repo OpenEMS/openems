@@ -19,7 +19,7 @@ public class TestConfig extends AbstractComponentConfig
 			this.id = id;
 			return this;
 		}
-		
+
 		public TestConfig build() {
 			return new TestConfig(this);
 		}
@@ -48,7 +48,9 @@ public class TestConfig extends AbstractComponentConfig
 	}
 
 	@Override
-	public String pathAuthApi() { return "/v1.3/auth"; }
+	public String pathAuthApi() {
+		return "/v1.3/auth";
+	}
 
 	@Override
 	public String username() {

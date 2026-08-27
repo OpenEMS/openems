@@ -6,8 +6,7 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingD
 
 public enum PlcNextEssGdsDataWriteMappingDefinition implements PlcNextGdsDataMappingDefinition {
 	SET_ACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, "SetActivePowerEquals"),
-	SET_REACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS,
-			"SetReactivePowerEquals"),
+	SET_REACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS, "SetReactivePowerEquals"),
 	SET_ACTIVE_POWER_LESS_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS,
 			"SetActivePowerLessOrEquals"),
 	SET_ACTIVE_POWER_GREATER_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS,
