@@ -15,7 +15,7 @@ pickup/send the data from/to "PLCnext GDS" (= Global-Data-Space).
 
 == More documentation
 
-A more fine grained documentation to this module can be found in subfolder file://./doc/readme.adoc['doc'] of this module.
+A more fine grained documentation to this module can be found in subfolder link:doc/readme.adoc['doc'] of this module.
 
 == Source code
 
