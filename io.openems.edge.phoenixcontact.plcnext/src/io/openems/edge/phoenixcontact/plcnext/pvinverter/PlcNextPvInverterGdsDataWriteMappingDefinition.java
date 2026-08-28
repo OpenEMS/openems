@@ -5,23 +5,23 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingD
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public enum PlcNextPvInverterGdsDataWriteMappingDefinition implements PlcNextGdsDataMappingDefinition {
-	SET_ACTIVE_POWER(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, "SetActivePower");
+    SET_ACTIVE_POWER(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, "SetActivePower");
 
-	private final ChannelId channelId;
-	private final String identifier;
+    private final ChannelId channelId;
+    private final String identifier;
 
-	private PlcNextPvInverterGdsDataWriteMappingDefinition(ChannelId channelId, String identifier) {
-		this.channelId = channelId;
-		this.identifier = identifier;
-	}
+    private PlcNextPvInverterGdsDataWriteMappingDefinition(ChannelId channelId, String identifier) {
+        this.channelId = channelId;
+        this.identifier = identifier;
+    }
 
-	@Override
-	public ChannelId getChannelId() {
-		return this.channelId;
-	}
+    @Override
+    public ChannelId getChannelId() {
+        return this.channelId;
+    }
 
-	@Override
-	public String getIdentifier() {
-		return this.identifier;
-	}
+    @Override
+    public String getIdentifier() {
+        return this.identifier;
+    }
 }

@@ -1,25 +1,23 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
+import com.google.gson.JsonObject;
+import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.google.gson.JsonObject;
-
-import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 
 public class PlcNextGdsDataToChannelMapperImplTest {
 
 	private PlcNextGdsDataToChannelMapperImpl dataMapper;
 	private String instanceName;
 
-	@BeforeEach
+	@Before
 	public void setupBefore() {
-		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
-		instanceName = "MeasurementDevice.";
+		this.dataMapper = new PlcNextGdsDataToChannelMapperImpl();
+		this.instanceName = "MeasurementDevice.";
 	}
 
 	@Test
@@ -27,9 +25,10 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		String expectedVariableName = "activePower";
 
 		JsonObject primitiveVariable = new JsonObject();
-		primitiveVariable.addProperty("path", instanceName + expectedVariableName);
+		primitiveVariable.addProperty("path", this.instanceName + expectedVariableName);
 
-		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
+		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName)
+                .orElse(null);
 		assertNotNull(variableName);
 		assertEquals(expectedVariableName, variableName);
 	}
@@ -38,7 +37,8 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 	public void testVariableNameExtraction_FailureDueToMissingPathElement() {
 		JsonObject primitiveVariable = new JsonObject();
 
-		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
+		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName)
+                .orElse(null);
 		assertNull(variableName);
 	}
 
@@ -50,12 +50,12 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		errorObject.addProperty("reason", "NotExists");
 
 		JsonObject responseBody = new JsonObject();
-		responseBody.addProperty("path", instanceName + "energyMeasurement");
+		responseBody.addProperty("path", this.instanceName + "energyMeasurement");
 		responseBody.addProperty("value", (String) null);
 		responseBody.add("error", errorObject);
 
-		// test
-		PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
+        // test
+        PlcNextGdsDataMappedValue result = this.dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
 				PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
 
 		// check

@@ -1,18 +1,17 @@
 package io.openems.edge.phoenixcontact.plcnext.common.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDynamicDefinition;
 import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataReadMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PlcNextMappingDefinitionHelperTest {
 

@@ -1,22 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.when;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -36,6 +21,18 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProviderImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PlcNextMeterImplTest {
 
@@ -64,7 +61,7 @@ public class PlcNextMeterImplTest {
 
 	private String accessToken;
 
-	@BeforeEach
+	@Before
 	public void setupBefore() throws Exception {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
@@ -81,47 +78,47 @@ public class PlcNextMeterImplTest {
 							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
 					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
-							"{'access_token': '" + accessToken + "'}"));
+							"{'access_token': '" + PlcNextMeterImplTest.this.accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
 				}
 			}
 		};
 
-		this.mockDummyDataBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
-		when(mockDummyDataBridgeHttp.createService(any()))
-				.thenReturn(new HttpBridgeTimeServiceImpl(mockDummyDataBridgeHttp, //
-						new DummyBridgeHttpExecutor()));
-		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
+		this.mockDummyDataBridgeHttp = mock(DummyBridgeHttp.class);
+		when(this.mockDummyDataBridgeHttp.createService(any())).thenReturn(
+                new HttpBridgeTimeServiceImpl(this.mockDummyDataBridgeHttp, new DummyBridgeHttpExecutor()));
+		this.tokenManager = new PlcNextTokenManagerImpl(this.dummyAuthBridgeHttp);
 
 		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
-		this.dataProvider = new PlcNextGdsDataProviderImpl(mockDummyDataBridgeHttp, this.tokenManager);
+		this.dataProvider = new PlcNextGdsDataProviderImpl(this.mockDummyDataBridgeHttp, this.tokenManager);
 
-		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(myConfig.baseUrl(), myConfig.dataInstanceName(),
-				COMPONENT_ID);
+		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(
+                this.myConfig.baseUrl(), this.myConfig.dataInstanceName(), COMPONENT_ID);
 
-		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(
+                this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_SESSIONS);
-		JsonObject createSessionResponseBody = new JsonObject();
+		var createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().startsWith(createSessionEndpointUrl)))) //
-				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().startsWith(createSessionEndpointUrl))))
+			    .thenReturn(CompletableFuture.supplyAsync(
+					() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-		String maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
-				.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
+		var maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
+				.buildUrlString(this.dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
 				.append("/").append(SESSION_ID).toString();
-		JsonObject maintainSessionResponseBody = new JsonObject();
+		var maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", SESSION_ID);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().startsWith(maintainSessionEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().startsWith(maintainSessionEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
-		this.test = new ComponentTest(componentUnderTest) //
+		this.test = new ComponentTest(this.componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
 				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper); //
 
@@ -130,65 +127,67 @@ public class PlcNextMeterImplTest {
 	@Test
 	public void testRunModuleSuccessfully() throws Exception {
 		// prep
-		int expectedPhases2Neutral1Value = 110000;
-		int expectedPhases2Neutral2Value = 220000;
-		int expectedPhases2Neutral3Value = 330000;
-		int expectedPhasesNeutralValue = 550000;
-		int expectedEnergyImportValue = 440000;
+		var variables = new JsonArray();
 
-		JsonObject responseBody = new JsonObject();
-		JsonArray variables = new JsonArray();
-
-		JsonObject varPhaseVoltageL1N = new JsonObject();
-		varPhaseVoltageL1N.addProperty("path", myConfig.dataInstanceName() + "voltageL1N");
+		var expectedPhases2Neutral1Value = 110000;
+		var varPhaseVoltageL1N = new JsonObject();
+		varPhaseVoltageL1N.addProperty("path",
+                this.myConfig.dataInstanceName() + "voltageL1N");
 		varPhaseVoltageL1N.addProperty("value", expectedPhases2Neutral1Value);
 		variables.add(varPhaseVoltageL1N);
 
-		JsonObject varPhaseVoltageL2N = new JsonObject();
-		varPhaseVoltageL2N.addProperty("path", myConfig.dataInstanceName() + "voltageL2N");
+        var expectedPhases2Neutral2Value = 220000;
+        var varPhaseVoltageL2N = new JsonObject();
+		varPhaseVoltageL2N.addProperty("path",
+                this.myConfig.dataInstanceName() + "voltageL2N");
 		varPhaseVoltageL2N.addProperty("value", expectedPhases2Neutral2Value);
 		variables.add(varPhaseVoltageL2N);
 
-		JsonObject varPhaseVoltageL3N = new JsonObject();
-		varPhaseVoltageL3N.addProperty("path", myConfig.dataInstanceName() + "voltageL3N");
+        var expectedPhases2Neutral3Value = 330000;
+		var varPhaseVoltageL3N = new JsonObject();
+		varPhaseVoltageL3N.addProperty("path",
+                this.myConfig.dataInstanceName() + "voltageL3N");
 		varPhaseVoltageL3N.addProperty("value", expectedPhases2Neutral3Value);
 		variables.add(varPhaseVoltageL3N);
 
-		JsonObject varNeutralCurrent = new JsonObject();
-		varNeutralCurrent.addProperty("path", myConfig.dataInstanceName() + "currentNeutral");
+        var expectedPhasesNeutralValue = 550000;
+		var varNeutralCurrent = new JsonObject();
+		varNeutralCurrent.addProperty("path", this.myConfig.dataInstanceName() + "currentNeutral");
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
-		JsonObject varEnergyImport = new JsonObject();
-		varEnergyImport.addProperty("path", myConfig.dataInstanceName() + "EnergyImport");
+        var expectedEnergyImportValue = 440000;
+		var varEnergyImport = new JsonObject();
+		varEnergyImport.addProperty("path", this.myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
 		variables.add(varEnergyImport);
 
-		responseBody.add("variables", variables);
+        var responseBody = new JsonObject();
+        responseBody.add("variables", variables);
 
-		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_VARIABLES);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().equals(dataEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
 
 		// test + check
-		this.test.activate(myConfig); //
+		this.test.activate(this.myConfig); //
 
 		this.test.next(new TestCase("Trigger value consumption and do one wait cycle")) //
 				.next(new TestCase("Check requested data dropped in asynchronously")
-						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L1, expectedPhases2Neutral1Value)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L2, expectedPhases2Neutral2Value)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L3, expectedPhases2Neutral3Value)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue))); //
 
-		test.deactivate();
+		this.test.deactivate();
 	}
 }

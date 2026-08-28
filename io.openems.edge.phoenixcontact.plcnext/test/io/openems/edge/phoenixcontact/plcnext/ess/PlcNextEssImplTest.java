@@ -1,22 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.ess;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.when;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -45,6 +30,18 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsD
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PlcNextEssImplTest {
 
@@ -82,7 +79,7 @@ public class PlcNextEssImplTest {
 
 	private String accessToken;
 
-	@BeforeEach
+	@Before
 	public void setupBefore() throws Exception {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
@@ -91,140 +88,140 @@ public class PlcNextEssImplTest {
 
 		this.accessToken = "dummy_access";
 
-		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
+		this.dummyAuthBridgeHttp = new PlcNextDummyBridgeHttp(this.accessToken) {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
 							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
-							"{'access_token': '" + accessToken + "'}"));
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
+							"{'access_token': '" + this.accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
 				}
 			}
 		};
 
-		this.mockDummyDataBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
-		when(mockDummyDataBridgeHttp.createService(any()))
-				.thenReturn(new HttpBridgeTimeServiceImpl(mockDummyDataBridgeHttp, //
-						new DummyBridgeHttpExecutor()));
+		this.mockDummyDataBridgeHttp = mock(DummyBridgeHttp.class);
+		when(this.mockDummyDataBridgeHttp.createService(any())).thenReturn(
+                new HttpBridgeTimeServiceImpl(this.mockDummyDataBridgeHttp, new DummyBridgeHttpExecutor()));
 
-		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
-		this.dataProvider = new PlcNextGdsDataProviderImpl(mockDummyDataBridgeHttp, this.tokenManager);
+		this.tokenManager = new PlcNextTokenManagerImpl(this.dummyAuthBridgeHttp);
+		this.dataProvider = new PlcNextGdsDataProviderImpl(this.mockDummyDataBridgeHttp, this.tokenManager);
 
 		this.channelToDataMapper = new PlcNextChannelToGdsDataMapperImpl();
 		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
 
-		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(myConfig.baseUrl(), myConfig.dataInstanceName(),
-				COMPONENT_ID);
+		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(
+                this.myConfig.baseUrl(), this.myConfig.dataInstanceName(), COMPONENT_ID);
 
-		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(
+                this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_SESSIONS);
-		JsonObject createSessionResponseBody = new JsonObject();
+		var createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().startsWith(createSessionEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().startsWith(createSessionEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-		String maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
-				.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
+		var maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
+				.buildUrlString(this.dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
 				.append("/").append(SESSION_ID).toString();
-		JsonObject maintainSessionResponseBody = new JsonObject();
+		var maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", SESSION_ID);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().startsWith(maintainSessionEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().startsWith(maintainSessionEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.dummyPower = new DummyPower();
 
-		this.test = new ComponentTest(componentUnderTest) //
+		this.test = new ComponentTest(this.componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
 				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper) //
 				.addReference("gdsChannelToGdsDataMapper", this.channelToDataMapper) //
-				.addReference("power", dummyPower);
+				.addReference("power", this.dummyPower);
 	}
 
 	@Test
 	public void testRunModuleSuccessfully() throws Exception {
 		// prep
-		int expectedSocValue = 110001;
-		int expectedCapacityValue = 210001;
-		int setActivePowerEqualsValue = 140002;
-		GridMode gridModeValue = GridMode.ON_GRID;
-		int expectedGridModeValue = gridModeValue.getValue();
 
-		//// Read
-		JsonObject readDataResponseBody = new JsonObject();
-		JsonArray variables = new JsonArray();
+		// -- Read
+		var variables = new JsonArray();
 
-		JsonObject varMaxPowerExport = new JsonObject();
-		varMaxPowerExport.addProperty("path", myConfig.dataInstanceName() + "Soc");
+        var expectedSocValue = 110001;
+		var varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path", this.myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
-		JsonObject varMaxPowerImport = new JsonObject();
-		varMaxPowerImport.addProperty("path", myConfig.dataInstanceName() + "Capacity");
+        var expectedCapacityValue = 210001;
+		var varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path", this.myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
-		JsonObject varSetReactivePower = new JsonObject();
-		varSetReactivePower.addProperty("path", myConfig.dataInstanceName() + "GridMode");
+        var gridModeValue = GridMode.ON_GRID;
+		var varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path", this.myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue.getName());
 		variables.add(varSetReactivePower);
 
+        var readDataResponseBody = new JsonObject();
 		readDataResponseBody.add("variables", variables);
 
-		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_VARIABLES);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
 
-		//// Write
-		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
+        // -- Write
+        var setActivePowerEqualsValue = 140002;
+		var requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				"/" + myConfig.dataInstanceName() + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				"/" + this.myConfig.dataInstanceName() + PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
 				setActivePowerEqualsValue);
 
-		JsonObject writeDataResponseBody = new JsonObject();
+		var writeDataResponseBody = new JsonObject();
 		writeDataResponseBody.addProperty("apiVersion", "n/a");
 		writeDataResponseBody.addProperty("projectCRC", "1234567890");
 		writeDataResponseBody.addProperty("userAuthenticationRequired", "true");
 
-		JsonArray writeVariables = new JsonArray();
+		var writeVariables = new JsonArray();
 		writeVariables.add(requestBodyVarSetActivePowerEquals);
 
 		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
 
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.PUT && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.PUT
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
 
-		// test + check
-		this.test.activate(myConfig); //
+        // test + check
+        var expectedGridModeValue = gridModeValue.getValue();
+
+		this.test.activate(this.myConfig);
 
 		this.test.next(new TestCase("Trigger value consumption and check write value") //
 				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(componentUnderTest,
+				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 						ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
 				.next(new TestCase("Check requested data dropped in asynchronously")
 						.onAfterProcessImage(
-								assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
+								assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
 								expectedCapacityValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 								expectedGridModeValue))); //
 
 		this.test.deactivate();
@@ -233,78 +230,78 @@ public class PlcNextEssImplTest {
 	@Test
 	public void testRunModuleGridModeWrongEnum() throws Exception {
 		// prep
-		int expectedSocValue = 110001;
-		int expectedCapacityValue = 210001;
-		int setActivePowerEqualsValue = 140002;
-		String gridModeValue = "Off@Grid";
-		int expectedGridModeValue = GridMode.UNDEFINED.getValue();
 
-		//// Read
-		JsonObject readDataResponseBody = new JsonObject();
-		JsonArray variables = new JsonArray();
+		// -- Read
+		var variables = new JsonArray();
 
-		JsonObject varMaxPowerExport = new JsonObject();
-		varMaxPowerExport.addProperty("path", myConfig.dataInstanceName() + "Soc");
+        var expectedSocValue = 110001;
+		var varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path", this.myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
-		JsonObject varMaxPowerImport = new JsonObject();
-		varMaxPowerImport.addProperty("path", myConfig.dataInstanceName() + "Capacity");
+        var expectedCapacityValue = 210001;
+		var varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path", this.myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
-		JsonObject varSetReactivePower = new JsonObject();
-		varSetReactivePower.addProperty("path", myConfig.dataInstanceName() + "GridMode");
+        var gridModeValue = "Off@Grid";
+		var varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path", this.myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue);
 		variables.add(varSetReactivePower);
 
+        var readDataResponseBody = new JsonObject();
 		readDataResponseBody.add("variables", variables);
 
-		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_VARIABLES);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
 
-		//// Write
-		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
+        // -- Write
+        var setActivePowerEqualsValue = 140002;
+		var requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				myConfig.dataInstanceName() + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				this.myConfig.dataInstanceName() + PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
 				setActivePowerEqualsValue);
 
-		JsonObject writeDataResponseBody = new JsonObject();
+		var writeDataResponseBody = new JsonObject();
 		writeDataResponseBody.addProperty("apiVersion", "n/a");
 		writeDataResponseBody.addProperty("projectCRC", "1234567890");
 		writeDataResponseBody.addProperty("userAuthenticationRequired", "true");
 
-		JsonArray writeVariables = new JsonArray();
+		var writeVariables = new JsonArray();
 		writeVariables.add(requestBodyVarSetActivePowerEquals);
 
 		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
 
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.PUT && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.PUT
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
 
-		// test + check
-		this.test.activate(myConfig); //
+        // test + check
+        var expectedGridModeValue = GridMode.UNDEFINED.getValue();
+
+        this.test.activate(this.myConfig); //
 
 		this.test.next(new TestCase("Trigger value consumption and check write value") //
 				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(componentUnderTest,
+				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 						ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
 				.next(new TestCase("Check requested data dropped in asynchronously")
 						.onAfterProcessImage(
-								assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
+								assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
 								expectedCapacityValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 								expectedGridModeValue))); //
 
 		this.test.deactivate();
@@ -313,78 +310,78 @@ public class PlcNextEssImplTest {
 	@Test
 	public void testRunModuleGridModeWrongInt() throws Exception {
 		// prep
-		int expectedSocValue = 110001;
-		int expectedCapacityValue = 210001;
-		int setActivePowerEqualsValue = 140002;
-		int gridModeValue = 345678;
-		int expectedGridModeValue = GridMode.UNDEFINED.getValue();
 
-		//// Read
-		JsonObject readDataResponseBody = new JsonObject();
-		JsonArray variables = new JsonArray();
+		// -- Read
+		var variables = new JsonArray();
 
-		JsonObject varMaxPowerExport = new JsonObject();
-		varMaxPowerExport.addProperty("path", myConfig.dataInstanceName() + "Soc");
+        var expectedSocValue = 110001;
+		var varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path", this.myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
-		JsonObject varMaxPowerImport = new JsonObject();
-		varMaxPowerImport.addProperty("path", myConfig.dataInstanceName() + "Capacity");
+        var expectedCapacityValue = 210001;
+		var varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path", this.myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
-		JsonObject varSetReactivePower = new JsonObject();
-		varSetReactivePower.addProperty("path", myConfig.dataInstanceName() + "GridMode");
+        var gridModeValue = 345678;
+		var varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path", this.myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue);
 		variables.add(varSetReactivePower);
 
+        var readDataResponseBody = new JsonObject();
 		readDataResponseBody.add("variables", variables);
 
-		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+		var dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_VARIABLES);
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.POST && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.POST
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
 
-		//// Write
-		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
+        // -- Write
+        var setActivePowerEqualsValue = 140002;
+		var requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				"/" + myConfig.dataInstanceName() + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				"/" + this.myConfig.dataInstanceName() + PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
 				setActivePowerEqualsValue);
 
-		JsonObject writeDataResponseBody = new JsonObject();
+		var writeDataResponseBody = new JsonObject();
 		writeDataResponseBody.addProperty("apiVersion", "n/a");
 		writeDataResponseBody.addProperty("projectCRC", "1234567890");
 		writeDataResponseBody.addProperty("userAuthenticationRequired", "true");
 
-		JsonArray writeVariables = new JsonArray();
+		var writeVariables = new JsonArray();
 		writeVariables.add(requestBodyVarSetActivePowerEquals);
 
 		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
 
-		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-				arg.method() == HttpMethod.PUT && //
-				arg.url().equals(dataEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
+                && arg.method() == HttpMethod.PUT
+                && arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
 
-		// test + check
-		this.test.activate(myConfig); //
+        // test + check
+        var expectedGridModeValue = GridMode.UNDEFINED.getValue();
+
+		this.test.activate(this.myConfig); //
 
 		this.test.next(new TestCase("Trigger value consumption and check write value") //
 				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(componentUnderTest,
+				.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 						ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
 				.next(new TestCase("Check requested data dropped in asynchronously")
 						.onAfterProcessImage(
-								assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
+								assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.CAPACITY,
 								expectedCapacityValue)) //
-						.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+						.onAfterProcessImage(assertChannelValue(this.componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 								expectedGridModeValue))); //
 
 		this.test.deactivate();
