@@ -1,6 +1,9 @@
 package io.openems.edge.edge2edge.websocket.genericreadcomponent;
 
 import static java.util.stream.Collectors.toSet;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -8,9 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +61,7 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param bridge the bridge to bind
 	 */
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.OPTIONAL, //
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL, //
 			target = "(&(id=${config.bridge_id})(enabled=true))")
 	public void bindBridge(Edge2EdgeWebsocketBridge bridge) {
 		this.bridgeStateHandler.bindBridge(bridge);
