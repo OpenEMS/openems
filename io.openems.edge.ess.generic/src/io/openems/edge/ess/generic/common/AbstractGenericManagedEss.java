@@ -10,7 +10,6 @@ import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -70,20 +69,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		throw new IllegalArgumentException("Use the other activate() method!");
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, ConfigurationAdmin cm,
-			String batteryInverterId, String batteryId, StartStopConfig startStop) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
+			StartStopConfig startStop) {
 		super.activate(context, id, alias, enabled);
 		this.startStopConfig = startStop;
-
-		// update filter for 'BatteryInverter'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "batteryInverter", batteryInverterId)) {
-			return;
-		}
-
-		// update filter for 'Battery'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "battery", batteryId)) {
-			return;
-		}
 
 		this.getChannelManager().activate(this.getComponentManager(), this.getBattery(), this.getBatteryInverter());
 	}
