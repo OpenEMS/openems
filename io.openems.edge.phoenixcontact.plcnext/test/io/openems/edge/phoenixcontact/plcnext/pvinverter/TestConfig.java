@@ -44,8 +44,8 @@ class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoe
 
 	@Override
 	public String pathAuthApi() {
-		return "/v1.3/auth";
-	}
+        return "/v1.3/auth";
+    }
 
 	@Override
 	public String username() {

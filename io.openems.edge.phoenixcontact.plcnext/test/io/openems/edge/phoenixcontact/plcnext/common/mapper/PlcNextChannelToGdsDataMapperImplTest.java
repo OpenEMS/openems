@@ -1,29 +1,28 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
+import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
-import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PlcNextChannelToGdsDataMapperImplTest {
 
 	private PlcNextChannelToGdsDataMapperImpl dataMapper;
 
-	@BeforeEach
+	@Before
 	public void setupBefore() {
-		dataMapper = new PlcNextChannelToGdsDataMapperImpl();
+		this.dataMapper = new PlcNextChannelToGdsDataMapperImpl();
 	}
 
 	@Test
 	public void testFindChannelMapping() {
 		// test
-		Optional<PlcNextGdsDataMappingDefinition> result = dataMapper.getMappingByChannelId(
+		Optional<PlcNextGdsDataMappingDefinition> result = this.dataMapper.getMappingByChannelId(
 				PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getChannelId(),
 				PlcNextEssGdsDataWriteMappingDefinition.values());
 

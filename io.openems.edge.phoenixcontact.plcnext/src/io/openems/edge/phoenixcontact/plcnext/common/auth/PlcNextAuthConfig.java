@@ -7,12 +7,12 @@ import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelpe
  */
 public record PlcNextAuthConfig(String baseUrl, String pathAuthApi, String username, String password) {
 
-	/**
-	 * Assembles URL of authentication endpoint.
-	 * 
-	 * @return URL of authentication endpoint
-	 */
-	public String authUrl() {
-		return PlcNextUrlStringHelper.buildUrlString(this.baseUrl, this.pathAuthApi);
-	}
+    /**
+     * Assembles URL of authentication endpoint.
+     *
+     * @return URL of authentication endpoint
+     */
+    public String authUrl() {
+        return PlcNextUrlStringHelper.buildUrlString(this.baseUrl, this.pathAuthApi);
+    }
 }

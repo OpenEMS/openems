@@ -13,6 +13,10 @@ To use the drivers stated above, pls. use basic PLCnext C++ types described in a
 link:doc/readme.adoc[more detailed README linked here.] These types are required to
 pickup/send the data from/to "PLCnext GDS" (= Global-Data-Space).
 
+== More documentation
+
+A more fine grained documentation to this module can be found in subfolder file://./doc/readme.adoc['doc'] of this module.
+
 == Source code
 
 The source code of this module can be found here:

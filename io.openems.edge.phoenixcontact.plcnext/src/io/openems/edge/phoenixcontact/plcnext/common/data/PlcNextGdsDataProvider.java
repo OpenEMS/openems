@@ -1,57 +1,56 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
-
 /**
- * Fetches the data from PLCnext API
+ * Fetches the data from PLCnext API.
  */
 public interface PlcNextGdsDataProvider {
 
-	String PATH_VARIABLES = "/variables";
-	String PATH_SESSIONS = "/sessions";
+    String PATH_VARIABLES = "/variables";
+    String PATH_SESSIONS = "/sessions";
 
-	String PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS = "50000";
+    String PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS = "50000";
 
-	String PLC_NEXT_SESSION_ID = "sessionID";
-	String PLC_NEXT_PATH_PREFIX = "pathPrefix";
-	String PLC_NEXT_VARIABLES = "variables";
+    String PLC_NEXT_SESSION_ID = "sessionID";
+    String PLC_NEXT_PATH_PREFIX = "pathPrefix";
+    String PLC_NEXT_VARIABLES = "variables";
 
-	/**
-	 * Fetch data for given variables from PLCnext REST-API and return as JSON
-	 * response object
-	 * 
-	 * @param variableIdentifiers list of variable identifiers to fetch
-	 * @param dataAccessConfig    config to be used to fetch the data
-	 * @param authConfig          config to be used for authentication
-	 * @return @link{JsonObject} containing raw response from REST-API
-	 */
-	CompletableFuture<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
-			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
+    /**
+     * Fetch data for given variables from PLCnext REST-API and return as JSON
+     * response object.
+     *
+     * @param variableIdentifiers list of variable identifiers to fetch
+     * @param dataAccessConfig    config to be used to fetch the data
+     * @param authConfig          config to be used for authentication
+     * @return @link{JsonObject} containing raw response from REST-API
+     */
+    CompletableFuture<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
+                                                      PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
 
-	/**
-	 * Writes data of given mapped variables to PLCnext REST-API and return as JSON
-	 * response object
-	 * 
-	 * @param mappedVariables  map containing key values of variables to write to
-	 *                         PLCnext REST-API
-	 * @param dataAccessConfig config to be used to fetch the data
-	 * @param authConfig       config to be used for authentication
-	 * @return @link{JsonObject} containing raw response from REST-API
-	 */
-	CompletableFuture<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
-			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
+    /**
+     * Writes data of given mapped variables to PLCnext REST-API and return as JSON
+     * response object.
+     *
+     * @param mappedVariables  map containing key values of variables to write to
+     *                         PLCnext REST-API
+     * @param dataAccessConfig config to be used to fetch the data
+     * @param authConfig       config to be used for authentication
+     * @return @link{JsonObject} containing raw response from REST-API
+     */
+    CompletableFuture<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
+                                                     PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
 
-	/**
-	 * Deactivates session maintenance mechanism
-	 * 
-	 * @param config config to be used to fetch the data
-	 */
-	void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config);
+    /**
+     * Deactivates session maintenance mechanism.
+     *
+     * @param config config to be used to fetch the data
+     */
+    void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config);
 
 }
