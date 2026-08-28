@@ -2,7 +2,7 @@ package io.openems.edge.edge2edge.meter;
 
 import static io.openems.common.types.MeterType.PRODUCTION;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -22,7 +22,8 @@ public class Edge2EdgeEssMeterImplTest {
 						.setRemoteComponentId("meter0") //
 						.setMeterType(PRODUCTION) //
 						.build())
-				.next(new TestCase());
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }
