@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -48,6 +49,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences({ //
+		"floorThermometer", //
+		"ambientThermometer", //
+		"floorRelayComponents", //
+		"infraredRelayComponents" //
+})
 public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implements ControllerIoRoomHeating,
 		Controller, ElectricityMeter, OpenemsComponent, ComponentJsonApi, TimedataProvider {
 
@@ -66,16 +73,20 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 	@Reference
 	private Timedata timedata;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.floorThermometer_id})(enabled=true))")
 	private Thermometer floorThermometer;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.ambientThermometer_id})(enabled=true))")
 	private Thermometer ambientThermometer;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.floorRelayComponent_ids})(enabled=true))")
 	private List<DigitalOutput> floorRelayComponents;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.infraredRelayComponent_ids})(enabled=true))")
 	private List<DigitalOutput> infraredRelayComponents;
 
 	private Config config = null;
@@ -352,7 +363,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 	}
 
 	/**
-	 * Applies the Configuration and updates reference target filters.
+	 * Applies the Configuration.
 	 * 
 	 * @param config the {@link Config}
 	 * @throws OpenemsNamedException on error
@@ -364,35 +375,20 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 		this.lastFloorRelayState = null;
 		this.lastInfraredRelayState = null;
 
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "floorThermometer",
-				this.config.floorThermometer_id());
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ambientThermometer",
-				this.config.ambientThermometer_id());
-
-		// Parse Channel-Addresses
-		{
-			this.floorRelays.clear();
-			for (String channel : config.floorRelays()) {
-				if (channel.isEmpty()) {
-					continue;
-				}
-				var address = ChannelAddress.fromString(channel);
-				this.floorRelays.add(address);
+		this.floorRelays.clear();
+		for (String channel : config.floorRelays()) {
+			if (channel.isEmpty()) {
+				continue;
 			}
-			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "floorRelayComponents",
-					this.floorRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
+			this.floorRelays.add(ChannelAddress.fromString(channel));
 		}
-		{
-			this.infraredRelays.clear();
-			for (String channel : config.infraredRelays()) {
-				if (channel.isEmpty()) {
-					continue;
-				}
-				var address = ChannelAddress.fromString(channel);
-				this.infraredRelays.add(address);
+
+		this.infraredRelays.clear();
+		for (String channel : config.infraredRelays()) {
+			if (channel.isEmpty()) {
+				continue;
 			}
-			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "infraredRelayComponents",
-					this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
+			this.infraredRelays.add(ChannelAddress.fromString(channel));
 		}
 
 		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule());
