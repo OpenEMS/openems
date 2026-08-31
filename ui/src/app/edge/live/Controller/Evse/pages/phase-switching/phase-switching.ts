@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -6,7 +6,6 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -30,7 +29,6 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
 
     private controller: EdgeConfig.Component | null = null;
     private phaseSwitchingChannel: ChannelAddress | null = null;
-    private routeService: RouteService = inject(RouteService);
     constructor(
         protected override service: Service,
         private route: ActivatedRoute,

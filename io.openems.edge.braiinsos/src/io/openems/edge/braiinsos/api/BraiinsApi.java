@@ -44,7 +44,7 @@ public class BraiinsApi {
 	private final String password;
 
 	private final Consumer<MinerStats> minerStatsCallback;
-	private TimeEndpoint pollingEndpoint;
+	private TimeEndpoint<HttpResponse<String>> pollingEndpoint;
 
 	public BraiinsApi(BridgeHttpFactory httpBridgeFactory, String ip, String username, String password,
 			Consumer<MinerStats> minerStatsCallback) {
@@ -68,7 +68,7 @@ public class BraiinsApi {
 		}
 
 		this.pollingEndpoint = this.timeService.subscribeTime(
-				new DefaultDelayTimeProvider(Delay::immediate, error -> POLLING_DELAY, response -> POLLING_DELAY),
+				new DefaultDelayTimeProvider<>(Delay::immediate, error -> POLLING_DELAY, response -> POLLING_DELAY),
 				this.createEndpoint(HttpMethod.GET, "/miner/stats", null), //
 				this::handleMinerStatsResponse, //
 				this::handleMinerStatsError);

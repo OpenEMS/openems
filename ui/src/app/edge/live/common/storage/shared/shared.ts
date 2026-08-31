@@ -8,6 +8,7 @@ import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
+import { Widgets } from "src/app/shared/type/widgets";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { SharedEssFixDigitalPowerControl } from "../../../Controller/Ess/FixActivePower/shared/shared";
@@ -142,6 +143,29 @@ export namespace SharedStorage {
         const prepareBatteryExtensionCtrl = config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         const hasAtLeastOneController = emergencyReserveCtrl.length > 0 || prepareBatteryExtensionCtrl.length > 0;
 
+        const systemComponents = config.getComponentsByFactories(
+            "System.Fenecon.Industrial.S",
+            "System.Fenecon.Industrial.M",
+            "System.Fenecon.Industrial.L",
+            "System.Fenecon.Industrial.L",
+            "System.Fenecon.Industrial.Xl",
+        );
+
+        const newConfig: EdgeConfig = new EdgeConfig(edge, {
+            factories: structuredClone(config.factories),
+            components: Object.entries(structuredClone(config.components)).reduce(
+                (acc: EdgeConfig["components"], [id, component]) => {
+                    if (systemComponents.some((c) => c.id === id)) {
+                        acc[id] = component;
+                    }
+                    return acc;
+                },
+                {},
+            ),
+        } as EdgeConfig);
+
+        const systemNavigationTrees = Widgets.getControllerNavigationTrees(edge, translate, newConfig);
+
         return new NavigationTree(
             "storage",
             { baseString: "common/storage" },
@@ -149,10 +173,14 @@ export namespace SharedStorage {
             translate.instant("GENERAL.STORAGE_SYSTEM"),
             "icon",
             [
+                ...(systemNavigationTrees != null && systemNavigationTrees.length > 0
+                    ? systemNavigationTrees.map((el) => new NavigationTree(...el))
+                    : []),
                 ...essController,
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
                 NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),
                 NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
+                NavigationConstants.CommonNodes.INFO(translate, { source: "storage" }),
             ],
             null,
             { isCommonWidget: true },

@@ -88,12 +88,16 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 		}
 	}
 
-	private static String readBody(HttpURLConnection con, HttpStatus status) throws HttpError.ResponseError {
-		try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-			return in.lines().collect(joining(System.lineSeparator()));
-		} catch (IOException e) {
-			throw new HttpError.ResponseError(status, null);
+	private static String readBody(HttpURLConnection con, HttpStatus status) throws IOException {
+		var stream = status.isError() ? con.getErrorStream() : con.getInputStream();
+
+		if (stream != null) {
+			try (var in = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+				return in.lines().collect(joining(System.lineSeparator()));
+			}
 		}
+
+		return null;
 	}
 
 }

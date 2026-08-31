@@ -465,7 +465,15 @@
                     "SWITCH_ON_REC": "Switch-on recommendation",
                     "SWITCH_ON_REC_SHORT": "Recommendation",
                     "UNDEFINED": "Undefined",
-                    "OPERATING_STATUS": "Operating status"
+                    "OPERATING_STATUS": "Operating status",
+                    "AUTOMATIC_DESCRIPTION": "Set your thresholds for the PV surplus mode",
+                    "BASE_MODE_DESCRIPTIONS": {
+                      "SWITCH_ON_COM": "The heat pump is switched on when the excess feed-in exceeds the entered value and the state of charge of the storage system is above the entered value.",
+                      "SWITCH_ON_REC": "When activated, the heat pump increases its output and utilizes available energy more intensively for heat generation.",
+                      "NORMAL_OPERATION": "The heat pump operates in a demand-driven manner within the regular power range.",
+                      "AUTOMATIC": "Depending on the set thresholds for grid purchase and feed-in, the individual modes are switched. (The thresholds can be changed under Settings)",
+                      "LOCK": "This operating state limits the power consumption of the heat pump according to the heat pump settings to 0 kW or 4.2 kW."
+                    }
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Active (Minimum runtime)",
@@ -523,7 +531,7 @@
                     "CURRENT_VALUE": "Current value",
                     "DEPENDEND_ON": "Dependend on",
                     "MIN_SWITCHING_TIME": "Minimum swichting time",
-                    "MORE_THAN_MAX_POWER": "Value must not be lower than the maximum power of the controlled device",
+                    "MORE_THAN_HP_POWER": "Value must not be lower than the maximum power of the controlled device",
                     "OTHER": "Other",
                     "RELATION_ERROR": "Threshold must be greater than the switched load power",
                     "SWITCH_OFF_ABOVE": "Switch off above",
@@ -650,6 +658,7 @@
         "AUTARCHY": "Autarchy",
         "AUTOMATIC": "Automatic",
         "BACK": "Back",
+        "BASE_MODE": "Basic Mode",
         "CANCEL": "Cancel",
         "CAPACITY": "Capacity",
         "CHANGE_ACCEPTED": "Change accepted",
@@ -783,6 +792,7 @@
             "MINUTE": "Minute",
             "MINUTES": "Minutes"
         },
+        "TIME_SCHEDULE": "Time schedule",
         "TO": "To",
         "TOTAL": "Total",
         "TOTAL_CHARGE": "Total charge",
@@ -896,6 +906,7 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Other users",
         "OVERVIEW": "All Systems",
+        "SYSTEMS": "Systeme",
         "SETTINGS": "Settings",
         "USER": "User",
         "PROFILE": "Profile"
@@ -914,10 +925,13 @@
         "NOT_OVERRIDING": "No external commands present",
         "OVERRIDING": "External command is being considered",
         "REGISTER": "Register",
-        "SET_ACTIVE_POWER_EQUALS": "Limitation charing/discharging power",
-        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimum charging power",
-        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power",
-        "ERROR": "Fehler"
+        "ERROR": "Error",
+        "SET_ACTIVE_POWER_EQUALS": "Active Power setpoint",
+        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Maximum charging power setpoint",
+        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum discharge power setpoint",
+        "SET_REACTIVE_POWER_EQUALS": "Reactive power setpoint",
+        "SET_REACTIVE_POWER_GREATER_OR_EQUALS": "Minimum reactive power setpoint",
+        "SET_REACTIVE_POWER_LESS_OR_EQUALS": "Maximum reactive power setpoint"
     },
     "NOTIFICATIONS": {
         "AUTHENTICATION_FAILED": "No Connection: Authentication failed.",

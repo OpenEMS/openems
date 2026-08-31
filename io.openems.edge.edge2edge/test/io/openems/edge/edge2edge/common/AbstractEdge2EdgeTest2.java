@@ -1,9 +1,9 @@
 package io.openems.edge.edge2edge.common;
 
 import static io.openems.edge.edge2edge.common.AbstractEdge2Edge.generateModbusElement;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;

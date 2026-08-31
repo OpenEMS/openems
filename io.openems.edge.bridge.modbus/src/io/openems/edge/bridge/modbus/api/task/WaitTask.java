@@ -57,6 +57,11 @@ public abstract non-sealed class WaitTask implements Task {
 	}
 
 	@Override
+	public boolean requiresConnection() {
+		return false;
+	}
+
+	@Override
 	public final ExecuteState execute(AbstractModbusBridge bridge) {
 		try {
 			this._execute();

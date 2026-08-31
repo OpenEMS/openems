@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.Tuple2;
+
 public class ProgressPublisher {
 
 	private final Logger log = LoggerFactory.getLogger(ProgressPublisher.class);
@@ -139,6 +141,57 @@ public class ProgressPublisher {
 	 */
 	public boolean removeListener(Consumer<Progress> listener) {
 		return this.listener.remove(listener);
+	}
+
+	/**
+	 * Creates an {@link Iterable} that provides a dedicated
+	 * {@link ProgressPublisher} for each element.
+	 *
+	 * <p>
+	 * The overall progress is evenly split across all elements. The progress title
+	 * is updated when the next element is requested from the iterator.
+	 *
+	 * @param <T>    the type of the elements
+	 * @param start  the start percentage of the overall progress
+	 * @param end    the end percentage of the overall progress
+	 * @param values the elements to iterate over
+	 * @param title  the title prefix
+	 * @return an {@link Iterable} providing a sub progress and its element
+	 */
+	public <T> Iterable<Tuple2<ProgressPublisher, T>> forEachWithProgress(int start, int end, Iterable<T> values,
+			String title) {
+
+		var list = new ArrayList<T>();
+		values.forEach(list::add);
+
+		return () -> new Iterator<>() {
+
+			private final Iterator<T> iterator = list.iterator();
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return this.iterator.hasNext();
+			}
+
+			@Override
+			public Tuple2<ProgressPublisher, T> next() {
+				final var nextElement = this.iterator.next();
+				final var currentIndex = this.index++;
+
+				int subStart = start + currentIndex * (end - start) / list.size();
+				int subEnd = start + (currentIndex + 1) * (end - start) / list.size();
+
+				// Show which element is currently processed
+				ProgressPublisher.this.setPercentage(//
+						subStart, //
+						title + " [" + (currentIndex + 1) + "/" + list.size() + "]");
+
+				return new Tuple2<>(//
+						ProgressPublisher.this.subProgress(subStart, subEnd), //
+						nextElement);
+			}
+		};
 	}
 
 }

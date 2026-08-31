@@ -9,7 +9,12 @@ import com.google.gson.JsonNull;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 
-public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbility ability) {
+public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbility ability,
+		ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
+
+	public ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbility ability) {
+		this(direction, ability, null);
+	}
 
 	/**
 	 * Returns a {@link JsonSerializer} for a {@link ApplyPhaseSwitch}.
@@ -19,11 +24,16 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 	public static JsonSerializer<ApplyPhaseSwitch> serializer() {
 		return jsonObjectSerializer(ApplyPhaseSwitch.class, json -> new ApplyPhaseSwitch(//
 				json.getOptionalEnum("direction", PhaseSwitchDirection.class).orElse(null),
-				json.getObject("phaseSwitchAbility", PhaseSwitchAbility.serializer())),
+				json.getObject("phaseSwitchAbility", PhaseSwitchAbility.serializer()),
+				json.getObjectOrNull("oppositePhaseApplySetPoint", ApplySetPoint.Ability.Watt.serializer())),
 				obj -> obj == null //
 						? JsonNull.INSTANCE //
 						: buildJsonObject() //
 								.add("phaseSwitchAbility", PhaseSwitchAbility.serializer().serialize(obj.ability)) //
+								.add("oppositePhaseApplySetPoint", obj.oppositePhaseApplySetPoint == null //
+										? JsonNull.INSTANCE
+										: ApplySetPoint.Ability.Watt.serializer()
+												.serialize(obj.oppositePhaseApplySetPoint)) //
 								.addProperty("direction", obj.direction) //
 								.build());
 	}

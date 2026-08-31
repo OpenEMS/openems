@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { IonInput, IonRange } from "@ionic/angular";
 import { Converter } from "../../shared/converter";
 import { AbstractModalLine } from "../abstract-modal-line";

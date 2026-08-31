@@ -9,8 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import io.openems.edge.bridge.modbus.api.ModbusTransferInfo;
-import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,9 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.ModbusTransferInfo;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 
 /**
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
@@ -263,6 +263,11 @@ public abstract non-sealed class AbstractTask<//
 		for (ModbusElement element : this.elements) {
 			element.deactivate();
 		}
+	}
+
+	@Override
+	public boolean requiresConnection() {
+		return true;
 	}
 
 	private void logInfo(String... messages) {

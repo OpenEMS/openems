@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -9,7 +9,6 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, ChannelRegister, CurrentData, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
@@ -24,7 +23,6 @@ import { SharedControllerModbusTcpApiReadWrite } from "../shared/shared";
 })
 export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-    private readonly routeService = inject(RouteService);
 
     public static getFormlyGeneralView(
         translate: TranslateService,
@@ -36,7 +34,9 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
         const writeChannelIds: string[] = (component.properties.writeChannels ?? []).filter(
             (channelId: string) => channelId !== "Ess0SetActivePowerEquals",
         );
-        const writeChannels = writeChannelIds.map((channelId) => new ChannelAddress(component.id, channelId));
+        const writeChannels = writeChannelIds.map(
+            (channelId) => new SharedControllerModbusTcpApiReadWrite.ModbusTcpApiChannel(component.id, channelId),
+        );
         return {
             title: component.alias,
             lines: [
@@ -107,7 +107,10 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
         };
     }
 
-    private static getWriteChannelLines(writeChannels: ChannelAddress[], translate: TranslateService): OeFormlyField[] {
+    private static getWriteChannelLines(
+        writeChannels: SharedControllerModbusTcpApiReadWrite.ModbusTcpApiChannel[],
+        translate: TranslateService,
+    ): OeFormlyField[] {
         const formattedWriteChannels = writeChannels.map((channel) => {
             for (const registerName in ChannelRegister) {
                 if (channel.channelId.includes(registerName) && channel.channelId.startsWith("Ess0")) {
@@ -117,11 +120,8 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
             return `(${channel.channelId})`;
         });
 
-        const translatedChannelNames = writeChannels.map((el) =>
-            SharedControllerModbusTcpApiReadWrite.TO_TRANSLATED_CHANNEL(translate)(el),
-        );
         return writeChannels.flatMap(
-            (el, i) =>
+            (channel, i) =>
                 [
                     {
                         type: "name-line",
@@ -129,20 +129,22 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
                     },
                     {
                         type: "channel-line",
-                        channel: el.toString(),
+                        channel: channel.toString(),
                         name: translate.instant("MODBUS_TCP_API_READ_WRITE.LIMITATION"),
                         converter: Converter.POWER_IN_WATT,
                     },
-                    ...(translatedChannelNames[i]
+                    ...(channel.translatedName(translate)
                         ? [
                               {
                                   type: "name-line",
-                                  name: translatedChannelNames[i],
+                                  name: channel.translatedName(translate),
                                   filter: Filter.NOT_NULL_OR_UNDEFINED,
                               },
                           ]
                         : []),
-                    { type: "horizontal-line" },
+                    {
+                        type: "horizontal-line",
+                    },
                 ] as OeFormlyField[],
         );
     }

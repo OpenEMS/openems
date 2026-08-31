@@ -1,7 +1,6 @@
 package io.openems.edge.bridge.modbus.sunspec.dummy;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -75,11 +74,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int readFromModbusBlock() {
 		return this.builder.readFromModbusBlock;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override

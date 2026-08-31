@@ -1,26 +1,28 @@
 @if (navigationService.position() === "left") {
-  <ng-template #accordionGroup let-items="items">
+  <ng-template #accordionGroup let-items="items" let-parentUrl="parentUrl">
     @if (items !== null) {
-      <ion-accordion-group [value]="currentUrl" expand="compact" multiple="true">
+      <ion-accordion-group [value]="openedAccordionIds()" expand="compact" multiple="true">
         @for (child of items; track i; let i = $index) {
           @if (child?.children?.length === 0) {
-            <ion-item button class="ion-no-padding ion-padding-left" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)" detail="false">
+            <ion-item button class="ion-no-padding ion-padding-left" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" detail="false">
               <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"></ion-icon>
-              <ion-label [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">
+              <ion-label [style.font-weight]="(currentUrl() | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">
                 @for (line of child.label | labelToLines; track $index) {
-                  <div>{{ line }}</div>
+                  <oe-navigation-label-line [nodeLabel]="line"></oe-navigation-label-line>
                 }
               </ion-label>
             </ion-item>
           } @else {
-            <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end" [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline' : ''" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)">
+            <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end" [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline' : ''" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)">
               <ion-item lines="none" [slot]="'header'" [detail]="false">
-                <ion-grid class="ion-no-padding" (click)="navigateAbsolutly(child)" (keydown.enter)="navigateAbsolutly(child)">
+                <ion-grid class="ion-no-padding" (click)="navigateAbsolutly($event, child)" (keydown.enter)="navigateAbsolutly($event, child)">
                   <ion-row class="ion-no-padding">
                     <ion-col class="ion-no-padding">
                       <ion-item class="ion-no-padding">
                         <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"></ion-icon>
-                        <ion-label [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">{{ child.label }}</ion-label>
+                        <ion-label [style.font-weight]="(currentUrl() | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">
+                          <oe-navigation-label-line [nodeLabel]="child.label"></oe-navigation-label-line>
+                        </ion-label>
                       </ion-item>
                     </ion-col>
                   </ion-row>
@@ -38,18 +40,6 @@
       </ion-accordion-group>
     }
   </ng-template>
-  @if (absoluteChildren.length !== 0) {
-    @if (isUserAllowedToSeeOverview) {
-      <ion-item button lines="full" routerLinkActive="active" routerLink="/overview" [detail]="false">
-        <ion-icon class="ion-padding-right" name="chevron-back-outline"></ion-icon>
-        <ion-label>{{ "MENU.OVERVIEW" | translate }}</ion-label>
-      </ion-item>
-    }
-    <ion-item button (click)="navigateToRoot()" (keydown.enter)="navigateToRoot()" [detail]="false">
-      <ion-icon class="ion-padding-right" name="home-outline"></ion-icon>
-      <ion-label [style.font-weight]="isLive() ? 'bolder' : 'inherit'">{{ "MENU.COCKPIT" | translate }}</ion-label>
-    </ion-item>
-  }
   <ng-template *ngTemplateOutlet="accordionGroup; context: { items: absoluteChildren }"></ng-template>
 }
 
@@ -58,7 +48,9 @@
     <ion-button tabindex="0" (keydown.enter)="navigateTo(child)" (click)="navigateTo(child)" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light" [class.with-label]="child.mode === 'label'">
       <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img"></ion-icon>
       <ion-label slot="end" style="text-transform: none">
-        {{ child.mode === "label" ? child.label : "" }}
+        @if (child.mode === "label") {
+          <oe-navigation-label-line [nodeLabel]="child.label"></oe-navigation-label-line>
+        }
       </ion-label>
     </ion-button>
   }

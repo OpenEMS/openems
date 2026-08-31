@@ -1,108 +1,222 @@
 = Fronius
-
-Solar PV inverter and smart meter integration by Fronius.
+Solar PV inverter, smart meter and Gen24 hybrid inverter integration by Fronius.
 
 == Overview
 
-This bundle provides integration with Fronius photovoltaic (PV) inverter systems and Fronius Smart Meter devices. Fronius is an Austrian manufacturer of solar inverters and energy management solutions. The integration enables monitoring of solar production via the PV inverter and energy measurement via the Smart Meter using Modbus communication.
+This bundle provides integration with Fronius photovoltaic (PV) inverter systems, Fronius Smart Meter devices, and the Fronius Symo Gen24 hybrid inverter with battery storage. Fronius is an Austrian manufacturer of solar inverters and energy management solutions. The integration enables monitoring of solar production via the PV inverter, energy measurement via the Smart Meter, and full battery inverter control via the Gen24 components, all using Modbus TCP communication.
+The bundle supports five main components:
 
-The bundle supports two main components:
-
-* **PV Inverter** - Monitors and can limit solar generation from Fronius Symo and compatible inverters
-* **Smart Meter** - Reads three-phase grid power measurement from Fronius Smart Meter
+PV Inverter - Monitors and can limit solar generation from Fronius Symo and compatible inverters
+Smart Meter - Reads three-phase grid power measurement from Fronius Smart Meter
+Gen24 Battery Inverter - Controls the Fronius Symo Gen24 hybrid inverter via SunSpec Modbus
+Gen24 Battery - Reads battery state (SoC, voltage, current, capacity) from the Gen24 inverter
+Gen24 DC Charger - Exposes individual PV string power/voltage/current from the Gen24 inverter
 
 == Supported Devices
 
-.Fronius PV Inverter
-* Model: Fronius Symo (and compatible models)
-* Type: Grid-connected solar inverter
-* Communication: Modbus TCP/RTU via SunSpec register map
-* Power Rating: 3-27 kW typical
-* Features: Real-time power monitoring, active power limitation
-* Firmware: Current versions supporting SunSpec protocol
+Fronius PV Inverter:
 
-.Fronius Smart Meter
-* Models: 63A-3, TS 65A-3
-* Type: Three-phase AC electricity meter
-* Communication: Modbus TCP/RTU via SunSpec register map
-* Rated Current: 63-65 A per phase
-* Features: Real-time power and energy measurement
-* Configuration: Must use SunSpec Model Type *float* (not integer)
-* Typical Use: Grid power measurement, export/import monitoring
+- Model: Fronius Symo (and compatible models)
+- Type: Grid-connected solar inverter
+- Communication: Modbus TCP/RTU via SunSpec register map
+- Power Rating: 3-27 kW typical
+- Features: Real-time power monitoring, active power limitation
+- Firmware: Current versions supporting SunSpec protocol
+
+Fronius Smart Meter:
+
+- Models: 63A-3, TS 65A-3
+- Type: Three-phase AC electricity meter
+- Communication: Modbus TCP/RTU via SunSpec register map
+- Rated Current: 63-65 A per phase
+- Features: Real-time power and energy measurement
+- Configuration: Can use SunSpec Model Type float or integer
+- Typical Use: Grid power measurement, export/import monitoring
+
+Fronius Symo Gen24 Hybrid Inverter:
+
+- Model: Fronius Symo Gen24 (Plus)
+- Type: Hybrid grid-connected inverter with battery management
+- Communication: Modbus TCP via integrated Modbus server (int+SF register format)
+- Features: Battery charge/discharge control, PV string monitoring, SunSpec Model 123 power limiting
+- Firmware: Current versions tested
+
+Fronius Gen24 Battery:
+
+- Compatible batteries: BYD HVS, BYD HVM, Fronius Reserva, Fronius Reserva Pro, LG Battery Flex
+- Communication: Data read directly from the Gen24 inverter via Modbus
+- Features: State of charge, voltage, current, charge/discharge limits, module count
+- Configuration: Modbus server must be set to int+SF format
+
+Fronius Gen24 DC Charger:
+
+- Type: Virtual component exposing individual PV string data from the Gen24 inverter
+- Communication: Data read directly from the Gen24 inverter (no separate Modbus connection)
+- Features: Real-time DC power, voltage and current per PV string
+- Strings: Supports PV string ONE and TWO
 
 == Components
-
 [[_pv_inverter_fronius]]
+
 === PV-Inverter Fronius
 
-*Name*: PV-Inverter Fronius
-
-*Factory-PID*: `PV-Inverter.Fronius`
-
+Name: PV-Inverter Fronius
+Factory-PID: PV-Inverter.Fronius
 .Implemented Natures/Interfaces
-* `ManagedSymmetricPvInverter` - Managed (controllable) PV inverter
-* `ElectricityMeter` - Power measurement interface
-* `ModbusComponent` - Modbus protocol integration
-* `OpenemsComponent` - OpenEMS component lifecycle
 
-*Description*:
+ManagedSymmetricPvInverter - Managed (controllable) PV inverter
+ElectricityMeter - Power measurement interface
+ModbusComponent - Modbus protocol integration
+OpenemsComponent - OpenEMS component lifecycle
+
+Description:
+
 Integration for Fronius solar PV inverters. Monitors real-time solar generation power and allows active power limitation to reduce feed-in to the grid. Communicates via Modbus using industry-standard SunSpec register map for interoperability.
+.Configuration:
 
-.*Configuration*:
-
-* `id` (String): Unique component identifier; default: `"pvInverter0"`
-* `alias` (String): Human-readable name; default: same as id
-* `enabled` (Boolean): Enable/disable this component; default: `true`
-* `readOnly` (Boolean): Read-only mode (no power limitation commands sent); default: `true`
-* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
-* `modbusUnitId` (Integer): Modbus Unit-ID of the inverter; default: `1`
+id (String): Unique component identifier; default: "pvInverter0"
+alias (String): Human-readable name; default: same as id
+enabled (Boolean): Enable/disable this component; default: true
+readOnly (Boolean): Read-only mode (no power limitation commands sent); default: true
+modbus_id (String): ID of Modbus bridge; default: "modbus0"
+modbusUnitId (Integer): Modbus Unit-ID of the inverter; default: 1
 
 [[_meter_fronius]]
+
 === Meter Fronius
-
-*Name*: Meter Fronius
-
-*Factory-PID*: `Meter.Fronius`
-
+Name: Meter Fronius
+Factory-PID: Meter.Fronius
 .Implemented Natures/Interfaces
-* `ElectricityMeter` - Three-phase power meter interface
-* `ModbusComponent` - Modbus protocol integration
-* `OpenemsComponent` - OpenEMS component lifecycle
-* `ModbusSlave` - Modbus slave functionality
 
-*Description*:
+ElectricityMeter - Three-phase power meter interface
+ModbusComponent - Modbus protocol integration
+OpenemsComponent - OpenEMS component lifecycle
+ModbusSlave - Modbus slave functionality
+
+Description:
+
 Integration for Fronius Smart Meter devices. Measures three-phase AC power and energy values (production, consumption, active/reactive power) via Modbus. Commonly used to measure grid power when Fronius inverters are present in the installation.
+.Configuration:
 
-.*Configuration*:
+id (String): Unique component identifier; default: "meter0"
+alias (String): Human-readable name; default: same as id
+enabled (Boolean): Enable/disable this component; default: true
+type (MeterType): Meter role (GRID, PRODUCTION, CONSUMPTION); default: GRID
+modbus_id (String): ID of Modbus bridge; default: "modbus0"
+modbusUnitId (Integer): Modbus Unit-ID of the meter; default: 240
+invert (Boolean): Invert power values and swap directions; default: false
 
-* `id` (String): Unique component identifier; default: `"meter0"`
-* `alias` (String): Human-readable name; default: same as id
-* `enabled` (Boolean): Enable/disable this component; default: `true`
-* `type` (MeterType): Meter role (GRID, PRODUCTION, CONSUMPTION); default: `GRID`
-* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
-* `modbusUnitId` (Integer): Modbus Unit-ID of the meter; default: `240`
-* `invert` (Boolean): Invert power values and swap directions; default: `false`
+[[_battery_inverter_fronius_gen24]]
+
+=== ESS Fronius Gen24 Hybrid Inverter
+Name: ESS Fronius Gen24 Hybrid
+Factory-PID: Ess.Fronius.Gen24.Inverter
+.Implemented Natures/Interfaces
+
+HybridManagedSymmetricBatteryInverter - Hybrid battery inverter with PV tracking
+ManagedSymmetricBatteryInverter - Managed battery inverter interface
+SymmetricBatteryInverter - Symmetric battery inverter interface
+ManagedSymmetricPvInverter - Managed PV inverter interface
+ModbusComponent - Modbus protocol integration
+OpenemsComponent - OpenEMS component lifecycle
+
+Description:
+
+Integration for the Fronius Symo Gen24 hybrid inverter. Controls battery charge and discharge via SunSpec registers, monitors DC power from PV strings, and supports active power limitation via SunSpec Model 123. The Modbus server must be configured to use int+SF register format.
+.Configuration:
+
+id (String): Unique component identifier; default: "batteryInverter0"
+alias (String): Human-readable name; default: same as id
+enabled (Boolean): Enable/disable this component; default: true
+modbus_id (String): ID of Modbus bridge; default: "modbus0"
+modbusUnitId (Integer): Modbus Unit-ID of the inverter; default: 1
+controlMode (ControlMode): INTERNAL = Fronius manages autonomously, REMOTE = OpenEMS controls charge/discharge; default: INTERNAL
+
+[[_battery_fronius_gen24]]
+
+=== ESS Fronius Gen24 Battery
+Name: ESS Fronius Gen24 Battery
+Factory-PID: Ess.Fronius.Gen24.Battery
+.Implemented Natures/Interfaces
+
+Battery - Battery interface (SoC, voltage, current, limits)
+StartStoppable - Start/stop lifecycle
+OpenemsComponent - OpenEMS component lifecycle
+
+Description:
+
+Reads battery state data directly from the Fronius Gen24 inverter via Modbus. Provides state of charge, voltage, current and charge/discharge limits to the OpenEMS energy management system. A battery preset can be selected to automatically configure voltage limits based on the number of installed modules.
+.Configuration:
+
+id (String): Unique component identifier; default: "battery0"
+alias (String): Human-readable name; default: same as id
+enabled (Boolean): Enable/disable this component; default: true
+modbus_id (String): ID of Modbus bridge; default: "modbus0"
+modbusUnitId (Integer): Modbus Unit-ID. Must match the Battery Inverter's Unit-ID, since both talk to the same physical device; default: 1
+batteryPreset (BatteryPreset): Predefined battery model for automatic voltage limits; default: CUSTOM
+numberOfModules (Integer): Number of installed battery modules; default: 4
+chargeMaxVoltage (Integer): Maximum charge voltage in V — only used when preset is CUSTOM; default: 480
+dischargeMinVoltage (Integer): Minimum discharge voltage in V — only used when preset is CUSTOM; default: 320
+
+.Supported Battery Presets
+
+BYD HVS — 2 to 5 modules, 102.4 V nominal per module
+BYD HVM — 3 to 8 modules, 51.2 V nominal per module
+Fronius Reserva — 2 to 5 modules
+Fronius Reserva Pro — 3 to 8 modules
+LG Battery Flex — 2 to 4 modules
+CUSTOM — manual voltage configuration
+
+[[_dccharger_fronius_gen24]]
+
+=== ESS Fronius Gen24 DC Charger PV
+Name: ESS Fronius Gen24 DC Charger PV
+Factory-PID: Ess.Fronius.Gen24.DcCharger
+.Implemented Natures/Interfaces
+
+EssDcCharger - DC charger interface (actual power, voltage, current)
+TimedataProvider - Energy logging
+OpenemsComponent - OpenEMS component lifecycle
+
+Description:
+
+Exposes one PV string of the Fronius Gen24 inverter as an OpenEMS DC charger component. This component performs its own independent SunSpec discovery via Modbus against the same physical Gen24 device the Battery Inverter reads — there is no OSGi reference between the two. Supports PV string ONE and TWO.
+.Configuration:
+
+id (String): Unique component identifier; default: "charger0"
+alias (String): Human-readable name; default: same as id
+enabled (Boolean): Enable/disable this component; default: true
+modbus_id (String): ID of Modbus bridge. Must point at the same physical Fronius Gen24 device as the Battery Inverter's Modbus configuration; default: "modbus0"
+modbusUnitId (Integer): Modbus Unit-ID. Must match the Battery Inverter's Unit-ID, since both talk to the same physical device; default: 1
+pvString (PvString): PV string to use (ONE or TWO); default: ONE
 
 == Important Configuration Notes
-
 === Smart Meter SunSpec Configuration
+The Fronius Smart Meter must be configured to use SunSpec Model Type float (not integer). This is a critical setting:
 
-The Fronius Smart Meter **must be configured to use SunSpec Model Type float** (not integer). This is a critical setting:
-
-* Access Fronius Smart Meter web interface
-* Navigate to Settings → Communication
-* Set SunSpec Model Type to "float" (not "integer")
-* Save and restart meter if necessary
+Access Fronius Smart Meter web interface
+Navigate to Settings → Communication
+Set SunSpec Model Type to "float" (not "integer")
+Save and restart meter if necessary
 
 Without this configuration, the OpenEMS integration will not read correct values.
+=== Gen24 Modbus Server Configuration
+The Fronius Gen24 inverter must be configured to use int+SF register format in its Modbus server:
 
+Access the Fronius Gen24 web interface
+Navigate to Communication → Modbus
+Enable Modbus TCP server
+Set register format to int+SF (not float)
+
+=== Gen24 Component Independence
+The three Gen24 components (Battery Inverter, Battery, DC Charger) each connect directly to Modbus and perform their own independent SunSpec discovery against the same physical Fronius Gen24 device — there is no OSGi reference between them.
+
+Make sure modbus_id and modbusUnitId are configured identically (same physical device, same Unit-ID) across all Gen24 components you use, since they all talk to the same inverter independently.
 === Read-Only Mode vs Managed Mode
-
 PV Inverter has two operating modes:
 
-* **Read-Only Mode** (`readOnly: true`): Only monitors solar generation, no commands sent to inverter
-* **Managed Mode** (`readOnly: false`): Allows OpenEMS controllers to limit active power output
+Read-Only Mode (readOnly: true): Only monitors solar generation, no commands sent to inverter
+Managed Mode (readOnly: false): Allows OpenEMS controllers to limit active power output
 
 Start with read-only mode for testing, then enable managed mode if power limitation is needed.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fronius[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fronius[Source Code icon:github]

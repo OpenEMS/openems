@@ -113,8 +113,8 @@
             <ion-item lines="full" color="primary" id="bottom-start">
               <ion-icon slot="start" name="bag-add-outline"></ion-icon>
               <ion-text translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-text>
-              @if (numberOfUnusedRegisteredKeys !== 0) {
-                <ion-badge slot="end" color="dark">{{ numberOfUnusedRegisteredKeys }}</ion-badge>
+              @if (numberOfUnusedRegisteredKeys() !== 0) {
+                <ion-badge slot="end" color="dark">{{ numberOfUnusedRegisteredKeys() }}</ion-badge>
               }
             </ion-item>
           </ion-card>
@@ -152,7 +152,7 @@
 
     <ion-row>
       <ion-col size="12">
-        @for (appList of appLists; track appList) {
+        @for (appList of appLists(); track appList) {
           <div>
             @if (!isEmpty(appList) && appList.shouldBeShown()) {
               <ion-row style="position: -webkit-sticky; position: sticky; top: 0px; z-index: 100">

@@ -122,6 +122,7 @@ import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import io.openems.edge.app.prediction.AppPredictionDefault;
 import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
+import io.openems.edge.app.prediction.AppWeatherPrediction;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -1451,6 +1452,16 @@ public final class Apps {
 	 */
 	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
 		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
+	 * Test method for creating a {@link AppWeatherPrediction}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppWeatherPrediction weatherPrediction(AppManagerTestBundle t) {
+		return app(t, AppWeatherPrediction::new, "App.Prediction.Weather");
 	}
 
 	/**

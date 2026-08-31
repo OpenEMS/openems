@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.charger.singlestring;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements ConfigPV1, ConfigPV2 {
@@ -73,18 +72,8 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
 	public String essOrBatteryInverter_id() {
 		return this.builder.essOrBatteryInverter;
-	}
-
-	@Override
-	public String essOrBatteryInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.essOrBatteryInverter_id());
 	}
 
 }

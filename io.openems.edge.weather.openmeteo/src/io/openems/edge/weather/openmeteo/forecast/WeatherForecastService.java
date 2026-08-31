@@ -51,7 +51,7 @@ public class WeatherForecastService {
 	private final UrlBuilder baseUrl;
 	private final WeatherDataParser weatherDataParser;
 
-	private HttpBridgeTimeService.TimeEndpoint subscription;
+	private HttpBridgeTimeService.TimeEndpoint<HttpResponse<JsonElement>> subscription;
 	private Instant lastUpdate;
 	private List<QuarterlyWeatherSnapshot> quarterlyWeatherForecast;
 	private List<HourlyWeatherSnapshot> hourlyWeatherForecast;
@@ -105,12 +105,13 @@ public class WeatherForecastService {
 				() -> this.createForecastEndpoint(//
 						coordinates, //
 						clockSupplier), //
-				response -> this.handleEndpointResponse(//
-						response, //
-						clockSupplier, //
-						onFetchWeatherForecastSuccess), //
-				error -> this.handleEndpointError(//
-						error));
+				response -> {
+					this.handleEndpointResponse(//
+							response, //
+							clockSupplier, //
+							onFetchWeatherForecastSuccess);
+				}, //
+				this::handleEndpointError);
 	}
 
 	/**

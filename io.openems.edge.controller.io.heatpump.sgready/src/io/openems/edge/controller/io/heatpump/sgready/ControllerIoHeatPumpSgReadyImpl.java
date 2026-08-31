@@ -1,11 +1,13 @@
 package io.openems.edge.controller.io.heatpump.sgready;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Instant;
 import java.util.Optional;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.StateChannel;
@@ -33,6 +36,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -49,10 +55,12 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 @GenerateTargetsFromReferences("meter")
-public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, ControllerIoHeatPumpSgReady, EventHandler, TimedataProvider {
+public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent,
+		ControllerIoHeatPumpSgReady, EventHandler, TimedataProvider, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerIoHeatPumpSgReadyImpl.class);
+
+	private JSCalendar.Tasks<HeatPumpPayload> tasks = JSCalendar.Tasks.empty();
 
 	/*
 	 * Status definitions for each state. Are responsible for the time calculation
@@ -69,6 +77,9 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected Sum sum;
+
+	@Reference
+	private ConfigurationAdmin configurationAdmin;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -94,18 +105,24 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
+		this.applyConfig(config);
 
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
+		this.applyConfig(config);
 		// reset channels
 		this._setGridActivePowerNotPresent(false);
 		this._setEssDischargePowerNotPresent(false);
 		this._setStateOfChargeNotPresent(false);
+	}
+
+	private void applyConfig(Config config) {
+		this.config = config;
+		this.tasks = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.jsCalendar(),
+				HeatPumpPayload.serializer());
 	}
 
 	@Override
@@ -119,7 +136,7 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
-			// Updates the time channel depending if the state is active or not.
+			// Updates the time channel depending on if the state is active or not.
 			this.lockState.updateActiveTime();
 			this.regularState.updateActiveTime();
 			this.recommState.updateActiveTime();
@@ -131,8 +148,10 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 
+		final var currentMode = this.getCurrentMode();
+
 		// Handle Mode AUTOMATIC and MANUAL
-		switch (this.config.mode()) {
+		switch (currentMode) {
 		case AUTOMATIC:
 			this.modeAutomatic();
 			break;
@@ -214,7 +233,7 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException    on error
 	 */
 	private void modeManual() throws IllegalArgumentException, OpenemsNamedException {
-		var state = this.config.manualState();
+		var state = this.getCurrentManuelStatus();
 		switch (state) {
 		case FORCE_ON:
 			this.forceOnState.switchOn();
@@ -315,6 +334,26 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 				: heatPumpPower;
 	}
 
+	protected Mode getCurrentMode() {
+		var baseMode = this.getBaseModeFromCurrentTask();
+		return baseMode == null ? this.config.mode() : baseMode.getMode();
+	}
+
+	protected Status getCurrentManuelStatus() {
+		var baseMode = this.getBaseModeFromCurrentTask();
+		return baseMode == null ? this.config.manualState() : baseMode.getStatus();
+	}
+
+	protected BaseMode getBaseModeFromCurrentTask() {
+		var activeTask = this.tasks.getActiveOneTask();
+		if (activeTask != null) {
+			setValue(this, ControllerIoHeatPumpSgReady.ChannelId.IS_TIME_SCHEDULE_TASK_ACTIVE, true);
+			return activeTask.payload().baseMode();
+		}
+		setValue(this, ControllerIoHeatPumpSgReady.ChannelId.IS_TIME_SCHEDULE_TASK_ACTIVE, false);
+		return null;
+	}
+
 	@Override
 	protected void logDebug(Logger log, String message) {
 		if (this.config.debugMode()) {
@@ -343,5 +382,13 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 		this._setStatus(status);
 		this.activeState = status;
 		this.lastStateChange = Instant.now(this.componentManager.getClock());
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		JSCalendarApi.buildJsonApiRoutes(builder, HeatPumpPayload.serializer(), //
+				() -> this.tasks, //
+				() -> new JSCalendarApi.UpdateJsCalendarRecord(this.configurationAdmin, this.componentManager,
+						this.servicePid(), "jsCalendar"));
 	}
 }

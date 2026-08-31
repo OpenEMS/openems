@@ -14,6 +14,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.bender.EvseChargePointBender;
@@ -145,8 +146,93 @@ class EvseChargePointMennekesTest {
 		assertTrue(abilities.isEvConnected());
 		assert (abilities.phaseSwitch().ability() instanceof ApplyPhaseSwitch.PhaseSwitchAbility.Internal);
 		assertEquals(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE, abilities.phaseSwitch().direction());
+		assertEquals(SingleOrThreePhase.SINGLE_PHASE, abilities.phaseSwitch().oppositePhaseApplySetPoint().phase());
+		assertEquals(1380, abilities.phaseSwitch().oppositePhaseApplySetPoint().min());
+		assertEquals(3680, abilities.phaseSwitch().oppositePhaseApplySetPoint().max());
 		assert (abilities.applySetPoint() instanceof ApplySetPoint.Ability.Watt);
 		assertEquals(11040, abilities.applySetPoint().max());
 		assertEquals(4140, abilities.applySetPoint().min());
 	}
+
+	@Test
+	void testGetChargePointAbilitiesKeepsCurrentPhaseWhileInternalPhaseSwitchIsRunning() throws Exception {
+		this.test.next(new TestCase()//
+				.output(Mennekes.ChannelId.PHASE_SWITCH_MODE, PhaseSwitchMode.DYNAMIC_PHASE_SWITCH) //
+				.output(Mennekes.ChannelId.PHASE_SWITCH_RUNNING, true) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L1, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L2, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L3, 6_000) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 4140) //
+				.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true));
+
+		this.mennekes.apply(ChargePointActions.from(this.mennekes.getChargePointAbilities()) //
+				.setApplySetPointInWatt(1380) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE,
+						new ApplyPhaseSwitch.PhaseSwitchAbility.Internal())) //
+				.build());
+
+		var abilities = this.mennekes.getChargePointAbilities();
+
+		assertEquals(SingleOrThreePhase.SINGLE_PHASE, abilities.applySetPoint().phase());
+		assertEquals(1380, abilities.applySetPoint().min());
+		assertEquals(3680, abilities.applySetPoint().max());
+		assertEquals(ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE, abilities.phaseSwitch().direction());
+		assertEquals(SingleOrThreePhase.THREE_PHASE, abilities.phaseSwitch().oppositePhaseApplySetPoint().phase());
+		assertEquals(4140, abilities.phaseSwitch().oppositePhaseApplySetPoint().min());
+		assertEquals(11040, abilities.phaseSwitch().oppositePhaseApplySetPoint().max());
+	}
+
+	@Test
+	void testGetChargePointAbilitiesReportsTargetPhaseWhileInternalPhaseSwitchIsRunningForThreePhase()
+			throws Exception {
+		this.test.next(new TestCase()//
+				.output(Mennekes.ChannelId.PHASE_SWITCH_MODE, PhaseSwitchMode.DYNAMIC_PHASE_SWITCH) //
+				.output(Mennekes.ChannelId.PHASE_SWITCH_RUNNING, true) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L1, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L2, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L3, 6_000) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 4140) //
+				.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true));
+
+		this.mennekes.apply(ChargePointActions.from(this.mennekes.getChargePointAbilities()) //
+				.setApplySetPointInWatt(1380) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE,
+						new ApplyPhaseSwitch.PhaseSwitchAbility.Internal())) //
+				.build());
+
+		var abilitiesWhileSwitchingToSingle = this.mennekes.getChargePointAbilities();
+		assertEquals(SingleOrThreePhase.SINGLE_PHASE, abilitiesWhileSwitchingToSingle.applySetPoint().phase());
+		assertEquals(ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE,
+				abilitiesWhileSwitchingToSingle.phaseSwitch().direction());
+
+		this.mennekes.apply(ChargePointActions.from(abilitiesWhileSwitchingToSingle) //
+				.setApplySetPointInWatt(1380) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE,
+						new ApplyPhaseSwitch.PhaseSwitchAbility.Internal())) //
+				.build());
+
+		this.test.next(new TestCase()//
+				.output(Mennekes.ChannelId.PHASE_SWITCH_MODE, PhaseSwitchMode.DYNAMIC_PHASE_SWITCH) //
+				.output(Mennekes.ChannelId.PHASE_SWITCH_RUNNING, true) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L1, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L2, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L3, 6_000) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 4140) //
+				.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true));
+
+		var abilities = this.mennekes.getChargePointAbilities();
+
+		assertEquals(SingleOrThreePhase.THREE_PHASE, abilities.applySetPoint().phase());
+		assertEquals(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE, abilities.phaseSwitch().direction());
+	}
+
 }

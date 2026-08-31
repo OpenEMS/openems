@@ -10,7 +10,6 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.session.Role;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.api.BatteryErrorAcknowledge;
@@ -63,6 +63,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
+@GenerateTargetsFromReferences({ "batteryInverter", "battery" })
 public class EssGenericManagedSymmetricImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
@@ -85,15 +86,14 @@ public class EssGenericManagedSymmetricImpl
 	private Power power;
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.batteryInverter_id})(enabled=true))")
 	private ManagedSymmetricBatteryInverter batteryInverter;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.battery_id})(enabled=true))")
 	private Battery battery;
 
 	private Config config;
@@ -117,8 +117,7 @@ public class EssGenericManagedSymmetricImpl
 	private void activate(ComponentContext context, Config config) {
 		this.channelManager = new ChannelManager(this, config.essProtection());
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
-				config.battery_id(), config.startStop());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.startStop());
 		this.config = config;
 	}
 

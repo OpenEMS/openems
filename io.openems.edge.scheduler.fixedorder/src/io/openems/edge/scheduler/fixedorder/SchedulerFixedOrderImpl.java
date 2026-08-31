@@ -24,7 +24,8 @@ import io.openems.edge.scheduler.api.Scheduler;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class SchedulerFixedOrderImpl extends AbstractOpenemsComponent implements SchedulerFixedOrder, Scheduler {
+public class SchedulerFixedOrderImpl extends AbstractOpenemsComponent
+		implements SchedulerFixedOrder, Scheduler, OpenemsComponent {
 
 	private final LinkedHashSet<String> controllerIds = new LinkedHashSet<>();
 

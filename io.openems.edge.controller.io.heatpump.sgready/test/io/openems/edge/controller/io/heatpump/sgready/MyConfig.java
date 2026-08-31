@@ -21,6 +21,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int automaticLockGridBuyPower;
 		private int automaticLockSoc;
 		private int minimumSwitchingTime;
+		private BaseMode baseMode = BaseMode.REGULAR;
+		private String jsCalendar = "[]";
 
 		private Builder() {
 		}
@@ -101,6 +103,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMinimumSwitchingTime(int minimumSwitchingTime) {
 			this.minimumSwitchingTime = minimumSwitchingTime;
+			return this;
+		}
+
+		public Builder setBaseMode(BaseMode baseMode) {
+			this.baseMode = baseMode;
+			return this;
+		}
+
+		public Builder setJsCalender(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 	}
@@ -189,6 +201,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int minimumSwitchingTime() {
 		return this.builder.minimumSwitchingTime;
+	}
+
+	@Override
+	public BaseMode baseMode() {
+		return this.builder.baseMode;
+	}
+
+	@Override
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 
 	@Override

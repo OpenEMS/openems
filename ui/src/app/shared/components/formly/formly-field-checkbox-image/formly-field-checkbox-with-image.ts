@@ -156,7 +156,7 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
      * @returns Boolean value representing "show" or "hide".
      */
     protected showContent() {
-        return !this.props?.disabled && !this.value && this.props?.["url"] !== undefined;
+        return !this.props?.disabled && !this.value && Boolean(this.props?.["url"]);
     }
 
     private initializeSerialNumberField(): void {

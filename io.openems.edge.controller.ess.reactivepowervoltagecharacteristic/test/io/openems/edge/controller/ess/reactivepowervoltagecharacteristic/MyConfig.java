@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -94,15 +93,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int waitForHysteresis() {
 		return this.builder.waitForHysteresis;
-	}
-
-	@Override
-	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
-	}
-
-	@Override
-	public String meter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 }
