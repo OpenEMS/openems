@@ -34,7 +34,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class SungrowVirtualDcCharger extends AbstractOpenemsComponent
+public class SungrowDcCharger extends AbstractOpenemsComponent
 		implements EssDcCharger, TimedataProvider, OpenemsComponent, EventHandler {
 
 	protected Config config = null;
@@ -43,7 +43,7 @@ public class SungrowVirtualDcCharger extends AbstractOpenemsComponent
 	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private EssSungrow core;
+	private EssSungrow ess;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -51,7 +51,7 @@ public class SungrowVirtualDcCharger extends AbstractOpenemsComponent
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
-	public SungrowVirtualDcCharger() {
+	public SungrowDcCharger() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values() //
@@ -63,7 +63,7 @@ public class SungrowVirtualDcCharger extends AbstractOpenemsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 
@@ -76,17 +76,17 @@ public class SungrowVirtualDcCharger extends AbstractOpenemsComponent
 	}
 
 	private void mapChannelValues() {
-		this.core.getTotalDcPowerChannel().onSetNextValue(value -> {
+		this.ess.getTotalDcPowerChannel().onSetNextValue(value -> {
 			if (value.isDefined()) {
 				this._setActualPower(value.get());
 			}
 		});
-		this.core.getMppt1VoltageChannel().onSetNextValue(value -> {
+		this.ess.getMppt1VoltageChannel().onSetNextValue(value -> {
 			if (value.isDefined()) {
 				this._setVoltage(value.get());
 			}
 		});
-		this.core.getMppt1CurrentChannel().onSetNextValue(value -> {
+		this.ess.getMppt1CurrentChannel().onSetNextValue(value -> {
 			if (value.isDefined()) {
 				this._setCurrent(value.get());
 			}

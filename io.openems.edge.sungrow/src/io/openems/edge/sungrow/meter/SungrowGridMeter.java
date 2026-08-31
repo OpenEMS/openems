@@ -31,7 +31,7 @@ import io.openems.edge.sungrow.ess.EssSungrow;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class SungrowVirtualGridMeter extends AbstractOpenemsComponent implements ElectricityMeter, OpenemsComponent {
+public class SungrowGridMeter extends AbstractOpenemsComponent implements ElectricityMeter, OpenemsComponent {
 
 	protected Config config = null;
 
@@ -41,7 +41,7 @@ public class SungrowVirtualGridMeter extends AbstractOpenemsComponent implements
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private EssSungrow ess;
 
-	public SungrowVirtualGridMeter() {
+	public SungrowGridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values() //
@@ -62,11 +62,6 @@ public class SungrowVirtualGridMeter extends AbstractOpenemsComponent implements
 	private void activate(ComponentContext context, Config config) throws OpenemsException, OpenemsNamedException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		if (!this.config.enabled()) {
-			return;
-		}
-
 		this.mapChannelValues();
 	}
 

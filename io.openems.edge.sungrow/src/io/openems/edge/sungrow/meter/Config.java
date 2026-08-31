@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Ess Sungrow Virtual Grid Meter", //
-		description = "Implements virtual meter from Sungrow Hybrid ESS.")
+		name = "Ess Sungrow Grid Meter", //
+		description = "Implements grid meter from Sungrow Hybrid ESS.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -17,9 +17,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Core ID", description = "ID of the Sungrow Ess Component.")
-	String core_id() default "ess0";
+	@AttributeDefinition(name = "ESS ID", description = "ID of the Sungrow Ess Component.")
+	String ess_id() default "ess0";
 
-	String webconsole_configurationFactory_nameHint() default "Ess Sungrow Virtual Grid Meter [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Ess Sungrow Grid Meter [{id}]";
 
 }
