@@ -209,6 +209,7 @@
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.sma',\
 	bnd.identity;id='io.openems.edge.solaredge',\
+	bnd.identity;id='io.openems.edge.sungrow',\
 	bnd.identity;id='io.openems.edge.system.fenecon',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
@@ -425,6 +426,7 @@
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.sma;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
+	io.openems.edge.sungrow;version=snapshot,\
 	io.openems.edge.system.fenecon;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
 	io.openems.edge.thermometer.api;version=snapshot,\
