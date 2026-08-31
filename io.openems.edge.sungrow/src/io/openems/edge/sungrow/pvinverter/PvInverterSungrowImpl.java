@@ -214,9 +214,4 @@ public class PvInverterSungrowImpl extends AbstractOpenemsModbusComponent implem
 		return this.timedata;
 	}
 
-	// oEMS add
-	@Override
-	public boolean isReadOnly() {
-		return this.readOnly;
-	}
 }

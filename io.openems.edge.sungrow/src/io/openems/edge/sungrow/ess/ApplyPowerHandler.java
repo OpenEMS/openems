@@ -24,7 +24,7 @@ public class ApplyPowerHandler {
 	public synchronized void apply(EssSungrowImpl parent, int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower) throws OpenemsNamedException {
 		parent.channel(EssSungrow.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER) //
-				.setNextValue(parent.power.isPidEnabled() && controlMode.equals(ControlMode.SMART));
+				.setNextValue(parent.power.isFilterEnabled() && controlMode.equals(ControlMode.SMART));
 
 		var result = switch (controlMode) {
 		case INTERNAL -> handleInternalMode();
