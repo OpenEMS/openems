@@ -40,6 +40,19 @@ When reporting, include as much detail as possible:
 
 ## CVE Process Workflow
 
+```mermaid
+flowchart TD
+    A[Security report received] --> B[Acknowledgement within 72 hours]
+    B --> C[Initial assessment and triage]
+    C --> D{Confirmed vulnerability?}
+    D -- No --> E[Request more information or close]
+    D -- Yes --> F[Private fix in temporary private fork/branch]
+    F --> G[Internal disclosure to members-only forum]
+    G --> H[Merge fix to develop with public advisory]
+    H --> I[Public GitHub Security Advisory]
+    I --> J[Release notes and changelog update]
+```
+
 ### 1. CVE Reporting
 
 - Channel: Email to security@openems.io
@@ -55,7 +68,8 @@ When reporting, include as much detail as possible:
 ### 3. Analysis and Patch
 
 - Initial assessment target: within 72 hours.
-- Patch target branch: develop.
+- The fix is developed privately in a temporary **private fork**, not on public `develop`, so the patch does **not** reveal the vulnerability before coordinated disclosure.
+- The patch is merged to `develop` **together with** the public advisory (see step 5), not before.
 
 ### 4. Internal Disclosure
 
@@ -63,14 +77,14 @@ After initial triage, CVE handling and coordinated disclosure are discussed inte
 
 - https://community.openems.io/c/openems-association/security-advisories-members-only/23
 
-- Timing: immediately after patch integration to develop.
+- Internal disclosure begins once the report is triaged and confirmed, before public disclosure.
 - Content: status, affected versions, mitigation, patch/release plan.
 
 ### 5. Public Disclosure
 
 - Preferred channel: GitHub Security Advisories
 - Link: https://github.com/OpenEMS/openems/security/advisories
-- Public disclosure happens after a fix is available (fix-first rule).
+- Public disclosure never occurs before a fix is available (**fix-first rule**).
 - Default timing: 60 days after internal disclosure, unless decided otherwise by the Maintainer.
 
 ### 6. Release Notes
@@ -141,7 +155,7 @@ Out of scope:
 - User-specific deployment hardening and operations (users are responsible for their deployments)
 - Local environment hardening and network perimeter security
 - Vulnerabilities only in third-party dependencies not maintained by OpenEMS
-- Forks and custom downstream variants
+- Vulnerabilities that exist only in forks or downstream variants and are not reproducible in this repository
 - Unsupported/older versions
 
 Contributions on deployment documentation are still welcome, and deployment best-practice discussions are encouraged in the OpenEMS Community.
