@@ -335,7 +335,16 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 
 	@Override
 	public Integer getSurplusPower() {
-		return null;
+		var productionPower = this.getTotalDcPower().orElse(0);
+		if (productionPower < 100) {
+			return null;
+		}
+		// "+" because the allowed charge power is negative
+		var surplusPower = productionPower + this.getAllowedChargePower().orElse(0);
+		if (surplusPower < 0) {
+			return null;
+		}
+		return surplusPower;
 	}
 
 	@Override
