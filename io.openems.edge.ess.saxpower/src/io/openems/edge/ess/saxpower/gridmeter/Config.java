@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     String modbus_id() default "modbus0";
 
     @AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
-    int modbusUnitId() default 64;
+    int modbusUnitId() default 100;
 
     String webconsole_configurationFactory_nameHint() default "SAX Power ESS Grid-Meter [{id}]";
 }

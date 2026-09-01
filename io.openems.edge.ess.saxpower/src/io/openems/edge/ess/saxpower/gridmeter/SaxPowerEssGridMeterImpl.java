@@ -11,6 +11,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -38,7 +39,7 @@ import org.osgi.service.metatype.annotations.Designate;
 public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         implements SaxPowerEssGridMeter, ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
-    private static final int ACTIVE_POWER_OFFSET = 16384;
+    public static final int GRID_POWER_WELL_KNOWN_SCALE = 1;
 
     @Reference
     private ConfigurationAdmin cm;
@@ -53,6 +54,8 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
     protected void setModbus(BridgeModbus modbus) {
         super.setModbus(modbus);
     }
+
+    private final UnsignedWordElement gridPowerScaleFactor = new UnsignedWordElement(40076);
 
     public SaxPowerEssGridMeterImpl() {
         super(//
@@ -82,25 +85,51 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         super.deactivate();
     }
 
+    int encode_int16(int raw) {
+        if (raw > 32767) {
+            return raw - 65536;
+        } else {
+            return raw;
+        }
+    }
+
+    public int getGridPowerScaleFactor() {
+        IntegerReadChannel value = this.channel(SaxPowerEssGridMeter.ChannelId.GRID_POWER_SCALE_FACTOR);
+        return value.getNextValue().orElse(GRID_POWER_WELL_KNOWN_SCALE);
+    }
+    public int scalePower(int raw) {
+        return (int) (((Number) raw).intValue() * Math.pow(10, this.getGridPowerScaleFactor()));
+    }
+
+    public Object channelConverter(Object val) {
+        if (val == null) {
+            return null;
+        }
+        int value = ((Number) val).intValue();
+        return encode_int16(scalePower(value));
+    }
+
+    private final ElementToChannelConverter scaleConverter =
+            new ElementToChannelConverter(this::channelConverter);
+
     @Override
     protected ModbusProtocol defineModbusProtocol() {
         return new ModbusProtocol(this,
-                new FC3ReadRegistersTask(48, Priority.HIGH,
-                        m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(48),
-                                new ElementToChannelConverter(val -> {
-                                    if (val == null) {
-                                        return null;
-                                    }
-                                    return ((Number) val).intValue() - ACTIVE_POWER_OFFSET;
-                                })
-                        )
+                new FC3ReadRegistersTask(40076, Priority.HIGH,
+                        m(SaxPowerEssGridMeter.ChannelId.GRID_POWER_SCALE_FACTOR, this.gridPowerScaleFactor)
+                ),
+                new FC3ReadRegistersTask(40072, Priority.HIGH, //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER,    new UnsignedWordElement(40072), this.scaleConverter), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(40073), this.scaleConverter), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(40074), this.scaleConverter), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(40075), this.scaleConverter)
                 )
         );
     }
 
     @Override
     public String debugLog() {
-        return "L:" + this.getActivePower().asString();
+        return "L:" + this.getActivePower().asString() + "|L1:" + this.getActivePowerL1() + "|L2:" + this.getActivePowerL2() + "|L3:" + this.getActivePowerL3();
     }
 
     @Override
