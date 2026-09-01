@@ -1,18 +1,18 @@
-= openEMS goes PLCnext
+= OpenEMS goes PLCnext
 
 = Motivation
 
-Phoenix Contact strongly believes in open automation and open-source technologies. At the same time, we are firmly committed to our vision of the All Electric Society. These are the key reasons for participating in the openEMS project. openEMS enables a wide range of energy management use cases. The idea was not merely to run openEMS as an application on another embedded device. Instead, the goal was to extend the engineering possibilities of openEMS by integrating it with PLCnext Technology.
+Phoenix Contact strongly believes in open automation and open-source technologies. At the same time, we are firmly committed to our vision of the All Electric Society. These are the key reasons for participating in the OpenEMS project. OpenEMS enables a wide range of energy management use cases. The idea was not merely to run OpenEMS as an application on another embedded device. Instead, the goal was to extend the engineering possibilities of OpenEMS by integrating it with PLCnext Technology.
 
 = Abstract
 
-This blog post describes an approach for using openEMS integrated into PLCnext Technology. To enable the use of openEMS on PLCnext, this article covers the following aspects:
+This blog post describes an approach for using OpenEMS integrated into PLCnext Technology. To enable the use of OpenEMS on PLCnext, this article covers the following aspects:
 
-Deployment of openEMS on PLCnext targets Setup of a development environment for openEMS with PLCnext
+Deployment of OpenEMS on PLCnext targets Setup of a development environment for OpenEMS with PLCnext
 
 = Basic Concept
 
-openEMS is an application with a wide variety of drivers that cover a broad range of devices and use cases. In the system architecture, we see two separate applications: openEMS, which includes communication and algorithmic functionality, and the UI, which generates the user interface for the end user.
+OpenEMS is an application with a wide variety of drivers that cover a broad range of devices and use cases. In the system architecture, we see two separate applications: OpenEMS, which includes communication and algorithmic functionality, and the UI, which generates the user interface for the end user.
 
 .OpenEMS system architecture
 image::images/2026-03-30-OnPremise-OpenEMS.png[OpenEMS system architecture]
@@ -28,11 +28,11 @@ In industrial projects, it is common that changes need to be made at the last mi
 .Further Information about PLCnext Technology: https://plcnext.help/[plcnext.help]
 image::images/2026-03-30-Focus-OpenEMS_with_PLCnext.png[OpenEMS system architecture]
 
-= Deployment of openEMS Edge for PLCnext targets
+= Deployment of OpenEMS Edge for PLCnext targets
 
 == Controller Preparations
 
-__Note: We recommend the AXC F 3152 as the minimum hardware requirement for using openEMS. The AXC F 2152 is usable, but its performance is limited depending on the size and complexity of the IEC project.
+__Note: We recommend the AXC F 3152 as the minimum hardware requirement for using OpenEMS. The AXC F 2152 is usable, but its performance is limited depending on the size and complexity of the IEC project.
 __
 Installation of the Java Runtime Environment on the controller.
 
@@ -48,9 +48,9 @@ Download a JRE and copy the files to the controller.
 
 __Note: You can also use WinSCP or FileZilla to transfer the files and to make the folders.__
 
-Use the following script to create the openEMS environment and install the Java JRE on the target system:
+Use the following script to create the OpenEMS environment and install the Java JRE on the target system:
 
-https://www.plcnext-community.net/plcNext_install_jre.sh[openEMS Environment Script] Copy the script to the controller:
+https://www.plcnext-community.net/plcNext_install_jre.sh[OpenEMS Environment Script] Copy the script to the controller:
 
     scp plcNext_install_jre.sh admin@:/opt/plcnext
 
@@ -71,7 +71,7 @@ You should get as result:
     OpenJDK Runtime Environment (build 21.0.10+10-LTS)
     OpenJDK 64-Bit Server VM (build 21.0.10+10-LTS, mixed mode, sharing)
 
-If you receive the output, the system is ready to deploy openEMS on the target.
+If you receive the output, the system is ready to deploy OpenEMS on the target.
 
 = Deployment
 
@@ -84,7 +84,7 @@ image::images/2026-04-08_CA_Cert_Setting.png[PLCnext screenshot]
 
 == Add the binary and startup script
 
-Copy the openEMS-edge.jar and the PLCnext-Start-OpenEMS-Edge.sh in the bin folder:
+Copy the `openems-edge.jar` and the PLCnext-Start-OpenEMS-Edge.sh in the bin folder:
 
     scp openems-edge.jar admin@:/opt/plcnext/apps/openems-edge/bin
     scp PLCnext-Start-OpenEMS-Edge.sh admin@:/opt/plcnext/apps/openems-edge/bin
@@ -107,19 +107,19 @@ The output should look like:
     2026-04-07T06:27:28,385 [lNumber)] INFO  [onent.AbstractOpenemsComponent] [_serialNumber] Modified Core.SerialNumber
     2026-04-07T06:27:28,673 [artLevel] INFO  [onent.AbstractOpenemsComponent] [_power] Activate Ess.Power
 
-Done. openEMS is running on the target. Next Step is to configure openEMS and build up the connection to the PLCnext GDS.
+Done. OpenEMS is running on the target. Next Step is to configure OpenEMS and build up the connection to the PLCnext GDS.
 
-== openEMS Configuration
+== OpenEMS Configuration
 
 Start to configure via:
 
     http://<YourControlerIPAddressHere>:8080/system/console/configMgr
 
-Then you could read openEMS Docs to configure system for your project. openEMS Docs: https://openems.github.io/openems.io/openems/latest/gettingstarted.html[Getting Started]
+Then you could read OpenEMS Docs to configure system for your project. OpenEMS Docs: https://openems.github.io/openems.io/openems/latest/gettingstarted.html[Getting Started]
 
 == Usage of the PLCnext driver
 
-The communication between openEMS and the PLC is based on REST and uses a standard data structures for the data transfer. On the openEMS side, the driver is ready to use; you only need to configure the credentials and the path to your data structure.
+The communication between OpenEMS and the PLC is based on REST and uses a standard data structures for the data transfer. On the OpenEMS side, the driver is ready to use; you only need to configure the credentials and the path to your data structure.
 
 On the PLCnext controller, it is necessary to create a project and add the required data structures for each device. In the following example, we configure a PLCnext meter.
 
@@ -158,20 +158,20 @@ On the PLCnext controller, it is necessary to create a project and add the requi
 
 * Create a variable named meter1 and tag the variable as an HMI variable.
 
-. Configure the meter in openEMS. The parameters in the green box are the PLCnext specific.
+. Configure the meter in OpenEMS. The parameters in the green box are the PLCnext specific.
 * Base-URL: The default path of the PLCnext REST interface. Change the IP address to match your controller.
 * Username: Refers to the user management of the PLCnext controller. The default user is admin.
 * Password: Refers to the user management of the PLCnext controller. You can find the default password printed on the controller. Further information: https://plcnext.help/te/WBM2/WBM2_Security_User-management.htm[PLCnext User management]
-* Data instance name: Name of the data structure in the IEC context that represents the meter device in the PLC project. The openEMS driver expects specific fields (see below). The default prefix ``Arp.Plc.Eclr/`` refers to a standard component of your PLC program. ``Meter1`` is the name of the variable defined in your program. __Note: The name of the component is displayed in the Task and Event Overview in PLCnext Engineer.__
+* Data instance name: Name of the data structure in the IEC context that represents the meter device in the PLC project. The OpenEMS driver expects specific fields (see below). The default prefix ``Arp.Plc.Eclr/`` refers to a standard component of your PLC program. ``Meter1`` is the name of the variable defined in your program. __Note: The name of the component is displayed in the Task and Event Overview in PLCnext Engineer.__
 
 .Screenshot OpenEMS PLCnext Meter view in Apache Felix console
 image::images/2026-04-14_Meter_Settings.png[Screenshot OpenEMS console meter component]
 
-== openEMS UI on PLCnext
+== OpenEMS UI on PLCnext
 
-If you want to work with the openEMS UI directly on the controller, we recommend using the Docker image with Podman.
+If you want to work with the OpenEMS UI directly on the controller, we recommend using the Docker image with Podman.
 
-*Preparations in openEMS Edge*
+*Preparations in OpenEMS Edge*
 
 . Add the Controller API WebSocket component to your configuration.
 . Ensure that the configured ports match your environment (the default settings should work).
@@ -179,7 +179,7 @@ If you want to work with the openEMS UI directly on the controller, we recommend
 .Screenshot Apache Felix console UI websocket
 image::images/Controller_API_WebSocket.png[Screenshot OpenEMS console UI websocket]
 
-*openEMS UI with Podman*
+*OpenEMS UI with Podman*
 
 . Establish an SSH connection to your target.
 . On the controller, pull the image from Docker HUB
@@ -197,7 +197,7 @@ image::images/Controller_API_WebSocket.png[Screenshot OpenEMS console UI websock
 
 == Finally: Connecting the parts
 
-Open a terminal and start openEMS edge via the startup script:
+Open a terminal and start OpenEMS Edge via the startup script:
 
     admin@axcf3152:/opt/plcnext/apps/openems-edge/bin$ ./PLCnext-Start-OpenEMS-Edge.sh
 
@@ -216,7 +216,7 @@ Make sure that your PLCnext project is running and the REST interface is activat
 
 == Result
 
-*openEMS Edge Log:*
+*OpenEMS Edge Log:*
 
     admin@axcf3152:/opt/plcnext/apps/openems-edge/bin$ ./PLCnext-Start-OpenEMS-Edge.sh
     JRE truststore found :)
@@ -231,7 +231,7 @@ Open the congfiguration site via:
 
     http://<YourControlerIPAddressHere>:8080/system/console/configMgr
 
-*openEMS UI:*
+*OpenEMS UI:*
 
     admin@axcf3152:~$  podman run --name openems_ui --replace \
                             -p 8500:80 -p 8443:443 \
@@ -248,7 +248,7 @@ Open the UI via:
 = Appendix
 
 * link:deploy/openems-edge/opt/plcnext/apps/openems-edge/bin/plcNext_install_jre.sh[plcNext_install_jre.sh] : Installtion script for Java on the PLCnext target.
-* link:deploy/openems-edge/opt/plcnext/apps/openems-edge/bin/PLCnext-Start-OpenEMS-Edge.sh[PLCnext-Start-OpenEMS-Edge.sh] : Start up script for openEMS on the PLCnext target.
+* link:deploy/openems-edge/opt/plcnext/apps/openems-edge/bin/PLCnext-Start-OpenEMS-Edge.sh[PLCnext-Start-OpenEMS-Edge.sh] : Start up script for OpenEMS on the PLCnext target.
 * Data types for PLCnext Engineer:
 
     TYPE
