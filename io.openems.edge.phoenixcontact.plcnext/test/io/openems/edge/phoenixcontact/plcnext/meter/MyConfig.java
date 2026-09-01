@@ -4,12 +4,12 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
-public class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.meter.Config {
+public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private MeterType meterType;
-		private String namespaceVariables;
+		private MeterType meterType = MeterType.PRODUCTION;
+		private String namespaceVariables = "";
 
 		private Builder() {
 		}
@@ -29,8 +29,8 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 			return this;
 		}
 
-		public TestConfig build() {
-			return new TestConfig(this);
+		public MyConfig build() {
+			return new MyConfig(this);
 		}
 
 	}
@@ -46,14 +46,14 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	private final Builder builder;
 
-	private TestConfig(Builder builder) {
+	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
 
 	@Override
 	public MeterType type() {
-		return this.builder.meterType == null ? MeterType.PRODUCTION : this.builder.meterType;
+		return this.builder.meterType;
 	}
 
 	@Override
@@ -83,6 +83,6 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public String namespaceVariables() {
-		return this.builder.namespaceVariables == null ? "" : this.builder.namespaceVariables;
+		return this.builder.namespaceVariables;
 	}
 }

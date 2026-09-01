@@ -1,16 +1,16 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -22,7 +22,7 @@ public class PlcNextTokenManagerTest {
 
 	private PlcNextTokenManagerImpl tokenManager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.authClientConfig = new PlcNextAuthConfig("https://localhost/auth", "/v1.3/auth", "junit", "junit");
 
