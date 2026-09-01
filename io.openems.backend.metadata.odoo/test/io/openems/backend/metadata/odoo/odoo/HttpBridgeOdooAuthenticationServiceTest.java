@@ -38,7 +38,7 @@ class HttpBridgeOdooAuthenticationServiceTest {
 
 	@Test
 	void testIsSessionExpired() {
-		try (var service = new HttpBridgeOdooAuthenticationService(null, null)) {
+		try (var service = new HttpBridgeOdooAuthenticationService(null, null, null)) {
 			assertTrue(service.isSessionExpired(HttpResponse.ok(DUMMY_SESSION_EXPIRED_RESPONSE), null));
 		}
 	}
@@ -49,7 +49,7 @@ class HttpBridgeOdooAuthenticationServiceTest {
 
 		final var bridge = testBundle.bridgeFactory().get();
 		final var odooService = bridge
-				.createService(new HttpBridgeOdooAuthenticationServiceDefinition(DUMMY_ODOO_CREDENTIALS));
+				.createService(new HttpBridgeOdooAuthenticationServiceDefinition(DUMMY_ODOO_CREDENTIALS, null));
 
 		final var endpointCalled = testBundle.expect(endpoint -> {
 			assertThat(endpoint.url(), endsWith("/web/session/authenticate"));

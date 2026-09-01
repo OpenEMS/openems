@@ -14,7 +14,6 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -35,7 +34,6 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -79,7 +77,6 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -127,7 +124,6 @@ public class ControllerIoHeatingElementImplTest2 {
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //

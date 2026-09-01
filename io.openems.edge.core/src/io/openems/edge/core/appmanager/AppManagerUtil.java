@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
@@ -112,8 +113,8 @@ public interface AppManagerUtil {
 	 * @throws OpenemsNamedException if not found
 	 */
 	public default OpenemsAppInstance findInstanceByIdOrError(UUID id) throws OpenemsNamedException {
-		return this.findInstanceById(id)
-				.orElseThrow(() -> new OpenemsException("Unable to find instance with id '" + id + "'"));
+		return this.findInstanceById(id) //
+				.orElseThrow(() -> OpenemsError.EDGE_APP_INSTANCE_NOT_FOUND.exception(id));
 	}
 
 	/**

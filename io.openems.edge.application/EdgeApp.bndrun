@@ -193,6 +193,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.meter.ziehl',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
+	bnd.identity;id='io.openems.edge.phoenixcontact.plcnext',\
 	bnd.identity;id='io.openems.edge.predictor.lstm',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.production.linearmodel',\
@@ -238,7 +239,7 @@
 	com.google.gson;version='[2.14.0,2.14.1)',\
 	com.google.guava;version='[33.7.1,33.7.2)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.google.protobuf;version='[4.35.1,4.35.2)',\
+	com.google.protobuf;version='[4.36.0,4.36.1)',\
 	com.opencsv;version='[5.9.0,5.9.1)',\
 	com.squareup.okhttp3;version='[5.5.0,5.5.1)',\
 	com.squareup.okhttp3.logging;version='[5.5.0,5.5.1)',\
@@ -407,6 +408,7 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
+	io.openems.edge.phoenixcontact.plcnext;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\

@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -33,7 +32,6 @@ public class GoodWeGridMeterImplTest {
 		final var sut = new GoodWeGridMeterImpl();
 
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
@@ -128,7 +126,6 @@ public class GoodWeGridMeterImplTest {
 	@Test
 	public void testReadFromModbus() throws Exception {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(36003, 0, 1) // States
 						.withRegisters(35123, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) // F_GRID_R etc.
@@ -198,7 +195,6 @@ public class GoodWeGridMeterImplTest {
 	@Test
 	public void testExternalMeterRatio() throws Exception {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
@@ -212,7 +208,6 @@ public class GoodWeGridMeterImplTest {
 						.output(EXTERNAL_METER_RATIO, 600));
 
 		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
@@ -226,7 +221,6 @@ public class GoodWeGridMeterImplTest {
 						.output(EXTERNAL_METER_RATIO, 100));
 
 		new ComponentTest(new GoodWeGridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //

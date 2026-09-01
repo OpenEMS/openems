@@ -1,8 +1,7 @@
 package io.openems.edge.goodwe.charger.twostring;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.goodwe.ess.GoodWeEssImpl;
 
@@ -12,7 +11,6 @@ public class GoodWeChargerTwoStringImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new GoodWeChargerTwoStringImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("essOrBatteryInverter", new GoodWeEssImpl()) //
 				.activate(MyConfig.create() //
 						.setId("charger0") //

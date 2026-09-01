@@ -2,6 +2,7 @@ package io.openems.edge.controller.evse.single;
 
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
+import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.calculatePowerStep;
 import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY;
 import static java.lang.Math.max;
@@ -21,10 +22,38 @@ public final class Utils {
 
 	protected static final ApplySetPoint.Ability.Watt combineAbilities(ChargePointAbilities chargePointAbilities,
 			ElectricVehicleAbilities electricVehicleAbilities) {
+		if (chargePointAbilities == null) {
+			return EMPTY_APPLY_SET_POINT_ABILITY;
+		}
+		return combineAbility(chargePointAbilities.applySetPoint(), electricVehicleAbilities);
+	}
+
+	protected static final ApplySetPoint.Ability.Watt combineOppositePhaseAbilities(
+			ChargePointAbilities chargePointAbilities, ElectricVehicleAbilities electricVehicleAbilities) {
 		if (chargePointAbilities == null || electricVehicleAbilities == null) {
 			return EMPTY_APPLY_SET_POINT_ABILITY;
 		}
-		final var cp = chargePointAbilities.applySetPoint();
+		final var phaseSwitch = chargePointAbilities.phaseSwitch();
+		if (phaseSwitch == null) {
+			return EMPTY_APPLY_SET_POINT_ABILITY;
+		}
+		// Determine opposite phase from switching direction
+		final var targetPhase = phaseSwitch.direction() == TO_THREE_PHASE ? THREE_PHASE : SINGLE_PHASE;
+		// Extract EV limits for the opposite phase
+		final var evLimit = targetPhase == SINGLE_PHASE //
+				? electricVehicleAbilities.singlePhaseLimit()
+				: electricVehicleAbilities.threePhaseLimit();
+		return evLimit != null && !evLimit.equals(EMPTY_APPLY_SET_POINT_ABILITY) //
+				? new ApplySetPoint.Ability.Watt(targetPhase, evLimit.min(), evLimit.max()) //
+				: EMPTY_APPLY_SET_POINT_ABILITY;
+	}
+
+	private static ApplySetPoint.Ability.Watt combineAbility(ApplySetPoint.Ability chargePointAbility,
+			ElectricVehicleAbilities electricVehicleAbilities) {
+		if (chargePointAbility == null || electricVehicleAbilities == null) {
+			return EMPTY_APPLY_SET_POINT_ABILITY;
+		}
+		final var cp = chargePointAbility;
 		final var cpMin = cp.toPower(cp.min());
 		final var cpMax = cp.toPower(cp.max());
 		return switch (cp.phase()) {

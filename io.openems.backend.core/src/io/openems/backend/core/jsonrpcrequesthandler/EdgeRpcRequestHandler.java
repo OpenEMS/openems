@@ -64,7 +64,7 @@ public class EdgeRpcRequestHandler {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
 
-		final var role = this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, EdgeRpcRequest.METHOD);
+		final var role = this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, EdgeRpcRequest.METHOD);
 
 		var resultFuture = switch (request.getMethod()) {
 		case AppCenterRequest.METHOD -> AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
