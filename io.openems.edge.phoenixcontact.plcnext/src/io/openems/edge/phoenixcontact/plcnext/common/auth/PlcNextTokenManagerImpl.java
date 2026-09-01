@@ -121,7 +121,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDto> fetchAuthToken(PlcNextAuthConfig config) {
 		var authTokenEndpoint = this.buildAuthTokenEndpointRepresentation(config);
-		this.log.info("Fetching bearer token from endpoint URL: '{}'", authTokenEndpoint.url());
+		log.info("Fetching bearer token from endpoint URL: '{}'", authTokenEndpoint.url());
 
 		try {
 			return this.http.requestJson(authTokenEndpoint) //
