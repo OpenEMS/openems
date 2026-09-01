@@ -1,4 +1,4 @@
-= io.openems.edge.phoenixcontact.plcnext
+= Phoenix Contact PLCnext
 
 Official drivers for PLCnext architecture of Phoenix Contact.
 
