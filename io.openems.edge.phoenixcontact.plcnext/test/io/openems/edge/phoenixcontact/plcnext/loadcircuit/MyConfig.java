@@ -1,11 +1,15 @@
-package io.openems.edge.phoenixcontact.plcnext.ess;
+package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.ess.Config {
+public class MyConfig extends AbstractComponentConfig implements Config {
+
 	protected static class Builder {
 		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private String modbusTarget;
 
 		private Builder() {
 		}
@@ -15,8 +19,8 @@ class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoe
 			return this;
 		}
 
-		public TestConfig build() {
-			return new TestConfig(this);
+		public MyConfig build() {
+			return new MyConfig(this);
 		}
 
 	}
@@ -32,7 +36,7 @@ class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoe
 
 	private final Builder builder;
 
-	private TestConfig(Builder builder) {
+	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
@@ -59,6 +63,6 @@ class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoe
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitEss.";
+		return "OpenEmsInstance4JUnitLoadCircuit.";
 	}
 }

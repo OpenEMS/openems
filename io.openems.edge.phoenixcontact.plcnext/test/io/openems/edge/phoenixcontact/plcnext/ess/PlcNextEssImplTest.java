@@ -1,6 +1,6 @@
 package io.openems.edge.phoenixcontact.plcnext.ess;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -61,7 +61,7 @@ public class PlcNextEssImplTest {
 				((IntegerWriteChannel) sut.channel(channelId)).getNextWriteValue().get());
 	}
 
-	private TestConfig myConfig;
+	private MyConfig myConfig;
 
 	private BridgeHttp dummyAuthBridgeHttp;
 	private BridgeHttp mockDummyDataBridgeHttp;
@@ -81,9 +81,9 @@ public class PlcNextEssImplTest {
 
 	private String accessToken;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() throws Exception {
-		this.myConfig = TestConfig.create() //
+		this.myConfig = MyConfig.create() //
 				.setId(COMPONENT_ID) //
 				.build();
 		this.componentUnderTest = new PlcNextEssImpl();
