@@ -166,7 +166,7 @@ public class PlcNextLoadCircuitImplTest {
 		this.test //
 				.activate(this.myConfig)
 
-				.next(new TestCase("Trigger value consumption and do one wait cycle")) //
+				.next(new TestCase("Trigger value consumption and do 10 wait cycles"), 10) //
 				.next(new TestCase("Check requested data dropped in asynchronously")
 						.onAfterProcessImage(assertChannelValue(//
 								this.componentUnderTest, PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT,
