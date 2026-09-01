@@ -1,10 +1,10 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,7 +18,7 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 	private PlcNextGdsDataToChannelMapper dataMapper;
 	private String instanceName;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() {
 		this.dataMapper = new PlcNextGdsDataToChannelMapperImpl();
 		this.instanceName = "MeasurementDevice.";
