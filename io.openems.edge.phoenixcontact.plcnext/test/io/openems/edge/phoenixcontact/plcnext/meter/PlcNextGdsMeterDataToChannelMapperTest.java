@@ -1,15 +1,17 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
-import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 
 public class PlcNextGdsMeterDataToChannelMapperTest {
 
@@ -32,8 +34,8 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
-		var mappedValue = this.dataMapper.mapSingleValueToChannel(primitiveVariable, this.instanceName,
-				"jUnit", PlcNextMeterGdsDataReadMappingDefinition.values());
+		var mappedValue = this.dataMapper.mapSingleValueToChannel(primitiveVariable, this.instanceName, "jUnit",
+				PlcNextMeterGdsDataReadMappingDefinition.values());
 
 		// check
 		assertNotNull(mappedValue);
@@ -49,18 +51,18 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 		apiResponse.addProperty("projectCRC", 1410814331);
 		apiResponse.addProperty("userAuthenticationRequired", true);
 
-        var expectedValue = 12345;
+		var expectedValue = 12345;
 		var primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path", this.instanceName + "activePowerL123");
 		primitiveVariable.addProperty("value", expectedValue);
 
-        var variables = new JsonArray();
-        variables.add(primitiveVariable);
+		var variables = new JsonArray();
+		variables.add(primitiveVariable);
 		apiResponse.add("variables", variables);
 
 		// test
-		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables,
-				this.instanceName,"junit", PlcNextMeterGdsDataReadMappingDefinition.values());
+		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables, this.instanceName, "junit",
+				PlcNextMeterGdsDataReadMappingDefinition.values());
 
 		// check
 		assertNotNull(mappedValues);
@@ -73,8 +75,8 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 
 	@Test
 	public void testAllPlcNextVariablesAreMapped_Successfully() {
-        // prep
-        var variables = new JsonArray();
+		// prep
+		var variables = new JsonArray();
 
 		var expectedValueVoltagesL1N = 11000;
 		var varPhaseVoltages = new JsonObject();
@@ -82,13 +84,13 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 		varPhaseVoltages.addProperty("value", expectedValueVoltagesL1N);
 		variables.add(varPhaseVoltages);
 
-        var expectedValueNeutralCurrent = 55000;
+		var expectedValueNeutralCurrent = 55000;
 		var varNeutralCurrent = new JsonObject();
 		varNeutralCurrent.addProperty("path", this.instanceName + "CurrentNeutral");
 		varNeutralCurrent.addProperty("value", expectedValueNeutralCurrent);
 		variables.add(varNeutralCurrent);
 
-        var expectedValueEnergyImport = 44000L;
+		var expectedValueEnergyImport = 44000L;
 		var varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path", this.instanceName + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedValueEnergyImport);
@@ -97,9 +99,8 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 		var mappedVariableCount = 3;
 
 		// test
-		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables,
-				this.instanceName,
-				"jUnit", PlcNextMeterGdsDataReadMappingDefinition.values());
+		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables, this.instanceName, "jUnit",
+				PlcNextMeterGdsDataReadMappingDefinition.values());
 
 		// check
 		assertNotNull(mappedValues);

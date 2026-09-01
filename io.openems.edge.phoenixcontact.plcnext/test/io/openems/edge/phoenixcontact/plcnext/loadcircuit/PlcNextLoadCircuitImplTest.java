@@ -1,7 +1,21 @@
 package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -22,18 +36,6 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PlcNextLoadCircuitImplTest {
 
@@ -87,25 +89,25 @@ public class PlcNextLoadCircuitImplTest {
 		};
 
 		this.mockDummyDataBridgeHttp = mock(DummyBridgeHttp.class);
-		when(this.mockDummyDataBridgeHttp.createService(any())).thenReturn(
-                        new HttpBridgeTimeServiceImpl(this.mockDummyDataBridgeHttp, new DummyBridgeHttpExecutor()));
+		when(this.mockDummyDataBridgeHttp.createService(any()))
+				.thenReturn(new HttpBridgeTimeServiceImpl(this.mockDummyDataBridgeHttp, new DummyBridgeHttpExecutor()));
 		this.tokenManager = new PlcNextTokenManagerImpl(this.dummyAuthBridgeHttp);
 
 		this.dataProvider = new PlcNextGdsDataProviderImpl(this.mockDummyDataBridgeHttp, this.tokenManager);
-		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(
-                this.myConfig.baseUrl(), this.myConfig.dataInstanceName(), COMPONENT_ID);
+		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(this.myConfig.baseUrl(),
+				this.myConfig.dataInstanceName(), COMPONENT_ID);
 
 		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
 
-		var createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(
-                this.dataProviderConfig.dataUrl(),
+		var createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_SESSIONS);
 		var createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
-		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
-                && arg.method() == HttpMethod.POST
-                && arg.url().startsWith(createSessionEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(//
+				argThat(arg -> Objects.nonNull(arg) //
+						&& arg.method() == HttpMethod.POST //
+						&& arg.url().startsWith(createSessionEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(
 						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
@@ -114,9 +116,10 @@ public class PlcNextLoadCircuitImplTest {
 				.append("/").append(SESSION_ID).toString();
 		var maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", SESSION_ID);
-		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
-                && arg.method() == HttpMethod.POST
-                && arg.url().startsWith(maintainSessionEndpointUrl)))) //
+		when(this.mockDummyDataBridgeHttp.requestJson(//
+				argThat(arg -> Objects.nonNull(arg) //
+						&& arg.method() == HttpMethod.POST //
+						&& arg.url().startsWith(maintainSessionEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.test = new ComponentTest(this.componentUnderTest) //
@@ -136,40 +139,45 @@ public class PlcNextLoadCircuitImplTest {
 		varMaxPowerExport.addProperty("value", expectedMaxPowerExportValue);
 		variables.add(varMaxPowerExport);
 
-        var expectedMaxPowerImportValue = 210001;
+		var expectedMaxPowerImportValue = 210001;
 		var varMaxPowerImport = new JsonObject();
 		varMaxPowerImport.addProperty("path", this.myConfig.dataInstanceName() + "MaxPowerImport");
 		varMaxPowerImport.addProperty("value", expectedMaxPowerImportValue);
 		variables.add(varMaxPowerImport);
 
-        var expectedReactivePowerValue = 320001;
+		var expectedReactivePowerValue = 320001;
 		var varSetReactivePower = new JsonObject();
 		varSetReactivePower.addProperty("path", this.myConfig.dataInstanceName() + "MaxReactivePower");
 		varSetReactivePower.addProperty("value", expectedReactivePowerValue);
 		variables.add(varSetReactivePower);
 
-        var responseBody = new JsonObject();
+		var responseBody = new JsonObject();
 		responseBody.add("variables", variables);
 
 		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(this.dataProviderConfig.dataUrl(),
 				PlcNextGdsDataProvider.PATH_VARIABLES);
-		when(this.mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg)
-                && arg.method() == HttpMethod.POST
-                && arg.url().equals(dataEndpointUrl))))
+		when(this.mockDummyDataBridgeHttp.requestJson(//
+				argThat(arg -> Objects.nonNull(arg) //
+						&& arg.method() == HttpMethod.POST //
+						&& arg.url().equals(dataEndpointUrl))))
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
 
 		// test + check
-		this.test.activate(this.myConfig); //
+		this.test //
+				.activate(this.myConfig)
 
-		this.test.next(new TestCase("Trigger value consumption and do one wait cycle")) //
+				.next(new TestCase("Trigger value consumption and do one wait cycle")) //
 				.next(new TestCase("Check requested data dropped in asynchronously")
-						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT, expectedMaxPowerExportValue)) //
-						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_IMPORT, expectedMaxPowerImportValue)) //
-						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER, expectedReactivePowerValue))); //
+						.onAfterProcessImage(assertChannelValue(//
+								this.componentUnderTest, PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT,
+								expectedMaxPowerExportValue)) //
+						.onAfterProcessImage(assertChannelValue(//
+								this.componentUnderTest, PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_IMPORT,
+								expectedMaxPowerImportValue)) //
+						.onAfterProcessImage(assertChannelValue(//
+								this.componentUnderTest, PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER,
+								expectedReactivePowerValue)))
 
-		this.test.deactivate();
+				.deactivate();
 	}
 }

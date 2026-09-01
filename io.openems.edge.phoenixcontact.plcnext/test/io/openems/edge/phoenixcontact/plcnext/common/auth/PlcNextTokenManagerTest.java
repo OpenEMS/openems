@@ -1,44 +1,45 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
-import io.openems.common.bridge.http.api.HttpError;
-import io.openems.common.bridge.http.api.HttpResponse;
-import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
-import io.openems.common.types.HttpStatus;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
+import io.openems.common.types.HttpStatus;
+
 public class PlcNextTokenManagerTest {
 	private PlcNextAuthConfig authClientConfig;
 
-    private PlcNextTokenManagerImpl tokenManager;
+	private PlcNextTokenManagerImpl tokenManager;
 
 	@Before
 	public void setup() {
 		this.authClientConfig = new PlcNextAuthConfig("https://localhost/auth", "/v1.3/auth", "junit", "junit");
 
-        var dummyAuthBridgeHttp = new DummyBridgeHttp() {
-            @Override
-            public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-                if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-                    return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
-                            "{'code': 'dummy_auth', 'expires_in': 600 }"));
-                } else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-                    return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
-                            "{'access_token': 'dummy_access'}"));
-                } else {
-                    throw new IllegalStateException("Use not suitable!");
-                }
-            }
-        };
+		var dummyAuthBridgeHttp = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
+							"{'code': 'dummy_auth', 'expires_in': 600 }"));
+				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture.supplyAsync(
+							() -> new HttpResponse<>(HttpStatus.OK, Map.of(), "{'access_token': 'dummy_access'}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
+			}
+		};
 		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
 	}
 
@@ -71,12 +72,13 @@ public class PlcNextTokenManagerTest {
 	public void testBuildAccessTokenEndpoint_Successfully() {
 		// prep
 		var expectedRequestUrl = this.authClientConfig.authUrl() + PlcNextTokenManager.PATH_ACCESS_TOKEN;
-		var expectedRequestBody = new StringBuilder("{ ")
-				.append("\"code\": \"4711\", ")
-				.append("\"grant_type\": \"authorization_code\", ")
-				.append("\"username\": \"").append(this.authClientConfig.username()).append("\", ")
-				.append("\"password\": \"").append(this.authClientConfig.password()).append("\" ")
-				.append("}").toString();
+		var expectedRequestBody = new StringBuilder("{ ") //
+				.append("\"code\": \"4711\", ") //
+				.append("\"grant_type\": \"authorization_code\", ") //
+				.append("\"username\": \"").append(this.authClientConfig.username()).append("\", ") //
+				.append("\"password\": \"").append(this.authClientConfig.password()).append("\" ") //
+				.append("}") //
+				.toString();
 		var authToken = new PlcNextAuthAndAccessTokenDto("4711", 0);
 
 		// test
@@ -109,7 +111,6 @@ public class PlcNextTokenManagerTest {
 		// test
 		assertThrows(CompletionException.class, //
 				() -> tokenManagerFailing.fetchToken(this.authClientConfig).join());
-
 
 		// check
 		var accessToken = tokenManagerFailing.getToken();

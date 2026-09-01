@@ -32,7 +32,7 @@ public class TestConfig extends AbstractComponentConfig
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
-        return new Builder();
+		return new Builder();
 	}
 
 	private final Builder builder;
@@ -49,8 +49,8 @@ public class TestConfig extends AbstractComponentConfig
 
 	@Override
 	public String pathAuthApi() {
-        return "/v1.3/auth";
-    }
+		return "/v1.3/auth";
+	}
 
 	@Override
 	public String username() {

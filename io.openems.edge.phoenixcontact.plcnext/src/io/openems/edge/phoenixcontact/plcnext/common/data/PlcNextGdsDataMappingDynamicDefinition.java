@@ -6,16 +6,16 @@ import io.openems.edge.common.channel.ChannelId;
  * Generic mapping definition.
  */
 public record PlcNextGdsDataMappingDynamicDefinition(String varIdentifier, ChannelId channelId)
-        implements PlcNextGdsDataMappingDefinition {
+		implements PlcNextGdsDataMappingDefinition {
 
-    @Override
-    public ChannelId getChannelId() {
-        return this.channelId;
-    }
+	@Override
+	public ChannelId getChannelId() {
+		return this.channelId;
+	}
 
-    @Override
-    public String getIdentifier() {
-        return this.varIdentifier;
-    }
+	@Override
+	public String getIdentifier() {
+		return this.varIdentifier;
+	}
 
 }

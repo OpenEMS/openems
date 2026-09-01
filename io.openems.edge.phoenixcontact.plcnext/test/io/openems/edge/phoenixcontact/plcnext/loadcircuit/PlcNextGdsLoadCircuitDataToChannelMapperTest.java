@@ -1,16 +1,18 @@
 package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappedValue;
-import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappedValue;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 
 public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 
@@ -33,9 +35,8 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
-		var mappedValue = this.dataMapper.mapSingleValueToChannel(primitiveVariable,
-				this.instanceName,
-				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		var mappedValue = this.dataMapper.mapSingleValueToChannel(primitiveVariable, this.instanceName, "jUnit",
+				PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
 		assertNotNull(mappedValue);
@@ -52,23 +53,22 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		apiResponse.addProperty("projectCRC", 1410814331);
 		apiResponse.addProperty("userAuthenticationRequired", true);
 
-        var expectedValue = 12345;
+		var expectedValue = 12345;
 		var primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path", this.instanceName + "MaxReactivePower");
 		primitiveVariable.addProperty("value", expectedValue);
 
 		var variables = new JsonArray();
-        variables.add(primitiveVariable);
+		variables.add(primitiveVariable);
 
-        apiResponse.add("variables", variables);
+		apiResponse.add("variables", variables);
 
 		// test
 		List<PlcNextGdsDataMappedValue> mappedValues = this.dataMapper.mapAllValuesToChannels(variables,
-				this.instanceName,
-				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+				this.instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
-        // check
-        assertNotNull(mappedValues);
+		// check
+		assertNotNull(mappedValues);
 		assertEquals(1, mappedValues.size());
 
 		var mappedValue = mappedValues.getFirst();
@@ -87,7 +87,7 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		varPhaseVoltages.addProperty("value", expectedValueMaxPowerExport);
 		variables.add(varPhaseVoltages);
 
-        var expectedValueMaxPowerImport = 22001;
+		var expectedValueMaxPowerImport = 22001;
 		var varNeutralCurrent = new JsonObject();
 		varNeutralCurrent.addProperty("path", this.instanceName + "MaxPowerImport");
 		varNeutralCurrent.addProperty("value", expectedValueMaxPowerImport);
@@ -96,9 +96,8 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		var mappedVariableCount = 2;
 
 		// test
-		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables,
-				this.instanceName,
-				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		var mappedValues = this.dataMapper.mapAllValuesToChannels(variables, this.instanceName, "jUnit",
+				PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
 		assertNotNull(mappedValues);

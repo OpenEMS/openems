@@ -1,46 +1,47 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
-import io.openems.common.types.MeterType;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.types.MeterType;
+
 @ObjectClassDefinition(//
-        name = "Meter Phoenix Contact PLCnext", //
-        description = "Provides a meter component based on Phoenix Contact PLCnext platform. Take care of corresponding PLCnext component library." //
+		name = "Meter Phoenix Contact PLCnext", //
+		description = "Provides a meter component based on Phoenix Contact PLCnext platform. Take care of corresponding PLCnext component library." //
 )
 @interface Config {
 
-    @AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-    String id() default "plcnextmeter0";
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "plcnextmeter0";
 
-    @AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
-    String alias() default "";
+	@AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
+	String alias() default "";
 
-    @AttributeDefinition(name = "Is enabled?", description = "Is this component enabled?")
-    boolean enabled() default true;
+	@AttributeDefinition(name = "Is enabled?", description = "Is this component enabled?")
+	boolean enabled() default true;
 
-    @AttributeDefinition(name = "Meter-Type", description = "Grid, Production (= default), Consumption")
-    MeterType type() default MeterType.PRODUCTION;
+	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (= default), Consumption")
+	MeterType type() default MeterType.PRODUCTION;
 
-    @AttributeDefinition(name = "Base-URL", description = "Defines base URL for PLCnext authorization and data access")
-    String baseUrl() default "https://192.168.1.10/_pxc_api";
+	@AttributeDefinition(name = "Base-URL", description = "Defines base URL for PLCnext authorization and data access")
+	String baseUrl() default "https://192.168.1.10/_pxc_api";
 
-    @AttributeDefinition(name = "Path auth API", description = "Defines URL path to PLCnext auth API")
-    String pathAuthApi() default "/v1.3/auth";
+	@AttributeDefinition(name = "Path auth API", description = "Defines URL path to PLCnext auth API")
+	String pathAuthApi() default "/v1.3/auth";
 
-    @AttributeDefinition(name = "Username", description = "Credentials: username")
-    String username() default "admin";
+	@AttributeDefinition(name = "Username", description = "Credentials: username")
+	String username() default "admin";
 
-    @AttributeDefinition(name = "Password", description = "Credentials: password", type = AttributeType.PASSWORD)
-    String password() default "admin";
+	@AttributeDefinition(name = "Password", description = "Credentials: password", type = AttributeType.PASSWORD)
+	String password() default "admin";
 
-    @AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-    String dataInstanceName() default "MeasurementDevice";
+	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
+	String dataInstanceName() default "MeasurementDevice";
 
-    @AttributeDefinition(name = "Namespace of variables", description = "Substructure name to configure different meters for ESS, PV and Load-Circuit in GDS")
-    String namespaceVariables() default "";
+	@AttributeDefinition(name = "Namespace of variables", description = "Substructure name to configure different meters for ESS, PV and Load-Circuit in GDS")
+	String namespaceVariables() default "";
 
-    String webconsole_configurationFactory_nameHint() default "Meter Phoenix Contact PLCnext [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Meter Phoenix Contact PLCnext [{id}]";
 
 }

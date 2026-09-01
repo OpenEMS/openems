@@ -4,9 +4,9 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 
 public class PlcNextDummyBridgeHttp extends DummyBridgeHttp {
 
-    final String accessToken;
+	final String accessToken;
 
-    public PlcNextDummyBridgeHttp(String accessToken) {
-        this.accessToken = accessToken;
-    }
+	public PlcNextDummyBridgeHttp(String accessToken) {
+		this.accessToken = accessToken;
+	}
 }

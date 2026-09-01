@@ -1,14 +1,15 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
-import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
-import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
+import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
 
 public class PlcNextChannelToGdsDataMapperImplTest {
 

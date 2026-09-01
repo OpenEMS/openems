@@ -1,13 +1,15 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
-import com.google.gson.JsonObject;
-import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.gson.JsonObject;
+
+import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 
 public class PlcNextGdsDataToChannelMapperImplTest {
 
@@ -27,8 +29,8 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		JsonObject primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path", this.instanceName + expectedVariableName);
 
-		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName)
-                .orElse(null);
+		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName) //
+				.orElse(null);
 		assertNotNull(variableName);
 		assertEquals(expectedVariableName, variableName);
 	}
@@ -37,8 +39,8 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 	public void testVariableNameExtraction_FailureDueToMissingPathElement() {
 		JsonObject primitiveVariable = new JsonObject();
 
-		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName)
-                .orElse(null);
+		String variableName = this.dataMapper.getVariableName(primitiveVariable, this.instanceName) //
+				.orElse(null);
 		assertNull(variableName);
 	}
 
@@ -54,8 +56,8 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		responseBody.addProperty("value", (String) null);
 		responseBody.add("error", errorObject);
 
-        // test
-        PlcNextGdsDataMappedValue result = this.dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
+		// test
+		PlcNextGdsDataMappedValue result = this.dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
 				PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
 
 		// check

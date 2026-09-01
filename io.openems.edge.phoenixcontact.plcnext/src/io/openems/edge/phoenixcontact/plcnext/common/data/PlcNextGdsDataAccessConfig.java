@@ -7,15 +7,15 @@ import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelpe
  */
 public record PlcNextGdsDataAccessConfig(String baseUrl, String dataInstanceName, String stationId) {
 
-    private static final String PLC_NEXT_DATA_API_PATH = "/api";
+	private static final String PLC_NEXT_DATA_API_PATH = "/api";
 
-    /**
-     * Assembles URL for data access endpoint.
-     *
-     * @return URL for data access endpoint
-     */
-    public String dataUrl() {
-        return PlcNextUrlStringHelper.buildUrlString(this.baseUrl, PLC_NEXT_DATA_API_PATH);
-    }
+	/**
+	 * Assembles URL for data access endpoint.
+	 *
+	 * @return URL for data access endpoint
+	 */
+	public String dataUrl() {
+		return PlcNextUrlStringHelper.buildUrlString(this.baseUrl, PLC_NEXT_DATA_API_PATH);
+	}
 
 }

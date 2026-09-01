@@ -1,7 +1,26 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
@@ -13,23 +32,6 @@ import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImpl;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PlcNextGdsDataProviderReadTest {
 
@@ -44,13 +46,13 @@ public class PlcNextGdsDataProviderReadTest {
 
 	@Before
 	public void setupBefore() {
-		this.dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables", "MeasurementDevice",
-				"meter0");
+		this.dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables",
+				"MeasurementDevice", "meter0");
 		this.accessToken = "dummy_access_token";
 
 		this.mockDummyBridgeHttp = mock(DummyBridgeHttp.class);
-		when(this.mockDummyBridgeHttp.createService(any())).thenReturn(
-                new HttpBridgeTimeServiceImpl(this. mockDummyBridgeHttp, new DummyBridgeHttpExecutor()));
+		when(this.mockDummyBridgeHttp.createService(any()))
+				.thenReturn(new HttpBridgeTimeServiceImpl(this.mockDummyBridgeHttp, new DummyBridgeHttpExecutor()));
 
 		this.mockTokenManager = mock(PlcNextTokenManagerImpl.class);
 
@@ -66,29 +68,30 @@ public class PlcNextGdsDataProviderReadTest {
 		when(this.mockTokenManager.hasValidToken()).thenReturn(true);
 
 		// test
-		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers, this.dataProviderConfig);
-		var result = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
-                requestBody, this.dataProviderConfig);
+		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers,
+				this.dataProviderConfig);
+		var result = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST, requestBody,
+				this.dataProviderConfig);
 
-        // check
-        assertNotNull(result);
+		// check
+		assertNotNull(result);
 		assertEquals(HttpMethod.POST, result.method());
 
-        var expectedReqUrl = this.dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
+		var expectedReqUrl = this.dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		assertEquals(expectedReqUrl, result.url());
 
-        var expectedReqBody = new StringBuilder("pathPrefix=")//
-                .append("&paths=")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("energyImport")//
-                .append("&sessionID=").append(this.sessionId).toString();
+		var expectedReqBody = new StringBuilder("pathPrefix=")//
+				.append("&paths=")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("energyImport")//
+				.append("&sessionID=").append(this.sessionId).toString();
 		assertEquals(expectedReqBody, result.body());
 
-        var expectedReqHeaders = Map.of(//
-                "Authorization", "Bearer " + this.accessToken, //
-                "Content-Type", "application/json", //
-                "Accept", "application/json");
+		var expectedReqHeaders = Map.of(//
+				"Authorization", "Bearer " + this.accessToken, //
+				"Content-Type", "application/json", //
+				"Accept", "application/json");
 		assertEquals(expectedReqHeaders, result.properties());
 	}
 
@@ -101,28 +104,30 @@ public class PlcNextGdsDataProviderReadTest {
 		when(this.mockTokenManager.hasValidToken()).thenReturn(false);
 
 		// test
-		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers, this.dataProviderConfig);
-		var result = this.dataProvider.buildDataEndpointRepresentation(null, HttpMethod.POST, requestBody, this.dataProviderConfig);
+		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers,
+				this.dataProviderConfig);
+		var result = this.dataProvider.buildDataEndpointRepresentation(null, HttpMethod.POST, requestBody,
+				this.dataProviderConfig);
 
-        // check
-        assertNotNull(result);
-        assertEquals(HttpMethod.POST, result.method());
+		// check
+		assertNotNull(result);
+		assertEquals(HttpMethod.POST, result.method());
 
-        var expectedReqUrl = this.dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
+		var expectedReqUrl = this.dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		assertEquals(expectedReqUrl, result.url());
 
-        var expectedReqBody = new StringBuilder("pathPrefix=")//
-                .append("&paths=")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
-                .append(this.dataProviderConfig.dataInstanceName()).append("energyImport")//
-                .append("&sessionID=").append(this.sessionId)//
-                .toString();
+		var expectedReqBody = new StringBuilder("pathPrefix=")//
+				.append("&paths=")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
+				.append(this.dataProviderConfig.dataInstanceName()).append("energyImport")//
+				.append("&sessionID=").append(this.sessionId)//
+				.toString();
 		assertEquals(expectedReqBody, result.body());
 
-        var expectedReqHeaders = Map.of(//
-                "Content-Type", "application/json", //
-                "Accept", "application/json");
+		var expectedReqHeaders = Map.of(//
+				"Content-Type", "application/json", //
+				"Accept", "application/json");
 		assertEquals(expectedReqHeaders, result.properties());
 	}
 
@@ -137,20 +142,20 @@ public class PlcNextGdsDataProviderReadTest {
 		var result = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST, requestBody,
 				this.dataProviderConfig);
 
-        // check
-        assertNotNull(result);
+		// check
+		assertNotNull(result);
 		assertEquals(HttpMethod.POST, result.method());
 
-        var expectedReqUrl = this.dataProviderConfig.dataUrl() + PlcNextGdsDataProvider.PATH_VARIABLES;
+		var expectedReqUrl = this.dataProviderConfig.dataUrl() + PlcNextGdsDataProvider.PATH_VARIABLES;
 		assertEquals(expectedReqUrl, result.url());
 
-        var expectedReqBody = "";
+		var expectedReqBody = "";
 		assertEquals(expectedReqBody, result.body());
 
-        var expectedReqHeaders = Map.of(//
-                "Authorization", "Bearer " + this.accessToken, //
-                "Content-Type", "application/json", //
-                "Accept", "application/json");
+		var expectedReqHeaders = Map.of(//
+				"Authorization", "Bearer " + this.accessToken, //
+				"Content-Type", "application/json", //
+				"Accept", "application/json");
 		assertEquals(expectedReqHeaders, result.properties());
 	}
 
@@ -181,7 +186,7 @@ public class PlcNextGdsDataProviderReadTest {
 
 		varPhaseVoltages.add("value", varPhaseVoltagesValues);
 
-        var variables = new JsonArray();
+		var variables = new JsonArray();
 		variables.add(varPhaseVoltages);
 
 		var varNeutralCurrent = new JsonObject();
@@ -194,17 +199,19 @@ public class PlcNextGdsDataProviderReadTest {
 		varEnergyImport.addProperty("value", 4.4);
 		variables.add(varEnergyImport);
 
-        var dataResponseBody = new JsonObject();
+		var dataResponseBody = new JsonObject();
 		dataResponseBody.add("variables", variables);
 
-        var variableIdentifiers = List.of("phase_voltages", "neutral_current", "energy_import");
-        var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers, this.dataProviderConfig);
-        var dataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST, requestBody,
-                this.dataProviderConfig);
-        when(this.mockDummyBridgeHttp.requestJson(eq(dataEndpoint)))//
+		var variableIdentifiers = List.of("phase_voltages", "neutral_current", "energy_import");
+		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers,
+				this.dataProviderConfig);
+		var dataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
+				requestBody, this.dataProviderConfig);
+		when(this.mockDummyBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(dataResponseBody)));
 
-		var createSessionEndpoint = this.dataProvider.buildCreateSessionEndpoint(this.accessToken, this.dataProviderConfig);
+		var createSessionEndpoint = this.dataProvider.buildCreateSessionEndpoint(this.accessToken,
+				this.dataProviderConfig);
 		var createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", this.sessionId);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
@@ -212,7 +219,8 @@ public class PlcNextGdsDataProviderReadTest {
 				.thenReturn(CompletableFuture.supplyAsync(
 						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-		var maintainSessionEndpoint = this.dataProvider.buildMaintainSessionEndpoint(this.accessToken, this.sessionId, this.dataProviderConfig);
+		var maintainSessionEndpoint = this.dataProvider.buildMaintainSessionEndpoint(this.accessToken, this.sessionId,
+				this.dataProviderConfig);
 		var maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", this.sessionId);
 		when(this.mockDummyBridgeHttp.requestJson(maintainSessionEndpoint))//
@@ -232,7 +240,8 @@ public class PlcNextGdsDataProviderReadTest {
 		when(this.mockTokenManager.getToken()).thenReturn(this.accessToken);
 		when(this.mockTokenManager.hasValidToken()).thenReturn(true);
 
-		var createSessionEndpoint = this.dataProvider.buildCreateSessionEndpoint(this.accessToken, this.dataProviderConfig);
+		var createSessionEndpoint = this.dataProvider.buildCreateSessionEndpoint(this.accessToken,
+				this.dataProviderConfig);
 
 		var createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", this.sessionId);
@@ -251,17 +260,18 @@ public class PlcNextGdsDataProviderReadTest {
 		when(this.mockDummyBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
-        var variableIdentifiers = List.of("phaseVoltages", "neutralCurrent", "energyImport");
-		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers, this.dataProviderConfig);
-		var dataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST, requestBody,
+		var variableIdentifiers = List.of("phaseVoltages", "neutralCurrent", "energyImport");
+		var requestBody = this.dataProvider.buildPostBodyForRead(this.sessionId, variableIdentifiers,
 				this.dataProviderConfig);
+		var dataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
+				requestBody, this.dataProviderConfig);
 
 		when(this.mockDummyBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenThrow(CompletionException.class);
 
 		// test + check
-		assertThrows(CompletionException.class, () -> 
-			this.dataProvider.readDataFromRestApi(variableIdentifiers, this.dataProviderConfig, null).join());
+		assertThrows(CompletionException.class,
+				() -> this.dataProvider.readDataFromRestApi(variableIdentifiers, this.dataProviderConfig, null).join());
 	}
 
 	@Test
@@ -271,15 +281,13 @@ public class PlcNextGdsDataProviderReadTest {
 
 		when(this.mockTokenManager.getToken()).thenReturn(null);
 		when(this.mockTokenManager.hasValidToken()).thenReturn(false);
-		when(this.mockTokenManager.fetchToken(any())).thenReturn(
-				CompletableFuture.completedFuture(null));
+		when(this.mockTokenManager.fetchToken(any())).thenReturn(CompletableFuture.completedFuture(null));
 
 		when(this.mockDummyBridgeHttp.requestJson(any(Endpoint.class)))//
 				.thenThrow(CompletionException.class);
 
 		// test
-		var result = this.dataProvider.readDataFromRestApi(
-				variableIdentifiers, this.dataProviderConfig, null);
+		var result = this.dataProvider.readDataFromRestApi(variableIdentifiers, this.dataProviderConfig, null);
 
 		// check
 		assertNotNull(result);
@@ -301,8 +309,7 @@ public class PlcNextGdsDataProviderReadTest {
 						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		// test
-		var createSessionResponse = this.dataProvider.createOrFetchSessionID(this.dataProviderConfig)
-				.join();
+		var createSessionResponse = this.dataProvider.createOrFetchSessionID(this.dataProviderConfig).join();
 
 		// check
 		assertNotNull(createSessionResponse);
@@ -320,8 +327,7 @@ public class PlcNextGdsDataProviderReadTest {
 				.thenThrow(CompletionException.class);
 
 		// test
-		var result = this.dataProvider
-				.createOrFetchSessionID(this.dataProviderConfig);
+		var result = this.dataProvider.createOrFetchSessionID(this.dataProviderConfig);
 
 		// check
 		assertNotNull(result);
@@ -334,7 +340,7 @@ public class PlcNextGdsDataProviderReadTest {
 		when(this.mockTokenManager.getToken()).thenReturn(this.accessToken);
 		when(this.mockTokenManager.hasValidToken()).thenReturn(true);
 
-        this.initializeSession();
+		this.initializeSession();
 
 		// test register
 		var te = this.dataProvider.enableSessionMaintenance(Delay.immediate(), this.dataProviderConfig);
@@ -354,7 +360,7 @@ public class PlcNextGdsDataProviderReadTest {
 		// prep
 		when(this.mockTokenManager.hasValidToken()).thenReturn(false);
 
-        this.initializeSession();
+		this.initializeSession();
 
 		// test register
 		var te = this.dataProvider.enableSessionMaintenance(Delay.immediate(), this.dataProviderConfig);
@@ -374,7 +380,7 @@ public class PlcNextGdsDataProviderReadTest {
 		// prep
 		when(this.mockTokenManager.hasValidToken()).thenReturn(true);
 
-        this.initializeSession();
+		this.initializeSession();
 
 		// test register
 		var te = this.dataProvider.enableSessionMaintenance(Delay.immediate(), this.dataProviderConfig);
@@ -394,7 +400,7 @@ public class PlcNextGdsDataProviderReadTest {
 		// prep
 		when(this.mockTokenManager.hasValidToken()).thenReturn(true);
 
-        this.initializeSession();
+		this.initializeSession();
 
 		// test register
 		var te = this.dataProvider.enableSessionMaintenance(Delay.immediate(), this.dataProviderConfig);
@@ -409,15 +415,15 @@ public class PlcNextGdsDataProviderReadTest {
 		assertNull(this.dataProvider.getSessionId());
 	}
 
-    private void initializeSession() {
-        var createSessionResponseBody = new JsonObject();
-        createSessionResponseBody.addProperty("sessionID", this.sessionId);
-        createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
+	private void initializeSession() {
+		var createSessionResponseBody = new JsonObject();
+		createSessionResponseBody.addProperty("sessionID", this.sessionId);
+		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
 
-        when(this.mockDummyBridgeHttp.requestJson(any()))//
-                .thenReturn(CompletableFuture.supplyAsync(
-                        () -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+		when(this.mockDummyBridgeHttp.requestJson(any()))//
+				.thenReturn(CompletableFuture.supplyAsync(
+						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-        this.dataProvider.createOrFetchSessionID(this.dataProviderConfig).join();
-    }
+		this.dataProvider.createOrFetchSessionID(this.dataProviderConfig).join();
+	}
 }
