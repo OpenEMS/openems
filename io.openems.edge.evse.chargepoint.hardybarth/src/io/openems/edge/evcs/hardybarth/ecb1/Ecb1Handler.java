@@ -130,14 +130,14 @@ public class Ecb1Handler {
 					.setBodyFormEncoded(Map.of()) //
 					.build());
 		}
-		return this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/mode/manual/ampere") //
+		this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/mode/manual/ampere") //
 				.setMethod(POST) //
 				.setBodyFormEncoded(Map.of("manualmodeamp", String.valueOf(currentA))) //
-				.build()) //
-				.thenCompose(r -> this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/start") //
-						.setMethod(POST) //
-						.setBodyFormEncoded(Map.of()) //
-						.build()));
+				.build());
+		return this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/start") //
+				.setMethod(POST) //
+				.setBodyFormEncoded(Map.of()) //
+				.build());
 	}
 
 	/**
