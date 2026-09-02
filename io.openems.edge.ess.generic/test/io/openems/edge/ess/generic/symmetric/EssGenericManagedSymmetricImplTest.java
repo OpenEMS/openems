@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.common.channel.Level;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
@@ -46,7 +45,6 @@ public class EssGenericManagedSymmetricImplTest {
 	public void testStart() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ComponentTest(new EssGenericManagedSymmetricImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
 				.addReference("battery", new DummyBattery("battery0")//
@@ -78,7 +76,6 @@ public class EssGenericManagedSymmetricImplTest {
 	public void testForceCharge() throws Exception {
 		new ManagedSymmetricEssTest(new EssGenericManagedSymmetricImpl()) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
 				.addReference("battery", new DummyBattery("battery0") //
@@ -114,7 +111,6 @@ public class EssGenericManagedSymmetricImplTest {
 		var sut = new EssGenericManagedSymmetricImpl();
 		new ManagedSymmetricEssTest(sut) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0") //
 						.withStartStop(StartStop.START) //
@@ -142,7 +138,6 @@ public class EssGenericManagedSymmetricImplTest {
 		var sut = new EssGenericManagedSymmetricImpl(); //
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
 				.addReference("battery", new DummyBattery("battery0")) //
@@ -180,7 +175,6 @@ public class EssGenericManagedSymmetricImplTest {
 		final var timedata = new DummyTimedata("timedata");
 		final var event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, Map.of());
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
 				.addReference("battery", new DummyBattery("battery0")) //

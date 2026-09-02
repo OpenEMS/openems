@@ -71,7 +71,6 @@ public class TestUtils {
 		final var test = new ControllerTest(ctrlCluster) //
 				.addReference("sum", new DummySum()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ctrls", stream(singleSuts) //
 						.map(SingleSut::ctrlSingle) //
 						.toList()); //

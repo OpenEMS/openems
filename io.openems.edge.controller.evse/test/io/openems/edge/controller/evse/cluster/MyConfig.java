@@ -1,7 +1,5 @@
 package io.openems.edge.controller.evse.cluster;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -65,11 +63,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String[] ctrl_ids() {
 		return this.builder.ctrlIds;
-	}
-
-	@Override
-	public String ctrls_target() {
-		return generateReferenceTargetFilter(this.id(), this.ctrl_ids());
 	}
 
 	@Override
