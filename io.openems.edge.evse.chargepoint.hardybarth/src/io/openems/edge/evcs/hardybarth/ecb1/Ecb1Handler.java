@@ -178,12 +178,12 @@ public class Ecb1Handler {
 		}
 
 		var stateId = getIntOrNull(cc, "stateid");
-		var state = getStringOrNull(cc, "state");
-		var mode = getStringOrNull(cc, "mode");
-		var connected = getBooleanOrNull(cc, "connected");
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
+		var state = getStringOrNull(cc, "state");
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE, state);
+		var mode = getStringOrNull(cc, "mode");
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MODE, mode);
+		var connected = getBooleanOrNull(cc, "connected");
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, getDoubleOrNull(cc, "manualmodeamp"));
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, getDoubleOrNull(cc, "currentpwmamp"));
