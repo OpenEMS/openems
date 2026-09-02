@@ -1,7 +1,10 @@
 package io.openems.edge.evse.chargepoint.hardybarth.ecb1;
 
 import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.edge.common.test.TestUtils.withValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -14,9 +17,13 @@ import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.type.Phase;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.hardybarth.ecb1.Ecb1Handler;
 import io.openems.edge.evcs.hardybarth.ecb1.EvcsHardyBarthEcb1;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 class EvseChargePointHardyBarthEcb1ImplTest {
@@ -204,6 +211,84 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 				"Expected a start POST");
 		assertTrue(sentBodies.stream().anyMatch(b -> b.contains("manualmodeamp=10")),
 				"Expected manualmodeamp=10");
+	}
+
+	@Test
+	void testGetChargePointAbilitiesDefaultThreePhase() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		buildTest(sut);
+
+		var abilities = sut.getChargePointAbilities();
+		var ampere = assertInstanceOf(ApplySetPoint.Ability.Ampere.class, abilities.applySetPoint());
+		assertEquals(Phase.SingleOrThreePhase.THREE_PHASE, ampere.phase());
+		assertEquals(6, ampere.min());
+		assertEquals(32, ampere.max());
+		assertFalse(abilities.isEvConnected());
+	}
+
+	@Test
+	void testGetChargePointAbilitiesSinglePhase() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		buildTest(sut);
+		withValue(sut, ElectricityMeter.ChannelId.CURRENT_L1, Evcs.MIN_EVCS_ACTIVITY_CURRENT + 1);
+
+		var abilities = sut.getChargePointAbilities();
+		var ampere = assertInstanceOf(ApplySetPoint.Ability.Ampere.class, abilities.applySetPoint());
+		assertEquals(Phase.SingleOrThreePhase.SINGLE_PHASE, ampere.phase());
+	}
+
+	@Test
+	void testGetChargePointAbilitiesReadOnly() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory",
+						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber())) //
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setIp("192.168.2.8") //
+						.setChargeControlId(1) //
+						.setMeterId(1) //
+						.setMinHwCurrent(6_000) //
+						.setMaxHwCurrent(32_000) //
+						.setReadOnly(true) //
+						.build());
+
+		assertFalse(sut.getChargePointAbilities().applySetPoint() instanceof ApplySetPoint.Ability.Ampere);
+	}
+
+	@Test
+	void testApplyCallsHandler() throws Exception {
+		final var pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(false);
+		final var httpBundle = DummyBridgeHttpBundle.of(pool);
+		final var sentUrls = new java.util.ArrayList<String>();
+
+		httpBundle.fetcher().addEndpointHandler(ep -> {
+			sentUrls.add(ep.url());
+			return HttpResponse.ok("ok");
+		});
+
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber())) //
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setIp("192.168.2.8") //
+						.setChargeControlId(1) //
+						.setMeterId(1) //
+						.setMinHwCurrent(6_000) //
+						.setMaxHwCurrent(32_000) //
+						.build());
+
+		final var abilities = sut.getChargePointAbilities();
+		sut.apply(ChargePointActions.from(abilities).setApplySetPointInAmpere(10).build());
+		pool.update();
+
+		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/start")), "Expected a /start POST via apply()");
 	}
 
 	@Test
