@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -24,7 +25,7 @@ import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.common.types.MeterType;
+import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
 
@@ -39,7 +40,8 @@ import io.openems.edge.meter.api.PhaseRotation;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class EvcsHardyBarthEcb1Impl extends AbstractManagedEvcsComponent
-		implements EvcsHardyBarthEcb1, OpenemsComponent, EventHandler, ManagedEvcs, Evcs, ElectricityMeter {
+		implements EvcsHardyBarthEcb1, Ecb1Parent, OpenemsComponent, EventHandler, ManagedEvcs, Evcs,
+		ElectricityMeter {
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
@@ -77,8 +79,7 @@ public class EvcsHardyBarthEcb1Impl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.handler = new Ecb1Handler(this, config.ip(), config.chargeControlId(), config.meterId(),
-				this.httpBridgeFactory, this.httpBridgeCycleServiceDefinition,
-				this::_setChargingstationCommunicationFailed);
+				this.httpBridgeFactory, this.httpBridgeCycleServiceDefinition);
 	}
 
 	@Override
@@ -96,6 +97,29 @@ public class EvcsHardyBarthEcb1Impl extends AbstractManagedEvcsComponent
 			return;
 		}
 		super.handleEvent(event);
+	}
+
+	@Override
+	public void onChargeControlStatus(String state, Integer stateId, Boolean connected) {
+		this._setStatus(toStatus(state, stateId));
+	}
+
+	@Override
+	public void onCommunicationFailed(boolean failed) {
+		this._setChargingstationCommunicationFailed(failed);
+	}
+
+	private static Status toStatus(String state, Integer stateId) {
+		if (state == null || state.isEmpty()) {
+			return Status.UNDEFINED;
+		}
+		return switch (state.charAt(0)) {
+		case 'A' -> Status.NOT_READY_FOR_CHARGING;
+		case 'B' -> stateId != null && stateId == 17 ? Status.CHARGING_REJECTED : Status.READY_FOR_CHARGING;
+		case 'C', 'D' -> Status.CHARGING;
+		case 'E', 'F' -> Status.ERROR;
+		default -> Status.UNDEFINED;
+		};
 	}
 
 	@Override

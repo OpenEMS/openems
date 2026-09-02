@@ -16,21 +16,17 @@ import com.google.gson.JsonObject;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
-import io.openems.common.function.BooleanConsumer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.LatestWinsFutureExecutor;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.Status;
-import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Handles all HTTP communication with the Hardy Barth cPH1 ECB1 REST API.
  *
  * <p>
- * Reads charge-control status and meter data every cycle and dispatches
- * write commands (start / stop / set current) on demand.
+ * Reads charge-control status and meter data every cycle and dispatches write
+ * commands (start / stop / set current) on demand.
  */
 public class Ecb1Handler {
 
@@ -48,7 +44,7 @@ public class Ecb1Handler {
 
 	private final Logger log = LoggerFactory.getLogger(Ecb1Handler.class);
 
-	private final EvcsHardyBarthEcb1Impl parent;
+	private final Ecb1Parent parent;
 	private final String baseUrl;
 	private final int chargeControlId;
 	private final BridgeHttpFactory httpBridgeFactory;
@@ -59,9 +55,8 @@ public class Ecb1Handler {
 	/** Last target current sent to the device (A), or -1 if unknown. */
 	private int lastTargetCurrentA = -1;
 
-	public Ecb1Handler(EvcsHardyBarthEcb1Impl parent, String ip, int chargeControlId, int meterId,
-			BridgeHttpFactory httpBridgeFactory, HttpBridgeCycleServiceDefinition cycleServiceDef,
-			BooleanConsumer communicationFailed) {
+	public Ecb1Handler(Ecb1Parent parent, String ip, int chargeControlId, int meterId,
+			BridgeHttpFactory httpBridgeFactory, HttpBridgeCycleServiceDefinition cycleServiceDef) {
 		this.parent = parent;
 		this.baseUrl = "http://" + ip + "/api/v1";
 		this.chargeControlId = chargeControlId;
@@ -72,14 +67,8 @@ public class Ecb1Handler {
 		// Subscribe for charge-control status (every cycle)
 		this.cycleService.subscribeCycle(1, //
 				this.baseUrl + "/chargecontrols/" + chargeControlId, //
-				response -> {
-					this.handleChargeControlResponse(response.data());
-					communicationFailed.accept(false);
-				}, //
-				error -> {
-					setValue(this.parent, Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, true);
-					communicationFailed.accept(true);
-				});
+				response -> this.handleChargeControlResponse(response.data()), //
+				error -> this.parent.onCommunicationFailed(true));
 
 		// Subscribe for meter data (every cycle)
 		this.cycleService.subscribeCycle(1, //
@@ -195,12 +184,13 @@ public class Ecb1Handler {
 			this.setManualMode();
 		}
 
-		this.parent._setChargingstationCommunicationFailed(false);
-		this.parent._setStatus(this.toStatus(state, stateId, connected));
+		this.parent.onCommunicationFailed(false);
+		this.parent.onChargeControlStatus(state, stateId, connected);
 	}
 
 	/**
-	 * Parses a GET /api/v1/meters/{id} response and updates ElectricityMeter channels.
+	 * Parses a GET /api/v1/meters/{id} response and updates ElectricityMeter
+	 * channels.
 	 *
 	 * <p>
 	 * OBIS values are in SI base units: W for power, A for current, V for voltage,
@@ -266,30 +256,6 @@ public class Ecb1Handler {
 		Long energyWhLong = energyWh == null ? null : (long) Math.round(energyWh);
 		this.parent._setActiveProductionEnergy(energyWhLong);
 		this.parent._setActiveConsumptionEnergy(energyWhLong);
-	}
-
-	// -------------------------------------------------------------------------
-	// Status mapping
-	// -------------------------------------------------------------------------
-
-	private Status toStatus(String state, Integer stateId, Boolean connected) {
-		if (state == null || state.isEmpty()) {
-			return Status.UNDEFINED;
-		}
-		var firstChar = state.charAt(0);
-		return switch (firstChar) {
-		case 'A' -> Status.NOT_READY_FOR_CHARGING;
-		case 'B' -> {
-			// StateID 17 = explicitly paused by the controller
-			if (stateId != null && stateId == 17) {
-				yield Status.CHARGING_REJECTED;
-			}
-			yield Status.READY_FOR_CHARGING;
-		}
-		case 'C', 'D' -> Status.CHARGING;
-		case 'E', 'F' -> Status.ERROR;
-		default -> Status.UNDEFINED;
-		};
 	}
 
 	// -------------------------------------------------------------------------
