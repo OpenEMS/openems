@@ -193,4 +193,9 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 				ModbusSlaveNatureTable.of(GoodWeEss.class, accessMode, 100) //
 						.build());
 	}
+
+	@Override
+	public Integer getPvProduction() {
+		return this.calculatePvProduction();
+	}
 }
