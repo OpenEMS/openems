@@ -113,6 +113,7 @@ public class Ecb1Handler {
 			if (currentA == 0) {
 				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/stop") //
 						.setMethod(POST) //
+						.setBodyFormEncoded(Map.of()) //
 						.build());
 			} else {
 				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/mode/manual/ampere") //
@@ -121,6 +122,7 @@ public class Ecb1Handler {
 						.build());
 				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/start") //
 						.setMethod(POST) //
+						.setBodyFormEncoded(Map.of()) //
 						.build());
 			}
 			this.lastTargetCurrentA = currentA;
