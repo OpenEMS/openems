@@ -152,7 +152,7 @@ public class Ecb1Handler {
 	 *
 	 * @param body raw JSON response body
 	 */
-	void handleChargeControlResponse(String body) {
+	public void handleChargeControlResponse(String body) {
 		JsonObject json;
 		try {
 			json = JsonUtils.parseToJsonObject(body);
@@ -199,7 +199,7 @@ public class Ecb1Handler {
 	 *
 	 * @param body raw JSON response body
 	 */
-	void handleMeterResponse(String body) {
+	public void handleMeterResponse(String body) {
 		JsonObject json;
 		try {
 			json = JsonUtils.parseToJsonObject(body);
