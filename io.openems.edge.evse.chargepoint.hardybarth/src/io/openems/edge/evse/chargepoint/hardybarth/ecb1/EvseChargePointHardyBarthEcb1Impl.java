@@ -43,6 +43,7 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 
 	private Config config;
 	private Ecb1Handler handler;
+	private boolean isEvConnected = false;
 
 	public EvseChargePointHardyBarthEcb1Impl() {
 		super(//
@@ -80,6 +81,7 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 	public void onChargeControlStatus(String state, Integer stateId, Boolean connected) {
 		final var isReady = state != null && !state.isEmpty() //
 				&& (state.charAt(0) == 'B' || state.charAt(0) == 'C' || state.charAt(0) == 'D');
+		this.isEvConnected = Boolean.TRUE.equals(connected);
 		setValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, isReady);
 	}
 
@@ -94,7 +96,6 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 			return ChargePointAbilities.create().build();
 		}
 
-		final var connected = this.<Boolean>channel(EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED).value().orElse(false);
 		final var phaseCount = evaluatePhaseCountFromCurrent(//
 				this.getCurrentL1().orElse(0), //
 				this.getCurrentL2().orElse(0), //
@@ -107,7 +108,7 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phase, //
 						this.config.minHwCurrent() / 1000, //
 						this.config.maxHwCurrent() / 1000)) //
-				.setIsEvConnected(connected) //
+				.setIsEvConnected(this.isEvConnected) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
 				.build();
 	}
