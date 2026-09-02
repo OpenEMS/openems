@@ -5,18 +5,18 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.round;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
-import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.function.BooleanConsumer;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.LatestWinsFutureExecutor;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
@@ -73,7 +73,7 @@ public class Ecb1Handler {
 		this.cycleService.subscribeCycle(1, //
 				this.baseUrl + "/chargecontrols/" + chargeControlId, //
 				response -> {
-					this.handleChargeControlResponse(response.response());
+					this.handleChargeControlResponse(response.data());
 					communicationFailed.accept(false);
 				}, //
 				error -> {
@@ -84,7 +84,7 @@ public class Ecb1Handler {
 		// Subscribe for meter data (every cycle)
 		this.cycleService.subscribeCycle(1, //
 				this.baseUrl + "/meters/" + meterId, //
-				response -> this.handleMeterResponse(response.response()), //
+				response -> this.handleMeterResponse(response.data()), //
 				error -> this.log.warn("Failed to read ECB1 meter: " + error));
 
 		// Set manual mode on startup
@@ -103,31 +103,41 @@ public class Ecb1Handler {
 	 * Sets the charge target current. Call with 0 to stop charging.
 	 *
 	 * @param currentA target current in Ampere (0 = stop)
-	 * @return true (accepted for dispatch)
+	 * @return true if accepted for dispatch; false if the executor was cancelled
 	 */
 	public boolean setTarget(int currentA) {
 		if (currentA == this.lastTargetCurrentA) {
 			return true;
 		}
-		this.targetExecutor.submit(() -> {
-			if (currentA == 0) {
-				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/stop") //
+		try {
+			this.targetExecutor.execute(//
+					() -> this.dispatchTarget(currentA), //
+					(response, error) -> {
+						if (error == null) {
+							this.lastTargetCurrentA = currentA;
+						}
+					});
+			return true;
+		} catch (RejectedExecutionException e) {
+			return false;
+		}
+	}
+
+	private CompletableFuture<HttpResponse<String>> dispatchTarget(int currentA) {
+		if (currentA == 0) {
+			return this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/stop") //
+					.setMethod(POST) //
+					.setBodyFormEncoded(Map.of()) //
+					.build());
+		}
+		return this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/mode/manual/ampere") //
+				.setMethod(POST) //
+				.setBodyFormEncoded(Map.of("manualmodeamp", String.valueOf(currentA))) //
+				.build()) //
+				.thenCompose(r -> this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/start") //
 						.setMethod(POST) //
 						.setBodyFormEncoded(Map.of()) //
-						.build());
-			} else {
-				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/mode/manual/ampere") //
-						.setMethod(POST) //
-						.setBodyFormEncoded(Map.of("manualmodeamp", String.valueOf(currentA))) //
-						.build());
-				this.httpBridge.request(BridgeHttp.create(this.chargeControlUrl() + "/start") //
-						.setMethod(POST) //
-						.setBodyFormEncoded(Map.of()) //
-						.build());
-			}
-			this.lastTargetCurrentA = currentA;
-		});
-		return true;
+						.build()));
 	}
 
 	/**

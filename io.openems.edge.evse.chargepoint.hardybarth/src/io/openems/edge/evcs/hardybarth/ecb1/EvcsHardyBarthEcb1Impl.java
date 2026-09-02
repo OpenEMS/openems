@@ -24,8 +24,8 @@ import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.common.types.MeterType;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
