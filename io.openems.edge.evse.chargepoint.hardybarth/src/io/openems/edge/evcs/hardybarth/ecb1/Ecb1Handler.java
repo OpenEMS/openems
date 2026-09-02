@@ -181,19 +181,14 @@ public class Ecb1Handler {
 		var state = getStringOrNull(cc, "state");
 		var mode = getStringOrNull(cc, "mode");
 		var connected = getBooleanOrNull(cc, "connected");
-		var manualModeAmp = getDoubleOrNull(cc, "manualmodeamp");
-		var currentPwmAmp = getDoubleOrNull(cc, "currentpwmamp");
-		var vendor = getStringOrNull(cc, "vendor");
-		var version = getStringOrNull(cc, "version");
-
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE, state);
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MODE, mode);
 		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, manualModeAmp);
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, currentPwmAmp);
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VENDOR, vendor);
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VERSION, version);
+		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, getDoubleOrNull(cc, "manualmodeamp"));
+		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, getDoubleOrNull(cc, "currentpwmamp"));
+		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VENDOR, getStringOrNull(cc, "vendor"));
+		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VERSION, getStringOrNull(cc, "version"));
 
 		// Re-set manual mode if the device has drifted to another mode
 		if (mode != null && !mode.equals("manual")) {
