@@ -123,6 +123,10 @@ export class UserComponent implements OnInit {
         return UserTheme.LIGHT;
     } // Theme as of "Light","Dark" or "System" Themes.
 
+    protected get isThemeSelectionAvailable(): boolean {
+        return ["OpenEMS", "FENECON", "FENECONBeta"].includes(environment.theme);
+    }
+
     public static getNavigationTree(
         service: Service,
         translate: TranslateService,
