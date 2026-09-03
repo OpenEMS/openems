@@ -20,7 +20,9 @@
               <ion-grid>
                 <ion-row>
                   <ion-label class="ion-text-wrap ion-font-weight-bolder ion-display-flex ion-align-items-center">
-                    <ng-template *ngTemplateOutlet="contentIcon; context: { $implicit: button }"></ng-template>
+                    <span class="ion-padding-right-half">
+                      <ng-template *ngTemplateOutlet="contentIcon; context: { $implicit: button }"></ng-template>
+                    </span>
                     {{ button.name }}
                   </ion-label>
                 </ion-row>
@@ -41,11 +43,9 @@
 </form>
 
 <ng-template #contentIcon let-button>
-  <span class="ion-padding-right-half">
-    @for (icon of button.icon; track $index) {
-      <ion-icon [name]="icon.name" [color]="icon.color ?? 'medium'" [size]="icon.size ?? 'small'"></ion-icon>
-    }
-  </span>
+  @for (icon of button.icon; track $index) {
+    <ion-icon [name]="icon.name" [color]="icon.color ?? 'medium'" [size]="icon.size ?? 'small'"></ion-icon>
+  }
 </ng-template>
 
 <ng-template #contentLabel let-button>
