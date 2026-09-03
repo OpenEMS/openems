@@ -302,7 +302,8 @@
                         "RENAULT_ZOE": "Wird an dieser Ladesäule hauptsächlich ein Renault Zoe beladen?"
                     },
                     "AMOUNT_OF_CHARGING_STATIONS": "Anzahl der Ladestationen",
-                    "AUTOMATIC_SWITCHING": "Automatisch",
+                    "AUTOMATIC_SWITCHING": "Automatische Phasenumschaltung",
+                    "AUTOMATIC_SWITCHING_DESCRIPTION": "Die automatische Phasenumschaltung setzt voraus, dass sowohl das Fahrzeug als auch der Ladepunkt diese Funktion technisch unterstützen. Der Vorgang des Phasenwechsels kann wenige Minuten dauern, in denen das Fahrzeug nicht lädt.",
                     "CABLE": "Kabel",
                     "CABLE_NOT_CONNECTED": "Kabel ist nicht angeschlossen",
                     "CAR_FULL": "Auto ist voll",

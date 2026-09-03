@@ -67,6 +67,8 @@ export interface Environment {
         readonly COMPONENT: {
             readonly HEATPUMP: string;
             readonly EVCS: string;
+            readonly EVCS_PHASE_SWITCHING_1: string;
+            readonly EVCS_PHASE_SWITCHING_3: string;
             readonly HEATING_ELEMENT: string;
         };
         readonly STATUS: {

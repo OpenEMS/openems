@@ -60,7 +60,7 @@ export namespace ControllerEvseSingleShared {
                 new NavigationTree(
                     "phase-switching",
                     { baseString: "phase-switching" },
-                    { name: "menu-outline", color: "warning" },
+                    { name: "oe-phase-switching-3", color: "medium" },
                     translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
                     "label",
                     [],

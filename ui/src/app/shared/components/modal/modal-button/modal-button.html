@@ -1,26 +1,26 @@
-<form [formGroup]="formGroup" style="padding-top: 2%;">
-  @switch(control.type){
-    @case("SELECT"){
+<form [formGroup]="formGroup" style="padding-top: 2%">
+  @switch (control.type) {
+    @case ("SELECT") {
       <ion-segment [formControlName]="controlName">
         @for (button of _buttons; track button) {
           <ion-segment-button [value]="button.value" (click)="button.callback($event)" [ngStyle]="button.style" (keydown.enter)="(button.callback ?? defaultCallback)($event)">
             <ion-label>
-              <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
+              <ng-template *ngTemplateOutlet="contentLabel; context: { $implicit: button }"></ng-template>
             </ion-label>
-            <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
+            <ng-template *ngTemplateOutlet="contentIcon; context: { $implicit: button }"></ng-template>
           </ion-segment-button>
         }
       </ion-segment>
     }
-    @case("RADIO"){
+    @case ("RADIO") {
       <ion-radio-group [formControlName]="controlName">
         @for (button of _buttons; track button) {
           <ion-item>
             <ion-radio style="width: min-content" labelPlacement="end" justify="start" [value]="button.value" alignment="center">
               <ion-grid>
                 <ion-row>
-                  <ion-label class="ion-text-wrap ion-font-weight-bolder">
-                    <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
+                  <ion-label class="ion-text-wrap ion-font-weight-bolder ion-display-flex ion-align-items-center">
+                    <ng-template *ngTemplateOutlet="contentIcon; context: { $implicit: button }"></ng-template>
                     {{ button.name }}
                   </ion-label>
                 </ion-row>
@@ -41,13 +41,13 @@
 </form>
 
 <ng-template #contentIcon let-button>
-  @if (button.icon) {
-    <ion-icon [name]="button.icon.name"
-      [color]="formGroup.controls[controlName].value === button.value ? button.icon.color : 'medium'"
-      [size]="button.icon.size || 'small'"></ion-icon>
-  }
+  <span class="ion-padding-right-half">
+    @for (icon of button.icon; track $index) {
+      <ion-icon [name]="icon.name" [color]="icon.color ?? 'medium'" [size]="icon.size ?? 'small'"></ion-icon>
+    }
+  </span>
 </ng-template>
 
 <ng-template #contentLabel let-button>
-  {{button.name}}
+  {{ button.name }}
 </ng-template>

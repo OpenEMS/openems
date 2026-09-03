@@ -301,7 +301,8 @@
                         "RENAULT_ZOE": "Is a Renault Zoe mainly charged on this charging station?"
                     },
                     "AMOUNT_OF_CHARGING_STATIONS": "Amount of charging stations",
-                    "AUTOMATIC_SWITCHING": "Automatic",
+                    "AUTOMATIC_SWITCHING": "Automatic Phase Switching",
+                    "AUTOMATIC_SWITCHING_DESCRIPTION": "Automatic phase switching requires that both the vehicle and the charging point technically support this function. The phase-switching process can take a few minutes, during which the vehicle does not charge.",
                     "CABLE": "Cable",
                     "CABLE_NOT_CONNECTED": "Cable is not connected",
                     "CAR_FULL": "Car is full",
