@@ -9,7 +9,7 @@
         "FAQ": "Häufig gestellte Fragen (FAQ)",
         "LANGUAGE": "Sprache wählen:",
         "THEME": "Theme",
-        "NEW_UI": "Neues UI",
+        "NEW_UI": "Neues Design",
         "OPEN_EMS": "Mehr zu OpenEMS",
         "PATCHNOTES": "Änderungen im Monitoring zu diesem Build"
     },
@@ -470,11 +470,11 @@
                     "OPERATING_STATUS": "Betriebszustand",
                     "AUTOMATIC_DESCRIPTION": "Stelle hier die jeweiligen Schwellwerte für den Modus zum PV-Überschuss ein",
                     "BASE_MODE_DESCRIPTIONS": {
-                      "SWITCH_ON_COM": "Bei Einschaltbefehl heizt die Wärmepumpe auf höchster Stufe zur maximalen thermischen Speicherung.",
-                      "SWITCH_ON_REC": "Bei Aktivierung erhöht die Wärmepumpe ihre Leistung und nutzt verfügbare Energie verstärkt zur Wärmeerzeugung.",
-                      "NORMAL_OPERATION": "Die Wärmepumpe arbeitet bedarfsgeführt im regulären Leistungsbereich.",
-                      "AUTOMATIC": "Je nach eingestellten Schwellwerten des Netzbezugs sowie der Netzeinspeisung werden die einzelnen Modi geschaltet.\n(Die Schwellwerte können unter Einstellungen angepasst werden)",
-                      "LOCK": "Dieser Betriebszustand limitiert die Leistungsaufnahme der Wärmepumpe je nach Einstellung der Wärmepumpe auf 0 kW oder 4,2 kW."
+                        "SWITCH_ON_COM": "Bei Einschaltbefehl heizt die Wärmepumpe auf höchster Stufe zur maximalen thermischen Speicherung.",
+                        "SWITCH_ON_REC": "Bei Aktivierung erhöht die Wärmepumpe ihre Leistung und nutzt verfügbare Energie verstärkt zur Wärmeerzeugung.",
+                        "NORMAL_OPERATION": "Die Wärmepumpe arbeitet bedarfsgeführt im regulären Leistungsbereich.",
+                        "AUTOMATIC": "Je nach eingestellten Schwellwerten des Netzbezugs sowie der Netzeinspeisung werden die einzelnen Modi geschaltet.\n(Die Schwellwerte können unter Einstellungen angepasst werden)",
+                        "LOCK": "Dieser Betriebszustand limitiert die Leistungsaufnahme der Wärmepumpe je nach Einstellung der Wärmepumpe auf 0 kW oder 4,2 kW."
                     }
                 },
                 "HEATINGELEMENT": {
