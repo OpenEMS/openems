@@ -152,10 +152,6 @@ class AppHeatMyPvTest {
 
 	private OpenemsAppInstance createApp(User user) throws Exception {
 		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request(this.heatMyPv.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
-						.addProperty("IP", IP) //
-						.addProperty("MAX_HEAT_POWER", MAX_HEAT_POWER) //
-						.build()))
-				.instance();
+				new AddAppInstance.Request(this.heatMyPv.getAppId(), "key", "alias", properties())).instance();
 	}
 }

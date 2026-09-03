@@ -44,13 +44,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl;
 import io.openems.edge.battery.test.DummyBattery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.WriteChannel;
@@ -66,12 +69,15 @@ import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.goodwe.battery.cluster.AbstractGoodWeBatteryCluster;
+import io.openems.edge.goodwe.battery.cluster.GoodWeBatteryClusterFeneconHomeImpl;
 import io.openems.edge.goodwe.charger.mppt.twostring.GoodWeChargerMpptTwoStringImpl;
 import io.openems.edge.goodwe.charger.mppt.twostring.MpptPort;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
@@ -1287,14 +1293,18 @@ class GoodWeBatteryInverterImplTest {
 
 	@Test
 	void testWaveFormDetectionWith4105() throws Exception {
-		getComponentTest(GridCode.VDE_4105, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
-				.next(new TestCase()
+		getComponentTest(GridCode.VDE_4105, //
+				new TestCase() //
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+				.next(new TestCase() //
 						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.HIGH_PRECISION));
 	}
 
 	@Test
 	void testWaveFormDetectionWith4110() throws Exception {
-		getComponentTest(GridCode.VDE_4110, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+		getComponentTest(GridCode.VDE_4110, //
+				new TestCase() //
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
 				.next(new TestCase() //
 						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K) //
 						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.DETECTION_DISABLED));
@@ -1354,8 +1364,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(100, result);
@@ -1373,7 +1383,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(0, result);
@@ -1391,8 +1401,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, true), 100);
 
 		assertEquals(100, result);
@@ -1410,7 +1420,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, true), 100);
 
 		assertEquals(0, result);
@@ -1428,8 +1438,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(100, result);
@@ -1447,7 +1457,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(0, result);
@@ -1465,8 +1475,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(true, false), 100);
 
 		assertEquals(100, result);
@@ -1484,10 +1494,157 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(true, false), 100);
 
 		assertEquals(0, result);
+	}
+
+	@Test
+	void testUpdatePowerCluster() throws Exception {
+
+		final var battery1 = new BatteryFeneconHomeImpl();
+		final var battery2 = new BatteryFeneconHomeImpl();
+
+		final var cluster = new GoodWeBatteryClusterFeneconHomeImpl();
+		new ComponentTest(cluster) //
+				.addReference("addBattery", battery1) //
+				.addReference("addBattery", battery2);
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(cluster, 0, 0);
+				}) //
+				.input(GoodWe.ChannelId.P_BATTERY1, 1000) //
+				.input(GoodWe.ChannelId.P_BATTERY2, 2000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_1, 1000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_2, 2000) //
+				.output(HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, 3000) //
+		);
+	}
+
+	@Test
+	void testUpdatePowerSingleBattery() throws Exception {
+
+		final var battery = new BatteryFeneconHomeImpl();
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(battery, 0, 0);
+				}) //
+				.input(GoodWe.ChannelId.P_BATTERY1, 1000) //
+				.input(GoodWe.ChannelId.P_BATTERY2, 2000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_1, 1000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_2, null) //
+				.output(HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, 1000) //
+		);
+	}
+
+	@Test
+	void testUpdateBatteryLimits() throws Exception {
+
+		final var battery1 = new DummyBattery("battery1") //
+				.withVoltage(401) //
+				.withCurrent(11) //
+				.withSoc(31) //
+				.withSoh(32) //
+				.withMaxCellTemperature(200) //
+				.withMinCellTemperature(200) //
+				.withChargeMaxCurrent(91) //
+				.withDischargeMaxCurrent(92) //
+				.withChargeMaxVoltage(411) //
+				.withDischargeMinVoltage(412) //
+		;
+
+		final var battery2 = new DummyBattery("battery2") //
+				.withVoltage(402) //
+				.withCurrent(12) //
+				.withSoc(33) //
+				.withSoh(34) //
+				.withMaxCellTemperature(210) //
+				.withMinCellTemperature(210) //
+				.withChargeMaxCurrent(93) //
+				.withDischargeMaxCurrent(94) //
+				.withChargeMaxVoltage(413) //
+				.withDischargeMinVoltage(414) //
+		;
+
+		final AbstractGoodWeBatteryCluster cluster = mock();
+		when(cluster.getBatteries()).thenReturn(List.of(battery1, battery2));
+		when(cluster.getChargeMaxCurrent()).thenReturn(new Value<>(null, 100));
+		when(cluster.getDischargeMaxCurrent()).thenReturn(new Value<>(null, 100));
+		when(cluster.getVoltage()).thenReturn(new Value<>(null, 401));
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(cluster, 0, 0);
+				}) //
+					// battery 1
+				.input(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, 0) //
+				.input(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, 0) //
+
+				.output(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, BatteryProtocol.EMS_USE) //
+				.output(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, 25) //
+				.output(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, 25) //
+				.output(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, 411) //
+				.output(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.BMS_CAPACITY, 50) //
+				.output(GoodWe.ChannelId.WBMS_VERSION, 1) //
+				.output(GoodWe.ChannelId.WBMS_STRINGS, 9) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, 411) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, 1) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, 1) //
+				.output(GoodWe.ChannelId.WBMS_VOLTAGE, 401) //
+				.output(GoodWe.ChannelId.WBMS_CURRENT, 11) //
+				.output(GoodWe.ChannelId.WBMS_SOC, 31) //
+				.output(GoodWe.ChannelId.WBMS_SOH, 32) //
+				.output(GoodWe.ChannelId.WBMS_TEMPERATURE, 200) //
+				.output(GoodWe.ChannelId.WBMS_WARNING_CODE, 0) //
+				.output(GoodWe.ChannelId.WBMS_ALARM_CODE, 0) //
+				.output(GoodWe.ChannelId.WBMS_STATUS, 0) //
+				.output(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, null) //
+				.output(GoodWe.ChannelId.BATTERY_1_LOCK, null) //
+
+				// battery 2
+				.input(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX, 0) //
+				.input(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX, 0) //
+
+				.output(GoodWe.ChannelId.BATTERY_2_PROTOCOL, BatteryProtocol.EMS_USE) //
+				.output(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX, 25) //
+				.output(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX, 25) //
+				.output(GoodWe.ChannelId.BATTERY_2_CHARGE_VOLTAGE_MAX, 413) //
+				.output(GoodWe.ChannelId.BATTERY_2_VOLTAGE_UNDER_MIN, 414) //
+				.output(GoodWe.ChannelId.BATTERY_2_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BATTERY_2_OFFLINE_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BATTERY_2_OFFLINE_VOLTAGE_UNDER_MIN, 414) //
+				.output(GoodWe.ChannelId.BATTERY_2_CAPACITY, 50) //
+				.output(GoodWe.ChannelId.WBMS_VERSION_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_STRINGS_2, 9) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE_2, 413) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE_2, 414) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_VOLTAGE_2, 402) //
+				.output(GoodWe.ChannelId.WBMS_CURRENT_2, 12) //
+				.output(GoodWe.ChannelId.WBMS_SOC_2, 33) //
+				.output(GoodWe.ChannelId.WBMS_SOH_2, 34) //
+				.output(GoodWe.ChannelId.WBMS_TEMPERATURE_2, 210) //
+				.output(GoodWe.ChannelId.WBMS_WARNING_CODE_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_ALARM_CODE_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_STATUS_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION_2, null) //
+				.output(GoodWe.ChannelId.BATTERY_2_LOCK, null) //
+		);
 	}
 
 }

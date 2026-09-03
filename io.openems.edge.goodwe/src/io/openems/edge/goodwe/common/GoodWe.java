@@ -39,7 +39,6 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeGridMeterType;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
-import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.common.enums.LedState;
 import io.openems.edge.goodwe.common.enums.LoadMode;
@@ -51,6 +50,7 @@ import io.openems.edge.goodwe.common.enums.OutputTypeAC;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.UpsStandartVoltType;
+import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.common.enums.WifiOrLan;
 import io.openems.edge.goodwe.common.enums.WorkMode;
 import io.openems.edge.goodwe.common.enums.WorkWeek;
@@ -86,6 +86,10 @@ public interface GoodWe extends OpenemsComponent {
 		DSP_DCDC_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_MPPT_BETA_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_STS_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
+
+		RATE_POWER(Doc.of(OpenemsType.INTEGER)), //
+		AC_RATE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)), //
 
 		// Running Data
 		V_PV3(Doc.of(OpenemsType.INTEGER)//
@@ -246,6 +250,11 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
+
+		DC_DISCHARGE_POWER_BATTERY_1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)), //
+		DC_DISCHARGE_POWER_BATTERY_2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)), //
 
 		/**
 		 * Off means there is No voltage of Backup port. Also used for 1-p inverter
@@ -1980,6 +1989,8 @@ public interface GoodWe extends OpenemsComponent {
 				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")), //
 		IGNORE_IMPOSSIBLE_P_BATTERY_VALUE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Ignore impossible battery power")), //
+		IGNORE_IMPOSSIBLE_P_BATTERY_2_VALUE(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Ignore impossible battery 2 power")), //
 		HAS_UNEXPECTED_MAX_VOLTAGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Max voltage value is manipulated by goodwe. The goodwe is using this internally to allow grid feed in having 100% SoC")), //
 

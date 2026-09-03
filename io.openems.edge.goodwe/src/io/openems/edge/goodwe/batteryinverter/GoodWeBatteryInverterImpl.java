@@ -2,6 +2,7 @@ package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.common.utils.MapUtils.mapValue;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
@@ -22,7 +23,9 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,7 +49,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
-import io.openems.common.types.OptionsEnum;
 import io.openems.common.types.ServiceBinder;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
@@ -67,6 +69,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -489,6 +492,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	record BatteryLimitsChannel(//
+			EnumWriteChannel batteryProtocolChannel, //
 			WriteChannel<Integer> bmsChargeMaxCurrentChannel, //
 			WriteChannel<Integer> bmsDischargeMaxCurrentChannel, //
 			WriteChannel<Integer> bmsChargeMaxVoltageChannel, //
@@ -586,6 +590,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent.apply(null);
 		}
 
+		ChannelUtils.setWriteValueIfNotRead(channels.batteryProtocolChannel(), BatteryProtocol.EMS_USE);
+
 		/*
 		 * Check correct BMS register values. Goodwe recommends setting the values once
 		 */
@@ -677,6 +683,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	private BatteryLimitsChannel getBattery1LimitsChannel() {
 		return new BatteryLimitsChannel(//
+				this.channel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM), //
 				this.getBmsChargeMaxCurrentChannel(), //
 				this.getBmsDischargeMaxCurrentChannel(), //
 				this.getBmsChargeMaxVoltageChannel(), //
@@ -709,6 +716,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	private BatteryLimitsChannel getBattery2LimitsChannel() {
 		return new BatteryLimitsChannel(//
+				this.channel(GoodWe.ChannelId.BATTERY_2_PROTOCOL), //
 				this.channel(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX), //
 				this.channel(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX), //
 				this.channel(GoodWe.ChannelId.BATTERY_2_CHARGE_VOLTAGE_MAX), //
@@ -818,17 +826,32 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				.anyMatch(b -> b.getDischargeMaxCurrent().orElse(0) < 0);
 		final var clusterInfo = new ClusterInfo(anyNegativeCharge, anyNegativeDischarge);
 
+		for (final var entry : this.mapBatteriesToPort(batteryCluster).entrySet()) {
+			switch (entry.getKey()) {
+			case PORT_1 -> this.setBattery1Limits(entry.getValue(), clusterInfo);
+			case PORT_2 -> this.setBattery2Limits(entry.getValue(), clusterInfo);
+			}
+		}
+
+		final var invalidCombination = batteryCluster.getBatteries().stream() //
+				.filter(StartStoppable::isStarted) //
+				.filter(BatteryFeneconHome.class::isInstance) //
+				.map(BatteryFeneconHome.class::cast) //
+				.anyMatch(b -> this.getGoodweType().isInvalidBattery.test(b.getBatteryHardwareType()));
+
+		this._setImpossibleFeneconHomeCombination(invalidCombination);
+	}
+
+	private Map<BatteryPort, Battery> mapBatteriesToPort(Battery battery) {
+		if (!(battery instanceof AbstractGoodWeBatteryCluster batteryCluster)) {
+			return Map.of(BatteryPort.PORT_1, battery);
+		}
+
+		final var batteriesByPort = new EnumMap<BatteryPort, Battery>(BatteryPort.class);
+
 		int index = 0;
-		for (Battery battery : batteryCluster.getBatteries()) {
+		for (Battery b : batteryCluster.getBatteries()) {
 			index++;
-
-			final var invalidCombination = batteryCluster.getBatteries().stream() //
-					.filter(StartStoppable::isStarted) //
-					.filter(BatteryFeneconHome.class::isInstance) //
-					.map(BatteryFeneconHome.class::cast) //
-					.anyMatch(b -> this.getGoodweType().isInvalidBattery.test(b.getBatteryHardwareType()));
-
-			this._setImpossibleFeneconHomeCombination(invalidCombination);
 
 			var batteryPort = BatteryPort.fromIndex(index);
 			if (batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl
@@ -836,10 +859,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				batteryPort = BatteryPort.fromIndex(homeBattery.getBatteryInverterPort().port);
 			}
 
-			switch (batteryPort) {
-			case PORT_1 -> this.setBattery1Limits(battery, clusterInfo);
+			final var prev = batteriesByPort.put(batteryPort, b);
+			if (prev != null) {
+				this.log.error("Multiple Batteries on same port {}, battery {} and {}", batteryPort, prev, b);
 			}
 		}
+
+		return batteriesByPort;
 	}
 
 	/**
@@ -849,12 +875,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * @throws OpenemsNamedException    on error
 	 */
 	private void setGeneralValues() throws IllegalArgumentException, OpenemsNamedException {
-
-		// Set BatteryProtocols only once, as the WBMS Channels are reset afterwards
-		if (!this.getBatteryProtocolArm().equals(BatteryProtocol.EMS_USE)) {
-			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, BatteryProtocol.EMS_USE); // EMS-Mode 287/11F
-		}
-
 		/*
 		 * Set goodwe force charge and end SoC if not already set
 		 */
@@ -868,12 +888,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	protected static int preprocessAmpereValue47900(int v, int maxDcCurrent) {
 		return fitWithin(0, maxDcCurrent, v);
-	}
-
-	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
-			throws IllegalArgumentException, OpenemsNamedException {
-		EnumWriteChannel channel = this.channel(channelId);
-		channel.setNextWriteValue(value);
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
@@ -938,8 +952,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// ApplyConfig
 		this.applyConfigIfNotSet(this.config, false);
 
+		final var batteryValues = mapValue(this.mapBatteriesToPort(battery),
+				b -> new BatteryValues(b.getSoc().get(), b.getCurrent().get()));
 		// Calculate ActivePower, Energy and Max-AC-Power.
-		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
+		this.updatePowerAndEnergyChannels(batteryValues);
 		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), battery);
 
 		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType());
@@ -948,7 +964,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled());
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled(),
+				getNumberOfSeparateConnectedBatteries(battery));
 
 		// Set Battery Limits
 		if (battery instanceof AbstractGoodWeBatteryCluster cluster) {
