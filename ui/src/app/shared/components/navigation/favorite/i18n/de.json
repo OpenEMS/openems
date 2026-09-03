@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Hinzugefügt",
+        "DESCRIPTION_OWNER": "Markiere Inhalte mit dem Herz, damit du sie später schnell wiederfindest. Deine Auswahl erscheint hier.",
+        "DESCRIPTION_OTHERS": "Der Besitzer der Anlage kann Inhalte mit dem Herz als Favoriten markieren. So lassen sie sich später an dieser Stelle schnell wieder finden.",
+        "INFO": "Behalte Wichtiges im Blick",
+        "REMOVED_FAVORITE": "Entfernt"
+    }
+}

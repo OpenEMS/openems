@@ -2,15 +2,19 @@
   <ng-content select="[header]"></ng-content>
 </ion-header>
 <ion-content>
+  @if (forceFavorite()) {
+    <oe-favorite-button></oe-favorite-button>
+  }
   <oe-navigation-back-button></oe-navigation-back-button>
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
 
   <!-- If FromGroup is used -->
   @if (formGroup !== null) {
     <form [formGroup]="formGroup" style="overflow-x: hidden; width: 100%; overflow-y: hidden" class="ion-padding">
       <!-- For gap between header and content  -->
       <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
-      <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
       <oe-forward-navigation-options></oe-forward-navigation-options>
+
       <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
       @if (formGroup?.dirty) {
         <ion-fab vertical="bottom" [horizontal]="service.isSmartphoneResolution ? 'end' : 'center'">
@@ -23,12 +27,13 @@
   }
   <!-- If FormGroup not used -->
   @if (!formGroup) {
+    <oe-favorite-button></oe-favorite-button>
     <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
     <oe-forward-navigation-options></oe-forward-navigation-options>
   }
 
   <!-- Workaround because multiple ng-content cant be used -->
   <ng-template #contentTpl>
-    <ng-content class="ion-padding"> </ng-content>
+    <ng-content class="ion-padding"></ng-content>
   </ng-template>
 </ion-content>

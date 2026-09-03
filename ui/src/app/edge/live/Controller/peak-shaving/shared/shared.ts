@@ -1,9 +1,9 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Converter } from "src/app/shared/components/shared/converter";
-import { OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { RouteService } from "src/app/shared/service/route/route.service";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -54,17 +54,13 @@ export namespace SharedControllerPeakShaving {
     ): OeFormlyView["lines"] => [
         {
             type: "channel-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
             channel: component.id + "/" + PEAK_SHAVING_POWER_CHANNEL,
             converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
         },
         {
             type: "channel-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
             channel: component.id + "/" + RECHARGE_POWER_CHANNEL,
             converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
         },
@@ -75,9 +71,7 @@ export namespace SharedControllerPeakShaving {
         componentId: string,
     ): ChannelAddress[] {
         return [
-            ...(meterId == null
-                ? []
-                : [new ChannelAddress(meterId, "ActivePower")]),
+            ...(meterId == null ? [] : [new ChannelAddress(meterId, "ActivePower")]),
             new ChannelAddress(componentId, PEAK_SHAVING_POWER_CHANNEL),
             new ChannelAddress(componentId, RECHARGE_POWER_CHANNEL),
         ];
@@ -93,13 +87,7 @@ export namespace SharedControllerPeakShaving {
         peakShavingPower: number;
         rechargePower: number;
     } {
-        const activePower =
-            meterId == null
-                ? 0
-                : Math.max(
-                      0,
-                      currentData.allComponents[meterId + "/ActivePower"] ?? 0,
-                  );
+        const activePower = meterId == null ? 0 : Math.max(0, currentData.allComponents[meterId + "/ActivePower"] ?? 0);
 
         return {
             activePower,
@@ -128,18 +116,13 @@ export namespace SharedControllerPeakShaving {
         );
     }
 
-    export const getSettingsInputLines = (
-        translate: TranslateService,
-        edge: Edge,
-    ): OeFormlyView["lines"] => {
+    export const getSettingsInputLines = (translate: TranslateService, edge: Edge): OeFormlyView["lines"] => {
         const lines: OeFormlyField[] = [];
         if (edge.roleIsAtLeast(Role.OWNER)) {
             lines.push(
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
                     controlName: "peakShavingPower",
                     properties: {
                         unit: "W",
@@ -147,9 +130,7 @@ export namespace SharedControllerPeakShaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
                     controlName: "rechargePower",
                     properties: {
                         unit: "W",
@@ -171,16 +152,10 @@ export namespace SharedControllerPeakShaving {
         AssertionUtils.assertIsDefined(config);
 
         const peakShavingSymmetricComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(peakShavingSymmetricComponent);
 
-        const meterId =
-            peakShavingSymmetricComponent.getPropertyFromComponent<string>(
-                "meter.id",
-            );
+        const meterId = peakShavingSymmetricComponent.getPropertyFromComponent<string>("meter.id");
 
         return Promise.resolve([
             ...(meterId == null
@@ -191,14 +166,8 @@ export namespace SharedControllerPeakShaving {
                       new ChannelAddress(meterId, "ActivePowerL2"),
                       new ChannelAddress(meterId, "ActivePowerL3"),
                   ]),
-            new ChannelAddress(
-                peakShavingSymmetricComponent.id,
-                PEAK_SHAVING_POWER_CHANNEL,
-            ),
-            new ChannelAddress(
-                peakShavingSymmetricComponent.id,
-                RECHARGE_POWER_CHANNEL,
-            ),
+            new ChannelAddress(peakShavingSymmetricComponent.id, PEAK_SHAVING_POWER_CHANNEL),
+            new ChannelAddress(peakShavingSymmetricComponent.id, RECHARGE_POWER_CHANNEL),
         ]);
     }
 

@@ -1,7 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";

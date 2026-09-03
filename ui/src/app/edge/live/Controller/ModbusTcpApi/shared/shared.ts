@@ -106,7 +106,10 @@ export namespace SharedControllerModbusTcpApiReadWrite {
             { name: "swap-vertical-outline", color: "normal" },
             component.alias,
             "label",
-            [NavigationConstants.CommonNodes.SETTINGS(translate), NavigationConstants.CommonNodes.HISTORY(translate)],
+            [
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+            ],
             null,
         ).toConstructorParams();
     }

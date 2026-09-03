@@ -1,4 +1,4 @@
-import { alertCircleOutline, checkmarkDoneCircleOutline, flame, heart, informationCircleOutline, removeOutline, reorderThreeOutline, warningOutline, } from "ionicons/icons";
+import { alertCircleOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -42,7 +42,8 @@ export const OemMeta: BaseMeta = {
                 TIME_OF_USE: "icons/common/time_of_use/time_of_use.svg",
                 TIME_OF_USE_THIN: "icons/common/time_of_use/time_of_use-thin.svg",
             },
-            FAVORITES: heart,
+            FAVORITES: heartOutline,
+            FAVORITES_FILLED: heart,
         },
         COMPONENT: {
             HEATPUMP: flame,

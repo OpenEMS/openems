@@ -31,6 +31,7 @@ export interface Environment {
     readonly icons: {
         readonly COMMON: {
             readonly FAVORITES: string;
+            readonly FAVORITES_FILLED: string;
             readonly CONSUMPTION: string;
             readonly SELFCONSUMPTION: string;
             readonly GENERATOR: string;

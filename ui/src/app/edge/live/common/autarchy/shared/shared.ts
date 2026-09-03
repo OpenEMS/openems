@@ -49,16 +49,8 @@ export namespace SharedAutarchy {
             translate.instant("GENERAL.AUTARCHY"),
             "label",
             [
-                new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    "label",
-                    [],
-                    null,
-                ),
-                NavigationConstants.CommonNodes.INFO(translate, { source: "autarchy" }),
+                NavigationConstants.CommonNodes.HISTORY(translate, "autarchy"),
+                NavigationConstants.CommonNodes.INFO(translate, "autarchy", { source: "autarchy" }),
             ],
             null,
         ).toConstructorParams();

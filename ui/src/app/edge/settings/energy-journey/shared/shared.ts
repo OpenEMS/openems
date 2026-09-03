@@ -1,34 +1,35 @@
 import { TranslateService } from "@ngx-translate/core";
 import { SharedAutarchy } from "src/app/edge/live/common/autarchy/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
+import { EdgeSettings } from "src/app/shared/components/edge/edge";
 import { NavigationTree, NavigationId } from "src/app/shared/components/navigation/shared";
 import { Edge, EdgeConfig, EdgePermission } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 export namespace EnergyJourneyShared {
+    export const historyNavigationTree = (translate: TranslateService) =>
+        new NavigationTree(
+            NavigationId.HISTORY,
+            { baseString: "history" },
+            { name: "stats-chart-outline" },
+            translate.instant("GENERAL.HISTORY"),
+            "label",
+            [
+                new NavigationTree(
+                    "export",
+                    { baseString: "export" },
+                    { name: "download-outline" },
+                    translate.instant("EDGE.CONFIG.INDEX.EXPORT"),
+                    "label",
+                    [],
+                    null,
+                ),
+            ],
+            null,
+            { showOrder: "HIGH" },
+        );
     export function getNavigationTree(edge: Edge, config: EdgeConfig, translate: TranslateService): NavigationTree {
-        const children: NavigationTree[] = [
-            new NavigationTree(
-                NavigationId.HISTORY,
-                { baseString: "history" },
-                { name: "stats-chart-outline" },
-                translate.instant("GENERAL.HISTORY"),
-                "label",
-                [
-                    new NavigationTree(
-                        "export",
-                        { baseString: "export" },
-                        { name: "download-outline" },
-                        translate.instant("EDGE.CONFIG.INDEX.EXPORT"),
-                        "label",
-                        [],
-                        null,
-                    ),
-                ],
-                null,
-                { showOrder: "HIGH" },
-            ),
-        ];
+        const children: NavigationTree[] = [EnergyJourneyShared.historyNavigationTree(translate)];
 
         if (edge.roleIsAtLeast(Role.OWNER)) {
             children.push(
@@ -54,7 +55,7 @@ export namespace EnergyJourneyShared {
                                     "label",
                                     [],
                                     null,
-                                    { showOrder: "HIDE" },
+                                    { showOrder: "HIDE", hideFavorite: true },
                                 ),
                                 new NavigationTree(
                                     "update",
@@ -64,14 +65,15 @@ export namespace EnergyJourneyShared {
                                     "label",
                                     [],
                                     null,
-                                    { showOrder: "HIDE" },
+                                    { showOrder: "HIDE", hideFavorite: true },
                                 ),
                             ],
                             null,
-                            { showOrder: "HIDE" },
+                            { showOrder: "HIDE", hideFavorite: true },
                         ),
                     ],
                     null,
+                    { hideFavorite: true },
                 ),
             );
         }
@@ -101,7 +103,7 @@ export namespace EnergyJourneyShared {
                             "label",
                             [],
                             null,
-                            { showOrder: "HIDE" },
+                            { showOrder: "HIDE", hideFavorite: true },
                         ),
                         new NavigationTree(
                             "battery-extension/electricity-price-choice",
@@ -111,15 +113,16 @@ export namespace EnergyJourneyShared {
                             "label",
                             [],
                             null,
-                            { showOrder: "HIDE" },
+                            { showOrder: "HIDE", hideFavorite: true },
                         ),
                     ],
                     null,
+                    { hideFavorite: true },
                 ),
             );
         }
 
-        if (edge?.settings && "annual_review_2025" in edge.settings) {
+        if (edge?.settings && EdgeSettings.ANNUAL_REVIEW_2025 in edge.settings) {
             children.push(
                 new NavigationTree(
                     "wrap-up",
@@ -133,7 +136,7 @@ export namespace EnergyJourneyShared {
             );
         }
 
-        let tree = new NavigationTree(
+        const tree = new NavigationTree(
             "energy-journey",
             { baseString: "energy-journey" },
             { name: "oe-energy-journey" },
@@ -143,7 +146,6 @@ export namespace EnergyJourneyShared {
             null,
         );
 
-        tree = tree.setParentRecursively();
         return tree;
     }
 }

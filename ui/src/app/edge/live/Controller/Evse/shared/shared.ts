@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
@@ -31,7 +31,7 @@ export namespace ControllerEvseSingleShared {
             baseMode,
             [
                 new NavigationTree(
-                    "forecast",
+                    component.id + "-forecast",
                     { baseString: "forecast" },
                     { name: "stats-chart-outline", color: "success" },
                     translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"),
@@ -39,17 +39,9 @@ export namespace ControllerEvseSingleShared {
                     [],
                     null,
                 ),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
                 new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    baseMode,
-                    [],
-                    null,
-                ),
-                new NavigationTree(
-                    "energy-limit",
+                    component.id + "-energy-limit",
                     { baseString: "energy-limit" },
                     { name: "settings-outline", color: "medium" },
                     translate.instant("GENERAL.ENERGY_LIMIT"),
@@ -58,7 +50,7 @@ export namespace ControllerEvseSingleShared {
                     null,
                 ),
                 new NavigationTree(
-                    "phase-switching",
+                    component.id + "-phase-switching",
                     { baseString: "phase-switching" },
                     { name: "oe-phase-switching-3", color: "medium" },
                     translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
@@ -70,14 +62,14 @@ export namespace ControllerEvseSingleShared {
                     },
                 ),
                 new NavigationTree(
-                    "schedule",
+                    component.id + "-schedule",
                     { baseString: "schedule" },
                     { name: "calendar-outline", color: "warning" },
                     translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"),
                     baseMode,
                     [
                         new NavigationTree(
-                            "edit-task",
+                            component.id + "-edit-task",
                             { baseString: "edit-task" },
                             { name: "create-outline" },
                             translate.instant("JS_SCHEDULE.EDIT_EVENT"),
@@ -87,7 +79,7 @@ export namespace ControllerEvseSingleShared {
                             { showOrder: "HIDE" },
                         ),
                         new NavigationTree(
-                            "add-task",
+                            component.id + "-add-task",
                             { baseString: "add-task" },
                             { name: "add-outline" },
                             translate.instant("JS_SCHEDULE.ADD_EVENT"),
@@ -100,7 +92,7 @@ export namespace ControllerEvseSingleShared {
                     null,
                 ),
                 new NavigationTree(
-                    "charge-mode",
+                    component.id + "-charge-mode",
                     { baseString: "charge-mode" },
                     { name: "checkmark-done-outline", color: "medium" },
                     translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"),
@@ -111,7 +103,7 @@ export namespace ControllerEvseSingleShared {
                 ...(edge.roleIsAtLeast(Role.OWNER)
                     ? [
                           new NavigationTree(
-                              "car",
+                              component.id + "-car",
                               {
                                   baseString: "car/update",
                                   queryParams: { appId: "App.Evse.ElectricVehicle.Generic" },

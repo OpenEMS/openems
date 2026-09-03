@@ -20,22 +20,21 @@ import { GetEdgeResponse } from "../jsonrpc/response/getEdgeResponse";
 import { GetEdgesResponse } from "../jsonrpc/response/getEdgesResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { User } from "../jsonrpc/shared";
-import { States } from "../ngrx-store/states";
 import { ChannelAddress } from "../shared";
+import { States } from "../states/states";
 import { DefaultTypes } from "../type/defaulttypes";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
 import { AbstractService } from "./abstractservice";
-import { RouteService } from "./route.service";
+import { RouteService } from "./route/route.service";
 import { Websocket } from "./websocket";
 
 @Injectable()
 export class Service extends AbstractService {
     public static readonly TIMEOUT = 15_000;
 
-    public notificationEvent: Subject<DefaultTypes.Notification> =
-        new Subject<DefaultTypes.Notification>();
+    public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
     /** Currently selected history period */
     public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
@@ -45,13 +44,9 @@ export class Service extends AbstractService {
      *
      * Initialized as day, is getting changed by pickdate component
      */
-    public periodString: DefaultTypes.PeriodString =
-        DefaultTypes.PeriodString.DAY;
+    public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 
-    /**
-     * Represents the resolution of used device Checks if smartphone resolution
-     * is used
-     */
+    /** Represents the resolution of used device Checks if smartphone resolution is used */
     public deviceHeight: number = 0;
     public deviceWidth: number = 0;
     public activeQueryData: string;
@@ -83,9 +78,7 @@ export class Service extends AbstractService {
     private injector = inject(Injector);
 
     /** @deprecated */
-    private isSmartphoneResolution = signal<boolean>(
-        this.computeIsSmartphoneResolution(),
-    );
+    private isSmartphoneResolution = signal<boolean>(this.computeIsSmartphoneResolution());
 
     constructor(
         private router: Router,
@@ -103,17 +96,11 @@ export class Service extends AbstractService {
         // translate.use(Language.DEFAULT.key);
 
         // initialize history period
-        this.historyPeriod = new BehaviorSubject(
-            new DefaultTypes.HistoryPeriod(new Date(), new Date()),
-        );
+        this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
         // React on Language Change and update language
         translate.onLangChange.subscribe((event: LangChangeEvent) => {
-            registerLocaleData(
-                Language.getLocale(
-                    Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key,
-                ),
-            );
+            registerLocaleData(Language.getLocale(Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key));
         });
     }
 
@@ -163,9 +150,7 @@ export class Service extends AbstractService {
     }
 
     public setCurrentComponent(
-        currentPageTitle:
-            | string
-            | { languageKey: string; interpolateParams?: {} },
+        currentPageTitle: string | { languageKey: string; interpolateParams?: {} },
         activatedRoute: ActivatedRoute,
     ): Promise<Edge> {
         return new Promise((resolve, reject) => {
@@ -173,10 +158,7 @@ export class Service extends AbstractService {
             if (this.currentActivatedRoute != activatedRoute) {
                 if (typeof currentPageTitle === "string") {
                     // Use given page title directly
-                    if (
-                        currentPageTitle == null ||
-                        currentPageTitle.trim() === ""
-                    ) {
+                    if (currentPageTitle == null || currentPageTitle.trim() === "") {
                         this.currentPageTitle = environment.uiTitle;
                     } else {
                         this.currentPageTitle = currentPageTitle;
@@ -184,10 +166,7 @@ export class Service extends AbstractService {
                 } else {
                     // Translate from key
                     this.translate
-                        .get(
-                            currentPageTitle.languageKey,
-                            currentPageTitle.interpolateParams,
-                        )
+                        .get(currentPageTitle.languageKey, currentPageTitle.interpolateParams)
                         .pipe(take(1))
                         .subscribe((title) => (this.currentPageTitle = title));
                 }
@@ -226,9 +205,7 @@ export class Service extends AbstractService {
         return new Promise<EdgeConfig>((resolve, reject) => {
             this.getCurrentEdge()
                 .then((edge) => {
-                    edge.getFirstValidConfig(this.websocket)
-                        .then(resolve)
-                        .catch(reject);
+                    edge.getFirstValidConfig(this.websocket).then(resolve).catch(reject);
                 })
                 .catch((reason) => reject(reason));
         });
@@ -238,9 +215,7 @@ export class Service extends AbstractService {
         return new Promise<EdgeConfig>((resolve, reject) => {
             this.getCurrentEdge()
                 .then((edge) => {
-                    edge.getFirstValidConfig(this.websocket)
-                        .then(resolve)
-                        .catch(reject);
+                    edge.getFirstValidConfig(this.websocket).then(resolve).catch(reject);
                 })
                 .catch((reason) => reject(reason));
         });
@@ -254,10 +229,7 @@ export class Service extends AbstractService {
         this.router.navigate(["/login"]);
     }
 
-    public getChannelAddresses(
-        edge: Edge,
-        channels: ChannelAddress[],
-    ): Promise<ChannelAddress[]> {
+    public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             resolve(channels);
         });
@@ -272,12 +244,10 @@ export class Service extends AbstractService {
         fromDate.setHours(0, 0, 0, 0);
         toDate.setHours(0, 0, 0, 0);
         const promise = { resolve: null, reject: null };
-        const response = new Promise<QueryHistoricTimeseriesEnergyResponse>(
-            (resolve, reject) => {
-                promise.resolve = resolve;
-                promise.reject = reject;
-            },
-        );
+        const response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+            promise.resolve = resolve;
+            promise.reject = reject;
+        });
         this.queryEnergyQueue.push({
             fromDate: fromDate,
             toDate: toDate,
@@ -304,24 +274,17 @@ export class Service extends AbstractService {
                         let merged = false;
                         for (const mergedRequest of mergedRequests) {
                             if (
-                                mergedRequest.fromDate.valueOf() ===
-                                    request.fromDate.valueOf() &&
-                                mergedRequest.toDate.valueOf() ===
-                                    request.toDate.valueOf()
+                                mergedRequest.fromDate.valueOf() === request.fromDate.valueOf() &&
+                                mergedRequest.toDate.valueOf() === request.toDate.valueOf()
                             ) {
                                 // same date -> merge
-                                mergedRequest.promises =
-                                    mergedRequest.promises.concat(
-                                        request.promises,
-                                    );
+                                mergedRequest.promises = mergedRequest.promises.concat(request.promises);
                                 for (const newChannel of request.channels) {
                                     if (
                                         !mergedRequest.channels.some(
                                             (existingChannel) =>
-                                                existingChannel.channelId ===
-                                                    newChannel.channelId &&
-                                                existingChannel.componentId ===
-                                                    newChannel.componentId,
+                                                existingChannel.channelId === newChannel.channelId &&
+                                                existingChannel.componentId === newChannel.componentId,
                                         )
                                     ) {
                                         mergedRequest.channels.push(newChannel);
@@ -344,15 +307,11 @@ export class Service extends AbstractService {
                             continue;
                         }
 
-                        const request =
-                            new QueryHistoricTimeseriesEnergyRequest(
-                                DateUtils.maxDate(
-                                    source.fromDate,
-                                    edge?.firstSetupProtocol,
-                                ),
-                                source.toDate,
-                                source.channels,
-                            );
+                        const request = new QueryHistoricTimeseriesEnergyRequest(
+                            DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
+                            source.toDate,
+                            source.channels,
+                        );
 
                         this.activeQueryData = request.id;
                         edge.sendRequest(this.websocket, request)
@@ -361,41 +320,31 @@ export class Service extends AbstractService {
                                     return;
                                 }
 
-                                const result = (
-                                    response as QueryHistoricTimeseriesEnergyResponse
-                                ).result;
+                                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
 
                                 if (Object.keys(result.data).length === 0) {
                                     for (const promise of source.promises) {
                                         promise.reject(
-                                            new JsonrpcResponseError(
-                                                response.id,
-                                                {
-                                                    code: 0,
-                                                    message: "Result was empty",
-                                                },
-                                            ),
+                                            new JsonrpcResponseError(response.id, {
+                                                code: 0,
+                                                message: "Result was empty",
+                                            }),
                                         );
                                     }
                                     return;
                                 }
 
                                 for (const promise of source.promises) {
-                                    promise.resolve(
-                                        response as QueryHistoricTimeseriesEnergyResponse,
-                                    );
+                                    promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
                                 }
                             })
                             .catch(async (reason) => {
                                 for (const promise of source.promises) {
                                     promise.reject(
-                                        new JsonrpcResponseError(
-                                            (await response).id,
-                                            {
-                                                code: 0,
-                                                message: "Result was empty",
-                                            },
-                                        ),
+                                        new JsonrpcResponseError((await response).id, {
+                                            code: 0,
+                                            message: "Result was empty",
+                                        }),
                                     );
                                 }
                             });
@@ -425,20 +374,14 @@ export class Service extends AbstractService {
                     for (const edge of result.edges) {
                         const mappedEdge = new Edge(
                             edge.id,
-                            this.updateCommentForDemoUser(
-                                value.user.id,
-                                edge.id,
-                                edge.comment,
-                            ),
+                            this.updateCommentForDemoUser(value.user.id, edge.id, edge.comment),
                             edge.producttype,
                             "version" in edge ? edge["version"] : "0.0.0",
                             Role.getRole(edge.role.toString()),
                             edge.isOnline,
                             edge.lastmessage,
                             edge.sumState,
-                            DateUtils.stringToDate(
-                                edge.firstSetupProtocol?.toString(),
-                            ),
+                            DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
                             edge.settings ?? null,
                         );
                         value.edges[edge.id] = mappedEdge;
@@ -479,28 +422,20 @@ export class Service extends AbstractService {
             }
 
             this.websocket
-                .sendStateFullRequest<GetEdgeResponse>(
-                    new GetEdgeRequest({ edgeId: edgeId }),
-                )
+                .sendStateFullRequest<GetEdgeResponse>(new GetEdgeRequest({ edgeId: edgeId }))
                 .then((response) => {
                     const edgeData = (response as GetEdgeResponse).result.edge;
                     const value = this.metadata.value;
                     const currentEdge = new Edge(
                         edgeData.id,
-                        this.updateCommentForDemoUser(
-                            value.user.id,
-                            edgeData.id,
-                            edgeData.comment,
-                        ),
+                        this.updateCommentForDemoUser(value.user.id, edgeData.id, edgeData.comment),
                         edgeData.producttype,
                         "version" in edgeData ? edgeData["version"] : "0.0.0",
                         Role.getRole(edgeData.role.toString()),
                         edgeData.isOnline,
                         edgeData.lastmessage,
                         edgeData.sumState,
-                        DateUtils.stringToDate(
-                            edgeData.firstSetupProtocol?.toString(),
-                        ),
+                        DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()),
                         edgeData.settings ?? null,
                     );
                     this.currentEdge.set(currentEdge);
@@ -543,11 +478,7 @@ export class Service extends AbstractService {
         this.spinnerService.hide(selector);
     }
 
-    public async toast(
-        message: string,
-        level: "success" | "warning" | "danger",
-        duration?: number,
-    ) {
+    public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
         const toast = await this.toaster.create({
             message: message,
             color: level,
@@ -564,11 +495,7 @@ export class Service extends AbstractService {
     }
 
     // TODO INTERSOLAR remove
-    private updateCommentForDemoUser(
-        userId: string,
-        edgeId: string,
-        comment: string,
-    ): string {
+    private updateCommentForDemoUser(userId: string, edgeId: string, comment: string): string {
         if (userId !== "intersolar@fenecon.de") {
             return comment;
         }

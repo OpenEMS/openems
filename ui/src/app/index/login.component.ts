@@ -14,9 +14,9 @@ import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
-import { States } from "../shared/ngrx-store/states";
 import { UserService } from "../shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
+import { States } from "../shared/states/states";
 
 @Component({
     selector: "login",
