@@ -8,8 +8,8 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { ControllerEvseSingleShared } from "../../shared/shared";
 
 @Component({
     selector: "oe-controller-evse-pages-phase-switching",
@@ -45,7 +45,6 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
     ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
-        const isEdgeAdmin = edge.roleIsAtLeast(Role.ADMIN);
         const lines: OeFormlyField[] = [
             {
                 type: "image-line",
@@ -75,7 +74,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
                 type: "radio-buttons-from-form-control-line",
                 name: "phase-switching",
                 controlName: EvsePhaseSwitchingComponent.formControlName, // propertyname
-                buttons: EvsePhaseSwitchingComponent.getPhaseSwitchingButtons(translate, isEdgeAdmin),
+                buttons: EvsePhaseSwitchingComponent.getPhaseSwitchingButtons(translate, edge),
             },
         ];
 
@@ -87,7 +86,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
         };
     }
 
-    public static getPhaseSwitchingButtons = (translate: TranslateService, isEdgeAdmin: boolean): ButtonLabel[] => {
+    public static getPhaseSwitchingButtons = (translate: TranslateService, edge: Edge): ButtonLabel[] => {
         const buttons: ButtonLabel[] = [
             {
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_SINGLE_PHASE"),
@@ -105,7 +104,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
             },
         ];
 
-        if (isEdgeAdmin) {
+        if (ControllerEvseSingleShared.hasAutomaticPhaseSwitching(edge)) {
             buttons.push({
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.AUTOMATIC_SWITCHING"),
                 value: PhaseSwitching.AUTOMATIC_SWITCHING,
@@ -159,5 +158,5 @@ export enum PhaseSwitching {
     /** Phase-Switching force to THREE_PHASE. */
     FORCE_THREE_PHASE = "FORCE_THREE_PHASE", //
     /** Phase-Switching in AUTOMATIC mode. (not implemented!). */
-    AUTOMATIC_SWITCHING = "AUTOMATIC_SWITCHING", //
+    AUTOMATIC_SWITCHING = "AUTOMATIC", //
 }

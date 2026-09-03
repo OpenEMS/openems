@@ -10,6 +10,10 @@ import { environment } from "src/environments";
 import { EvseChargepoint } from "./evse-chargepoint";
 
 export namespace ControllerEvseSingleShared {
+    export function hasAutomaticPhaseSwitching(edge: Edge): boolean {
+        return edge.isVersionAtLeast("2026.9.1") && edge.roleIsAtLeast(Role.OWNER);
+    }
+
     export function getNavigationTree(
         edge: Edge,
         translate: TranslateService,

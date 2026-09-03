@@ -31,7 +31,7 @@ describe("EVSE phase switching", () => {
             const component = DummyConfig.from(
                 DummyConfig.Component.EVSE_CHARGEPOINT_KEBA_UDP("evseChargePoint0"),
             ).getComponent("evseChargePoint0");
-            const edge = DummyConfig.dummyEdge({});
+            const edge = DummyConfig.dummyEdge({ version: "2026.9.1" });
             const VIEW_CONTEXT: OeFormlyViewTester.Context = {};
 
             expectView(
