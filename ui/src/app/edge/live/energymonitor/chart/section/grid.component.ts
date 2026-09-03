@@ -27,10 +27,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     protected buyAnimationClass: string = "grid-buy-hide";
     protected gridBuyPrice: SubValueProperties | null = null;
 
-    // Applied lazily in _updateCurrentData because gridBuyPrice is set async.
-    private priceOffsetApplied: boolean = false;
-    private savedValueTextY: number | null = null;
-
     private subShow?: Subscription;
 
     constructor(
@@ -155,18 +151,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.gridBuyPrice = this.calculateSubValueProperties(value);
 
         if (this.square) {
-            const hasBuyPrice = this.gridBuyPrice !== null;
-            if (hasBuyPrice !== this.priceOffsetApplied) {
-                if (hasBuyPrice) {
-                    this.savedValueTextY = this.square.valueText.y;
-                    this.square.valueText.y -= 25;
-                    this.gridBuyPrice = this.calculateSubValueProperties(value);
-                } else if (this.savedValueTextY !== null) {
-                    this.square.valueText.y = this.savedValueTextY;
-                    this.savedValueTextY = null;
-                }
-                this.priceOffsetApplied = hasBuyPrice;
-            }
             // Set Grid-Mode
             this.square.image.image = this.getImagePath();
         }
@@ -186,7 +170,10 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         const x = (innerRadius - 5) * -1;
-        const y = (square.length / 2) * -1;
+        const y =
+            (square.length / 2) * -1 -
+            // Move up for grid-buy-price
+            (this.gridBuyPrice !== null ? 6 : 0);
         return new SvgSquarePosition(x, y);
     }
 
@@ -219,10 +206,11 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected setElementHeight() {
         this.square.valueText.y = this.square.valueText.y - this.square.valueText.y * 0.3;
-        this.square.image.y = this.square.image.y - this.square.image.y * 0.3;
-        // Reset so _updateCurrentData re-applies the text offset after window resize.
-        this.priceOffsetApplied = false;
-        this.savedValueTextY = null;
+        this.square.image.y =
+            this.square.image.y -
+            this.square.image.y * 0.3 +
+            // Move down for grid-buy-price
+            (this.gridBuyPrice !== null ? 12 : 0);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {

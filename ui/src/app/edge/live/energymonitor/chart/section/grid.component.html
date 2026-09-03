@@ -25,9 +25,7 @@
   }
   @if (isEnabled && squarePosition && square) {
     <svg:g attr.transform="translate({{squarePosition.x}},{{squarePosition.y}})">
-      <svg:use style="color: var(--ion-color-dark)" [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" [attr.href]="square.image.image + '#root'"></svg:use>
-
-    <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y" text-anchor="middle" font-family="sans-serif" [attr.font-size]="square.valueText.fontsize" fill="var(--ion-text-color)">
+      <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y" text-anchor="middle" font-family="sans-serif" [attr.font-size]="square.valueText.fontsize" fill="var(--ion-text-color)">
         @if (valueText) {
           <ng-container>{{valueText}}</ng-container>
         } @else {
@@ -42,6 +40,8 @@
         <ng-template #no_text>-</ng-template>
       </svg:text>
     }
+
+    <svg:use style="color: var(--ion-color-dark)" [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" [attr.href]="square.image.image + '#root'"></svg:use>
 
     @if (targetRoute() !== null) {
       <svg:rect [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" pointer-events="all" opacity="0" cursor="pointer" (click)="onIconClick($event)" />
