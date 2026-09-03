@@ -8,7 +8,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
@@ -32,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -196,9 +195,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	private ImmutableList<Task> powerSettingsTasks;
-	private Consumer<Value<Integer>> dspFmListener;
-	private Consumer<Value<Integer>> dspBetaListener;
-	private Consumer<Value<GoodWeType>> goodWeTypeListener;
+	private BiConsumer<Value<Integer>, Value<Integer>> dspFmListener;
+	private BiConsumer<Value<Integer>, Value<Integer>> dspBetaListener;
+	private BiConsumer<Value<GoodWeType>, Value<GoodWeType>> goodWeTypeListener;
 
 	@Reference(//
 			policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE //
@@ -2573,8 +2572,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_CURVE_MODE, new UnsignedWordElement(43730)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_UNDEREXCITED_SLOPE,
 								new SignedWordElement(43731), SCALE_FACTOR_MINUS_1),
-						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE,
-								new SignedWordElement(43732), SCALE_FACTOR_MINUS_1),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE, new SignedWordElement(43732),
+								SCALE_FACTOR_MINUS_1),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_EXTENDED_FUNCTIONS,
 								new UnsignedWordElement(43733)),
 						new DummyRegisterElement(43734), //
@@ -2833,6 +2832,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@VisibleForTesting
 	protected void addPowerSettingTasks() {
+		this.log.info("Update GoodWe power settings tasks");
+
 		var protocol = this.getModbusProtocol();
 		removeTasks(//
 				protocol, //
@@ -2908,7 +2909,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void registerListenersForSafetyParameters() {
 		this.unregisterListenersForSafetyParameters();
 
-		Consumer<Value<?>> enqueue = v -> {
+		BiConsumer<Value<?>, Value<?>> enqueue = (v1, v2) -> {
 			ScheduledFuture<?> prev = this.pendingPowerSettingsTask.getAndSet(//
 					this.powerSettingExecutor.schedule(//
 							this::addPowerSettingTasks, //
@@ -2924,9 +2925,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.dspBetaListener = enqueue::accept;
 		this.goodWeTypeListener = enqueue::accept;
 
-		this.getDspFmVersionMasterChannel().onSetNextValue(this.dspFmListener);
-		this.getDspBetaVersionChannel().onSetNextValue(this.dspBetaListener);
-		this.getGoodweTypeChannel().onSetNextValue(this.goodWeTypeListener);
+		this.getDspFmVersionMasterChannel().onChange(this.dspFmListener);
+		this.getDspBetaVersionChannel().onChange(this.dspBetaListener);
+		this.getGoodweTypeChannel().onChange(this.goodWeTypeListener);
 	}
 
 	private void unregisterListenersForSafetyParameters() {
@@ -2936,15 +2937,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		}
 
 		if (this.dspFmListener != null) {
-			this.getDspFmVersionMasterChannel().removeOnSetNextValueCallback(this.dspFmListener);
+			this.getDspFmVersionMasterChannel().removeOnChangeCallback(this.dspFmListener);
 			this.dspFmListener = null;
 		}
 		if (this.dspBetaListener != null) {
-			this.getDspBetaVersionChannel().removeOnSetNextValueCallback(this.dspBetaListener);
+			this.getDspBetaVersionChannel().removeOnChangeCallback(this.dspBetaListener);
 			this.dspBetaListener = null;
 		}
 		if (this.goodWeTypeListener != null) {
-			this.getGoodweTypeChannel().removeOnSetNextValueCallback(this.goodWeTypeListener);
+			this.getGoodweTypeChannel().removeOnChangeCallback(this.goodWeTypeListener);
 			this.goodWeTypeListener = null;
 		}
 	}
