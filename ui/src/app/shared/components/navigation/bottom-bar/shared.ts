@@ -4,7 +4,6 @@ import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
-import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
 import { OverViewComponent } from "src/app/index/overview/overview.component";
 import { PlatFormService } from "src/app/platform.service";
 import { User } from "src/app/shared/jsonrpc/shared";
@@ -13,7 +12,7 @@ import { Widgets } from "src/app/shared/type/widgets";
 import { UserComponent } from "src/app/user/user.component";
 import { Edge } from "../../edge/edge";
 import { EdgeConfig } from "../../edge/edgeconfig";
-import { NavigationTree, NavigationId, NavigationConstants } from "../shared";
+import { NavigationConstants, NavigationId, NavigationTree } from "../shared";
 
 export namespace SharedBottomNavigationBar {
     export function getNavigationTree(
@@ -28,7 +27,6 @@ export namespace SharedBottomNavigationBar {
             ...OverViewComponent.getNavigationTree(user, translate),
             getCockpitNavigationTree(edge, config, translate),
             getFavoritesNavigationTree(translate),
-            EnergyJourneyShared.getNavigationTree(edge, config, translate),
             getProfileNavigationTree(user, translate),
         ].filter((e) => e !== null);
     }

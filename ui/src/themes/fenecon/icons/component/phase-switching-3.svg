@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <path d="M6,8v21.35l10.65,10.65h14.7l10.65-10.65V8H6ZM41,28.93l-10.07,10.07h-13.87l-10.07-10.07V10c0-.55.45-1,1-1h32c.55,0,1,.45,1,1v18.93Z" fill="currentColor"/>
-  <rect x="14" y="18" width="20" height="1" rx=".2" ry=".2" fill="currentColor"/>
-  <rect x="14" y="22" width="20" height="1" rx=".2" ry=".2" fill="currentColor"/>
-  <rect x="14" y="26" width="20" height="1" rx=".2" ry=".2" fill="currentColor"/>
-</svg>

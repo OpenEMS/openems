@@ -1,10 +1,9 @@
 import { TranslateService } from "@ngx-translate/core";
-import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
-import { EdgeConfig, Edge } from "src/app/shared/shared";
+import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { SharedBottomNavigationBar } from "../../bottom-bar/shared";
-import { NavigationTree, NavigationId } from "../../shared";
+import { NavigationId, NavigationTree } from "../../shared";
 
 export namespace SharedFavorite {
     /**
@@ -73,7 +72,6 @@ export namespace SharedFavorite {
 
     export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig, edge: Edge): string[] {
         return [
-            EnergyJourneyShared.historyNavigationTree(translate).id,
             ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate)
                 .filter((el) => StringUtils.isNotInArr(el.id, edge?.getFavoritesFromSettings()?.excludes ?? []))
                 .map((el) => el.id),
