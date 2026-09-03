@@ -99,8 +99,6 @@ import { suffixMatcher } from "src/app/shared/guards/url-matcher";
 import { Role } from "src/app/shared/type/role";
 
 import { ControllerGroupListComponent } from "./groups/group";
-const systemRoutes: (suffix: string | null) => Routes = (prefix: string | null = null) =>
-    [].map((el) => ({ ...el, path: prefix != null ? prefix + "/" + el.path : el.path }));
 
 const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | null = null) =>
     [
@@ -557,7 +555,6 @@ export const commonRoutes: Routes = [
     },
     ...controllerRoutes("common/storage"),
     ...controllerRoutes(null),
-    ...systemRoutes("common/storage"),
     {
         path: "common/weather/:componentId",
         component: WeatherHomeComponent,
@@ -584,7 +581,6 @@ export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
     ...commonRoutes,
     ...controllerRoutes(null),
-    ...systemRoutes(null),
     {
         path: "settings",
         loadChildren: () =>
