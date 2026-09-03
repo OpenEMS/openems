@@ -49,9 +49,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.essId;
 	}
 	
-	@Override
-	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
-	}
-
 }

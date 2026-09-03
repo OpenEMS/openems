@@ -21,6 +21,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -53,6 +54,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences({"Modbus"})
 public class PvInverterSungrowImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricPvInverter,
 		ElectricityMeter, PvInverterSungrow, ModbusComponent, TimedataProvider, OpenemsComponent, EventHandler {
 

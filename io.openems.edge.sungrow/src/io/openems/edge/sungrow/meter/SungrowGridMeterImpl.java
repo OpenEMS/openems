@@ -19,6 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -31,6 +32,7 @@ import io.openems.edge.sungrow.ess.EssSungrow;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class SungrowGridMeterImpl extends AbstractOpenemsComponent
 		implements SungrowGridMeter, ElectricityMeter, OpenemsComponent {
 
