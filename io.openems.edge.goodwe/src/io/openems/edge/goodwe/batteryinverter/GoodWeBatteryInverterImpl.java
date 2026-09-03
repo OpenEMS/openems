@@ -2158,7 +2158,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_APM_GENERAL_OUTPUT_ACTIVE_POWER,
 								new SignedWordElement(43506)),
 						new DummyRegisterElement(43507, 43512), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(43513)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedWordElement(43513), SCALE_FACTOR_MINUS_1), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_FIXED_Q_VALUE, new SignedWordElement(43514)) //
 				), //
 
@@ -2490,7 +2490,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_APM_GENERAL_OUTPUT_ACTIVE_POWER,
 								new SignedWordElement(43506)),
 						new DummyRegisterElement(43507, 43512), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(43513)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedWordElement(43513), SCALE_FACTOR_MINUS_1), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_FIXED_Q_VALUE, new SignedWordElement(43514)) //
 				), //
 
