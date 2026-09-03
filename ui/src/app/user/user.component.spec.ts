@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { TestBed } from "@angular/core/testing";
 import { signal } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
 import { environment, Theme } from "src/environments";
 import { UserComponent } from "./user.component";
 
