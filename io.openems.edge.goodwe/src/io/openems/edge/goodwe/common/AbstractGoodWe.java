@@ -54,6 +54,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
@@ -110,6 +111,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	protected final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
 
+	protected ReadTask firmwareVersionReadTask;
+
 	protected AbstractGoodWe(//
 			io.openems.edge.common.channel.ChannelId activePowerChannelId, //
 			io.openems.edge.common.channel.ChannelId reactivePowerChannelId, //
@@ -145,7 +148,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)) //
 				),
 
-				new FC3ReadRegistersTask(35016, Priority.LOW, //
+				this.firmwareVersionReadTask = new FC3ReadRegistersTask(35016, Priority.LOW, //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_MASTER, new UnsignedWordElement(35016)), //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_SLAVE, new UnsignedWordElement(35017)), //
 						m(GoodWe.ChannelId.DSP_BETA_VERSION, new UnsignedWordElement(35018)), //

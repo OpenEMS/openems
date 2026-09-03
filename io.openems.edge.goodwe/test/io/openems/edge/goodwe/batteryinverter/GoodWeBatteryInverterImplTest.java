@@ -1584,8 +1584,9 @@ class GoodWeBatteryInverterImplTest {
 		test.next(new TestCase()//
 				.onBeforeWriteCallbacks(() -> {
 					inverter.run(cluster, 0, 0);
-				}) //
-					// battery 1
+				})
+
+				// battery 1
 				.input(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, 0) //
 				.input(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, 0) //
 

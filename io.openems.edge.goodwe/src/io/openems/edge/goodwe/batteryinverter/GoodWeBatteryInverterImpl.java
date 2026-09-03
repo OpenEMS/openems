@@ -144,6 +144,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						this.channel(GoodWe.ChannelId.DSP_FM_VERSION_MASTER),
 						this.channel(GoodWe.ChannelId.DSP_BETA_VERSION), this.channel(GoodWe.ChannelId.ARM_FM_VERSION),
 						this.channel(GoodWe.ChannelId.ARM_BETA_VERSION),
+						prio -> this.firmwareVersionReadTask.setPriority(prio),
 						OpenemsComponent.getComponentLogger(GoodWeBatteryInverterUpdateable.class, this));
 			}, GoodWeBatteryInverterUpdateable::deactivate);
 
