@@ -1,18 +1,19 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { AbstractControl, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ExecuteSystemCommandRequest } from "src/app/shared/jsonrpc/request/executeCommandRequest";
 import { ExecuteSystemCommandResponse } from "src/app/shared/jsonrpc/response/executeSystemCommandResponse";
+import { InetUtils } from "src/app/shared/utils/inet/inet.utils";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
-const COMMANDS: { [key: string]: CommandFunction } = {
-    ping: (ip: string) => `ping -c4 ${ip}`,
+const COMMANDS: { [key: string]: CommandFunction; } = {
+    ping: (host: string) => `ping -c4 ${host}`,
     "openems-restart": () =>
         "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };
@@ -35,33 +36,29 @@ export class SystemExecuteComponent implements OnInit {
 
     public model: any = {};
     public options: FormlyFormOptions = {};
-    public fields: FormlyFieldConfig[] = [
-        {
-            key: "predefined",
-            type: "radio",
-            templateOptions: { options: [{ value: "ping", label: "Ping device in network" }] },
-        },
-        {
-            key: "ping",
-            hideExpression: (model: any, formState: any) => this.model["predefined"] !== "ping",
-            fieldGroup: [
-                {
-                    key: "ip",
-                    type: "input",
-                    templateOptions: {
-                        label: "IP-Address",
-                        placeholder: "192.168.0.1",
-                        required: true,
-                        pattern: /(\d{1,3}\.){3}\d{1,3}/,
-                    },
-                    validation: {
-                        messages: {
-                            pattern: (error, field: FormlyFieldConfig) =>
-                                `"${field.formControl.value}" is not a valid IP Address`,
-                        },
-                    },
+    public fields: FormlyFieldConfig[] = [{
+        key: "predefined",
+        type: "radio",
+        templateOptions: { options: [{ value: "ping", label: "Ping device in network" }] },
+    }, {
+        key: "ping",
+        hideExpression: (model: any, formState: any) => this.model["predefined"] !== "ping",
+        fieldGroup: [{
+            key: "host",
+            type: "input",
+            templateOptions: {
+                label: "Host",
+                placeholder: "127.0.0.1 / ::1 / localhost",
+                required: true,
+            },
+            validators: {
+                host: {
+                    expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
+                    message: (error, field: FormlyFieldConfig) =>
+                        `${field.formControl?.value} is not a valid IP-Address or Hostname`,
                 },
-            ],
+            },
+        }],
         },
         {
             key: "predefined",
@@ -165,7 +162,7 @@ export class SystemExecuteComponent implements OnInit {
             const cmd = COMMANDS[m.predefined];
             switch (m.predefined) {
                 case "ping":
-                    command = cmd(m.ping.ip);
+                    command = cmd(m.ping.host);
                     break;
                 case "openems-restart":
                 default:
@@ -194,14 +191,12 @@ export class SystemExecuteComponent implements OnInit {
                 command: command.value,
             });
 
-            edge.sendRequest(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_host",
-                    payload: executeSystemCommandRequest,
-                }),
-            )
-                .then((response) => {
+            const request = new ComponentJsonApiRequest({
+                componentId: "_host",
+                payload: executeSystemCommandRequest,
+            });
+            edge.sendRequest(this.websocket, request)
+                .then(response => {
                     const result = (response as ExecuteSystemCommandResponse).result;
                     this.loading = false;
                     if (result.stdout.length == 0) {
@@ -210,8 +205,9 @@ export class SystemExecuteComponent implements OnInit {
                         this.stdout = result.stdout;
                     }
                     this.stderr = result.stderr;
+
                 })
-                .catch((reason) => {
+                .catch(reason => {
                     this.loading = false;
                     this.stderr = ["Error executing system command:", reason.error.message];
                 });

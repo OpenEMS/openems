@@ -359,7 +359,7 @@
       "MANDATORY_FIELDS": "Merci de remplir les champs obligatoires",
       "SUBNETMASK": "Masque de sous-réseau",
       "SUCCESS_UPDATE": "Configuration réseau mise à jour avec succès pour",
-      "VALID_ADDRESS_WARNING": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IP valide avec un masque de réseau, par ex. 10.4.1.6/24"
+      "VALID_ADDRESS_WARNING": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IPv4 valide avec un masque de réseau, par ex. 10.4.1.6/24"
     },
     "SERVICE": {
       "CELL": {

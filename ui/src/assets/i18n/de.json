@@ -606,7 +606,7 @@
             "SUBMIT": "Anwenden",
             "SUBNETMASK": "Subnetzmaske",
             "SUCCESS_UPDATE": "Netzwerkkonfiguration erfolgreich aktualisiert für",
-            "VALID_ADDRESS_WARNING": "Gib unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24"
+            "VALID_ADDRESS_WARNING": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IPv4-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24"
         },
         "SERVICE": {
             "CELL": {
