@@ -53,6 +53,7 @@ export class UserComponent implements OnInit {
     protected readonly environment = environment;
     protected readonly uiVersion = Changelog.UI_VERSION;
     protected readonly languages: Language[] = Language.ALL;
+    protected readonly isThemeSelectionAvailable = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(environment.theme);
     protected currentLanguage: Language;
     protected isEditModeDisabled: boolean = true;
     protected form: { formGroup: FormGroup; model: UserInformation | CompanyUserInformation };
@@ -122,8 +123,6 @@ export class UserComponent implements OnInit {
     public static get DEFAULT_THEME(): UserTheme {
         return UserTheme.LIGHT;
     } // Theme as of "Light","Dark" or "System" Themes.
-
-    protected readonly isThemeSelectionAvailable = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(environment.theme);
 
     public static getNavigationTree(
         service: Service,
