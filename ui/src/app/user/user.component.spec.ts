@@ -1,5 +1,8 @@
 // @ts-strict-ignore
-import { Theme } from "src/environments";
+import { TestBed } from "@angular/core/testing";
+import { signal } from "@angular/core";
+import { environment, Theme } from "src/environments";
+import { UserComponent } from "./user.component";
 
 describe("UserComponent - isThemeSelectionAvailable", () => {
 
@@ -21,5 +24,25 @@ describe("UserComponent - isThemeSelectionAvailable", () => {
 
     it("should return false for Heckert theme", () => {
         expect(isThemeSelectionAvailable("Heckert")).toBe(false);
+    });
+
+    describe("on UserComponent instance", () => {
+        beforeEach(() => TestBed.configureTestingModule({}));
+
+        it("should reflect environment.theme on the component field", () => {
+            TestBed.runInInjectionContext(() => {
+                const component = new UserComponent(
+                    { instant: (k: string) => k } as any,
+                    {} as any,
+                    {} as any,
+                    { currentUser: signal(null) } as any,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                );
+                const expected = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(environment.theme);
+                expect((component as any).isThemeSelectionAvailable).toBe(expected);
+            });
+        });
     });
 });
