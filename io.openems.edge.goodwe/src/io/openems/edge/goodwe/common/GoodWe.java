@@ -2047,6 +2047,42 @@ public interface GoodWe extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#DSP_FM_VERSION_MASTER}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getDspFmVersionMasterChannel() {
+		return this.channel(ChannelId.DSP_FM_VERSION_MASTER);
+	}
+
+	/**
+	 * Gets the dsp fm version master. See {@link ChannelId#DSP_FM_VERSION_MASTER}.
+	 *
+	 * @return the channel value
+	 */
+	public default Value<Integer> getDspFmVersionMaster() {
+		return this.getDspFmVersionMasterChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DSP_BETA_VERSION}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getDspBetaVersionChannel() {
+		return this.channel(ChannelId.DSP_BETA_VERSION);
+	}
+
+	/**
+	 * Gets the dsp beta version. See {@link ChannelId#DSP_BETA_VERSION}.
+	 *
+	 * @return the channel value
+	 */
+	public default Value<Integer> getDspBetaVersion() {
+		return this.getDspBetaVersionChannel().value();
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#GOODWE_TYPE}.
 	 *
 	 * @return the Channel

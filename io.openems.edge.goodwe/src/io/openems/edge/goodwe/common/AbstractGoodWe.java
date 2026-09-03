@@ -1131,15 +1131,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				this.handleDefaultEmsPower(protocol);
 				this.handleMultipleStringChargers(protocol);
 				this.handleExtendedFeedPower(protocol);
-				this.handleNewFixPfRegisters(protocol);
-				this.handleEnablePfCurve(protocol);
 				this.handleGensetOperatingMode(protocol);
 			}
 
 			case FENECON_100K -> {
 				this.handleMultipleStringChargers(protocol);
 				this.handleExtendedFeedPower(protocol);
-				this.handleNewFixPfRegisters(protocol);
 				this.handleNewEmsPower(protocol);
 				this.handleGensetOperatingMode(protocol);
 				this.handleExtendedMaxApparentPower(protocol);
@@ -1251,21 +1248,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	}
 
-	private void handleNewFixPfRegisters(ModbusProtocol protocol) {
-		protocol.addTask(//
-				new FC3ReadRegistersTask(45539, Priority.LOW, //
-						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
-				) //
-		);
-		protocol.addTask(//
-				new FC16WriteRegistersTask(45539,
-						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
-				) //
-		);
-	}
-
 	private void handleDefaultEmsPower(ModbusProtocol protocol) {
 		protocol.addTasks(//
 				new FC3ReadRegistersTask(47511, Priority.LOW, //
@@ -1290,21 +1272,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.EMS_POWER_SET, new UnsignedDoublewordElement(42001)) //
 				) //
 		);
-	}
-
-	private void handleEnablePfCurve(ModbusProtocol protocol) {
-		protocol.addTasks(//
-				new FC3ReadRegistersTask(45751, Priority.LOW,
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
-								new UnsignedWordElement(45751)),
-						new DummyRegisterElement(45752, 45775),
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
-								new UnsignedWordElement(45776))),
-				new FC16WriteRegistersTask(45751,
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
-								new UnsignedWordElement(45751))),
-				new FC16WriteRegistersTask(45776, m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
-						new UnsignedWordElement(45776))));
 	}
 
 	private void handleGensetOperatingMode(ModbusProtocol protocol) {
@@ -2417,6 +2384,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			ModbusProtocol protocol, //
 			List<Task> removingTasks //
 	) {
+		if (removingTasks == null) {
+			return;
+		}
 		removingTasks.stream() //
 				.forEach(protocol::removeTask);
 	}
