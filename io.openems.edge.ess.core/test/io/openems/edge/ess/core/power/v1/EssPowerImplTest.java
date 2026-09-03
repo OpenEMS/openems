@@ -975,4 +975,69 @@ public class EssPowerImplTest {
 			assertEquals(description + " for " + ess.id(), qL3, record.reactivePowerL3());
 		});
 	}
+
+	@Test
+	public void testClusterWithOneSubEssDeactivated() throws Exception {
+		var powerComponent = new EssPowerImpl();
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2, ess3) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.addReference("addEss", ess3) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build());
+
+		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+
+		expect("#1", ess1, 10000, 0);
+		expect("#1", ess2, 10000, 0);
+		expect("#1", ess3, 10000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+
+		componentTest.removeReference("removeEss", ess3);
+
+		assertEquals(40000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+
+		expect("#2", ess1, 15000, 0);
+		expect("#2", ess2, 15000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+
+		componentTest.addReference("addEss", ess3);
+
+		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+
+		expect("#3", ess1, 10000, 0);
+		expect("#3", ess2, 10000, 0);
+		expect("#3", ess3, 10000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+	}
 }

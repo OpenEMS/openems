@@ -125,6 +125,17 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 	}
 
 	/**
+	 * Removes an {@link OpenemsComponent}.
+	 *
+	 * @param component the {@link OpenemsComponent} to remove
+	 * @return this
+	 */
+	public DummyComponentManager removeComponent(OpenemsComponent component) {
+		this.components.remove(component);
+		return this;
+	}
+
+	/**
 	 * Sets a {@link EdgeConfig} json.
 	 *
 	 * @param json the {@link EdgeConfig} json
