@@ -226,6 +226,7 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 
 	@Override
 	public void apply(ChargePointActions actions) {
+		this.kebaModbusUtils.setEnableOnCharge(actions.getApplySetPointInMilliAmpere().value());
 		this.evseKebaUtils.applyChargePointActions(this.config, actions);
 	}
 
