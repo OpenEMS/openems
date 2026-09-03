@@ -5,7 +5,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, finalize, take, takeUntil } from "rxjs/operators";
-import { RouteService } from "../../service/route.service";
+import { RouteService } from "../../service/route/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { MultiLengthArray, TIntRange } from "../../type/utility";
@@ -57,6 +57,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                 .pipe(
                     filter((config) => !!config),
                     take(1),
+                    takeUntil(this.stopOnDestroy),
                 )
                 .subscribe(() => this.subscribeChannels(this.service));
 
@@ -99,6 +100,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     public async ngOnDestroy() {
+        this.initializeView();
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
         this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());

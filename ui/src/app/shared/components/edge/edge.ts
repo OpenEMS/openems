@@ -6,7 +6,10 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
 import { SumState } from "src/app/index/shared/sumState";
 import { PlatFormService } from "src/app/platform.service";
+import { environment } from "src/environments";
+import { UnimplementedInEdgeError } from "../../errors/errors";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
+import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../../jsonrpc/notification/edgeConfigNotification";
 import { SystemLogNotification } from "../../jsonrpc/notification/systemLogNotification";
@@ -22,6 +25,7 @@ import { SubscribeChannelsRequest } from "../../jsonrpc/request/subscribeChannel
 import { SubscribeSystemLogRequest } from "../../jsonrpc/request/subscribeSystemLogRequest";
 import { UpdateAppConfigRequest } from "../../jsonrpc/request/updateAppConfigRequest";
 import { UpdateComponentConfigRequest } from "../../jsonrpc/request/updateComponentConfigRequest";
+import { UpdateEdgeSettingsRequest } from "../../jsonrpc/request/updateEdgeSettingsRequest";
 import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
 import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigResponse";
@@ -31,7 +35,6 @@ import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
-import { ObjectUtils } from "../../utils/object/object-utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { SharedBottomNavigationBar } from "../navigation/bottom-bar/shared";
 import { NavigationId, NavigationTree } from "../navigation/shared";
@@ -40,6 +43,15 @@ import { EdgeConfig } from "./edgeconfig";
 
 export enum EdgeSettings {
     ANNUAL_REVIEW_2025 = "annual_review_2025",
+    FAVORITES = "favorites",
+}
+
+interface EdgeSettingsConfig {
+    [EdgeSettings.ANNUAL_REVIEW_2025]?: string[];
+    [EdgeSettings.FAVORITES]?: {
+        includes: string[];
+        excludes: string[];
+    };
 }
 
 export class Edge {
@@ -73,12 +85,10 @@ export class Edge {
         public readonly lastmessage: Date,
         public readonly sumState: SumState,
         public readonly firstSetupProtocol: Date,
-        public settings: Partial<{
-            [k in EdgeSettings]: number | boolean | string;
-        }>,
+        public settings: EdgeSettingsConfig,
     ) {}
 
-    setIsSubscribed(isSubscribed: boolean) {
+    public setIsSubscribed(isSubscribed: boolean) {
         this.isSubscribed = isSubscribed;
     }
 
@@ -378,8 +388,9 @@ export class Edge {
 
     /** Handles a EdgeConfigNotification */
     public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
-        this.config.next(new EdgeConfig(this, message.params));
-        this._config.set(new EdgeConfig(this, message.params));
+        const config = new EdgeConfig(this, message.params);
+        this.config.next(config);
+        this._config.set(config);
     }
 
     /** Handles a CurrentDataNotification */
@@ -640,17 +651,37 @@ export class Edge {
         const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree(
             translate,
         ).slice() as ConstructorParameters<typeof NavigationTree>;
-        let navigationTree = new NavigationTree(..._baseNavigationTree);
-        navigationTree = navigationTree.setParentRecursively();
-        navigationTree.reorderByShowOrder(navigationTree);
+        const navigationTree = new NavigationTree(..._baseNavigationTree);
         return navigationTree;
     }
 
-    public shouldShowAnnualReviewPopover(): boolean {
-        return (
-            this.role === Role.OWNER &&
-            ObjectUtils.getValueByKeySafely(this.settings, EdgeSettings.ANNUAL_REVIEW_2025) != null
-        );
+    /**
+     * Updates the settings for this edge.
+     *
+     * @param key The key to update
+     * @param value The value for given key
+     */
+    public async updateEdgeSettingsWithProperty<K extends keyof EdgeSettingsConfig>(
+        key: K,
+        value: EdgeSettingsConfig[K],
+        websocket: Websocket,
+    ) {
+        const updatedSettings: Edge["settings"] = { ...this.settings, [key]: value };
+        const [err, _result] = await this.updateEdgeSettings(updatedSettings, websocket);
+        if (err !== null) {
+            throw err;
+        }
+
+        this.settings = updatedSettings;
+        return Promise.resolve();
+    }
+
+    public getFavoritesFromSettings(): (typeof this.settings)[EdgeSettings.FAVORITES] {
+        const favorites = this.settings?.[EdgeSettings.FAVORITES];
+        return {
+            includes: Array.isArray(favorites?.includes) ? favorites.includes : [],
+            excludes: Array.isArray(favorites?.excludes) ? favorites.excludes : [],
+        };
     }
 
     protected addCommonWidgetNavigation(
@@ -693,13 +724,15 @@ export class Edge {
         this.sendRequest(websocket, request)
             .then((response) => {
                 const edgeConfigResponse = response as GetEdgeConfigResponse;
-                this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
-                this._config.set(new EdgeConfig(this, edgeConfigResponse.result));
+                const config = new EdgeConfig(this, edgeConfigResponse.result);
+                this.config.next(config);
+                this._config.set(config);
             })
             .catch((reason) => {
                 console.warn("Unable to refresh config", reason);
-                this.config.next(new EdgeConfig(this));
-                this._config.set(new EdgeConfig(this));
+                const config = new EdgeConfig(this);
+                this.config.next(config);
+                this._config.set(config);
             });
     }
 
@@ -760,5 +793,22 @@ export class Edge {
                     });
             }, 100);
         }
+    }
+
+    /**
+     * Updates the edge settings.
+     *
+     * @param settings The new settings to use
+     * @returns A Promise with either an Error or a JsonrpcResponseSuccess
+     */
+    private updateEdgeSettings(
+        settings: typeof this.settings,
+        websocket: Websocket,
+    ): Promise<[Error | null, JsonrpcResponseSuccess | null]> {
+        const request = new UpdateEdgeSettingsRequest({ edgeId: this.id, settings: settings });
+        if (environment.backend === "OpenEMS Edge") {
+            return Promise.resolve([new UnimplementedInEdgeError(request), null]);
+        }
+        return JsonRpcUtils.handle(websocket.sendRequest(request));
     }
 }

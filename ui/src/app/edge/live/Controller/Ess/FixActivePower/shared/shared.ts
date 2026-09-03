@@ -5,7 +5,7 @@ import { NavigationConstants, NavigationTree } from "src/app/shared/components/n
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -425,7 +425,7 @@ export namespace SharedEssFixDigitalPowerControl {
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                NavigationConstants.CommonNodes.INFO(translate, {
+                NavigationConstants.CommonNodes.INFO(translate, component.id, {
                     source: component.id,
                 }),
             ],

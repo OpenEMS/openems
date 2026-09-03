@@ -8,7 +8,7 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Service } from "../../../../shared/shared";
 import { Widgets } from "../../../../shared/type/widgets";
-import { RouteService } from "../../../service/route.service";
+import { RouteService } from "../../../service/route/route.service";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { DummyConfig } from "../../edge/edgeconfig.spec";
 import { NavigationService } from "../service/navigation.service";

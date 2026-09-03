@@ -6,7 +6,7 @@ import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
-import { RouteService } from "../../service/route.service";
+import { RouteService } from "../../service/route/route.service";
 import { UserService } from "../../service/user.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";

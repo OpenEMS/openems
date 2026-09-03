@@ -9,7 +9,7 @@
         "FAQ": "Frequently asked questions (FAQ)",
         "LANGUAGE": "Select language:",
         "THEME": "Theme",
-        "NEW_UI": "New UI",
+        "NEW_UI": "New Design",
         "OPEN_EMS": "More about OpenEMS",
         "PATCHNOTES": "Changes in the monitoring for this build"
     },
@@ -301,7 +301,8 @@
                         "RENAULT_ZOE": "Is a Renault Zoe mainly charged on this charging station?"
                     },
                     "AMOUNT_OF_CHARGING_STATIONS": "Amount of charging stations",
-                    "AUTOMATIC_SWITCHING": "Automatic",
+                    "AUTOMATIC_SWITCHING": "Automatic Phase Switching",
+                    "AUTOMATIC_SWITCHING_DESCRIPTION": "Automatic phase switching requires that both the vehicle and the charging point technically support this function. The phase-switching process can take a few minutes, during which the vehicle does not charge.",
                     "CABLE": "Cable",
                     "CABLE_NOT_CONNECTED": "Cable is not connected",
                     "CAR_FULL": "Car is full",
@@ -468,11 +469,11 @@
                     "OPERATING_STATUS": "Operating status",
                     "AUTOMATIC_DESCRIPTION": "Set your thresholds for the PV surplus mode",
                     "BASE_MODE_DESCRIPTIONS": {
-                      "SWITCH_ON_COM": "The heat pump is switched on when the excess feed-in exceeds the entered value and the state of charge of the storage system is above the entered value.",
-                      "SWITCH_ON_REC": "When activated, the heat pump increases its output and utilizes available energy more intensively for heat generation.",
-                      "NORMAL_OPERATION": "The heat pump operates in a demand-driven manner within the regular power range.",
-                      "AUTOMATIC": "Depending on the set thresholds for grid purchase and feed-in, the individual modes are switched. (The thresholds can be changed under Settings)",
-                      "LOCK": "This operating state limits the power consumption of the heat pump according to the heat pump settings to 0 kW or 4.2 kW."
+                        "SWITCH_ON_COM": "The heat pump is switched on when the excess feed-in exceeds the entered value and the state of charge of the storage system is above the entered value.",
+                        "SWITCH_ON_REC": "When activated, the heat pump increases its output and utilizes available energy more intensively for heat generation.",
+                        "NORMAL_OPERATION": "The heat pump operates in a demand-driven manner within the regular power range.",
+                        "AUTOMATIC": "Depending on the set thresholds for grid purchase and feed-in, the individual modes are switched. (The thresholds can be changed under Settings)",
+                        "LOCK": "This operating state limits the power consumption of the heat pump according to the heat pump settings to 0 kW or 4.2 kW."
                     }
                 },
                 "HEATINGELEMENT": {
@@ -887,6 +888,7 @@
         "ACCESS_LEVEL": "Access Level",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
+        "FAVORITES": "Favorites",
         "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Settings",
         "EDGE_SYSTEM_SETTINGS": "System Settings",
@@ -906,7 +908,7 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Other users",
         "OVERVIEW": "All Systems",
-        "SYSTEMS": "Systeme",
+        "SYSTEMS": "Systems",
         "SETTINGS": "Settings",
         "USER": "User",
         "PROFILE": "Profile"

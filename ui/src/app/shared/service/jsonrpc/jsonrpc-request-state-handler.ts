@@ -2,18 +2,15 @@ import { Injectable } from "@angular/core";
 import { JsonrpcRequest } from "../../jsonrpc/base";
 import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { EdgeRpcRequest } from "../../jsonrpc/request/edgeRpcRequest";
-import { States } from "../../ngrx-store/states";
 import { Edge } from "../../shared";
+import { States } from "../../states/states";
 import { AuthService } from "../auth/auth.service";
 import { Pagination } from "../pagination";
 import { Websocket } from "../websocket";
 
-
 @Injectable({ providedIn: "root" })
 export class JsonrpcRequestStateHandler {
-
     public async establishRequestMinState(request: JsonrpcRequest, websocket: Websocket): Promise<void> {
-
         return new Promise<void>(async (resolve) => {
             const authService = websocket.injector.get(AuthService);
             const pagination = websocket.injector.get(Pagination);

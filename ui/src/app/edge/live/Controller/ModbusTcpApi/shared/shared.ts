@@ -15,7 +15,7 @@ export namespace SharedControllerModbusTcpApiReadWrite {
         | "SetReactivePowerLessOrEquals";
 
     /** IDs supported for TCP/Modbus write channels. */
-    export type ChannelPrefix = `Ess${number}`;
+    export type ChannelPrefix = `${string}${number}`;
     export type ChannelId = `${ChannelPrefix}${ChannelSuffix}`;
 
     /**
@@ -34,9 +34,7 @@ export namespace SharedControllerModbusTcpApiReadWrite {
             public override readonly channelId: string,
         ) {
             super(componentId, channelId);
-            const match = channelId.match(
-                /^(Ess\d+)(SetActivePowerEquals|SetActivePowerGreaterOrEquals|SetActivePowerLessOrEquals|SetReactivePowerEquals|SetReactivePowerGreaterOrEquals|SetReactivePowerLessOrEquals)$/,
-            );
+            const match = channelId.match(/^(.+\d)([A-Za-z].*)$/);
 
             if (!match) {
                 throw new Error(`Invalid channel ID: ${channelId}`);
@@ -106,7 +104,10 @@ export namespace SharedControllerModbusTcpApiReadWrite {
             { name: "swap-vertical-outline", color: "normal" },
             component.alias,
             "label",
-            [NavigationConstants.CommonNodes.SETTINGS(translate), NavigationConstants.CommonNodes.HISTORY(translate)],
+            [
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+            ],
             null,
         ).toConstructorParams();
     }

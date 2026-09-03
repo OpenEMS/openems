@@ -1,8 +1,8 @@
 @if (isAllowed() && children().length > 0) {
   <ion-grid>
     <ion-list>
-      @for (child of children(); let i = $index; let last = $last; track child) {
-        <ion-item [lines]="last ? 'none' : 'full'" mode="md" button class="ion-full-width" (keydown.enter)="navigationService.navigateAbsolute(child)" (click)="navigationService.navigateAbsolute(child)">
+      @for (child of children(); let i = $index; let last = $last; track i) {
+        <ion-item mode="md" [lines]="last ? 'none' : 'full'" button class="ion-full-width" (keydown.enter)="navigationService.navigateAbsolute(child)" (click)="navigationService.navigateAbsolute(child)">
           @if (child.icon !== null) {
             <ion-icon [name]="child.icon.name" [color]="child.icon.color" slot="start"></ion-icon>
           }

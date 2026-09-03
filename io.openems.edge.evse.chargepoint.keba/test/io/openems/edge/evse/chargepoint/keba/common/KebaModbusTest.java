@@ -110,14 +110,14 @@ public class KebaModbusTest {
 	 * Writes SET_ENERGY_LIMIT in Wh and asserts the scaled FC6 value on register
 	 * 5010.
 	 *
-	 * @param sut the {@link KebaModbus} implementation
-	 * @param energyLimitWh the channel write in Wh
+	 * @param sut              the {@link KebaModbus} implementation
+	 * @param energyLimitWh    the channel write in Wh
 	 * @param expectedRegister the expected register 5010 value
 	 * @throws Exception on error
 	 */
 	public static void testEnergyLimitWriteScale(KebaModbus sut, int energyLimitWh, int expectedRegister)
 			throws Exception {
-		((WriteChannel<?>) sut.channel(EvseKeba.ChannelId.SET_ENERGY_LIMIT))
+		((WriteChannel<?>) sut.channel(EvseKeba.ChannelId.SET_ENERGY_LIMIT)) //
 				.setNextWriteValueFromObject(energyLimitWh);
 		ModbusProtocol protocol = getValueViaReflection(sut, "protocol");
 		var task = protocol.getTaskManager().getTasks().stream() //

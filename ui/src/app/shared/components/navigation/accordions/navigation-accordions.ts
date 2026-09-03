@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, Output, signal, untracked, WritableSignal, } from "@angular/core";
 import { PlatFormService } from "src/app/platform.service";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
@@ -9,8 +9,8 @@ import { NavigationService } from "../service/navigation.service";
 import { AvailableScope, NavigationTree, PageFilterMode } from "../shared";
 
 @Component({
-    selector: "oe-navigation-chips",
-    templateUrl: "./chips.html",
+    selector: "oe-navigation-accordions",
+    templateUrl: "./navigation-accordions.html",
     standalone: false,
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
@@ -64,17 +64,14 @@ export class NavigationChipsComponent {
         effect(() => {
             const currentNode = navigationService.currentNode();
             const navigationTree = this.navigationService.navigationTree();
-            const absoluteNavigationTree = NavigationTree.of(
-                NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)),
-            );
 
             if (currentNode?.id === "system-overview") {
                 this.absoluteChildren = [];
             } else {
-                this.absoluteChildren = this.filterVisibleNodes(absoluteNavigationTree?.getChildren() ?? []);
+                this.absoluteChildren = this.filterVisibleNodes(navigationTree?.getChildren() ?? []);
             }
             if (this.platFormService.getDevice().isSmartphone()) {
-                this.absoluteChildren?.push(...this.filterIsLiveAndOverview(absoluteNavigationTree));
+                this.absoluteChildren?.push(...this.filterIsLiveAndOverview(navigationTree));
             }
         });
     }
@@ -237,12 +234,9 @@ export class NavigationChipsComponent {
         }
 
         const navigationTree = untracked(() => this.navigationService.navigationTree());
-        const absoluteNavigationTree = NavigationTree.of(
-            NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)),
-        );
 
         const defaultOpenAccordions =
-            absoluteNavigationTree
+            navigationTree
                 ?.getChildren()
                 ?.filter((el) => el.accordionOpenedOnDefault)
                 ?.map((el) => el.routerLink.baseString) ?? [];

@@ -1,9 +1,10 @@
 package io.openems.edge.bridge.modbus.api.task.hooks.mocks;
 
+import org.junit.jupiter.api.Assertions;
+
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
-import org.junit.jupiter.api.Assertions;
 
 public class DummyTaskHook extends TaskHook {
 	private HookState state = HookState.NEW;

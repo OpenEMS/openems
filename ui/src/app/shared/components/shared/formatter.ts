@@ -4,6 +4,7 @@ import { Language } from "../../type/language";
 
 export namespace Formatter {
     // Changes the number format based on the language selected.
+    /* eslint-disable no-restricted-syntax */
     let locale: string = Language.geti18nLocale();
 
     /** @internal Only for testing */

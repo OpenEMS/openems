@@ -272,7 +272,7 @@ export namespace SharedGrid {
         if (gridMeters == null) {
             return null;
         }
-        const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge);
+        const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge, "grid");
 
         return new NavigationTree(
             "grid",
@@ -281,44 +281,37 @@ export namespace SharedGrid {
             translate.instant("GENERAL.GRID"),
             "icon",
             [
-                new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    "label",
-                    [
-                        ...gridMeters.map((el) =>
-                            gridMeters.length === 1
-                                ? NavigationConstants.CommonNodes.PHASE_ACCURATE(
-                                      translate,
-                                      el.id + "/phase-accurate",
-                                      "dark",
-                                      currentAndVoltage,
-                                  )
-                                : new NavigationTree(
-                                      el.id + "/phase-accurate",
-                                      { baseString: el.id + "/phase-accurate" },
-                                      { name: "oe-grid", color: "dark" },
-                                      el.alias,
-                                      "label",
-                                      currentAndVoltage,
-                                      null,
-                                  ),
-                        ),
-                        new NavigationTree(
-                            "external-limitation",
-                            { baseString: "external-limitation" },
-                            { name: "flame", color: "danger" },
-                            translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"),
-                            "label",
-                            [],
-                            null,
-                        ),
-                    ],
-                    null,
-                ),
-                NavigationConstants.CommonNodes.INFO(translate, {
+                NavigationConstants.CommonNodes.HISTORY(translate, "grid", [
+                    ...gridMeters.map((el) =>
+                        gridMeters.length === 1
+                            ? NavigationConstants.CommonNodes.PHASE_ACCURATE(
+                                  translate,
+                                  el.id + "/phase-accurate",
+                                  "dark",
+                                  el.id,
+                                  currentAndVoltage,
+                              )
+                            : new NavigationTree(
+                                  el.id + "/phase-accurate",
+                                  { baseString: el.id + "/phase-accurate" },
+                                  { name: "oe-grid", color: "dark" },
+                                  el.alias,
+                                  "label",
+                                  currentAndVoltage,
+                                  null,
+                              ),
+                    ),
+                    new NavigationTree(
+                        "external-limitation",
+                        { baseString: "external-limitation" },
+                        { name: "flame", color: "danger" },
+                        translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"),
+                        "label",
+                        [],
+                        null,
+                    ),
+                ]),
+                NavigationConstants.CommonNodes.INFO(translate, "grid", {
                     source: "grid",
                 }),
             ],

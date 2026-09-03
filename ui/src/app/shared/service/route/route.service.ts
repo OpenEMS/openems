@@ -1,9 +1,9 @@
-import { DestroyRef, inject, Injectable, signal, WritableSignal } from "@angular/core";
+import { inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
-import { ObjectUtils } from "../utils/object/object-utils";
-import { StringUtils } from "../utils/string/string.utils";
-import { OAuthCallBackComponent } from "./auth/oauthcallback.component";
+import { ObjectUtils } from "../../utils/object/object-utils";
+import { StringUtils } from "../../utils/string/string.utils";
+import { OAuthCallBackComponent } from "../auth/oauthcallback.component";
 
 @Injectable()
 export class RouteService {
@@ -12,7 +12,6 @@ export class RouteService {
     private previousUrl: string | null = null;
     private queryParams: WritableSignal<URLSearchParams | null> = signal(null);
     private cookieService = inject(CookieService);
-    private destroyRef: DestroyRef = inject(DestroyRef);
     private router: Router = inject(Router);
 
     constructor() {
@@ -140,8 +139,7 @@ export class RouteService {
     }
 
     public getCurrentUrlRouteSegments(): string[] {
-        const currentUrl = this.currentUrl();
-        const cleanedCurrentUrl = currentUrl?.startsWith("/") ? currentUrl.substring(1) : currentUrl;
+        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading();
         return (
             cleanedCurrentUrl?.split("/")?.reduce((acc: string[], curr) => {
                 const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
@@ -150,6 +148,12 @@ export class RouteService {
                 return acc;
             }, []) ?? []
         );
+    }
+
+    public getCurrentUrlWithoutLeading(): string | null {
+        const currentUrl = this.currentUrl();
+        const cleanedCurrentUrl = currentUrl?.startsWith("/") ? currentUrl.substring(1) : currentUrl;
+        return cleanedCurrentUrl;
     }
 
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {

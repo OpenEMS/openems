@@ -1,11 +1,11 @@
-import {CUSTOM_ELEMENTS_SCHEMA} from "@angular/core";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { AngularDelegate, ModalController } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service, Websocket } from "src/app/shared/shared";
 
 import { HeatEditTaskComponent } from "./edit";
