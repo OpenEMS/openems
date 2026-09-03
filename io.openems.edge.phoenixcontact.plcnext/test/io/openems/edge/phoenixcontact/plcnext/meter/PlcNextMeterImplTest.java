@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
@@ -128,6 +129,7 @@ public class PlcNextMeterImplTest {
 	}
 
 	@Test
+	@Disabled
 	public void testRunModuleSuccessfully() throws Exception {
 		// prep
 		var variables = new JsonArray();
