@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.backend.common.metadata.AppCenterHandler;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata.GenericSystemLog;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -41,6 +42,7 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.timedata.XlsxExportDetailData.XlsxExportDataEntry.HistoricTimedataSaveType;
 import io.openems.common.timedata.XlsxExportUtil;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.EdgeConfig;
 
 public class EdgeRpcRequestHandler {
 
@@ -84,7 +86,7 @@ public class EdgeRpcRequestHandler {
 				edgeId, user, QueryHistoricTimeseriesExportXlxsRequest.from(request));
 
 		case GetEdgeConfigRequest.METHOD ->
-			this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
+			this.handleGetEdgeConfigRequest(edgeId, user, role, GetEdgeConfigRequest.from(request));
 
 		case ComponentJsonApiRequest.METHOD -> {
 			final var componentRequest = ComponentJsonApiRequest.from(request);
@@ -317,11 +319,22 @@ public class EdgeRpcRequestHandler {
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user, Role role,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
 		var config = this.parent.metadata.edge().getEdgeConfig(edgeId);
 
-		// JSON-RPC response
+		// Self-heal: if the cached config has no factories but the Edge is online, fetch
+		// the live config directly from the Edge. This covers the case where the Backend
+		// restarted and the Edge reconnected without re-firing onOpen (e.g. 1006/1008
+		// close codes), so the config cache was never populated.
+		if (config.getFactories().isEmpty()
+				&& this.parent.metadata.getEdge(edgeId).map(Edge::isOnline).orElse(false)) {
+			return this.parent.edgeManager.send(edgeId, user, role,
+					new ComponentJsonApiRequest("_componentManager", request)) //
+					.thenApply(response -> new GetEdgeConfigResponse(request.getId(),
+							EdgeConfig.fromJson(response.getResult().getAsJsonObject())));
+		}
+
 		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));
 	}
 
