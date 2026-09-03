@@ -254,23 +254,24 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
 		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWe.ChannelId.SERIAL_NUMBER));
-
-		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
-
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 
-		this.applyConfigIfNotSet(config, true);
+		this.onActivateOrModified(context, config);
+		this.registerListenersForSafetyParameters();
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		this.onActivateOrModified(context, config);
+	}
+
+	private void onActivateOrModified(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
-		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
-
-		this.applyConfigIfNotSet(config, true);
+		this.applyGoodWeConfigIfNotSet(config, ApplyEvent.ON_ACTIVATE_OR_MODIFIED);
+		this.addPowerSettingTasks();
 	}
 
 	@Override
@@ -395,6 +396,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		});
 	}
 
+	private static enum ApplyEvent {
+		ON_ACTIVATE_OR_MODIFIED, ON_RUN;
+	}
+
 	/**
 	 * Apply the configuration on if the values are not already set.
 	 *
@@ -404,12 +409,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * consists backup power availability.
 	 * </p>
 	 *
-	 * @param config         Configuration parameters.
-	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
-	 *                       run()
+	 * @param config     Configuration parameters.
+	 * @param applyEvent distinguish between being called by @Activate / @Modified
+	 *                   or {@link #run(Battery, int, int)}
 	 * @throws OpenemsNamedException on error
 	 */
-	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
+	private void applyGoodWeConfigIfNotSet(Config config, ApplyEvent applyEvent) throws OpenemsNamedException {
 
 		// Default Work-Mode
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SELECT_WORK_MODE), AppModeIndex.SELF_USE);
@@ -447,14 +452,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
 				config.rcrEnable().booleanValue || config.naProtectionEnable().booleanValue);
+
 		// Try only once
-		if (onConfigUpdate) { //
+		if (applyEvent == ApplyEvent.ON_ACTIVATE_OR_MODIFIED) { //
 			// Mppt Shadow enable / disable
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
 		}
-
-		this.addPowerSettingTasks();
-		this.registerListenersForSafetyParameters();
 	}
 
 	private void handleFixedPowerFactor(GoodWeType goodweType, EnableCurve fixedPowerFactorEnable,
@@ -968,7 +971,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 
 		// ApplyConfig
-		this.applyConfigIfNotSet(this.config, false);
+		this.applyGoodWeConfigIfNotSet(this.config, ApplyEvent.ON_RUN);
 
 		final var batteryValues = mapValue(this.mapBatteriesToPort(battery),
 				b -> new BatteryValues(b.getSoc().get(), b.getCurrent().get()));
