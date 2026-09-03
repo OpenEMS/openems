@@ -97,9 +97,6 @@ public class EvseKebaUtils {
 		this.previousCurrent = Tuple2.of(now, setPointInMilliAmpere);
 
 		try {
-			keba.setSetEnable(setPointInMilliAmpere == 0 //
-					? SetEnable.DISABLE //
-					: SetEnable.ENABLE);
 			keba.setSetChargingCurrent(setPointInMilliAmpere);
 
 		} catch (OpenemsNamedException e) {
