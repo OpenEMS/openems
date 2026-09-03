@@ -1,18 +1,15 @@
 package io.openems.edge.app.heat;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
-import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
-import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import com.google.gson.JsonObject;
+
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -24,7 +21,6 @@ import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
-import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 
 class AppHeatMyPvTest {
 
@@ -40,6 +36,18 @@ class AppHeatMyPvTest {
 				this.heatMyPv = Apps.heatMyPv(t) //
 		), null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 		this.appManagerTestBundle.addComponentAggregateTask();
+	}
+
+	@Test
+	void testHasOnlyExpectedProperties() {
+		this.appManagerTestBundle //
+				.withApp(this.heatMyPv) //
+				.hasOnlyProperties(//
+						AppHeatMyPv.Property.HEAT_ID, //
+						AppHeatMyPv.Property.MODBUS_ID, //
+						AppHeatMyPv.Property.ALIAS, //
+						AppHeatMyPv.Property.IP, //
+						AppHeatMyPv.Property.MAX_HEAT_POWER);
 	}
 
 	@Test
@@ -70,60 +78,11 @@ class AppHeatMyPvTest {
 	}
 
 	@Test
-	void testGetAppPermissions() {
-		final var permissions = this.heatMyPv.getAppPermissions();
-
-		assertEquals(List.of(Role.ADMIN), permissions.canInstall());
-		assertEquals(Role.ADMIN, permissions.canSee());
-		assertEquals(Role.ADMIN, permissions.canDelete());
-	}
-
-	@Test
-	void testInstallPermissions() throws Exception {
-		this.createApp(DUMMY_ADMIN);
-		this.appManagerTestBundle.assertInstalledApps(1);
-
-		this.beforeEach();
-		assertThrows(OpenemsNamedException.class, () -> this.createApp(DUMMY_INSTALLER));
-		this.appManagerTestBundle.assertInstalledApps(0);
-
-		this.beforeEach();
-		assertThrows(OpenemsNamedException.class, () -> this.createApp(DUMMY_OWNER));
-		this.appManagerTestBundle.assertInstalledApps(0);
-
-		this.beforeEach();
-		assertThrows(OpenemsNamedException.class, () -> this.createApp(DUMMY_GUEST));
-		this.appManagerTestBundle.assertInstalledApps(0);
-	}
-
-	@Test
-	void testDeletePermissions() throws Exception {
-		final var ownerInstalledInstance = this.createApp(DUMMY_ADMIN);
-		this.appManagerTestBundle.assertInstalledApps(1);
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
-				new DeleteAppInstance.Request(ownerInstalledInstance.instanceId));
-		this.appManagerTestBundle.assertInstalledApps(0);
-
-		this.beforeEach();
-		final var ownerDeleteInstance = this.createApp(DUMMY_ADMIN);
-		assertThrows(OpenemsNamedException.class,
-				() -> this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_OWNER,
-						new DeleteAppInstance.Request(ownerDeleteInstance.instanceId)));
-		this.appManagerTestBundle.assertInstalledApps(1);
-
-		this.beforeEach();
-		final var intstallerDeleteInstance = this.createApp(DUMMY_ADMIN);
-		assertThrows(OpenemsNamedException.class,
-				() -> this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_INSTALLER,
-						new DeleteAppInstance.Request(intstallerDeleteInstance.instanceId)));
-		this.appManagerTestBundle.assertInstalledApps(1);
-
-		this.beforeEach();
-		final var guestDeleteInstance = this.createApp(DUMMY_ADMIN);
-		assertThrows(OpenemsNamedException.class,
-				() -> this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_GUEST,
-						new DeleteAppInstance.Request(guestDeleteInstance.instanceId)));
-		this.appManagerTestBundle.assertInstalledApps(1);
+	void testPermissions() {
+		this.appManagerTestBundle.assertPermissions(this.heatMyPv, properties()) //
+				.canSeeWithOnlyRoles(Role.ADMIN) //
+				.canDeleteWithOnlyRoles(Role.ADMIN) //
+				.canInstallWithOnlyRoles(Role.ADMIN);
 	}
 
 	@Test
@@ -153,5 +112,12 @@ class AppHeatMyPvTest {
 	private OpenemsAppInstance createApp(User user) throws Exception {
 		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
 				new AddAppInstance.Request(this.heatMyPv.getAppId(), "key", "alias", properties())).instance();
+	}
+
+	private static JsonObject properties() {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("IP", IP) //
+				.addProperty("MAX_HEAT_POWER", MAX_HEAT_POWER) //
+				.build();
 	}
 }
