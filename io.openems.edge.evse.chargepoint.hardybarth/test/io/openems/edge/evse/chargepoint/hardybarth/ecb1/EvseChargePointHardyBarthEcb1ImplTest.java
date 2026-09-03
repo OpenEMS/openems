@@ -19,8 +19,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.hardybarth.ecb1.Ecb1Handler;
-import io.openems.edge.evcs.hardybarth.ecb1.EvcsHardyBarthEcb1;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -132,8 +130,8 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> handler.handleChargeControlResponse(CHARGECONTROL_NO_CAR)) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, false) //
-						.output(EvcsHardyBarthEcb1.ChannelId.RAW_STATE, "A") //
-						.output(EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED, false) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, "A") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, false) //
 				);
 	}
 
@@ -146,8 +144,8 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> handler.handleChargeControlResponse(CHARGECONTROL_CAR_PAUSED)) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
-						.output(EvcsHardyBarthEcb1.ChannelId.RAW_STATE, "B") //
-						.output(EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED, true) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, "B") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, true) //
 				);
 	}
 
@@ -163,7 +161,7 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 							handler.handleMeterResponse(METER_CHARGING);
 						}) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
-						.output(EvcsHardyBarthEcb1.ChannelId.RAW_STATE, "C") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, "C") //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000) //

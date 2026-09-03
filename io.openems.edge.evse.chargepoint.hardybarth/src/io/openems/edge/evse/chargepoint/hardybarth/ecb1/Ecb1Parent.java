@@ -1,12 +1,8 @@
-package io.openems.edge.evcs.hardybarth.ecb1;
+package io.openems.edge.evse.chargepoint.hardybarth.ecb1;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-/**
- * Common parent interface for components driven by the Hardy Barth ECB1 REST
- * API. Implemented by both the legacy EVCS and the new EVSE component.
- */
 public interface Ecb1Parent extends OpenemsComponent, ElectricityMeter {
 
 	/**

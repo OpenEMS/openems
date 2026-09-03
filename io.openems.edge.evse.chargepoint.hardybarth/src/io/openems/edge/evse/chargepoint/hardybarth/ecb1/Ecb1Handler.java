@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.hardybarth.ecb1;
+package io.openems.edge.evse.chargepoint.hardybarth.ecb1;
 
 import static io.openems.common.bridge.http.api.HttpMethod.POST;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
@@ -167,17 +167,17 @@ public class Ecb1Handler {
 		}
 
 		var stateId = getIntOrNull(cc, "stateid");
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
 		var state = getStringOrNull(cc, "state");
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_STATE, state);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, state);
 		var mode = getStringOrNull(cc, "mode");
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MODE, mode);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_MODE, mode);
 		var connected = getBooleanOrNull(cc, "connected");
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, getDoubleOrNull(cc, "manualmodeamp"));
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, getDoubleOrNull(cc, "currentpwmamp"));
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VENDOR, getStringOrNull(cc, "vendor"));
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_VERSION, getStringOrNull(cc, "version"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, getDoubleOrNull(cc, "manualmodeamp"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, getDoubleOrNull(cc, "currentpwmamp"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VENDOR, getStringOrNull(cc, "vendor"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VERSION, getStringOrNull(cc, "version"));
 
 		// Re-set manual mode if the device has drifted to another mode
 		if (mode != null && !mode.equals("manual")) {
@@ -218,9 +218,9 @@ public class Ecb1Handler {
 			return;
 		}
 
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, getIntOrNull(meter, "serial"));
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, getStringOrNull(meter, "vendor"));
-		setValue(this.parent, EvcsHardyBarthEcb1.ChannelId.RAW_METER_TYPE, getStringOrNull(meter, "type"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, getIntOrNull(meter, "serial"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, getStringOrNull(meter, "vendor"));
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, getStringOrNull(meter, "type"));
 
 		// Active power (W)
 		var powerTotal = roundToInt(getObisDouble(data, OBIS_POWER_TOTAL));

@@ -16,9 +16,6 @@ import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase;
-import io.openems.edge.evcs.hardybarth.ecb1.Ecb1Handler;
-import io.openems.edge.evcs.hardybarth.ecb1.Ecb1Parent;
-import io.openems.edge.evcs.hardybarth.ecb1.EvcsHardyBarthEcb1;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
@@ -50,7 +47,7 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				EvseChargePoint.ChannelId.values(), //
-				EvcsHardyBarthEcb1.ChannelId.values() //
+				EvseChargePointHardyBarthEcb1.ChannelId.values() //
 		);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
