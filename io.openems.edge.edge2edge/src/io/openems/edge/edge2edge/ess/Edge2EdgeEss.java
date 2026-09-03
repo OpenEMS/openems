@@ -11,15 +11,15 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Edge2EdgeEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MINIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT) //
-				.text("Minimum available active power")), //
-		MAXIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT) //
+		MINIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT)//
 				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT) //
+				.unit(Unit.WATT)//
+				.text("Minimum available active power")), //
+		MAXIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT)//
 				.text("Maximum available electrical power")), //
-		REMOTE_SET_ACTIVE_POWER_EQUALS(Doc.of(OpenemsType.FLOAT) //
+		REMOTE_SET_ACTIVE_POWER_EQUALS(Doc.of(OpenemsType.FLOAT)//
 				.accessMode(AccessMode.WRITE_ONLY)//
 				.unit(Unit.WATT)), //
 		REMOTE_SET_REACTIVE_POWER_EQUALS(Doc.of(OpenemsType.FLOAT) //
