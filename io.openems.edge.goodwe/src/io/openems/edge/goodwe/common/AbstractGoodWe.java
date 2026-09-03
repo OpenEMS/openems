@@ -148,7 +148,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)) //
 				),
 
-				this.firmwareVersionReadTask = new FC3ReadRegistersTask(35016, Priority.LOW, //
+				this.firmwareVersionReadTask = new FC3ReadRegistersTask(35016, Priority.HIGH, //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_MASTER, new UnsignedWordElement(35016)), //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_SLAVE, new UnsignedWordElement(35017)), //
 						m(GoodWe.ChannelId.DSP_BETA_VERSION, new UnsignedWordElement(35018)), //

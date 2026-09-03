@@ -5,6 +5,7 @@ import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.MapUtils.mapValue;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
@@ -2204,7 +2205,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 								SCALE_FACTOR_2),
 						new DummyRegisterElement(43660), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_CURVE_MODE, new UnsignedWordElement(43661)),
-						new DummyRegisterElement(43662, 43663), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_OVEREXCITED_SLOPE, new UnsignedWordElement(43662)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_UNDEREXCITED_SLOPE, new UnsignedWordElement(43663)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_VOLTAGE_DEAD_BAND, new UnsignedWordElement(43664)),
 						new DummyRegisterElement(43665, 43689), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PU_CURVE, new UnsignedWordElement(43690)),
@@ -2220,15 +2222,24 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_APM_PU_OUTPUT_RESPONSE_MODE, new UnsignedWordElement(43700)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_GRADIENT_MODE,
 								new UnsignedWordElement(43701)),
-						new DummyRegisterElement(43702, 43719), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_PT1_MODE,
+								new UnsignedDoublewordElement(43702)),
+						new DummyRegisterElement(43704, 43719), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_CURVE_COS_PHI_P, new UnsignedWordElement(43720)),
 						new DummyRegisterElement(43721), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_POWER, new UnsignedWordElement(43722)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_POWER, new UnsignedWordElement(43723)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_POWER, new UnsignedWordElement(43724)),
-						new DummyRegisterElement(43725, 43728), //
+						new DummyRegisterElement(43725), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_COS_PHI, new SignedWordElement(43726)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_COS_PHI, new SignedWordElement(43727)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_COS_PHI, new SignedWordElement(43728)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_COS_PHI, new SignedWordElement(43729)),
-						new DummyRegisterElement(43730, 43732), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_CURVE_MODE, new UnsignedWordElement(43730)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_UNDEREXCITED_SLOPE,
+								new SignedWordElement(43731), SCALE_FACTOR_MINUS_1),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE, new SignedWordElement(43732),
+								SCALE_FACTOR_MINUS_1),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_EXTENDED_FUNCTIONS,
 								new UnsignedWordElement(43733)),
 						new DummyRegisterElement(43734), //
@@ -2245,24 +2256,30 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				new FC3ReadRegistersTask(43780, Priority.HIGH,
 						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
 								new UnsignedWordElement(43780)),
-						new DummyRegisterElement(43781, 43783), //
+						new DummyRegisterElement(43781), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_START, new UnsignedWordElement(43782),
+								SCALE_FACTOR_1), //
+						new DummyRegisterElement(43783), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_SLOPE, new UnsignedWordElement(43784)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_TIME,
-								new UnsignedWordElement(43785), SCALE_FACTOR_MINUS_1),
+								new UnsignedWordElement(43785), SCALE_FACTOR_2),
 						new DummyRegisterElement(43786, 43796), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_FSTOP_ENABLE,
 								new UnsignedWordElement(43797)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_POINT,
 								new UnsignedWordElement(43798), SCALE_FACTOR_1),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_WAITING_TIME,
-								new UnsignedWordElement(43799), SCALE_FACTOR_2),
+								new UnsignedWordElement(43799), SCALE_FACTOR_3),
 						new DummyRegisterElement(43800), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_SLOPE,
 								new UnsignedWordElement(43801)),
 						new DummyRegisterElement(43802, 43819), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
 								new UnsignedWordElement(43820)),
-						new DummyRegisterElement(43821, 43823), //
+						new DummyRegisterElement(43821), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_THRESHOLD,
+								new UnsignedWordElement(43822), SCALE_FACTOR_1), //
+						new DummyRegisterElement(43823), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_SLOPE, new UnsignedWordElement(43824)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_TIME,
 								new UnsignedWordElement(43825), SCALE_FACTOR_MINUS_1),
@@ -2371,7 +2388,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 								new UnsignedWordElement(43998)),
 						m(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SPEED,
 								new UnsignedWordElement(43999)),
-						new DummyRegisterElement(44000, 44012), //
+						new DummyRegisterElement(44000, 44005), //
+						m(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SLOPE,
+								new UnsignedDoublewordElement(44006)),
+						m(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SLOPE,
+								new UnsignedDoublewordElement(44008)),
+						new DummyRegisterElement(44010, 44012), //
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_ENABLE, new UnsignedWordElement(44013)),
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_ENTER_THRESHOLD, new UnsignedWordElement(44014)),
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_EXIT_ENDPOINT, new UnsignedWordElement(44015)),
@@ -2515,7 +2537,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 								SCALE_FACTOR_2),
 						new DummyRegisterElement(43660), //
 						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_CURVE_MODE, new UnsignedWordElement(43661)),
-						new DummyRegisterElement(43662, 43663), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_OVEREXCITED_SLOPE, new UnsignedWordElement(43662)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_UNDEREXCITED_SLOPE, new UnsignedWordElement(43663)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_QU_VOLTAGE_DEAD_BAND, new UnsignedWordElement(43664)) //
 				), //
 
@@ -2532,8 +2555,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						new DummyRegisterElement(43699), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PU_OUTPUT_RESPONSE_MODE, new UnsignedWordElement(43700)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_GRADIENT_MODE,
-								new UnsignedWordElement(43701)) //
-				), //
+								new UnsignedWordElement(43701)), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_PT1_MODE,
+								new UnsignedDoublewordElement(43702))), //
 
 				new FC16WriteRegistersTask(43720,
 						m(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_CURVE_COS_PHI_P, new UnsignedWordElement(43720)),
@@ -2541,9 +2565,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_POWER, new UnsignedWordElement(43722)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_POWER, new UnsignedWordElement(43723)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_POWER, new UnsignedWordElement(43724)),
-						new DummyRegisterElement(43725, 43728), //
+						new DummyRegisterElement(43725), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_COS_PHI, new SignedWordElement(43726)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_COS_PHI, new SignedWordElement(43727)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_COS_PHI, new SignedWordElement(43728)),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_COS_PHI, new SignedWordElement(43729)),
-						new DummyRegisterElement(43730, 43732), //
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_CURVE_MODE, new UnsignedWordElement(43730)),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_UNDEREXCITED_SLOPE,
+								new SignedWordElement(43731), SCALE_FACTOR_MINUS_1),
+						m(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE,
+								new SignedWordElement(43732), SCALE_FACTOR_MINUS_1),
 						m(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_EXTENDED_FUNCTIONS,
 								new UnsignedWordElement(43733)),
 						new DummyRegisterElement(43734), //
@@ -2562,17 +2593,20 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				new FC16WriteRegistersTask(43780,
 						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
 								new UnsignedWordElement(43780)),
-						new DummyRegisterElement(43781, 43783), //
+						new DummyRegisterElement(43781), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_START, new UnsignedWordElement(43782),
+								SCALE_FACTOR_1), //
+						new DummyRegisterElement(43783), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_SLOPE, new UnsignedWordElement(43784)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_TIME,
-								new UnsignedWordElement(43785), SCALE_FACTOR_MINUS_1),
+								new UnsignedWordElement(43785), SCALE_FACTOR_2),
 						new DummyRegisterElement(43786, 43796), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_FSTOP_ENABLE,
 								new UnsignedWordElement(43797)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_POINT,
 								new UnsignedWordElement(43798), SCALE_FACTOR_1),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_WAITING_TIME,
-								new UnsignedWordElement(43799), SCALE_FACTOR_2),
+								new UnsignedWordElement(43799), SCALE_FACTOR_3),
 						new DummyRegisterElement(43800), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_SLOPE,
 								new UnsignedWordElement(43801)) //
@@ -2581,7 +2615,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				new FC16WriteRegistersTask(43820,
 						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
 								new UnsignedWordElement(43820)),
-						new DummyRegisterElement(43821, 43823), //
+						new DummyRegisterElement(43821), //
+						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_THRESHOLD,
+								new UnsignedWordElement(43822), SCALE_FACTOR_1), //
+						new DummyRegisterElement(43823), //
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_SLOPE, new UnsignedWordElement(43824)),
 						m(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_TIME,
 								new UnsignedWordElement(43825), SCALE_FACTOR_MINUS_1),
@@ -2694,7 +2731,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 								new UnsignedWordElement(43998)),
 						m(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SPEED,
 								new UnsignedWordElement(43999)),
-						new DummyRegisterElement(44000, 44012), //
+						new DummyRegisterElement(44000, 44005), //
+						m(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SLOPE,
+								new UnsignedDoublewordElement(44006)),
+						m(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SLOPE,
+								new UnsignedDoublewordElement(44008)),
+						new DummyRegisterElement(44010, 44012), //
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_ENABLE, new UnsignedWordElement(44013)),
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_ENTER_THRESHOLD, new UnsignedWordElement(44014)),
 						m(GoodWePowerSetting.ChannelId.V2_LVRT_EXIT_ENDPOINT, new UnsignedWordElement(44015)),
@@ -2785,12 +2827,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						m(GoodWePowerSetting.ChannelId.V2_FRT_OF2_TIME, new UnsignedDoublewordElement(44164)),
 						m(GoodWePowerSetting.ChannelId.V2_FRT_OF3_FREQUENCY, new UnsignedWordElement(44166),
 								SCALE_FACTOR_MINUS_1),
-						m(GoodWePowerSetting.ChannelId.V2_FRT_OF3_TIME, new UnsignedDoublewordElement(44167),
-								SCALE_FACTOR_MINUS_3) //
+						m(GoodWePowerSetting.ChannelId.V2_FRT_OF3_TIME, new UnsignedDoublewordElement(44167)) //
 				));
 	}
 
-	private void addPowerSettingTasks() {
+	@VisibleForTesting
+	protected void addPowerSettingTasks() {
 		var protocol = this.getModbusProtocol();
 		removeTasks(//
 				protocol, //
@@ -2798,6 +2840,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		);
 
 		final var safetyParameterSettingsTasks = ImmutableList.<Task>builder();
+
+		if (!this.areGoodWeTypeAndVersionDefined()) {
+			return;
+		}
 
 		if (this.isV3TasksCompatible() && this.isGoodWeType100k()) {
 			this.appendPowerSettingsV3Tasks(safetyParameterSettingsTasks);
@@ -2838,11 +2884,22 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		return goodWeType == GoodWeType.FENECON_100K;
 	}
 
+	private boolean areGoodWeTypeAndVersionDefined() {
+		return this.getGoodweType() != GoodWeType.UNDEFINED && this.getDspFmVersionMaster() != null
+				&& this.getDspBetaVersion() != null;
+	}
+
 	private boolean isV3TasksCompatible() {
 		final Integer dspFmVersion = this.getDspFmVersionMaster().orElse(null);
 		final Integer dspBetaVersion = this.getDspBetaVersion().orElse(null);
 		if (dspFmVersion == null || dspBetaVersion == null) {
 			return false;
+		}
+		if (this.firmwareVersionReadTask.getPriority() != Priority.LOW) {
+			// Set Priority to LOW to avoid much traffic on the Modbus bus. The firmware
+			// version is only needed for the first time to check if V3 tasks are
+			// compatible.
+			this.firmwareVersionReadTask.setPriority(Priority.LOW);
 		}
 		final var dspVersion = new TwoPartVersion(dspFmVersion, dspBetaVersion);
 		return dspVersion.isAtLeast(MINIMAL_DSP_VERSION_FOR_V3_TASKS);

@@ -14,6 +14,7 @@ import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.c
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.doSetBmsVoltage;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_MODE;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_SET;
+import static io.openems.edge.goodwe.common.GoodWe.ChannelId.FIXED_POWER_FACTOR_V2;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.GOODWE_TYPE;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_EXPORT;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_IMPORT;
@@ -36,6 +37,8 @@ import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV5_I;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV5_V;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV6_I;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV6_V;
+import static io.openems.edge.goodwe.common.GoodWePowerSetting.ChannelId.V2_APM_GENERAL_OUTPUT_ACTIVE_POWER;
+import static io.openems.edge.goodwe.common.GoodWePowerSetting.ChannelId.V2_RPM_FIXED_Q_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,8 +47,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,11 +59,16 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -77,11 +87,13 @@ import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.GoodWePowerSetting;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
+import io.openems.edge.goodwe.common.enums.EnableDisableOrUndefined;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
@@ -89,6 +101,7 @@ import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
+import io.openems.edge.goodwe.common.enums.SafetyParameterEnums;
 import io.openems.edge.goodwe.common.enums.WaveformDetection;
 
 @SuppressWarnings("deprecation")
@@ -1648,4 +1661,343 @@ class GoodWeBatteryInverterImplTest {
 		);
 	}
 
+	@Test
+	void testappendV3Tasks() throws Exception {
+		final var bridge = new DummyModbusBridge("modbus1")
+				.withRegisters(43506, 0x0064, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0007, 0x00A0)
+				.withRegisters(43610, 0x0005, 0x000A, 0x0000, 0x044C, 0x0384, 0x139C, 0x1374, 0x001E, 0x003C, 0x0000,
+						0x047E, 0x0352, 0x13EC, 0x12F2) //
+				.withRegisters(43640, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x012C, 0x01F4, 0x0438, 0x012C, 0x0398,
+						0xFED4, 0x04B0, 0x01F4, 0x0320, 0xFE0C, 0x0000, 0x0000, 0x0000, 0x0000, 0x0003, 0x0000, 0x0000,
+						0x03E8, 0x03E8, 0x02BC, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x044C, 0x00C8, 0x0384, 0x0384, 0x047E, 0x012C, 0x0352,
+						0x0064, 0x0000, 0x0000, 0x0032, 0x0000, 0x1388, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x01F4, 0x02BC, 0x00C8, 0x0000, 0x0320, 0x0384, 0x03E8, 0x03B6, 0x0000, 0x07D0, 0x07D0, 0x0000,
+						0x0000, 0x0438, 0x0000, 0x0000, 0x0000, 0x0006, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0001, 0x0000) //
+				.withRegisters(43780, 0x0000, 0x0000, 0x1388, 0x0000, 0x0190, 0x00C8, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x139C, 0x0003, 0x0000, 0x0064,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x1388, 0x0000, 0x0258, 0x0078,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001,
+						0x1374, 0x0005, 0x0000, 0x0096, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xFF9C, 0x05DC, 0x02BC,
+						0xFA24, 0x012C, 0x09C4, 0xFED4, 0xF63C, 0x01F4, 0x01F4, 0xFE0C, 0xFE0C, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x000A, 0x0000, 0x0000, 0x000A, 0x0014) //
+				.withRegisters(43910, 0x0398, 0x0000, 0x01F4, 0x04B0, 0x0000, 0x03E8, 0x0320, 0x0000, 0x05DC, 0x044C,
+						0x0000, 0x07D0, 0x0384, 0x0000, 0x0BB8, 0x047E, 0x0000, 0x01F4, 0x0352, 0x0000, 0x03E8, 0x0438,
+						0x0000, 0x05DC, 0x13EC, 0x0000, 0x07D0, 0x12F2, 0x0000, 0x0BB8, 0x139C, 0x0000, 0x01F4, 0x1374,
+						0x0000, 0x03E8, 0x13EC, 0x0000, 0x05DC, 0x12F2, 0x0000, 0x07D0, 0x139C, 0x0000, 0x0BB8, 0x1374,
+						0x0000, 0x01F4, 0x0398, 0x0000, 0x03E8, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0032, 0x0000, 0x0050, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0001, 0x86A0, 0x0001, 0x86A0, 0x0000, 0x0000, 0x0000, 0x0000, 0x04B0, 0x0320,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0005, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x044C) //
+				.withRegisters(44040, 0x0384, 0x0064, 0x047E, 0x0096, 0x0352, 0x00C8, 0x0438, 0x00FA, 0x0398, 0x0014,
+						0x04B0, 0x001E, 0x0320, 0x0032, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x044C, 0x0384, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x047E, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0352, 0x0064, 0x0438, 0x0096, 0x0398, 0x00C8,
+						0x04B0, 0x00FA, 0x0320, 0x0014, 0x044C, 0x001E, 0x0384, 0x0032) //
+				.withRegisters(44150, 0x0000, 0xBB80, 0x0000, 0x05DC, 0xAFC8, 0x0000, 0x07D0, 0xC830, 0x0000, 0x0BB8,
+						0xA314, 0x0000, 0x01F4, 0x9F2C, 0x0000, 0x03E8) //
+				.withRegisters(44166, 0xC830, 0x0000, 0x05DC); //
+
+		var sut = new GoodWeBatteryInverterImpl();
+
+		final var test = new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", bridge) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus1") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
+						.build()); //
+
+		sut.getGoodweTypeChannel().setNextValue(GoodWeType.FENECON_100K);
+		sut.getGoodweTypeChannel().nextProcessImage();
+		sut.getDspFmVersionMasterChannel().setNextValue(1);
+		sut.getDspFmVersionMasterChannel().nextProcessImage();
+		sut.getDspBetaVersionChannel().setNextValue(212);
+		sut.getDspBetaVersionChannel().nextProcessImage();
+
+		sut.addPowerSettingTasks();
+
+		test.next(new TestCase(), 10);
+
+		test.next(new TestCase() //
+				.activateStrictMode() //
+				.withIgnoredChannelsForStrictMode(channelIdsExceptGoodWePowerSettings())
+				.outputReadValue(V2_APM_GENERAL_OUTPUT_ACTIVE_POWER, 100) //
+				.outputReadValue(FIXED_POWER_FACTOR_V2, FixedPowerFactor.LAGGING_0_93) //
+				.outputReadValue(V2_RPM_FIXED_Q_VALUE, 160)
+				// -- block starting at 43610 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_OBSERVATION_TIME, 5) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_SOFT_RAMP_UP_GRADIENT, 10) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_LOWER_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_UPPER_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_LOWER_FREQUENCY, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_UPPER_FREQUENCY, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_OBSERVATION_TIME, 30) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_GRADIENT, 60) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_LOWER_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_UPPER_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_LOWER_FREQUENCY, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_UPPER_FREQUENCY, 48500) //
+
+				// -- block starting at 43640 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_ENABLE_QU_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_EXTENDED_FUNCTIONS,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_CURVE_MODE, SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PU_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_OUTPUT_RESPONSE_MODE,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_CURVE_COS_PHI_P, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_GRADIENT_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_CURVE_MODE,
+						SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_OVEREXCITED_SLOPE, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_UNDEREXCITED_SLOPE, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_UNDEREXCITED_SLOPE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_LOCK_IN_POWER, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_COS_PHI, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_COS_PHI, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_COS_PHI, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_LOCK_OUT_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V1_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V1_VALUE, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V2_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V2_VALUE, -300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V3_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V3_VALUE, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V4_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V4_VALUE, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_TIME_CONSTANT, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_VOLTAGE_DEAD_BAND, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V1_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V1_VALUE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V2_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V2_VALUE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V3_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V3_VALUE, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V4_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V4_VALUE, 100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_GRADIENT_MODE, 50) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_PT1_MODE, 5000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_POWER, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_POWER, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_COS_PHI, 950) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_EXTENDED_FUNCTIONS,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_LOCK_OUT_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_TIME_CONSTANT, 600) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_SOFT_RAMP_UP_GRADIENT_ENABLE, true) //
+
+				// -- block starting at 43780 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
+						EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_QP_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_CURVE_MODE, SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_SLOPE, 400) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_TIME, 20000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_START, 50000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_THRESHOLD, 50000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_FSTOP_ENABLE, false) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_POINT, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_WAITING_TIME, 3000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_SLOPE, 100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_SLOPE, 600) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_TIME, 12) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_FSTOP_ENABLE, true) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_HYSTERESIS_POINT, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_WAITING_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_HYSTERESIS_SLOPE, 150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P1_POWER, -100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P1_REACTIVE_POWER, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P2_POWER, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P2_REACTIVE_POWER, -1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P3_POWER, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P3_REACTIVE_POWER, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P4_POWER, -300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P4_REACTIVE_POWER, -2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P5_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P5_REACTIVE_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P6_POWER, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P6_REACTIVE_POWER, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_TIME_CONSTANT, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_OVEREXCITED_SLOPE, 10) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_UNDEREXCITED_SLOPE, 20) //
+
+				// -- block starting at 43910 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_CURRENT_DISTRIBUTION_MODE,
+						SafetyParameterEnums.Vrt.CurrentDistributionMode.REACTIVE_POWER_PRIO) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_MODE,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_MODE_END,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ZERO_CURRENT_MODE_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SLOPE, 100000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SLOPE, 100000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_1_VALUE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_1_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_1_VALUE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_1_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_2_VALUE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_2_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_2_VALUE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_2_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_3_VALUE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_3_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_3_VALUE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_3_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_4_VALUE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_4_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_4_VALUE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_4_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_1_VALUE, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_1_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_1_VALUE, 48500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_1_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_2_VALUE, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_2_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_2_VALUE, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_2_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_3_VALUE, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_3_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_3_VALUE, 48500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_3_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_4_VALUE, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_4_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_4_VALUE, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_4_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_TEN_MIN_OVERVOLT_STAGE_VALUE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_TEN_MIN_STAGE_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SPEED, 50) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SPEED, 80) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ENTER_THRESHOLD, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_EXIT_ENDPOINT, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_K1_SLOPE, 5) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD, 1100) //
+
+				// -- block starting at 44040 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ZERO_CURRENT_MODE_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV1_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV1_TIME, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV2_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV2_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV3_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV3_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV4_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV4_TIME, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV5_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV5_TIME, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV6_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV6_TIME, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV7_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV7_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ENTER_HIGH_CROSSING, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_EXIT_HIGH_CROSSING, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_K2_SLOPE, 8) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV1_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV1_TIME, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV2_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV2_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV3_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV3_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV4_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV4_TIME, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV5_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV5_TIME, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV6_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV6_TIME, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV7_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV7_TIME, 500) //
+
+				// -- block starting at 44150 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF1_FREQUENCY, 4800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF1_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF2_FREQUENCY, 4500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF2_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF3_FREQUENCY, 5124) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF3_TIME, 3000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF1_FREQUENCY, 4174) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF1_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF2_FREQUENCY, 4074) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF2_TIME, 1000) //
+
+				// -- block starting at 44166 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF3_FREQUENCY, 5124) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF3_TIME, 1500) //
+
+		);
+	}
+
+	private static List<ChannelId> channelIdsExceptGoodWePowerSettings() {
+
+		final var excludingChannels = Stream.of(//
+				GoodWePowerSetting.ChannelId.V2_APM_GENERAL_POWER_GRADIENT, //
+				GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_POWER, //
+				GoodWePowerSetting.ChannelId.V2_RPM_E_POINT_POWER, //
+				GoodWePowerSetting.ChannelId.V2_RPM_E_POINT_COS_PHI, //
+				GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_LOCK_IN_VOLTAGE, //
+				GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_FIXED_Q //
+		);
+
+		final var debugChannels = Arrays.stream(GoodWePowerSetting.ChannelId.values())
+				.filter(c -> c.toString().startsWith("DEBUG"));
+
+		final var debugAndExcludingChannels = Stream.concat(debugChannels, excludingChannels);
+
+		final var singles = Stream.of(//
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY //
+		);
+
+		final var fromArrays = Stream.<ChannelId[]>of(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
+				GoodWe.ChannelId.values(), //
+				GoodWeBatteryInverter.ChannelId.values()) //
+				.flatMap(Stream::of);
+
+		return Stream.concat(debugAndExcludingChannels, Stream.concat(singles, fromArrays)).toList();
+	}
 }
