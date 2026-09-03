@@ -315,6 +315,7 @@ public class EdgeRpcRequestHandler {
 	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
+	 * @param role    the {@link Role} of the user to this edge
 	 * @param request the {@link GetEdgeConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
