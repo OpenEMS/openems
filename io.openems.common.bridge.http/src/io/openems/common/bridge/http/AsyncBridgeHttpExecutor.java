@@ -91,7 +91,7 @@ public class AsyncBridgeHttpExecutor implements BridgeHttpExecutor {
 	}
 
 	@Deactivate
-	private void deactivate() {
+	protected void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduler, 0);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
