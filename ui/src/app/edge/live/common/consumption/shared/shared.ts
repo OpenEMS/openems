@@ -42,10 +42,10 @@ export namespace SharedConsumption {
             translate.instant("GENERAL.CONSUMPTION"),
             "icon",
             [
-                ...SharedBottomNavigationBar.getFavoritesChildrenNavigationTrees(config, edge, translate),
-                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning"),
+                ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate),
+                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning", "consumption"),
                 getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
-                NavigationConstants.CommonNodes.INFO(translate, { source: "consumption" }),
+                NavigationConstants.CommonNodes.INFO(translate, "consumption", { source: "consumption" }),
             ],
             null,
             { isCommonWidget: true },
@@ -60,24 +60,16 @@ export namespace SharedConsumption {
         consumptionMeterComponents: EdgeConfig.Component[],
         translate: TranslateService,
     ): NavigationTree {
-        return new NavigationTree(
-            "history",
-            { baseString: "history" },
-            { name: "stats-chart-outline", color: "warning" },
-            translate.instant("GENERAL.HISTORY"),
-            "label",
-            [
-                ...getHistorySingleComponentNavigationTree(
-                    edge,
-                    sum,
-                    evcsComponents,
-                    heatComponents,
-                    consumptionMeterComponents,
-                    translate,
-                ),
-            ],
-            null,
-        );
+        return NavigationConstants.CommonNodes.HISTORY(translate, "consumption", [
+            ...getHistorySingleComponentNavigationTree(
+                edge,
+                sum,
+                evcsComponents,
+                heatComponents,
+                consumptionMeterComponents,
+                translate,
+            ),
+        ]);
     }
 
     function isHeatComponent(component: EdgeConfig.Component, heatComponents: EdgeConfig.Component[]): boolean {
@@ -102,7 +94,7 @@ export namespace SharedConsumption {
         ];
 
         return [
-            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/details", "warning"),
+            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/details", "warning", sum.id),
             ...uniqueComponents.map(
                 (el) =>
                     new NavigationTree(

@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -55,13 +54,16 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
+import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
@@ -69,11 +71,13 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.goodwe.battery.cluster.AbstractGoodWeBatteryCluster;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoString;
 import io.openems.edge.goodwe.common.GoodWeStateDefinitions.GwState;
 import io.openems.edge.goodwe.common.GoodWeStateDefinitions.GwStateTask;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
+import io.openems.edge.goodwe.common.enums.BatteryPort;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.genset.GoodWeStsBoxGensetMeter;
@@ -107,6 +111,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	protected final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
 
+	protected ReadTask firmwareVersionReadTask;
+
 	protected AbstractGoodWe(//
 			io.openems.edge.common.channel.ChannelId activePowerChannelId, //
 			io.openems.edge.common.channel.ChannelId reactivePowerChannelId, //
@@ -125,6 +131,11 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		this.calculateAcDischargeEnergy = new CalculateEnergyFromPower(this, activeDischargeEnergyChannelId);
 		this.calculateDcChargeEnergy = new CalculateEnergyFromPower(this, dcChargeEnergyChannelId);
 		this.calculateDcDischargeEnergy = new CalculateEnergyFromPower(this, dcDischargeEnergyChannelId);
+
+		ChannelUtils.<AbstractGoodWe, Integer, Integer>subscribeOnSetNextValue(this, //
+				GoodWe.ChannelId.RATE_POWER, GoodWe.ChannelId.AC_RATE_POWER, //
+				values -> this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(//
+						calculateMaxApparentPower(values.a(), values.b())));
 	}
 
 	@Override
@@ -132,12 +143,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		var protocol = new ModbusProtocol(this, //
 
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
-						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
+						m(GoodWe.ChannelId.RATE_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
 						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)) //
 				),
 
-				new FC3ReadRegistersTask(35016, Priority.LOW, //
+				this.firmwareVersionReadTask = new FC3ReadRegistersTask(35016, Priority.HIGH, //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_MASTER, new UnsignedWordElement(35016)), //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_SLAVE, new UnsignedWordElement(35017)), //
 						m(GoodWe.ChannelId.DSP_BETA_VERSION, new UnsignedWordElement(35018)), //
@@ -845,11 +856,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				// TODO .debug()
 				), //
 
-				new FC3ReadRegistersTask(47618, Priority.LOW, //
-						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))), //
-				new FC16WriteRegistersTask(47618, //
-						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))), //
-
 				// Real-Time BMS Data for EMS Control (the data directly from BMS. Please refer
 				// to the comments on registers 45352~45358)
 				new FC16WriteRegistersTask(47900, //
@@ -1125,17 +1131,16 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				this.handleDefaultEmsPower(protocol);
 				this.handleMultipleStringChargers(protocol);
 				this.handleExtendedFeedPower(protocol);
-				this.handleNewFixPfRegisters(protocol);
-				this.handleEnablePfCurve(protocol);
 				this.handleGensetOperatingMode(protocol);
 			}
 
 			case FENECON_100K -> {
 				this.handleMultipleStringChargers(protocol);
 				this.handleExtendedFeedPower(protocol);
-				this.handleNewFixPfRegisters(protocol);
 				this.handleNewEmsPower(protocol);
 				this.handleGensetOperatingMode(protocol);
+				this.handleExtendedMaxApparentPower(protocol);
+				this.handleBattery2Protocol(protocol);
 			}
 
 			case FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH -> {
@@ -1212,6 +1217,21 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				.orElse(GoodWeType.UNDEFINED);
 	}
 
+	private void handleBattery2Protocol(ModbusProtocol protocol) {
+		protocol.addTasks(//
+				new FC3ReadRegistersTask(47618, Priority.LOW, //
+						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))), //
+				new FC16WriteRegistersTask(47618, //
+						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))) //
+		);
+	}
+
+	private void handleExtendedMaxApparentPower(ModbusProtocol protocol) {
+		protocol.addTasks(new FC3ReadRegistersTask(33009, Priority.LOW, //
+				m(GoodWe.ChannelId.AC_RATE_POWER, new UnsignedDoublewordElement(33009)) //
+		));
+	}
+
 	private void handleExtendedFeedPower(ModbusProtocol protocol) {
 		protocol.addTask(//
 				new FC3ReadRegistersTask(42003, Priority.LOW, //
@@ -1226,21 +1246,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				) //
 		);
 
-	}
-
-	private void handleNewFixPfRegisters(ModbusProtocol protocol) {
-		protocol.addTask(//
-				new FC3ReadRegistersTask(45539, Priority.LOW, //
-						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
-				) //
-		);
-		protocol.addTask(//
-				new FC16WriteRegistersTask(45539,
-						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
-				) //
-		);
 	}
 
 	private void handleDefaultEmsPower(ModbusProtocol protocol) {
@@ -1267,21 +1272,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.EMS_POWER_SET, new UnsignedDoublewordElement(42001)) //
 				) //
 		);
-	}
-
-	private void handleEnablePfCurve(ModbusProtocol protocol) {
-		protocol.addTasks(//
-				new FC3ReadRegistersTask(45751, Priority.LOW,
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
-								new UnsignedWordElement(45751)),
-						new DummyRegisterElement(45752, 45775),
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
-								new UnsignedWordElement(45776))),
-				new FC16WriteRegistersTask(45751,
-						m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE,
-								new UnsignedWordElement(45751))),
-				new FC16WriteRegistersTask(45776, m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
-						new UnsignedWordElement(45776))));
 	}
 
 	private void handleGensetOperatingMode(ModbusProtocol protocol) {
@@ -1978,29 +1968,39 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		return productionPower;
 	}
 
-	protected void updatePowerAndEnergyChannels(Integer soc, Integer batteryCurrent) {
-		final var productionPower = this.calculatePvProduction();
-		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		final Channel<Integer> pBattery2Channel = this.channel(GoodWe.ChannelId.P_BATTERY2);
-		var dcDischargePower = pBattery1Channel.value().asOptional() //
-				.map(t -> t + pBattery2Channel.value().orElse(0)) //
-				.orElse(pBattery2Channel.value().get());
+	public record BatteryValues(Integer soc, Integer current) {
 
+	}
+
+	private record EmsPowerSettings(EmsPowerMode mode, Long powerSet) {
+
+	}
+
+	protected void updatePowerAndEnergyChannels(Integer soc) {
+		this.updatePowerAndEnergyChannels(Map.of(BatteryPort.PORT_1, new BatteryValues(soc, null)));
+	}
+
+	protected void updatePowerAndEnergyChannels(Map<BatteryPort, BatteryValues> batteryValuesByPort) {
 		final IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
+		final var productionPower = this.calculatePvProduction();
 
-		/*
-		 * Ignore impossible values of P_BATTERY
-		 */
-		dcDischargePower = postprocessPBattery1(dcDischargePower, this.getWbmsVoltage().get(),
-				this.getGoodweType().maxDcCurrent.apply(null),
-				state -> this.channel(GoodWe.ChannelId.IGNORE_IMPOSSIBLE_P_BATTERY_VALUE).setNextValue(state),
-				dcDischargePowerChannel.value().asOptional());
-
-		dcDischargePower = ignoreImpossibleMinPower(dcDischargePower, soc, batteryCurrent,
+		final var emsSettings = new EmsPowerSettings(
 				((EnumReadChannel) this.channel(GoodWe.ChannelId.EMS_POWER_MODE)).getNextValue().asEnum(),
 				this.getEmsPowerSetChannel().getNextValue().get());
 
-		var acActivePower = sumInteger(productionPower, dcDischargePower);
+		final var pBattery1Value = this.getAndSetPBatteryValue(GoodWe.ChannelId.P_BATTERY1,
+				GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_1, this.getWbmsVoltage(),
+				GoodWe.ChannelId.IGNORE_IMPOSSIBLE_P_BATTERY_VALUE, batteryValuesByPort.get(BatteryPort.PORT_1),
+				emsSettings);
+
+		final var pBattery2Value = this.getAndSetPBatteryValue(GoodWe.ChannelId.P_BATTERY2,
+				GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_2,
+				this.<Channel<Integer>>channel(GoodWe.ChannelId.WBMS_VOLTAGE_2).value(),
+				GoodWe.ChannelId.IGNORE_IMPOSSIBLE_P_BATTERY_2_VALUE, batteryValuesByPort.get(BatteryPort.PORT_2),
+				emsSettings);
+
+		final var dcDischargePower = sumInteger(pBattery1Value, pBattery2Value);
+		final var acActivePower = sumInteger(productionPower, dcDischargePower);
 
 		/*
 		 * Update AC Active Power
@@ -2048,6 +2048,32 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	private Integer getAndSetPBatteryValue(//
+			io.openems.edge.common.channel.ChannelId pBatteryChannelId, //
+			io.openems.edge.common.channel.ChannelId activeBatteryPowerChannelId, //
+			Value<Integer> wbmsVoltage, GoodWe.ChannelId ignoreImpossiblePBattery2Value, //
+			BatteryValues batteryValues, //
+			EmsPowerSettings emsPowerSettings //
+	) {
+		final var batteryPower = this.<Channel<Integer>>channel(activeBatteryPowerChannelId);
+		if (batteryValues == null) {
+			// no battery connected on this port
+			batteryPower.setNextValue(null);
+			return null;
+		}
+
+		final var pBatteryChannel = this.<Channel<Integer>>channel(pBatteryChannelId).value().get();
+
+		var value = postprocessPBattery(pBatteryChannel, wbmsVoltage.get(),
+				this.getGoodweType().maxDcCurrent.apply(null),
+				state -> this.channel(ignoreImpossiblePBattery2Value).setNextValue(state), batteryPower.value().get());
+
+		value = ignoreImpossibleMinPower(value, batteryValues, emsPowerSettings);
+
+		batteryPower.setNextValue(value);
+		return value;
+	}
+
 	/**
 	 * Postprocess PBattery1 value.
 	 * 
@@ -2066,8 +2092,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * @param prevPBattery previous battery power
 	 * @return possible battery power
 	 */
-	protected static Integer postprocessPBattery1(Integer pBattery, Integer dcVoltage, Integer maxDcCurrent,
-			Consumer<Boolean> setState, Optional<Integer> prevPBattery) {
+	protected static Integer postprocessPBattery(//
+			Integer pBattery, Integer dcVoltage, Integer maxDcCurrent, Consumer<Boolean> setState, Integer prevPBattery //
+	) {
 
 		/*
 		 * Values above maximum charge/discharge power
@@ -2080,8 +2107,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 			if (pBattery < impossibleDcChargePower * -1 || pBattery > impossibleDcDischargePower) {
 				stateIgnoreImpossiblePBatteryValue = true;
-				pBattery = prevPBattery
-						.orElse(fitWithin(maxDcCurrent * dcVoltage * -1, maxDcCurrent * dcVoltage, pBattery));
+				pBattery = prevPBattery != null ? prevPBattery
+						: fitWithin(maxDcCurrent * dcVoltage * -1, maxDcCurrent * dcVoltage, pBattery);
 			}
 		}
 
@@ -2105,14 +2132,22 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 */
 	protected static Integer ignoreImpossibleMinPower(Integer goodweDcPower, Integer soc, Integer cBattery,
 			EmsPowerMode powerMode, Long powerSet) {
-		if (cBattery == null || soc == null || goodweDcPower == null || cBattery != 0 || powerMode == null
-				|| powerSet == null) {
+		return ignoreImpossibleMinPower(goodweDcPower, new BatteryValues(soc, cBattery),
+				new EmsPowerSettings(powerMode, powerSet));
+	}
+
+	private static Integer ignoreImpossibleMinPower(Integer goodweDcPower, BatteryValues batteryValues,
+			EmsPowerSettings emsPowerSettings) {
+		if (batteryValues == null || batteryValues.soc == null || batteryValues.current == null
+				|| batteryValues.current != 0 //
+				|| emsPowerSettings == null || emsPowerSettings.mode == null || emsPowerSettings.powerSet == null //
+				|| goodweDcPower == null) {
 			return goodweDcPower;
 		}
 
-		final var batFullOrEmpty = soc >= 100 || soc <= 0;
-		final var emsTargetOfZero = (powerMode == EmsPowerMode.CHARGE_BAT || powerMode == EmsPowerMode.DISCHARGE_BAT)
-				&& powerSet == 0;
+		final var batFullOrEmpty = batteryValues.soc >= 100 || batteryValues.soc <= 0;
+		final var emsTargetOfZero = (emsPowerSettings.mode == EmsPowerMode.CHARGE_BAT
+				|| emsPowerSettings.mode == EmsPowerMode.DISCHARGE_BAT) && emsPowerSettings.powerSet == 0;
 
 		if (batFullOrEmpty || emsTargetOfZero) {
 			return Math.abs(goodweDcPower) < 100 /* W */ ? 0 : goodweDcPower;
@@ -2138,7 +2173,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 */
 	protected void handleMaxAcPower(int maxApparentPower, Battery battery) {
 		this.handleMaxAcPower(maxApparentPower, battery.getChargeMaxCurrent().get(),
-				battery.getDischargeMaxCurrent().get(), battery.getVoltage().get());
+				battery.getDischargeMaxCurrent().get(), battery.getVoltage().get(),
+				getNumberOfSeparateConnectedBatteries(battery));
 	}
 
 	/**
@@ -2149,26 +2185,37 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * getStaticConstraints()
 	 * </p>
 	 * 
-	 * @param maxApparentPower       the max apparent power
-	 * @param batChargeMaxCurrent    the charge max current of the battery
-	 * @param batDischargeMaxCurrent the discharge max current of the battery
-	 * @param batVoltage             the voltage of the battery
+	 * @param maxApparentPower                   the max apparent power
+	 * @param batChargeMaxCurrent                the charge max current of the
+	 *                                           battery
+	 * @param batDischargeMaxCurrent             the discharge max current of the
+	 *                                           battery
+	 * @param batVoltage                         the voltage of the battery
+	 * @param numberOfSeparateConnectedBatteries the number of separate connected
+	 *                                           batteries
 	 */
 	protected void handleMaxAcPower(int maxApparentPower, Integer batChargeMaxCurrent, Integer batDischargeMaxCurrent,
-			Integer batVoltage) {
+			Integer batVoltage, int numberOfSeparateConnectedBatteries) {
 
 		final var result = calculateMaxAcPower(//
 				maxApparentPower, //
 				batChargeMaxCurrent, //
 				batDischargeMaxCurrent, //
 				batVoltage, //
-				this.getGoodweType().maxBatChargeP, //
-				this.getGoodweType().maxBatDischargeP, //
+				TypeUtils.multiply(this.getGoodweType().maxBatChargeP, numberOfSeparateConnectedBatteries), //
+				TypeUtils.multiply(this.getGoodweType().maxBatDischargeP, numberOfSeparateConnectedBatteries), //
 				this.calculatePvProduction());
 
 		// Set Channels
 		this._setMaxAcImport(result.maxAcImport);
 		this._setMaxAcExport(result.maxAcExport);
+	}
+
+	protected static int getNumberOfSeparateConnectedBatteries(Battery battery) {
+		if (!(battery instanceof AbstractGoodWeBatteryCluster cluster)) {
+			return 1;
+		}
+		return cluster.getBatteries().size();
 	}
 
 	/**
@@ -2325,10 +2372,21 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		};
 	}
 
+	private static Integer calculateMaxApparentPower(Value<Integer> ratePower, Value<Integer> acRatePower) {
+		if (acRatePower != null && acRatePower.isDefined()) {
+			return acRatePower.get();
+		}
+
+		return ratePower != null ? ratePower.get() : null;
+	}
+
 	protected static void removeTasks(//
 			ModbusProtocol protocol, //
 			List<Task> removingTasks //
 	) {
+		if (removingTasks == null) {
+			return;
+		}
 		removingTasks.stream() //
 				.forEach(protocol::removeTask);
 	}

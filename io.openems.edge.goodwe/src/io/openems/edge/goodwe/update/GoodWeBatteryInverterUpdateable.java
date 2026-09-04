@@ -23,6 +23,7 @@ import io.openems.common.session.Language;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.common.update.Progress;
 import io.openems.edge.common.update.ProgressHistory;
@@ -33,13 +34,20 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 
 public class GoodWeBatteryInverterUpdateable implements Updateable {
 
-	private static final int AVG_UPDATE_DURATION_IN_MINUTES = 10;
+	private static final int AVG_UPDATE_DURATION_IN_MINUTES = 35;
+	/**
+	 * How much minutes the inverter needs after the update was transferred to
+	 * update it's own firmware and sets the modbus registers to the new version
+	 * number.
+	 */
+	private static final int APPLY_DURATION_IN_MINUTES = 10;
 
 	private final Logger log;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
 	private final BridgeModbus bridgeModbus;
 	private final GoodWeBatteryInverterUpdateParams updateParamsProvider;
 	private final Runnable closeChannelListener;
+	private final Consumer<Priority> setFirmwareVersionReadPriorityFunc;
 
 	private final AtomicReference<GoodWeVersion> version = new AtomicReference<>(
 			new GoodWeVersion(null, null, null, null));
@@ -56,11 +64,13 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 			Channel<Integer> dspFirmwareBetaVersionMaster, //
 			Channel<Integer> armFirmwareVersion, //
 			Channel<Integer> armFirmwareBetaVersion, //
+			Consumer<Priority> setFirmwareVersionReadPriorityFunc, //
 			Logger logger //
 	) {
 		this.log = logger;
 		this.bridgeModbus = bridgeModbus;
 		this.updateParamsProvider = updateParamsProvider;
+		this.setFirmwareVersionReadPriorityFunc = setFirmwareVersionReadPriorityFunc;
 
 		var goodWeTypeListener = goodWeType.onChange((oldValue, newValue) -> {
 			this.goodWeType = newValue.asEnum();
@@ -88,7 +98,7 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 		};
 	}
 
-	private void updateVersion(UnaryOperator<GoodWeVersion> updateFunction) {
+	private synchronized void updateVersion(UnaryOperator<GoodWeVersion> updateFunction) {
 		final var newVersion = this.version.updateAndGet(updateFunction);
 		for (var listener : this.versionListener) {
 			listener.accept(newVersion);
@@ -248,17 +258,19 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 			future.complete(null);
 		};
 		try {
+			this.setFirmwareVersionReadPriorityFunc.accept(Priority.HIGH);
 			this.versionListener.add(listener);
 			if (this.version.get().equals(expectedVersion)) {
 				return;
 			}
 
-			future.get(5, TimeUnit.MINUTES);
+			future.get(APPLY_DURATION_IN_MINUTES, TimeUnit.MINUTES);
 			progress.setPercentage(100, "Finished waiting");
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to wait for version update", e);
 		} finally {
 			this.versionListener.remove(listener);
+			this.setFirmwareVersionReadPriorityFunc.accept(Priority.LOW);
 		}
 
 	}

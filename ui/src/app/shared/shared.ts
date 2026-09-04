@@ -46,7 +46,10 @@ addIcons({
     "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
     "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
     "oe-wrap-up": environment.icons.WRAP_UP,
+    "oe-phase-switching-1": environment.icons.COMPONENT.EVCS_PHASE_SWITCHING_1,
+    "oe-phase-switching-3": environment.icons.COMPONENT.EVCS_PHASE_SWITCHING_3,
     "oe-favorites": environment.icons.COMMON.FAVORITES,
+    "oe-favorites-filled": environment.icons.COMMON.FAVORITES_FILLED,
 });
 
 export class Permission {}

@@ -12,7 +12,7 @@ import { NavigationTree } from "../shared";
  */
 @Component({
     selector: "oe-navigation-back-button",
-    templateUrl: "./back-button.html",
+    templateUrl: "./navigation-back-button.html",
     imports: [CommonUiModule, RouterModule],
 })
 export class NavigationBackButtonComponent {

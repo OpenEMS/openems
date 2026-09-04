@@ -2,7 +2,7 @@ import { computed, Directive, effect, inject, runInInjectionContext, signal, unt
 import { Router } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
-import { States } from "../../ngrx-store/states";
+import { States } from "../../states/states";
 import { ObjectUtils } from "../../utils/object/object-utils";
 import { Service } from "../service";
 import { Websocket } from "../websocket";
@@ -24,17 +24,11 @@ export class AuthService {
     constructor() {
         const context = effect(() => {
             const websocketStatus = this.service.websocket.state();
-            const oauthredirectstate =
-                this.cookieService.get("oauthredirectstate");
+            const oauthredirectstate = this.cookieService.get("oauthredirectstate");
             const oauthRedirectStateHref =
-                ObjectUtils.parseFromString<{ href: string }>(
-                    oauthredirectstate,
-                )?.href ?? null;
+                ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
 
-            if (
-                oauthRedirectStateHref != null &&
-                oauthRedirectStateHref != OAuthCallBackComponent.ID
-            ) {
+            if (oauthRedirectStateHref != null && oauthRedirectStateHref != OAuthCallBackComponent.ID) {
                 this.router.navigateByUrl(oauthRedirectStateHref);
                 return;
             }
@@ -78,12 +72,8 @@ export class AuthService {
                         const state = websocket.state();
 
                         if (
-                            States.isAtLeast(
-                                state,
-                                States.WEBSOCKET_CONNECTED,
-                            ) &&
-                            this.oAuthService.getCurrentState() !=
-                            AUTHENTICATION_STATE.AUTHENTICATING &&
+                            States.isAtLeast(state, States.WEBSOCKET_CONNECTED) &&
+                            this.oAuthService.getCurrentState() != AUTHENTICATION_STATE.AUTHENTICATING &&
                             !States.isAtLeast(state, States.AUTHENTICATED) &&
                             OAuthService.isOAuth(this.cookieService)
                         ) {

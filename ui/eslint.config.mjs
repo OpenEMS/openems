@@ -121,16 +121,27 @@ export default defineConfig([
                     selector: "CallExpression[callee.name='xdescribe']",
                     message: "Using 'xdescribe' is not allowed.",
                 },
+                {
+                    selector:
+                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='let']",
+                    message: "Use const instead of let for namespace-level variables."
+                },
+                {
+                    selector:
+                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='var']",
+                    message: "Do not use var for namespace-level variables."
+                },
+                {
+                    selector: "Program > VariableDeclaration:has(NewExpression)",
+                    message: "Do not create class instances at module scope."
+                }
             ],
             // TODO reapply this rule
             // "@angular-eslint/template/accessibility-interactive-supports-focus": "error"
             "@angular-eslint/prefer-inject": "off",
 
-            // Deactivated for angular migration pu
+            // Deactivated for angular migration purposes
             "@angular-eslint/prefer-on-push-component-change-detection": "off",
-            "no-redeclare": "off",
-            "@typescript-eslint/no-redeclare": "off",
-            "no-undef": "off",
         },
         settings: {
             "import-x/resolver-next": [

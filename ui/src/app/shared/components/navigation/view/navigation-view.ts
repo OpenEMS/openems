@@ -14,7 +14,7 @@ export enum Status {
 /** Always use conditionally rendering, this component doesnt wait for async events to be resolved first */
 @Component({
     selector: "oe-navigation-view",
-    templateUrl: "./view.html",
+    templateUrl: "./navigation-view.html",
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
@@ -44,6 +44,7 @@ export class NavigationPageComponent {
     @Input() protected formGroup: FormGroup | null = null;
 
     protected helpKey = input<HelpButtonComponent["key"]>();
+    protected forceFavorite = input<boolean>(false);
 
     constructor(
         public modalController: ModalController,

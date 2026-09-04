@@ -155,17 +155,16 @@
               <ion-item lines="none">
                 <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode </ion-checkbox>
               </ion-item>
-              @if (useNewUi !== null) {
-                <ion-item [disabled]="newNavigationForced" lines="none">
-                  <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi" translate>ABOUT.NEW_UI </ion-checkbox>
-                </ion-item>
-              }
               @if (environment.backend === "OpenEMS Edge") {
                 <ion-note class="ion-padding">
                   <small> The language can not be changed permanently in the local online-monitoring for technical reasons.</small>
                 </ion-note>
               }
             }
+
+            <ion-item lines="none">
+              <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi" translate>ABOUT.NEW_UI </ion-checkbox>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

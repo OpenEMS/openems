@@ -189,17 +189,9 @@ export namespace SharedControllerIoHeatingElement {
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    "label",
-                    [],
-                    null,
-                ),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
-                NavigationConstants.CommonNodes.INFO(translate, { source: component.id }),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+                NavigationConstants.CommonNodes.INFO(translate, component.id, { source: component.id }),
             ],
             null,
         ).toConstructorParams();

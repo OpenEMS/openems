@@ -1,14 +1,14 @@
 import { Type } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { hasMaximumGridFeedInLimitInMeta } from "src/app/shared/permissions/edgePermissions";
-import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, } from "src/app/shared/shared";
+import { RouteService } from "src/app/shared/service/route/route.service";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
@@ -22,11 +22,9 @@ export namespace SharedGridOptimizedCharge {
     // hide elements when mode is not off
     const HIDE_ON_MODE_NOT_OFF = (el: { mode: Mode }) => el.mode !== Mode.OFF;
     // hide elements when mode is not off
-    const HIDE_ON_MODE_NOT_AUTOMATIC = (el: { mode: Mode }) =>
-        el.mode !== Mode.AUTOMATIC;
+    const HIDE_ON_MODE_NOT_AUTOMATIC = (el: { mode: Mode }) => el.mode !== Mode.AUTOMATIC;
     // hide elements when mode is not off
-    const HIDE_ON_MODE_NOT_MANUAL = (el: { mode: Mode }) =>
-        el.mode !== Mode.MANUAL;
+    const HIDE_ON_MODE_NOT_MANUAL = (el: { mode: Mode }) => el.mode !== Mode.MANUAL;
 
     export const getFormlyView = (
         translate: TranslateService,
@@ -44,13 +42,7 @@ export namespace SharedGridOptimizedCharge {
             helpKey: "REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
             icon: { name: "oe-grid-storage", color: "dark", size: "large" },
             lines: [
-                ...getFormlySharedLines(
-                    translate,
-                    component,
-                    edge,
-                    HIDE_ON_MODE_OFF,
-                    isDisabledByTimeOfUse,
-                ),
+                ...getFormlySharedLines(translate, component, edge, HIDE_ON_MODE_OFF, isDisabledByTimeOfUse),
                 ...getFormlyOffView(translate, HIDE_ON_MODE_NOT_OFF),
                 ...getFormlyAutomaticView(
                     translate,
@@ -83,9 +75,7 @@ export namespace SharedGridOptimizedCharge {
     ): OeFormlyView<GridOptimizedChargeViewModel>["lines"] => [
         {
             type: "info-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.GRID_OPTIMIZED_CHARGE_DISABLED",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.GRID_OPTIMIZED_CHARGE_DISABLED"),
             hide: hideCondition,
         },
     ];
@@ -108,44 +98,28 @@ export namespace SharedGridOptimizedCharge {
                 name: "",
                 singleLine: true,
                 channelsToSubscribe: [
-                    new ChannelAddress(
-                        component.id,
-                        "DelayChargeMaximumChargeLimit",
-                    ),
+                    new ChannelAddress(component.id, "DelayChargeMaximumChargeLimit"),
                     new ChannelAddress(component.id, "TargetMinute"),
                 ],
                 value: (data: CurrentData) => {
                     const delayChargeMaximumChargeLimit =
-                        data.allComponents[
-                            component.id + "/DelayChargeMaximumChargeLimit"
-                        ];
-                    const targetMinute =
-                        data.allComponents[component.id + "/TargetMinute"];
+                        data.allComponents[component.id + "/DelayChargeMaximumChargeLimit"];
+                    const targetMinute = data.allComponents[component.id + "/TargetMinute"];
                     const chargingEndTime =
                         targetMinute !== null
-                            ? Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(
-                                  translate,
-                                  Language.geti18nLocale(),
-                              )(targetMinute)
+                            ? Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, Language.geti18nLocale())(targetMinute)
                             : null;
 
-                    if (
-                        targetMinute !== null &&
-                        delayChargeMaximumChargeLimit !== null &&
-                        !isDisabledByTimeOfUse
-                    ) {
+                    if (targetMinute !== null && delayChargeMaximumChargeLimit !== null && !isDisabledByTimeOfUse) {
                         return translate.instant(
                             "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DETAILED_DESCRIPTION",
                             {
-                                maxChargingPowerW:
-                                    delayChargeMaximumChargeLimit,
+                                maxChargingPowerW: delayChargeMaximumChargeLimit,
                                 endTime: chargingEndTime,
                             },
                         );
                     }
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DESCRIPTION",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DESCRIPTION");
                 },
             },
             {
@@ -161,38 +135,27 @@ export namespace SharedGridOptimizedCharge {
                     targetEpochSeconds: targetEpochSeconds,
                     chargeStartEpochSeconds: chargeStartEpochSeconds,
                 },
-                hide: (el: { mode: Mode }) =>
-                    hideCondition(el) || isDisabledByTimeOfUse,
+                hide: (el: { mode: Mode }) => hideCondition(el) || isDisabledByTimeOfUse,
             },
             {
                 type: "info-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_PROPENSITY",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_PROPENSITY"),
             },
             {
                 type: "buttons-from-form-control-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_PROPENSITY",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_PROPENSITY"),
                 controlName: "delayChargeRiskLevel",
                 buttons: [
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LOW",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LOW"),
                         value: RiskLevel.LOW,
                     },
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MEDIUM",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MEDIUM"),
                         value: RiskLevel.MEDIUM,
                     },
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HIGH",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HIGH"),
                         value: RiskLevel.HIGH,
                     },
                 ],
@@ -208,12 +171,8 @@ export namespace SharedGridOptimizedCharge {
                             delayChargeRiskLevel +
                             ".FUNCTION_DESCRIPTION",
                     ),
-                    hide: (el: {
-                        delayChargeRiskLevel: RiskLevel;
-                        mode: Mode;
-                    }) =>
-                        el.delayChargeRiskLevel !== delayChargeRiskLevel ||
-                        el.mode !== Mode.AUTOMATIC,
+                    hide: (el: { delayChargeRiskLevel: RiskLevel; mode: Mode }) =>
+                        el.delayChargeRiskLevel !== delayChargeRiskLevel || el.mode !== Mode.AUTOMATIC,
                 },
                 {
                     type: "info-line",
@@ -227,12 +186,8 @@ export namespace SharedGridOptimizedCharge {
                         color: "primary",
                         size: "medium",
                     },
-                    hide: (el: {
-                        delayChargeRiskLevel: RiskLevel;
-                        mode: Mode;
-                    }) =>
-                        el.delayChargeRiskLevel !== delayChargeRiskLevel ||
-                        el.mode !== Mode.AUTOMATIC,
+                    hide: (el: { delayChargeRiskLevel: RiskLevel; mode: Mode }) =>
+                        el.delayChargeRiskLevel !== delayChargeRiskLevel || el.mode !== Mode.AUTOMATIC,
                 },
                 {
                     type: "info-line",
@@ -246,12 +201,8 @@ export namespace SharedGridOptimizedCharge {
                         color: "primary",
                         size: "medium",
                     },
-                    hide: (el: {
-                        delayChargeRiskLevel: RiskLevel;
-                        mode: Mode;
-                    }) =>
-                        el.delayChargeRiskLevel !== delayChargeRiskLevel ||
-                        el.mode !== Mode.AUTOMATIC,
+                    hide: (el: { delayChargeRiskLevel: RiskLevel; mode: Mode }) =>
+                        el.delayChargeRiskLevel !== delayChargeRiskLevel || el.mode !== Mode.AUTOMATIC,
                 },
             );
         });
@@ -268,16 +219,12 @@ export namespace SharedGridOptimizedCharge {
     ): OeFormlyView<GridOptimizedChargeViewModel>["lines"] => [
         {
             type: "info-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DESCRIPTION",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DESCRIPTION"),
             hide: hideCondition,
         },
         {
             type: "time-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME"),
             controlName: "manualTargetTime",
             hide: hideCondition,
         },
@@ -296,21 +243,15 @@ export namespace SharedGridOptimizedCharge {
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.STATE"),
-                channel: new ChannelAddress(
-                    component.id,
-                    "DelayChargeState",
-                ).toString(),
+                channel: new ChannelAddress(component.id, "DelayChargeState").toString(),
                 converter: CONVERT_GRID_OPTIMIZED_CHARGE_STATE(translate),
-                hide: (el: { mode: Mode }) =>
-                    hideCondition(el) || isDisabledByTimeOfUse,
+                hide: (el: { mode: Mode }) => hideCondition(el) || isDisabledByTimeOfUse,
             },
             {
                 type: "info-line",
                 name: [
                     {
-                        text: translate.instant(
-                            "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LIMITED_FUNCTIONALITY",
-                        ),
+                        text: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LIMITED_FUNCTIONALITY"),
                         lineStyle: "color: #FFA500",
                     },
                     {
@@ -324,55 +265,37 @@ export namespace SharedGridOptimizedCharge {
                     size: "large",
                     color: "primary",
                 },
-                hide: (el: {
-                    mode: Mode;
-                    delayChargeState: DelayChargeState;
-                }) =>
+                hide: (el: { mode: Mode; delayChargeState: DelayChargeState }) =>
                     el.mode === Mode.OFF ||
-                    el.delayChargeState !==
-                        DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW ||
+                    el.delayChargeState !== DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW ||
                     isDisabledByTimeOfUse,
             },
             {
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE"),
                 channel: component.id + "/SellToGridLimitMinimumChargeLimit",
                 converter: Utils.CONVERT_TO_WATT,
                 filter: Filter.NOT_NULL_OR_UNDEFINED,
-                hide: (el: { mode: Mode }) =>
-                    hideCondition(el) || isDisabledByTimeOfUse,
+                hide: (el: { mode: Mode }) => hideCondition(el) || isDisabledByTimeOfUse,
             },
             {
                 type: "value-from-channels-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_LONG",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_LONG"),
                 channelsToSubscribe: [
                     new ChannelAddress(component.id, "TargetMinute"),
                     new ChannelAddress(component.id, "DelayChargeState"),
                 ],
                 value: (data: CurrentData) => {
-                    const targetMinute =
-                        data.allComponents[component.id + "/TargetMinute"];
-                    return Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(
-                        translate,
-                        Language.geti18nLocale(),
-                    )(targetMinute);
+                    const targetMinute = data.allComponents[component.id + "/TargetMinute"];
+                    return Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, Language.geti18nLocale())(targetMinute);
                 },
                 filter: (currentData: CurrentData) => {
                     return (
-                        currentData.allComponents[
-                            component.id + "/DelayChargeState"
-                        ] != DelayChargeState.ACTIVE_LIMIT &&
-                        currentData.allComponents[
-                            component.id + "/TargetMinute"
-                        ]
+                        currentData.allComponents[component.id + "/DelayChargeState"] !=
+                            DelayChargeState.ACTIVE_LIMIT && currentData.allComponents[component.id + "/TargetMinute"]
                     );
                 },
-                hide: (el: { mode: Mode }) =>
-                    hideCondition(el) || isDisabledByTimeOfUse,
+                hide: (el: { mode: Mode }) => hideCondition(el) || isDisabledByTimeOfUse,
             },
         );
 
@@ -380,9 +303,7 @@ export namespace SharedGridOptimizedCharge {
         if (essId != null) {
             lines.push({
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STORAGE_CAPACITY",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STORAGE_CAPACITY"),
                 channel: essId + "/Capacity",
                 filter: Filter.IS_AT_LEAST_ROLE(Role.ADMIN, edge),
                 converter: Converter.CONVERT_TO_WATTHOURS(),
@@ -393,32 +314,16 @@ export namespace SharedGridOptimizedCharge {
         if (component.properties.sellToGridLimitEnabled) {
             lines.push({
                 type: "value-from-channels-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN"),
                 channelsToSubscribe: [
-                    new ChannelAddress(
-                        "_meta",
-                        "_PropertyMaximumGridFeedInLimit",
-                    ),
-                    new ChannelAddress(
-                        component.id,
-                        "_PropertyMaximumSellToGridPower",
-                    ),
+                    new ChannelAddress("_meta", "_PropertyMaximumGridFeedInLimit"),
+                    new ChannelAddress(component.id, "_PropertyMaximumSellToGridPower"),
                 ],
                 value: (data: CurrentData) => {
                     if (hasMaximumGridFeedInLimitInMeta(edge)) {
-                        return Utils.CONVERT_TO_WATT(
-                            data.allComponents[
-                                "_meta/_PropertyMaximumGridFeedInLimit"
-                            ],
-                        );
+                        return Utils.CONVERT_TO_WATT(data.allComponents["_meta/_PropertyMaximumGridFeedInLimit"]);
                     }
-                    return Utils.CONVERT_TO_WATT(
-                        data.allComponents[
-                            component.id + "/_PropertyMaximumGridFeedInLimit"
-                        ],
-                    );
+                    return Utils.CONVERT_TO_WATT(data.allComponents[component.id + "/_PropertyMaximumGridFeedInLimit"]);
                 },
                 hide: hideCondition,
             });
@@ -428,9 +333,7 @@ export namespace SharedGridOptimizedCharge {
             lines.push(
                 {
                     type: "info-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.INFO_DISABLED_BY_TIME_OF_USE",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.INFO_DISABLED_BY_TIME_OF_USE"),
                     icon: { name: "oe-info", color: "primary", size: "large" },
                 },
                 {
@@ -499,12 +402,9 @@ export namespace SharedGridOptimizedCharge {
             return [];
         }
 
-        const hideWhenBaseConditionFails = (el: { mode: Mode }) =>
-            hideCondition(el) || !isDisabledByTimeOfUse;
-        const hideWhenNotInstalled = (el: { mode: Mode }) =>
-            hideWhenBaseConditionFails(el) || isEeg2025Installed;
-        const hideWhenInstalled = (el: { mode: Mode }) =>
-            hideWhenBaseConditionFails(el) || !isEeg2025Installed;
+        const hideWhenBaseConditionFails = (el: { mode: Mode }) => hideCondition(el) || !isDisabledByTimeOfUse;
+        const hideWhenNotInstalled = (el: { mode: Mode }) => hideWhenBaseConditionFails(el) || isEeg2025Installed;
+        const hideWhenInstalled = (el: { mode: Mode }) => hideWhenBaseConditionFails(el) || !isEeg2025Installed;
 
         const eeg2025AppUrl = `/device/${edgeId}/settings/app/single/App.Tariff.Manual.EEG2025.GridSell?name=EEG%202025`;
 
@@ -515,9 +415,7 @@ export namespace SharedGridOptimizedCharge {
             },
             {
                 type: "info-line",
-                html: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_APP_NAME",
-                ),
+                html: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_APP_NAME"),
                 icon: {
                     name: "oe-time-of-use",
                     size: "large",
@@ -527,16 +425,12 @@ export namespace SharedGridOptimizedCharge {
             },
             {
                 type: "info-line",
-                html: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_DESCRIPTION_NOT_INSTALLED",
-                ),
+                html: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_DESCRIPTION_NOT_INSTALLED"),
                 hide: hideWhenNotInstalled,
             },
             {
                 type: "info-line",
-                html: translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_DESCRIPTION_INSTALLED",
-                ),
+                html: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EEG_2025_DESCRIPTION_INSTALLED"),
                 hide: hideWhenInstalled,
             },
             {
@@ -557,38 +451,17 @@ export namespace SharedGridOptimizedCharge {
         AssertionUtils.assertIsDefined(config);
 
         const gridOptimizedChartComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
 
         AssertionUtils.assertIsDefined(gridOptimizedChartComponent);
         return Promise.resolve([
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "DelayChargeMaximumChargeLimit",
-            ),
+            new ChannelAddress(gridOptimizedChartComponent.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(gridOptimizedChartComponent.id, "_PropertyMode"),
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "_PropertyManualTargetTime",
-            ),
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "_PropertyDelayChargeRiskLevel",
-            ),
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "PredictedChargeStartEpochSeconds",
-            ),
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "DelayChargeState",
-            ),
-            new ChannelAddress(
-                gridOptimizedChartComponent.id,
-                "TargetEpochSeconds",
-            ),
+            new ChannelAddress(gridOptimizedChartComponent.id, "_PropertyManualTargetTime"),
+            new ChannelAddress(gridOptimizedChartComponent.id, "_PropertyDelayChargeRiskLevel"),
+            new ChannelAddress(gridOptimizedChartComponent.id, "PredictedChargeStartEpochSeconds"),
+            new ChannelAddress(gridOptimizedChartComponent.id, "DelayChargeState"),
+            new ChannelAddress(gridOptimizedChartComponent.id, "TargetEpochSeconds"),
         ]);
     }
 
@@ -602,41 +475,28 @@ export namespace SharedGridOptimizedCharge {
     }
 
     export function isEnergySchedulerV2Enabled(config: EdgeConfig): boolean {
-        return (
-            config
-                .getComponentSafely("_energy")
-                ?.getPropertyFromComponent("version") ===
-            "V2_ENERGY_SCHEDULABLE"
-        );
+        return config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V2_ENERGY_SCHEDULABLE";
     }
 
-    export function isDisabledByTimeOfUse(
-        config: EdgeConfig,
-        component: EdgeConfig.Component,
-    ): boolean {
+    export function isDisabledByTimeOfUse(config: EdgeConfig, component: EdgeConfig.Component): boolean {
         if (isEnergySchedulerV2Enabled(config) == false) {
             return false;
         }
 
         const essId = component.getPropertyFromComponent("ess.id");
 
-        return config
-            .getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff")
-            .some((controllerId) => {
-                const controller = config.getComponentSafely(controllerId);
+        return config.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff").some((controllerId) => {
+            const controller = config.getComponentSafely(controllerId);
 
-                return (
-                    controller?.getPropertyFromComponent("ess.id") === essId &&
-                    controller?.getPropertyFromComponent("mode") !== Mode.OFF
-                );
-            });
+            return (
+                controller?.getPropertyFromComponent("ess.id") === essId &&
+                controller?.getPropertyFromComponent("mode") !== Mode.OFF
+            );
+        });
     }
 
     export function isEeg2025Installed(config: EdgeConfig): boolean {
-        return (
-            config.getComponentIdsByFactory("Tariff.Manual.EEG2025.GridSell")
-                .length > 0
-        );
+        return config.getComponentIdsByFactory("Tariff.Manual.EEG2025.GridSell").length > 0;
     }
 
     export function isEeg2025Supported(config: EdgeConfig): boolean {
@@ -644,9 +504,7 @@ export namespace SharedGridOptimizedCharge {
             return false;
         }
 
-        const subdivisionCode = config
-            .getComponentSafely("_meta")
-            ?.getPropertyFromComponent("subdivisionCode");
+        const subdivisionCode = config.getComponentSafely("_meta")?.getPropertyFromComponent("subdivisionCode");
 
         if (subdivisionCode == null) {
             return true;
@@ -656,9 +514,7 @@ export namespace SharedGridOptimizedCharge {
             return false;
         }
 
-        return (
-            subdivisionCode === "UNDEFINED" || subdivisionCode.startsWith("DE")
-        );
+        return subdivisionCode === "UNDEFINED" || subdivisionCode.startsWith("DE");
     }
 
     export function getNavigationTree(
@@ -672,17 +528,9 @@ export namespace SharedGridOptimizedCharge {
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    "label",
-                    [],
-                    null,
-                ),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
-                NavigationConstants.CommonNodes.INFO(translate, {
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+                NavigationConstants.CommonNodes.INFO(translate, component.id, {
                     source: component.id,
                 }),
             ],
@@ -709,44 +557,26 @@ export type GridOptimizedChargeViewModel = {
  * @param translate The current language to be translated to
  * @returns Converted value
  */
-export const CONVERT_GRID_OPTIMIZED_CHARGE_STATE = (
-    translate: TranslateService,
-) => {
+export const CONVERT_GRID_OPTIMIZED_CHARGE_STATE = (translate: TranslateService) => {
     return (value: any): string => {
         switch (value) {
             case -1:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED");
             case 0:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE");
             case 1:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME");
             case 2:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL");
             case 3:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED");
             case 4:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE");
             case 5: // Case 6: 'DISABLED' hides 'state-line', so no Message needed
             case 7:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
             case 8:
-                return translate.instant(
-                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED",
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");
             default:
                 return "";
         }

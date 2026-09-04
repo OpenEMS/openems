@@ -28,9 +28,9 @@ export namespace SharedProduction {
             translate.instant("GENERAL.PRODUCTION"),
             "icon",
             [
-                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "production"),
+                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "production", "production"),
                 getHistoryNavigationTree(edge, translate, sum, ...chargerComponents, ...productionMeterComponents),
-                NavigationConstants.CommonNodes.INFO(translate, { source: "production" }),
+                NavigationConstants.CommonNodes.INFO(translate, "production", { source: "production" }),
             ],
             null,
             { showOrder: "HIGH", isCommonWidget: true },
@@ -43,14 +43,10 @@ export namespace SharedProduction {
         sum: EdgeConfig.Component,
         ...components: EdgeConfig.Component[]
     ): NavigationTree {
-        return new NavigationTree(
-            "history",
-            { baseString: "history" },
-            { name: "stats-chart-outline", color: "production" },
-            translate.instant("GENERAL.HISTORY"),
-            "label",
-            [...getHistorySingleComponentNavigationTree(edge, translate, sum, ...components)],
-            null,
+        return NavigationConstants.CommonNodes.HISTORY(
+            translate,
+            "production",
+            getHistorySingleComponentNavigationTree(edge, translate, sum, ...components),
         );
     }
 
@@ -61,7 +57,7 @@ export namespace SharedProduction {
         ...components: EdgeConfig.Component[]
     ): NavigationTree[] {
         return [
-            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/phase-accurate", "production"),
+            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/phase-accurate", "production", sum.id),
             ...components.map((el) => {
                 return new NavigationTree(
                     el.id + "/phase-accurate",
