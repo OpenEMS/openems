@@ -1,11 +1,9 @@
-// @ts-strict-ignore
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { environment, Theme } from "src/environments";
 import { UserComponent } from "./user.component";
 
 describe("UserComponent - isThemeSelectionAvailable", () => {
-
     function isThemeSelectionAvailable(theme: Theme): boolean {
         return (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(theme);
     }
