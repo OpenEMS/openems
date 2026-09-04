@@ -284,7 +284,27 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	public default Value<Integer> getAllowedChargePower() {
 		return this.getAllowedChargePowerChannel().value();
 	}
-
+	
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedChargePower(int value) {
+		this.getAllowedChargePowerChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ALLOWED_CHARGE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAllowedChargePower(Integer value) {
+		this.getAllowedChargePowerChannel().setNextValue(value);
+	}
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#ALLOWED_DISCHARGE_POWER}.
 	 *
