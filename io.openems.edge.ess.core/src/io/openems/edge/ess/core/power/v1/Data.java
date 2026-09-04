@@ -16,6 +16,7 @@ import com.google.common.collect.Streams;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.v1.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.v1.data.WeightsUtil;
@@ -77,16 +78,24 @@ public class Data {
 
 		this.inverters.clear();
 
-		// Create inverters and add them to list
+		// Create inverters and add them to list; skip MetaEss wrappers (e.g.
+		// EssCluster) as they have no physical inverter of their own
 		for (ManagedSymmetricEss ess : esss) {
+			if (ess instanceof MetaEss) {
+				continue;
+			}
 			var essType = EssType.getEssType(ess);
 			Collections.addAll(this.inverters, Inverter.of(this.symmetricMode, ess, essType));
 		}
 
-		// Re-Initialize Coefficients
+		// Re-Initialize Coefficients; also register member IDs of MetaEss wrappers so
+		// that MetaEss constraints (e.g. cluster = ess0 + ess1) can be created
 		Set<String> essIds = new HashSet<>();
 		for (ManagedSymmetricEss ess : esss) {
 			essIds.add(ess.id());
+			if (ess instanceof MetaEss me) {
+				Collections.addAll(essIds, me.getEssIds());
+			}
 		}
 		this.coefficients.initialize(this.symmetricMode, essIds);
 
