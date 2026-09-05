@@ -48,7 +48,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderIdAsc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("id", ASC)));
 
 		assertEquals(List.of(//
@@ -59,7 +59,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderIdDesc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("id", DESC)));
 
 		assertEquals(List.of(//
@@ -70,7 +70,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderCommentAsc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("comment", ASC)));
 
 		assertEquals(List.of(//
@@ -81,7 +81,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderCommentDesc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("comment", DESC)));
 
 		assertEquals(List.of(//
@@ -92,7 +92,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderSumStateAsc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("sumState", ASC), //
 				new GetEdgesRequest.PaginationOptions.OrderItem("id", ASC)));
 
@@ -104,7 +104,7 @@ public class MetadataUtilsTest {
 
 	@Test
 	public void testGetPageDeviceOrderSumStateDesc() throws Exception {
-		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, createRequest(//
+		final var edges = getPageDevice(DUMMY_ADMIN, SHUFFLED_EDGES, e -> null, createRequest(//
 				new GetEdgesRequest.PaginationOptions.OrderItem("sumState", DESC), //
 				new GetEdgesRequest.PaginationOptions.OrderItem("id", ASC)));
 
@@ -139,8 +139,8 @@ public class MetadataUtilsTest {
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
 				edge.getSumState(), //
-                edge.getSettings() //
-        );
+				null //
+		);
 	}
 
 }

@@ -6,7 +6,6 @@ import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingEl
 
 import org.junit.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -29,7 +28,6 @@ public class ControllerIoHeatingElementImplTest5 {
         new ControllerTest(new ControllerIoHeatingElementImpl()) //
                 .addReference("componentManager", new DummyComponentManager(clock)) //
                 .addReference("sum", new DummySum()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
                 .addReference("meter", new DummyElectricityMeter("meter3")) //
                 .addComponent(new DummyInputOutput("io0")) //
                 .activate(MyConfig.create() //

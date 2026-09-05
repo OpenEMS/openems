@@ -3,9 +3,8 @@ package io.openems.edge.controller.ess.linearpowerband;
 import static io.openems.edge.controller.ess.linearpowerband.ControllerEssLinearPowerBand.ChannelId.STATE_MACHINE;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -15,7 +14,6 @@ public class ControllerEssLinearPowerBandImplTest {
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssLinearPowerBandImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //

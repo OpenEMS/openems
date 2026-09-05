@@ -29,7 +29,7 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -92,7 +92,7 @@
 			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.6.0-jre</version>
+			<version>33.7.1-jre</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -111,7 +111,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.35.1</version>
+			<version>4.36.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -123,7 +123,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>4.1.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -168,7 +168,7 @@
 			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.4.0</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -178,7 +178,7 @@
 			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.4.0</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -187,7 +187,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.18.0</version>
+			<version>3.18.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -471,7 +471,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.85</version>
+			<version>1.85.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -536,7 +536,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.11</version>
+			<version>1.18.12</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -546,7 +546,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.11</version>
+			<version>1.18.12</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -629,7 +629,7 @@
 			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.22.2</version>
+			<version>1.23.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -640,7 +640,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -651,7 +651,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -662,7 +662,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -673,7 +673,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -684,7 +684,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -695,7 +695,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -706,7 +706,7 @@
 			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.1.2</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -775,7 +775,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.4</version>
+			<version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -784,7 +784,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.4</version>
+			<version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -888,7 +888,7 @@
 			-->
 			<groupId>org.objenesis</groupId>
 			<artifactId>objenesis</artifactId>
-			<version>3.5</version>
+			<version>3.6</version>
 		</dependency>
 	</dependencies>
 </project>

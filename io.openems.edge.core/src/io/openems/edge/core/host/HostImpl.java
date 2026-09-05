@@ -64,7 +64,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	protected final OperatingSystem operatingSystem;
 	private ServiceRegistration<Updateable> operatingSystemUpdateable;
 
-	private final DiskSpaceWorker diskSpaceWorker;
+	private final HostInformationWorker hostInformationWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
 	private final UsbConfigurationWorker usbConfigurationWorker;
 	private final SystemUpdateHandler systemUpdateHandler;
@@ -85,7 +85,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 		// Initialize correct Operating System handler
 		this.operatingSystem = this.getCurrentOS();
-		this.diskSpaceWorker = new DiskSpaceWorker(this);
+		this.hostInformationWorker = new HostInformationWorker(this);
 		this.networkConfigurationWorker = new NetworkConfigurationWorker(this);
 		this.usbConfigurationWorker = new UsbConfigurationWorker(this);
 		this.systemUpdateHandler = new SystemUpdateHandler(this);
@@ -116,7 +116,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.config = config;
 
 		// Start the Workers
-		this.diskSpaceWorker.activate(this.id());
+		this.hostInformationWorker.activate(this.id());
 		this.networkConfigurationWorker.activate(this.id());
 		this.usbConfigurationWorker.activate(this.id());
 
@@ -137,7 +137,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.config = config;
 
 		// Modify the Workers
-		this.diskSpaceWorker.modified(this.id());
+		this.hostInformationWorker.modified(this.id());
 		this.networkConfigurationWorker.modified(this.id());
 		this.usbConfigurationWorker.modified(this.id());
 
@@ -150,7 +150,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	@Deactivate
 	protected void deactivate() {
 		// Stop the Workers
-		this.diskSpaceWorker.deactivate();
+		this.hostInformationWorker.deactivate();
 		this.networkConfigurationWorker.deactivate();
 		this.usbConfigurationWorker.deactivate();
 

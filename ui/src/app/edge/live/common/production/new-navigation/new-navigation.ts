@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2, } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
@@ -134,7 +134,6 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            useDefaultPrefix: false,
             isCommonWidget: true,
         };
     }

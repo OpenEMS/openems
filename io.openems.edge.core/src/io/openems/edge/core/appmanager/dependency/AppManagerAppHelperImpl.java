@@ -37,6 +37,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
@@ -238,6 +239,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.getOtherAppConfigurations(ignoreInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new));
 
 		var errors = new LinkedList<String>();
+		var failedTasks = new LinkedList<AggregateTask<?>>();
 		final var language = user == null ? null : user.getLanguage();
 
 		// execute all tasks
@@ -248,12 +250,20 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				final var errorMessage = task.getGeneralFailMessage(language);
 				this.log.error(errorMessage, e);
 				errors.add(errorMessage);
+				failedTasks.add(task);
 			} catch (RuntimeException | Error e) {
 				this.log.error("Unexpected error during Task execution.", e);
 			}
 		}
 
 		if (!errors.isEmpty()) {
+			if (errors.size() == 1 //
+					&& ComponentAggregateTask.class.isAssignableFrom(failedTasks.get(0).getClass())) {
+				// Reported as a distinct, structured error since this is the one failure the UI
+				// can resolve on its own (by removing leftover/stale component config and
+				// retrying).
+				throw OpenemsError.EDGE_APP_COMPONENTS_UPDATE_FAILED.exception(errors.get(0));
+			}
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
@@ -1485,7 +1495,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						continue;
 					}
 					var subApp = config.dependencies().stream().filter(t -> t.key.equals(dependency.key)).findFirst()
-							.get();
+							.orElse(null);
 					var dependencyConfig = this.foreachExistingDependency(dependencyApp, target, consumer, instance,
 							subApp, l, alreadyIteratedApps, includeInstance);
 					if (dependencyConfig != null) {

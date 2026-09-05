@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { ComponentsModule } from "src/app/shared/components/components.module";
@@ -18,8 +18,8 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
     imports: [IonicModule, TranslateModule, ComponentsModule],
 })
 export class ControllerIoHeatpumpComponent extends AbstractFlatWidget {
-    private static PROPERTY_MODE = "_PropertyMode";
-    private static STATE_DISCONNECTED = 3;
+    private static readonly PROPERTY_MODE = "_PropertyMode";
+    private static readonly STATE_DISCONNECTED = 3;
 
     public override component: EdgeConfig.Component | null = null;
     public isConnectionSuccessful: boolean = false;

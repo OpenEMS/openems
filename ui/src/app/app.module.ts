@@ -23,6 +23,7 @@ import { PlatFormService } from "./platform.service";
 import { FooterContentComponent } from "./shared/components/footer/content/content";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
 import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/back-button";
+import { BottomNavigationBarComponent } from "./shared/components/navigation/bottom-bar/bottom-navigation-bar";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
@@ -38,6 +39,7 @@ provideTranslateLoader(MyTranslateLoader);
 @NgModule({
     declarations: [AppComponent, ChartOptionsPopoverComponent, NavigationComponent],
     imports: [
+        BottomNavigationBarComponent,
         NavigationBackButtonComponent,
         FooterContentComponent,
         SystemOutageInfoComponent,

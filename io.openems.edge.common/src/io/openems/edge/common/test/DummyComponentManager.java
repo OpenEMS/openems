@@ -202,11 +202,11 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 
 			// set properties
 			for (var property : request.properties()) {
-				var value = JsonUtils.getAsBestType(property.getValue());
+				var value = JsonUtils.getAsBestType(property.value());
 				if (value instanceof Object[] os && os.length == 0) {
 					value = new String[0];
 				}
-				config.getProperties().put(property.getName(), value);
+				config.getProperties().put(property.name(), value);
 			}
 
 		} catch (IOException e) {
@@ -232,7 +232,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 				}
 				var properties = new Hashtable<String, JsonElement>();
 				for (var property : request.properties()) {
-					properties.put(property.getName(), property.getValue());
+					properties.put(property.name(), property.value());
 				}
 				configuration.update(properties);
 			}

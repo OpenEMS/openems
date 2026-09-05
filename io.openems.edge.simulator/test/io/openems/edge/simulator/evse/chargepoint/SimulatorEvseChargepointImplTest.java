@@ -4,6 +4,7 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -20,8 +21,6 @@ import io.openems.edge.simulator.evse.chargepoint.enums.PhaseSwitchState;
 
 class SimulatorEvseChargepointImplTest {
 
-	private static final String COMPONENT_ID = "evseChargePoint0";
-
 	@Test
 	void testReadOnlySinglePhasePresets() throws Exception {
 		final var sut = new SimulatorEvseChargepointImpl();
@@ -30,7 +29,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setReadOnly(true) //
 						.setVehicleConnected(true) //
 						.setWiring(SINGLE_PHASE) //
@@ -50,7 +49,8 @@ class SimulatorEvseChargepointImplTest {
 							assertEquals(Integer.valueOf(0), sut.getVoltageL2().get());
 							assertEquals(Integer.valueOf(0), sut.getVoltageL3().get());
 							assertNull(sut.getChargePointAbilities());
-						}));
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setReadOnly(true) //
 						.setVehicleConnected(true) //
 						.setWiring(THREE_PHASE) //
@@ -93,7 +93,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setVehicleConnected(true) //
 						.setWiring(THREE_PHASE) //
 						.setSupportsPhaseSwitching(true) //
@@ -113,6 +113,10 @@ class SimulatorEvseChargepointImplTest {
 					assertTrue(abilities.isReadyForCharging());
 					assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, abilities.phaseSwitch().direction());
 					assertEquals(THREE_PHASE, abilities.applySetPoint().phase());
+					assertNotNull(abilities.phaseSwitch().oppositePhaseApplySetPoint());
+					assertEquals(SINGLE_PHASE, abilities.phaseSwitch().oppositePhaseApplySetPoint().phase());
+					assertEquals(1380, abilities.phaseSwitch().oppositePhaseApplySetPoint().min());
+					assertEquals(3680, abilities.phaseSwitch().oppositePhaseApplySetPoint().max());
 				}));
 
 		componentTest.next(new TestCase("Apply current") //
@@ -134,9 +138,13 @@ class SimulatorEvseChargepointImplTest {
 							.build());
 
 					assertEquals(PhaseSwitchState.SINGLE, sut.getPhaseSwitchState());
-					assertEquals(SINGLE_PHASE, sut.getChargePointAbilities().applySetPoint().phase());
-					assertEquals(PhaseSwitchDirection.TO_THREE_PHASE,
-							sut.getChargePointAbilities().phaseSwitch().direction());
+					var abilities = sut.getChargePointAbilities();
+					assertEquals(SINGLE_PHASE, abilities.applySetPoint().phase());
+					assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, abilities.phaseSwitch().direction());
+					assertNotNull(abilities.phaseSwitch().oppositePhaseApplySetPoint());
+					assertEquals(THREE_PHASE, abilities.phaseSwitch().oppositePhaseApplySetPoint().phase());
+					assertEquals(4140, abilities.phaseSwitch().oppositePhaseApplySetPoint().min());
+					assertEquals(11040, abilities.phaseSwitch().oppositePhaseApplySetPoint().max());
 				}) //
 				.output(SimulatorEvseChargepoint.ChannelId.PHASE_SWITCH_STATE, PhaseSwitchState.SINGLE) //
 				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, milliAmpere * 230 / 1000) //

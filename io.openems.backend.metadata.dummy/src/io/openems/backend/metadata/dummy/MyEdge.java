@@ -1,17 +1,20 @@
 package io.openems.backend.metadata.dummy;
 
+import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.Edge;
 
 public class MyEdge extends Edge {
 
 	private final String apikey;
 	private final String setupPassword;
+	private JsonObject settings;
 
 	public MyEdge(MetadataDummy parent, String id, String apikey, String setupPassword, String comment, String version,
-			String producttype) {
+			String producttype, JsonObject settings) {
 		super(parent, id, comment, version, producttype, null);
 		this.apikey = apikey;
 		this.setupPassword = setupPassword;
+		this.settings = settings;
 	}
 
 	public String getApikey() {
@@ -20,5 +23,13 @@ public class MyEdge extends Edge {
 
 	public String getSetupPassword() {
 		return this.setupPassword;
+	}
+
+	public JsonObject getSettings() {
+		return this.settings;
+	}
+
+	public void setSettings(JsonObject settings) {
+		this.settings = settings;
 	}
 }

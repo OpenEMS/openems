@@ -7,7 +7,6 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,6 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -28,13 +28,12 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssHybridSurplusFeedToGridImpl extends AbstractOpenemsComponent
 		implements ControllerEssHybridSurplusFeedToGrid, Controller, OpenemsComponent {
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private HybridEss ess;
 
 	public ControllerEssHybridSurplusFeedToGridImpl() {
@@ -48,11 +47,6 @@ public class ControllerEssHybridSurplusFeedToGridImpl extends AbstractOpenemsCom
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
 	}
 
 	@Override

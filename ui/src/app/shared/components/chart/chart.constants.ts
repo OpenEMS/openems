@@ -319,15 +319,6 @@ export namespace ChartConstants {
 
                 this.unregisterChart(chart);
             },
-            afterUpdate(chart) {
-                if (this._syncing) {
-                    return;
-                }
-                const others = this.getOtherCharts(chart);
-                if (others.length > 0) {
-                    this.syncDrawingAreas([...others, chart]);
-                }
-            },
         });
 
         /**

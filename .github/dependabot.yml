@@ -5,7 +5,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    target-branch: "develop"
     groups:
       influxdb:
         patterns:
@@ -56,9 +55,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 1
-    target-branch: "develop"
     groups:
       openems-ui:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+      openems-ui-security:
+        applies-to: "security-updates"
         patterns:
           - "*"
 
@@ -67,7 +70,6 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
-    target-branch: "develop"
     groups:
       openems-integration-tests:
         patterns:
@@ -77,8 +79,7 @@ updates:
     directory: "/.github/workflows"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
-    target-branch: "develop"
+    open-pull-requests-limit: 1
     groups:
       all-actions:
         patterns:

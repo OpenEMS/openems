@@ -4,9 +4,8 @@ import static io.openems.edge.goodwe.GoodWeConstants.DEFAULT_UNIT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -26,7 +25,6 @@ public class GoodWeEssImplTest {
 	public void testEt() throws Exception {
 		var charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(io.openems.edge.goodwe.charger.singlestring.MyConfig.create() //
 						.setId("charger0") //
@@ -39,7 +37,6 @@ public class GoodWeEssImplTest {
 		ess.addCharger(charger);
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -76,7 +73,6 @@ public class GoodWeEssImplTest {
 		var ess = new GoodWeEssImpl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("componentManager", new DummyComponentManager()) //

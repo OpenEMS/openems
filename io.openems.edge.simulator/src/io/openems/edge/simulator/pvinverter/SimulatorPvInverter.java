@@ -14,7 +14,7 @@ public interface SimulatorPvInverter
 		extends ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT));
 
 		private final Doc doc;

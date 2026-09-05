@@ -1,6 +1,7 @@
 import { inject, NgModule } from "@angular/core";
 import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
+import { EmptyPageComponent } from "src/app/shared/components/navigation/empty-page/empty-page";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
@@ -17,6 +18,7 @@ import { CommonProductionHistoryOverviewComponent } from "./edge/live/common/pro
 import { CommonProductionDetailsOverviewComponent } from "./edge/live/common/production/history/phase-accurate/overview/overview";
 import { CommonSelfconsumptionOverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/live/common/selfconsumption/history/overview/overview";
 import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/live/Controller/Channelthreshold/history/overview/overview";
+import { ControllerChpOverviewComponent } from "./edge/live/Controller/ChpSoc/history/overview/overview";
 import { ControllerEnerixOverviewComponent } from "./edge/live/Controller/EnerixControl/history/overview/overview";
 import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/live/Controller/Ess/TimeOfUseTariff/history/overview/overview";
@@ -74,6 +76,10 @@ export const history: (/** Determines if titles in headers can be set */ customH
             {
                 path: ":componentId/heatingelementchart",
                 component: ControllerIoHeatingElementOverviewComponent,
+            },
+            {
+                path: ":componentId/chpchart",
+                component: ControllerChpOverviewComponent,
             },
             {
                 path: ":componentId/heatmypvchart",
@@ -202,6 +208,14 @@ export const routes: Routes = [
         component: EdgeComponent,
         children: [
             { path: "", redirectTo: "live", pathMatch: "full" },
+            ...history(false), // Needs to be set here, because following path "is overwriting history routes"
+            {
+                path: "",
+                loadChildren: () =>
+                    import("./shared/components/navigation/navigation-routing.module").then(
+                        (m) => m.NavigationRoutingModule,
+                    ),
+            },
             {
                 path: "live",
                 data: { navbarTitle: environment.uiTitle },
@@ -216,11 +230,43 @@ export const routes: Routes = [
                         (m) => m.NavigationRoutingModule,
                     ),
             },
-            ...history(false),
             {
                 path: "settings",
                 loadChildren: () =>
                     import("./edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
+            },
+            {
+                path: "favorites",
+                children: [
+                    { path: "", component: EmptyPageComponent, pathMatch: "full" },
+                    {
+                        path: "",
+                        loadChildren: () =>
+                            import("./shared/components/navigation/navigation-routing.module").then(
+                                (m) => m.NavigationRoutingModule,
+                            ),
+                    },
+                ],
+            },
+            {
+                path: "profile",
+                children: [
+                    { path: "", component: EmptyPageComponent, pathMatch: "full" },
+                    {
+                        path: "settings",
+                        loadChildren: () =>
+                            import("./edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
+                    },
+                    {
+                        path: "user",
+                        component: UserComponent,
+                        data: { navbarTitleToBeTranslated: "MENU.USER" },
+                    },
+                ],
+            },
+            {
+                path: "schedule",
+                children: [{ path: "", component: EmptyPageComponent, pathMatch: "full" }],
             },
         ],
     },

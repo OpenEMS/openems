@@ -3,6 +3,7 @@ package io.openems.backend.metadata.odoo.odoo;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.http.OdooDeviceData;
@@ -12,11 +13,13 @@ import io.openems.backend.metadata.odoo.odoo.http.OdooGetEdgesResponse;
 import io.openems.backend.metadata.odoo.odoo.http.OdooGetUserInfoRequest;
 import io.openems.backend.metadata.odoo.odoo.http.OdooGetUserInfoResponse;
 import io.openems.backend.metadata.odoo.odoo.http.OdooResponseError;
+import io.openems.backend.metadata.odoo.odoo.http.OdooSetEdgeSettingsRequest;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
@@ -51,7 +54,7 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 
 	/**
 	 * Fetches the edge with the given edgeId for the given user.
-	 * 
+	 *
 	 * @param request the request containing the edgeId and user for which to fetch
 	 *                the edge with role
 	 * @return a {@link CompletableFuture} that will complete with a
@@ -60,6 +63,19 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 	public CompletableFuture<OdooDeviceData> getEdgeWithRole(OdooGetEdgeWithRoleRequest request) {
 		return this.sendRequest("/openems_backend/get_edge_with_role", OdooGetEdgeWithRoleRequest.serializer(),
 				OdooDeviceData.serializer(), request);
+	}
+
+	/**
+	 * Updates the settings of a edge.
+	 *
+	 * @param edgeId   the edge id
+	 * @param settings the settings of the user
+	 * @return a {@link CompletableFuture} that will complete with a
+	 *         {@link EmptyObject}
+	 */
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		return this.sendRequest("/openems_backend/set_edge_settings", OdooSetEdgeSettingsRequest.serializer(),
+				new OdooSetEdgeSettingsRequest(edgeId, settings));
 	}
 
 	/**
@@ -132,6 +148,14 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 						.add("params", requestJsonSerializer.serialize(request)) //
 						.build())
 				.thenApply(response -> responseJsonSerializer.deserialize(response.data()));
+	}
+
+	private <REQUEST> CompletableFuture<Void> sendRequest(String path, JsonSerializer<REQUEST> requestJsonSerializer,
+			REQUEST request) {
+		return this.sendRequest(path, requestJsonSerializer, EmptyObject.serializer(), request) //
+				.thenAccept(e -> {
+					// empty
+				});
 	}
 
 	@Override
