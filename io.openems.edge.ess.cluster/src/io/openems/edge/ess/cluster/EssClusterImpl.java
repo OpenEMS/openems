@@ -193,7 +193,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 
 	@Override
 	public synchronized String[] getEssIds() {
-		return this.config.ess_ids();
+		return this.esss.stream().map(SymmetricEss::id).toArray(String[]::new);
 	}
 
 	@Override
