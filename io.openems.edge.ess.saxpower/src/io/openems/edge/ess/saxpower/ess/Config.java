@@ -1,0 +1,52 @@
+package io.openems.edge.ess.saxpower.ess;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import io.openems.edge.common.type.Phase.SinglePhase;
+
+@ObjectClassDefinition(//
+        name = "Sax Power ESS", //
+        description = "Implements the Sax Power ess system.")
+public @interface Config {
+
+    @AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+    String id() default "ess0";
+
+    @AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+    String alias() default "";
+
+    @AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+    boolean enabled() default true;
+
+    @AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
+    String modbus_id() default "modbus0";
+
+    @AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
+    int modbusUnitId() default 64;
+
+    @AttributeDefinition(name = "Phase", description = "Which Phase is this ESS connected to?")
+    SinglePhase phase() default SinglePhase.L1;
+
+    @AttributeDefinition(name = "Capacity", description = "The Capacity of the ESS in Wh" + "Usable capacity as stated, not installed (5,8 kWh = 5,2 kWh, 7,7 kWh = 7,0 kWh")
+    int capacity() default 7000;
+
+    @AttributeDefinition(//
+            name = "Max charge power", //
+            description = "Maximum charge power in W, as a positive value. " //
+                    + "Must match the value configured in the SAX dashboard. " //
+                    + "See the readme for a guide.")
+    int maxChargePower() default 1400;
+
+
+    @AttributeDefinition(//
+            name = "Max discharge power", //
+            description = "Maximum discharge power in W, as a positive value. " //
+                    + "Must match the value configured in the SAX dashboard. " //
+                    + "See the readme for a guide.")
+    int maxDischargePower() default 4600;
+
+    @AttributeDefinition(name = "Min SoC [%]", description = "Discharging is blocked while State of Charge is below Min-SoC.")
+    int minSoc() default 15;
+
+    String webconsole_configurationFactory_nameHint() default "SAX Power ESS [{id}]";
+}
