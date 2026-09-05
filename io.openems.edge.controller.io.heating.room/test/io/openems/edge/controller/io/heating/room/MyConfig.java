@@ -1,8 +1,10 @@
 package io.openems.edge.controller.io.heating.room;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+import java.util.Arrays;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.ChannelAddress;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -163,8 +165,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String[] floorRelayComponent_ids() {
+		return getComponentIds(this.builder.floorRelays);
+	}
+
+	@Override
 	public String[] infraredRelays() {
 		return this.builder.infraredRelays;
+	}
+
+	@Override
+	public String[] infraredRelayComponent_ids() {
+		return getComponentIds(this.builder.infraredRelays);
 	}
 
 	@Override
@@ -182,23 +194,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.hasExternalAmbientHeating;
 	}
 
-	@Override
-	public String floorThermometer_target() {
-		return generateReferenceTargetFilter(this.id(), this.floorThermometer_id());
-	}
-
-	@Override
-	public String ambientThermometer_target() {
-		return generateReferenceTargetFilter(this.id(), this.ambientThermometer_id());
-	}
-
-	@Override
-	public String floorRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.floorRelays());
-	}
-
-	@Override
-	public String infraredRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.infraredRelays());
+	private static String[] getComponentIds(String[] channelAddresses) {
+		if (channelAddresses == null) {
+			return new String[0];
+		}
+		return Arrays.stream(channelAddresses) //
+				.filter(channel -> channel != null && !channel.isEmpty()) //
+				.map(channel -> {
+					try {
+						return ChannelAddress.fromString(channel).getComponentId();
+					} catch (OpenemsNamedException e) {
+						throw new IllegalArgumentException(e);
+					}
+				}) //
+				.distinct() //
+				.toArray(String[]::new);
 	}
 }
