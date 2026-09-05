@@ -42,12 +42,10 @@ import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
 
 export enum EdgeSettings {
-    ANNUAL_REVIEW_2025 = "annual_review_2025",
     FAVORITES = "favorites",
 }
 
 interface EdgeSettingsConfig {
-    [EdgeSettings.ANNUAL_REVIEW_2025]?: string[];
     [EdgeSettings.FAVORITES]?: {
         includes: string[];
         excludes: string[];

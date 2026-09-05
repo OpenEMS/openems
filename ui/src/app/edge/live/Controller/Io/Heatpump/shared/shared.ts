@@ -367,10 +367,7 @@ export namespace SharedControllerIoHeatpump {
             );
         }
 
-        children.push(
-            NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
-            NavigationConstants.CommonNodes.INFO(translate, component.id, { source: component.id }),
-        );
+        children.push(NavigationConstants.CommonNodes.SETTINGS(translate, component.id));
 
         return new NavigationTree(
             component.id,

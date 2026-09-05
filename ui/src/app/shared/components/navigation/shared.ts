@@ -681,22 +681,6 @@ export namespace NavigationConstants {
                   ]
                 : [];
         }
-        export function INFO(
-            translate: TranslateService,
-            componentId: string,
-            queryParams: { source: string } | {} = {},
-        ) {
-            return new NavigationTree(
-                componentId + "-info",
-                { baseString: "navigation-info", queryParams: queryParams },
-                { name: "information-outline" },
-                translate.instant("GENERAL.INFO"),
-                "label",
-                [],
-                null,
-                { showOrder: "LOW", hideFavorite: true },
-            );
-        }
         export function HISTORY(translate: TranslateService, componentId: string, children: NavigationTree[] = []) {
             return new NavigationTree(
                 componentId + "-history",

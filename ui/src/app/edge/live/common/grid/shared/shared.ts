@@ -311,9 +311,6 @@ export namespace SharedGrid {
                         null,
                     ),
                 ]),
-                NavigationConstants.CommonNodes.INFO(translate, "grid", {
-                    source: "grid",
-                }),
             ],
             null,
             { isCommonWidget: true },

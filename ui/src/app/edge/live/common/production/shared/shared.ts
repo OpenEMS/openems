@@ -30,7 +30,6 @@ export namespace SharedProduction {
             [
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "production", "production"),
                 getHistoryNavigationTree(edge, translate, sum, ...chargerComponents, ...productionMeterComponents),
-                NavigationConstants.CommonNodes.INFO(translate, "production", { source: "production" }),
             ],
             null,
             { showOrder: "HIGH", isCommonWidget: true },

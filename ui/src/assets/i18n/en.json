@@ -1086,7 +1086,7 @@
         },
         "ENERGY_JOURNEY": {
             "TO_THE_ANALYSIS": "View analysis",
-            "YOUR_ENERYJOURNEY": "Your Energy Journey"
+            "YOUR_ENERYJOURNEY": "OpenEMS Journey"
         },
         "POWER_ASSISTANT": {
             "INFO": "The 'Power Assistant' shows the respective controllers for all storage systems (ess0, ess1,...) and some relevant data points for each. The order corresponds to the order in the scheduler."
