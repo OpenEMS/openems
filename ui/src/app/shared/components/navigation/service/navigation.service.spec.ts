@@ -5,6 +5,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { AngularDelegate, ModalController } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
+import { energyJourneyRoutes } from "src/app/edge/settings/energy-journey/energy-journey-routing.module";
 import { settingsRoutes } from "src/app/edge/settings/settings-routing.module";
 import { PlatFormService } from "src/app/platform.service";
 import { User } from "src/app/shared/jsonrpc/shared";
@@ -303,6 +304,10 @@ function getResolvedChildren(route: Route, parentPath: string): Routes | undefin
         case "device/:edgeId/profile/settings":
         case "device/:edgeId/live/settings":
             return toProbeRoutes(settingsRoutes, fullPath);
+
+        case "device/:edgeId/energy-journey":
+        case "device/:edgeId/live/energy-journey":
+            return toProbeRoutes(energyJourneyRoutes, fullPath);
 
         default:
             return undefined;
