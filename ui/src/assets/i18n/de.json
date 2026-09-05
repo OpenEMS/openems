@@ -1006,7 +1006,7 @@
         },
         "ENERGY_JOURNEY": {
             "TO_THE_ANALYSIS": "Zur Analyse",
-            "YOUR_ENERYJOURNEY": "Deine Energy Journey"
+            "YOUR_ENERYJOURNEY": "OpenEMS Journey"
         },
         "POWER_ASSISTANT": {
             "INFO": "Der 'Power Assistant' zeigt für alle Speichersysteme (ess0, ess1,...) die jeweiligen Controller und jeweils einige relevante Datenpunkte. Die Reihenfolge entspricht der Reihenfolge im Scheduler."

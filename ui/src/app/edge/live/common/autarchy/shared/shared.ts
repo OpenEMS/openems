@@ -48,10 +48,7 @@ export namespace SharedAutarchy {
             { name: "oe-grid", color: "normal" },
             translate.instant("GENERAL.AUTARCHY"),
             "label",
-            [
-                NavigationConstants.CommonNodes.HISTORY(translate, "autarchy"),
-                NavigationConstants.CommonNodes.INFO(translate, "autarchy", { source: "autarchy" }),
-            ],
+            [NavigationConstants.CommonNodes.HISTORY(translate, "autarchy")],
             null,
         ).toConstructorParams();
     }

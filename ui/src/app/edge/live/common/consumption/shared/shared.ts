@@ -45,7 +45,6 @@ export namespace SharedConsumption {
                 ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate),
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning", "consumption"),
                 getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
-                NavigationConstants.CommonNodes.INFO(translate, "consumption", { source: "consumption" }),
             ],
             null,
             { isCommonWidget: true },
