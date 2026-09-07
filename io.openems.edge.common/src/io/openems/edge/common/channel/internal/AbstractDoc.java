@@ -31,6 +31,8 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	protected Function<Language, String> getTextFunction;
 
+	private List<String> stringOptions;
+
 	protected AbstractDoc(OpenemsType type) {
 		this.type = type;
 	}
@@ -70,6 +72,26 @@ public abstract class AbstractDoc<T> implements Doc {
 	@Override
 	public AccessMode getAccessMode() {
 		return this.accessMode;
+	}
+
+	/**
+	 * Set the allowed string values.
+	 * 
+	 * @param stringOptions the list of allowed string options
+	 * @return myself
+	 */
+	public AbstractDoc<T> stringOptions(List<String> stringOptions) {
+		this.stringOptions = stringOptions;
+		return this.self();
+	}
+
+	/**
+	 * Get the allowed string values.
+	 *
+	 * @return the options
+	 */
+	public List<String> getStringOptions() {
+		return this.stringOptions;
 	}
 
 	/**
