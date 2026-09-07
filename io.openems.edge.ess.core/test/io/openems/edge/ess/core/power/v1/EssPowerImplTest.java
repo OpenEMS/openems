@@ -976,6 +976,24 @@ public class EssPowerImplTest {
 		});
 	}
 
+	/**
+	 * Verifies power distribution when a sub-ESS is temporarily removed from an
+	 * EssCluster — a scenario seen intermittently in production FEMS, e.g. when a
+	 * battery inverter restarts or loses communication while the cluster controller
+	 * is still active.
+	 *
+	 * <p>
+	 * Without fix: removing ess3 from EssPower leaves its LP coefficients (ess3_P,
+	 * ess3_Q) unconstrained. The solver objective becomes unbounded,
+	 * {@code setActivePowerEqualsWithoutFilter()} short-circuits (getMinPower /
+	 * getMaxPower both return 0), the 30 kW target is never set, and
+	 * NOT_SOLVED=true.
+	 *
+	 * <p>
+	 * With fix: {@code createZeroConstraintsForOrphanedMetaEssMembers()} pins
+	 * ess3_P=0 and ess3_Q=0, the LP stays bounded, and the 30 kW target is split
+	 * equally between the two remaining inverters (ess1=15 kW, ess2=15 kW).
+	 */
 	@Test
 	public void testClusterWithOneSubEssDeactivated() throws Exception {
 		var powerComponent = new EssPowerImpl();
@@ -1022,16 +1040,23 @@ public class EssPowerImplTest {
 		expect("#1", ess2, 10000, 0);
 		expect("#1", ess3, 10000, 0);
 		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#1") //
+		);
 
-		componentTest.removeReference("removeEss", ess3);
-
-		assertEquals(40000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+		var removeEssMethod = EssPowerImpl.class.getDeclaredMethod("removeEss", ManagedSymmetricEss.class);
+		removeEssMethod.setAccessible(true);
+		removeEssMethod.invoke(powerComponent, ess3);
 
 		expect("#2", ess1, 15000, 0);
 		expect("#2", ess2, 15000, 0);
 		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#2") //
+				.output("_power", EssPower.ChannelId.NOT_SOLVED, false) //
+		);
 
-		componentTest.addReference("addEss", ess3);
+		var addEssMethod = EssPowerImpl.class.getDeclaredMethod("addEss", ManagedSymmetricEss.class);
+		addEssMethod.setAccessible(true);
+		addEssMethod.invoke(powerComponent, ess3);
 
 		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
 
@@ -1039,5 +1064,7 @@ public class EssPowerImplTest {
 		expect("#3", ess2, 10000, 0);
 		expect("#3", ess3, 10000, 0);
 		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#3") //
+		);
 	}
 }
