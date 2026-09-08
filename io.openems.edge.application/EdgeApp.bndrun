@@ -149,6 +149,7 @@
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.mennekes',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.voltie',\
 	bnd.identity;id='io.openems.edge.evse.electricvehicle.generic',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -361,6 +362,7 @@
 	io.openems.edge.evse.chargepoint.heidelberg;version=snapshot,\
 	io.openems.edge.evse.chargepoint.keba;version=snapshot,\
 	io.openems.edge.evse.chargepoint.mennekes;version=snapshot,\
+	io.openems.edge.evse.chargepoint.voltie;version=snapshot,\
 	io.openems.edge.evse.electricvehicle.generic;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
