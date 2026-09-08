@@ -1,0 +1,111 @@
+= Voltie Charging Station
+
+AC charging station by Voltie Kft. with Modbus/TCP support.
+
+== Overview
+
+This bundle provides integration with the Voltie AC wallbox. The charger runs a Modbus TCP server on its Linux board (port 502), which acts as a transparent gateway to the charger's control unit (MCU). The register map source is the "Voltie Modbus API documentation v1.3" (2026-08-26); it requires EVSE firmware build 357 or later. Only registers, codes and behaviour described in that document are implemented.
+
+.Voltie AC Wallbox
+* **Type**: Three-phase or single-phase AC charging station
+* **Typical Power**: 3.7 kW to 22 kW
+* **Protocol**: Modbus TCP (port 502, default Unit-ID 11)
+* **Connector**: Type 2
+* **Documentation**: https://voltie.eu/[Voltie icon:external-link[]]
+
+== Modbus Gateway Constraints
+
+The Modbus TCP server is a gateway to the charger's control unit: it forwards *one request at a time* and abandons unanswered requests after 3 seconds (gateway exception `0x0B`). The charger's Linux board polls its own EVSE status about every 500 ms and forwards Modbus requests only in the gap between those polls.
+
+.Measured on a real charger (persistent TCP connection, 24 samples)
+* A request that arrives while the forwarding window is free is answered in **~20 ms**.
+* A request issued immediately after another one waits out the next window: **447..497 ms** (median ~470 ms).
+* The OpenEMS Modbus/TCP bridge response timeout is hardcoded at **500 ms** (2 retries).
+
+The resulting rule is *never issue two Modbus transactions in one cycle*. Both read blocks are therefore registered with `Priority.LOW` — the status/config block (FC03 from `0x0000`, 27 registers up to `0x001A`) and the meter block (FC03 from `0x2000`, 30 registers up to `0x201D`). The bridge executes exactly one LOW read per cycle in round-robin, so every read lands in a fresh forwarding window and is answered in ~20 ms. At the default cycle time of 1 s **each block refreshes every ~2 s**.
+
+A cycle that also carries an FC06 write briefly issues two transactions; the second one waits for the next forwarding window (~470 ms measured — still inside the 500 ms bridge timeout, but with little margin). Repeated writes of the current limit (`0x0014`) and the phase-switch register (`0x0016`) are therefore rate-limited to one per 5 seconds. The charging-enable register (`0x000C`) is not repeated at all; see <<Starting and Stopping a Session>>.
+
+Use a **dedicated `Bridge.Modbus.Tcp` per charger**: any other component on the same bridge adds transactions to the same cycle (HIGH-priority tasks of every component run every cycle), which would break the one-transaction-per-cycle rule. The API documentation makes the same point from the device side: the charger is designed to serve a *single* Modbus master, several TCP clients are served from one queue at a maximum of two transactions per second, and a second polling client mostly produces slow responses and exception `0x0B` for both. Keep the cycle time at 1 s or higher (consider 2 s on busy networks). A configurable bridge response timeout would be the robust upstream improvement; until then the 500 ms limit is what forces this layout.
+
+Only FC06 (write single register) is accepted for writes; FC16 is rejected with exception `0x01`. Unit-ID 0 must not be used; a wrong Unit-ID yields gateway exception `0x0B`, and `0x0A` means the charger control unit is not ready.
+
+The charger has a communication-loss watchdog (register `0x0017`, default 20 s, 0/255 = disabled): if the Modbus master stays silent for that long, the allowed current drops to 0 A. The driver reads the value at start-up and logs a warning if the watchdog is configured too low for the polling rate. From firmware build 357 the register is also writable (range 1..254 s, EEPROM-persisted), so an energy management system may align the watchdog with its own poll rate — **this driver deliberately does not write it**, because that would silently overwrite a value the user set in the Voltie app. Adjust it in the app instead.
+
+*Firmware requirement*: the driver first probes only the charger-ID and firmware-build registers. The readable status area has grown with the firmware — it ends at `0x0015` up to build 351, at `0x0018` from 352 and at `0x001A` from 357 — and a read that crosses the end of the block is answered with exception `0x02`. On older builds the driver therefore raises the `FirmwareOutdated` warning and does not poll the rest of the register map. The full register map and the write tasks are activated once firmware build >= 357 is confirmed.
+
+*Commissioning*: **control-by-Modbus must be enabled on the charger**, otherwise all writes (current limit, start/stop, phase switch) are rejected. The controller stack additionally requires an `Evse.ElectricVehicle.Generic` instance and an `Evse.Controller.Cluster` in the Scheduler.
+
+== Starting and Stopping a Session
+
+Writing 1 to the charging-enable register `0x000C` only *permits* charging, it does not force it: the firmware enables the session only when a vehicle is already connected, and the register reads back 1 only from that moment. With no vehicle plugged in the write is accepted without an exception but has no effect, so the read-back stays 0 indefinitely and a client that rewrites the register until the read-back matches would loop forever.
+
+The driver therefore writes the value **once per intended state change** and then follows the outcome on the EVSE state (`0x000A`) and the charging flag (`0x000D`). Two guards keep a genuine state change from being lost: a write that answered a Modbus exception never reached the charger and is repeated, and a charger that leaves a state it had already confirmed — a firmware restart resets `0x000C` to 0 — is written again.
+
+== Phase Switching
+
+Phase switching is only available on chargers with an HPOW108 or later power board. **The hardware reports this itself**: bit 0 of the capability bitmask on register `0x0019` is set exactly when the forced single-phase register `0x0016` is writable. The API documentation asks clients to read that bit and to offer phase switching only when it is set, instead of probing with a `0x0016` write — on unsupported hardware that write is rejected with exception `0x03`, and a client that retries it can repeatedly interrupt charging.
+
+The driver therefore offers the ability **automatically**, with no configuration option: the capability bit must be set, the wiring must be three-phase, and the firmware build must be at least 357. On a charger whose bit is clear — or on firmware that does not serve `0x0019` at all, where the driver stops at the `FirmwareOutdated` warning and never extends the protocol — no phase-switch ability is advertised, and the `Evse.Controller.Single` is never stranded at 0 A waiting out its 600 s phase-switch timeout.
+
+The charge-point switches 1<->3 phases via register `0x0016`, using the documented sequence: stop charging (`0x000C` = 0), write `0x0016`, re-enable charging (`0x000C` = 1). The driver advertises this as a *Manual* phase-switch ability; the `Evse.Controller.Single` PhaseSwitchHandler orchestrates the sequence (zero set-point until the power is down, then the switch action, then restart), while the driver performs the register write and verifies it via read-back. The write is still rejected (exception `0x03`) while a charging session is active, when control-by-Modbus is disabled, or on relay/EEPROM error; after such a rejection the driver raises the `PhaseSwitchFailed` warning and stops offering phase switching until the component configuration is updated. This latch is a safety net on top of the capability bit, not the primary gate; latching instead of retrying is deliberate, because every further rejected switch would again cost up to 600 s at 0 A.
+
+The number of phases the vehicle actually charges on is read from register `0x001A` (`PhasesInUse`), which the firmware fills from its own 1.0 A per-phase threshold. It is not the same as `MainsPhases` (`0x000E`), which counts the phases with mains voltage on the charger *input* and stays 3 even while forced single-phase mode is active.
+
+== Verified Against Hardware
+
+Validated on two production chargers running EVSE firmware build 360, driven by a local OpenEMS Edge over a dedicated Modbus/TCP bridge at the default 1 s cycle time.
+
+=== Three-phase charger with a charging vehicle
+
+* The status block (27 registers from `0x0000`) and the meter block (30 registers from `0x2000`) are read correctly; the component binds through the generated Modbus reference target.
+* Channel values matched independent Modbus reads of the same registers, including the per-phase voltages, currents and powers while the vehicle was charging.
+* `ActiveProductionEnergy` accumulated continuously while the lifetime energy register `0x2016` stayed flat, confirming that the total energy has to be integrated in software.
+* The capability bitmask `0x0019` reads 1, and the phase-switch ability is advertised accordingly.
+* Phase switching was verified in **both** directions. Each switch issued exactly one FC06 write to `0x0016`, and `PhasesInUse` (`0x001A`) followed the physical state: 3 -> 1 -> 3.
+* Set-point changes reached the vehicle, and repeated writes were rate-limited to one per 5 s.
+* The charging-enable register was not re-written while the session was already enabled.
+* Sustained operation produced no `ModbusCommunicationFailed`, with request latency in the tens of milliseconds.
+
+=== Single-phase charger without phase-switch support
+
+* The capability bitmask `0x0019` reads 0. No phase-switch ability is advertised, even with three-phase wiring configured - the capability bit is the only gate that matters here.
+* `PhasesInUse` reads 0 while no session is running, as documented.
+* Read-only mode issued no write at all while reads continued normally.
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== EVSE Charge-Point Voltie
+
+*Name*: EVSE Charge-Point Voltie
+
+*Factory-PID*: `Evse.ChargePoint.Voltie`
+
+.Implemented Natures/Interfaces
+* EvseChargePointVoltie
+* EvseChargePoint
+* ElectricityMeter
+* OpenemsComponent
+* TimedataProvider
+* EventHandler
+* ModbusComponent
+
+*Description*: Modbus TCP interface for the Voltie AC wallbox. Provides charging point functionality with real-time per-phase voltage, current and power measurement, session and lifetime energy, and 1<->3 phase switching on hardware that reports it in the capability bitmask. Charge current is controlled via the software current limit register with the device's native 1 A resolution (6..32 A; the set-point ability is declared in Ampere accordingly). The hardware maximum is read from the EVSE-board limit register; an unavailable or implausible reading falls back to the safe 6 A minimum.
+
+*Energy channels*: the cumulative `ActiveProductionEnergy` is integrated in software from the active power, because the device's lifetime counter (register `0x2016`, exposed as `LifetimeEnergy`) updates only at session end and the session-energy register (`0x200E`, exposed as `EnergySession` in Wh, converted from Ws) resets at the start of the next session.
+
+.*Configuration*:
+
+* `id` (String): Component ID (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `readOnly` (Boolean): Read-only or managed control (default: false)
+* `wiring` (SingleOrThreePhase): SINGLE_PHASE or THREE_PHASE (default: THREE_PHASE)
+* `phaseRotation` (PhaseRotation): Phase order (default: L1_L2_L3)
+* `logVerbosity` (LogVerbosity): NONE or WRITES (default: NONE)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0"); configure the charger's IP address and port 502 on the Modbus/TCP bridge
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 11, the charger's default slave address)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.voltie[Source Code icon:github[]]
