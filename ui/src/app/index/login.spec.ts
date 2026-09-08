@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { LoginComponent } from "./login.component";
 

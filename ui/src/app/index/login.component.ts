@@ -72,7 +72,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      * @param username The username
      * @returns Trimmed credentials
      */
-    public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
+    public static preprocessCredentials(password: string | null, username?: string | null): { password: string | undefined; username?: string } {
         return {
             password: password?.trim(),
             ...(username && { username: username?.trim().toLowerCase() }),

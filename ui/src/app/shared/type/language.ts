@@ -83,8 +83,8 @@ export class Language {
         return Language.getByKey(localStorage.LANGUAGE);
     }
 
-    public static getByKey(key: string | null): Language | null {
-        if (key === null) {
+    public static getByKey(key: string | null | undefined): Language | null {
+        if (key == null) {
             return null;
         }
         for (const language of Language.ALL) {
@@ -95,7 +95,7 @@ export class Language {
         return null;
     }
 
-    public static getByBrowserLang(browserLang: string): Language | null {
+    public static getByBrowserLang(browserLang: string | null | undefined): Language | null {
         switch (browserLang) {
             case "de":
                 return Language.DE;
@@ -144,7 +144,7 @@ export class Language {
      * @param language The language
      * @returns The i18n locale
      */
-    public static geti18nLocaleByKey(language: string) {
+    public static geti18nLocaleByKey(language: string | null | undefined) {
         const lang = this.getByBrowserLang(language?.toLowerCase());
 
         if (!lang) {
