@@ -168,7 +168,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 			edgeId = "edge" + id;
 		}
 		setupPassword = edgeId;
-		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "");
+		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "", null);
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 	}
@@ -181,7 +181,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	 */
 	private void createEdge(String edgeIdTemplate, int i) {
 		var edgeId = String.format(edgeIdTemplate, i);
-		var edge = new MyEdge(this, edgeId, edgeId, edgeId, "OpenEMS Edge #" + i, "", "");
+		var edge = new MyEdge(this, edgeId, edgeId, edgeId, "OpenEMS Edge #" + i, "", "", null);
 		this.edges.put(edgeId, edge);
 	}
 
@@ -342,8 +342,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public CompletableFuture<List<EdgeMetadata>> getPageDevice(User user, PaginationOptions paginationOptions) {
-		return CompletableFuture
-				.completedFuture(MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions));
+		return CompletableFuture.completedFuture(
+				MetadataUtils.getPageDevice(user, this.edges.values(), MyEdge::getSettings, paginationOptions));
 	}
 
 	@Override
@@ -389,6 +389,13 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public void updateUserSettings(User user, JsonObject settings) {
 		this.settings = settings == null ? new JsonObject() : settings;
+	}
+
+	@Override
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		var edge = this.edges.get(edgeId);
+		edge.setSettings(settings);
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override

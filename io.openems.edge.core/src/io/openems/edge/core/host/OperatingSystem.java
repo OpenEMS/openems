@@ -2,6 +2,7 @@ package io.openems.edge.core.host;
 
 import java.net.Inet4Address;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.exceptions.NotImplementedException;
@@ -104,5 +105,38 @@ public interface OperatingSystem {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException;
+
+	/**
+	 * Returns the current cpu temperature in Celsius Degrees. Can throw an
+	 * exception if the reading fails or can return Optional.empty() if there is no
+	 * way to read a temperature.
+	 *
+	 * @return CPU temperature in Celsius Degrees.
+	 */
+	public Optional<Double> getCpuTemperature();
+
+	/**
+	 * Returns the "recent cpu usage". This value is a double in the [0.0,1.0]
+	 * interval. A value of 0.0 means that all CPUs were idle during the recent
+	 * period of time observed, while a value of 1.0 means that all CPUs were
+	 * actively running 100% of the time during the recent period being observed.
+	 * 
+	 * <p>
+	 * Currently, the load average is only available in linux operating systems.
+	 * 
+	 * @return Returns the load average as OptionalDouble or an empty optional if
+	 *         there is no data or the reading is not supported.
+	 */
+	public Optional<Double> getCpuLoad();
+
+	/**
+	 * Returns the available and total memory of the operating system.
+	 * 
+	 * @return Class with memory informations.
+	 */
+	public Optional<MemoryInformation> getSystemMemory();
+
+	record MemoryInformation(long availableMemoryInKBytes, long totalMemoryInKBytes) {
+	}
 
 }

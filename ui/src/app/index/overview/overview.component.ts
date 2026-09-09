@@ -96,7 +96,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 "icon",
                 [],
                 null,
-                { customLink: "/overview" },
+                { customLink: "/overview", hideFavorite: true },
             ),
         ];
     }

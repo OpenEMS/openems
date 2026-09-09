@@ -15,7 +15,7 @@ NOTE: These instructions are intended for a quick setup, e.g. to get started wit
 
 === Setup
 
-We assume that the files for OpemEMS UI are in /home/user/openems/openems-ui
+We assume that the files for OpenEMS UI are in /home/user/openems/openems-ui
 
 . Install nginx (e.g. `apt install nginx` on Debian / Ubuntu and derivatives)
  

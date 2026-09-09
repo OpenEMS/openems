@@ -1,5 +1,9 @@
 package io.openems.edge.controller.ess.sohcycle;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.io.IOException;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -10,7 +14,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -35,6 +39,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 		implements ControllerEssSohCycle, Controller, OpenemsComponent {
 
@@ -51,7 +56,8 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
 	@Reference
@@ -156,13 +162,6 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 
 	private void applyConfig(Config config) {
 		this.config = config;
-		// Validate ess_id
-		if (config.ess_id() == null || config.ess_id().isBlank()) {
-			logError(log, "Ess-ID is not configured!");
-			return;
-		}
-
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package io.openems.edge.controller.io.analog;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -72,11 +71,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String analogOutput_id() {
 		return this.builder.analogOutputId;
-	}
-
-	@Override
-	public String analogOutput_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.analogOutput_id());
 	}
 
 	@Override

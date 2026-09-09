@@ -66,9 +66,4 @@ public class MyConfigPv1 extends AbstractComponentConfig implements ConfigPv1 {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.builder.modbusId);
 	}
 
-	@Override
-	public String Ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
-	}
-
 }

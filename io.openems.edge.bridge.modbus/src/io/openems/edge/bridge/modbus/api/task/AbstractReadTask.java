@@ -31,8 +31,9 @@ public abstract class AbstractReadTask<//
 		extends AbstractTask<REQUEST, RESPONSE> implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
-	private final Priority priority;
 	private final Class<?> elementClazz;
+
+	private Priority priority;
 
 	public AbstractReadTask(String name, Consumer<ExecuteState> onExecute, Class<RESPONSE> responseClazz,
 			Class<ELEMENT> elementClazz, int startAddress, Priority priority, ModbusElement... elements) {
@@ -156,6 +157,11 @@ public abstract class AbstractReadTask<//
 	@Override
 	public Priority getPriority() {
 		return this.priority;
+	}
+
+	@Override
+	public void setPriority(Priority priority) {
+		this.priority = priority;
 	}
 
 	/**

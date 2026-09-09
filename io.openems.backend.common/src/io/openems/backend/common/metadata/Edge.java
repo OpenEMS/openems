@@ -30,7 +30,6 @@ public class Edge {
 	private final AtomicReference<ZonedDateTime> lastmessage = new AtomicReference<>(null);
 	private final AtomicReference<Level> sumState = new AtomicReference<>(null);
 	private final List<EdgeUser> user;
-	private final AtomicReference<JsonObject> settings = new AtomicReference<>(null);
 
 	private String comment;
 	private boolean isOnline = false;
@@ -78,7 +77,6 @@ public class Edge {
 				.addProperty("online", this.isOnline) //
 				.addProperty("sumState", this.sumState.get()) //
 				.addPropertyIfNotNull("lastmessage", this.lastmessage.get()) //
-				.addIfNotNull("settings", this.settings.get()) //
 				.build();
 	}
 
@@ -92,7 +90,6 @@ public class Edge {
 				+ "lastmessage=" + this.lastmessage + ", " //
 				+ "isOnline=" + this.isOnline + ", " //
 				+ "sumState=" + this.sumState //
-				+ "settings=" + this.settings //
 				+ "]";
 	}
 
@@ -246,15 +243,6 @@ public class Edge {
 	 */
 	public Level getSumState() {
 		return this.sumState.get();
-	}
-
-	/**
-	 * Settings JSON to store additional information.
-	 * 
-	 * @return the settings JSON
-	 */
-	public JsonObject getSettings() {
-		return this.settings.get();
 	}
 
 	/**

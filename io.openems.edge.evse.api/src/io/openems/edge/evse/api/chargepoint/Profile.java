@@ -74,7 +74,13 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction) {
-				return this.setPhaseSwitch(new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual()));
+				return this.setPhaseSwitchManual(direction, null);
+			}
+
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction,
+					ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
+				return this.setPhaseSwitch(
+						new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual(), oppositePhaseApplySetPoint));
 			}
 
 			public Builder setPhaseSwitch(ApplyPhaseSwitch applyPhaseSwitch) {
@@ -126,7 +132,7 @@ public final class Profile {
 	 * Declares the Actions for an {@link EvseChargePoint}.
 	 */
 	public static record ChargePointActions(ChargePointAbilities abilities, ApplySetPoint.Action applySetPoint,
-			ApplyPhaseSwitch phaseSwitch) {
+			ApplyPhaseSwitch phaseSwitch, Integer setPointWithoutPhaseLimitation) {
 
 		/**
 		 * Gets the {@link ApplySetPoint} in [A].
@@ -172,6 +178,7 @@ public final class Profile {
 			private final ChargePointAbilities abilities;
 			private ApplySetPoint.Action applySetPoint = null;
 			private ApplyPhaseSwitch phaseSwitch = null;
+			private Integer setPointWithoutPhaseLimitation = null;
 
 			private Builder(ChargePointAbilities abilities) {
 				this.abilities = abilities;
@@ -181,6 +188,7 @@ public final class Profile {
 				this(actions.abilities);
 				this.applySetPoint = actions.applySetPoint;
 				this.phaseSwitch = actions.phaseSwitch;
+				this.setPointWithoutPhaseLimitation = actions.setPointWithoutPhaseLimitation;
 			}
 
 			public Builder setApplySetPointInMilliAmpere(int value) throws IllegalArgumentException {
@@ -249,15 +257,27 @@ public final class Profile {
 				return this;
 			}
 
+			public Builder setSetPointWithoutPhaseLimitation(Integer setPointWithoutPhaseLimitation) {
+				this.setPointWithoutPhaseLimitation = setPointWithoutPhaseLimitation;
+				return this;
+			}
+
 			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction) {
-				return this.setPhaseSwitch(new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual()));
+				return this.setPhaseSwitchManual(direction, null);
+			}
+
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction,
+					ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
+				return this.setPhaseSwitch(
+						new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual(), oppositePhaseApplySetPoint));
 			}
 
 			public ChargePointActions build() throws IllegalArgumentException {
 				if (this.applySetPoint == null) {
 					throw new IllegalArgumentException("ApplySetPoint is always required");
 				}
-				return new ChargePointActions(this.abilities, this.applySetPoint, this.phaseSwitch);
+				return new ChargePointActions(this.abilities, this.applySetPoint, this.phaseSwitch,
+						this.setPointWithoutPhaseLimitation);
 			}
 		}
 

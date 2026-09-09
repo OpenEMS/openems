@@ -39,7 +39,6 @@ export class HeatStatusChartComponent extends ScheduleChartComponent {
         const statuses = this.data.data24h.map((entry) => {
             return valueToStates(this.toIsHeating(entry));
         });
-
         ScheduleChartComponent.normalizeBooleanLines(statuses);
 
         const lastHistoryIndex = this.data.data24hLastHistoryIndex;
@@ -112,10 +111,18 @@ export class HeatStatusChartComponent extends ScheduleChartComponent {
     }
 }
 
+/**
+ * Minimum managed consumption [W] to be considered as "heating".
+ *
+ * This constant additionally covers HISTORY data, which is populated from the real ACTIVE_POWER channel and can contain
+ * small non-zero readings (e.g. standby draw) that should not be shown as "heating".
+ */
+export const MIN_HEATING_POWER_IN_W = 60;
+
 export function resolveIsHeating(managedConsumption: number | null): boolean | null {
     if (managedConsumption == null) {
         return null;
     }
 
-    return managedConsumption > 0;
+    return managedConsumption >= MIN_HEATING_POWER_IN_W;
 }

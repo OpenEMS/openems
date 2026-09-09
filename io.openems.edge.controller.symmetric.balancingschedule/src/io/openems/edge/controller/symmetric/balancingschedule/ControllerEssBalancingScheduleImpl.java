@@ -1,20 +1,20 @@
 package io.openems.edge.controller.symmetric.balancingschedule;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest.GridConnSchedule;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -44,21 +45,21 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 		implements ControllerEssBalancingSchedule, Controller, OpenemsComponent, ComponentJsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssBalancingScheduleImpl.class);
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	private ElectricityMeter meter;
 
 	private List<GridConnSchedule> schedule = new CopyOnWriteArrayList<>();
@@ -74,14 +75,6 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
 		// parse Schedule
 		try {
 			if (!config.schedule().trim().isEmpty()) {

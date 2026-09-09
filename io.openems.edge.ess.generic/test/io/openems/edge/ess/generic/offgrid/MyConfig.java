@@ -1,7 +1,6 @@
 package io.openems.edge.ess.generic.offgrid;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
@@ -80,23 +79,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String batteryInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.batteryInverter_id());
-	}
-
-	@Override
-	public String battery_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
-	}
-
-	@Override
 	public String offGridSwitch_id() {
 		return this.builder.offGridSwitchId;
-	}
-
-	@Override
-	public String offGridSwitch_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.offGridSwitch_id());
 	}
 
 }

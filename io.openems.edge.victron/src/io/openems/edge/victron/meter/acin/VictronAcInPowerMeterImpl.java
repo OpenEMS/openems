@@ -8,7 +8,6 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -38,13 +38,11 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
+@GenerateTargetsFromReferences("Modbus")
 public class VictronAcInPowerMeterImpl extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	private Config config;
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	public VictronAcInPowerMeterImpl() {
 		super(//
@@ -57,7 +55,9 @@ public class VictronAcInPowerMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -65,11 +65,7 @@ public class VictronAcInPowerMeterImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
 	@Override

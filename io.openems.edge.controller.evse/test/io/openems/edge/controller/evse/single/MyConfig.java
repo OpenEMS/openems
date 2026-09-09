@@ -1,7 +1,5 @@
 package io.openems.edge.controller.evse.single;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -125,15 +123,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public LogVerbosity logVerbosity() {
 		return this.builder.logVerbosity;
-	}
-
-	@Override
-	public String chargePoint_target() {
-		return generateReferenceTargetFilter(this.id(), this.chargePoint_id());
-	}
-
-	@Override
-	public String electricVehicle_target() {
-		return generateReferenceTargetFilter(this.id(), this.electricVehicle_id());
 	}
 }

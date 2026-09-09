@@ -2,6 +2,7 @@ package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.evse.single.Utils.combineAbilities;
+import static io.openems.edge.controller.evse.single.Utils.combineOppositePhaseAbilities;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
@@ -47,7 +48,11 @@ public record CombinedAbilities(//
 			final var phaseSwitch = this.electricVehicleAbilities != null && this.chargePointAbilities != null
 					&& this.electricVehicleAbilities.canInterrupt() //
 					&& this.chargePointAbilities.phaseSwitch() != null //
-							? this.chargePointAbilities.phaseSwitch() //
+							? new ApplyPhaseSwitch(//
+									this.chargePointAbilities.phaseSwitch().direction(),
+									this.chargePointAbilities.phaseSwitch().ability(), //
+									combineOppositePhaseAbilities(//
+											this.chargePointAbilities, this.electricVehicleAbilities)) //
 							: null;
 
 			return new CombinedAbilities(this.chargePointAbilities, this.electricVehicleAbilities, isReadyForCharging,
@@ -63,6 +68,29 @@ public record CombinedAbilities(//
 	public static Builder createFrom(ChargePointAbilities chargePointAbilities,
 			ElectricVehicleAbilities electricVehicleAbilities) {
 		return new Builder(chargePointAbilities, electricVehicleAbilities);
+	}
+
+	/**
+	 * Gets the maximum distributable set-point in watt for the current ability set.
+	 *
+	 * @param isAutomaticPhaseSwitching true if automatic phase switching is enabled
+	 * @return the maximum set-point in watt that may be used for distribution
+	 */
+	public int getDistributionMaxSetPointInWatt(boolean isAutomaticPhaseSwitching) {
+		var maxSetPointInWatt = this.applySetPoint.toPower(this.applySetPoint.max());
+		if (!isAutomaticPhaseSwitching) {
+			// Non-automatic phase switchers: only use current phase maximum
+			return maxSetPointInWatt;
+		}
+
+		// Automatic phase switchers: consider both current and opposite phase maximums
+		if (this.phaseSwitch == null //
+				|| this.phaseSwitch.oppositePhaseApplySetPoint() == null //
+				|| this.phaseSwitch.oppositePhaseApplySetPoint()
+						.equals(ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY)) {
+			return maxSetPointInWatt;
+		}
+		return Math.max(maxSetPointInWatt, this.phaseSwitch.oppositePhaseApplySetPoint().max());
 	}
 
 	/**

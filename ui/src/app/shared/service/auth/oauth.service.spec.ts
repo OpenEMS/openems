@@ -7,7 +7,7 @@ import { Theme } from "src/app/edge/history/shared";
 import { PlatFormService } from "src/app/platform.service";
 import { User } from "../../jsonrpc/shared";
 import { Language, MyTranslateLoader } from "../../type/language";
-import { RouteService } from "../route.service";
+import { RouteService } from "../route/route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
 import { OAuthService } from "./oauth.service";
@@ -20,7 +20,10 @@ describe("OAuthService", () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
-                TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
+                TranslateModule.forRoot({
+                    loader: { provide: TranslateLoader, useClass: MyTranslateLoader },
+                    fallbackLang: Language.DEFAULT.key,
+                }),
             ],
             providers: [
                 { provide: UserService, useValue: userServiceSpyObj },

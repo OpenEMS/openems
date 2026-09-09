@@ -17,6 +17,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.evse.cluster.ControllerEvseClusterImpl;
 import io.openems.edge.controller.evse.cluster.DistributionStrategy;
 import io.openems.edge.controller.evse.single.CombinedAbilities;
+import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.ControllerEvseSingleImpl;
 import io.openems.edge.controller.evse.single.LogVerbosity;
 import io.openems.edge.controller.evse.single.Mode;
@@ -70,7 +71,6 @@ public class TestUtils {
 		final var test = new ControllerTest(ctrlCluster) //
 				.addReference("sum", new DummySum()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ctrls", stream(singleSuts) //
 						.map(SingleSut::ctrlSingle) //
 						.toList()); //
@@ -153,6 +153,7 @@ public class TestUtils {
 		private Integer activePower = null;
 		private int sessionEnergy = 0;
 		private Integer sessionEnergyLimit = null;
+		private Long probableNextPhaseSwitchEpochSeconds = null;
 		private History history = new History();
 		private PhaseSwitching phaseSwitching = PhaseSwitching.DISABLE;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
@@ -185,6 +186,11 @@ public class TestUtils {
 
 		public CtrlBuilder setSessionEnergyLimit(Integer sessionEnergyLimit) {
 			this.sessionEnergyLimit = sessionEnergyLimit;
+			return this;
+		}
+
+		public CtrlBuilder setProbableNextPhaseSwitchEpochSeconds(Long probableNextPhaseSwitchEpochSeconds) {
+			this.probableNextPhaseSwitchEpochSeconds = probableNextPhaseSwitchEpochSeconds;
 			return this;
 		}
 
@@ -228,8 +234,13 @@ public class TestUtils {
 			var params = new Params(this.ctrlSingleId, this.chargePointId, this.mode, this.activePower,
 					this.sessionEnergy, this.sessionEnergyLimit, this.history, this.phaseSwitching,
 					combinedAbilities.build(), this.tasks);
-			return new DummyControllerEvseSingle(this.ctrlSingleId) //
+			var ctrl = new DummyControllerEvseSingle(this.ctrlSingleId) //
 					.withParams(params);
+			if (this.probableNextPhaseSwitchEpochSeconds != null) {
+				ctrl.channel(ControllerEvseSingle.ChannelId.PROBABLE_NEXT_PHASE_SWITCH_EPOCH_SECONDS)
+						.setNextValue(this.probableNextPhaseSwitchEpochSeconds);
+			}
+			return ctrl;
 		}
 	}
 

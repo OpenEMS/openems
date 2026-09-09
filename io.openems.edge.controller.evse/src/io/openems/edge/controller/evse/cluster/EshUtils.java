@@ -25,6 +25,7 @@ import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleScheduleCon
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Params;
+import io.openems.edge.controller.evse.single.PhaseSwitching;
 import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.controller.evse.single.Types.Payload.Smart;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes;
@@ -33,6 +34,7 @@ import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointM
 import io.openems.edge.energy.api.simulation.EnergyFlow.Model;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EshUtils {
@@ -57,6 +59,7 @@ public class EshUtils {
 						final var csc = clusterCsc.getCsc(p.ctrlSingleId());
 						final var scheduledMode = mode.getMode(p.ctrlSingleId());
 						final var abilities = p.combinedAbilities();
+						final var energySetPointRange = resolveEnergySetPointRangeInWatt(p);
 
 						// Evaluate Energy limit
 						final var energyLimit = minInt(//
@@ -64,10 +67,9 @@ public class EshUtils {
 								p.sessionEnergyLimit());
 						final var remainingSessionEnergy = max(0, energyLimit - csc.getSessionEnergy());
 						final int maxEnergy = min(remainingSessionEnergy,
-								period.duration().convertPowerToEnergy(abilities.applySetPoint().max()));
-
+								period.duration().convertPowerToEnergy(energySetPointRange.maxPowerInWatt()));
 						final int energyInModeMinimum = period.duration()
-								.convertPowerToEnergy(abilities.applySetPoint().min());
+								.convertPowerToEnergy(energySetPointRange.minPowerInWatt());
 						final var actualMode = abilities.isReadyForCharging() && !p.appearsToBeFullyCharged() //
 								? scheduledMode //
 								: Mode.ZERO;
@@ -77,6 +79,31 @@ public class EshUtils {
 					.collect(toImmutableList());
 
 			return new EnergyDistribution(surplusEnergy, entries);
+		}
+
+		private record EnergySetPointRangeInWatt(int minPowerInWatt, int maxPowerInWatt) {
+		}
+
+		private static EnergySetPointRangeInWatt resolveEnergySetPointRangeInWatt(Params p) {
+			final var applySetPoint = p.combinedAbilities().applySetPoint();
+			var minPowerInWatt = applySetPoint.min();
+			var maxPowerInWatt = applySetPoint.max();
+
+			if (p.phaseSwitching() != PhaseSwitching.AUTOMATIC) {
+				return new EnergySetPointRangeInWatt(minPowerInWatt, maxPowerInWatt);
+			}
+
+			final var phaseSwitchAbility = p.combinedAbilities().phaseSwitch();
+			if (phaseSwitchAbility == null || phaseSwitchAbility.oppositePhaseApplySetPoint() == null
+					|| phaseSwitchAbility.oppositePhaseApplySetPoint()
+							.equals(ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY)) {
+				return new EnergySetPointRangeInWatt(minPowerInWatt, maxPowerInWatt);
+			}
+
+			final var oppositePhaseApplySetPoint = phaseSwitchAbility.oppositePhaseApplySetPoint();
+			minPowerInWatt = min(minPowerInWatt, oppositePhaseApplySetPoint.min());
+			maxPowerInWatt = max(maxPowerInWatt, oppositePhaseApplySetPoint.max());
+			return new EnergySetPointRangeInWatt(minPowerInWatt, maxPowerInWatt);
 		}
 
 		/**

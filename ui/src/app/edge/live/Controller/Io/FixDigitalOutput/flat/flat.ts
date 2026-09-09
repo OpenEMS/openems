@@ -1,7 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ControllerFixDigitalOutputModalComponent } from "../modal/modal";

@@ -5,13 +5,13 @@ import io.openems.common.bridge.http.api.BridgeHttpExecutor;
 import io.openems.common.bridge.http.api.EndpointFetcher;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 
-public record HttpBridgeOdooAuthenticationServiceDefinition(Credentials credentials)
+public record HttpBridgeOdooAuthenticationServiceDefinition(Credentials credentials, OdooHandler odooHandler)
 		implements HttpBridgeServiceDefinition<HttpBridgeOdooAuthenticationService> {
 
 	@Override
 	public HttpBridgeOdooAuthenticationService create(BridgeHttp bridgeHttp, BridgeHttpExecutor executor,
 			EndpointFetcher endpointFetcher) {
-		return new HttpBridgeOdooAuthenticationService(this.credentials, bridgeHttp);
+		return new HttpBridgeOdooAuthenticationService(this.credentials, bridgeHttp, this.odooHandler);
 	}
 
 }

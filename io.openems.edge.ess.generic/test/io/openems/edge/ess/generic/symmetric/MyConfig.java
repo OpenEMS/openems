@@ -1,7 +1,6 @@
 package io.openems.edge.ess.generic.symmetric;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.symmetric.essfaultbehaviour.EssFaultBehaviourConfig;
@@ -94,15 +93,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String battery_id() {
 		return this.builder.batteryId;
-	}
-
-	@Override
-	public String batteryInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.batteryInverter_id());
-	}
-
-	@Override
-	public String battery_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
 	}
 }

@@ -10,6 +10,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.filter.Filter;
 import io.openems.edge.common.filter.PT1Filter;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
@@ -27,20 +28,22 @@ public final class ApplyPowerHandler {
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
 	 * EMS_POWER_SET and EMS_POWER_MODE settings.
 	 *
-	 * @param setActivePower        the Active-Power Set-Point
-	 * @param controlMode           the {@link ControlMode} to handle the different
-	 *                              {@link EmsPowerMode} for the GoodWe battery
-	 *                              inverter
-	 * @param gridActivePower       the grid active power
-	 * @param essActivePower        the ESS active power
-	 * @param maxAcImport           the max AC import power
-	 * @param maxAcExport           the max AC export power
-	 * @param isGlobalFilterEnabled is global {@link Filter} enabled?
+	 * @param setActivePower                     the Active-Power Set-Point
+	 * @param controlMode                        the {@link ControlMode} to handle
+	 *                                           the different {@link EmsPowerMode}
+	 *                                           for the GoodWe battery inverter
+	 * @param gridActivePower                    the grid active power
+	 * @param essActivePower                     the ESS active power
+	 * @param maxAcImport                        the max AC import power
+	 * @param maxAcExport                        the max AC export power
+	 * @param isGlobalFilterEnabled              is global {@link Filter} enabled?
+	 * @param numberOfSeparateConnectedBatteries the number of separate connected
+	 *                                           batteries
 	 * @throws OpenemsNamedException on error
 	 */
 	public synchronized void apply(int setActivePower, ControlMode controlMode, Value<Integer> gridActivePower,
 			Value<Integer> essActivePower, Value<Integer> maxAcImport, Value<Integer> maxAcExport,
-			boolean isGlobalFilterEnabled) throws OpenemsNamedException {
+			boolean isGlobalFilterEnabled, int numberOfSeparateConnectedBatteries) throws OpenemsNamedException {
 		// Evaluate MeterCommunicateStatus
 		EnumReadChannel meterCommunicateStatusChannel = this.goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
@@ -59,8 +62,8 @@ public final class ApplyPowerHandler {
 				this.goodWe.channel(GoodWe.ChannelId.NO_SMART_METER_DETECTED)::setNextValue, //
 				emsPowerSetChannel::setNextWriteValue, //
 				emsPowerModeChannel::setNextWriteValue, //
-				this.goodWe.getGoodweType().maxBatChargeP, //
-				this.goodWe.getGoodweType().maxBatDischargeP);
+				TypeUtils.multiply(this.goodWe.getGoodweType().maxBatChargeP, numberOfSeparateConnectedBatteries), //
+				TypeUtils.multiply(this.goodWe.getGoodweType().maxBatDischargeP, numberOfSeparateConnectedBatteries));
 	}
 
 	synchronized void apply(int setActivePower, ControlMode controlMode, Value<Integer> gridActivePower,

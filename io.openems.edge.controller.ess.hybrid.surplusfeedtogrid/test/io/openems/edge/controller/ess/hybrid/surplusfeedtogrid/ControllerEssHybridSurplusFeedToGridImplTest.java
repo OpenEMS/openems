@@ -3,9 +3,8 @@ package io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;
 import static io.openems.edge.controller.ess.hybrid.surplusfeedtogrid.ControllerEssHybridSurplusFeedToGrid.ChannelId.SURPLUS_FEED_TO_GRID_IS_LIMITED;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
@@ -16,7 +15,6 @@ public class ControllerEssHybridSurplusFeedToGridImplTest {
 	public void test() throws Exception {
 		final var ess = new DummyHybridEss("ess0");
 		final var test = new ControllerTest(new ControllerEssHybridSurplusFeedToGridImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //

@@ -54,7 +54,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			User user, UUID messageId, SubscribeEdgesChannelsRequest request) throws OpenemsNamedException {
 		for (var edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, SubscribeEdgesChannelsRequest.METHOD);
+			this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, SubscribeEdgesChannelsRequest.METHOD);
 		}
 
 		// activate SubscribedChannelsWorker

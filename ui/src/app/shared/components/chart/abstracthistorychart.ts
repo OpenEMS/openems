@@ -21,7 +21,7 @@ import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
 import { LayoutRefreshService } from "../../service/layoutRefreshService";
-import { RouteService } from "../../service/route.service";
+import { RouteService } from "../../service/route/route.service";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";

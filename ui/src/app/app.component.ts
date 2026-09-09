@@ -10,7 +10,7 @@ import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
-import { RouteService } from "./shared/service/route.service";
+import { RouteService } from "./shared/service/route/route.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 

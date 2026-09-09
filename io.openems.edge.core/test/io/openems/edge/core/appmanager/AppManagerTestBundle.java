@@ -749,4 +749,15 @@ public class AppManagerTestBundle {
 				new AddAppInstance.Request(app.getAppId(), "key", "alias", Apps.getMinConfig(app.getAppId())));
 	}
 
+	/**
+	 * Creates fluent permission assertions for the given app.
+	 *
+	 * @param app        the app under test
+	 * @param properties valid properties to install the app with
+	 * @return the {@link AppPermissionAssertions}
+	 */
+	public AppPermissionAssertions assertPermissions(OpenemsApp app, JsonObject properties) {
+		return new AppPermissionAssertions(this, app, properties);
+	}
+
 }

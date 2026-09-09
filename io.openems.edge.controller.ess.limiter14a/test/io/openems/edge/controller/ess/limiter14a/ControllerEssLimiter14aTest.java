@@ -4,12 +4,11 @@ import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MODE;
 import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ChannelId.RESTRICTION_MODE;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -25,7 +24,6 @@ public class ControllerEssLimiter14aTest {
 	public void testController() throws OpenemsException, Exception {
 		var sut = new ControllerEssLimiter14aImpl();
 		new ControllerTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //

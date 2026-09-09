@@ -4,6 +4,7 @@ import static io.openems.edge.controller.ess.cycle.ControllerEssCycle.ChannelId.
 import static io.openems.edge.controller.ess.cycle.ControllerEssCycle.ChannelId.STATE_MACHINE;
 import static io.openems.edge.controller.ess.cycle.CycleOrder.START_WITH_DISCHARGE;
 import static io.openems.edge.controller.ess.cycle.HybridEssMode.TARGET_AC;
+import static io.openems.edge.controller.ess.cycle.Mode.MANUAL_OFF;
 import static io.openems.edge.controller.ess.cycle.Mode.MANUAL_ON;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER;
@@ -14,9 +15,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -35,7 +35,6 @@ public class ControllerEssCycleImplTest {
 				.setPower(power);
 		final var test = new ControllerTest(new ControllerEssCycleImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.activate(MyConfig.create()//
 						.setId("ctrl0") //
@@ -134,5 +133,53 @@ public class ControllerEssCycleImplTest {
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.FINISHED)) //
 				.deactivate();
+	}
+
+	@Test
+	public void testModifiedAppliesNewConfig() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2000-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var power = new DummyPower(10_000);
+		final var ess = new DummyManagedSymmetricEss("ess0") //
+				.setPower(power);
+		final var test = new ControllerTest(new ControllerEssCycleImpl()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("ess", ess) //
+				.activate(this.baseConfig() //
+						.setMode(MANUAL_OFF) //
+						.build());
+		power.addEss(ess);
+		test.next(new TestCase("Manual off does not start a cycle") //
+				.input("ess0", ALLOWED_CHARGE_POWER, -10_000) //
+				.input("ess0", ALLOWED_DISCHARGE_POWER, 10_000) //
+				.input("ess0", SOC, 50) //
+				.output(STATE_MACHINE, State.UNDEFINED)) //
+				.modified(this.baseConfig() //
+						.setMode(MANUAL_ON) //
+						.build()) //
+				.next(new TestCase() //
+						.input(STATE_MACHINE, State.UNDEFINED) //
+						.input("ess0", ALLOWED_CHARGE_POWER, -10_000) //
+						.input("ess0", ALLOWED_DISCHARGE_POWER, 10_000) //
+						.input("ess0", SET_ACTIVE_POWER_EQUALS, 10_000) //
+						.input("ess0", SOC, 50)) //
+				.next(new TestCase("Manual on after modified starts discharge") //
+						.output(STATE_MACHINE, State.START_DISCHARGE)) //
+				.deactivate();
+	}
+
+	private MyConfig.Builder baseConfig() {
+		return MyConfig.create() //
+				.setId("ctrl0") //
+				.setEssId("ess0") //
+				.setCycleOrder(START_WITH_DISCHARGE) //
+				.setStandbyTime(10) //
+				.setStartTime("2000-01-01 01:00") //
+				.setMaxSoc(100) //
+				.setMinSoc(0) //
+				.setPower(10000) //
+				.setMode(MANUAL_ON) //
+				.setHybridEssMode(TARGET_AC) //
+				.setTotalCycleNumber(3) //
+				.setFinalSoc(50);
 	}
 }

@@ -215,8 +215,23 @@ public class SimulatorEvseChargepointImpl extends AbstractOpenemsComponent imple
 						this.config.maxCurrent())) //
 				.setIsReadyForCharging(this.config.vehicleConnected()) //
 				.setIsEvConnected(this.config.vehicleConnected()) //
-				.setPhaseSwitchManual(this.getPhaseSwitchAbility()) //
+				.setPhaseSwitchManual(this.getPhaseSwitchAbility(), this.getOppositePhaseApplySetPointAbility()) //
 				.build();
+	}
+
+	private ApplySetPoint.Ability.Watt getOppositePhaseApplySetPointAbility() {
+		if (!this.supportsPhaseSwitching()) {
+			return null;
+		}
+
+		final var oppositePhase = switch (this.getPhase()) {
+		case SINGLE_PHASE -> Phase.SingleOrThreePhase.THREE_PHASE;
+		case THREE_PHASE -> Phase.SingleOrThreePhase.SINGLE_PHASE;
+		};
+
+		return new ApplySetPoint.Ability.Watt(oppositePhase,
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, this.config.minCurrent()),
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, this.config.maxCurrent()));
 	}
 
 	protected boolean supportsPhaseSwitching() {
