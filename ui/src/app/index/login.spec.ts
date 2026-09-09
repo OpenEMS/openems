@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { TestBed } from "@angular/core/testing";
 import { LoginComponent } from "./login.component";
 
@@ -23,7 +22,7 @@ describe("Login", () => {
         }
         {
             // Password is null
-            expect(LoginComponent.preprocessCredentials(null)).toEqual({ password: undefined });
+            expect(LoginComponent.preprocessCredentials(null)).toEqual({ password: "" });
         }
         {
             // Username is null
@@ -31,7 +30,7 @@ describe("Login", () => {
         }
         {
             // Username and password are null
-            expect(LoginComponent.preprocessCredentials(null, null)).toEqual({ password: undefined });
+            expect(LoginComponent.preprocessCredentials(null, null)).toEqual({ password: "" });
         }
         {
             // Username in Upper case

@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, ChangeDetectionStrategy, } from "@angular/core";
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -26,9 +25,9 @@ import { States } from "../shared/states/states";
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
-    public currentThemeMode: UserTheme;
+    public currentThemeMode!: UserTheme;
     public environment = environment;
-    public form: FormGroup;
+    public form!: FormGroup;
     protected formIsDisabled: boolean = false;
     protected popoverActive: "android" | "ios" | null = null;
     protected showPassword: boolean = false;
@@ -72,9 +71,9 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      * @param username The username
      * @returns Trimmed credentials
      */
-    public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
+    public static preprocessCredentials(password: string | null, username?: string | null): { password: string; username?: string } {
         return {
-            password: password?.trim(),
+            password: password?.trim() ?? "",
             ...(username && { username: username?.trim().toLowerCase() }),
         };
     }
@@ -85,7 +84,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
     async ionViewWillEnter() {
         // Execute Login-Request if url path matches 'demo'
-        if (this.route.snapshot.routeConfig.path == "demo") {
+        if (this.route.snapshot.routeConfig?.path == "demo") {
             await new Promise((resolve) =>
                 setTimeout(() => {
                     // Wait for Websocket

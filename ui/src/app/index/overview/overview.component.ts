@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, effect, model, OnDestroy, signal, ChangeDetectionStrategy, untracked } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
@@ -31,7 +30,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if the logged in user is allowed to install new edges. */
     public loggedInUserCanInstall = model<boolean>(false);
 
-    public form: FormGroup;
+    public form!: FormGroup;
     public filteredEdges = model<Edge[]>([]);
 
     protected loading = signal(false);
@@ -155,7 +154,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 return;
             }
 
-            const searchParamsObj = {};
+            const searchParamsObj: Record<string, unknown> = {};
             if (this.searchParams && this.searchParams.size > 0) {
                 for (const [key, value] of this.searchParams) {
                     searchParamsObj[key] = value;
@@ -174,7 +173,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
                     // TODO could be applied before calling getEdges
-                    if (!UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
+                    if (user != null && !UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
