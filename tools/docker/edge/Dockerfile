@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=21
+ARG JAVA_VERSION=25
 ARG JAVA_PACKAGE=jre
 
 ### Build edge binary
