@@ -14,7 +14,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.Blocker;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -88,7 +88,12 @@ public class JettyUtils {
 		response.getHeaders().put("Content-Type", "application/json");
 		response.setStatus(HttpStatus.OK_200);
 		var content = StandardCharsets.UTF_8.encode(data.toString());
-		response.write(true, content, Callback.NOOP);
+		try (var blocker = Blocker.callback()) {
+			response.write(true, content, blocker);
+			blocker.block();
+		} catch (Exception e) {
+			throw new OpenemsException("Failed to write response: " + e.getMessage());
+		}
 		return true;
 	}
 
@@ -112,7 +117,12 @@ public class JettyUtils {
 			message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
 		}
 		var content = StandardCharsets.UTF_8.encode(message.toString());
-		response.write(true, content, Callback.NOOP);
+		try (var blocker = Blocker.callback()) {
+			response.write(true, content, blocker);
+			blocker.block();
+		} catch (Exception e) {
+			// best-effort: already on error path, ignore to avoid cascading failures
+		}
 	}
 
 }
