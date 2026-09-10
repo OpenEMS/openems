@@ -1,0 +1,52 @@
+= io.openems.edge.meter.DSMR_Modbus
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.DSMR_Modbus[Source Code icon:github[]]
+
+This is an implementation of a DSMR compliant meter through its 'P1' port - converted with a generic modbus over TCP/IP converter. 
+
+DSMR = Dutch Smart Meter Requirements, of which all meters in the Netherlands are compliant to. This component instance is specifically aimed at meters complaint to v5.0, supporting fast updating.
+For more info DSMR see: 
+https://www.netbeheernederland.nl/sites/default/files/2024-02/dsmr_v4.2.3_final_main.pdf
+https://github.com/energietransitie/dsmr-info/tree/main
+
+A generic P1 to modbus over TCP IP converter is available from several vendors, most of them are ESP32 based. The only requirement is that the following Modbus table is used:
+
+|===
+|Modbus Adres	|  Measurement   				| Type 		| unit	| used in this component
+|0				| timestamp_epoch 				| uint32	| -		|	No
+|2				| energy_delivered_tariff1_kwh 	| uint32	| Wh	|	No
+|4				| energy_delivered_tariff2_kwh 	| uint32	| Wh	|	No
+|6				| energy_returned_tariff1_kwh 	| uint32	| Wh	|	No
+|8				| energy_returned_tariff2_kwh 	| uint32	| Wh	|	No
+|10				| energy_delivered_total_kwh 	| uint32	| Wh	|	No
+|12				| energy_returned_total_kwh 	| uint32	| Wh	|	No
+|14				| power_delivered_kw		 	| uint32	| W		|	No
+|16				| power_returned_kw			 	| uint32	| W		|	No
+|18				| voltage_l1_v				 	| uint32	| mV	|	Yes
+|20				| voltage_l2_v				 	| uint32	| mV	|	Yes
+|22				| voltage_l3_v				 	| uint32	| mV	|	Yes
+|24				| current_l1_a				 	| uint32	| mA	|	Yes
+|26				| current_l2_a				 	| uint32	| mA	|	Yes
+|28				| current_l3_a				 	| uint32	| mA	|	Yes
+|30				| gas_timestamp_epoch		 	| uint32	| -		|	No
+|32				| gas_delivered_m3			 	| uint32	| liter	|	No
+|34				| electricity_tariff		 	| uint32	| -		|	No
+|36				| peak_pwr_last_q_kw		 	| uint32	| W		|	No
+|38				| net_power_l1_kw			 	| int32		| W		|	Yes
+|40				| net_power_l2_kw			 	| int32		| W		|	Yes
+|42				| net_power_l3_kw			 	| int32		| W		|	Yes
+|44				| water_delivered_m3		 	| uint32	| liter	|	No
+|46				| p1_device_id				 	| uint32	| -		|	No
+|===
+
+For this to work, you install the generic Bridge Modbus/TCP and link it to this component. 
+The complete chain is thus:
+
+- Smart meter issued by Liander/Stedin/Enexis or other DSO
+- P1 to Modbus over TCP/IP converter
+
+In openEMS:
+- Bridge Modbus/TCP
+- DSMR_Modbus meter component.
+
+There are rumours that certain danish meters also use the P1 interface...
