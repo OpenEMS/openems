@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
@@ -6,7 +5,7 @@ import { Pipe, PipeTransform } from "@angular/core";
     standalone: false,
 })
 export class ClassnamePipe implements PipeTransform {
-    transform(value, args: string[]): any {
+    transform(value: string, args: string[]): string {
         const parts = value.split(".");
         return parts[parts.length - 1];
     }

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
@@ -6,7 +5,7 @@ import { Pipe, PipeTransform } from "@angular/core";
     standalone: false,
 })
 export class SignPipe implements PipeTransform {
-    transform(value, args: string[]): any {
+    transform(value: number, args: string[]): number {
         const positive = value * -1;
         return positive;
     }

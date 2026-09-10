@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
@@ -24,7 +23,7 @@ import { Edge } from "../../edge/edge";
     ],
 })
 export class PickDatePopoverComponent implements OnInit {
-    @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
+    @Input() public setDateRange!: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
 
@@ -121,10 +120,12 @@ export class PickDatePopoverComponent implements OnInit {
 
     ngOnInit() {
         this.locale = Language.getCurrentLanguage().key;
+        const firstSetupProtocol = this.edge?.firstSetupProtocol;
+        const dateInput = firstSetupProtocol === undefined ? NaN : firstSetupProtocol;
         // Restrict user to pick date before ibn-date
         this.myDpOptions.disableUntil = {
-            day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1,
-            month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1,
+            day: Utils.subtractSafely(getDate(dateInput), 1) ?? 1,
+            month: Utils.addSafely(getMonth(dateInput), 1) ?? 1,
             year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013,
         };
 

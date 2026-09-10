@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
@@ -6,9 +5,9 @@ import { Pipe, PipeTransform } from "@angular/core";
     standalone: false,
 })
 export class KeysPipe implements PipeTransform {
-    transform(value, args: string[]): any {
+    transform<T>(value: Record<string, T> | null | undefined, args: string[]): { key: string; value: T }[] | null | undefined {
         if (!value) {
-            return value;
+            return value as null | undefined;
         }
 
         const keys = [];
