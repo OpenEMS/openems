@@ -18,6 +18,7 @@ import static java.util.Arrays.stream;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -83,16 +84,27 @@ public final class UtilsV1 {
 			ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) throws InvalidValueException {
 		final var time = roundDownToQuarter(ZonedDateTime.now());
 
-		// Prediction values
-		final var predictionConsumption = joinConsumptionPredictions(4, //
-				globalContext.predictorManager().getPrediction(SUM_CONSUMPTION).asArray(), //
-				globalContext.predictorManager().getPrediction(SUM_UNMANAGED_CONSUMPTION).asArray());
-		final var predictionProduction = generateProductionPrediction(//
-				globalContext.predictorManager().getPrediction(SUM_PRODUCTION).asArray(), //
-				predictionConsumption.length);
+		final var predictionManager = globalContext.predictorManager();
+		final var predictionCons = predictionManager.getPrediction(SUM_CONSUMPTION);
+		final var predictionUnmanagedCons = predictionManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
+		final var predictionProd = predictionManager.getPrediction(SUM_PRODUCTION);
+
+		final var consumptionValues = joinConsumptionPredictions(4, //
+				predictionCons.getBetweenInclusive(time.toInstant(), predictionCons.getLastTime())//
+						.toArray(Integer[]::new), //
+				predictionUnmanagedCons.getBetweenInclusive(time.toInstant(), predictionUnmanagedCons.getLastTime())//
+						.toArray(Integer[]::new));
+
+		final var productionValues = generateProductionPrediction(//
+				predictionProd.getBetweenInclusive(time.toInstant(), predictionProd.getLastTime())//
+						.toArray(Integer[]::new), //
+				consumptionValues.length);
 
 		// Prices contains the price values and the time it is retrieved.
 		final var prices = globalContext.timeOfUseTariff().getPrices();
+		final var priceValues = prices.getBetweenInclusive(time.toInstant(), prices.getLastTime())//
+				.map(Entry::getValue) //
+				.toArray(Double[]::new);
 
 		// Ess information.
 		var context = globalContext.energyScheduleHandler().getContext();
@@ -117,11 +129,11 @@ public final class UtilsV1 {
 				.setEssMaxChargeEnergy(toEnergy(maxChargePower)) //
 				.setEssMaxDischargeEnergy(toEnergy(maxDischargePower)) //
 				.setMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
-				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
-				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
+				.setProductions(stream(interpolateArray(productionValues)).map(v -> toEnergy(v)).toArray()) //
+				.setConsumptions(stream(interpolateArray(consumptionValues)).map(v -> toEnergy(v)).toArray()) //
 				// DANGER: setPrices() won't work correctly if there are missing prices.
 				// asArray() is not returning null values
-				.setPrices(interpolateDoubleArray(prices.asArray())) //
+				.setPrices(interpolateDoubleArray(priceValues)) //
 				.setStates(context.controlMode().modesArray) //
 				.setExistingSchedule(existingSchedule) //
 				.build();
