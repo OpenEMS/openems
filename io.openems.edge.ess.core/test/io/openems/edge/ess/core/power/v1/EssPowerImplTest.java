@@ -977,7 +977,7 @@ public class EssPowerImplTest {
 	}
 
 	/**
-	 * Cluster child unbind and rebind keeps the remaining ESS solvable.
+	 * Removing the Ess and adding the ess.
 	 */
 	@Test
 	public void testClusterWithOneSubEssDeactivated() throws Exception {
