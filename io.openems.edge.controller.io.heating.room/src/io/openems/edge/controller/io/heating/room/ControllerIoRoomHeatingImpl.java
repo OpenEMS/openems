@@ -51,9 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 @GenerateTargetsFromReferences({ //
 		"floorThermometer", //
-		"ambientThermometer", //
-		"floorRelayComponents", //
-		"infraredRelayComponents" //
+		"ambientThermometer" //
 })
 public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implements ControllerIoRoomHeating,
 		Controller, ElectricityMeter, OpenemsComponent, ComponentJsonApi, TimedataProvider {
@@ -81,12 +79,10 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 			target = "(&(id=${config.ambientThermometer_id})(enabled=true))")
 	private Thermometer ambientThermometer;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
-			target = "(&(id=${config.floorRelayComponent_ids})(enabled=true))")
+	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private List<DigitalOutput> floorRelayComponents;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
-			target = "(&(id=${config.infraredRelayComponent_ids})(enabled=true))")
+	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private List<DigitalOutput> infraredRelayComponents;
 
 	private Config config = null;
@@ -202,7 +198,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Gets the {@link ActualMode} from the Schedule.
-	 * 
+	 *
 	 * @return the {@link ActualMode}
 	 */
 	protected synchronized ActualMode getActualModeFromSchedule() {
@@ -218,7 +214,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Switch the Floor Heating Relays.
-	 * 
+	 *
 	 * @param target the {@link Switch} target
 	 */
 	private void switchFloorRelays(Switch target) {
@@ -230,7 +226,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Switch the Infrared Heating Relays.
-	 * 
+	 *
 	 * @param target the {@link Switch} target
 	 */
 	private void switchInfraredRelays(Switch target) {
@@ -246,7 +242,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 	/**
 	 * Switches Relays ON or OFF. Does not switch faster than MINIMUM_SWITCHING_TIME
 	 * and does not set the command if the Relay is already in correct state.
-	 * 
+	 *
 	 * @param channels       the Relay channels
 	 * @param lastRelayState the matching {@link RelayState} information object
 	 * @param target         the {@link Switch} target
@@ -278,7 +274,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Gets the Floor Heating Relay Channels.
-	 * 
+	 *
 	 * @return a list of {@link BooleanWriteChannel}s
 	 */
 	private List<WriteChannel<Boolean>> getFloorRelayChannels() {
@@ -287,7 +283,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Gets the Infrared Heating Relay Channels.
-	 * 
+	 *
 	 * @return a list of {@link BooleanWriteChannel}s
 	 */
 	private List<WriteChannel<Boolean>> getInfraredRelayChannels() {
@@ -296,7 +292,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	/**
 	 * Gets the Relay Channels from addresses.
-	 * 
+	 *
 	 * @param components the {@link DigitalOutput} components
 	 * @param addresses  the {@link ChannelAddress}es of the Relays
 	 * @return a list of relay channels
@@ -363,8 +359,8 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 	}
 
 	/**
-	 * Applies the Configuration.
-	 * 
+	 * Applies the Configuration and updates relay reference target filters.
+	 *
 	 * @param config the {@link Config}
 	 * @throws OpenemsNamedException on error
 	 */
@@ -382,6 +378,8 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 			}
 			this.floorRelays.add(ChannelAddress.fromString(channel));
 		}
+		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "floorRelayComponents",
+				this.floorRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 
 		this.infraredRelays.clear();
 		for (String channel : config.infraredRelays()) {
@@ -390,6 +388,8 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 			}
 			this.infraredRelays.add(ChannelAddress.fromString(channel));
 		}
+		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "infraredRelayComponents",
+				this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 
 		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule());
 	}
