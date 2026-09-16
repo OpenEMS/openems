@@ -78,30 +78,70 @@ public class Data {
 
 		this.inverters.clear();
 
-		// Create inverters and add them to list; skip MetaEss wrappers (e.g.
-		// EssCluster) as they have no physical inverter of their own
+		var hasCluster = false;
+		for (ManagedSymmetricEss ess : esss) {
+			if (ess instanceof MetaEss) {
+				hasCluster = true;
+				break;
+			}
+		}
+
+		Set<String> essIds = new HashSet<>();
+		if (hasCluster) {
+			this.collectClusterInvertersAndIds(esss, essIds);
+		} else {
+			this.collectIndividualInvertersAndIds(esss, essIds);
+		}
+		this.coefficients.initialize(this.symmetricMode, essIds);
+
+		WeightsUtil.updateWeightsFromSoc(this.inverters, esss);
+		WeightsUtil.sortByWeights(this.inverters);
+	}
+
+	/**
+	 * No cluster: every live ESS is physical. Inverter and column from ess.id().
+	 *
+	 * @param esss   live ESS bound to Ess-Power
+	 * @param essIds IDs to register as coefficient columns
+	 */
+	private void collectIndividualInvertersAndIds(List<ManagedSymmetricEss> esss, Set<String> essIds) {
+		for (ManagedSymmetricEss ess : esss) {
+			essIds.add(ess.id());
+			this.addInverter(ess);
+		}
+	}
+
+	/**
+	 * Cluster present: inverters only for live cluster children. Columns for the
+	 * cluster plus those inverters. Disabled config children and live non-children
+	 * get neither.
+	 *
+	 * @param esss   live ESS bound to Ess-Power
+	 * @param essIds IDs to register as coefficient columns
+	 */
+	private void collectClusterInvertersAndIds(List<ManagedSymmetricEss> esss, Set<String> essIds) {
+		Set<String> childIds = new HashSet<>();
+		for (ManagedSymmetricEss ess : esss) {
+			if (ess instanceof MetaEss me) {
+				essIds.add(ess.id());
+				Collections.addAll(childIds, me.getEssIds());
+			}
+		}
 		for (ManagedSymmetricEss ess : esss) {
 			if (ess instanceof MetaEss) {
 				continue;
 			}
-			var essType = EssType.getEssType(ess);
-			Collections.addAll(this.inverters, Inverter.of(this.symmetricMode, ess, essType));
-		}
-
-		// Re-Initialize Coefficients; also register member IDs of MetaEss wrappers so
-		// that MetaEss constraints (e.g. cluster = ess0 + ess1) can be created
-		Set<String> essIds = new HashSet<>();
-		for (ManagedSymmetricEss ess : esss) {
-			essIds.add(ess.id());
-			if (ess instanceof MetaEss me) {
-				Collections.addAll(essIds, me.getEssIds());
+			if (!childIds.contains(ess.id())) {
+				continue;
 			}
+			essIds.add(ess.id());
+			this.addInverter(ess);
 		}
-		this.coefficients.initialize(this.symmetricMode, essIds);
+	}
 
-		// Initially sort Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, esss);
-		WeightsUtil.sortByWeights(this.inverters);
+	private void addInverter(ManagedSymmetricEss ess) {
+		var essType = EssType.getEssType(ess);
+		Collections.addAll(this.inverters, Inverter.of(this.symmetricMode, ess, essType));
 	}
 
 	protected synchronized void initializeCycle() {

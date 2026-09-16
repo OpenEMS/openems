@@ -67,10 +67,8 @@ public class DataTest {
 	}
 
 	/**
-	 * Verifies that member ESS IDs of a MetaEss are registered in the Coefficients
-	 * even when only the cluster itself is listed in esss. This is the core of
-	 * issue #3752: createMetaEssConstraints() requires member IDs in the
-	 * coefficient set to build the cluster = ess0 + ess1 constraint.
+	 * Columns exist only for the live cluster plus live children. Config children
+	 * that are not bound do not get columns.
 	 */
 	@Test
 	public void testMemberCoefficientsRegisteredWhenOnlyClusterInEsss() {
@@ -79,14 +77,30 @@ public class DataTest {
 		var ess2 = new DummyManagedSymmetricEss("ess2").setPower(powerComponent);
 		var cluster = new DummyMetaEss("essCluster0", ess1, ess2).setPower(powerComponent);
 
-		// Only the cluster in esss — mirrors the real OSGi scenario where members may
-		// not be collected before the cluster processes its cycle
 		var clusterOnly = Lists.<ManagedSymmetricEss>newArrayList(cluster);
 		var clusterData = new Data(() -> clusterOnly);
 		clusterData.setSymmetricMode(true);
 
-		// Expected: coefficients for essCluster0, ess1, ess2 = 3 IDs × 2 pwr = 6
-		assertEquals(3 * 2, clusterData.getCoefficients().getNoOfCoefficients());
+		assertEquals(1 * 2, clusterData.getCoefficients().getNoOfCoefficients());
+	}
+
+	/**
+	 * A live ESS that is not a cluster child gets no inverter when a MetaEss is
+	 * present.
+	 */
+	@Test
+	public void testNoInverterForStandaloneWhenClusterPresent() {
+		EssPower powerComponent = new EssPowerImpl();
+		var ess1 = new DummyManagedSymmetricEss("ess1").setPower(powerComponent);
+		var ess2 = new DummyManagedSymmetricEss("ess2").setPower(powerComponent);
+		var ess3 = new DummyManagedSymmetricEss("ess3").setPower(powerComponent);
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2).setPower(powerComponent);
+		var mixed = Lists.<ManagedSymmetricEss>newArrayList(ess0, ess1, ess2, ess3);
+		var mixedData = new Data(() -> mixed);
+		mixedData.setSymmetricMode(true);
+
+		assertEquals(2, mixedData.getInverters().size());
+		assertEquals(3 * 2, mixedData.getCoefficients().getNoOfCoefficients());
 	}
 
 	/**
