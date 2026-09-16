@@ -182,13 +182,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.hasExternalAmbientHeating;
 	}
 
-	@Override
-	public String floorRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.floorRelays());
-	}
-
-	@Override
-	public String infraredRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.infraredRelays());
-	}
 }

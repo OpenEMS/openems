@@ -51,7 +51,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 @GenerateTargetsFromReferences({ //
 		"floorThermometer", //
-		"ambientThermometer" //
+		"ambientThermometer", //
+		"floorRelayComponents", //
+		"infraredRelayComponents" //
 })
 public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implements ControllerIoRoomHeating,
 		Controller, ElectricityMeter, OpenemsComponent, ComponentJsonApi, TimedataProvider {
@@ -79,10 +81,12 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 			target = "(&(id=${config.ambientThermometer_id})(enabled=true))")
 	private Thermometer ambientThermometer;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.floorRelays;componentIdFromChannel})(enabled=true))")
 	private List<DigitalOutput> floorRelayComponents;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			target = "(&(id=${config.infraredRelays;componentIdFromChannel})(enabled=true))")
 	private List<DigitalOutput> infraredRelayComponents;
 
 	private Config config = null;
@@ -359,7 +363,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 	}
 
 	/**
-	 * Applies the Configuration and updates relay reference target filters.
+	 * Applies the Configuration and updates reference target filters.
 	 *
 	 * @param config the {@link Config}
 	 * @throws OpenemsNamedException on error
@@ -371,25 +375,28 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 		this.lastFloorRelayState = null;
 		this.lastInfraredRelayState = null;
 
-		this.floorRelays.clear();
-		for (String channel : config.floorRelays()) {
-			if (channel.isEmpty()) {
-				continue;
-			}
-			this.floorRelays.add(ChannelAddress.fromString(channel));
-		}
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "floorRelayComponents",
-				this.floorRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 
-		this.infraredRelays.clear();
-		for (String channel : config.infraredRelays()) {
-			if (channel.isEmpty()) {
-				continue;
+		// Parse Channel-Addresses
+		{
+			this.floorRelays.clear();
+			for (String channel : config.floorRelays()) {
+				if (channel.isEmpty()) {
+					continue;
+				}
+				var address = ChannelAddress.fromString(channel);
+				this.floorRelays.add(address);
 			}
-			this.infraredRelays.add(ChannelAddress.fromString(channel));
 		}
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "infraredRelayComponents",
-				this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
+		{
+			this.infraredRelays.clear();
+			for (String channel : config.infraredRelays()) {
+				if (channel.isEmpty()) {
+					continue;
+				}
+				var address = ChannelAddress.fromString(channel);
+				this.infraredRelays.add(address);
+			}
+		}
 
 		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule());
 	}
