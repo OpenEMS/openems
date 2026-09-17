@@ -1,5 +1,6 @@
 package io.openems.edge.fronius.gen24.batteryinverter;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
@@ -15,6 +16,8 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.fronius.enums.SetControlMode;
 import io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcCharger;
@@ -22,7 +25,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public interface BatteryInverterFroniusGen24
 		extends HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
-		StartStoppable, ModbusComponent, ManagedSymmetricPvInverter, OpenemsComponent {
+		StartStoppable, ModbusComponent, ManagedSymmetricPvInverter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -209,6 +212,17 @@ public interface BatteryInverterFroniusGen24
 	 * @param charger the Charger
 	 */
 	public void removeCharger(FroniusGen24DcCharger charger);
+
+	@Override
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode) //
+		);
+	}
 
 	// -------------------------------------------------------------------------
 	// Conflict resolution: ManagedSymmetricPvInverter vs SymmetricBatteryInverter
