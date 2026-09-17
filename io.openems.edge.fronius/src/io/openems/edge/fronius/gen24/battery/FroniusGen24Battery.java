@@ -5,15 +5,19 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.fronius.enums.BatteryState;
 import io.openems.edge.fronius.enums.SetControlMode;
 
-public interface FroniusGen24Battery extends OpenemsComponent {
+public interface FroniusGen24Battery extends OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -145,4 +149,12 @@ public interface FroniusGen24Battery extends OpenemsComponent {
 		return this.channel(ChannelId.DEBUG_INVERTER_STATE);
 	}
 
+	@Override
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				Battery.getModbusSlaveNatureTable(accessMode), //
+				StartStoppable.getModbusSlaveNatureTable(accessMode) //
+		);
+	}
 }
