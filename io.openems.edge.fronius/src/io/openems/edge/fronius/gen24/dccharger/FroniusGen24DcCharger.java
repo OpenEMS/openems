@@ -1,14 +1,17 @@
 package io.openems.edge.fronius.gen24.dccharger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent {
+public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -84,5 +87,13 @@ public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent {
 	 */
 	public default void _setOperatingState(DefaultSunSpecModel.S103_St value) {
 		this.getOperatingStateChannel().setNextValue(value);
+	}
+
+	@Override
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				EssDcCharger.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }
