@@ -1,3 +1,11 @@
-= Sungrow
+= Sungrow Energy Storage System and PV-Inverter
+
+Support for
+
+- Sungrow SH10RT Hybrid Ess (`Ess.Sungrow`); including
+  - DC-Chargers (`Ess.Sungrow.DcCharger`)
+  - Grid-Meter (`Ess.Sungrow.Gridmeter`)
+
+- Sungrow PV-Inverter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.sungrow[Source Code icon:github[]]
