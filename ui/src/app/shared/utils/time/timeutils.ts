@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { DecimalPipe } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
@@ -14,7 +13,7 @@ export class TimeUtils {
    * @param value the value
    * @returns a time string with hours and minutes
    */
-    public static formatSecondsToDuration(value: number, locale: string): string {
+    public static formatSecondsToDuration(value: number | null | undefined, locale: string | null | undefined): string | null {
 
         if (value === null || value === undefined) {
             return null;
@@ -38,7 +37,7 @@ export class TimeUtils {
    * @param seconds the value
    * @returns a time string with hours and minutes
    */
-    public static formatSecondsToRelevantDuration(seconds: number, threshold: number, locale: string): string {
+    public static formatSecondsToRelevantDuration(seconds: number | null | undefined, threshold: number, locale: string): string | null {
 
         if (seconds == null) {
             return null;
@@ -92,7 +91,7 @@ export class TimeUtils {
             return value === key ? "" : value;
         };
 
-        return (raw: number): string => {
+        return (raw: number | null | undefined): string => {
             return Converter.IF_NUMBER(raw, (value) => {
                 const date = new Date();
                 date.setHours(0, 0, 0, 0);
