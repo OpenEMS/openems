@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.fronius.enums.BatteryState;
@@ -154,7 +155,8 @@ public interface FroniusGen24Battery extends OpenemsComponent, ModbusSlave {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode), //
-				StartStoppable.getModbusSlaveNatureTable(accessMode) //
-		);
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(FroniusGen24Battery.class, accessMode, 100) //
+						.build());
 	}
 }

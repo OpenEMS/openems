@@ -17,6 +17,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.fronius.enums.SetControlMode;
@@ -220,8 +221,9 @@ public interface BatteryInverterFroniusGen24
 				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
 				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode) //
-		);
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BatteryInverterFroniusGen24.class, accessMode, 100) //
+						.build());
 	}
 
 	// -------------------------------------------------------------------------

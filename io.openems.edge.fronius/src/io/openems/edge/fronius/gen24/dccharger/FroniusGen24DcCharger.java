@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
@@ -93,7 +94,8 @@ public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent, M
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				EssDcCharger.getModbusSlaveNatureTable(accessMode) //
-		);
+				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(FroniusGen24DcCharger.class, accessMode, 100) //
+						.build());
 	}
 }
