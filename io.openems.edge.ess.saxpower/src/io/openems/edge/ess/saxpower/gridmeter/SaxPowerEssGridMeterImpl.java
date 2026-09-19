@@ -6,6 +6,7 @@ import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -14,9 +15,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.saxpower.AddressList;
-import io.openems.edge.ess.saxpower.ApplyScaleFactor;
-import io.openems.edge.ess.saxpower.CheckScaleFactorMap;
 import io.openems.edge.meter.api.ElectricityMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -40,12 +38,6 @@ import org.osgi.service.metatype.annotations.Designate;
 public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         implements SaxPowerEssGridMeter, ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
-    private final int gridPowerAddress = AddressList.GRID_POWER.getAddress();
-    private final int gridPowerL1Address = AddressList.GRID_POWER_L1.getAddress();
-    private final int gridPowerL2Address = AddressList.GRID_POWER_L2.getAddress();
-    private final int gridPowerL3Address = AddressList.GRID_POWER_L3.getAddress();
-    private final int gridPowerScaleFactorAddress = AddressList.GRID_POWER_SCALE_FACTOR.getAddress();
-
     @Reference
     private ConfigurationAdmin cm;
 
@@ -61,8 +53,6 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
     protected void setModbus(BridgeModbus modbus) {
         super.setModbus(modbus);
     }
-
-    private final SignedWordElement gridPowerScaleFactor = new SignedWordElement(this.gridPowerScaleFactorAddress);
 
     public SaxPowerEssGridMeterImpl() {
         super(//
@@ -94,18 +84,14 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         super.deactivate();
     }
 
-    private final ApplyScaleFactor applyScaleFactor = new ApplyScaleFactor();
-    private final CheckScaleFactorMap checkScaleFactorMap = new CheckScaleFactorMap();
-
     @Override
     protected ModbusProtocol defineModbusProtocol() {
         return new ModbusProtocol(this,
-                new FC3ReadRegistersTask(this.gridPowerAddress, Priority.HIGH, //
-                        m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(this.gridPowerAddress), this.applyScaleFactor.createScalingConverter(this.gridPowerAddress, -1)), //
-                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(this.gridPowerL1Address), this.applyScaleFactor.createScalingConverter(this.gridPowerL1Address, -1)), //
-                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(this.gridPowerL2Address), this.applyScaleFactor.createScalingConverter(this.gridPowerL2Address, -1)), //
-                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(this.gridPowerL3Address), this.applyScaleFactor.createScalingConverter(this.gridPowerL3Address, -1)), //
-                        m(SaxPowerEssGridMeter.ChannelId.GRID_POWER_SCALE_FACTOR, this.gridPowerScaleFactor, this.checkScaleFactorMap.getValue(this.gridPowerScaleFactorAddress))
+                new FC3ReadRegistersTask(40072, Priority.HIGH, //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(40072), ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(40073), ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(40074), ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT), //
+                        m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(40075), ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT)
                 )
         );
     }

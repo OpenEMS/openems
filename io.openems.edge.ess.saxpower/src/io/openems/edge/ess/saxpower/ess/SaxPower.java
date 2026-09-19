@@ -45,11 +45,6 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
                 .accessMode(AccessMode.READ_WRITE)
         ),
 
-        //Address 40052
-        SCALE_FACTOR_POWER_TARGET(Doc.of(OpenemsType.INTEGER)
-                .accessMode(AccessMode.READ_ONLY)
-        ),
-
         //Address 40053
         REFERENCE_MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER)
                 .accessMode(AccessMode.READ_ONLY)
@@ -66,21 +61,6 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
         MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)
                 .accessMode(AccessMode.READ_ONLY)
                 .unit(Unit.WATT)
-        ),
-
-        //4110
-        CAPACITY_SCALE_FACTOR(Doc.of(OpenemsType.INTEGER)
-                .accessMode(AccessMode.READ_ONLY)
-        ),
-
-        //4111
-        CHARGE_DISCHARGE_SCALE_FACTOR(Doc.of(OpenemsType.INTEGER)
-                .accessMode(AccessMode.READ_ONLY)
-        ),
-
-        //4112
-        SOC_SCALE_FACTOR(Doc.of(OpenemsType.INTEGER)
-                .accessMode(AccessMode.READ_ONLY)
         );
 
         private final Doc doc;

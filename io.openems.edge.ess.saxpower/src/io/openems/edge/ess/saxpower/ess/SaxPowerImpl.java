@@ -5,6 +5,7 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -26,9 +27,6 @@ import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.common.sum.GridMode;
-import io.openems.edge.ess.saxpower.AddressList;
-import io.openems.edge.ess.saxpower.ApplyScaleFactor;
-import io.openems.edge.ess.saxpower.CheckScaleFactorMap;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,27 +53,6 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         implements SaxPower, ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusComponent, ModbusSlave {
 
     private static final int MAX_APPARENT_POWER = 4600; //230V * 20A
-
-
-    private final int powerAddress = AddressList.BATTERY_POWER.getAddress();
-    private final int powerScaleFactor = AddressList.BATTERY_POWER_SCALE_FACTOR.getAddress();
-
-    private final int powerTarget =  AddressList.BATTERY_POWER_TARGET.getAddress();
-    private final int timeout = AddressList.TIMEOUT.getAddress();
-    private final int controlMode = AddressList.CONTROL_MODE.getAddress();
-    private final int scaleFactorPowerTarget = AddressList.BATTERY_POWER_TARGET_SCALE_FACTOR.getAddress();
-    private final int maxPowerReference = AddressList.BATTERY_MAX_POWER_REFERENCE.getAddress();
-
-    private final int capacity = AddressList.CAPACITY.getAddress();
-    private final int capacityScaleFactor = AddressList.CAPACITY_SCALE_FACTOR.getAddress();
-
-    private final int maxChargePower = AddressList.CHARGE_POWER.getAddress();
-    private final int maxDischargePower = AddressList.DISCHARGE_POWER.getAddress();
-    private final int chargeDischargePowerScaleFactor = AddressList.CHARGE_DISCHARGE_POWER_SCALE_FACTOR.getAddress();
-
-    private final int currentSoc = AddressList.CURRENT_SOC.getAddress();
-    private final int socScaleFactor = AddressList.SOC_SCALE_FACTOR.getAddress();
-
 
     @Reference
     private ConfigurationAdmin cm;
@@ -143,38 +120,29 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     protected void deactivate() {
         super.deactivate();
     }
-
-    private final ApplyScaleFactor applyScaleFactor = new ApplyScaleFactor();
-    private final CheckScaleFactorMap checkScaleFactorMap = new CheckScaleFactorMap();
-
     @Override
     protected ModbusProtocol defineModbusProtocol() {
         return new ModbusProtocol(this,
-                new FC3ReadRegistersTask(this.powerAddress, Priority.HIGH,
-                        m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(this.powerAddress), this.applyScaleFactor.createScalingConverter(this.powerAddress, 1)),
-                        m(SaxPower.ChannelId.POWER_SCALE_FACTOR, new SignedWordElement(this.powerScaleFactor), this.checkScaleFactorMap.getValue(this.powerScaleFactor)),
-                        new DummyRegisterElement(40031,40048),
-                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(this.powerTarget), this.applyScaleFactor.createScalingConverter(this.powerTarget, 1)),
-                        m(SaxPower.ChannelId.TIMEOUT, new UnsignedWordElement(this.timeout)),
-                        m(SaxPower.ChannelId.CONTROL_MODE,  new UnsignedWordElement(this.controlMode)),
-                        m(SaxPower.ChannelId.SCALE_FACTOR_POWER_TARGET, new SignedWordElement(this.scaleFactorPowerTarget)),
-                        m(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, new UnsignedWordElement(this.maxPowerReference)),
+                new FC3ReadRegistersTask(40029, Priority.HIGH,
+                        m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(40029)),
+                        new DummyRegisterElement(40030,40048),
+                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(40049), ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+                        m(SaxPower.ChannelId.TIMEOUT, new UnsignedWordElement(40050)),
+                        m(SaxPower.ChannelId.CONTROL_MODE,  new UnsignedWordElement(40051)),
+                        new DummyRegisterElement(40052,40052),
+                        m(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, new UnsignedWordElement(40053)),
                         new DummyRegisterElement(40054, 40096),
-                        m(SymmetricEss.ChannelId.CAPACITY, new SignedWordElement(this.capacity), this.applyScaleFactor.createScalingConverter(this.capacity, 1)),
-                        m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(this.maxChargePower), this.applyScaleFactor.createScalingConverter(this.maxChargePower, -1)),
-                        m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(this.maxDischargePower), this.applyScaleFactor.createScalingConverter(this.maxDischargePower, 1)),
+                        m(SymmetricEss.ChannelId.CAPACITY, new SignedWordElement(40097)),
+                        m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(40098), ElementToChannelConverter.INVERT),
+                        m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(40099)),
                         new DummyRegisterElement(40100, 40101),
-                        m(SymmetricEss.ChannelId.SOC, new SignedWordElement(this.currentSoc), this.applyScaleFactor.createScalingConverter(this.currentSoc, 1)),
-                        new DummyRegisterElement(40103, 40109),
-                        m(SaxPower.ChannelId.CAPACITY_SCALE_FACTOR, new SignedWordElement(this.capacityScaleFactor), this.checkScaleFactorMap.getValue(this.capacityScaleFactor)),
-                        m(SaxPower.ChannelId.CHARGE_DISCHARGE_SCALE_FACTOR, new SignedWordElement(this.chargeDischargePowerScaleFactor), this.checkScaleFactorMap.getValue(this.chargeDischargePowerScaleFactor)),
-                        m(SaxPower.ChannelId.SOC_SCALE_FACTOR, new SignedWordElement(this.socScaleFactor), this.checkScaleFactorMap.getValue(this.socScaleFactor))
+                        m(SymmetricEss.ChannelId.SOC, new SignedWordElement(40102))
                 ),
 
-                new FC16WriteRegistersTask(this.powerTarget,
-                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(this.powerTarget)),
-                        m(SaxPower.ChannelId.TIMEOUT, new UnsignedWordElement(this.timeout)),
-                        m(SaxPower.ChannelId.CONTROL_MODE, new UnsignedWordElement(this.controlMode))
+                new FC16WriteRegistersTask(40049,
+                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(40049)),
+                        m(SaxPower.ChannelId.TIMEOUT, new UnsignedWordElement(40050)),
+                        m(SaxPower.ChannelId.CONTROL_MODE, new UnsignedWordElement(40051))
                 )
         );
     }
