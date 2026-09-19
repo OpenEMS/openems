@@ -6,101 +6,101 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-    protected static class Builder {
-        private String id;
-        private String alias = "";
-        private boolean enabled = true;
-        private String modbusId;
-        private int modbusUnitId;
-        private SinglePhase phase = SinglePhase.L1;
-        private int timeout;
+	protected static class Builder {
+		private String id;
+		private String alias = "";
+		private boolean enabled = true;
+		private String modbusId;
+		private int modbusUnitId;
+		private SinglePhase phase = SinglePhase.L1;
+		private int timeout;
 
-        private Builder() {
-        }
+		private Builder() {
+		}
 
-        public Builder setId(String id) {
-            this.id = id;
-            return this;
-        }
+		public Builder setId(String id) {
+			this.id = id;
+			return this;
+		}
 
-        public Builder setAlias(String alias) {
-            this.alias = alias;
-            return this;
-        }
+		public Builder setAlias(String alias) {
+			this.alias = alias;
+			return this;
+		}
 
-        public Builder setEnabled(boolean enabled) {
-            this.enabled = enabled;
-            return this;
-        }
+		public Builder setEnabled(boolean enabled) {
+			this.enabled = enabled;
+			return this;
+		}
 
-        public Builder setModbusId(String modbusId) {
-            this.modbusId = modbusId;
-            return this;
-        }
+		public Builder setModbusId(String modbusId) {
+			this.modbusId = modbusId;
+			return this;
+		}
 
-        public Builder setModbusUnitId(int modbusUnitId) {
-            this.modbusUnitId = modbusUnitId;
-            return this;
-        }
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
 
-        public Builder setPhase(SinglePhase phase) {
-            this.phase = phase;
-            return this;
-        }
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
+			return this;
+		}
 
-        public Builder setTimeout(int timeout) {
-            this.timeout = timeout;
-            return this;
-        }
+		public Builder setTimeout(int timeout) {
+			this.timeout = timeout;
+			return this;
+		}
 
-        public MyConfig build() {
-            return new MyConfig(this);
-        }
-    }
+		public MyConfig build() {
+			return new MyConfig(this);
+		}
+	}
 
-    /**
-     * Create a Config builder.
-     *
-     * @return a {@link Builder}
-     */
-    public static Builder create() {
-        return new Builder();
-    }
+	/**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
+	public static Builder create() {
+		return new Builder();
+	}
 
-    private final Builder builder;
+	private final Builder builder;
 
-    private MyConfig(Builder builder) {
-        super(Config.class, builder.id);
-        this.builder = builder;
-    }
+	private MyConfig(Builder builder) {
+		super(Config.class, builder.id);
+		this.builder = builder;
+	}
 
-    @Override
-    public String alias() {
-        return this.builder.alias;
-    }
+	@Override
+	public String alias() {
+		return this.builder.alias;
+	}
 
-    @Override
-    public boolean enabled() {
-        return this.builder.enabled;
-    }
+	@Override
+	public boolean enabled() {
+		return this.builder.enabled;
+	}
 
-    @Override
-    public String modbus_id() {
-        return this.builder.modbusId;
-    }
+	@Override
+	public String modbus_id() {
+		return this.builder.modbusId;
+	}
 
-    @Override
-    public int modbusUnitId() {
-        return this.builder.modbusUnitId;
-    }
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
+	}
 
-    @Override
-    public SinglePhase phase() {
-        return this.builder.phase;
-    }
+	@Override
+	public SinglePhase phase() {
+		return this.builder.phase;
+	}
 
-    @Override
-    public int timeout() {
-        return this.builder.timeout;
-    }
+	@Override
+	public int timeout() {
+		return this.builder.timeout;
+	}
 }
