@@ -320,6 +320,15 @@ public interface SymmetricEss extends OpenemsComponent {
 	public default GridMode getGridMode() {
 		return this.getGridModeChannel().value().asEnum();
 	}
+	
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGridMode(GridMode value) {
+		this.getGridModeChannel().setNextValue(value);
+	}
 
 	/**
 	 * Returns true if {@link GridMode} is {@link GridMode#ON_GRID} or
