@@ -1,20 +1,19 @@
 package io.openems.edge.sungrow.meter;
 
-import static io.openems.edge.meter.api.ElectricityMeter.calculatePhasesFromActivePower;
-import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateCurrentsFromActivePowerAndVoltage;
+import static io.openems.edge.meter.api.ElectricityMeter.calculatePhasesFromActivePower;
+import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -38,10 +37,9 @@ public class SungrowGridMeterImpl extends AbstractOpenemsComponent
 
 	protected Config config = null;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private EssSungrow ess;
 
 	public SungrowGridMeterImpl() {
@@ -66,11 +64,6 @@ public class SungrowGridMeterImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsException, OpenemsNamedException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-
 		this.mapChannelValues();
 	}
 

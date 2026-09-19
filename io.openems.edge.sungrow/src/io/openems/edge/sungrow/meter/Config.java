@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Ess Sungrow Grid Meter", //
+		name = "ESS Sungrow Grid Meter", //
 		description = "Implements grid meter from Sungrow Hybrid ESS.")
 @interface Config {
 
@@ -20,6 +20,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "ESS-ID", description = "ID of the Sungrow Ess Component.")
 	String ess_id() default "ess0";
 
-	String webconsole_configurationFactory_nameHint() default "Ess Sungrow Grid Meter [{id}]";
+	String webconsole_configurationFactory_nameHint() default "ESS Sungrow Grid Meter [{id}]";
 
 }

@@ -7,7 +7,8 @@ import io.openems.edge.sungrow.ess.enums.ControlMode;
 import io.openems.edge.sungrow.ess.enums.EmsMode;
 
 /**
- * Handler to apply the set active power to the Sungrow ESS depending on the configured {@link ControlMode}.
+ * Handler to apply the set active power to the Sungrow ESS depending on the
+ * configured {@link ControlMode}.
  */
 public class ApplyPowerHandler {
 

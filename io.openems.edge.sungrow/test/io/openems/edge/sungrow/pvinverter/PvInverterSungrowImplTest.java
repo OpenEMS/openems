@@ -1,27 +1,24 @@
 package io.openems.edge.sungrow.pvinverter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.common.test.DummyConfigurationAdmin;
 
 public class PvInverterSungrowImplTest {
-
-	private static final String PV_INVERTER_ID = "pvInverter0";
-	private static final String MODBUS_ID = "modbus0";
 
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new PvInverterSungrowImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(PV_INVERTER_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("pvInverter0") //
+						.setModbusId("modbus0") //
 						.setModbusUnitId(1) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }

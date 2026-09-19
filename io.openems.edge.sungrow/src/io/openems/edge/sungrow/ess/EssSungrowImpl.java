@@ -4,10 +4,12 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -97,10 +99,9 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 		);
 	}
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -108,10 +109,7 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 
 		// NOTE: This should normally be read from the device
 		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
@@ -139,8 +137,8 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 	 */
 	private void installDcDischargePowerListener() {
 		final Consumer<Value<Integer>> dcDischarge = ignore -> {
-			this._setDcDischargePower(TypeUtils.subtract(//
-					this.getActivePower().get(), this.getTotalDcPower().get()));
+			setValue(this, HybridEss.ChannelId.DC_DISCHARGE_POWER, //
+					TypeUtils.subtract(this.getActivePower().get(), this.getTotalDcPower().get()));
 		};
 		this.getActivePowerChannel().onSetNextValue(dcDischarge);
 		this.getTotalDcPowerChannel().onSetNextValue(dcDischarge);
@@ -176,7 +174,6 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(4989, Priority.HIGH, //
 						m(EssSungrow.ChannelId.SERIAL_NUMBER, new StringWordElement(4989, 10)), //

@@ -1,7 +1,6 @@
 package io.openems.edge.sungrow.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.sungrow.ess.enums.ControlMode;
 
 @SuppressWarnings("all")

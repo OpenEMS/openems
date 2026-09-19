@@ -1,7 +1,6 @@
 package io.openems.edge.sungrow.meter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -48,5 +47,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String ess_id() {
 		return this.builder.essId;
 	}
-	
+
 }

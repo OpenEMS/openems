@@ -1,7 +1,6 @@
 package io.openems.edge.sungrow.pvinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
