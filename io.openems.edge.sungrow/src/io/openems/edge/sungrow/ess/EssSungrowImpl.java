@@ -3,6 +3,7 @@ package io.openems.edge.sungrow.ess;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
 import java.util.function.Consumer;
 
@@ -113,7 +114,7 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 		}
 
 		// NOTE: This should normally be read from the device
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 
 		this.installPowerListeners();
 	}
@@ -151,7 +152,7 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 	 */
 	private void installAllowedChargePowerListener() {
 		final Consumer<Value<Integer>> allowedCharge = ignore -> {
-			this._setAllowedChargePower(//
+			setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, //
 					// set to 0 if either value is undefined
 					-this.getBatteryVoltage().orElse(0) * this.getChargeMaxCurrent().orElse(0));
 		};
@@ -165,7 +166,7 @@ public class EssSungrowImpl extends AbstractOpenemsModbusComponent implements Es
 	 */
 	private void installAllowedDischargePowerListener() {
 		final Consumer<Value<Integer>> allowedDischarge = ignore -> {
-			this._setAllowedDischargePower(//
+			setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, //
 					// set to 0 if either value is undefined
 					this.getBatteryVoltage().orElse(0) * this.getDischargeMaxCurrent().orElse(0));
 		};

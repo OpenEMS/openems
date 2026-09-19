@@ -38,6 +38,8 @@ Export-Package: \
 	com.auth0.client.mgmt.emails.types,\
 	com.auth0.client.mgmt.eventstreams,\
 	com.auth0.client.mgmt.eventstreams.types,\
+	com.auth0.client.mgmt.experimentation,\
+	com.auth0.client.mgmt.experimentation.types,\
 	com.auth0.client.mgmt.filter,\
 	com.auth0.client.mgmt.flows,\
 	com.auth0.client.mgmt.flows.types,\
