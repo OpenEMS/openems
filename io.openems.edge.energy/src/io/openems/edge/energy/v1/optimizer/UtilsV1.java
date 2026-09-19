@@ -18,6 +18,7 @@ import static java.util.Arrays.stream;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -132,7 +133,6 @@ public final class UtilsV1 {
 				.setProductions(stream(interpolateArray(productionValues)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(consumptionValues)).map(v -> toEnergy(v)).toArray()) //
 				// DANGER: setPrices() won't work correctly if there are missing prices.
-				// asArray() is not returning null values
 				.setPrices(interpolateDoubleArray(priceValues)) //
 				.setStates(context.controlMode().modesArray) //
 				.setExistingSchedule(existingSchedule) //
