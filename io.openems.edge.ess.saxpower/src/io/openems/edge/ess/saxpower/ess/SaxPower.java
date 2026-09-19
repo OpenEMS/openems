@@ -31,7 +31,7 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
         //Address 40049
         POWER_TARGET(Doc.of(OpenemsType.INTEGER)
                 .accessMode(AccessMode.READ_WRITE)
-                .unit(Unit.PERCENT)
+                .text("Power setpoint in 0.01 %; -10000 = full charge, +10000 = full discharge")
         ),
 
         //Address 40050

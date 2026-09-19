@@ -5,8 +5,6 @@ import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.type.Phase;
-import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,34 +22,16 @@ public class SaxPowerImplTest {
                         .setId("ess0")
                         .setModbusId("modbus0")
                         .setModbusUnitId(100)
-                        .setTimeout(60)
+                        .setTimeout(120)
                         .build())
                 .next(new TestCase()
                         .input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600));
 
         sut.applyPower(0, 0);
 
-        assertEquals(Integer.valueOf(60), sut.getTimeoutChannel().getNextWriteValue().orElse(null));
+        assertEquals(Integer.valueOf(120), sut.getTimeoutChannel().getNextWriteValue().orElse(null));
         assertEquals(Integer.valueOf(1), sut.getControlModeChannel().getNextWriteValue().orElse(null));
         sut.deactivate();
-    }
-
-    @Test
-    public void testActivePowerChannelId() {
-        assertEquals(
-                AsymmetricEss.ChannelId.ACTIVE_POWER_L1,
-                SaxPowerImpl.activePowerChannelId(Phase.SinglePhase.L1)
-        );
-
-        assertEquals(
-                AsymmetricEss.ChannelId.ACTIVE_POWER_L2,
-                SaxPowerImpl.activePowerChannelId(Phase.SinglePhase.L2)
-        );
-
-        assertEquals(
-                AsymmetricEss.ChannelId.ACTIVE_POWER_L3,
-                SaxPowerImpl.activePowerChannelId(Phase.SinglePhase.L3)
-        );
     }
 
     @Test

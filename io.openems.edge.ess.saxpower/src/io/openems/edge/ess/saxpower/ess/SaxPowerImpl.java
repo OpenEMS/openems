@@ -61,8 +61,6 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 
     private Config config;
 
-    private ControlMode controlModeHandler;
-
     private final Logger log = LoggerFactory.getLogger(SaxPowerImpl.class);
 
     @Override
@@ -100,19 +98,20 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
             return;
         }
 
-        boolean correctTimeout = config.timeout() >= 1 && config.timeout() <= 300;
-        if (!correctTimeout) {
-            this.log.warn("Invalid timeout {} s, falling back to 60 s.", config.timeout());
-        }
-        int timeout = correctTimeout ? config.timeout() : 60;
-        this.controlModeHandler = new ControlMode(this, 1, timeout);
-
-
         SinglePhaseEss.initializeCopyPhaseChannel(this, phase);
 
         this._setMaxApparentPower(MAX_APPARENT_POWER);
 
         this.getGridModeChannel().setNextValue(GridMode.ON_GRID);
+    }
+
+    private int checkTimeout() {
+        boolean correctTimeout = this.config.timeout() >= 1 && this.config.timeout() <= 300;
+        if (!correctTimeout) {
+            this.log.warn("Invalid timeout {} s, falling back to 60 s.", this.config.timeout());
+        }
+
+        return correctTimeout ? this.config.timeout() : 60;
     }
 
     @Override
@@ -127,7 +126,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
                 new FC3ReadRegistersTask(40029, Priority.HIGH,
                         m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(40029)),
                         new DummyRegisterElement(40030,40048),
-                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(40049), ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+                        m(SaxPower.ChannelId.POWER_TARGET, new SignedWordElement(40049)),
                         m(SaxPower.ChannelId.TIMEOUT, new UnsignedWordElement(40050)),
                         m(SaxPower.ChannelId.CONTROL_MODE,  new UnsignedWordElement(40051)),
                         new DummyRegisterElement(40052,40052),
@@ -148,18 +147,11 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         );
     }
 
-    static io.openems.edge.common.channel.ChannelId activePowerChannelId(SinglePhase phase) {
-        return switch (phase) {
-            case L1 -> AsymmetricEss.ChannelId.ACTIVE_POWER_L1;
-            case L2 -> AsymmetricEss.ChannelId.ACTIVE_POWER_L2;
-            case L3 -> AsymmetricEss.ChannelId.ACTIVE_POWER_L3;
-        };
-    }
-
     @Override
     public void applyPower(int activePower, int reactivePower) throws OpenemsError.OpenemsNamedException {
 
-        this.controlModeHandler.check();
+        this.setControlMode(1);
+        this.setTimeout(this.checkTimeout());
 
         final var maxPowerReferenceValue = this.getReferenceMaximumPower().get();
         if (maxPowerReferenceValue == null || maxPowerReferenceValue <= 0) {
