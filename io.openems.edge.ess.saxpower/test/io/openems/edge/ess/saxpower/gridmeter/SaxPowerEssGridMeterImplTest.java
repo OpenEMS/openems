@@ -1,94 +1,102 @@
 package io.openems.edge.ess.saxpower.gridmeter;
 
-import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import static io.openems.common.types.MeterType.GRID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+import io.openems.common.channel.Level;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
-import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.test.AbstractComponentTest;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
-import org.junit.Test;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SaxPowerEssGridMeterImplTest {
 
     @Test
-    public void test() throws Exception {
-        new ComponentTest(new SaxPowerEssGridMeterImpl())
-                .addReference("cm", new DummyConfigurationAdmin())
-                .addReference("setModbus", new DummyModbusBridge("modbus0"))
-                .activate(MyConfig.create()
-                        .setId("ess0")
-                        .setModbusId("modbus0")
-                        .setType(MeterType.GRID)
-                        .setModbusUnitId(100)
-                        .build()
-                )
-                .next(new AbstractComponentTest.TestCase())
+    public void testFeedToGrid() throws Exception {
+        new ComponentTest(new SaxPowerEssGridMeterImpl()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0") //
+                        .withRegisters(40072, //
+                                150, 150, 0, 0)) //
+                .activate(MyConfig.create() //
+                        .setId("meter0") //
+                        .setModbusId("modbus0") //
+                        .setModbusUnitId(100) //
+                        .setType(GRID) //
+                        .build()) //
+                .next(new TestCase() //
+                        .activateStrictMode() //
+                        .output(OpenemsComponent.ChannelId.STATE, Level.OK) //
+                        .output(ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED, false) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER, -1500) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, -1500) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, null) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, null) //
+                        .output(ElectricityMeter.ChannelId.CURRENT, null) //
+                        .output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+                        .output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+                        .output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+                        .output(ElectricityMeter.ChannelId.FREQUENCY, null) //
+                        .output(ElectricityMeter.ChannelId.REACTIVE_POWER, null) //
+                        .output(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, null) //
+                        .output(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, null) //
+                        .output(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, null) //
+                        .output(ElectricityMeter.ChannelId.VOLTAGE, null) //
+                        .output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
+                        .output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+                        .output(ElectricityMeter.ChannelId.VOLTAGE_L3, null)) //
                 .deactivate();
     }
 
     @Test
-    public void testDefineModbusProtocol() throws Exception {
-        var sut = new SaxPowerEssGridMeterImpl();
-        new ComponentTest(sut)
-                .addReference("cm", new DummyConfigurationAdmin())
-                .addReference("setModbus", new DummyModbusBridge("modbus0"))
-                .activate(MyConfig.create()
-                        .setId("ess0")
-                        .setModbusId("modbus0")
-                        .setType(MeterType.GRID)
-                        .setModbusUnitId(100)
-                        .build()
-                );
-
-        ModbusProtocol protocol = sut.defineModbusProtocol();
-
-        List<Task> tasks = protocol.getTaskManager().getTasks();
-
-        assertEquals(1, tasks.size());
-
-        FC3ReadRegistersTask readTask = tasks.stream()
-                .filter(t -> t instanceof FC3ReadRegistersTask)
-                .map(t -> (FC3ReadRegistersTask) t)
-                .findFirst()
-                .orElseThrow();
-
-        assertEquals(40072, readTask.getStartAddress());
-        assertEquals(Priority.HIGH, readTask.getPriority());
-
-        sut.deactivate();
+    public void testBuyFromGrid() throws Exception {
+        new ComponentTest(new SaxPowerEssGridMeterImpl()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0") //
+                        .withRegisters(40072, //
+                                -80, -80, 0, 0)) //
+                .activate(MyConfig.create() //
+                        .setId("meter0") //
+                        .setModbusId("modbus0") //
+                        .setModbusUnitId(100) //
+                        .setType(GRID) //
+                        .build()) //
+                .next(new TestCase() //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER, 800) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 800) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+                        .output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0)) //
+                .deactivate();
     }
 
     @Test
     public void testDebugLog() throws Exception {
         var sut = new SaxPowerEssGridMeterImpl();
-        new ComponentTest(sut)
-                .addReference("cm", new DummyConfigurationAdmin())
-                .addReference("setModbus", new DummyModbusBridge("modbus0"))
-                .activate(MyConfig.create()
-                        .setId("ess0")
-                        .setModbusId("modbus0")
-                        .setType(MeterType.GRID)
-                        .setModbusUnitId(100)
-                        .build()
-                )
+        new ComponentTest(sut) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0")) //
+                .activate(MyConfig.create() //
+                        .setId("meter0") //
+                        .setModbusId("modbus0") //
+                        .setModbusUnitId(100) //
+                        .setType(GRID) //
+                        .build()) //
+                .next(new TestCase() //
+                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER, 1500) //
+                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 500) //
+                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 500) //
+                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 500)) //
+                .deactivate();
 
-                .next(new AbstractComponentTest.TestCase()
-                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER, 1500)
-                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 500)
-                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 500)
-                        .input(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 500)
-                );
-
-        String log = sut.debugLog();
-        assertEquals("L:1500 W|L1:500 W|L2:500 W|L3:500 W", log);
-
-        sut.deactivate();
+        assertEquals("L:1500 W|L1:500 W|L2:500 W|L3:500 W", sut.debugLog());
     }
 }

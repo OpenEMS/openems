@@ -120,6 +120,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     protected void deactivate() {
         super.deactivate();
     }
+
     @Override
     protected ModbusProtocol defineModbusProtocol() {
         return new ModbusProtocol(this,
