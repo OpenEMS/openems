@@ -1,7 +1,7 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
-import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -424,11 +424,7 @@ export namespace SharedEssFixDigitalPowerControl {
             { name: "swap-vertical-outline", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
-            [
-                NavigationConstants.CommonNodes.INFO(translate, component.id, {
-                    source: component.id,
-                }),
-            ],
+            [],
             null,
         ).toConstructorParams();
     }

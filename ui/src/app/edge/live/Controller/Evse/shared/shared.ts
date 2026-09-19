@@ -38,7 +38,7 @@ export namespace ControllerEvseSingleShared {
                     component.id + "-forecast",
                     { baseString: "forecast" },
                     { name: "stats-chart-outline", color: "success" },
-                    translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"),
+                    translate.instant("GENERAL.FORECAST"),
                     baseMode,
                     [],
                     null,

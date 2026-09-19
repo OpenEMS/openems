@@ -48,10 +48,7 @@ export namespace SharedSelfConsumption {
             { name: "oe-selfconsumption", color: "normal" },
             translate.instant("GENERAL.SELF_CONSUMPTION"),
             "label",
-            [
-                NavigationConstants.CommonNodes.HISTORY(translate, "selfconsumption"),
-                NavigationConstants.CommonNodes.INFO(translate, "selfconsumption", { source: "selfconsumption" }),
-            ],
+            [NavigationConstants.CommonNodes.HISTORY(translate, "selfconsumption")],
             null,
         ).toConstructorParams();
     }

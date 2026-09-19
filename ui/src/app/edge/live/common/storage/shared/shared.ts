@@ -175,7 +175,6 @@ export namespace SharedStorage {
                     "storage",
                     hasAtLeastOneController ? "LOW" : "HIDE",
                 ),
-                NavigationConstants.CommonNodes.INFO(translate, "storage", { source: "storage" }),
             ],
             null,
             { isCommonWidget: true },

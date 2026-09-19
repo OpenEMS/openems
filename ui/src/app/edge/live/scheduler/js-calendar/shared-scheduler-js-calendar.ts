@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ValidationResult } from "json-schema";
-import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { JsCalendar } from "src/app/shared/components/schedule/js-calendar-task";
 import { OneTask } from "src/app/shared/jsonrpc/response/getOneTasksResponse";
 import { EdgeConfig, Service } from "src/app/shared/shared";
@@ -50,9 +50,6 @@ export namespace SharedSchedulerJsCalendar {
                     ],
                     null,
                 ),
-                NavigationConstants.CommonNodes.INFO(translate, component.id, {
-                    source: component.id,
-                }),
             ],
             null,
         ).toConstructorParams();

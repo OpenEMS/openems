@@ -164,9 +164,6 @@ export namespace SharedControllerEssTimeOfUseTariff {
             [
                 NavigationConstants.CommonNodes.HISTORY(translate, component.id),
                 NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
-                NavigationConstants.CommonNodes.INFO(translate, component.id, {
-                    source: component.id,
-                }),
             ],
             null,
         ).toConstructorParams();
