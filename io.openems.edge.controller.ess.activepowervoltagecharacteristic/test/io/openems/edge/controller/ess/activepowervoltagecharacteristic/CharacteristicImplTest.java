@@ -8,9 +8,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -27,7 +26,6 @@ public class CharacteristicImplTest {
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
 		new ControllerTest(new ControllerEssActivePowerVoltageCharacteristicImpl())//
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess1")) //

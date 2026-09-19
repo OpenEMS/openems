@@ -12,7 +12,7 @@ import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/vie
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";

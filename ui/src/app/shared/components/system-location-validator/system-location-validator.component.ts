@@ -301,10 +301,8 @@ export class SystemLocationValidatorComponent implements OnInit {
         });
 
         this.isGeoFormVisible = options.length > 0;
-
-        if (this.isGeoFormVisible) {
-            this.geoCodeModel.index = defaultIndex;
-        }
+        this.geoCodeModel.index = this.isGeoFormVisible ? defaultIndex : null;
+        this.geoCodeForm.get("index")?.setValue(this.geoCodeModel.index);
     }
 
     private generateFields(): FormlyFieldConfig[] {

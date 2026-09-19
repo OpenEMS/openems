@@ -4,8 +4,8 @@ import { Signal } from "@angular/core";
 
 /** Generic Type for a key-value pair */
 export type TKeyValue<T> = {
-    key: string,
-    value: T
+    key: string;
+    value: T;
 };
 
 export type TOmitBy<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -32,13 +32,12 @@ export type TAllPartialWithExtraProps<T> = {
 /** Creates new type from property of type */
 export type TPropType<TObj, TProp extends keyof TObj> = TObj[TProp];
 
-/** Creates new number type, that only accepts numbers in a range  */
+/** Creates new number type, that only accepts numbers in a range */
 export type TRange<N extends number, Acc extends number[] = []> = Acc["length"] extends N
     ? Acc[number]
-    : TRange<N, [...Acc, (Acc["length"])]>;
+    : TRange<N, [...Acc, Acc["length"]]>;
 
 export type TIntRange<F extends number, T extends number> = Exclude<TRange<T>, TRange<F>>;
-
 
 /** Empty Obj */
 export type EmptyObj = Record<PropertyKey, never>;
@@ -53,8 +52,9 @@ export type TEnumKeys<T extends Record<string, string | number>> = Extract<keyof
 export type TEnumValues<T extends Record<string, string | number>> = T[keyof T];
 
 /** Creates a type from an array for one element */
-export type TArrayElement<ArrayType extends readonly unknown[]> =
-    ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+export type TArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[]
+    ? ElementType
+    : never;
 
 /** Creates a mutable type from an unmutable type */
 export type TMutable<T> = {
@@ -63,19 +63,11 @@ export type TMutable<T> = {
 
 /** Flattens the keys of an object into a dot-separated string */
 export type TFlattenKeys<T, Prefix extends string = ""> = {
-    [K in keyof T & string]: T[K] extends object
-        ? TFlattenKeys<T[K], `${Prefix}${K}.`>
-        : `${Prefix}${K}`;
+    [K in keyof T & string]: T[K] extends object ? TFlattenKeys<T[K], `${Prefix}${K}.`> : `${Prefix}${K}`;
 }[keyof T & string];
 
-
-type FixedLengthArray<
-    T,
-    Length extends number,
-    Acc extends T[] = [],
-> = Acc["length"] extends Length
+type FixedLengthArray<T, Length extends number, Acc extends T[] = []> = Acc["length"] extends Length
     ? Acc
     : FixedLengthArray<T, Length, [...Acc, T]>;
 
-export type MultiLengthArray<T, L extends number> =
-    L extends any ? FixedLengthArray<T, L> : never;
+export type MultiLengthArray<T, L extends number> = L extends any ? FixedLengthArray<T, L> : never;

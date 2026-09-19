@@ -46,7 +46,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -69,7 +68,6 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.ProductTypeAndFeatures;
-import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -118,7 +116,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	private Instant lastWrite;
-	private boolean setEnableSet;
 
 	@Override
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
@@ -169,7 +166,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
-		this.setEnableSet = false;
 	}
 
 	@Override
@@ -221,13 +217,11 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		if (current < 6000) {
 			current = 0;
 		}
-		this.setChargingCurrent(current);
+		this.kebaModbusUtils.setEnableOnCharge(current);
+		this.setSetChargingCurrent(current);
+
 		this.lastWrite = Instant.now(this.componentManager.getClock());
 		return true;
-	}
-
-	private void setChargingCurrent(int value) throws OpenemsNamedException {
-		this.setSetChargingCurrent(value);
 	}
 
 	@Override
@@ -258,7 +252,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 			this.calculatePhases();
 			if (!this.isReadOnly()) {
 				this.writeHandler.run();
-				this.setEnableOnce();
 			}
 		}
 		}
@@ -280,23 +273,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 	@Override
 	public void logDebug(String message) {
 		this.logDebug(this.log, message);
-	}
-
-	private void setEnableOnce() {
-		if (this.setEnableSet) {
-			return;
-		}
-		final var status = this.<EnumReadChannel>channel(Evcs.ChannelId.STATUS).getNextValue();
-		if (status.isDefined() ? status.get() == 2 : false) {
-			try {
-				this.setSetEnable(SetEnable.ENABLE);
-				this.setEnableSet = true;
-			} catch (OpenemsNamedException e) {
-				this.logDebug(
-						"A problem occurred while setting the EVCS KEBA P40 charging station 'Enable user' to 'enable'.");
-				e.printStackTrace();
-			}
-		}
 	}
 
 	@Override

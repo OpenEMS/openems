@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.linearpowerband;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -91,10 +90,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartDirection startDirection() {
 		return this.builder.startDirection;
-	}
-
-	@Override
-	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 }

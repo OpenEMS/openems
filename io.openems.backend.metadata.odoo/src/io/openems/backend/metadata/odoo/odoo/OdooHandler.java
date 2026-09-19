@@ -7,6 +7,7 @@ import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsEnum;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOptional;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOrElse;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
@@ -64,6 +65,7 @@ import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
@@ -466,11 +468,10 @@ public class OdooHandler {
 		}
 
 		final var latestSetupProtocol = setupProtocolCoreInfo[0];
-		final var setupProtocolId = JsonUtils.getAsInt(JsonUtils.getAsJsonElement(latestSetupProtocol.get("id")));
-		final var setupProtocolType = JsonUtils
-				.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("type")));
-		final var createDate = DateTime.stringToDateTime(
-				JsonUtils.getAsString(JsonUtils.getAsJsonElement(latestSetupProtocol.get("create_date"))));
+		final var setupProtocolId = JsonUtils.getAsInt(getAsJsonElement(latestSetupProtocol.get("id")));
+		final var setupProtocolType = JsonUtils.getAsString(getAsJsonElement(latestSetupProtocol.get("type")));
+		final var createDate = DateTime
+				.stringToDateTime(JsonUtils.getAsString(getAsJsonElement(latestSetupProtocol.get("create_date"))));
 
 		return new SetupProtocolCoreInfo(setupProtocolId,
 				ProtocolType.fromStringOrDefault(setupProtocolType, ProtocolType.SETUP_PROTOCOL), createDate);
@@ -496,11 +497,11 @@ public class OdooHandler {
 				Map.of("order", "create_date desc"), setupProtocolFilter);
 
 		return Stream.of(setupProtocolCoreInfos).map(el -> {
-			var setupProtocolId = JsonUtils.getAsJsonElement(el.get("id")).getAsInt();
-			var type = ProtocolType.fromStringOrDefault(JsonUtils.getAsJsonElement(el.get("type")).getAsString(),
+			var setupProtocolId = getAsJsonElement(el.get("id")).getAsInt();
+			var type = ProtocolType.fromStringOrDefault(getAsJsonElement(el.get("type")).getAsString(),
 					ProtocolType.SETUP_PROTOCOL);
 			var dateTime = DateTime.stringToDateTime(
-					JsonUtils.getAsOptionalString(JsonUtils.getAsJsonElement(el.get("create_date"))).orElseThrow());
+					JsonUtils.getAsOptionalString(getAsJsonElement(el.get("create_date"))).orElseThrow());
 			return new SetupProtocolCoreInfo(setupProtocolId, type, dateTime);
 		}).toList();
 	}
@@ -705,7 +706,7 @@ public class OdooHandler {
 
 	/**
 	 * Creates a protocol for serial number changes.
-	 * 
+	 *
 	 * @param edgeId        the id of the edge
 	 * @param serialNumbers the serial numbers which changed
 	 * @param items         additional items to add to the protocol
@@ -727,6 +728,36 @@ public class OdooHandler {
 
 		this.createSetupProtocolProductionLots(setupProtocolId, stockLots);
 		this.createSetupProtocolItems(setupProtocolId, items);
+	}
+
+	/**
+	 * Updates edge settings.
+	 * 
+	 * @param edgeId   the id of the edge
+	 * @param settings the new settings
+	 * @return a future
+	 */
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		var request = buildJsonObject() //
+				.add("params", buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.add("settings", settings) //
+						.build()) //
+				.build();
+
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("updateEdgeSettings", () -> {
+				try {
+					return getAsJsonObject(
+							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/set_edge_settings",
+									"session_id=" + session, request).result);
+				} catch (OpenemsNamedException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		}).thenAccept(ignore -> {
+			// empty
+		});
 	}
 
 	private record StockLot(String category, String name, String serialNumber) {
@@ -835,7 +866,7 @@ public class OdooHandler {
 	/**
 	 * Create for the given serial numbers that were not found a
 	 * {@link SetupProtocolItem}.
-	 * 
+	 *
 	 * @param setupProtocolId the protocol id
 	 * @param serialNumbers   not found serial numbers
 	 * @throws OpenemsException on error
@@ -1320,7 +1351,7 @@ public class OdooHandler {
 
 	/**
 	 * Gets the response to unregister a key.
-	 * 
+	 *
 	 * @param edgeId the edgeId the registered key was assigned to.
 	 * @param appId  the appId the registered key was assigned to or null if
 	 *               assigned to edge.
@@ -1583,6 +1614,68 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Gets the Edges of the given user matching the {@link PaginationOptions}.
+	 *
+	 * @param user              the current {@link MyUser}
+	 * @param paginationOptions the {@link PaginationOptions}
+	 * @return the edges
+	 * @throws OpenemsNamedException on error
+	 */
+	public CompletableFuture<JsonObject> getEdges(User user, GetEdgesRequest.PaginationOptions paginationOptions) {
+		var request = buildJsonObject() //
+				.add("params", buildJsonObject() //
+						.addProperty("external_uid", user.getUserId()) //
+						.addProperty("page", paginationOptions.getPage()) //
+						.addProperty("limit", paginationOptions.getLimit()) //
+						.add("query", getAsJsonElement(paginationOptions.getQuery()))
+						.onlyIf(paginationOptions.getSearchParams() != null,
+								b -> b.add("searchParams", paginationOptions.getSearchParams().toJson()))//
+						.build()) //
+				.build();
+
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("getEdges", () -> {
+				try {
+					return getAsJsonObject(
+							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edges",
+									"session_id=" + session, request).result);
+				} catch (OpenemsNamedException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
+	}
+
+	/**
+	 * Gets the edge with the {@link Role} of the user.
+	 *
+	 * @param user   the current {@link MyUser}
+	 * @param edgeId the id of the edge
+	 * @return the edge with the role of the user
+	 * @throws OpenemsNamedException on error
+	 */
+	public CompletableFuture<JsonObject> getEdgeWithRole(User user, String edgeId) {
+		var request = buildJsonObject() //
+				.add("params", buildJsonObject() //
+						.addProperty("external_uid", user.getUserId()) //
+						.addProperty("edge_id", edgeId) //
+						.build()) //
+				.build();
+
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("getEdgeWithRole", () -> {
+				try {
+					return getAsJsonObject(
+							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edge_with_role",
+									"session_id=" + session, request).result);
+				} catch (OpenemsNamedException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
+	}
+
+	/**
 	 * Get the SumState of the edge with the given edgeId, via a ODOO-Request.
 	 *
 	 * @param edgeId to search for
@@ -1605,7 +1698,7 @@ public class OdooHandler {
 
 	/**
 	 * Updates the settings of a user.
-	 * 
+	 *
 	 * @param user     the user
 	 * @param settings the settings of the user
 	 */
@@ -1618,7 +1711,12 @@ public class OdooHandler {
 				.build());
 	}
 
-	private CompletableFuture<String> authenticateAsAdmin() {
+	/**
+	 * Single authenticate.
+	 *
+	 * @return the current future or a new one
+	 */
+	public CompletableFuture<String> authenticateAsAdmin() {
 		var currentFuture = this.adminLoginFuture;
 		if (!currentFuture.isDone()) {
 			return currentFuture;

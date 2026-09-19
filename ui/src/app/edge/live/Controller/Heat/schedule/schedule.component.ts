@@ -1,4 +1,4 @@
-import { Component, inject, model, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, model } from "@angular/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -8,7 +8,7 @@ import { JsCalendar } from "src/app/shared/components/schedule/js-calendar-task"
 import { ScheduleComponent } from "src/app/shared/components/schedule/schedule.component";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { EdgeConfig } from "../../../../../shared/components/edge/edgeconfig";
-import { RouteService } from "../../../../../shared/service/route.service";
+import { RouteService } from "../../../../../shared/service/route/route.service";
 import { HeatManualPayload } from "./js-calendar-utils";
 
 @Component({

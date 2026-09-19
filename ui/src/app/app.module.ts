@@ -21,23 +21,22 @@ import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.m
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
 import { FooterContentComponent } from "./shared/components/footer/content/content";
-import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
-import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/back-button";
+import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/navigation-back-button";
 import { BottomNavigationBarComponent } from "./shared/components/navigation/bottom-bar/bottom-navigation-bar";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
-import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
 import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
 import { SharedModule } from "./shared/shared.module";
+import { AppStateTracker } from "./shared/states/app-state-tracker";
 import { registerTranslateExtension } from "./shared/translate.extension";
 import { Language, MyTranslateLoader } from "./shared/type/language";
 import { UserModule } from "./user/user.module";
 provideTranslateLoader(MyTranslateLoader);
 
 @NgModule({
-    declarations: [AppComponent, ChartOptionsPopoverComponent, NavigationComponent],
+    declarations: [AppComponent, ChartOptionsPopoverComponent],
     imports: [
         BottomNavigationBarComponent,
         NavigationBackButtonComponent,

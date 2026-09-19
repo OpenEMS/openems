@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { EdgeConfig } from "src/app/shared/shared";
 import { ControllerModbusTcpApiChartComponent } from "../chart/chart";
 

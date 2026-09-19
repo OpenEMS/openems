@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.stsbox;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 
@@ -204,10 +203,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int frequencyLowerLimit() {
 		return this.builder.frequencyLowerLimit;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 }

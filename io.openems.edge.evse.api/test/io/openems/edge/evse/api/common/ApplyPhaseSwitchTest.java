@@ -1,5 +1,6 @@
 package io.openems.edge.evse.api.common;
 
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE;
 import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,11 +14,13 @@ class ApplyPhaseSwitchTest {
 
 	@Test
 	void testManualSerializeDeserialize() {
-		var sut = new ApplyPhaseSwitch(TO_SINGLE_PHASE, new ApplyPhaseSwitch.PhaseSwitchAbility.Manual());
+		var sut = new ApplyPhaseSwitch(TO_SINGLE_PHASE, new ApplyPhaseSwitch.PhaseSwitchAbility.Manual(),
+				new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360, 230));
 		var json = ApplyPhaseSwitch.serializer().serialize(sut).getAsJsonObject();
 
 		assertEquals("TO_SINGLE_PHASE", json.get("direction").getAsString());
 		assertEquals("Manual", json.getAsJsonObject("phaseSwitchAbility").get("class").getAsString());
+		assertEquals(7360, json.getAsJsonObject("oppositePhaseApplySetPoint").get("max").getAsInt());
 
 		assertEquals(sut, ApplyPhaseSwitch.serializer().deserialize(json));
 	}

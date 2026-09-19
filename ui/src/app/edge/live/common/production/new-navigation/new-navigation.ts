@@ -42,31 +42,6 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         const lines: OeFormlyField[] = [];
 
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
-            // TODO INTERSOLAR
-            if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
-                const energyToday = energyScheduler.schedule.calculateEnergyFromPower("today", "ProductionActivePower");
-                const energyTomorrow = energyScheduler.schedule.calculateEnergyFromPower(
-                    "tomorrow",
-                    "ProductionActivePower",
-                );
-                lines.push({
-                    type: "stats-line",
-                    stats: [
-                        {
-                            name: translate.instant("EDGE.HISTORY.TODAY"),
-                            value: energyToday.history,
-                            unit: "kWh",
-                            predictionValue: energyToday.prediction,
-                        },
-                        {
-                            name: translate.instant("EDGE.HISTORY.TOMORROW"),
-                            value: energyTomorrow.prediction,
-                            unit: "kWh",
-                        },
-                    ],
-                });
-            }
-
             lines.push(
                 {
                     type: "component-line",

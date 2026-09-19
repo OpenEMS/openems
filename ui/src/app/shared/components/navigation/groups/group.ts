@@ -4,12 +4,13 @@ import { Router } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Edge, Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { ForwardNavigationOptions } from "../bottom-bar/forward-navigation-options/forward-navigation-options";
+import { FavoriteButtonComponent } from "../favorite/button/favorite-button";
 import { NavigationLabelLineComponent } from "../label-line/label-line";
 import { NavigationTree } from "../shared";
 
@@ -22,6 +23,7 @@ import { NavigationTree } from "../shared";
         PipeComponentsModule,
         NavigationLabelLineComponent,
         ForwardNavigationOptions,
+        FavoriteButtonComponent,
     ],
     templateUrl: "./group.html",
 })

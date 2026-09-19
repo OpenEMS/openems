@@ -1,20 +1,21 @@
 package io.openems.edge.kostal.piko.gridmeter;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,15 +34,14 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
+@GenerateTargetsFromReferences("Core")
 public class KostalPikoGridMeterImpl extends AbstractOpenemsComponent
 		implements KostalPikoGridMeter, ElectricityMeter, OpenemsComponent {
 
 	private final AtomicReference<KostalPikoCore> core = new AtomicReference<>();
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.core_id})(enabled=true))")
 	protected void setCore(KostalPikoCore core) {
 		this.core.set(core);
 		core.setGridMeter(this);
@@ -63,10 +63,6 @@ public class KostalPikoGridMeterImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'Core'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
-			return;
-		}
 	}
 
 	@Override

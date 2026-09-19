@@ -59,11 +59,9 @@ class PhaseSwitchHandlerTest {
 				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
 						new PhaseSwitchAbility.Internal())) //
 				.build();
-
 		ctrl.apply(mode, actions);
-
 		ctrl.apply(mode, actions);
-		test.accept(null, null); // null because of Force-Next-State
+		test.accept(6900, PhaseSwitchDirection.TO_THREE_PHASE);
 
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase");
 		ctrl.apply(mode, actions);
@@ -76,18 +74,117 @@ class PhaseSwitchHandlerTest {
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
 		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 1380, 3680)) //
-				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
 						new PhaseSwitchAbility.Internal()))
 				.build());
 		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
 				.setApplySetPointInWatt(4140) //
 				.build();
 		ctrl.apply(mode, actions);
-		test.accept(6900, null); // setpoint sent to chargepoint is 6900
+		test.accept(6900, PhaseSwitchDirection.TO_THREE_PHASE); // setpoint sent to chargepoint is 6900
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
+	}
+
+	@Test
+	void testInternalToThreePhaseKeepsSwitchWithOneShotAction() throws IllegalArgumentException {
+		final var clock = createDummyClock();
+		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		final var ctrl = singleSut.ctrlSingle();
+		final var mode = ctrl.getParams().mode();
+		final var chargePoint = singleSut.chargePoint();
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+
+		var actionsWithSwitch = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal())) //
+				.build();
+		ctrl.apply(mode, actionsWithSwitch);
+		ctrl.apply(mode, actionsWithSwitch);
+
+		var actionsWithoutSwitch = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.build();
+		ctrl.apply(mode, actionsWithoutSwitch);
+		ctrl.apply(mode, actionsWithoutSwitch);
+
+		clock.leap(29, SECONDS);
+		chargePoint.withActivePower(1380);
+		ctrl.apply(mode, actionsWithoutSwitch);
+
+		var cpa = chargePoint.getLastChargePointActions();
+		assertEquals(Integer.valueOf(6900), Integer.valueOf(cpa.applySetPoint().value()));
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE,
+				cpa.phaseSwitch() != null ? cpa.phaseSwitch().direction() : null);
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		var actionsAfterSwitch = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(4140) //
+				.build();
+		ctrl.apply(mode, actionsAfterSwitch);
+
+		clock.leap(1, SECONDS);
+		ctrl.apply(mode, actionsAfterSwitch);
+		assertDebugLog(ctrl, "Mode:Minimum|Charging");
+	}
+
+	@Test
+	void testInternalToThreePhaseRequiresAbilityChangeAndActivePower() throws IllegalArgumentException {
+		final var clock = createDummyClock();
+		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		final var ctrl = singleSut.ctrlSingle();
+		final var mode = ctrl.getParams().mode();
+		final var chargePoint = singleSut.chargePoint();
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal())) //
+				.build();
+
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);// extra needed because of new Entry state
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
+
+		clock.leap(29, SECONDS);
+		chargePoint.withActivePower(0);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(4140) //
+				.build();
+
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
-		assertDebugLog(ctrl, "Mode:Minimum|Charging");
+		assertDebugLog(ctrl, "Mode:Zero|Charging");
+
+		chargePoint.withActivePower(1380);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|EvNotConnected");
 	}
 
 	@Test
@@ -126,7 +223,7 @@ class PhaseSwitchHandlerTest {
 		ctrl.apply(mode, actions);
 
 		ctrl.apply(mode, actions);
-		test.accept(null, null); //
+		test.accept(2300, PhaseSwitchDirection.TO_SINGLE_PHASE); //
 
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToSinglePhase");
 		ctrl.apply(mode, actions);
@@ -353,6 +450,7 @@ class PhaseSwitchHandlerTest {
 
 	private static void assertDebugLog(ControllerEvseSingleImpl ctrl, String string) {
 		ctrl.channel(ControllerEvseSingle.ChannelId.ACTUAL_MODE).nextProcessImage();
-		assertEquals(string, ctrl.debugLog());
+		var actual = ctrl.debugLog();
+		assertEquals(string, actual);
 	}
 }

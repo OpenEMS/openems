@@ -1,17 +1,17 @@
 package io.openems.edge.onewire.thermometer;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.container.TemperatureContainer;
 
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.onewire.BridgeOnewire;
 import io.openems.edge.common.channel.StateChannel;
@@ -34,14 +35,13 @@ import io.openems.edge.thermometer.api.Thermometer;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("bridge")
 public class OneWireThermometerImpl extends AbstractOpenemsComponent implements Thermometer, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(OneWireThermometerImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.bridge_id})(enabled=true))")
 	private BridgeOnewire bridge;
 
 	private Config config;
@@ -60,11 +60,6 @@ public class OneWireThermometerImpl extends AbstractOpenemsComponent implements 
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		// update filter for 'bridge'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "bridge", config.bridge_id())) {
-			return;
-		}
 
 		if (this.isEnabled()) {
 			this.bridge.addTask(this.task);

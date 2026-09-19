@@ -1,22 +1,22 @@
 package io.openems.edge.meter.virtual.add;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -31,19 +31,15 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
+@GenerateTargetsFromReferences("Meter")
 public class MeterVirtualAddImpl extends AbstractOpenemsComponent
 		implements MeterVirtualAdd, ElectricityMeter, OpenemsComponent, ModbusSlave, SumOptions {
 
 	private final AddChannelManager channelManager = new AddChannelManager(this);
 	private final List<ElectricityMeter> meters = new ArrayList<>();
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(name = "Meter", policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
+			target = "(&(id=${config.meterIds})(enabled=true))")
 	protected void addMeter(ElectricityMeter meter) {
 		synchronized (this.meters) {
 			this.meters.add(meter);
@@ -69,13 +65,9 @@ public class MeterVirtualAddImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Meter", config.meterIds())) {
-			return;
-		}
 
 		this.channelManager.update(this.meters);
 	}
