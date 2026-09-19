@@ -146,7 +146,7 @@ public class FeneconCommercial100
 				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
 				.setDefaultValue(ConnectedBatterySystems.ONE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class, ConnectedBatterySystems.TWO), l);
+					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -358,7 +358,7 @@ public class FeneconCommercial100
 				final var battery2Id = "battery2";
 				components.add(
 						FeneconCommercialComponents.clusterBattery(bundle, batteryId, List.of(battery1Id, battery2Id)));
-				components.add(FeneconCommercialComponents.clusterBatterySlave1(bundle, battery1Id));
+				components.add(FeneconCommercialComponents.clusterBatterySlave1(bundle, battery1Id, deviceHardware));
 				components.add(FeneconCommercialComponents.clusterBatterySlave2(bundle, battery2Id));
 				components.add(FeneconCommercialComponents.modbusForClusterSlaveBattery2(bundle, t,
 						modbusIdExternalMeters, deviceHardware));

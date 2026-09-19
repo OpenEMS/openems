@@ -48,6 +48,7 @@ import { HistoryDataErrorModule } from "./components/history-data-error/history-
 import { HelpButtonComponent } from "./components/modal/help-button/help-button";
 import { ModalToggleLineComponent as ModalToggleWithValueLineComponent } from "./components/modal/modal-toggle-line/modal-toggle-line";
 import { ModalComponentsModule } from "./components/modal/modal.module";
+import { FavoriteButtonComponent } from "./components/navigation/favorite/button/favorite-button";
 import { OeImageComponent } from "./components/oe-img/oe-img";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
@@ -60,12 +61,12 @@ import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
-import { AppStateTracker } from "./ngrx-store/app-state-tracker";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
-import { RouteService } from "./service/route.service";
+import { RouteService } from "./service/route/route.service";
 import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
+import { AppStateTracker } from "./states/app-state-tracker";
 import { Language } from "./type/language";
 
 export function registerTranslateExtension(translate: TranslateService) {
@@ -203,6 +204,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
 
 @NgModule({
     imports: [
+        FavoriteButtonComponent,
         SystemStatusComponent,
         PickdateComponentModule,
         BaseChartDirective,
@@ -324,6 +326,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ModalToggleWithValueLineComponent,
         DateTimeLineComponent,
         StatsComponent,
+        FavoriteButtonComponent,
     ],
     declarations: [
         AppHeaderComponent,

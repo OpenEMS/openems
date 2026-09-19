@@ -58,7 +58,7 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
         AssertionUtils.assertIsDefined(edge);
         AssertionUtils.assertIsDefined(component);
 
-        return ControllerIoChannelSingleThresholdSettingsComponent.generateView(
+        return await ControllerIoChannelSingleThresholdSettingsComponent.generateView(
             this.translate,
             component,
             edge,

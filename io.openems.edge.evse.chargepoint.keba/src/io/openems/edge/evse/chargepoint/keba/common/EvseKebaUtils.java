@@ -22,7 +22,6 @@ import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
-import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 
 public class EvseKebaUtils {
@@ -97,9 +96,6 @@ public class EvseKebaUtils {
 		this.previousCurrent = Tuple2.of(now, setPointInMilliAmpere);
 
 		try {
-			keba.setSetEnable(setPointInMilliAmpere == 0 //
-					? SetEnable.DISABLE //
-					: SetEnable.ENABLE);
 			keba.setSetChargingCurrent(setPointInMilliAmpere);
 
 		} catch (OpenemsNamedException e) {

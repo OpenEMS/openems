@@ -1,11 +1,3 @@
-@if (isSmartphone() != null) {
-  <span>
-    @if ((nodeLabel() | typeof) === "string") {
-      {{ nodeLabel() }}
-    } @else if (isSmartphone()) {
-      {{ nodeLabel()?.mobile }}
-    } @else {
-      {{ nodeLabel()?.desktop }}
-    }
-  </span>
+@if (isSmartphone() != null && nodeLabel() != null) {
+  {{ labelLine() }}
 }

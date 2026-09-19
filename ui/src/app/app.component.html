@@ -115,7 +115,7 @@
     <ion-content class="ion-no-padding-top">
       <ion-list style="overflow-y: auto" class="ion-no-padding-top">
         @if (!isSmartphone && navigationService.position() === "left" && navigationService.currentNode() !== null) {
-          <oe-navigation-chips (navigate)="navigationService.navigateTo($event)" (navigateAbsolute)="navigationService.navigateAbsolute($event)"> </oe-navigation-chips>
+          <oe-navigation-accordions (navigate)="navigationService.navigateTo($event)" (navigateAbsolute)="navigationService.navigateAbsolute($event)"> </oe-navigation-accordions>
         }
       </ion-list>
     </ion-content>

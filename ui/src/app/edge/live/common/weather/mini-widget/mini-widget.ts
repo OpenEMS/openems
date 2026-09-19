@@ -3,7 +3,7 @@ import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { NavigationTree } from "src/app/shared/components/navigation/shared";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { NumberFormatPipe } from "../pipes/number-format.pipe";
 import { WeatherCodeDescriptionPipe } from "../pipes/weather-code-description.pipe";
@@ -84,12 +84,7 @@ export class MiniWeatherComponent extends AbstractWeatherWidget {
         AssertionUtils.assertIsDefined(weatherComponent);
 
         const weatherTree = new NavigationTree(...SharedWeather.getNavigationTree(this.translate, weatherComponent));
-
-        const absoluteNavigationTree = NavigationService.convertRelativeToAbsoluteLink(
-            this.navigationService.navigationTree(),
-        );
-
-        const weatherNode = NavigationTree.findById(absoluteNavigationTree, weatherTree.id);
+        const weatherNode = NavigationTree.findById(this.navigationService.navigationTree(), weatherTree.id);
         AssertionUtils.assertIsDefined(weatherNode);
         this.navigationService.navigateAbsolute(weatherNode);
     }

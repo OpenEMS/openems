@@ -3,7 +3,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { GroupedNavigationTreeUtility, NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -129,7 +129,7 @@ export namespace SharedControllerIoFixDigitalOutput {
             { name: "power-outline", color: "normal" },
             label,
             "label",
-            [NavigationConstants.CommonNodes.HISTORY(translate)],
+            [NavigationConstants.CommonNodes.HISTORY(translate, id)],
             null,
         );
     }
