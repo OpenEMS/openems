@@ -1,6 +1,6 @@
 package io.openems.edge.goodwe.charger.mppt.twostring;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.test.DummyBattery;
@@ -34,7 +34,6 @@ public class GoodWeChargerMpptTwoStringImplTest {
 		var charger3 = new GoodWeChargerMpptTwoStringImpl();
 
 		new ComponentTest(charger1) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("essOrBatteryInverter", inverter) //
 				.activate(MyConfig.create() //
 						.setId("charger0") //
@@ -43,7 +42,6 @@ public class GoodWeChargerMpptTwoStringImplTest {
 						.build());
 
 		new ComponentTest(charger2) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("essOrBatteryInverter", inverter) //
 				.activate(MyConfig.create() //
 						.setId("charger1") //
@@ -52,7 +50,6 @@ public class GoodWeChargerMpptTwoStringImplTest {
 						.build());
 
 		new ComponentTest(charger3) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("essOrBatteryInverter", inverter) //
 				.activate(MyConfig.create() //
 						.setId("charger2") //

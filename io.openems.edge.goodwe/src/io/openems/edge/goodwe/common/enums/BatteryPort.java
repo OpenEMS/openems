@@ -3,8 +3,9 @@ package io.openems.edge.goodwe.common.enums;
 import java.util.Arrays;
 
 public enum BatteryPort {
-
-	PORT_1(1); //
+	PORT_1(1), //
+	PORT_2(2), //
+	;
 
 	public final int index;
 

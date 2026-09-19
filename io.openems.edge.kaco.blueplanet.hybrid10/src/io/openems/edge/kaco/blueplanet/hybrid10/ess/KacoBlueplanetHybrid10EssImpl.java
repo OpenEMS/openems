@@ -11,13 +11,11 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -31,6 +29,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -62,6 +61,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("core")
 public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent implements KacoBlueplanetHybrid10Ess,
 		HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
@@ -77,14 +77,12 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.core_id})(enabled=true))")
 	private KacoBlueplanetHybrid10Core core;
 
 	@Reference
 	private Cycle cycle;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private Timedata timedata;
@@ -106,12 +104,8 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
-			return;
-		}
 
 		this.config = config;
 		this._setCapacity(config.capacity());

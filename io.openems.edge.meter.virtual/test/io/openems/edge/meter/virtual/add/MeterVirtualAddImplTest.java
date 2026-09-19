@@ -8,9 +8,8 @@ import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.FREQUENCY;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.test.DummyElectricityMeter;
@@ -20,7 +19,6 @@ public class MeterVirtualAddImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new MeterVirtualAddImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addMeter", new DummyElectricityMeter("meter1"))
 				.addReference("addMeter", new DummyElectricityMeter("meter2")) //
 				.addReference("addMeter", new DummyElectricityMeter("meter3")) //

@@ -17,15 +17,18 @@ public class HttpBridgeOdooAuthenticationService
 
 	private final Credentials credentials;
 	private final BridgeHttp bridgeHttp;
+	private final OdooHandler odooHandler;
 
-	public HttpBridgeOdooAuthenticationService(Credentials credentials, BridgeHttp bridgeHttp) {
+	public HttpBridgeOdooAuthenticationService(Credentials credentials, BridgeHttp bridgeHttp,
+			OdooHandler odooHandler) {
 		this.credentials = credentials;
 		this.bridgeHttp = bridgeHttp;
+		this.odooHandler = odooHandler;
 	}
 
 	@Override
 	public CompletableFuture<String> fetchAuthHeader() {
-		return this.loginAsAdmin();
+		return this.odooHandler.authenticateAsAdmin();
 	}
 
 	@Override

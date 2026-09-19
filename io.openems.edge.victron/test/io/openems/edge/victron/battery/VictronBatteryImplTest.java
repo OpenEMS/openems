@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -29,7 +28,6 @@ public class VictronBatteryImplTest {
 	 */
 	public static ComponentTest createVictronBattery() throws Exception {
 		return new ComponentTest(new VictronBatteryImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						.withRegisters(259,
 								// VOLTAGE (register 259) - 5200 = 52.00V

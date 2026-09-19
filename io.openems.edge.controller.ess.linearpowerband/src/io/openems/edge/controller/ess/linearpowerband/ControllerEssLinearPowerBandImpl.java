@@ -1,18 +1,19 @@
 package io.openems.edge.controller.ess.linearpowerband;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -24,13 +25,11 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssLinearPowerBandImpl extends AbstractOpenemsComponent
 		implements ControllerEssLinearPowerBand, Controller, OpenemsComponent {
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
 	private Config config;
@@ -56,10 +55,6 @@ public class ControllerEssLinearPowerBandImpl extends AbstractOpenemsComponent
 		case DISCHARGE:
 			this.state = State.UPWARDS;
 			break;
-		}
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
 		}
 	}
 

@@ -1,4 +1,4 @@
-@if(edge !== null){
+@if (edge !== null) {
   <oe-navigation-view>
     <ion-buttons header class="ion-justify-content-center">
       <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
@@ -6,8 +6,6 @@
         <pickdate></pickdate>
       }
     </ion-buttons>
-    <oe-controller-channel-threshold-single-chart (setChartConfig)="setChartConfig($event)" [isOnlyChart]="true"
-      [component]="component">
-    </oe-controller-channel-threshold-single-chart>
+    <oe-controller-channel-threshold-single-chart (setChartConfig)="setChartConfig($event)" [isOnlyChart]="true" [component]="component"> </oe-controller-channel-threshold-single-chart>
   </oe-navigation-view>
 }

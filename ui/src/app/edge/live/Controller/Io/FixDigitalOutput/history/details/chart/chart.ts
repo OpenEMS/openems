@@ -9,7 +9,7 @@ import { ChartComponentsModule } from "src/app/shared/components/chart/chart.mod
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";

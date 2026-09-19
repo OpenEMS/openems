@@ -13,9 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.sum.GridMode;
@@ -32,7 +31,6 @@ public class EssClusterImplTest {
 		final var ess = new EssClusterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess1")) //
 				.addReference("addEss", new DummyManagedAsymmetricEss("ess2")) //
 				.activate(MyConfig.create() //
@@ -71,7 +69,6 @@ public class EssClusterImplTest {
 	public void testGridMode() throws Exception {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess1")) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess2")) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess3")) //
@@ -105,7 +102,6 @@ public class EssClusterImplTest {
 	public void testSoc() throws Exception {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess1").withCapacity(50000)) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess2").withCapacity(3000)) //
 				.activate(MyConfig.create() //
@@ -133,7 +129,6 @@ public class EssClusterImplTest {
 	public void testStartStop() throws Exception {
 		new ComponentTest(new EssClusterImpl()) //
 				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess1")) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess2")) //
 				.activate(MyConfig.create() //

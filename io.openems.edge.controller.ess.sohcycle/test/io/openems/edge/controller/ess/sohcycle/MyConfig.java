@@ -61,11 +61,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ess_target() {
-		return "";
-	}
-
-	@Override
 	public boolean isRunning() {
 		return this.builder.running;
 	}

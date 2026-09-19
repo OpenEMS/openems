@@ -3,21 +3,21 @@ package io.openems.edge.victron.meter.grid;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -42,14 +42,12 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
+@GenerateTargetsFromReferences("Modbus")
 public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 		implements VictronMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -69,7 +67,8 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -77,10 +76,7 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 		if (this.config.enabled()) {
 			this.installListeners();
 		}

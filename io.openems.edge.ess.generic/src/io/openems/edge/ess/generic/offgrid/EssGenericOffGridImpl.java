@@ -4,20 +4,19 @@ import static io.openems.edge.common.sum.GridMode.OFF_GRID;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.GRID_SWITCH;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.STOP_BATTERY_INVERTER;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.UNDEFINED;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -26,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
@@ -61,6 +61,7 @@ import io.openems.edge.ess.power.api.Power;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences({ "batteryInverter", "battery", "offGridSwitch" })
 public class EssGenericOffGridImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, OffGridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
@@ -81,18 +82,18 @@ public class EssGenericOffGridImpl
 	private Power power;
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.batteryInverter_id})(enabled=true))")
 	private OffGridBatteryInverter batteryInverter;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.battery_id})(enabled=true))")
 	private Battery battery;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.offGridSwitch_id})(enabled=true))")
 	private OffGridSwitch offGridSwitch;
 
 	public EssGenericOffGridImpl() {
@@ -110,14 +111,8 @@ public class EssGenericOffGridImpl
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		this.channelManager = new ChannelManager(this, EssProtectionConfig.NONE);
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
-				config.battery_id(), config.startStop());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.startStop());
 
-		// update filter for 'Off Grid Switch'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "offGridSwitch",
-				config.offGridSwitch_id())) {
-			return;
-		}
 		this.requestGridOperationChange();
 		this.avoidBatteryDeepDischarge();
 	}

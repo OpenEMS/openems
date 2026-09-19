@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";

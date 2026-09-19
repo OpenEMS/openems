@@ -7,6 +7,7 @@ import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_A
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +214,7 @@ public class Solver {
 		}
 
 		// finish time measure (in milliseconds)
-		var duration = (int) (System.nanoTime() - startTime) / 1_000_000;
+		var duration = (int) Duration.ofNanos(System.nanoTime() - startTime).toMillis();
 
 		// announce success/failure
 		var isSolved = solution.getPoints() != null;

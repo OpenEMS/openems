@@ -53,6 +53,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -150,6 +151,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final String description;
 		private final List<ChannelValue> inputs = new ArrayList<>();
 		private final List<ChannelValue> outputs = new ArrayList<>();
+		private final List<ChannelValue> outputsReadValue = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onBeforeProcessImageCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onAfterProcessImageCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onBeforeControllersCallbacks = new ArrayList<>();
@@ -158,6 +160,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final List<ThrowingRunnable<Exception>> onBeforeWriteCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onExecuteWriteCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onAfterWriteCallbacks = new ArrayList<>();
+		private final List<ChannelId> ignoredChannelsForStrictMode = new ArrayList<>();
 
 		private boolean strictMode = false;
 		private TimeLeap timeleap = null;
@@ -186,6 +189,28 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase activateStrictMode() {
 			this.strictMode = true;
+			return this;
+		}
+
+		/**
+		 * Adds a list of ChannelIds that are ignored for Strict-Mode.
+		 * 
+		 * @param channelIds the ChannelIds to ignore
+		 * @return myself
+		 */
+		public TestCase withIgnoredChannelsForStrictMode(ChannelId... channelIds) {
+			this.ignoredChannelsForStrictMode.addAll(Arrays.asList(channelIds));
+			return this;
+		}
+
+		/**
+		 * Adds a list of ChannelIds that are ignored for Strict-Mode.
+		 * 
+		 * @param channelIds the ChannelIds to ignore
+		 * @return myself
+		 */
+		public TestCase withIgnoredChannelsForStrictMode(Collection<ChannelId> channelIds) {
+			this.ignoredChannelsForStrictMode.addAll(channelIds);
 			return this;
 		}
 
@@ -393,6 +418,77 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		}
 
 		/**
+		 * Adds an expected read value output for a Channel of the system-under-test.
+		 * Use this method if u want to check the read value of a channel for a
+		 * READ_WRITE Channel.
+		 * 
+		 * @param address the {@link ChannelAddress}
+		 * @param value   the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase outputReadValue(ChannelAddress address, Object value) {
+			this.outputsReadValue.add(new ChannelAddressValue(address, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an expected read value output value for a {@link ChannelAddress}. Use
+		 * this method if u want to check the read value of a channel for a READ_WRITE
+		 * Channel
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the Channel-ID in CamelCase
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase outputReadValue(String componentId, String channelId, Object value) {
+			return this.outputReadValue(new ChannelAddress(componentId, channelId), value);
+		}
+
+		/**
+		 * Adds an expected read value output value for a {@link ChannelId} of the given
+		 * Component. Use this method if u want to check the read value of a channel for
+		 * a READ_WRITE Channel
+		 *
+		 * @param componentId the Component-ID
+		 * @param channelId   the {@link ChannelId}
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase outputReadValue(String componentId, ChannelId channelId, Object value) {
+			this.outputsReadValue.add(new ComponentChannelIdValue(componentId, channelId, value, true));
+			return this;
+		}
+
+		/**
+		 * Adds an expected read value output value for a {@link ChannelId} of the
+		 * system-under-test. Use this method if u want to check the read value of a
+		 * channel for a READ_WRITE Channel
+		 *
+		 * @param channelId the {@link ChannelId}
+		 * @param value     the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase outputReadValue(ChannelId channelId, Object value) {
+			this.outputsReadValue.add(new ChannelIdValue(channelId, value, false));
+			return this;
+		}
+
+		/**
+		 * Adds an expected read value output value for a Channel of the
+		 * system-under-test. Use this method if u want to check the read value of a
+		 * channel for a READ_WRITE Channel
+		 *
+		 * @param channelName the Channel
+		 * @param value       the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase outputReadValue(String channelName, Object value) {
+			this.outputsReadValue.add(new ChannelNameValue(channelName, value, false));
+			return this;
+		}
+
+		/**
 		 * Adds a simulated timeleap, i.e. simulates that a given amount of time passed.
 		 *
 		 * @param clock       the active {@link TimeLeapClock}, i.e. provided to the
@@ -573,20 +669,47 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					got = value.orElse(null);
 					readWriteInfo = "ReadValue";
 				}
-				// Try to parse an Enum
-				if (channel.channelDoc() instanceof EnumDoc enumDoc) {
-					var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
-					got = enumDoc.getOption(intGot);
+				got = this.resolveEnum(channel, got);
+				this.assertEqualsOutput(channel, output, got, readWriteInfo);
+			}
+		}
+
+		protected void validateOutputsReadValue(AbstractComponentTest<?, ?> act) throws OpenemsException {
+			for (var output : this.outputsReadValue) {
+				final Channel<?> channel = this.getChannel(act, output);
+
+				if (!(channel instanceof AbstractReadChannel<?, ?>)) {
+					throw new OpenemsException("On TestCase [" + this.description + "]: " //
+							+ "expected ReadValue for Channel [" + output.name() + "] " //
+							+ "but the channel is not a ReadChannel. ");
 				}
-				if (!Objects.equals(output.value(), got)) {
-					final var nature = getChannelNature(channel);
-					throw new Exception("On TestCase [" + this.description + "]: " //
-							+ "expected " + readWriteInfo + " [" + output.value() + "] " //
-							+ "got [" + got + "] " //
-							+ "for Channel [" + output.name() + "] " //
-							+ "in Nature [" + nature + "] " //
-							+ "on Inputs [" + this.inputs + "]");
-				}
+				var value = channel.value();
+				Object got = value.orElse(null);
+
+				got = this.resolveEnum(channel, got);
+				this.assertEqualsOutput(channel, output, got, "ReadValue");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private Object resolveEnum(Channel<?> channel, Object got) {
+			if (channel.channelDoc() instanceof EnumDoc enumDoc) {
+				var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
+				return enumDoc.getOption(intGot);
+			}
+			return got;
+		}
+
+		private void assertEqualsOutput(Channel<?> channel, ChannelValue output, Object got, String readWriteInfo)
+				throws OpenemsException {
+			if (!Objects.equals(output.value(), got)) {
+				final var nature = getChannelNature(channel);
+				throw new OpenemsException("On TestCase [" + this.description + "]: " //
+						+ "expected " + readWriteInfo + " [" + output.value() + "] " //
+						+ "got [" + got + "] " //
+						+ "for Channel [" + output.name() + "] " //
+						+ "in Nature [" + nature + "] " //
+						+ "on Inputs [" + this.inputs + "]");
 			}
 		}
 
@@ -601,10 +724,20 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				// Strict Mode is disabled -> ok
 				return;
 			}
-			final var sutChannels = new ArrayList<>(act.sut.channels());
+
+			final var ignoredChannels = this.ignoredChannelsForStrictMode.stream() //
+					.map(act.sut::channel) //
+					.toList();
+			final var channelsToCheck = act.sut.channels().stream() //
+					.filter(c -> !ignoredChannels.contains(c)) //
+					.toList();
+			final var sutChannels = new ArrayList<>(channelsToCheck);
 			Stream.concat(//
-					this.inputs.stream(), //
-					this.outputs.stream()) //
+					this.outputsReadValue.stream(), //
+					Stream.concat(//
+							this.inputs.stream(), //
+							this.outputs.stream())//
+			) //
 					.map(cv -> this.getChannel(act, cv)) //
 					.forEach(c -> {
 						sutChannels.remove(c);
@@ -1006,6 +1139,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.handleEvent(TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this);
 		testCase.validateStrictMode(this);
+		testCase.validateOutputsReadValue(this);
 		return this.self();
 	}
 

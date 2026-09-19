@@ -1,19 +1,19 @@
 package io.openems.edge.tesla.powerwall2.battery;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -32,16 +32,15 @@ import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2Core;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
+@GenerateTargetsFromReferences("core")
 public class TeslaPowerwall2BatteryImpl extends AbstractOpenemsComponent
 		implements TeslaPowerwall2Battery, SymmetricEss, AsymmetricEss, SinglePhaseEss, OpenemsComponent {
 
 	private static final int CAPACITY = 14_200;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.core_id})(enabled=true))")
 	private TeslaPowerwall2Core core;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	private Config config;
 
@@ -57,14 +56,9 @@ public class TeslaPowerwall2BatteryImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		// update filter for 'core'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
-			return;
-		}
 		this.core.setBattery(this);
 	}
 

@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.charger.mppt.twostring;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -58,11 +57,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String essOrBatteryInverter_id() {
 		return this.builder.essOrBatteryInverter;
-	}
-
-	@Override
-	public String essOrBatteryInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.essOrBatteryInverter_id());
 	}
 
 	@Override

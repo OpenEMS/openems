@@ -1,18 +1,21 @@
 package io.openems.edge.controller.ess.limiter14a;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -32,22 +35,21 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implements //
 		ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider {
 
 	@Reference
 	private Sum sum;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
 	private ChannelAddress inputChannelAddress;
@@ -67,10 +69,6 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
 	}
 
 	@Deactivate

@@ -8,9 +8,8 @@ import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
@@ -23,7 +22,6 @@ public class ControllerEssReactivePowerVoltageCharacteristicImplTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		new ControllerTest(new ControllerEssReactivePowerVoltageCharacteristicImpl())//
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //

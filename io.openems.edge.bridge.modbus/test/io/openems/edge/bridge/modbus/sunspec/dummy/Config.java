@@ -14,6 +14,4 @@ package io.openems.edge.bridge.modbus.sunspec.dummy;
 	int modbusUnitId();
 
 	int readFromModbusBlock();
-
-	String Modbus_target();
 }

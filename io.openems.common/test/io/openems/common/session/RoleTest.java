@@ -1,27 +1,53 @@
 package io.openems.common.session;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
-public class RoleTest {
+class RoleTest {
 
-	@Test(expected = OpenemsNamedException.class)
-	public void testAssertRoleUndefined() throws Exception {
-		Role.assertRole("userId", null, Role.GUEST, "resource");
-	}
-
-	@Test(expected = OpenemsNamedException.class)
-	public void testAssertRoleLower() throws Exception {
-		Role.assertRole("userId", Role.OWNER, Role.INSTALLER, "resource");
+	@Test
+	void testAssertRoleUndefined() {
+		assertThrows(OpenemsNamedException.class, () -> {
+			Role.assertRoleIsAtLeast("userId", null, Role.GUEST, "resource");
+		});
 	}
 
 	@Test
-	public void testAssertRoleSuccess() throws Exception {
+	void testAssertRoleLower() {
+		assertThrows(OpenemsNamedException.class, () -> {
+			Role.assertRoleIsAtLeast("userId", Role.OWNER, Role.INSTALLER, "resource");
+		});
+	}
+
+	@Test
+	void testAssertRoleSuccess() {
 		assertDoesNotThrow(() -> {
-			Role.assertRole("userId", Role.OWNER, Role.GUEST, "resource");
+			Role.assertRoleIsAtLeast("userId", Role.OWNER, Role.GUEST, "resource");
+		});
+	}
+
+	@Test
+	void testAssertRoleIsEqualSuccess() {
+		assertDoesNotThrow(() -> {
+			Role.assertRoleIsEqual("userId", Role.OWNER, Role.OWNER, "resource");
+		});
+	}
+
+	@Test
+	void testAssertRoleIsEqualHigher() {
+		assertThrows(OpenemsNamedException.class, () -> {
+			Role.assertRoleIsEqual("userId", Role.INSTALLER, Role.OWNER, "resource");
+		});
+	}
+
+	@Test
+	void testAssertRoleIsEqualLower() {
+		assertThrows(OpenemsNamedException.class, () -> {
+			Role.assertRoleIsEqual("userId", Role.GUEST, Role.OWNER, "resource");
 		});
 	}
 

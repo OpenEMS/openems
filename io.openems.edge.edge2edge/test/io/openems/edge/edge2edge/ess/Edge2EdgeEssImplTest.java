@@ -1,6 +1,6 @@
 package io.openems.edge.edge2edge.ess;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -21,7 +21,8 @@ public class Edge2EdgeEssImplTest {
 						.setRemoteAccessMode(AccessMode.READ_WRITE) //
 						.setRemoteComponentId("ess0") //
 						.build())
-				.next(new TestCase());
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }

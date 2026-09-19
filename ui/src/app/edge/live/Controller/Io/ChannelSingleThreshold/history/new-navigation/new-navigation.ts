@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -11,7 +11,7 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 import { SingleChartComponent } from "../../../../Channelthreshold/history/chart/singlechart.component";
 
 @Component({
-    selector: "oe-controller-channelthreshold-overview",
+    selector: "oe-controller-io-channel-single-threshold-overview",
     templateUrl: "./new-navigation.html",
     standalone: true,
     imports: [
@@ -25,5 +25,6 @@ import { SingleChartComponent } from "../../../../Channelthreshold/history/chart
         SingleChartComponent,
         ComponentsBaseModule,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ControllerIoChannelSingleThresholdHistoryComponent extends AbstractHistoryChartOverview {}

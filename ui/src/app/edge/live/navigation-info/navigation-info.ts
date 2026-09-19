@@ -6,10 +6,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { Icon } from "src/app/shared/type/widget";
-import { environment } from "src/environments";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 
@@ -61,7 +61,7 @@ export class NavigationInfoComponent extends AbstractModal {
                 iconName: "information-outline",
                 contentText: this.translate.instant("BETA_TEST.CHANGELOG"),
                 buttonText: this.translate.instant("BETA_TEST.BUTTON"),
-                buttonHref: this.link ?? "",
+                buttonHref: "",
                 footer: {
                     text: this.translate.instant("BETA_TEST.FEEDBACK"),
                     link: "",
@@ -71,10 +71,13 @@ export class NavigationInfoComponent extends AbstractModal {
         ];
         return cards;
     });
+    protected docs: {
+        link: string | null;
+        displayName: string;
+        icon: IconWithRequiredName;
+    } | null = null;
 
-    protected link = environment.links.REDIRECT.BETA_CHANGE_LOG;
-    protected docs: { link: string | null; displayName: string; icon: IconWithRequiredName } | null = null;
-
+    private readonly routeService = inject(RouteService);
     private navigationService = inject(NavigationService);
 
     constructor(

@@ -11,6 +11,9 @@
         "*.svg",
         "*.scss"
     ],
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[typescript]": {
         "editor.tabSize": 4,
         "editor.codeActionsOnSave": {

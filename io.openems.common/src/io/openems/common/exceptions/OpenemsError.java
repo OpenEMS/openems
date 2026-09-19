@@ -35,6 +35,9 @@ public enum OpenemsError {
 	EDGE_UNABLE_TO_CREATE_CONFIG(2003, "Unable to create configuration for Factory [%s]: [%s]"), //
 	EDGE_UNABLE_TO_DELETE_CONFIG(2004, "Unable to delete configuration for Component [%s]: [%s]"), //
 	EDGE_CHANNEL_NO_OPTION(2005, "Channel has no Option [%s]. Existing options: %s"), //
+	EDGE_APP_INSTANCE_NOT_FOUND(2006, "Unable to find App instance with ID [%s]"), //
+	EDGE_APP_CATEGORY_CONFLICT(2007, "An App of the same category as App [%s] is already installed"), //
+	EDGE_APP_COMPONENTS_UPDATE_FAILED(2008, "Unable to update Components for App: [%s]"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */

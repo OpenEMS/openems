@@ -3,6 +3,7 @@ package io.openems.edge.core.host;
 import java.net.Inet4Address;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +24,7 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 /**
  * OperatingSystem implementation for Debian with systemd.
  */
-public class OperatingSystemDocker implements OperatingSystem {
+public class OperatingSystemDocker extends OperatingSystemLinux implements OperatingSystem {
 
 	protected OperatingSystemDocker() {
 	}
@@ -91,6 +92,11 @@ public class OperatingSystemDocker implements OperatingSystem {
 	@Override
 	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
 		throw new NotImplementedException("deleteNetworkInterfaces is not implemented for Docker");
+	}
+
+	@Override
+	public Optional<Double> getCpuTemperature() {
+		return Optional.empty();
 	}
 
 }

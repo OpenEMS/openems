@@ -3,11 +3,12 @@ import angularTemplateParser from "@angular-eslint/template-parser";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
 import checkFile from "eslint-plugin-check-file";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import angular from "angular-eslint";
 import { defineConfig } from "eslint/config";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 
 export default defineConfig([
     {
@@ -49,7 +50,7 @@ export default defineConfig([
             ],
             curly: "error",
             "unused-imports/no-unused-imports": "error",
-            "import/order": [
+            "import-x/order": [
                 "error",
                 {
                     groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
@@ -120,21 +121,32 @@ export default defineConfig([
                     selector: "CallExpression[callee.name='xdescribe']",
                     message: "Using 'xdescribe' is not allowed.",
                 },
+                {
+                    selector:
+                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='let']",
+                    message: "Use const instead of let for namespace-level variables."
+                },
+                {
+                    selector:
+                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='var']",
+                    message: "Do not use var for namespace-level variables."
+                },
+                {
+                    selector: "Program > VariableDeclaration:has(NewExpression)",
+                    message: "Do not create class instances at module scope."
+                }
             ],
             // TODO reapply this rule
             // "@angular-eslint/template/accessibility-interactive-supports-focus": "error"
             "@angular-eslint/prefer-inject": "off",
 
-            // Deactivated for angular migration pu
+            // Deactivated for angular migration purposes
             "@angular-eslint/prefer-on-push-component-change-detection": "off",
-            "no-redeclare": "off",
-            "@typescript-eslint/no-redeclare": "off",
-            "no-undef": "off",
         },
         settings: {
-            "import/resolver": {
-                typescript: {},
-            },
+            "import-x/resolver-next": [
+                createTypeScriptImportResolver({ project: "./tsconfig.json" }),
+            ]
         },
     },
     {

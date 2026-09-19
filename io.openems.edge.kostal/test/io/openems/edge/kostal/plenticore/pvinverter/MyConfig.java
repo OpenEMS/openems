@@ -1,8 +1,6 @@
 package io.openems.edge.kostal.plenticore.pvinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,7 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean readOnly;
 		private String modbusId;
 		private int modbusUnitId;
-		private MeterType type;
 
 		private Builder() {
 			// empty
@@ -68,11 +65,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override

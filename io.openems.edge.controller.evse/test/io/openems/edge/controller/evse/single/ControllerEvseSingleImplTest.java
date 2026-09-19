@@ -13,6 +13,8 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.Profile;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 class ControllerEvseSingleImplTest {
@@ -58,6 +60,28 @@ class ControllerEvseSingleImplTest {
 		assertEquals(Hysteresis.INACTIVE, params.hysteresis());
 		assertEquals(PhaseSwitching.DISABLE, params.phaseSwitching());
 		assertFalse(params.appearsToBeFullyCharged());
+	}
+
+	@Test
+	void testHistoryStoresAppliedSetPointInWatt() {
+		var sut = generateSingleSut(c -> c //
+				.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		sut.chargePoint().withActivePower(321);
+
+		var abilities = ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+				.setIsReadyForCharging(true) //
+				.build();
+		var actions = ChargePointActions.from(abilities) //
+				.setApplySetPointInMilliAmpere(6000) //
+				.setSetPointWithoutPhaseLimitation(7000) //
+				.build();
+
+		sut.ctrlSingle().addHistoryEntry(actions);
+
+		var lastEntry = sut.ctrlSingle().getParams().history().getLastEntry();
+		assertEquals(4140, lastEntry.getValue().setPoint());
+		assertEquals(Integer.valueOf(321), lastEntry.getValue().activePower());
 	}
 
 	@Test

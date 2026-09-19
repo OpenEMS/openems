@@ -1,13 +1,13 @@
 package io.openems.edge.ess.generic.common.essprotection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
@@ -19,7 +19,7 @@ public class EpRampHandlerTest {
 	private DummyBattery battery;
 	private DummyManagedSymmetricBatteryInverter inverter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.handler = new EpRampHandler();
 
@@ -37,8 +37,8 @@ public class EpRampHandlerTest {
 
 		// Missing charge max current.
 		var result = this.handler.calculateEssProtectionLimits(this.battery, this.inverter);
-		assertNotNull("Result should not be null", result);
-		assertNull("Charge max current should be set", result.chargeMaxCurrent());
+		assertNotNull(result, "Result should not be null");
+		assertNull(result.chargeMaxCurrent(), "Charge max current should be set");
 
 		this.battery //
 				.withVoltage(957) //
@@ -55,8 +55,8 @@ public class EpRampHandlerTest {
 
 		var result = this.handler.calculateEssProtectionLimits(this.battery, this.inverter);
 
-		assertNotNull("Result should not be null", result);
-		assertNotNull("Charge max current should be set", result.chargeMaxCurrent());
+		assertNotNull(result, "Result should not be null");
+		assertNotNull(result.chargeMaxCurrent(), "Charge max current should be set");
 
 		// Distance: 1315V - 957V = 358V → 100% ramp
 		// Expected: 40A × 1.0 = 40A

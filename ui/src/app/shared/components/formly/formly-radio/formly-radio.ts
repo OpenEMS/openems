@@ -8,16 +8,14 @@ import { FieldType } from "@ngx-formly/core";
     changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [
         `
-    :host {
-      width: 100%;
-    }
-    `,
+            :host {
+                width: 100%;
+            }
+        `,
     ],
 })
 export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnChanges {
-
     protected fieldOptions: any[] = [];
-    protected defaultOption: any | undefined = undefined;
 
     public ngOnInit(): void {
         this.updateFieldOptions();
@@ -32,6 +30,10 @@ export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnCha
     private updateFieldOptions(): void {
         const opts = this.props?.options;
         this.fieldOptions = Array.isArray(opts) ? opts : [];
-        this.defaultOption = this.fieldOptions.find(el => el.default) ?? this.field?.defaultValue ?? null;
+
+        const defaultOption = this.fieldOptions.find((el) => el.default)?.value ?? this.field?.defaultValue;
+        if (defaultOption != null && this.formControl.value == null) {
+            this.formControl.setValue(defaultOption);
+        }
     }
 }

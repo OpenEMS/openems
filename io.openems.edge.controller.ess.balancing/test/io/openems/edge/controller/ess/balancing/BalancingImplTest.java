@@ -2,9 +2,8 @@ package io.openems.edge.controller.ess.balancing;
 
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -19,7 +18,6 @@ public class BalancingImplTest {
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssBalancingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //
@@ -91,7 +89,6 @@ public class BalancingImplTest {
 	@Test
 	public void testSetGridPower() throws Exception {
 		new ControllerTest(new ControllerEssBalancingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //
@@ -139,7 +136,6 @@ public class BalancingImplTest {
 				.setPower(new DummyPower(0.3, 0.3, 0.1));
 
 		new ControllerTest(new ControllerEssBalancingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", tightEss) //
 				.addReference("meter", new DummyElectricityMeter("meter1")) //
 				.activate(MyConfig.create() //
@@ -177,7 +173,6 @@ public class BalancingImplTest {
 		// (current implementation always calculates, but this validates defensive
 		// logic)
 		new ControllerTest(new ControllerEssBalancingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.addReference("meter", new DummyElectricityMeter("meter2")) //
 				.activate(MyConfig.create() //

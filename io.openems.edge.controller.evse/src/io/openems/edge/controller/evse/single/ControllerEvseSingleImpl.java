@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -53,6 +54,7 @@ import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences({ "chargePoint", "electricVehicle" })
 public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		implements Controller, ControllerEvseSingle, OpenemsComponent, EventHandler, ComponentJsonApi {
 
@@ -67,11 +69,11 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference
+	@Reference(target = "(&(id=${config.chargePoint_id})(enabled=true))")
 	private EvseChargePoint chargePoint;
 
 	// TODO Optional Reference
-	@Reference
+	@Reference(target = "(&(id=${config.electricVehicle_id})(enabled=true))")
 	private EvseElectricVehicle electricVehicle;
 
 	private Config config;
@@ -102,15 +104,6 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		this.config = config;
 		this.tasks = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.jsCalendar(),
 				Payload.serializer());
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chargePoint",
-				config.chargePoint_id())) {
-			return;
-		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "electricVehicle",
-				config.electricVehicle_id())) {
-			return;
-		}
 
 		if (!config.enabled()) {
 			return;
@@ -191,10 +184,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 						}
 						// Callback: forward actions
 						this.chargePoint.apply(actions);
-						this.history.addEntry(Instant.now(this.componentManager.getClock()),
-								this.chargePoint.getActivePower().get(),
-								actions.abilities().applySetPoint().toPower(actions.applySetPoint().value()),
-								actions.abilities().isReadyForCharging());
+						this.addHistoryEntry(actions);
 					}, //
 					b -> setValue(this, ControllerEvseSingle.ChannelId.PHASE_SWITCH_FAILED, b));
 
@@ -205,6 +195,13 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+	}
+
+	void addHistoryEntry(ChargePointActions actions) {
+		final var setPointInWatt = actions.abilities().applySetPoint().toPower(actions.applySetPoint().value());
+		final var setPointWithoutPhaseLimitation = actions.setPointWithoutPhaseLimitation();
+		this.history.addEntry(Instant.now(this.componentManager.getClock()), this.chargePoint.getActivePower().get(),
+				setPointInWatt, setPointWithoutPhaseLimitation, actions.abilities().isReadyForCharging());
 	}
 
 	private State getForceNextState(ChargePointActions input, State state) {

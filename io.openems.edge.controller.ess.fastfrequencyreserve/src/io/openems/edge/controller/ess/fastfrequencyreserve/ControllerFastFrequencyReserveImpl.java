@@ -1,5 +1,9 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -14,9 +18,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import com.google.gson.JsonArray;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.WriteChannel;
@@ -52,6 +54,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerFastFrequencyReserveImpl extends AbstractOpenemsComponent
 		implements ControllerFastFrequencyReserve, Controller, OpenemsComponent, ComponentJsonApi {
 
@@ -74,10 +77,12 @@ public class ControllerFastFrequencyReserveImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	private ElectricityMeter meter;
 
 	public ControllerFastFrequencyReserveImpl() {
@@ -119,14 +124,6 @@ public class ControllerFastFrequencyReserveImpl extends AbstractOpenemsComponent
 	private void updateConfig() throws OpenemsNamedException {
 		this._setControlMode(this.config.controlMode());
 
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", //
-				this.config.ess_id())) {
-			return;
-		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", //
-				this.config.meter_id())) {
-			return;
-		}
 		try {
 			if (!this.config.activationScheduleJson().trim().isEmpty()) {
 				final var scheduleElement = JsonUtils.parse(this.config.activationScheduleJson());

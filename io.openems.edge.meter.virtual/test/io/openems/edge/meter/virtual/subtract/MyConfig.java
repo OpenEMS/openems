@@ -2,7 +2,6 @@ package io.openems.edge.meter.virtual.subtract;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -81,16 +80,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String[] subtrahends_ids() {
 		return this.builder.subtrahendsIds;
-	}
-
-	@Override
-	public String minuend_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.minuend_id());
-	}
-
-	@Override
-	public String subtrahends_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.subtrahends_ids());
 	}
 
 }
