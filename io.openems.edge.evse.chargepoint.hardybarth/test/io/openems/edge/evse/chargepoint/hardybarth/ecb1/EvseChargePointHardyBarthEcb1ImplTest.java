@@ -104,6 +104,18 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 			}
 			""";
 
+	/** Meter response without readable data. */
+	private static final String METER_WITHOUT_DATA = """
+			{
+			  "meter": {
+			    "serial": 75740051,
+			    "vendor": "eCHARGE",
+			    "type": "eCB1 intern"
+			  },
+			  "protocol-version": "1.4"
+			}
+			""";
+
 	private static ComponentTest buildTest(EvseChargePointHardyBarthEcb1Impl sut) throws Exception {
 		return new ComponentTest(sut) //
 				.addReference("httpBridgeFactory",
@@ -116,7 +128,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.setIp("192.168.2.8") //
 						.setChargeControlId(1) //
 						.setMeterId(1) //
-						.setMinHwCurrent(6_000) //
 						.setMaxHwCurrent(32_000) //
 						.build());
 	}
@@ -170,6 +181,28 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 	}
 
 	@Test
+	void testInvalidMeterResponseClearsPreviousValues() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		var test = buildTest(sut);
+		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
+		test //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, "eCHARGE") //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 10000L)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_WITHOUT_DATA)) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null));
+	}
+
+	@Test
 	void testSetCurrentSendsHttpRequests() throws Exception {
 		final var pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(false);
 		final var httpBundle = DummyBridgeHttpBundle.of(pool);
@@ -194,7 +227,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.setIp("192.168.2.8") //
 						.setChargeControlId(1) //
 						.setMeterId(1) //
-						.setMinHwCurrent(6_000) //
 						.setMaxHwCurrent(32_000) //
 						.build());
 
@@ -249,7 +281,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.setIp("192.168.2.8") //
 						.setChargeControlId(1) //
 						.setMeterId(1) //
-						.setMinHwCurrent(6_000) //
 						.setMaxHwCurrent(32_000) //
 						.setReadOnly(true) //
 						.build());
@@ -278,7 +309,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.setIp("192.168.2.8") //
 						.setChargeControlId(1) //
 						.setMeterId(1) //
-						.setMinHwCurrent(6_000) //
 						.setMaxHwCurrent(32_000) //
 						.build());
 
@@ -310,7 +340,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.setIp("192.168.2.8") //
 						.setChargeControlId(1) //
 						.setMeterId(1) //
-						.setMinHwCurrent(6_000) //
 						.setMaxHwCurrent(32_000) //
 						.build());
 

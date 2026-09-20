@@ -32,6 +32,8 @@ import io.openems.edge.meter.api.PhaseRotation;
 public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 		implements EvseChargePointHardyBarthEcb1, Ecb1Parent, OpenemsComponent, EvseChargePoint, ElectricityMeter {
 
+	private static final int MIN_CURRENT_A = 6;
+
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 
@@ -103,7 +105,7 @@ public class EvseChargePointHardyBarthEcb1Impl extends AbstractOpenemsComponent
 
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phase, //
-						this.config.minHwCurrent() / 1000, //
+						MIN_CURRENT_A, //
 						this.config.maxHwCurrent() / 1000)) //
 				.setIsEvConnected(this.isEvConnected) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //

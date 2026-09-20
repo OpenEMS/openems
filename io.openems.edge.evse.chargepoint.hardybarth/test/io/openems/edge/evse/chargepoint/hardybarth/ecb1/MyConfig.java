@@ -11,7 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private int chargeControlId;
 		private int meterId;
-		private int minHwCurrent;
 		private int maxHwCurrent;
 		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 		private boolean readOnly = false;
@@ -36,11 +35,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMeterId(int meterId) {
 			this.meterId = meterId;
-			return this;
-		}
-
-		public Builder setMinHwCurrent(int minHwCurrent) {
-			this.minHwCurrent = minHwCurrent;
 			return this;
 		}
 
@@ -93,11 +87,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int meterId() {
 		return this.builder.meterId;
-	}
-
-	@Override
-	public int minHwCurrent() {
-		return this.builder.minHwCurrent;
 	}
 
 	@Override

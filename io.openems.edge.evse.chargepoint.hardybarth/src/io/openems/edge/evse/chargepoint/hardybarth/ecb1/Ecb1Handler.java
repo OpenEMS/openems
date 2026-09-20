@@ -205,16 +205,19 @@ public class Ecb1Handler {
 			json = JsonUtils.parseToJsonObject(body);
 		} catch (Exception e) {
 			this.log.warn("Cannot parse ECB1 meter response: " + e.getMessage());
+			this.clearMeterValues();
 			return;
 		}
 
-		var meter = json.getAsJsonObject("meter");
+		var meter = JsonUtils.getAsOptionalJsonObject(json, "meter").orElse(null);
 		if (meter == null) {
+			this.clearMeterValues();
 			return;
 		}
 
-		var data = meter.getAsJsonObject("data");
+		var data = JsonUtils.getAsOptionalJsonObject(meter, "data").orElse(null);
 		if (data == null) {
+			this.clearMeterValues();
 			return;
 		}
 
@@ -258,20 +261,31 @@ public class Ecb1Handler {
 		this.parent._setActiveConsumptionEnergy(energyWhLong);
 	}
 
+	private void clearMeterValues() {
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, null);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, null);
+		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, null);
+
+		this.parent._setActivePower(null);
+		this.parent._setActivePowerL1(null);
+		this.parent._setActivePowerL2(null);
+		this.parent._setActivePowerL3(null);
+		this.parent._setCurrentL1(null);
+		this.parent._setCurrentL2(null);
+		this.parent._setCurrentL3(null);
+		this.parent._setVoltageL1(null);
+		this.parent._setVoltageL2(null);
+		this.parent._setVoltageL3(null);
+		this.parent._setActiveProductionEnergy(null);
+		this.parent._setActiveConsumptionEnergy(null);
+	}
+
 	// -------------------------------------------------------------------------
 	// JSON helpers
 	// -------------------------------------------------------------------------
 
 	private static Double getObisDouble(JsonObject data, String obisCode) {
-		var element = data.get(obisCode);
-		if (element == null || element.isJsonNull()) {
-			return null;
-		}
-		try {
-			return element.getAsDouble();
-		} catch (Exception e) {
-			return null;
-		}
+		return JsonUtils.getAsOptionalDouble(data, obisCode).orElse(null);
 	}
 
 	private static Integer roundToInt(Double value) {
@@ -283,46 +297,18 @@ public class Ecb1Handler {
 	}
 
 	private static Integer getIntOrNull(JsonObject obj, String key) {
-		var el = obj.get(key);
-		if (el == null || el.isJsonNull()) {
-			return null;
-		}
-		try {
-			return el.getAsInt();
-		} catch (Exception e) {
-			return null;
-		}
+		return JsonUtils.getAsOptionalInt(obj, key).orElse(null);
 	}
 
 	private static String getStringOrNull(JsonObject obj, String key) {
-		var el = obj.get(key);
-		if (el == null || el.isJsonNull()) {
-			return null;
-		}
-		return el.getAsString();
+		return JsonUtils.getAsOptionalString(obj, key).orElse(null);
 	}
 
 	private static Boolean getBooleanOrNull(JsonObject obj, String key) {
-		var el = obj.get(key);
-		if (el == null || el.isJsonNull()) {
-			return null;
-		}
-		try {
-			return el.getAsBoolean();
-		} catch (Exception e) {
-			return null;
-		}
+		return JsonUtils.getAsOptionalBoolean(obj, key).orElse(null);
 	}
 
 	private static Double getDoubleOrNull(JsonObject obj, String key) {
-		var el = obj.get(key);
-		if (el == null || el.isJsonNull()) {
-			return null;
-		}
-		try {
-			return el.getAsDouble();
-		} catch (Exception e) {
-			return null;
-		}
+		return JsonUtils.getAsOptionalDouble(obj, key).orElse(null);
 	}
 }

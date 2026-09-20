@@ -28,9 +28,6 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Meter-ID", description = "The ID of the energy meter (default: 1).", required = true)
 	int meterId() default 1;
 
-	@AttributeDefinition(name = "Minimum hardware current", description = "Minimum current of the Charger in mA.", required = true)
-	int minHwCurrent() default 6000;
-
 	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
 
