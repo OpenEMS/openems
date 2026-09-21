@@ -1,6 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedConsumption } from "../shared/shared";
 
@@ -8,12 +8,10 @@ import { SharedConsumption } from "../shared/shared";
     selector: "oe-common-consumption-modal",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ModalComponent extends AbstractFormlyComponent {
-
     protected override generateView(viewContext: ViewContext): OeFormlyView {
         return SharedConsumption.getFormlyDetailsView(viewContext.config, this.translate);
     }

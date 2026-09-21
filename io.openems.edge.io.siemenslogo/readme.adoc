@@ -87,6 +87,7 @@ The LOGO! device uses virtual addresses (V addresses) which map to Modbus coils 
 * **Custom Offsets**: Can be configured if LOGO! uses different virtual address ranges
 
 Example mapping:
+
 * Virtual address 101.0 (first output) → Modbus address 800 + offset
 * Virtual address 110.0 (first input) → Modbus address 880 + offset
 

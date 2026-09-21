@@ -2,30 +2,26 @@
   <ion-grid>
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="8" size-lg="6">
-        @if (environment.backend === 'OpenEMS Backend') {
+        @if (environment.backend === "OpenEMS Backend") {
           @if (noEdges) {
             <ion-card class="ion-justify-content-center">
               @if ((service.metadata | async)?.user; as user) {
-                @if ((user.globalRole === 'installer' || user.globalRole === 'admin')) {
+                @if (user.globalRole === "installer" || user.globalRole === "admin") {
                   <!-- No access to Edges -->
                   <ion-item color="warning" lines="full">
                     <ion-icon slot="start" name="oe-error"></ion-icon>
-                    <ion-label
-                      class="ion-text-wrap ion-text-center">{{"INDEX.NO_EDGE_AVAILABLE" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                    <ion-label class="ion-text-wrap ion-text-center">{{ "INDEX.NO_EDGE_AVAILABLE" | translate: { edgeShortName: environment.edgeShortName } }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
-                    <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                      INSTALLATION.CLICK_RECOMMENDATION</p>
+                    <p translate [translateParams]="{ edgeShortName: environment.edgeShortName }">INSTALLATION.CLICK_RECOMMENDATION</p>
                   </ion-card-content>
                 } @else {
                   <ion-item color="warning" lines="full">
                     <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                    <ion-label
-                      class="ion-text-wrap ion-text-center">{{"INDEX.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                    <ion-label class="ion-text-wrap ion-text-center">{{ "INDEX.NO_EDGE_FOR_USER" | translate: { edgeShortName: environment.edgeShortName } }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
-                    <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                      INDEX.VISIBLE_HERE_AFTER_INSTALLATION</p>
+                    <p translate [translateParams]="{ edgeShortName: environment.edgeShortName }">INDEX.VISIBLE_HERE_AFTER_INSTALLATION</p>
                   </ion-card-content>
                 }
               }
@@ -35,16 +31,13 @@
             <ion-grid>
               <ion-row class="ion-justify-content-center">
                 <ion-col>
-                  <ion-searchbar mode="md"
-                    style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
-                    [(ngModel)]="query" (ionInput)="searchOnChange()" [debounce]="1000">
-                  </ion-searchbar>
+                  <ion-searchbar mode="md" style="--background: var(--ion-color-searchbar-background); color: var(--ion-color-searchbar-text)" [(ngModel)]="query" (ionInput)="searchOnChange()" [debounce]="1000"> </ion-searchbar>
                 </ion-col>
               </ion-row>
               <!-- Filter -->
               @if ((service.metadata | async)?.user; as user) {
                 @if (isAtLeastOwner) {
-                  <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
+                  <oe-filter [filters]="filters()" (setSearchParams)="searchOnChange($event)"></oe-filter>
                 }
               }
               <ion-row class="ion-justify-content-center">
@@ -56,8 +49,7 @@
                       </ion-item>
                     }
                     @for (edge of filteredEdges(); track edge.id; let i = $index) {
-                      <ion-item lines="inset" [routerLink]="['/device', edge.id]"
-                        [color]="edge.isOnline ? null : 'light'" (click)="getAndSubscribeEdge(edge)">
+                      <ion-item lines="inset" [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'" (click)="getAndSubscribeEdge(edge)">
                         <ion-label>
                           <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                           @if (!edge.isOnline) {
@@ -66,31 +58,24 @@
                               @if (edge.lastmessage) {
                                 <ion-label>
                                   <ion-text translate>INDEX.OFFLINE_SINCE</ion-text>
-                                  {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                  {{ edge.lastmessage | date: "dd.MM.yyyy HH:mm" }}
                                 </ion-label>
                               }
                             </p>
                           }
                         </ion-label>
                         <ion-label>
-                          @if (environment.backend === 'OpenEMS Backend') {
+                          @if (environment.backend === "OpenEMS Backend") {
                             <p class="custom-theme-text">ID: {{ edge.id }}</p>
-                            <p class="ion-text-wrap" class="custom-theme-text">
-                              <ion-text translate>INDEX.TYPE</ion-text>: {{
-                              edge.producttype }}
-                            </p>
+                            <p class="ion-text-wrap" class="custom-theme-text"><ion-text translate>INDEX.TYPE</ion-text>: {{ edge.producttype }}</p>
                           }
-                          <p class="ion-text-wrap" class="custom-theme-text">
-                            <ion-text translate>INDEX.LOGGED_IN_AS</ion-text>: {{
-                            edge.getRoleString() }}
-                          </p>
+                          <p class="ion-text-wrap" class="custom-theme-text"><ion-text translate>INDEX.LOGGED_IN_AS</ion-text>: {{ edge.getRoleString() }}</p>
                         </ion-label>
                         <oe-sum-state [sumState]="edge.sumState" [isEdgeOnline]="edge.isOnline"></oe-sum-state>
                       </ion-item>
                     }
                     <ion-infinite-scroll (ionInfinite)="doInfinite($event)" [disabled]="limitReached">
-                      <ion-infinite-scroll-content [loadingSpinner]="'crescent'" ngClass="custom-spinner">
-                      </ion-infinite-scroll-content>
+                      <ion-infinite-scroll-content [loadingSpinner]="'crescent'" ngClass="custom-spinner"> </ion-infinite-scroll-content>
                     </ion-infinite-scroll>
                   </ion-list>
                 </ion-col>
@@ -100,29 +85,27 @@
         }
 
         <!-- Add-Button for desktop devices -->
-        @if (loggedInUserCanInstall && !this.service.isSmartphoneResolution) {
-          <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
-            testId="ibn-button">
+        @if (loggedInUserCanInstall() && !this.service.getIsSmartphoneResolution()) {
+          <ion-fab style="position: fixed; margin-top: 10%; display: block" vertical="bottom" horizontal="center" testId="ibn-button">
             <ion-fab-button size="large">
               <ion-icon name="add-outline"></ion-icon>
             </ion-fab-button>
-            <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
+            <ion-fab-list side="top" style="left: 0; align-items: flex-start" id="blurred">
               <oe-flat-button color="primary" [link]="{ text: './installation', routeRelative: route }">
-                {{"INDEX.ADD_EDGE" | translate: {edgeShortName: environment.edgeShortName} }}
+                {{ "INDEX.ADD_EDGE" | translate: { edgeShortName: environment.edgeShortName } }}
               </oe-flat-button>
             </ion-fab-list>
           </ion-fab>
         }
 
         <!-- Add-Button for mobile devices -->
-        @if (loggedInUserCanInstall && this.service.isSmartphoneResolution) {
-          <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button">
+        @if (loggedInUserCanInstall() && this.service.getIsSmartphoneResolution()) {
+          <ion-fab style="position: fixed" horizontal="end" vertical="bottom" testId="ibn-button">
             <ion-fab-button size="small">
               <ion-icon name="add-outline"></ion-icon>
             </ion-fab-button>
-            <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-              <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active" translate
-                [translateParams]="{edgeShortName: environment.edgeShortName}">INDEX.ADD_EDGE</ion-button>
+            <ion-fab-list side="top" style="right: 0; align-items: flex-end">
+              <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active" translate [translateParams]="{ edgeShortName: environment.edgeShortName }">INDEX.ADD_EDGE</ion-button>
             </ion-fab-list>
           </ion-fab>
         }

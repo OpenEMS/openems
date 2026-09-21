@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
+import com.google.gson.JsonObject;
 import io.openems.common.channel.Level;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
@@ -25,11 +27,16 @@ public class MetadataUtils {
 	 * @param <EDGE>            the type of the {@link Edge}
 	 * @param user              the {@link User}
 	 * @param edges             a Collection of {@link Edge}s
+	 * @param getSettings       a Function that returns @{@link Edge}s settings
 	 * @param paginationOptions the {@link PaginationOptions}
 	 * @return the result, a list of {@link EdgeMetadata}
 	 */
-	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(User user, Collection<EDGE> edges,
-			PaginationOptions paginationOptions) {
+	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(//
+			User user, //
+			Collection<EDGE> edges, //
+			Function<EDGE, JsonObject> getSettings, //
+			PaginationOptions paginationOptions //
+	) {
 		var pagesStream = edges.stream();
 		final var query = paginationOptions.getQuery();
 		if (query != null) {
@@ -86,7 +93,7 @@ public class MetadataUtils {
 						myEdge.getLastmessage(), //
 						null, // firstSetupProtocol
 						Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
-						myEdge.getSettings())) //
+						getSettings.apply(myEdge))) //
 				.toList();
 	}
 

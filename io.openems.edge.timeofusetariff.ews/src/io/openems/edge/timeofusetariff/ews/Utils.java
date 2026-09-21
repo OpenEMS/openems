@@ -33,7 +33,7 @@ public class Utils {
 	/**
 	 * Delay time provider for ENTSO-E API requests.
 	 */
-	public static class EwsDelayTimeProvider implements DelayTimeProvider {
+	public static class EwsDelayTimeProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 

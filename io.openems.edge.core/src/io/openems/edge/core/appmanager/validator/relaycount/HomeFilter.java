@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 import io.openems.edge.app.common.props.RelayProps.RelayContactFilter;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.Checkable;
 
@@ -27,6 +28,8 @@ public class HomeFilter implements CheckRelayCountFilter {
 
 	private boolean onlyHighVoltageRelays;
 
+	private OpenemsAppInstance deviceHardware;
+
 	@Activate
 	public HomeFilter(@Reference(target = "(" + OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME + "="
 			+ CheckHome.COMPONENT_NAME + ")") Checkable checkIsHome) {
@@ -37,13 +40,16 @@ public class HomeFilter implements CheckRelayCountFilter {
 	@Override
 	public void setProperties(Map<String, ?> parameters) {
 		this.onlyHighVoltageRelays = parameters.containsKey("onlyHighVoltageRelays")
-				? (boolean) parameters.get("onlyHighVoltageRelays")
-				: false;
+				&& (boolean) parameters.get("onlyHighVoltageRelays");
+		this.deviceHardware = parameters.containsKey("deviceHardware")
+				? (OpenemsAppInstance) parameters.get("deviceHardware")
+				: null;
 	}
 
 	@Override
 	public RelayContactFilter apply() {
-		return feneconHomeFilter(Language.DEFAULT, this.checkIsHome.check(), this.onlyHighVoltageRelays);
+		return feneconHomeFilter(Language.DEFAULT, this.checkIsHome.check(), this.onlyHighVoltageRelays,
+				this.deviceHardware);
 	}
 
 }

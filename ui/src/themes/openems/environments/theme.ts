@@ -1,14 +1,16 @@
 import { Environment, Theme } from "src/environments";
 import { OemMeta } from "./oem-meta";
 
-export const theme: Omit<Environment, "url" | "backend" | "production" | "debugMode"> = {
+export const theme: Omit<
+    Environment,
+    "url" | "backend" | "production" | "debugMode"
+> = {
     theme: "OpenEMS" as Theme,
 
     uiTitle: "OpenEMS UI",
     uiTitleShort: "OpenEMS",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
-    defaultLanguage: "en",
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     PRODUCT_TYPES: () => null,

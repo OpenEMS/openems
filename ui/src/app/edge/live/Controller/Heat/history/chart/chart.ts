@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -9,12 +9,16 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 @Component({
     selector: "oe-controller-heat-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-
-    protected static getChartData(config: EdgeConfig, translate: TranslateService, component: EdgeConfig.Component | undefined, chartType: "line" | "bar"): HistoryUtils.ChartData {
-
+    protected static getChartData(
+        config: EdgeConfig,
+        translate: TranslateService,
+        component: EdgeConfig.Component | undefined,
+        chartType: "line" | "bar",
+    ): HistoryUtils.ChartData {
         let input: HistoryUtils.InputChannel[] = [];
         AssertionUtils.assertIsDefined(component);
 
@@ -33,11 +37,9 @@ export class ChartComponent extends AbstractHistoryChart {
             energyChannel: new ChannelAddress(component.id, "ActiveProductionEnergy"),
         });
 
-
         return {
             input: input,
             output: (data: HistoryUtils.ChannelData) => {
-
                 const output: HistoryUtils.DisplayValue[] = [];
                 if (component != null) {
                     if (chartType === "line") {
@@ -45,9 +47,7 @@ export class ChartComponent extends AbstractHistoryChart {
                             name: component.alias,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
                                 energyQueryResponse?.result.data[component.id + "/ActiveProductionEnergy"] ?? null,
-                            converter: () => data["ActivePower"]?.map((value) =>
-                                value,
-                            ),
+                            converter: () => data["ActivePower"]?.map((value) => value),
                             yAxisId: ChartAxis.LEFT,
                             color: ChartConstants.Colors.BLUE,
                             stack: 0,
@@ -57,10 +57,10 @@ export class ChartComponent extends AbstractHistoryChart {
                         output.push({
                             name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.TEMPERATURE_UNIT"),
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => null,
-                            converter: () => data["Temperature"]?.map((value) => {
-                                return Utils.multiplySafely(value, 100);
-                            },
-                            ),
+                            converter: () =>
+                                data["Temperature"]?.map((value) => {
+                                    return Utils.multiplySafely(value, 100);
+                                }),
                             yAxisId: ChartAxis.RIGHT,
                             color: ChartConstants.Colors.RED,
                             stack: 1,
@@ -73,8 +73,7 @@ export class ChartComponent extends AbstractHistoryChart {
                             name: component.alias,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
                                 energyQueryResponse?.result.data[component.id + "/ActiveProductionEnergy"] ?? null,
-                            converter: () => data[component.id + "/ActiveProductionEnergy"]
-                                .map(val => val),
+                            converter: () => data[component.id + "/ActiveProductionEnergy"].map((val) => val),
                             color: ChartConstants.Colors.BLUE,
                             yAxisId: ChartAxis.LEFT,
                             stack: 0,
@@ -82,21 +81,22 @@ export class ChartComponent extends AbstractHistoryChart {
                     }
                 }
                 return output;
-
             },
             tooltip: {
                 formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }, {
-                unit: YAxisType.TEMPERATURE,
-                position: "right",
-                yAxisId: ChartAxis.RIGHT,
-                displayGrid: false,
-            },
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+                {
+                    unit: YAxisType.TEMPERATURE,
+                    position: "right",
+                    yAxisId: ChartAxis.RIGHT,
+                    displayGrid: false,
+                },
             ],
         };
     }
@@ -112,5 +112,4 @@ export class ChartComponent extends AbstractHistoryChart {
 
         return ChartComponent.getChartData(config, this.translate, component, this.chartType);
     }
-
 }

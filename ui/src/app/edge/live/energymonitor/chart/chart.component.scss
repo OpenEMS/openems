@@ -1,0 +1,14 @@
+.energymonitor-chart {
+    text-align: center;
+    margin-top: 0;
+
+    // Large screens (Ionic's lg breakpoint and up)
+    @media (min-width: 992px) {
+        margin-top: 4rem;
+    }
+
+    // Medium screens (Ionic's md breakpoint)
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        margin-top: 2rem;
+    }
+}

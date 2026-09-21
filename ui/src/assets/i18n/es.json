@@ -332,7 +332,7 @@
           "CURRENT_VALUE": "Valor actual",
           "DEPENDEND_ON": "Dependiendo de",
           "MIN_SWITCHING_TIME": "Conmutación mínimo",
-          "MORE_THAN_MAX_POWER": "El valor no debe ser inferior a la potencia máxima del dispositivo controlado",
+          "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima del dispositivo controlado",
           "OTHER": "Otro",
           "RELATION_ERROR": "El umbral debe ser mayor que la carga conmutada",
           "SWITCH_OFF_ABOVE": "Apagar a través de",

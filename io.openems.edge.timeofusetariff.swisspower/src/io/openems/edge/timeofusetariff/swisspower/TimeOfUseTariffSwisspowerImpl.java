@@ -167,7 +167,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 	}
 
-	public static class SwisspowerProvider implements DelayTimeProvider {
+	public static class SwisspowerProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 

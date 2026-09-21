@@ -5,6 +5,13 @@ import static io.openems.common.utils.DateUtils.TIME_FORMATTER;
 import static io.openems.common.utils.DateUtils.toQuarterIndex;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_CONSUMPTION;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.LIMIT_CHARGE;
 import static io.openems.edge.energy.optimizer.app.AppUtils.period;
 
 import java.time.LocalTime;
@@ -14,9 +21,12 @@ import java.util.stream.Stream;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
+import io.openems.edge.heat.askoma.Mode;
 
 public class TestConfig {
 
@@ -25,6 +35,7 @@ public class TestConfig {
 		protected static final JsonObject WITH_DYNAMIC_GRID_LIMIT = buildJsonObject() //
 				.addProperty("maxBuyPower", 100000) //
 				.addProperty("maxSellPower", 100000) //
+				.addProperty("maxSellPowerWithBuffer", 100000) //
 				.add("gridBuySoftLimit", buildJsonArray() //
 						.add(buildJsonObject() //
 								.addProperty("@type", "Task") //
@@ -65,8 +76,9 @@ public class TestConfig {
 				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.ESS_FIX_ACTIVE_POWER.factoryPid) //
 				.addProperty("id", "ctrlFixActivePower0") //
 				.add("source", buildJsonObject() //
+						.addProperty("mode", "DISCHARGE_ONCE") //
 						.addProperty("power", 1000) //
-						.addProperty("relationship", "EQUALS") //
+						.addProperty("targetSoc", 5) //
 						.build()) //
 				.build();
 
@@ -87,29 +99,21 @@ public class TestConfig {
 						.build()) //
 				.build();
 
-		protected static final JsonObject ESS_GRID_OPTIMIZED_CHARGE_MANUAL = buildJsonObject() //
-				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid)
-				.addProperty("id", "ctrlGridOptimizedCharge0") //
-				.add("source", buildJsonObject() //
-						.addProperty("class", "Manual") //
-						.addProperty("targetTime", "13:00") //
-						.build()) //
-				.build();
-
-		protected static final JsonObject ESS_GRID_OPTIMIZED_CHARGE_AUTOMATIC = buildJsonObject() //
-				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid)
-				//
-				.addProperty("id", "ctrlGridOptimizedCharge0") //
-				.add("source", buildJsonObject() //
-						.addProperty("class", "Automatic") //
-						.build()) //
-				.build();
-
 		protected static final JsonObject ESS_TIME_OF_USE_TARIFF = buildJsonObject() //
 				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.ESS_TIME_OF_USE_TARIFF.factoryPid) //
 				.addProperty("id", "ctrlEssTimeOfUseTariff0") //
 				.add("source", buildJsonObject() //
-						.addProperty("controlMode", "CHARGE_CONSUMPTION") //
+						.add("activeModes", Stream.of(//
+								BALANCING, //
+								DELAY_DISCHARGE, //
+								CHARGE_GRID, //
+								DELAY_CHARGE, //
+								LIMIT_CHARGE, //
+								DISCHARGE_CONSUMPTION)//
+								.map(StateMachine::name)//
+								.map(JsonPrimitive::new)//
+								.collect(toJsonArray())) //
+						.addProperty("targetSocBuffer", 0.1)//
 						.build()) //
 				.build();
 
@@ -239,21 +243,74 @@ public class TestConfig {
 						.build()) //
 				.build();
 
+		protected static final JsonObject HEAT_ASKOMA = buildJsonObject() //
+				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.HEAT_ASKOMA.factoryPid) //
+				.addProperty("id", "heat0") //
+				.add("source", buildJsonObject() //
+						.addProperty("defaultMode", Mode.OFF.name()) //
+						.addProperty("maxHeatPower", 3000) //
+						.add("tasks", buildJsonArray() //
+								.add(createTask("10:00:00", "PT2H", Mode.SURPLUS.name())) //
+								.add(createTask("13:00:00", "PT2H", Mode.FAST_HEAT.name())) //
+								.build()) //
+						.build()) //
+				.build();
+
+		protected static final JsonObject BRAIINS_SINGLE = buildJsonObject() //
+				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.BRAIINS_SINGLE.factoryPid) //
+				.addProperty("id", "ctrlBraiinsSingle0") //
+				.add("source", buildJsonObject() //
+						.addProperty("defaultMode", "OFF") //
+						.addProperty("consumptionW", 3000) //
+						.add("tasks", buildJsonArray() //
+								.add(buildJsonObject() //
+										.addProperty("@type", "Task") //
+										.addProperty("start", "13:00:00") //
+										.addProperty("duration", "PT2H") //
+										.add("recurrenceRules", buildJsonArray() //
+												.add(buildJsonObject() //
+														.addProperty("frequency", "daily") //
+														.build()) //
+												.build()) //
+										.add("openems.io:payload", buildJsonObject() //
+												.addProperty("class", "Manual") //
+												.addProperty("mode", "ON") //
+												.build()) //
+										.build()) //
+								.build()) //
+						.build()) //
+				.build();
+	}
+
+	private static JsonObject createTask(String start, String duration, String mode) {
+		return buildJsonObject() //
+				.addProperty("@type", "Task") //
+				.addProperty("start", start) //
+				.addProperty("duration", duration) //
+				.add("recurrenceRules", buildJsonArray() //
+						.add(buildJsonObject() //
+								.addProperty("frequency", "daily") //
+								.build()) //
+						.build()) //
+				.add("openems.io:payload", buildJsonObject() //
+						.addProperty("mode", mode) //
+						.build()) //
+				.build();
 	}
 
 	public static class Periods {
 
 		protected static JsonArray getTestData() {
 			var startTimeDayOne = LocalTime.of(0, 0);
-			var prodDayOne = ProductionTestData.PRODUCTION_WINTER_CLEAR;
+			var prodDayOne = ProductionTestData.PRODUCTION_SUMMER_CLEAR;
 			var consDayOne = ConsumptionTestData.CONSUMPTION;
-			var gridBuyPricesDayOne = GridBuyPricesTestData.PRICES_TIBBER_WINTER_CLEAR;
+			var gridBuyPricesDayOne = GridBuyPricesTestData.PRICES_TIBBER_SUMMER_CLEAR;
 			var gridSellPricesDayOne = GridSellPricesTestData.PRICES_CONSTANT;
 
 			var endTimeDayTwo = LocalTime.of(23, 45);
-			var prodDayTwo = ProductionTestData.PRODUCTION_WINTER_CLEAR;
+			var prodDayTwo = ProductionTestData.PRODUCTION_SUMMER_CLEAR;
 			var consDayTwo = ConsumptionTestData.CONSUMPTION;
-			var gridBuyPricesDayTwo = GridBuyPricesTestData.PRICES_TIBBER_WINTER_CLEAR;
+			var gridBuyPricesDayTwo = GridBuyPricesTestData.PRICES_TIBBER_SUMMER_CLEAR;
 			var gridSellPricesDayTwo = GridSellPricesTestData.PRICES_CONSTANT;
 
 			var dayOneStream = IntStream.range(toQuarterIndex(startTimeDayOne), QUARTERS_PER_DAY)//

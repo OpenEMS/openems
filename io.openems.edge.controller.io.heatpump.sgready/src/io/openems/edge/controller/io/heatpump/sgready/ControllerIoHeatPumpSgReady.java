@@ -15,28 +15,30 @@ public interface ControllerIoHeatPumpSgReady extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		STATUS(Doc.of(Status.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		STATUS(Doc.of(Status.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current State")), //
 		AWAITING_HYSTERESIS(Doc.of(OpenemsType.BOOLEAN)), //
-		REGULAR_STATE_TIME(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		REGULAR_STATE_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		RECOMMENDATION_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		FORCE_ON_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		LOCK_STATE_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		GRID_ACTIVE_POWER_NOT_PRESENT(Doc.of(Level.WARNING) //
+		GRID_ACTIVE_POWER_NOT_PRESENT(Doc.of(Level.WARNING)//
 				.text("There is no grid active power present.")),
-		STATE_OF_CHARGE_NOT_PRESENT(Doc.of(Level.WARNING) //
+		STATE_OF_CHARGE_NOT_PRESENT(Doc.of(Level.WARNING)//
 				.text("There is no state of charge present.")), //
-		ESS_DISCHARGE_POWER_NOT_PRESENT(Doc.of(Level.WARNING) //
-				.text("There is no ess discharge power present.")); //
+		ESS_DISCHARGE_POWER_NOT_PRESENT(Doc.of(Level.WARNING)//
+				.text("There is no ess discharge power present.")),
+		IS_TIME_SCHEDULE_TASK_ACTIVE(Doc.of(OpenemsType.BOOLEAN)//
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

@@ -11,14 +11,14 @@ public enum DelayChargeRiskLevel {
 	 * production than consumption but the storage is maybe already full if we need
 	 * to avoid the PV-curtail.
 	 */
-	LOW(180, 0.5f), //
+	LOW(180, 0.5f, 0.15), //
 
 	/**
 	 * The state of charge will likely be at 100% before there is less production
 	 * than consumption. It is still possible that the storage is not completely
 	 * full and not every PV-curtail can be covered.
 	 */
-	MEDIUM(120, 0.75f), //
+	MEDIUM(120, 0.75f, 0.1), //
 
 	/**
 	 * The state of charge will mostly be at 100% before there is less production
@@ -26,7 +26,7 @@ public enum DelayChargeRiskLevel {
 	 * sell to grid power allows - this power can be used to charge the battery,
 	 * because it is not already full in most of the cases.
 	 */
-	HIGH(60, 0.9f);
+	HIGH(60, 0.9f, 0.05);
 
 	/**
 	 * Buffer minutes for the target time in order to work correctly even in case of
@@ -44,9 +44,12 @@ public enum DelayChargeRiskLevel {
 	 */
 	public final float eneryBuffer;
 
-	private DelayChargeRiskLevel(int bufferMinutes, float eneryBuffer) {
+	public final double socBuffer;
+
+	private DelayChargeRiskLevel(int bufferMinutes, float eneryBuffer, double socBuffer) {
 		this.bufferMinutes = bufferMinutes;
 		this.eneryBuffer = eneryBuffer;
+		this.socBuffer = socBuffer;
 	}
 
 	/**

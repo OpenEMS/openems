@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.datasource.single.direct;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -17,7 +17,6 @@ public class SimulatorDatasourceSingleDirectImplTest {
 						.setValues() //
 						.build()) //
 				.next(new TestCase()) //
-		;
+				.deactivate();
 	}
-
 }

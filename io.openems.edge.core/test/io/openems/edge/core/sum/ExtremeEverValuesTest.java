@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;

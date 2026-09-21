@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
@@ -11,10 +11,10 @@ import { environment } from "src/environments";
 @Component({
     selector: JsonrpcTestComponent.SELECTOR,
     templateUrl: "./jsonrpctest.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class JsonrpcTestComponent implements OnInit {
-
     private static readonly SELECTOR = "jsonrpcTest";
 
     protected endpoints: Endpoint[] = [];
@@ -25,45 +25,47 @@ export class JsonrpcTestComponent implements OnInit {
         private service: Service,
         private websocket: Websocket,
         private userService: UserService,
-    ) {
-
-    }
+    ) {}
 
     public ngOnInit(): void {
-        this.service.getCurrentEdge().then(edge => {
+        this.service
+            .getCurrentEdge()
+            .then((edge) => {
+                const currentUserSettings = this.userService.currentUser().settings;
+                if (!currentUserSettings["jsonrpcTest"]) {
+                    currentUserSettings["jsonrpcTest"] = true;
+                    this.websocket
+                        .sendRequest(new UpdateUserSettingsRequest({ settings: currentUserSettings }))
+                        .then(() => {
+                            this.service.toast("Added 'jsonrpcTest' permanently.", "success");
+                        })
+                        .catch(() => {
+                            this.service.toast("Failed adding 'jsonrpcTest' permanently.", "danger");
+                        });
+                }
 
-            const currentUserSettings = this.userService.currentUser().settings;
-            if (!currentUserSettings["jsonrpcTest"]) {
-                currentUserSettings["jsonrpcTest"] = true;
-                this.websocket.sendRequest(
-                    new UpdateUserSettingsRequest({ settings: currentUserSettings })).then(() => {
-                    this.service.toast("Added 'jsonrpcTest' permanently.", "success");
-                }).catch(() => {
-                    this.service.toast("Failed adding 'jsonrpcTest' permanently.", "danger");
+                this.edge = edge;
+                edge.sendRequest(this.websocket, new JsonrpcRequest("routes", {})).then((response) => {
+                    this.endpoints = (response.result["endpoints"] as EndpointResponse[]).map((endpoint) => {
+                        return {
+                            method: endpoint.method,
+                            description: endpoint.description ? endpoint.description.replace("\n", "<br>") : null,
+                            tags: endpoint.tags,
+                            guards: endpoint.guards,
+                            request: endpoint.request, // JSON.stringify(endpoint.request.json, null, 2),
+                            response: endpoint.response,
+                            parent: endpoint.parent,
+                            requestMethod: "raw",
+                            form: new FormGroup({}),
+                            model: {},
+                            modelRaw: JSON.stringify(createDummyRequest(endpoint.request.json), null, 2),
+                        };
+                    });
                 });
-            }
-
-            this.edge = edge;
-            edge.sendRequest(this.websocket, new JsonrpcRequest("routes", {})).then(response => {
-                this.endpoints = (response.result["endpoints"] as EndpointResponse[]).map(endpoint => {
-                    return {
-                        method: endpoint.method,
-                        description: endpoint.description ? endpoint.description.replace("\n", "<br>") : null,
-                        tags: endpoint.tags,
-                        guards: endpoint.guards,
-                        request: endpoint.request, // JSON.stringify(endpoint.request.json, null, 2),
-                        response: endpoint.response,
-                        parent: endpoint.parent,
-                        requestMethod: "raw",
-                        form: new FormGroup({}),
-                        model: {},
-                        modelRaw: JSON.stringify(createDummyRequest(endpoint.request.json), null, 2),
-                    };
-                });
+            })
+            .catch((e) => {
+                this.service.toast(e, "danger");
             });
-        }).catch(e => {
-            this.service.toast(e, "danger");
-        });
     }
 
     protected request(endpoint: Endpoint): void {
@@ -87,11 +89,9 @@ export class JsonrpcTestComponent implements OnInit {
             }
 
             const lastRequest = request;
-            request = new JsonrpcRequest(
-                parent.method, {
-                    ...parent.request.base,
-                },
-            );
+            request = new JsonrpcRequest(parent.method, {
+                ...parent.request.base,
+            });
             const lastObj = request.params;
             for (let j = 0; j < parent.request.pathToSubrequest.length; j++) {
                 const path = parent.request.pathToSubrequest[j];
@@ -103,20 +103,21 @@ export class JsonrpcTestComponent implements OnInit {
             }
         }
 
-
         (environment.backend === "OpenEMS Edge"
             ? this.websocket.sendRequest(request)
-            : this.edge.sendRequest(this.websocket, request))
-            .then(response => {
+            : this.edge.sendRequest(this.websocket, request)
+        )
+            .then((response) => {
                 endpoint.fetch.response = JSON.stringify(response, null, 2);
-            }).catch(error => {
+            })
+            .catch((error) => {
                 endpoint.fetch.response = JSON.stringify(error, null, 2);
-            }).finally(() => {
+            })
+            .finally(() => {
                 endpoint.fetch.loading = false;
                 this.service.stopSpinner(endpoint.method);
             });
     }
-
 }
 
 function createDummyRequest(endpointType?: ElementDefinition) {
@@ -138,62 +139,62 @@ function createDummyRequest(endpointType?: ElementDefinition) {
 }
 
 type EndpointResponse = {
-    method: string,
-    description: string,
-    tags: Tag[],
-    guards: Guard[],
+    method: string;
+    description: string;
+    tags: Tag[];
+    guards: Guard[];
     request: {
-        json: ElementDefinition,
-        examples: RequestExample[]
-    },
+        json: ElementDefinition;
+        examples: RequestExample[];
+    };
     response: {
-        json: ElementDefinition,
-        examples: RequestExample[]
-    },
-    parent: { method: string, request: { base: any, pathToSubrequest: string[] } }[],
+        json: ElementDefinition;
+        examples: RequestExample[];
+    };
+    parent: { method: string; request: { base: any; pathToSubrequest: string[] } }[];
 };
 
 type Tag = {
-    name: string
+    name: string;
 };
 
 type Guard = {
-    name: string,
-    description: string
+    name: string;
+    description: string;
 };
 
 type RequestExample = {
-    key: string,
-    value: {}
+    key: string;
+    value: {};
 };
 
 type ElementDefinition =
-    { type: "object", optional: boolean, properties: { [key: string]: ElementDefinition } }
-    | { type: "array", optional: boolean, elementType: ElementDefinition }
-    | { type: "string" | "boolean" | "number", optional: boolean };
+    | { type: "object"; optional: boolean; properties: { [key: string]: ElementDefinition } }
+    | { type: "array"; optional: boolean; elementType: ElementDefinition }
+    | { type: "string" | "boolean" | "number"; optional: boolean };
 
 type Endpoint = {
-    method: string,
-    description: string,
-    tags: Tag[],
-    guards: Guard[],
+    method: string;
+    description: string;
+    tags: Tag[];
+    guards: Guard[];
     request: {
-        json: ElementDefinition,
-        examples: RequestExample[],
-        selectedExample?: string,
-    },
+        json: ElementDefinition;
+        examples: RequestExample[];
+        selectedExample?: string;
+    };
     response: {
-        json: ElementDefinition,
-        examples: RequestExample[],
-    },
-    parent: { method: string, request: { base: any, pathToSubrequest: string[] } }[],
-    tryRequest?: boolean,
-    requestMethod: string,
+        json: ElementDefinition;
+        examples: RequestExample[];
+    };
+    parent: { method: string; request: { base: any; pathToSubrequest: string[] } }[];
+    tryRequest?: boolean;
+    requestMethod: string;
     form: FormGroup;
     model: any;
     modelRaw: string;
     fetch?: {
-        loading?: boolean,
+        loading?: boolean;
         response?: string;
-    }
+    };
 };

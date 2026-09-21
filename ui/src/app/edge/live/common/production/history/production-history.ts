@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { ChartBaseModule } from "src/app/shared/chart-base.module";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { SharedModule } from "src/app/shared/shared.module";
 
 import { ProductionMeterChartComponent } from "./chart/productionMeterChart";
@@ -22,6 +23,7 @@ import { CommonProductionDetailsOverviewComponent } from "./phase-accurate/overv
         CommonUiModule,
         SharedModule,
         ProductionMeterChartComponent,
+        ChartComponentsModule,
     ],
     declarations: [
         FlatComponent,

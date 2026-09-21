@@ -229,6 +229,7 @@ public class GocBuilder {
 		return new GlobalOptimizationContext.Grid(//
 				/* maxBuyPower */ this.meta.getGridBuyHardLimit(), //
 				/* maxSellPower */ this.meta.getGridSellHardLimit(), //
+				/* maxSellPowerWithBuffer */ this.meta.getGridSellHardLimitWithBuffer(), //
 				/* gridBuySoftLimit */ this.meta.getGridBuySoftLimit());
 	}
 

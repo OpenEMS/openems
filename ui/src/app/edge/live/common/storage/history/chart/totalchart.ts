@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ViewChild } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -16,6 +16,7 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
     selector: "oe-common-storage-total-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         BaseChartDirective,
@@ -25,22 +26,27 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
         NgxSpinnerModule,
     ],
 })
-
 export class StorageTotalChartComponent extends AbstractHistoryChart {
     @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 
-    public static getChartData(translate: TranslateService, chartType: string, config: EdgeConfig): HistoryUtils.ChartData {
-
-        const essComponents = config?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-            .filter(component => !component.factoryId.includes("Ess.Cluster"));
+    public static getChartData(
+        translate: TranslateService,
+        chartType: string,
+        config: EdgeConfig,
+    ): HistoryUtils.ChartData {
+        const essComponents = config
+            ?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+            .filter((component) => !component.factoryId.includes("Ess.Cluster"));
 
         const essComponent: EdgeConfig.Component | null = essComponents?.length === 1 ? essComponents[0] : null;
 
-        const yAxes: HistoryUtils.yAxes[] = [{
-            unit: YAxisType.ENERGY,
-            position: "left",
-            yAxisId: ChartAxis.LEFT,
-        }];
+        const yAxes: HistoryUtils.yAxes[] = [
+            {
+                unit: YAxisType.ENERGY,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            },
+        ];
 
         if (chartType === "line") {
             yAxes.push({
@@ -72,13 +78,17 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
             {
                 name: "Soc",
                 powerChannel: ChannelAddress.fromString("_sum/EssSoc"),
-            });
+            },
+        );
 
-
-        const emergencyReserveComponent: EdgeConfig.Component | null = config
-            .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
-            .filter(component => component.isEnabled)[0] ?? null;
-        const isReserveSocEnabled = config.getPropertyFromComponent<boolean>(emergencyReserveComponent, "isReserveSocEnabled");
+        const emergencyReserveComponent: EdgeConfig.Component | null =
+            config
+                .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
+                .filter((component) => component.isEnabled)[0] ?? null;
+        const isReserveSocEnabled = config.getPropertyFromComponent<boolean>(
+            emergencyReserveComponent,
+            "isReserveSocEnabled",
+        );
 
         if (essComponents.length === 1 && emergencyReserveComponent != null && isReserveSocEnabled) {
             input.push({
@@ -87,23 +97,33 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
             });
         }
 
-        if (essComponent !== null && config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)) {
-            input.push(...Phase.THREE_PHASE.map((phase, i) => ({
-                name: translate.instant("GENERAL.PHASE") + " " + phase,
-                powerChannel: new ChannelAddress(essComponent.id, "ActivePower" + phase),
-            })));
+        if (
+            essComponent !== null &&
+            config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)
+        ) {
+            input.push(
+                ...Phase.THREE_PHASE.map((phase, i) => ({
+                    name: translate.instant("GENERAL.PHASE") + " " + phase,
+                    powerChannel: new ChannelAddress(essComponent.id, "ActivePower" + phase),
+                })),
+            );
         }
         return {
             input: input,
             output: (data: HistoryUtils.ChannelData) => {
-
-                let totalData: number[] = [];
+                let totalData: HistoryUtils.ChannelData[string] = [];
 
                 if (chartType === "line") {
-                    if (config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
+                    if (
+                        config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                            .length > 0
+                    ) {
                         data["_sum/ProductionDcActualPower"]?.forEach((value, index) => {
-                            if (data["_sum/ProductionDcActualPower"][index] != null && data["_sum/ProductionDcActualPower"][index] != undefined) {
-                                totalData[index] = Utils.subtractSafely(data["_sum/EssActivePower"][index], value) as number;
+                            if (data["_sum/ProductionDcActualPower"][index] != null) {
+                                totalData[index] = Utils.subtractSafely(
+                                    data["_sum/EssActivePower"][index],
+                                    value,
+                                ) as number;
                             }
                         });
                     } else {
@@ -111,34 +131,51 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
                     }
                 }
 
-                const output: HistoryUtils.DisplayValue[] = [{
-                    name: translate.instant("GENERAL.CHARGE"),
-                    converter: () => chartType === "line" ? totalData?.map(value => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(value)) : data["_sum/Charge"],
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data["_sum/EssDcChargeEnergy"],
-                    color: ChartConstants.Colors.GREEN,
-                    stack: 0,
-                },
-                {
-                    name: translate.instant("GENERAL.DISCHARGE"),
-                    converter: () => chartType === "line" ? totalData?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)) : data["_sum/Discharge"],
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data["_sum/EssDcDischargeEnergy"],
-                    color: ChartConstants.Colors.RED,
-                    stack: 1,
-                }];
-
-                if (essComponent !== null && config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)) {
-                    output.push(...Phase.THREE_PHASE.map((phase, i) => ({
-                        name: translate.instant("GENERAL.PHASE") + " " + phase,
-                        converter: () => data[essComponent.id + "/ActivePower" + phase],
+                const output: HistoryUtils.DisplayValue[] = [
+                    {
+                        name: translate.instant("GENERAL.CHARGE"),
+                        converter: () =>
+                            chartType === "line"
+                                ? totalData?.map((value) =>
+                                      HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(value),
+                                  )
+                                : data["_sum/Charge"],
+                        nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyResponse.result.data["_sum/EssDcChargeEnergy"],
+                        color: ChartConstants.Colors.GREEN,
+                        stack: 0,
+                    },
+                    {
+                        name: translate.instant("GENERAL.DISCHARGE"),
+                        converter: () =>
+                            chartType === "line"
+                                ? totalData?.map((value) => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value))
+                                : data["_sum/Discharge"],
+                        nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyResponse.result.data["_sum/EssDcDischargeEnergy"],
+                        color: ChartConstants.Colors.RED,
                         stack: 1,
-                        color: ChartConstants.Colors.DEFAULT_PHASES_COLORS[i],
-                    })));
+                    },
+                ];
+
+                if (
+                    essComponent !== null &&
+                    config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)
+                ) {
+                    output.push(
+                        ...Phase.THREE_PHASE.map((phase, i) => ({
+                            name: translate.instant("GENERAL.PHASE") + " " + phase,
+                            converter: () => data[essComponent.id + "/ActivePower" + phase],
+                            stack: 1,
+                            color: ChartConstants.Colors.DEFAULT_PHASES_COLORS[i],
+                        })),
+                    );
                 }
 
                 if (chartType === "line") {
                     output.push({
                         name: translate.instant("GENERAL.SOC"),
-                        converter: () => data["Soc"]?.map(el => Utils.multiplySafely(el, 1000)),
+                        converter: () => data["Soc"]?.map((el) => Utils.multiplySafely(el, 1000)),
                         color: ChartConstants.Colors.GREY,
                         borderDash: [10, 10],
                         yAxisId: ChartAxis.RIGHT,
@@ -148,7 +185,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
                 if (emergencyReserveComponent != null && isReserveSocEnabled) {
                     output.push({
                         name: translate.instant("EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE"),
-                        converter: () => data["EmergencyReserve"]?.map(el => Utils.multiplySafely(el, 1000)),
+                        converter: () => data["EmergencyReserve"]?.map((el) => Utils.multiplySafely(el, 1000)),
                         color: ChartConstants.Colors.BLACK,
                         yAxisId: ChartAxis.RIGHT,
                         borderDash: [3, 3],
@@ -165,7 +202,6 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
     public override getChartData() {
         return StorageTotalChartComponent.getChartData(this.translate, this.chartType, this.config);
     }
-
 
     public ionViewDidEnter() {
         setTimeout(() => {

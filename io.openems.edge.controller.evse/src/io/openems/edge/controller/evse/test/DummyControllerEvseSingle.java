@@ -2,7 +2,7 @@ package io.openems.edge.controller.evse.test;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
-import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 /**

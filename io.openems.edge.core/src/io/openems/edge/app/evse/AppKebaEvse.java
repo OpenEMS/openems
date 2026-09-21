@@ -53,6 +53,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.energy.api.Version;
 
 @Component(name = "App.Evse.ChargePoint.Keba")
 public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Property, Parameter.BundleParameter>
@@ -233,7 +234,8 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.cluster(ctrlSingleId))//
+					.addTask(Tasks.cluster(ctrlSingleId)) //
+					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.addDependencies(AppEvseCluster.dependency())//
 					.build();
 		};

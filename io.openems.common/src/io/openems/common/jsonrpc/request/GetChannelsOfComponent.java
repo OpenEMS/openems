@@ -7,7 +7,12 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonPrimitive;
 
@@ -203,11 +208,20 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 
 		private static class UnitStringParser implements StringParser<Unit> {
 
+			private static final Set<String> LOGGED_UNKNOWN_UNIT_SYMBOLS = ConcurrentHashMap.newKeySet();
+
+			private final Logger log = LoggerFactory.getLogger(UnitStringParser.class);
+
 			@Override
 			public Unit parse(String value) {
 				final var unit = Unit.fromSymbolOrElse(value, null);
 				if (unit == null) {
-					new OpenemsRuntimeException("Unable to find Unit with symbol " + value);
+					if (LOGGED_UNKNOWN_UNIT_SYMBOLS.add(value)) {
+						this.log.warn(
+								"Tried to parse unknown unit symbol '{}'. Maybe the symbols changed in a newer version and the old symbol was not added to the CHANGED_SYMBOL_MAPPING map?",
+								value);
+					}
+					return Unit.NONE;
 				}
 				return unit;
 			}

@@ -1,23 +1,23 @@
 import { Location } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren, ChangeDetectionStrategy, } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { NavigationService } from "../../navigation/service/navigation.service";
 
 export type NavigationOption = {
-    id: string,
-    callback: () => void,
-    alias?: string,
-    isEnabled?: boolean,
+    id: string;
+    callback: () => void;
+    alias?: string;
+    isEnabled?: boolean;
     icon?: string;
 };
 
 @Component({
     selector: "oe-footer-subnavigation",
     templateUrl: "footerNavigation.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FooterNavigationComponent implements AfterViewInit {
-
     private static readonly INTERVAL: number = 1000;
 
     @ViewChildren("subnavigationbuttons", { read: ElementRef })
@@ -38,15 +38,14 @@ export class FooterNavigationComponent implements AfterViewInit {
         protected popoverCtrl: PopoverController,
         private cdr: ChangeDetectorRef,
         private navigationService: NavigationService,
-    ) {
-    }
+    ) {}
 
     @Input() public set navigationOptions(nodes: NavigationOption[]) {
         this._buttons = nodes;
         this.buttons = nodes;
     }
     @HostListener("window:resize", ["$event.target.innerWidth"])
-    private onResize(width: number) {
+    public onResize(width: number) {
         this.initializeFooterSubnavigation();
     }
 
@@ -60,9 +59,7 @@ export class FooterNavigationComponent implements AfterViewInit {
         this.showPopover = false;
     }
 
-    /**
-   * Initializes sub-navigation
-   */
+    /** Initializes sub-navigation */
     private initializeFooterSubnavigation(): void {
         if (this.navigationService.position() == "bottom") {
             this.isInitialized = false;
@@ -70,42 +67,38 @@ export class FooterNavigationComponent implements AfterViewInit {
         }
 
         this.buttons = this._buttons;
-        this.getSplitIndex()
-            .then((indexToSplit) => {
+        this.getSplitIndex().then((indexToSplit) => {
+            if (indexToSplit == null) {
+                return;
+            }
 
-                if (indexToSplit == null) {
-                    return;
-                }
-
-                const allowedButtons = this._buttons.filter(el => el.isEnabled == null ? true : el.isEnabled);
-                this.buttons = allowedButtons.slice(0, indexToSplit);
-                this.popoverButtons = allowedButtons.slice(indexToSplit);
-                this.areButtonsReadyToShow = true;
-            });
+            const allowedButtons = this._buttons.filter((el) => (el.isEnabled == null ? true : el.isEnabled));
+            this.buttons = allowedButtons.slice(0, indexToSplit);
+            this.popoverButtons = allowedButtons.slice(indexToSplit);
+            this.areButtonsReadyToShow = true;
+        });
         this.isInitialized = true;
     }
 
     /**
-   * Gets the split index for navigation buttons
-   *
-   * @returns a promise
-   */
+     * Gets the split index for navigation buttons
+     *
+     * @returns A promise
+     */
     private async getSplitIndex(): Promise<number> {
         return new Promise<number>((resolve) => {
             let indexToSplit: number = 0;
 
             const interval = setInterval(() => {
                 if (this.subnavigationbuttons && this.container) {
-
                     const colLeftPadding = 16;
                     const paddingLeftRight = 24;
                     const ionItemWidth = this.container?.nativeElement.offsetWidth - colLeftPadding;
                     if (ionItemWidth) {
-
                         let sum: number = colLeftPadding;
                         this.subnavigationbuttons.forEach((b, index, el) => {
                             sum += b.nativeElement.offsetWidth + paddingLeftRight;
-                            if ((ionItemWidth) > sum) {
+                            if (ionItemWidth > sum) {
                                 indexToSplit = index;
                             }
                         });

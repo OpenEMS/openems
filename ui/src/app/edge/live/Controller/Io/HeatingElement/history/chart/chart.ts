@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -17,6 +17,7 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 @Component({
     selector: "oe-controller-io-heatingelement-chart",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -28,8 +29,13 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
     ],
 })
 export class ControllerIoHeatingElementChartComponent extends AbstractHistoryChart {
-    public static getChartData(config: EdgeConfig, translate: TranslateService, component: EdgeConfig.Component, phaseColors: string[], chartType: "line" | "bar"): HistoryUtils.ChartData {
-
+    public static getChartData(
+        config: EdgeConfig,
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        phaseColors: string[],
+        chartType: "line" | "bar",
+    ): HistoryUtils.ChartData {
         const consumptionMeter: EdgeConfig.Component = config.getComponentSafely(component.properties["meter.id"]);
 
         const input: HistoryUtils.InputChannel[] = [
@@ -55,18 +61,16 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
         return {
             input: input,
             output: (data: HistoryUtils.ChannelData) => {
-
                 const output: HistoryUtils.DisplayValue[] = [];
 
                 if (chartType === "line") {
                     output.push({
                         name: "Level",
-                        converter: () => data[component.id].map(val => Utils.multiplySafely(val, 1000)),
+                        converter: () => data[component.id].map((val) => Utils.multiplySafely(val, 1000)),
                         color: ChartConstants.Colors.RED,
                         stack: 0,
                         yAxisId: ChartAxis.LEFT,
                     });
-
                 }
 
                 if (chartType === "bar") {
@@ -74,10 +78,12 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
                         output.push({
                             name: "Level " + level,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
-                                energyQueryResponse?.result.data[component.id + "/Level" + level + "CumulatedTime"] ?? null,
-                            converter: () => data[component.id + level]
-                                // TODO add logic to not have to adjust non power data manually
-                                .map(val => Utils.multiplySafely(val, 1000)),
+                                energyQueryResponse?.result.data[component.id + "/Level" + level + "CumulatedTime"] ??
+                                null,
+                            converter: () =>
+                                data[component.id + level]
+                                    // TODO add logic to not have to adjust non power data manually
+                                    .map((val) => Utils.multiplySafely(val, 1000)),
                             color: phaseColors[level % phaseColors.length],
                             stack: 0,
                             yAxisId: ChartAxis.LEFT,
@@ -90,8 +96,7 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
                         name: translate.instant("GENERAL.CONSUMPTION"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
                             energyValues?.result.data[consumptionMeter.id + "/ActiveProductionEnergy"],
-                        converter: () =>
-                            data[consumptionMeter.id + "/ActivePower"] ?? null,
+                        converter: () => data[consumptionMeter.id + "/ActivePower"] ?? null,
                         color: ChartConstants.Colors.YELLOW,
                         stack: 1,
                         yAxisId: ChartAxis.RIGHT,
@@ -104,33 +109,26 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
                 formatNumber: "1.0-2",
             },
             yAxes:
-                consumptionMeter && consumptionMeter.isEnabled ?
-                    [
-                        {
-                            unit: YAxisType.ENERGY,
-                            position: "right",
-                            yAxisId: ChartAxis.RIGHT,
-                        },
-                        {
-                            unit: chartType === "line"
-                                ? YAxisType.HEATING_ELEMENT
-                                : YAxisType.TIME,
-                            position: "left",
-                            yAxisId: ChartAxis.LEFT,
-
-                        },
-                    ]
-                    :
-                    [
-                        {
-                            unit: chartType === "line"
-                                ? YAxisType.HEATING_ELEMENT
-                                : YAxisType.TIME,
-                            position: "left",
-                            yAxisId: ChartAxis.LEFT,
-
-                        },
-                    ],
+                consumptionMeter && consumptionMeter.isEnabled
+                    ? [
+                          {
+                              unit: YAxisType.ENERGY,
+                              position: "right",
+                              yAxisId: ChartAxis.RIGHT,
+                          },
+                          {
+                              unit: chartType === "line" ? YAxisType.HEATING_ELEMENT : YAxisType.TIME,
+                              position: "left",
+                              yAxisId: ChartAxis.LEFT,
+                          },
+                      ]
+                    : [
+                          {
+                              unit: chartType === "line" ? YAxisType.HEATING_ELEMENT : YAxisType.TIME,
+                              position: "left",
+                              yAxisId: ChartAxis.LEFT,
+                          },
+                      ],
         };
     }
 
@@ -143,6 +141,12 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
 
         const component = this.component ?? config.getComponentSafely(this.route.snapshot.params.componentId);
         AssertionUtils.assertIsDefined(component);
-        return ControllerIoHeatingElementChartComponent.getChartData(this.config, this.translate, component, AbstractHistoryChart.phaseColors, this.chartType);
+        return ControllerIoHeatingElementChartComponent.getChartData(
+            this.config,
+            this.translate,
+            component,
+            AbstractHistoryChart.phaseColors,
+            this.chartType,
+        );
     }
 }

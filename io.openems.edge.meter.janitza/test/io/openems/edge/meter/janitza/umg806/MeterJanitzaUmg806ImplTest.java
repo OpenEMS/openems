@@ -2,9 +2,8 @@ package io.openems.edge.meter.janitza.umg806;
 
 import static io.openems.common.types.MeterType.GRID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -14,7 +13,6 @@ public class MeterJanitzaUmg806ImplTest {
 
 	private static ComponentTest prepareTest() throws Exception {
 		return new ComponentTest(new MeterJanitzaUmg806Impl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")
 						// ---- 19000–19010 Voltages ----
 						.withRegisters(19000, 0x3F80, 0x0000, // U_L1
@@ -63,7 +61,7 @@ public class MeterJanitzaUmg806ImplTest {
 	}
 
 	@Test
-	public void testNonInvert() throws Exception {
+	void testNonInvert() throws Exception {
 		prepareTest() //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
@@ -77,7 +75,7 @@ public class MeterJanitzaUmg806ImplTest {
 	}
 
 	@Test
-	public void testInvert() throws Exception {
+	void testInvert() throws Exception {
 		prepareTest() //
 				.activate(MyConfig.create() //
 						.setId("meter0") //

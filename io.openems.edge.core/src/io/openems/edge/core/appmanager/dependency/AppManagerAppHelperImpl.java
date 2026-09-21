@@ -37,6 +37,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
@@ -60,6 +61,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggrega
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -85,6 +87,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
 		@Reference
 		private StaticIpAggregateTask staticIpAggregateTask;
+		@Reference
+		private EnergySchedulerVersionAggregateTask energySchedulerVersionAggregateTask;
 	}
 
 	@Reference
@@ -235,6 +239,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.getOtherAppConfigurations(ignoreInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new));
 
 		var errors = new LinkedList<String>();
+		var failedTasks = new LinkedList<AggregateTask<?>>();
 		final var language = user == null ? null : user.getLanguage();
 
 		// execute all tasks
@@ -245,12 +250,20 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				final var errorMessage = task.getGeneralFailMessage(language);
 				this.log.error(errorMessage, e);
 				errors.add(errorMessage);
+				failedTasks.add(task);
 			} catch (RuntimeException | Error e) {
 				this.log.error("Unexpected error during Task execution.", e);
 			}
 		}
 
 		if (!errors.isEmpty()) {
+			if (errors.size() == 1 //
+					&& ComponentAggregateTask.class.isAssignableFrom(failedTasks.get(0).getClass())) {
+				// Reported as a distinct, structured error since this is the one failure the UI
+				// can resolve on its own (by removing leftover/stale component config and
+				// retrying).
+				throw OpenemsError.EDGE_APP_COMPONENTS_UPDATE_FAILED.exception(errors.get(0));
+			}
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
@@ -1482,7 +1495,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						continue;
 					}
 					var subApp = config.dependencies().stream().filter(t -> t.key.equals(dependency.key)).findFirst()
-							.get();
+							.orElse(null);
 					var dependencyConfig = this.foreachExistingDependency(dependencyApp, target, consumer, instance,
 							subApp, l, alreadyIteratedApps, includeInstance);
 					if (dependencyConfig != null) {
@@ -1536,7 +1549,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			String removeKey = null;
 			for (var entry : copy.entrySet()) {
 				var id = JsonUtils.getAsOptionalString(entry.getValue()).orElse(null);
-				if (id != null && component.id().startsWith(id)) {
+				if (id != null && component.id().startsWith(id + entry.getKey() + ":")) {
 					removeKey = entry.getKey();
 					propertyKeyToCurrentId.put(entry.getKey(), id);
 					break;
@@ -1797,23 +1810,16 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	 * @return the {@link ResourceBundle}
 	 */
 	public static ResourceBundle getTranslationBundle(Language language) {
-		if (language == null) {
-			language = Language.DEFAULT;
-		}
-		// TODO translation
-		switch (language) {
-		case CZ:
-		case ES:
-		case FR:
-		case NL:
-			language = Language.EN;
-			break;
-		case DE:
-		case EN:
-			break;
-		}
+		final var availableLanguage = switch (language) {
+		// Language was not set -> fall back to default (currently GERMAN)
+		case null -> Language.DEFAULT;
+		// Translations are not available -> fall back to ENGLISH
+		case CS, ES, FR, NL, JA -> Language.EN;
+		case DE, EN -> language;
+		};
 
-		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.dependency.translation", language.getLocal());
+		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.dependency.translation",
+				availableLanguage.getLocal());
 	}
 
 	@Override

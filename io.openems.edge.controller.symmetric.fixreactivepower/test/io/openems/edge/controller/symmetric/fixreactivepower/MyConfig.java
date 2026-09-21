@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private int power;
+		private Mode mode;
 
 		private Builder() {
 
@@ -26,6 +27,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPower(int power) {
 			this.power = power;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
 			return this;
 		}
 
@@ -58,6 +64,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int power() {
 		return this.builder.power;
+	}
+
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
 	}
 
 }

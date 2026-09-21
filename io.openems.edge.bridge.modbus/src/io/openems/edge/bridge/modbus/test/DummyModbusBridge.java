@@ -5,6 +5,7 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Clock;
 import java.util.function.Consumer;
 
 import org.osgi.service.event.Event;
@@ -19,6 +20,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
@@ -57,6 +59,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	private SimpleProcessImage processImage = null;
 	private InetAddress ipAddress = null;
+	private Clock clock;
 
 	public DummyModbusBridge(String id) {
 		this(id, LogVerbosity.NONE);
@@ -74,6 +77,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		super.activate(null, new Config(id, "", false, logVerbosity, 2));
 		this.tasksSupplier = getValueViaReflection(this.worker, "tasksSupplier");
 		this.defectiveComponents = getValueViaReflection(this.worker, "defectiveComponents");
+		this.clock = TestUtils.createDummyClock();
 	}
 
 	private synchronized DummyModbusBridge withProcessImage(Consumer<SimpleProcessImage> callback) {
@@ -219,6 +223,17 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
+	 * Sets the clock.
+	 *
+	 * @param clock clock to set
+	 * @return myself
+	 */
+	public DummyModbusBridge withClock(Clock clock) {
+		this.clock = clock;
+		return this;
+	}
+
+	/**
 	 * NOTE: {@link DummyModbusBridge} does not call parent handleEvent().
 	 */
 	@Override
@@ -258,6 +273,11 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	@Override
 	public void closeModbusConnection() {
+	}
+
+	@Override
+	public Clock getClock() {
+		return this.clock;
 	}
 
 }

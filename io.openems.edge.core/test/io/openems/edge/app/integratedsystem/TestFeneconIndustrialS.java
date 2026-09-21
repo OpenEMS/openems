@@ -4,8 +4,8 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
@@ -21,10 +21,9 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 public class TestFeneconIndustrialS {
 
 	private AppManagerTestBundle appManagerTestBundle;
-
 	private OpenemsApp hardwareApp;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

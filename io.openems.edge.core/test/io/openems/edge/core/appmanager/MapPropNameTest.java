@@ -5,8 +5,8 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -19,7 +19,7 @@ public class MapPropNameTest {
 	private TestMapPropName testMapPropName;
 	private OpenemsAppInstance appInstance;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

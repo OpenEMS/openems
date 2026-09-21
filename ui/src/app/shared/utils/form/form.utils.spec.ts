@@ -10,17 +10,17 @@ describe("FormUtils", () => {
 
     it("#findFormControlSafely - control found", () => {
         const formGroup: FormGroup = new FormGroup({
-            "control": new FormControl(),
+            control: new FormControl(),
         });
         expect(FormUtils.findFormControlSafely(formGroup, "control")).toEqual(formGroup.controls["control"]);
     });
 
     it("#findFormControlSafely - control nested deeper found", () => {
         const formGroup: FormGroup = new FormGroup({
-            "some": new FormBuilder().group({
-                "some": new FormBuilder().group({
-                    "something": new FormControl(),
-                    "control": new FormControl(1000),
+            some: new FormBuilder().group({
+                some: new FormBuilder().group({
+                    something: new FormControl(),
+                    control: new FormControl(1000),
                 }),
             }),
         });
@@ -29,10 +29,10 @@ describe("FormUtils", () => {
 
     it("#findFormControlsValueSafely - control nested deeper found", () => {
         const formGroup: FormGroup = new FormGroup({
-            "some": new FormBuilder().group({
-                "some": new FormBuilder().group({
-                    "something": new FormControl(),
-                    "control": new FormControl(1000),
+            some: new FormBuilder().group({
+                some: new FormBuilder().group({
+                    something: new FormControl(),
+                    control: new FormControl(1000),
                 }),
             }),
         });
@@ -41,10 +41,10 @@ describe("FormUtils", () => {
 
     it("#findFormControlsValueSafely - control nested deeper not found", () => {
         const formGroup: FormGroup = new FormGroup({
-            "some": new FormBuilder().group({
-                "some": new FormBuilder().group({
-                    "something": new FormControl(),
-                    "control2": new FormControl(1000),
+            some: new FormBuilder().group({
+                some: new FormBuilder().group({
+                    something: new FormControl(),
+                    control2: new FormControl(1000),
                 }),
             }),
         });

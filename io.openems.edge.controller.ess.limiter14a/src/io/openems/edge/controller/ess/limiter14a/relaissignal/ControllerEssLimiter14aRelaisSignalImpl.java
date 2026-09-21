@@ -1,6 +1,9 @@
 package io.openems.edge.controller.ess.limiter14a.relaissignal;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,6 +17,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -34,17 +38,15 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssLimiter14aRelaisSignalImpl extends AbstractOpenemsComponent implements //
 		ControllerEssLimiter14aRelaisSignal, ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider {
 
 	@Reference
 	private Sum sum;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private ComponentManager componentManager;

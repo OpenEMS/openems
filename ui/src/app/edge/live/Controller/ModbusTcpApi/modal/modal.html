@@ -1,9 +1,9 @@
 @if (isInitialized) {
-  <oe-modal [title]="component.alias" [component]="component" helpKey="CONTROLLER_API_MODBUSTCP_READWRITE">
-    <oe-modal-line [name]="'MODBUS_TCP_API_READ_WRITE.CURRENT_STATE'| translate" [value]="overrideStatus" [leftColumnWidth]="50" ></oe-modal-line>
+  <oe-modal [title]="component.alias" [component]="component" helpKey="REDIRECT.CONTROLLER_API_MODBUSTCP_READWRITE">
+    <oe-modal-line [name]="'MODBUS_TCP_API_READ_WRITE.CURRENT_STATE' | translate" [value]="overrideStatus" [leftColumnWidth]="50"></oe-modal-line>
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
-    <oe-modal-line style="font-weight: bold;" [name]="'MODBUS_TCP_API_READ_WRITE.ACTIVE_POWER_LIMITATIONS' | translate"></oe-modal-line>
-    <oe-modal-line [name]="('MODBUS_TCP_API_READ_WRITE.REGISTER' | translate) +'(SetActivePowerEquals/706)'"></oe-modal-line>
+    <oe-modal-line style="font-weight: bold" [name]="'MODBUS_TCP_API_READ_WRITE.ACTIVE_POWER_LIMITATIONS' | translate"></oe-modal-line>
+    <oe-modal-line [name]="('MODBUS_TCP_API_READ_WRITE.REGISTER' | translate) + '(SetActivePowerEquals/706)'"></oe-modal-line>
     <oe-modal-line [name]="'MODBUS_TCP_API_READ_WRITE.LIMITATION' | translate" [value]="activePowerEqualsValue" [converter]="Converter.POWER_IN_WATT"></oe-modal-line>
     <oe-modal-line [name]="'MODBUS_TCP_API_READ_WRITE.ACTUAL_VALUE' | translate" channelAddress="_sum/EssActivePower" [converter]="Converter.POWER_IN_WATT"></oe-modal-line>
     <oe-modal-line [name]="'MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS' | translate"></oe-modal-line>
@@ -18,9 +18,9 @@
       }
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
     }
-    <oe-modal-info-line [info]="'MODBUS_TCP_API_READ_WRITE.INFO_TEXT' | translate" [icon]="{name: 'information-outline', size: 'large'}"  style="font-size: small;"></oe-modal-info-line>
-    <div style="display: flex; justify-content: flex-end;">
-      <ion-button (click)="getModbusProtocol(component.id, 'tcp')" size="small" style="font-size: small;">{{ 'MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL' | translate }} </ion-button>
+    <oe-modal-info-line [info]="'MODBUS_TCP_API_READ_WRITE.INFO_TEXT' | translate" [icon]="{ name: 'information-outline', size: 'large' }" style="font-size: small"></oe-modal-info-line>
+    <div style="display: flex; justify-content: flex-end">
+      <ion-button (click)="getModbusProtocol(component.id, 'tcp')" size="small" style="font-size: small">{{ "MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL" | translate }} </ion-button>
     </div>
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
   </oe-modal>

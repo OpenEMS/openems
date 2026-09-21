@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,7 +8,9 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
+    selector: "oe-common-consumption-single-history-overview",
     templateUrl: "./phase-accurate.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonConsumptionSingleHistoryOverviewComponent extends AbstractHistoryChartOverview {
@@ -27,8 +29,7 @@ export class CommonConsumptionSingleHistoryOverviewComponent extends AbstractHis
 
     protected override afterIsInitialized() {
         this.componentType = this.getComponentType();
-        this.service.getCurrentEdge().then(edge => {
-
+        this.service.getCurrentEdge().then((edge) => {
             if (!this.component) {
                 return;
             }
@@ -47,7 +48,15 @@ export class CommonConsumptionSingleHistoryOverviewComponent extends AbstractHis
             }
 
             this.navigationButtons = [
-                { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+                {
+                    id: "currentVoltage",
+                    isEnabled: edge.roleIsAtLeast(Role.INSTALLER),
+                    alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"),
+                    callback: () => {
+                        this.router.navigate(["./currentVoltage"], { relativeTo: this.route });
+                    },
+                },
+            ];
         });
     }
 
@@ -56,21 +65,28 @@ export class CommonConsumptionSingleHistoryOverviewComponent extends AbstractHis
             return null;
         }
 
-        if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)
-            && (this.component.factoryId !== "Evcs.Cluster.SelfConsumption")
-            && this.component.factoryId !== "Evcs.Cluster.PeakShaving"
-            && this.component.isEnabled !== false) {
+        if (
+            this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id) &&
+            this.component.factoryId !== "Evcs.Cluster.SelfConsumption" &&
+            this.component.factoryId !== "Evcs.Cluster.PeakShaving" &&
+            this.component.isEnabled !== false
+        ) {
             return "evcs";
         }
 
-        if (this.config?.hasComponentNature("io.openems.edge.heat.api.Heat", this.component.id)
-            && (this.component.factoryId !== "Controller.Heat.Heatingelement")
-            && this.component.isEnabled !== false) {
+        if (
+            this.config?.hasComponentNature("io.openems.edge.heat.api.Heat", this.component.id) &&
+            this.component.factoryId !== "Controller.Heat.Heatingelement" &&
+            this.component.isEnabled !== false
+        ) {
             return "heat";
         }
 
-        if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)
-            && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
+        if (
+            this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id) &&
+            this.config.isTypeConsumptionMetered(this.component) &&
+            this.component.isEnabled
+        ) {
             return "consumptionMeter";
         }
 

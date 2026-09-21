@@ -26,5 +26,8 @@ import io.openems.edge.predictor.api.prediction.SourceChannel;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
+	@AttributeDefinition(name = "Model-Complexity", description = "Defines model complexity and memory usage.")
+	ModelComplexity modelComplexity() default ModelComplexity.HIGH;
+
 	String webconsole_configurationFactory_nameHint() default "Predictor Production Regression Model [{id}]";
 }

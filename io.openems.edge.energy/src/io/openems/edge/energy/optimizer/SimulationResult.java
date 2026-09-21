@@ -26,6 +26,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
 import io.openems.edge.energy.api.simulation.GocUtils;
@@ -40,6 +41,7 @@ public record SimulationResult(//
 				? extends EnergyScheduleHandler.WithDifferentModes, //
 				ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition>> schedules, //
 		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode, //
+		Ess ess, //
 		int simulationsCounter, //
 		int generationsCounter) {
 
@@ -73,7 +75,7 @@ public record SimulationResult(//
 	 * An empty {@link SimulationResult}.
 	 */
 	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(Fitness.builder().build(), //
-			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), 0, 0);
+			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), new Ess(0, 0, 0, 0), 0, 0);
 
 	protected static class BestScheduleCollector {
 		private final ImmutableSortedMap.Builder<ZonedDateTime, SimulationResult.Period> periods = //
@@ -145,6 +147,7 @@ public record SimulationResult(//
 				periods, //
 				schedules, //
 				eshsWithOnlyOneMode, //
+				goc.ess(), //
 				simulationsCounter, //
 				generationsCounter);
 	}

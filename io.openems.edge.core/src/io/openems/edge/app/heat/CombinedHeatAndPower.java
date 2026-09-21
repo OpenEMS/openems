@@ -117,12 +117,19 @@ public class CombinedHeatAndPower
 		public Function<GetParameterValues<CombinedHeatAndPower>, CombinedHeatAndPowerParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new CombinedHeatAndPowerParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 1, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
-										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
+								List.of(//
+										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false,
+												deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, false, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5 }), //
 										PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
@@ -199,9 +206,15 @@ public class CombinedHeatAndPower
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(false),
-						CheckRelayCountFilters.deviceHardware()));
+				.setInstallableCheckableConfigs(checkRelayCount(1, //
+						CheckRelayCountFilters.feneconHome(true, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(true, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override

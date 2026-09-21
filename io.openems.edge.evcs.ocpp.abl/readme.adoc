@@ -41,6 +41,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: OCPP interface for ABL electric vehicle charging stations. Controls charging current, monitors power consumption, and reports charging status. Enables dynamic charging based on grid conditions and energy availability. Extends AbstractOcppEvcsComponent for standard OCPP functionality.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

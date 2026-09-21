@@ -1,13 +1,12 @@
 package io.openems.edge.io.shelly.shellypro4pm;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
@@ -29,7 +28,7 @@ public class IoShellyPro4PmTest {
 		final var terminal2 = new IoShellyPro4PmTerminalImpl();
 		final var terminal3 = new IoShellyPro4PmTerminalImpl();
 		final var terminal4 = new IoShellyPro4PmTerminalImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		final var deviceTest = new ComponentTest(device) //
@@ -45,7 +44,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		var terminal1Test = new ComponentTest(terminal1).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io1") //
@@ -57,7 +55,6 @@ public class IoShellyPro4PmTest {
 		;
 
 		final var terminal2Test = new ComponentTest(terminal2).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io2") //
@@ -68,7 +65,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		final var terminal3Test = new ComponentTest(terminal3).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io3") //
@@ -79,7 +75,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		final var terminal4Test = new ComponentTest(terminal4).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io4") //
@@ -342,7 +337,7 @@ public class IoShellyPro4PmTest {
 							.toBeCalled();
 
 					testCase.onBeforeControllersCallbacks(dummyCycleSubscriber::triggerNextCycle);
-					testCase.onAfterWriteCallbacks(() -> assertTrue("Failed to turn on relay", relayTurnedOn.get()));
+					testCase.onAfterWriteCallbacks(() -> assertTrue(relayTurnedOn.get(), "Failed to turn on relay"));
 				}));
 
 		this.testNoCommunication(deviceTest, terminal1Test, terminal2Test, terminal3Test, terminal4Test, httpTestBundle,

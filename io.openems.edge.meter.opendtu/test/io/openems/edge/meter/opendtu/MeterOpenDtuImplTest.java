@@ -23,7 +23,7 @@ public class MeterOpenDtuImplTest {
 	@Test
 	public void test() throws Exception {
 		final var odtu = new MeterOpenDtuImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(odtu) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //

@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { v4 as uuidv4 } from "uuid";
@@ -8,18 +8,14 @@ import { CommonUiModule } from "../../common-ui.module";
     selector: "oe-time-line",
     standalone: true,
     templateUrl: "./picktime.component.html",
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        CommonUiModule,
-        IonicModule,
-    ],
+    imports: [FormsModule, ReactiveFormsModule, CommonUiModule, IonicModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             .datetime-button {
                 &::part(native) {
-                   background-color: var(--ion-color-toolbar-primary);
-                   }
+                    background-color: var(--ion-color-toolbar-primary);
+                }
 
                 &::part(content) {
                     padding: 0 !important;
@@ -33,7 +29,6 @@ import { CommonUiModule } from "../../common-ui.module";
     ],
 })
 export class TimeLineComponent {
-
     @Input({ required: true }) public formGroup!: FormGroup;
 
     @Input({ required: true }) public controlName!: string;

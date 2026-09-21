@@ -9,7 +9,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,6 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -43,13 +43,11 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		property = { //
 				"type=PRODUCTION" //
 		}) //
+@GenerateTargetsFromReferences("Modbus")
 public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, ManagedSymmetricPvInverter, VictronPvInverter, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_APPARENT_POWER = 10_000;
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	protected Config config;
 
@@ -67,7 +65,9 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -75,10 +75,7 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 		if (this.config.enabled()) {
 			this._setMaxApparentPower(MAX_APPARENT_POWER);
 			this.installListener();

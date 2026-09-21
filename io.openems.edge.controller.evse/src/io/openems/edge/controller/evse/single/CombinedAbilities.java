@@ -2,12 +2,13 @@ package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.evse.single.Utils.combineAbilities;
+import static io.openems.edge.controller.evse.single.Utils.combineOppositePhaseAbilities;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
@@ -18,7 +19,7 @@ import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities
  */
 public record CombinedAbilities(//
 		ChargePointAbilities chargePointAbilities, ElectricVehicleAbilities electricVehicleAbilities, //
-		boolean isReadyForCharging, ApplySetPoint.Ability.Watt applySetPoint, PhaseSwitch phaseSwitch) {
+		boolean isReadyForCharging, ApplySetPoint.Ability.Watt applySetPoint, ApplyPhaseSwitch phaseSwitch) {
 
 	public static final class Builder {
 
@@ -47,7 +48,11 @@ public record CombinedAbilities(//
 			final var phaseSwitch = this.electricVehicleAbilities != null && this.chargePointAbilities != null
 					&& this.electricVehicleAbilities.canInterrupt() //
 					&& this.chargePointAbilities.phaseSwitch() != null //
-							? this.chargePointAbilities.phaseSwitch() //
+							? new ApplyPhaseSwitch(//
+									this.chargePointAbilities.phaseSwitch().direction(),
+									this.chargePointAbilities.phaseSwitch().ability(), //
+									combineOppositePhaseAbilities(//
+											this.chargePointAbilities, this.electricVehicleAbilities)) //
 							: null;
 
 			return new CombinedAbilities(this.chargePointAbilities, this.electricVehicleAbilities, isReadyForCharging,
@@ -66,6 +71,29 @@ public record CombinedAbilities(//
 	}
 
 	/**
+	 * Gets the maximum distributable set-point in watt for the current ability set.
+	 *
+	 * @param isAutomaticPhaseSwitching true if automatic phase switching is enabled
+	 * @return the maximum set-point in watt that may be used for distribution
+	 */
+	public int getDistributionMaxSetPointInWatt(boolean isAutomaticPhaseSwitching) {
+		var maxSetPointInWatt = this.applySetPoint.toPower(this.applySetPoint.max());
+		if (!isAutomaticPhaseSwitching) {
+			// Non-automatic phase switchers: only use current phase maximum
+			return maxSetPointInWatt;
+		}
+
+		// Automatic phase switchers: consider both current and opposite phase maximums
+		if (this.phaseSwitch == null //
+				|| this.phaseSwitch.oppositePhaseApplySetPoint() == null //
+				|| this.phaseSwitch.oppositePhaseApplySetPoint()
+						.equals(ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY)) {
+			return maxSetPointInWatt;
+		}
+		return Math.max(maxSetPointInWatt, this.phaseSwitch.oppositePhaseApplySetPoint().max());
+	}
+
+	/**
 	 * Returns a {@link JsonSerializer} for {@link CombinedAbilities}.
 	 * 
 	 * @param payloadSerializer a {@link JsonSerializer} for the Payload
@@ -78,7 +106,8 @@ public record CombinedAbilities(//
 					json.getObject("electricVehicleAbilities", ElectricVehicleAbilities.serializer()), //
 					json.getBoolean("isReadyForCharging"), //
 					json.getObject("applySetPoint", ApplySetPoint.Ability.Watt.serializer()), //
-					json.getOptionalEnum("phaseSwitch", PhaseSwitch.class).orElse(null));
+					json.getObject("phaseSwitch", ApplyPhaseSwitch.serializer()) //
+			);
 		}, obj -> {
 			return buildJsonObject() //
 					.add("chargePointAbilities", ChargePointAbilities.serializer().serialize(obj.chargePointAbilities)) //
@@ -86,7 +115,7 @@ public record CombinedAbilities(//
 							ElectricVehicleAbilities.serializer().serialize(obj.electricVehicleAbilities)) //
 					.addProperty("isReadyForCharging", obj.isReadyForCharging) //
 					.add("applySetPoint", ApplySetPoint.Ability.serializer().serialize(obj.applySetPoint)) //
-					.addProperty("phaseSwitch", obj.phaseSwitch) //
+					.add("phaseSwitch", ApplyPhaseSwitch.serializer().serialize(obj.phaseSwitch)) //
 					.build();
 		});
 	}

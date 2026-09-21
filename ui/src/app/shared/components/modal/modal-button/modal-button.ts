@@ -1,20 +1,26 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Icon } from "src/app/shared/type/widget";
 import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
     selector: "oe-modal-buttons",
     templateUrl: "./modal-button.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalButtonsComponent extends AbstractModalLine {
-
-    @Input({ required: true }) public buttons!: ButtonLabel[];
-
     /** ControlName for interactive Button */
-    @Input({ required: true }) protected control:
-        { type: "RADIO" } |
-        { type: "SELECT" } = { type: "SELECT" };
+    @Input({ required: true }) protected control: { type: "RADIO" } | { type: "SELECT" } = { type: "SELECT" };
+
+    public _buttons!: ButtonLabel[];
+
+    @Input({ required: true }) set buttons(value: ButtonLabel[]) {
+        this._buttons = value.map((button) => ({
+            ...button,
+            icon: button.icon ? (Array.isArray(button.icon) ? button.icon : [button.icon]) : [],
+            callback: button.callback ?? (() => {}),
+        }));
+    }
 }
 
 export type ButtonLabel = {
@@ -23,8 +29,8 @@ export type ButtonLabel = {
     value: string | number | boolean;
     description?: string;
     /** Icons for Button, displayed above the corresponding name */
-    icon?: Icon;
+    icon?: Icon | Icon[];
     callback?: () => void;
-    style?: Exclude<Partial<CSSStyleDeclaration>, "objectFit" | "width" | "height" | "src">,
+    style?: Exclude<Partial<CSSStyleDeclaration>, "objectFit" | "width" | "height" | "src">;
     disabled?: boolean;
 };

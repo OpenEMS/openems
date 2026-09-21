@@ -48,7 +48,7 @@ public interface HeatAskoma extends OpenemsComponent {
 				.text("Heater 2 is active")), //
 		HEATER1_ACTIVE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Heater 1 is active")), //
-		MODE(Doc.of(ChannelMode.values())//
+		MODE(Doc.of(Mode.values())//
 				.text("Current mode of the device")//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		STATE_MACHINE(Doc.of(StateMachine.State.values())//

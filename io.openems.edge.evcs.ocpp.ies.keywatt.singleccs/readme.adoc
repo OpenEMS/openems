@@ -4,11 +4,13 @@ This component implements the IES KeyWatt CCS charging station with a single plu
 It provides specific information for the AbstractOcppEvcsComponent.
 
 Implemented Natures:
+
 * Evcs (Electric Vehicle Charging Station
 * ManagedEvcs
 * MeasuringEvcs (Can get measured information)
 
 Extended abstract class:
+
 * AbstractOcppEvcsComponent
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.ocpp.ies.keywatt.singleccs[Source Code icon:github[]]

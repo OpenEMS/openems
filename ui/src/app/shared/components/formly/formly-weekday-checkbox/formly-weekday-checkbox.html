@@ -1,0 +1,10 @@
+<ion-card-content [formGroup]="formGroup">
+  <ion-row>
+    @for (day of days; track day.controlName) {
+      <ion-col style="align-items: center; display: flex">
+        <ion-label>{{ day.label | translate }} </ion-label>
+        <ion-checkbox [formControlName]="day.controlName"></ion-checkbox>
+      </ion-col>
+    }
+  </ion-row>
+</ion-card-content>

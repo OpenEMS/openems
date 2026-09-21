@@ -4,12 +4,14 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
@@ -25,6 +27,7 @@ import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -238,40 +241,88 @@ public final class EvcsProps {
 	 * @param <T>    type of app
 	 * @return the {@link AppDef}
 	 */
-	public static <T extends OpenemsApp & AppManagerUtilSupplier> AppDef<T, Nameable, BundleProvider> architectureType(
+	public static <T extends OpenemsApp & AppManagerUtilSupplier & EMobilityApp> AppDef<T, Nameable, BundleProvider> architectureType(
 			Nameable evcsId) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Evcs.Keba.architectureType.label")//
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					var appManagerUtil = app.getAppManagerUtil();
-					var apps = appManagerUtil.getInstantiatedAppsByCategories(OpenemsAppCategory.EVCS);
-					var value = apps.stream().filter(t -> {
-						return t.properties.has("ARCHITECTURE_TYPE");
-					}).map(t -> {
-						return t.properties.get("ARCHITECTURE_TYPE");
-					}).map(t -> t.getAsString()).findFirst().orElse(null);
-
-					EMobilityArchitectureType excluded = null;
-
-					if (value != null) {
-						excluded = switch (value) {
-						case "EVCS" -> EMobilityArchitectureType.EVSE;
-						case "EVSE" -> EMobilityArchitectureType.EVCS;
-						default -> null;
-						};
-					}
-
-					if (excluded != null) {
-						field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class, excluded), l);
-					} else {
-						field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class), l);
-					}
-
-				})//
-				.wrapField((app, property, l, parameter, field) -> {
 					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
+					var availableArchitectureTypes = getAvailableArchitectureTypes(app.supportedArchitectureTypes(),
+							getExistingArchitectureType(app));
+					field.setOptions(
+							OptionsFactory.of(availableArchitectureTypes.toArray(EMobilityArchitectureType[]::new)), l);
 				})//
 				.setRequired(true)//
-				.setDefaultValue(EMobilityArchitectureType.EVCS));
+				.setDefaultValue((app, property, l, parameter) -> {
+					var supportedArchitectureTypes = app.supportedArchitectureTypes();
+					return new JsonPrimitive(
+							resolveArchitectureTypeDefault(supportedArchitectureTypes, getExistingArchitectureType(app))
+									.name());
+				}));
+	}
+
+	private static <T extends OpenemsApp & AppManagerUtilSupplier> EMobilityArchitectureType getExistingArchitectureType(
+			T app) {
+		var appManagerUtil = app.getAppManagerUtil();
+		if (appManagerUtil == null) {
+			return null;
+		}
+		var apps = appManagerUtil.getInstantiatedAppsByCategories(OpenemsAppCategory.EVCS);
+		if (apps == null) {
+			return null;
+		}
+
+		final var serializer = JsonSerializerUtil.enumSerializerFromObjectNullable("ARCHITECTURE_TYPE",
+				EMobilityArchitectureType.class);
+		final var configuredArchitectureType = apps.stream() //
+				.map(instance -> serializer.deserializeNullable(instance.properties)) //
+				.filter(Objects::nonNull) //
+				.findFirst() //
+				.orElse(null);
+		if (configuredArchitectureType != null) {
+			return configuredArchitectureType;
+		}
+
+		return apps.stream() //
+				.map(instance -> {
+					final var installedApp = appManagerUtil.findAppById(instance.appId).orElse(null);
+					if (!(installedApp instanceof EMobilityApp eMobilityApp)) {
+						return null;
+					}
+
+					final var supportedArchitectureTypes = eMobilityApp.supportedArchitectureTypes();
+					return supportedArchitectureTypes.size() == 1 ? supportedArchitectureTypes.getFirst() : null;
+				}) //
+				.filter(Objects::nonNull) //
+				.findFirst() //
+				.orElse(null);
+	}
+
+	private static List<EMobilityArchitectureType> getAvailableArchitectureTypes(
+			List<EMobilityArchitectureType> supportedArchitectureTypes,
+			EMobilityArchitectureType existingArchitectureType) {
+		if (existingArchitectureType == null) {
+			return supportedArchitectureTypes;
+		}
+		if (supportedArchitectureTypes.contains(existingArchitectureType)) {
+			return List.of(existingArchitectureType);
+		}
+		return List.of();
+	}
+
+	private static EMobilityArchitectureType resolveArchitectureTypeDefault(
+			List<EMobilityArchitectureType> supportedArchitectureTypes,
+			EMobilityArchitectureType existingArchitectureType) {
+		if (supportedArchitectureTypes.contains(EMobilityArchitectureType.EVCS)
+				&& supportedArchitectureTypes.contains(EMobilityArchitectureType.EVSE)) {
+			return existingArchitectureType != null ? existingArchitectureType : EMobilityArchitectureType.EVCS;
+		}
+		if (supportedArchitectureTypes.contains(EMobilityArchitectureType.EVCS)) {
+			return EMobilityArchitectureType.EVCS;
+		}
+		if (supportedArchitectureTypes.contains(EMobilityArchitectureType.EVSE)) {
+			return EMobilityArchitectureType.EVSE;
+		}
+		return EMobilityArchitectureType.EVCS;
 	}
 }

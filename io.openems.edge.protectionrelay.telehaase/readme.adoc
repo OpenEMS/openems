@@ -1,0 +1,45 @@
+= Protection Relay Tele Haase
+
+Integration of the Tele Haase NA003.COM-M64 grid and system protection relay.
+
+== Overview
+
+This bundle provides integration for the Tele Haase NA003.COM-M64 protection relay. It communicates with the device via Modbus RTU and exposes relay status, measured values and protection information to OpenEMS. Typical applicationsinclude monitoring of grid and system protection for distributed energy resources such as photovoltaic, battery or combined heat and power systems.
+
+== Supported Devices
+
+- https://tele-online.com/produkt/na003-COM-m64-version-h/[Tele Haase NA003.COM-M64]
+
+== Components
+
+This bundle implements the following OpenEMS components:
+
+=== <<_na003comm64_protectionrelay,Tele Haase NA003.COM-M64>>
+
+*Name*: Protection Relay Tele Haase NA003.COM-M64
+
+*Factory-PID*: `ProtectionRelay.Tele.Na003M64`
+
+.Implemented Natures/Interfaces
+* Na003ComM64
+* ModbusComponent
+* OpenemsComponent
+
+*Description*: Provides communication with a Tele Haase protection relay via Modbus. The component periodically reads the relay status and exposes alarms, operating state and measured values to OpenEMS.
+
+*Use Cases*:
+
+* Grid code compliance
+* Monitoring protection relay status
+* Remote diagnostics
+
+.*Configuration*:
+* `id` (String): Unique ID of this Component (default: "relay0")
+* `alias` (String): Human-readable name of this Component; defaults to Component-ID
+* `enabled` (boolean): Is this Component enabled? (default: true)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `modbusUnitId` (int): The Unit-ID of the Modbus device (default: 1)
+
+[[_na003comm64_protectionrelay]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.protectionrelay.telehaase[Source Code icon:github[]]

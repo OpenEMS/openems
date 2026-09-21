@@ -1,0 +1,16 @@
+<ion-range style="width: 100%; padding-top: 8px" color="dark" [min]="properties().tickMin ?? 1" [max]="properties().tickMax ?? 100" [step]="properties().step ?? 1" debounce="500" [pinFormatter]="properties().pinFormatter ?? DEFAULT_PIN_FORMATTER" [pin]="true" [snaps]="properties().snaps ?? false" [dualKnobs]="true" [value]="dualRangeValue" (ionInput)="onDualRangeInput($event)" (ionChange)="onDualRangeChange($event)">
+  <ion-label slot="start">
+    @if (properties().unit) {
+      {{ properties().tickMin | unitvalue: properties().unit }}
+    } @else if (properties().tickMin) {
+      {{ properties().tickMin | converter: (properties().tickFormatter ? properties().tickFormatter : null) }}
+    }
+  </ion-label>
+  <ion-label slot="end">
+    @if (properties().unit) {
+      {{ properties().tickMax | unitvalue: properties().unit }}
+    } @else if (properties().tickMax) {
+      {{ properties().tickMax | converter: (properties().tickFormatter ? properties().tickFormatter : null) }}
+    }
+  </ion-label>
+</ion-range>

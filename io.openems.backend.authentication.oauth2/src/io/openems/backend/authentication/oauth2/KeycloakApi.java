@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.HttpAuthorization;
+import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
@@ -89,7 +91,7 @@ public final class KeycloakApi {
 	public static CompletableFuture<String> createUser(BridgeHttp bridgeHttp, String issuerUrl, String realm,
 			String token, String username, String email, String firstName, String lastName, boolean enabled) {
 		return bridgeHttp.request(BridgeHttp.Endpoint.create(issuerUrl + "/admin/realms/" + realm + "/users") //
-				.setHeader("Authorization", "Bearer " + token) //
+				.setHeader(HttpHeader.authorization(HttpAuthorization.bearer(token))) //
 				.setBodyJson(JsonUtils.buildJsonObject() //
 						.addProperty("username", username) //
 						.addProperty("email", email) //
@@ -133,7 +135,7 @@ public final class KeycloakApi {
 						.create(UrlBuilder.parse(issuerUrl + "/admin/realms/" + realm + "/roles") //
 								.withQueryParam("search", search) //
 								.toEncodedString()) //
-						.setHeader("Authorization", "Bearer " + token) //
+						.setHeader(HttpHeader.authorization(HttpAuthorization.bearer(token))) //
 						.build()) //
 				.thenApply(response -> RealmRole.serializer().toListSerializer().deserialize(response.data()));
 	}

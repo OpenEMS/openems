@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.datasource.csv.direct;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -8,8 +8,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.simulator.CsvFormat;
 
 public class SimulatorDatasourceCsvDirectImplTest {
-
-	private static final String COMPONENT_ID = "datasource0";
 
 	private static ComponentTest createTest(String componentId, String source) throws Exception {
 		return new ComponentTest(new SimulatorDatasourceCsvDirectImpl()) //
@@ -36,9 +34,9 @@ public class SimulatorDatasourceCsvDirectImplTest {
 	}
 
 	@Test
-	public void test() throws Exception {
-		createTest(COMPONENT_ID, "") //
+	void test() throws Exception {
+		createTest("datasource0", "") //
 				.next(new TestCase()) //
-		;
+				.deactivate();
 	}
 }

@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -46,7 +47,7 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 	public static enum Property implements Type<Property, AppEnerixControl, BundleParameter>, Nameable {
 		CONTROLLER_ID(AppDef.componentId("ctrlEnerixControl0")), //
 		ALIAS(alias()), //
-		URL(CleverPvProps.url(CONTROLLER_ID)), //
+		URL(CleverPvProps.url(CONTROLLER_ID, "App.Cloud.EnerixControl.url.description")), //
 		PRIVACY_POLICY(CleverPvProps.privacyPolicy(CONTROLLER_ID)), //
 		;
 
@@ -99,11 +100,16 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var url = this.getValueOrDefault(p, Property.URL, null);
+			final var isNewUrl = CleverPvUrl.isNewUrl(url);
+
+			if (t == ConfigurationTarget.ADD || t == ConfigurationTarget.UPDATE && isNewUrl) {
+				validateUrl(url, l);
+			}
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
-									.addProperty("url", url)//
+									.onlyIf(isNewUrl, b -> b.addProperty("url", url)) //
 									.addProperty("readOnly", false)//
 									.build()));
 
@@ -113,6 +119,13 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 							new SchedulerComponent(id, "Controller.Clever-PV", this.getAppId()))) //
 					.build();
 		};
+	}
+
+	private static void validateUrl(String url, Language language) throws OpenemsException {
+		if (CleverPvUrl.isValid(url)) {
+			return;
+		}
+		throw new OpenemsException(getTranslation(language, "App.Cloud.EnerixControl.url.invalid"));
 	}
 
 	@Override

@@ -108,6 +108,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 	private ModelBundle currentModel;
 	private SnowStateMachine snowStateMachine;
 	private PredictionPersistenceService predictionPersistenceService;
+	private ModelComplexity modelComplexity;
 	private int maxProduction = Integer.MAX_VALUE;
 
 	@Activate
@@ -120,6 +121,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		}
 
 		this.productionChannelAddress = config.sourceChannel().channelAddress;
+		this.modelComplexity = config.modelComplexity();
 
 		this.predictionPersistenceService = new PredictionPersistenceService(//
 				this, //
@@ -303,7 +305,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 				this.weather, //
 				this.productionChannelAddress, //
 				this.predictorConfig.trainingWindowInQuarters(), //
-				this.predictorConfig.regressorFitter(), //
+				this.predictorConfig.regressorFitter(this.modelComplexity), //
 				this.predictorConfig.minTrainingSamples(), //
 				this.predictorConfig.maxTrainingSamples());
 	}
@@ -408,8 +410,9 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		}
 
 		@Override
-		public RegressorFitter regressorFitter() {
-			return (features, target) -> RandomForestRegressor.fit(features, target, this.regressorConfig());
+		public RegressorFitter regressorFitter(ModelComplexity modelComplexity) {
+			return (features, target) -> RandomForestRegressor.fit(features, target,
+					this.regressorConfig(modelComplexity));
 		}
 
 		@Override
@@ -427,9 +430,9 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 			return PredictionOrchestrator::new;
 		}
 
-		private RandomForestRegressor.Config regressorConfig() {
+		private RandomForestRegressor.Config regressorConfig(ModelComplexity modelComplexity) {
 			return new RandomForestRegressor.Config(//
-					100, // numTrees
+					modelComplexity.getNumTrees(), // numTrees
 					Integer.MAX_VALUE, // maxDepth
 					3.0f, // minChildWeight
 					0.0f, // minImpurityDecrease

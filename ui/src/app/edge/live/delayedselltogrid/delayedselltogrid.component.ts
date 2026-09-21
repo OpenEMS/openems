@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -9,10 +9,10 @@ import { DelayedSellToGridModalComponent } from "./modal/modal.component";
 @Component({
     selector: DelayedSellToGridComponent.SELECTOR,
     templateUrl: "./delayedselltogrid.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
-
     private static readonly SELECTOR = "delayedselltogrid";
 
     @Input({ required: true }) public componentId!: string;
@@ -27,12 +27,12 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
         protected translate: TranslateService,
         public modalCtrl: ModalController,
         public service: Service,
-    ) { }
+    ) {}
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then((config) => {
                 this.component = config.getComponent(this.componentId);
             });
         });

@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 
 import org.osgi.service.component.annotations.Component;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpExecutor;
 import io.openems.common.bridge.http.api.EndpointFetcher;
@@ -71,7 +73,7 @@ public class HttpBridgeShellyService implements HttpBridgeService {
 		this.timeService.removeAllTimeEndpoints();
 	}
 
-	static class ShellyDeviceInfoEndpointDelayTimeProvider implements DelayTimeProvider {
+	static class ShellyDeviceInfoEndpointDelayTimeProvider implements DelayTimeProvider<HttpResponse<JsonElement>> {
 
 		@Override
 		public Delay onFirstRunDelay() {
@@ -84,7 +86,7 @@ public class HttpBridgeShellyService implements HttpBridgeService {
 		}
 
 		@Override
-		public Delay onSuccessRunDelay(HttpResponse<String> result) {
+		public Delay onSuccessRunDelay(HttpResponse<JsonElement> result) {
 			return Delay.of(Duration.ofMinutes(15));
 		}
 

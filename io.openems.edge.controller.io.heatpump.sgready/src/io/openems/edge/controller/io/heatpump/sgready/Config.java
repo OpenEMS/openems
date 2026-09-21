@@ -26,11 +26,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Output Channel 2", description = "Channel address of the Digital Output for input 2.")
 	String outputChannel2() default "io0/Relay3";
 
+	@AttributeDefinition(name = "Consumption-Meter-ID", description = "ID of the Consumption-Meter.")
+	String meter_id() default "";
+
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
 	@AttributeDefinition(name = "Manual State", description = "Set the State used in the manual mode.")
 	Status manualState() default Status.REGULAR;
+
+	@AttributeDefinition(name = "Base Mode", description = "Set the Base Mode.")
+	BaseMode baseMode() default BaseMode.REGULAR;
 
 	@AttributeDefinition(name = "Recommendation control enabled?", description = "Is the recommendation control enabled? (In the automatic mode)")
 	boolean automaticRecommendationCtrlEnabled() default true;
@@ -58,6 +64,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time (Seconds) is applied to avoid continuous switching on threshold")
 	int minimumSwitchingTime() default 60;
+
+	@AttributeDefinition(name = "JSCalendar Schedule", description = "Takes a JSON-Array in JSCalendar format")
+	String jsCalendar() default "[]";
 
 	String webconsole_configurationFactory_nameHint() default "Controller IO SG-Ready Heat Pump [{id}]";
 

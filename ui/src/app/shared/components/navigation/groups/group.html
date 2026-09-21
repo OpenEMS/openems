@@ -1,0 +1,13 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>
+      <ion-row class="ion-justify-content-space-between">
+        <oe-navigation-label-line [nodeLabel]="titleKey() | translate"></oe-navigation-label-line>
+        <oe-favorite-button></oe-favorite-button>
+      </ion-row>
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <oe-forward-navigation-options [shouldForceVisible]="true"></oe-forward-navigation-options>
+  </ion-card-content>
+</ion-card>

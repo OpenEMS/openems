@@ -14,6 +14,7 @@ public class ControllerEssFixReactivePowerImplTest {
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
+						.setMode(Mode.MANUAL_ON) //
 						.setPower(1000) //
 						.build()) //
 				.deactivate();

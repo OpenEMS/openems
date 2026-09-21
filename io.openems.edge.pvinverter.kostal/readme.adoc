@@ -111,6 +111,7 @@ The HTML parsing is based on finding table cells with `bgcolor="#FFFFFF"` attrib
 This component is compatible with KOSTAL PIKO inverters that provide a web interface with Basic Authentication (typically username: `pvserver`, password: `pvwr`).
 
 Tested with:
+
 * KOSTAL PIKO 10.1
 
 === Known Limitations

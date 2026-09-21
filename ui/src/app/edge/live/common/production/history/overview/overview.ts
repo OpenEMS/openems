@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,6 +8,7 @@ import { EdgeConfig, Service, ChannelAddress } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonProductionHistoryOverviewComponent extends AbstractHistoryChartOverview {
@@ -27,19 +28,22 @@ export class CommonProductionHistoryOverviewComponent extends AbstractHistoryCha
 
     protected override getChannelAddresses(): ChannelAddress[] {
         //  Get Chargers
-        this.chargerComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-                .filter(component => component.isEnabled);
+        this.chargerComponents = this.config
+            .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+            .filter((component) => component.isEnabled);
 
         // Get productionMeters
-        this.productionMeterComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && this.config.isProducer(component));
+        this.productionMeterComponents = this.config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => component.isEnabled && this.config.isProducer(component));
 
-
-        this.navigationButtons = [...this.productionMeterComponents, ...this.chargerComponents].map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
-        ));
+        this.navigationButtons = [...this.productionMeterComponents, ...this.chargerComponents].map((el) => ({
+            id: el.id,
+            alias: el.alias,
+            callback: () => {
+                this.router.navigate(["./" + el.id], { relativeTo: this.route });
+            },
+        }));
         return [];
     }
 }

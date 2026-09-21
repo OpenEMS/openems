@@ -1,10 +1,16 @@
 package io.openems.common.utils;
 
+import java.util.Dictionary;
 import java.util.Objects;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
+
+import io.openems.common.OpenemsConstants;
 
 public class ServiceUtils {
 
@@ -102,6 +108,42 @@ public class ServiceUtils {
 			final String filter // nullable
 	) throws InvalidSyntaxException {
 		return new CloseableService<>(bundleContext, clazz, filter);
+	}
+
+	/**
+	 * Gets the {@link ObjectClassDefinition} for the given parameters.
+	 *
+	 * @param metaTypeService the {@link MetaTypeService} to use
+	 * @param bundle          the bundle to search in
+	 * @param props           the properties of the service. Should contain either
+	 *                        {@link OpenemsConstants#PROPERTY_FACTORY_PID} or
+	 *                        {@link OpenemsConstants#PROPERTY_PID} if it is a
+	 *                        singleton.
+	 * @return the found {@link ObjectClassDefinition} or null if not found
+	 */
+	public static ObjectClassDefinition getOcd(//
+			MetaTypeService metaTypeService, //
+			Bundle bundle, //
+			Dictionary<String, Object> props //
+	) {
+		if (props == null) {
+			return null;
+		}
+		final var mti = metaTypeService.getMetaTypeInformation(bundle);
+		if (mti == null) {
+			return null;
+		}
+
+		final var factoryPid = (String) props.get(OpenemsConstants.PROPERTY_FACTORY_PID);
+		final var pid = (String) props.get(OpenemsConstants.PROPERTY_PID);
+
+		if (ArrayUtils.containsIgnoreNull(mti.getFactoryPids(), factoryPid)) {
+			return mti.getObjectClassDefinition(factoryPid, null);
+		}
+		if (ArrayUtils.containsIgnoreNull(mti.getPids(), pid)) {
+			return mti.getObjectClassDefinition(pid, null);
+		}
+		return null;
 	}
 
 }

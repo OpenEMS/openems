@@ -10,24 +10,6 @@ import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
 public record PropertyFilter(String property, StringWithParams targetTemplate) {
 
 	/**
-	 * Parses {@link PropertyFilter PropertyFilters} from {@link String Strings}.
-	 * 
-	 * @param propertyTargets the {@link String Strings} to parse
-	 * @return the parsed properties
-	 */
-	public static List<PropertyFilter> fromGenerateTargets(String[] propertyTargets) {
-		if (propertyTargets == null) {
-			return Collections.emptyList();
-		}
-
-		return Arrays.stream(propertyTargets) //
-				.map(t -> t.split("=", 2)) //
-				.filter(t -> t.length == 2) //
-				.map(t -> new PropertyFilter(t[0], new StringWithParams(t[1]))) //
-				.toList();
-	}
-
-	/**
 	 * Parses {@link PropertyFilter PropertyFilters} from the targets of a
 	 * reference.
 	 * 

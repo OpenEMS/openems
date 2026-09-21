@@ -13,7 +13,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 public interface SimulatorDatasourceSingleChannel extends SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		DATA(Doc.of(OpenemsType.INTEGER) //
+		DATA(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;

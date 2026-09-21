@@ -7,12 +7,20 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.types.CurrencyConfig.EUR;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -22,14 +30,14 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 
-public class MetaImplTest {
+class MetaImplTest {
 
 	private static final UUID UID_1 = UUID.randomUUID();
 	private static final UUID UID_2 = UUID.randomUUID();
 	private static final UUID UID_3 = UUID.randomUUID();
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -51,6 +59,7 @@ public class MetaImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.activate(MyConfig.create() //
 						.setCurrency(EUR) //
+						.setIsEssDischargeToGridAllowed(true) //
 						.setGridConnectionPointFuseLimit(32) //
 						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMaximumGridFeedInLimit(12345) //
@@ -139,6 +148,7 @@ public class MetaImplTest {
 		// Validate Hard Limits
 		assertEquals(22170, sut.getGridBuyHardLimit());
 		assertEquals(12345, sut.getGridSellHardLimit());
+		assertEquals(12345, sut.getEssDischargeToGridLimit());
 
 		// Test Live Channels
 		test //
@@ -154,7 +164,7 @@ public class MetaImplTest {
 	}
 
 	@Test
-	public void testGetGridSellHardLimitWithZeroExportDynamicLimitation() throws Exception {
+	void testGetGridSellHardLimitWithZeroExportDynamicLimitation() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -178,11 +188,11 @@ public class MetaImplTest {
 						.build());
 
 		// Grid sell hard limit should be clamped to 0 (zero export enforced)
-		assertEquals("Grid sell hard limit should be 0 with zero export", 0, sut.getGridSellHardLimit());
+		assertEquals(0, sut.getGridSellHardLimit());
 	}
 
 	@Test
-	public void testGetGridSellHardLimitWithNoFixedLimitDynamicLimitation() throws Exception {
+	void testGetGridSellHardLimitWithNoFixedLimitDynamicLimitation() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -207,12 +217,11 @@ public class MetaImplTest {
 
 		// Grid sell hard limit should fall back to fuse limit when no fixed limit is
 		// set
-		assertEquals("Grid sell hard limit should be fuse limit (22170) when limit is -1", 22170,
-				sut.getGridSellHardLimit());
+		assertEquals(22170, sut.getGridSellHardLimit());
 	}
 
 	@Test
-	public void testGetGridSellHardLimitWithPositiveLimitDynamicLimitation() throws Exception {
+	void testGetGridSellHardLimitWithPositiveLimitDynamicLimitation() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -236,12 +245,11 @@ public class MetaImplTest {
 						.build());
 
 		// Grid sell hard limit should be the minimum of configured and fuse limits
-		assertEquals("Grid sell hard limit should be 12345 (minimum of 12345 and 22170)", 12345,
-				sut.getGridSellHardLimit());
+		assertEquals(12345, sut.getGridSellHardLimit());
 	}
 
 	@Test
-	public void testGetGridSellHardLimitWithNoLimitationType() throws Exception {
+	void testGetGridSellHardLimitWithNoLimitationType() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -266,7 +274,54 @@ public class MetaImplTest {
 
 		// Grid sell hard limit should be fuse limit (configured limit is ignored with
 		// NO_LIMITATION)
-		assertEquals("Grid sell hard limit should be fuse limit (22170) with NO_LIMITATION type", 22170,
-				sut.getGridSellHardLimit());
+		assertEquals(22170, sut.getGridSellHardLimit());
+	}
+
+	@Nested
+	@ExtendWith(MockitoExtension.class)
+	@DisplayName("getGridSellHardLimitWithBuffer()")
+	class GetGridSellHardLimitWithBufferTest {
+
+		@ParameterizedTest(name = "gridSellHardLimit={0} -> expected={1}")
+		@CsvSource({ "1000,850", // 5% = 50 -> min buffer 150
+				"10000,9500", // 5% = 500
+				"3333,3166" // 5% = 166.65 -> round(3166.35) = 3166
+		})
+		void shouldApplyConfiguredBufferLogic(int gridSellHardLimit, int expected) {
+			final var sut = spy(MetaImpl.class);
+			doReturn(gridSellHardLimit).when(sut).getGridSellHardLimit();
+
+			final int result = sut.getGridSellHardLimitWithBuffer();
+
+			assertEquals(expected, result);
+		}
+	}
+
+	@Test
+	public void testGetEssDischargeToGridLimitBlockedByConfig() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setIsEssDischargeToGridAllowed(false) //
+						.setGridConnectionPointFuseLimit(32) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(12345) //
+						.build());
+
+		assertEquals(0, sut.getEssDischargeToGridLimit());
 	}
 }

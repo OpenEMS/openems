@@ -1,9 +1,8 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../../livedataservice";
@@ -13,19 +12,15 @@ import { GridOptimizedChargeViewModel, SharedGridOptimizedCharge } from "../shar
 @Component({
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractFormlyComponent<GridOptimizedChargeViewModel> {
-
     public component: EdgeConfig.Component | null = null;
     public targetEpochSeconds: number | null = null;
     public chargeStartEpochSeconds: number | null = null;
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-
-    private routeService: RouteService = inject(RouteService);
 
     public static generateView(
         translate: TranslateService,
@@ -33,9 +28,22 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
         edge: Edge,
         targetEpochSeconds: number | null,
         chargeStartEpochSeconds: number | null,
+        isDisabledByTimeOfUse: boolean,
+        isEeg2025Installed: boolean,
+        isEeg2025Supported: boolean,
     ): OeFormlyView<GridOptimizedChargeViewModel> {
         const predictionChartComponent = NewNavigationPredictionChartComponent;
-        return SharedGridOptimizedCharge.getFormlyView(translate, component, edge, targetEpochSeconds, chargeStartEpochSeconds, predictionChartComponent);
+        return SharedGridOptimizedCharge.getFormlyView(
+            translate,
+            component,
+            edge,
+            targetEpochSeconds,
+            chargeStartEpochSeconds,
+            predictionChartComponent,
+            isDisabledByTimeOfUse,
+            isEeg2025Installed,
+            isEeg2025Supported,
+        );
     }
 
     protected override generateView(): OeFormlyView<GridOptimizedChargeViewModel> {
@@ -45,8 +53,20 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
         AssertionUtils.assertIsDefined(config);
         this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(this.component);
+        const isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component);
+        const isEeg2025Installed = SharedGridOptimizedCharge.isEeg2025Installed(config);
+        const isEeg2025Supported = SharedGridOptimizedCharge.isEeg2025Supported(config);
 
-        return ControllerEssGridOptimizedChargeSettingsComponent.generateView(this.translate, this.component, edge, this.targetEpochSeconds, this.chargeStartEpochSeconds);
+        return ControllerEssGridOptimizedChargeSettingsComponent.generateView(
+            this.translate,
+            this.component,
+            edge,
+            this.targetEpochSeconds,
+            this.chargeStartEpochSeconds,
+            isDisabledByTimeOfUse,
+            isEeg2025Installed,
+            isEeg2025Supported,
+        );
     }
 
     protected override getFormGroup(): FormGroup {
@@ -64,10 +84,35 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
         this.targetEpochSeconds = currentData.allComponents[component.id + "/TargetEpochSeconds"];
         this.chargeStartEpochSeconds = currentData.allComponents[component.id + "/PredictedChargeStartEpochSeconds"];
 
-        this.setFormControlSafelyWithChannel(this.form, "mode", currentData, new ChannelAddress(component.id, "_PropertyMode"));
-        this.setFormControlSafelyWithChannel(this.form, "delayChargeState", currentData, new ChannelAddress(component.id, "DelayChargeState"));
-        this.setFormControlSafelyWithChannel(this.form, "workMode", currentData, new ChannelAddress(component.id, "_PropertyWorkMode"));
-        this.setFormControlSafelyWithChannel(this.form, "manualTargetTime", currentData, new ChannelAddress(component.id, "_PropertyManualTargetTime"));
-        this.setFormControlSafelyWithChannel(this.form, "delayChargeRiskLevel", currentData, new ChannelAddress(component.id, "_PropertyDelayChargeRiskLevel"));
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "mode",
+            currentData,
+            new ChannelAddress(component.id, "_PropertyMode"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "delayChargeState",
+            currentData,
+            new ChannelAddress(component.id, "DelayChargeState"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "workMode",
+            currentData,
+            new ChannelAddress(component.id, "_PropertyWorkMode"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "manualTargetTime",
+            currentData,
+            new ChannelAddress(component.id, "_PropertyManualTargetTime"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "delayChargeRiskLevel",
+            currentData,
+            new ChannelAddress(component.id, "_PropertyDelayChargeRiskLevel"),
+        );
     }
 }

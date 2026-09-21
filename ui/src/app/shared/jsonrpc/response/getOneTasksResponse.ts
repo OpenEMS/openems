@@ -7,9 +7,9 @@ export interface GetOneTasksResponse {
 }
 
 export interface OneTask<Payload extends Record<string, unknown> = {}> {
-    "uid": string;
-    "start": string;
-    "end": string;
-    "duration": string;
-    "payload": Payload;
+    uid: string;
+    start: string;
+    end: string;
+    duration: string;
+    payload: Payload;
 }

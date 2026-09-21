@@ -1,18 +1,18 @@
 package io.openems.common.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 import java.util.Hashtable;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DictionaryUtilsTest {
+class DictionaryUtilsTest {
 
 	@Test
-	public void testGetAsInteger() {
+	void testGetAsInteger() {
 		final var dict = new Hashtable<String, Object>();
 		dict.put("1", 1);
 		dict.put("2", 2.4);
@@ -42,7 +42,7 @@ public class DictionaryUtilsTest {
 	}
 
 	@Test
-	public void testGetAsBoolean() {
+	void testGetAsBoolean() {
 		final var dict = new Hashtable<String, Object>();
 		dict.put("1", 1);
 		dict.put("2", 0);
@@ -70,7 +70,7 @@ public class DictionaryUtilsTest {
 	}
 
 	@Test
-	public void testGetAsString() {
+	void testGetAsString() {
 		final var dict = new Hashtable<String, Object>();
 		dict.put("1", 1);
 		dict.put("2", 0.76);
@@ -89,7 +89,7 @@ public class DictionaryUtilsTest {
 	}
 
 	@Test
-	public void testContainsAnyKey() {
+	void testContainsAnyKey() {
 		final var empty = new Hashtable<String, Object>();
 		final var dict = new Hashtable<String, Object>();
 		dict.put("1", 1);
@@ -104,6 +104,26 @@ public class DictionaryUtilsTest {
 		assertFalse(DictionaryUtils.containsAnyKey(null, "1"));
 		assertFalse(DictionaryUtils.containsAnyKey(empty, new String[] {}));
 		assertFalse(DictionaryUtils.containsAnyKey(empty, "1"));
+	}
+	
+	@Test
+	void getAsOptionalStringReturnsEmptyForNullDictionary() {
+		assertTrue(DictionaryUtils.getAsOptionalString(null, "alias").isEmpty());
+	}
+	
+	@Test
+	void getAsOptionalStringReturnsEmptyForMissingKey() {
+		var properties = new Hashtable<String, Object>();
+
+		assertTrue(DictionaryUtils.getAsOptionalString(properties, "alias").isEmpty());
+	}
+	
+	@Test
+	void getAsOptionalStringReturnsValue() {
+		var properties = new Hashtable<String, Object>();
+		properties.put("alias", "My Alias");
+
+		assertEquals("My Alias", DictionaryUtils.getAsOptionalString(properties, "alias").orElseThrow());
 	}
 
 }

@@ -1,0 +1,5 @@
+= Braiins OS Bitcoin Miner
+
+Implementation of the Braains OS REST Api: https://developer.braiins-os.com/latest/openapi.html
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.braiinsos[Source Code icon:github[]]

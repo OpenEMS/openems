@@ -1,6 +1,7 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.capacityEss;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -51,6 +52,7 @@ import io.openems.edge.core.appmanager.formly.enums.InputType;
 		 "instanceId": UUID,
 		 "image": base64,
 		 "properties":{
+ 			 "CAPACITY_ESS" : 10200,
 			 "SERIAL_NUMBER" : null,
 			 "IP" : null,
 			 "USER_KEY" : "xxx"
@@ -65,17 +67,18 @@ public class FeneconProHybrid10
 
 	public enum Property implements Type<Property, FeneconProHybrid10, Parameter.BundleParameter> {
 		ALIAS(alias()), //
-		SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+		CAPACITY_ESS(capacityEss(10200)), //
+		SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef//
 				.setTranslatedLabelWithAppPrefix(".serialNumber.label")//
 				.setTranslatedDescriptionWithAppPrefix(".serialNumber.description")//
 				.setRequired(false)//
 				.setField(JsonFormlyUtil::buildInputFromNameable))), //
-		IP(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+		IP(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef//
 				.setTranslatedLabelWithAppPrefix(".ip.label")//
 				.setTranslatedDescriptionWithAppPrefix(".ip.description")//
 				.setRequired(false)//
 				.setField(JsonFormlyUtil::buildInputFromNameable))), //
-		USER_KEY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+		USER_KEY(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef//
 				.setTranslatedLabelWithAppPrefix(".userkey.label") //
 				.setTranslatedDescriptionWithAppPrefix(".userkey.description") //
 				.setRequired(true) //
@@ -139,6 +142,7 @@ public class FeneconProHybrid10
 			final var serialNumber = this.getStringOrNull(p, l, Property.SERIAL_NUMBER);
 			final var ip = this.getStringOrNull(p, l, Property.IP);
 			final var userkey = this.getStringOrNull(p, l, Property.USER_KEY);
+			final var capacityEss = this.getInt(p, Property.CAPACITY_ESS);
 
 			final var gridMeterId = "meter0";
 			final var essId = "ess0";
@@ -147,7 +151,7 @@ public class FeneconProHybrid10
 
 			final var components = Lists.newArrayList(//
 					ProHybrid10Components.kacoCore(kacoCoreId, serialNumber, ip, userkey), //
-					ProHybrid10Components.ess(essId), //
+					ProHybrid10Components.ess(essId, capacityEss), //
 					ProHybrid10Components.gridMeter(gridMeterId), //
 					ProHybrid10Components.charger(chargerId));
 

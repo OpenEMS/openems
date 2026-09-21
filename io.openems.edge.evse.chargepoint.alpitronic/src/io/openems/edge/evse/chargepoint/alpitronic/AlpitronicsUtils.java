@@ -54,7 +54,7 @@ public class AlpitronicsUtils {
 						this.parent.getMaxChargePower()))
 				.setIsReadyForCharging(this.parent.getIsReadyForCharging()) //
 				// Phase Switch not available
-				.setPhaseSwitch(null)//
+				.setPhaseSwitchManual(null)//
 				.build();
 	}
 

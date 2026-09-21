@@ -29,6 +29,7 @@ The battery communicates via Modbus protocol for standard industrial integration
 Main component for BMW battery system integration. Communicates via Modbus to read battery status and control charging/discharging operations. Includes HTTP-based token authentication for secure device access and state machine management for safe operation. Monitors state-of-charge with configurable limits and supports both grid-connected and island operation modes.
 
 .*Configuration*:
+
 * `id` (String): Unique component identifier; default: `"battery0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`

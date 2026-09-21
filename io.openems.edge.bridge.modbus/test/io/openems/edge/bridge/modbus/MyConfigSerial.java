@@ -8,7 +8,7 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 @SuppressWarnings("all")
 public class MyConfigSerial extends AbstractComponentConfig implements ConfigSerial {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String portName;
 		private int baudRate;

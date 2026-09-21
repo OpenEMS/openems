@@ -143,7 +143,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 	}
 
-	public static class HassfurtDelayTimeProvider implements DelayTimeProvider {
+	public static class HassfurtDelayTimeProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 

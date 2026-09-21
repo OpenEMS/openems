@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -10,6 +10,7 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 @Component({
     selector: "oe-controller-ess-grid-optimized-charge-chart",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
@@ -38,7 +39,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
                     powerChannel: new ChannelAddress("_sum", "EssSoc"),
                 },
             ],
-            output: (data: HistoryUtils.ChannelData) => ([
+            output: (data: HistoryUtils.ChannelData) => [
                 {
                     name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE"),
                     converter: () => data["DelayChargeMaximumChargeLimit"],
@@ -55,17 +56,16 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
                     name: translate.instant("GENERAL.CHARGE"),
                     converter: () =>
                         (data["ProductionDcActualPower"]
-                            ?
-                            data["ProductionDcActualPower"].map((value, index) => {
-                                return Utils.subtractSafely(data["EssActivePower"][index], value);
-                            })
-                            :
-                            data["EssActivePower"])?.map(val => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(val)) ?? null,
+                            ? data["ProductionDcActualPower"].map((value, index) => {
+                                  return Utils.subtractSafely(data["EssActivePower"][index], value);
+                              })
+                            : data["EssActivePower"]
+                        )?.map((val) => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(val)) ?? null,
                     color: ChartConstants.Colors.GREEN,
                 },
                 {
                     name: translate.instant("GENERAL.SOC"),
-                    converter: () => data["EssSoc"].map(el => Utils.multiplySafely(el, 1000)),
+                    converter: () => data["EssSoc"].map((el) => Utils.multiplySafely(el, 1000)),
                     color: "rgb(189, 195, 199)",
                     borderDash: [10, 10],
                     yAxisId: ChartAxis.RIGHT,
@@ -73,20 +73,23 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
                         unit: YAxisType.PERCENTAGE,
                     },
                 },
-            ]),
+            ],
             tooltip: {
                 formatNumber: "1.0-2",
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }, {
-                unit: YAxisType.PERCENTAGE,
-                position: "right",
-                yAxisId: ChartAxis.RIGHT,
-                displayGrid: false,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+                {
+                    unit: YAxisType.PERCENTAGE,
+                    position: "right",
+                    yAxisId: ChartAxis.RIGHT,
+                    displayGrid: false,
+                },
+            ],
         };
     }
     protected getChartData(): HistoryUtils.ChartData {
@@ -100,5 +103,4 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
         AssertionUtils.assertIsDefined(component);
         return GridOptimizedChargeChartComponent.getChartData(component, this.translate);
     }
-
 }

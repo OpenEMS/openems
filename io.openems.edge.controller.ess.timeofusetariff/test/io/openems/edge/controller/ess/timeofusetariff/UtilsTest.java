@@ -2,241 +2,331 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.PEAK_SHAVING;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.LIMIT_CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargePowerInChargeGrid;
-import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
-import static org.junit.Assert.assertEquals;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDischargeConsumption;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDischargeGrid;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateLimitCharge;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.edge.common.sum.DummySum;
-import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.energy.api.Environment;
-import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 import io.openems.edge.energy.api.simulation.periods.Periods;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class UtilsTest {
+@ExtendWith(MockitoExtension.class)
+class UtilsTest {
 
-	public static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
-	public static final ZonedDateTime TIME = ZonedDateTime.now(CLOCK);
+	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
+	private static final ZonedDateTime TIME = ZonedDateTime.now(CLOCK);
 
 	@Test
-	public void testCalculateChargeGrid() {
-		assertEquals(new ApplyMode(CHARGE_GRID, -10000), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(10000), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(-6000), //
-						/* maxChargePowerFromGrid */ 20000, //
-						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
+	void testCalculateChargeGrid_case1() {
+		final var ess = new DummyManagedSymmetricEss("ess0");
+		final int essActivePower = -6000;
+		final int gridActivePower = 10000;
+		final int pwrBalancing = essActivePower + gridActivePower;
+		final Integer gridSoftLimit = 20000;
+		final var coc = mock(EnergyScheduler.OptimizationContext.class);
+		when(coc.essChargePowerInChargeGrid()).thenReturn(10000);
 
-		assertEquals(new ApplyMode(CHARGE_GRID, -11000), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(5000), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(-6000), //
-						/* maxChargePowerFromGrid */ 20000, //
-						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
+		final var result = calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, coc);
 
-		assertEquals(new ApplyMode(CHARGE_GRID, -1840), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(500), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(-1000), //
-						/* maxChargePowerFromGrid */ 24000, //
-						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1340), //
-						/* forceMode */ null));
-
-		assertEquals(new ApplyMode(PEAK_SHAVING, 5000), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(9000), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(1000), //
-						/* maxChargePowerFromGrid */ 5000, //
-						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
-
-		assertEquals(new ApplyMode(CHARGE_GRID, -4340), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(-2000), //
-						/* ess */ new DummyHybridEss("ess0") //
-								.withActivePower(-1000) //
-								.withDcDischargePower(-1500), //
-						/* maxChargePowerFromGrid */ 24000, //
-						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1340), //
-						/* forceMode */ null));
+		assertEquals(new Utils.ApplyMode(CHARGE_GRID, -10000), result);
 	}
 
 	@Test
-	public void testCalculateDischargeGrid() {
-		assertEquals(new ApplyMode(DISCHARGE_GRID, 8300), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(800), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(2500), //
-						/* maxChargePowerFromGrid */ 20000, //
-						/* period */ mockPeriod(QUARTER, DISCHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
+	void testCalculateChargeGrid_case2() {
+		final var ess = new DummyManagedSymmetricEss("ess0");
+		final int essActivePower = -6000;
+		final int gridActivePower = 5000;
+		final int pwrBalancing = essActivePower + gridActivePower;
+		final Integer gridSoftLimit = 20000;
+		final var coc = mock(EnergyScheduler.OptimizationContext.class);
+		when(coc.essChargePowerInChargeGrid()).thenReturn(10000);
+
+		final var result = calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, coc);
+
+		assertEquals(new Utils.ApplyMode(CHARGE_GRID, -11000), result);
 	}
 
 	@Test
-	public void testCalculateDelayDischarge() {
-		// DC-PV
-		assertEquals(new ApplyMode(DELAY_DISCHARGE, 704), // DC-Production is 704
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(4052), //
-						/* ess */ new DummyHybridEss("ess0") //
-								.withActivePower(699) //
-								.withDcDischargePower(-5), //
-						/* maxChargePowerFromGrid */ 23000, //
-						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
+	void testCalculateChargeGrid_case3() {
+		final var ess = new DummyManagedSymmetricEss("ess0");
+		final int essActivePower = -1000;
+		final int gridActivePower = 500;
+		final int pwrBalancing = essActivePower + gridActivePower;
+		final Integer gridSoftLimit = 20000;
+		final var coc = mock(EnergyScheduler.OptimizationContext.class);
+		when(coc.essChargePowerInChargeGrid()).thenReturn(1340);
 
-		// Actually Balancing
-		assertEquals(new ApplyMode(BALANCING, -1000), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(-1000), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(0), //
-						/* maxChargePowerFromGrid */ 23000, //
-						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
-		assertEquals(new ApplyMode(BALANCING, -1823), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(-2323), //
-						/* ess */ new DummyHybridEss("ess0") //
-								.withActivePower(500) //
-								.withDcDischargePower(23), //
-						/* maxChargePowerFromGrid */ 23000, //
-						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
+		final var result = calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, coc);
 
-		// Peak-Shaving to gridSoftLimit
-		assertEquals(new ApplyMode(PEAK_SHAVING, 500), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(7000), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(-1500), //
-						/* maxChargePowerFromGrid */ 5000, //
-						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
-	}
-
-	private static DifferentModes.Period<StateMachine, OptimizationContext> mockPeriod(PeriodDuration duration,
-			StateMachine mode, int essChargePowerInChargeGrid) {
-		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0., 0.,
-				new OptimizationContext(0, 0, essChargePowerInChargeGrid), null, 0);
+		assertEquals(new Utils.ApplyMode(CHARGE_GRID, -1840), result);
 	}
 
 	@Test
-	public void testCalculateAutomaticMode() {
-		assertEquals("Null-Check", new ApplyMode(BALANCING, null), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum(), //
-						/* ess */ new DummyManagedSymmetricEss("ess0"), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
-		assertEquals("Null-Check", new ApplyMode(BALANCING, null), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(100), //
-						/* ess */ new DummyManagedSymmetricEss("ess0"), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
+	void testCalculateChargeGrid_case4_peakShaving() {
+		final var ess = new DummyManagedSymmetricEss("ess0");
+		final int essActivePower = 1000;
+		final int gridActivePower = 9000;
+		final int pwrBalancing = essActivePower + gridActivePower;
+		final Integer gridSoftLimit = 5000;
+		final var coc = mock(EnergyScheduler.OptimizationContext.class);
+		when(coc.essChargePowerInChargeGrid()).thenReturn(1000);
 
-		assertEquals("BALANCING", new ApplyMode(BALANCING, 600), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(100), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(500), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
+		final var result = calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, coc);
 
-		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(100), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(500), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
-
-		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyMode(BALANCING, 0), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(-500), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(500), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
-
-		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyMode(CHARGE_GRID, -1400), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(100), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(500), //
-						/* gridSoftLimit */ 2000, //
-						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 30500), //
-						/* forceMode */ null));
-
-		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(100), //
-						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(500), //
-						/* gridSoftLimit */ 600, //
-						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), //
-						/* forceMode */ null));
+		assertEquals(new Utils.ApplyMode(StateMachine.PEAK_SHAVING, 5000), result);
 	}
 
 	@Test
-	public void testCalculateChargePowerInChargeGrid() {
+	void testCalculateChargeGrid_case5_hybridEss() {
+		final var ess = new DummyHybridEss("ess0").withDcDischargePower(-1500);
+		final int essActivePower = -1000;
+		final int gridActivePower = -2000;
+		final int pwrBalancing = essActivePower + gridActivePower;
+		final Integer gridSoftLimit = 24000;
+		final var coc = mock(EnergyScheduler.OptimizationContext.class);
+		when(coc.essChargePowerInChargeGrid()).thenReturn(1340);
+
+		final var result = calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, coc);
+
+		assertEquals(new Utils.ApplyMode(CHARGE_GRID, -4340), result);
+	}
+
+	@Test
+	void testCalculateDischargeGrid() {
+		final int essActivePower = 2500;
+		final int gridActivePower = 800;
+
+		final var result = calculateDischargeGrid(essActivePower, gridActivePower);
+
+		assertEquals(new Utils.ApplyMode(DISCHARGE_GRID, 8300), result);
+	}
+
+	@Nested
+	@DisplayName("calculateDelayDischarge()")
+	class CalculateDelayDischargeTest {
+
+		@Test
+		void shouldDelayDischarge_whenNonHybridEss() {
+			final var ess = new DummyManagedSymmetricEss("ess0");
+
+			final var result = calculateDelayDischarge(ess, 2500, 3000);
+
+			assertEquals(new Utils.ApplyMode(DELAY_DISCHARGE, 0), result);
+		}
+
+		@Test
+		void shouldDelayDischarge_whenHybridEss() {
+			final var ess = new DummyHybridEss("ess0").withDcDischargePower(1000);
+
+			final var result = calculateDelayDischarge(ess, 3000, 2500);
+
+			assertEquals(new Utils.ApplyMode(DELAY_DISCHARGE, 2000), result);
+		}
+
+		@Test
+		void shouldDoBalancing_whenDelayDischargeSetpointAtOrAboveBalancingSetpoint() {
+			final var ess = new DummyHybridEss("ess0").withDcDischargePower(1000);
+
+			final var result = calculateDelayDischarge(ess, 3000, 1500);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, 1500), result);
+		}
+
+		@Test
+		void shouldClampNegativeDelayDischargeSetpointToZero_whenHybridEss() {
+			final var ess = new DummyHybridEss("ess0").withDcDischargePower(1500);
+
+			final var result = calculateDelayDischarge(ess, 500, 1000);
+
+			assertEquals(new Utils.ApplyMode(DELAY_DISCHARGE, 0), result);
+		}
+	}
+
+	@Nested
+	@DisplayName("calculateLimitCharge()")
+	class CalculateLimitChargeTest {
+
+		@Test
+		void shouldDoBalancing_whenLimitChargePowerIsNull() {
+			final var ess = new DummyManagedSymmetricEss("ess0");
+
+			final var result = calculateLimitCharge(ess, 1000, null, 1500);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, 1500), result);
+		}
+
+		@Test
+		void shouldDoBalancing_whenLimitChargeSetpointIsBelowOrEqualBalancing_nonHybrid() {
+			final var ess = new DummyManagedSymmetricEss("ess0");
+
+			final var result = calculateLimitCharge(ess, 1000, 2000, -1500);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, -1500), result);
+		}
+
+		@Test
+		void shouldDoBalancing_whenLimitChargeSetpointIsBelowOrEqualBalancing_hybrid() {
+			final var ess = new DummyHybridEss("ess0").withDcDischargePower(1000);
+
+			final var result = calculateLimitCharge(ess, 3000, 1000, 1200);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, 1200), result);
+		}
+
+		@Test
+		void shouldDelayCharge_whenLimitChargePowerIsZeroAndSetpointAboveBalancing() {
+			final var ess = new DummyManagedSymmetricEss("ess0");
+
+			final var result = calculateLimitCharge(ess, 0, 0, -1);
+
+			assertEquals(new Utils.ApplyMode(DELAY_CHARGE, 0), result);
+		}
+
+		@Test
+		void shouldLimitCharge_whenSetpointAboveBalancing_nonHybrid() {
+			final var ess = new DummyManagedSymmetricEss("ess0");
+
+			final var result = calculateLimitCharge(ess, 0, 100, -200);
+
+			assertEquals(new Utils.ApplyMode(LIMIT_CHARGE, -100), result);
+		}
+
+		@Test
+		void shouldLimitCharge_whenSetpointAboveBalancing_hybrid() {
+			final var ess = new DummyHybridEss("ess0").withDcDischargePower(1000);
+
+			final var result = calculateLimitCharge(ess, 4000, 500, 1000);
+
+			assertEquals(new Utils.ApplyMode(LIMIT_CHARGE, 2500), result);
+		}
+
+		@Test
+		void shouldUseZeroWhenHybridDcDischargePowerIsMissing() {
+			final var ess = new DummyHybridEss("ess0"); // no withDcDischargePower
+
+			final var result = calculateLimitCharge(ess, 300, 100, 100);
+
+			assertEquals(new Utils.ApplyMode(LIMIT_CHARGE, 200), result);
+		}
+	}
+
+	@Nested
+	@DisplayName("calculateDischargeConsumption()")
+	class CalculateDischargeConsumptionTest {
+
+		@ParameterizedTest(name = "[{index}] balancingSetpoint={0}, productionActivePower={1} -> setpoint={2}")
+		@CsvSource({ "3000, 1200, 4200", //
+				"3000, -800, 2200", //
+				"0, 0, 0", //
+				"500, -1200, -700" })
+		void shouldCalculateDischargeConsumptionSetpoint(int balancingSetpoint, int productionActivePower,
+				int expectedSetpoint) {
+			final var result = calculateDischargeConsumption(balancingSetpoint, productionActivePower);
+
+			assertEquals(new Utils.ApplyMode(DISCHARGE_CONSUMPTION, expectedSetpoint), result);
+		}
+	}
+
+	@Nested
+	@DisplayName("postProcessApplyMode()")
+	class PostProcessApplyModeTest {
+
+		@Test
+		void shouldReturnPeakShaving_whenSetpointIsBelowMinSetpointAndBuySoftLimitIsConfigured() {
+			final var applyMode = new Utils.ApplyMode(CHARGE_GRID, -5000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, 3000, 4000);
+
+			assertEquals(new Utils.ApplyMode(StateMachine.PEAK_SHAVING, -2000), result);
+		}
+
+		@Test
+		void shouldReturnAvoidGridSellLimit_whenSetpointIsAboveMaxSetpoint() {
+			final var applyMode = new Utils.ApplyMode(DISCHARGE_GRID, 7000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, 3000, 4000);
+
+			assertEquals(new Utils.ApplyMode(StateMachine.AVOID_GRID_SELL_LIMIT, 5000), result);
+		}
+
+		@Test
+		void shouldReturnUnchangedApplyMode_whenWithinLimits() {
+			final var applyMode = new Utils.ApplyMode(DELAY_DISCHARGE, 2000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, 3000, 4000);
+
+			assertEquals(applyMode, result);
+		}
+
+		@Test
+		void shouldIgnoreBuySoftLimit_whenBuySoftLimitIsNull() {
+			final var applyMode = new Utils.ApplyMode(CHARGE_GRID, -5000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, null, 4000);
+
+			assertEquals(applyMode, result);
+		}
+
+		@Test
+		void shouldReturnUnchangedApplyMode_whenSetpointEqualsMinSetpoint() {
+			final var applyMode = new Utils.ApplyMode(CHARGE_GRID, -2000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, 3000, 4000);
+
+			assertEquals(applyMode, result);
+		}
+
+		@Test
+		void shouldReturnUnchangedApplyMode_whenSetpointEqualsMaxSetpoint() {
+			final var applyMode = new Utils.ApplyMode(DISCHARGE_GRID, 5000);
+
+			final var result = Utils.postProcessApplyMode(applyMode, 1000, 3000, 4000);
+
+			assertEquals(applyMode, result);
+		}
+	}
+
+	@Test
+	void testCalculateChargePowerInChargeGrid() {
 		assertEquals(5745, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
-						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+						new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.empty()),
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(4336, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
-						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+						new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.builder(Environment.TEST) //
 								.addPeriodIfValid(TIME, null, 0, 1000, 0., null) //
@@ -247,7 +337,7 @@ public class UtilsTest {
 
 		assertEquals(3182, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
-						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+						new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.builder(Environment.TEST) //
 								.addPeriodIfValid(TIME, null, 0, 700, 123., null) //
@@ -263,7 +353,7 @@ public class UtilsTest {
 
 		assertEquals(3818, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
-						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+						new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.builder(Environment.TEST) //
 								.addPeriodIfValid(TIME, null, 0, 700, 120., null) //

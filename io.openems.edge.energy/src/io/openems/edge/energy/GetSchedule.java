@@ -14,7 +14,9 @@ import static java.util.stream.Collectors.toSet;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -47,7 +49,9 @@ import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.energy.GetSchedule.Request;
 import io.openems.edge.energy.GetSchedule.Response;
-import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.SingleModes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.periods.PeriodData;
@@ -58,7 +62,12 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timeofusetariff.api.TariffManager;
 
 /**
- * Gets the Schedule of today (history) and forecast.
+ * Gets a Schedule.
+ * 
+ * <ul>
+ * <li>If 'from' is '00:00': gets one full day
+ * <li>Otherwise: gets two full days
+ * </ul>
  *
  * <p>
  * Request:
@@ -150,8 +159,17 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 		 */
 		public static Response from(Request request, Clock clock, Timedata timedata, PredictorManager predictorManager,
 				TariffManager tariffManager, SimulationResult sr) {
-			final var from = request.from;
-			final var to = from.plusHours(24);
+			final var fromRaw = DateUtils.roundDownToQuarter(request.from);
+
+			// One or two full days
+			final var from = fromRaw.toLocalTime() == LocalTime.MIDNIGHT //
+					? fromRaw //
+					: fromRaw.truncatedTo(ChronoUnit.DAYS);
+			final var toRaw = fromRaw.plusHours(24);
+			final var to = toRaw.toLocalTime() == LocalTime.MIDNIGHT //
+					? toRaw //
+					: toRaw.plusDays(1).truncatedTo(ChronoUnit.DAYS);
+
 			final var nowRaw = ZonedDateTime.now(clock);
 			final var now = to.isBefore(nowRaw) //
 					? DateUtils.roundDownToMinutes(ZonedDateTime.now(clock), HISTORY_RESOLUTION) //
@@ -193,7 +211,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 
 		private static record Sum(Double gridBuyPrice, Double gridSellPrice, Integer productionActivePower,
 				Integer consumptionActivePower, Integer unmanagedConsumptionActivePower, Integer essDischargePower,
-				Integer gridActivePower) {
+				Integer essSoc, Integer gridActivePower) {
 			private JsonObject toJson() {
 				return buildJsonObject() //
 						.addPropertyIfNotNull("GridBuyPrice", this.gridBuyPrice) //
@@ -202,6 +220,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 						.addPropertyIfNotNull("ConsumptionActivePower", this.consumptionActivePower) //
 						.addPropertyIfNotNull("UnmanagedConsumptionActivePower", this.unmanagedConsumptionActivePower) //
 						.addPropertyIfNotNull("EssDischargePower", this.essDischargePower) //
+						.addPropertyIfNotNull("EssSoc", this.essSoc) //
 						.addPropertyIfNotNull("GridActivePower", this.gridActivePower) //
 						.build();
 			}
@@ -218,7 +237,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 					.build();
 		}
 
-		private static record Esh(String id, String mode, Integer managedConsumption) implements Comparable<Esh> {
+		private static record Esh(String id, Integer mode, Integer managedConsumption) implements Comparable<Esh> {
 			private JsonObject toJson() {
 				return buildJsonObject() //
 						.addProperty("id", this.id) //
@@ -247,6 +266,8 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 			Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER.id());
 	protected static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.ESS_DISCHARGE_POWER.id());
+	protected static final ChannelAddress SUM_ESS_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+			Sum.ChannelId.ESS_SOC.id());
 	protected static final ChannelAddress SUM_GRID_BUY_PRICE = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.GRID_BUY_PRICE.id());
 	protected static final ChannelAddress SUM_GRID_SELL_PRICE = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
@@ -260,11 +281,18 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 				ImmutableSet<? extends EnergyScheduleHandler.WithDifferentModes> eshwdms) {
 			final var channels = Streams //
 					.concat(//
+							// Sum-Channels
 							Stream.of(SUM_GRID_BUY_PRICE, SUM_GRID_SELL_PRICE, SUM_GRID, SUM_PRODUCTION,
-									SUM_CONSUMPTION, SUM_UNMANAGED_CONSUMPTION, SUM_ESS_DISCHARGE_POWER), //
+									SUM_CONSUMPTION, SUM_UNMANAGED_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC),
+							// ESH Mode + Power Channels
 							eshwdms.stream() //
-									// TODO "StateMachine" is not a defined standard
-									.map(esh -> new ChannelAddress(esh.getParentId(), "StateMachine"))) //
+									.flatMap(esh -> switch (esh.modes()) {
+									case Modes.JointModes<?> jm -> jm.channels.values().stream();
+									case Modes.SingleModes<?> sm -> Stream.of(sm.channels);
+									})//
+									.filter(Objects::nonNull) //
+									.flatMap(c -> Stream.of(c.mode(), c.managedConsumptionPower()))) //
+					.filter(Objects::nonNull) //
 					.collect(toSet());
 
 			// Query History
@@ -291,25 +319,24 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								getInteger.apply(SUM_CONSUMPTION), //
 								getInteger.apply(SUM_UNMANAGED_CONSUMPTION), //
 								getInteger.apply(SUM_ESS_DISCHARGE_POWER), //
+								getInteger.apply(SUM_ESS_SOC), //
 								getInteger.apply(SUM_GRID));
 
 						// ESHs
 						final var eshs = eshwdms.stream() //
-								.map(esh -> {
-									final var ctrlId = esh.getParentId();
-									final var mode = getAsOptionalDouble(
-											getter.apply(new ChannelAddress(ctrlId, "StateMachine")))
-											.map(v -> esh.modes().get((int) Math.round(v))) //
-											.map(Object::toString) //
-											.orElse(null);
-									// TODO mode value is just average; does not work for enums if value changed
-									// during period
-									// TODO query managed consumption if applicable
-									return mode != null //
-											? new Entry.Esh(ctrlId, mode, null) //
-											: null;
+								.flatMap(esh -> switch (esh.modes()) {
+								case SingleModes<?> sm -> Stream.ofNullable(sm.channels) //
+										.map(c -> new Entry.Esh(esh.getParentId(), //
+												c.mode() == null ? null : getInteger.apply(c.mode()),
+												c.managedConsumptionPower() == null ? null
+														: getInteger.apply(c.managedConsumptionPower())));
+								case JointModes<?> jm -> jm.channels.entrySet().stream() //
+										.map(e -> Optional.ofNullable(getInteger.apply(e.getValue().mode())) //
+												.map(v -> new Entry.Esh(e.getKey(), v,
+														getInteger.apply(e.getValue().managedConsumptionPower()))) //
+												.orElse(null)) //
+										.filter(Objects::nonNull);
 								}) //
-								.filter(Objects::nonNull) //
 								.sorted() //
 								.collect(toImmutableList());
 
@@ -362,35 +389,46 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								.map(EnergyFlow::getConsumption) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
 								.orElse(unmanagedConsumption);
-						final var ess = ef //
+						final var essPower = ef //
 								.map(EnergyFlow::getEss) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
+								.orElse(null);
+						final var essSoc = d //
+								.map(p -> Math.round(p.essInitialEnergy() * 100f / sr.ess().totalEnergy())) //
 								.orElse(null);
 						final var grid = ef //
 								.map(EnergyFlow::getGrid) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
 								.orElse(null);
 						final var sum = new Entry.Sum(gridBuyPrice, gridSellPrice, production, consumption,
-								unmanagedConsumption, ess, grid);
+								unmanagedConsumption, essPower, essSoc, grid);
 
 						// ESHs
 						final var managedConsumptions = ef.map(EnergyFlow::getManagedConsumptions)
 								.orElse(ImmutableSortedMap.of());
 						final var eshs = sr.schedules().entrySet().stream() //
-								.map(s -> {
+								.flatMap(s -> {
 									final var esh = s.getKey();
-									final var id = esh.getParentId();
 									final var schedule = s.getValue();
-									final var managedConsumption = managedConsumptions.get(id);
-									final var mode = Optional.ofNullable(schedule.get(t)) //
-											.map(Transition::modeIndex) //
-											.map(i -> esh.modes().getAsString(i)) //
-											.orElse(null);
-									return mode != null || managedConsumption != null //
-											? new Entry.Esh(id, mode, managedConsumption) //
-											: null;
+									return Stream.ofNullable(schedule.get(t)) //
+											.flatMap(p -> {
+												return switch (esh.modes()) {
+												case SingleModes<?> sm -> Stream.of(//
+														new Entry.Esh(esh.getParentId(),
+																sm.get(p.modeIndex()).getValue(),
+																Optional.ofNullable(
+																		managedConsumptions.get(esh.getParentId()))
+																		.map(convertEnergyToPower::applyAsInt)
+																		.orElse(null)));
+												case JointModes<?> jms -> Stream.ofNullable(jms.get(p.modeIndex())) //
+														.flatMap(jm -> jm.submodes().entrySet().stream()) //
+														.map(e -> new Entry.Esh(e.getKey(), e.getValue().getValue(),
+																Optional.ofNullable(managedConsumptions.get(e.getKey()))
+																		.map(convertEnergyToPower::applyAsInt)
+																		.orElse(null)));
+												};
+											}); //
 								}) //
-								.filter(Objects::nonNull) //
 								.sorted() //
 								.collect(toImmutableList());
 

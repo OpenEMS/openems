@@ -35,6 +35,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Single-phase electricity meter for single-phase installations via Modbus protocol.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -61,6 +62,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Three-phase electricity meter for three-phase installations via Modbus protocol. Supports EM330 and EM340 models.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

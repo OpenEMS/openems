@@ -21,15 +21,16 @@ public final class CleverPvProps {
 	/**
 	 * Creates a {@link AppDef} for the url.
 	 * 
-	 * @param <APP> the type of the App
-	 * @param prop  {@link Nameable} generating component id
+	 * @param <APP>                     the type of the App
+	 * @param prop                      {@link Nameable} generating component id
+	 * @param descriptionTranslationKey the translation key for the description
 	 * @return the {@link AppDef}
 	 */
 	public static <APP extends OpenemsApp & ComponentUtilSupplier & ComponentManagerSupplier> AppDef<? super APP, Nameable, BundleProvider> url(
-			final Nameable prop) {
+			final Nameable prop, String descriptionTranslationKey) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabel("App.Cloud.CleverPv.url.label")
-				.setTranslatedDescription("App.Cloud.CleverPv.url.description")//
+				.setTranslatedLabel("App.Cloud.CleverPv.url.label") //
+				.setTranslatedDescription(descriptionTranslationKey)//
 				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(PASSWORD);

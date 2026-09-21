@@ -104,7 +104,9 @@ public class SimulatorV1 {
 		case BALANCING -> EnergyFlowV1.withBalancing(p, op, essInitial);
 		case DELAY_DISCHARGE -> EnergyFlowV1.withDelayDischarge(p, op, essInitial);
 		case CHARGE_GRID -> EnergyFlowV1.withChargeGrid(p, op, essInitial);
-		case DISCHARGE_GRID, PEAK_SHAVING -> EnergyFlowV1.withBalancing(p, op, essInitial); // NOT IMPLEMENTED!
+		// NOT IMPLEMENTED!
+		case DISCHARGE_GRID, PEAK_SHAVING, DELAY_CHARGE, LIMIT_CHARGE, AVOID_GRID_SELL_LIMIT, DISCHARGE_CONSUMPTION ->
+			EnergyFlowV1.withBalancing(p, op, essInitial);
 		};
 
 		nextEssInitial.set(essInitial - ef.ess());

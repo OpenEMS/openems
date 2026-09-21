@@ -4,24 +4,23 @@
     <!-- Edge is Restarting after Update -->
     @if (executeUpdate.isEdgeRestarting) {
       <ion-item lines="none" color="light">
-        <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.EDGE_RESTARTING' | translate:
-          { edge: environment.edgeShortName } }}<br />
-        {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate: { minutes: 10 } }}</ion-label>
+        <ion-label
+          >{{ "SETTINGS.SYSTEM_UPDATE.EDGE_RESTARTING" | translate: { edge: environment.edgeShortName } }}<br />
+          {{ "SETTINGS.SYSTEM_UPDATE.UPDATE_TIME" | translate: { minutes: 10 } }}</ion-label
+        >
       </ion-item>
       <ion-item lines="none" color="light">
         <ion-progress-bar type="indeterminate" style="margin-top: 1%"></ion-progress-bar>
       </ion-item>
     } @else {
       <ion-item lines="none" color="light">
-        <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.OFFLINE' | translate:
-          { edgeShortName: environment.edgeShortName } }}
-        </ion-label>
+        <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.OFFLINE" | translate: { edgeShortName: environment.edgeShortName } }} </ion-label>
       </ion-item>
     }
     <!-- Edge is offline -->
   } @else {
     @if (executeUpdate?.systemUpdateState; as systemUpdateState) {
-      @if (isWaiting) {
+      @if (isWaiting()) {
         <ion-grid>
           <ion-row>
             <ion-col size="8">
@@ -29,24 +28,21 @@
                 <!-- Update State is unknown  -->
                 @if (!executeUpdate.canNotBeUpdated) {
                   <ion-item lines="none">
-                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_SEARCH'| translate}}</ion-label>
+                    <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.UPDATE_SEARCH" | translate }}</ion-label>
                   </ion-item>
                 } @else {
                   <ion-item lines="none">
-                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_NOT_POSSIBLE'| translate}}
-                    </ion-label>
+                    <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.UPDATE_NOT_POSSIBLE" | translate }} </ion-label>
                   </ion-item>
                 }
               }
               @if (systemUpdateState.running; as state) {
                 <!-- Update is running -->
                 <ion-item lines="none">
-                  <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS'| translate}}<br />{{'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate: { minutes: 10 } }}
-                  </ion-label>
+                  <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS" | translate }}<br />{{ "SETTINGS.SYSTEM_UPDATE.UPDATE_TIME" | translate: { minutes: 10 } }} </ion-label>
                 </ion-item>
                 <ion-item lines="none">
-                  <oe-flat-widget-percentagebar
-                  [value]="state.percentCompleted"></oe-flat-widget-percentagebar>
+                  <oe-flat-widget-percentagebar [value]="state.percentCompleted"></oe-flat-widget-percentagebar>
                 </ion-item>
               }
             </ion-col>
@@ -63,19 +59,18 @@
             <div>
               <p style="cursor: pointer" (keydown.enter)="showLog = !showLog" (click)="showLog = !showLog">
                 @if (!showLog) {
-                  <ion-icon name="arrow-down-circle-outline">
-                  </ion-icon>
+                  <ion-icon name="arrow-down-circle-outline"> </ion-icon>
                 }
                 @if (showLog) {
-                  <ion-icon name="arrow-up-circle-outline">
-                  </ion-icon>
+                  <ion-icon name="arrow-up-circle-outline"> </ion-icon>
                 }
                 <span>&nbsp;Details</span>
               </p>
               @if (showLog) {
                 <p>
                   @for (log of state.logs; track log) {
-                    <small>{{ log }}</small><br />
+                    <small>{{ log }}</small
+                    ><br />
                   }
                 </p>
               }
@@ -89,7 +84,7 @@
             <ion-row>
               <ion-col>
                 <ion-item lines="none">
-                  <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                  <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION" | translate }}</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
@@ -102,7 +97,7 @@
               <ion-col size="12">
                 <ion-item lines="none">
                   <ion-label color="success" class="ion-text-wrap">
-                    {{ 'SETTINGS.SYSTEM_UPDATE.LATEST_VERISON'| translate}}
+                    {{ "SETTINGS.SYSTEM_UPDATE.LATEST_VERISON" | translate }}
                   </ion-label>
                 </ion-item>
               </ion-col>
@@ -115,7 +110,7 @@
             <ion-row>
               <ion-col>
                 <ion-item lines="none">
-                  <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                  <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION" | translate }}</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
@@ -127,7 +122,7 @@
             <ion-row>
               <ion-col>
                 <ion-item lines="none">
-                  <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION'| translate}}</ion-label>
+                  <ion-label>{{ "SETTINGS.SYSTEM_UPDATE.NEW_VERSION" | translate }}</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
@@ -140,9 +135,7 @@
               <ion-col></ion-col>
               <ion-col>
                 <ion-item lines="none" class="ion-float-right">
-                  <ion-button (click)="confirmationAlert()">{{
-                    'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate }}
-                  </ion-button>
+                  <ion-button (click)="confirmationAlert()">{{ "SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING" | translate }} </ion-button>
                 </ion-item>
               </ion-col>
             </ion-row>

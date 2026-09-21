@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -8,10 +8,10 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
 @Component({
     selector: ComponentUpdateComponent.SELECTOR,
     templateUrl: "./update.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ComponentUpdateComponent implements OnInit {
-
     private static readonly SELECTOR = "componentUpdate";
 
     public edge: Edge | null = null;
@@ -28,8 +28,7 @@ export class ComponentUpdateComponent implements OnInit {
         protected utils: Utils,
         private websocket: Websocket,
         private service: Service,
-    ) {
-    }
+    ) {}
 
     async ngOnInit() {
         this.edge = await this.service.getCurrentEdge();
@@ -62,10 +61,12 @@ export class ComponentUpdateComponent implements OnInit {
             Utils.deepCopy(property.schema, field);
             fields.push(field);
             if (component.properties[property.id]) {
-
                 // filter arrays with nested objects
-                if (Array.isArray(component.properties[property.id]) && component.properties[property.id]?.length > 0 && component.properties[property.id]?.every(element => typeof element === "object")) {
-
+                if (
+                    Array.isArray(component.properties[property.id]) &&
+                    component.properties[property.id]?.length > 0 &&
+                    component.properties[property.id]?.every((element) => typeof element === "object")
+                ) {
                     // Stringify json for objects nested inside an array
                     model[property_id] = JSON.stringify(component.properties[property.id]);
                 } else {
@@ -79,7 +80,7 @@ export class ComponentUpdateComponent implements OnInit {
     }
 
     public submit() {
-        const properties: { name: string, value: any }[] = [];
+        const properties: { name: string; value: any }[] = [];
         for (const controlKey in this.form.controls) {
             const control = this.form.controls[controlKey];
             if (control.dirty) {
@@ -87,21 +88,26 @@ export class ComponentUpdateComponent implements OnInit {
                 properties.push({ name: property_id, value: control.value });
             }
         }
-        this.edge.updateComponentConfig(this.websocket, this.componentId, properties).then(() => {
-            this.form.markAsPristine();
-            this.service.toast("Successfully updated " + this.componentId + ".", "success");
-        }).catch(reason => {
-            this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, "danger");
-        });
+        this.edge
+            .updateComponentConfig(this.websocket, this.componentId, properties)
+            .then(() => {
+                this.form.markAsPristine();
+                this.service.toast("Successfully updated " + this.componentId + ".", "success");
+            })
+            .catch((reason) => {
+                this.service.toast("Error updating " + this.componentId + ":" + reason.error.message, "danger");
+            });
     }
 
     public delete() {
-        this.edge.deleteComponentConfig(this.websocket, this.componentId).then(() => {
-            this.form.markAsPristine();
-            this.service.toast("Successfully deleted " + this.componentId + ".", "success");
-        }).catch(reason => {
-            this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, "danger");
-        });
+        this.edge
+            .deleteComponentConfig(this.websocket, this.componentId)
+            .then(() => {
+                this.form.markAsPristine();
+                this.service.toast("Successfully deleted " + this.componentId + ".", "success");
+            })
+            .catch((reason) => {
+                this.service.toast("Error deleting " + this.componentId + ":" + reason.error.message, "danger");
+            });
     }
-
 }

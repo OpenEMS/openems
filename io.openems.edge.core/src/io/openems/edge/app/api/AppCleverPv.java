@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -45,7 +46,7 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 	public static enum Property implements Type<Property, AppCleverPv, BundleParameter>, Nameable {
 		CONTROLLER_ID(AppDef.componentId("ctrlCleverPv0")), //
 		ALIAS(alias()), //
-		URL(CleverPvProps.url(CONTROLLER_ID)), //
+		URL(CleverPvProps.url(CONTROLLER_ID, "App.Cloud.CleverPv.url.description")), //
 		PRIVACY_POLICY(CleverPvProps.privacyPolicy(CONTROLLER_ID)), //
 		;
 
@@ -97,12 +98,17 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var url = this.getString(p, Property.URL);
+			final var url = this.getValueOrDefault(p, Property.URL, null);
+			final var isNewUrl = CleverPvUrl.isNewUrl(url);
+
+			if (t == ConfigurationTarget.ADD || t == ConfigurationTarget.UPDATE && isNewUrl) {
+				validateUrl(url, l);
+			}
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
-									.addProperty("url", url)//
+									.onlyIf(isNewUrl, b -> b.addProperty("url", url)) //
 									.addProperty("readOnly", true)//
 									.build()));
 
@@ -111,6 +117,13 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 							new SchedulerComponent(id, "Controller.Clever-PV", this.getAppId()))) //
 					.build();
 		};
+	}
+
+	private static void validateUrl(String url, Language language) throws OpenemsException {
+		if (CleverPvUrl.isValid(url)) {
+			return;
+		}
+		throw new OpenemsException(getTranslation(language, "App.Cloud.CleverPv.url.invalid"));
 	}
 
 	@Override

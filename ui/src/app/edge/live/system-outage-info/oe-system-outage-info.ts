@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { SystemStateService } from "src/app/shared/service/systemStateService";
@@ -8,11 +7,8 @@ import { environment } from "src/environments";
 @Component({
     selector: "oe-system-outage-info",
     standalone: true,
-    imports: [
-        IonicModule,
-        CommonModule,
-        TranslateModule,
-    ],
+    imports: [IonicModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     templateUrl: "./oe-system-outage-info.html",
 })
 export class SystemOutageInfoComponent {

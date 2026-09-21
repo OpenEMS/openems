@@ -5,6 +5,8 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import globalEn from "src/assets/i18n/en.json";
 import { environment } from "src/environments";
 import heatEn from "../i18n/en.json";
+import { PropertyMode } from "../shared/shared";
+
 import { ControllerHeatSettingsComponent, Mode } from "./settings";
 
 function createComponent(component: EdgeConfig.Component): any {
@@ -67,8 +69,8 @@ describe("ControllerHeatSettingsComponent", () => {
             controlName: "mode",
             buttons: [
                 {
-                    value: Mode.FAST_HEAT,
-                    name: "Quick heating",
+                    value: PropertyMode.FAST_HEAT,
+                    name: "Fast heat",
                     description: "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
                     icon: { color: "success", name: "oe-consumption", size: "medium" },
 
@@ -98,18 +100,28 @@ describe("ControllerHeatSettingsComponent", () => {
         expect(view.lines.find(line => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
     });
 
-    it("#getChannelAddresses() subscribes to _PropertyMode only for Askoma", async () => {
-        const askomaComponent = new EdgeConfig.Component("heat0", "ASKOMA", true, false, "Heat.Askoma", {});
+    it("+generateView() for read-only MyPv hides writable settings controls", () => {
+        const component = new EdgeConfig.Component("heat0", "MyPV", true, false, "Heat.MyPv", { readOnly: true });
+        const edge = DummyConfig.dummyEdge({});
+
+        const view = ControllerHeatSettingsComponent.generateView(component, edge, testContext.translate);
+        expect(view.lines.find(line => line.type === "image-line")).toBeDefined();
+        expect(view.lines.find(line => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
+    });
+
+    it("#getChannelAddresses() subscribes to _PropertyMode for Askoma and for MyPV", async () => {
+        const askomaComponent = new EdgeConfig.Component("heat0", "MyPV", true, false, "Heat.Askoma", {});
         const askomaInstance = createComponent(askomaComponent);
 
         const askomaChannels = await askomaInstance["getChannelAddresses"]();
 
         expect(askomaChannels).toEqual([new ChannelAddress("heat0", "_PropertyMode")]);
 
-        const otherComponent = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv", {});
-        const otherInstance = createComponent(otherComponent);
+        const myPvComponent = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv", {});
+        const myPvInstance = createComponent(myPvComponent);
 
-        await expectAsync(otherInstance["getChannelAddresses"]()).toBeResolvedTo([]);
+        const myPvChannels = await myPvInstance["getChannelAddresses"]();
+        expect(myPvChannels).toEqual([new ChannelAddress("heat1", "_PropertyMode")]);
     });
 
     it("#onCurrentData() writes _PropertyMode into the form control", () => {

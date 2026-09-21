@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -27,7 +27,7 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsException;
 
 public class SumStateHandler implements Handler<SumStateMessage> {
-	private final Map<String, ZonedDateTime> faultSince = new TreeMap<>();
+	private final Map<String, ZonedDateTime> faultSince = new ConcurrentHashMap<>();
 
 	private final Logger log = LoggerFactory.getLogger(SumStateHandler.class);
 
@@ -89,7 +89,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 		}
 
 		final var params = pack.stream().map(SumStateMessage::getContext).toList();
-		
+
 		this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params) //
 				.whenComplete((sentMessages, error) -> {
 					if (error == null) {
@@ -217,12 +217,12 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	public Class<SumStateMessage> getGeneric() {
 		return SumStateMessage.class;
 	}
-	
+
 	@Override
 	public HandlerMetrics getMetrics() {
 		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
 	}
-	
+
 	@Override
 	public String debugLog() {
 		return "SumStateHandler{MessagesSent: %d, MessagesQueue: %d}" //

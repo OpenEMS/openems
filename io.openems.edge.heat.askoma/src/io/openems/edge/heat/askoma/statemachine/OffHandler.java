@@ -9,7 +9,6 @@ public class OffHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		context.resetFastHeatState();
 		context.setTargetActivePowerForHeatElement(OFF_ACTIVE_POWER);
 		return State.OFF;
 	}

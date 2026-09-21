@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -8,10 +8,10 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/
 @Component({
     selector: ComponentInstallComponent.SELECTOR,
     templateUrl: "./install.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ComponentInstallComponent implements OnInit {
-
     private static readonly SELECTOR = "componentInstall";
 
     public edge: Edge | null = null;
@@ -28,8 +28,7 @@ export class ComponentInstallComponent implements OnInit {
         protected utils: Utils,
         private websocket: Websocket,
         private service: Service,
-    ) {
-    }
+    ) {}
 
     async ngOnInit() {
         this.factoryId = this.route.snapshot.params["factoryId"];
@@ -94,7 +93,7 @@ export class ComponentInstallComponent implements OnInit {
             this.service.toast("Please fill mandatory fields!", "danger");
             return;
         }
-        const properties: { name: string, value: any }[] = [];
+        const properties: { name: string; value: any }[] = [];
         for (const controlKey in this.form.controls) {
             const control = this.form.controls[controlKey];
             if (control.value === null) {
@@ -105,12 +104,17 @@ export class ComponentInstallComponent implements OnInit {
             properties.push({ name: property_id, value: control.value });
         }
 
-        this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {
-            this.form.markAsPristine();
-            this.service.toast("Successfully created in instance of " + this.factoryId + ".", "success");
-        }).catch(reason => {
-            this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, "danger");
-        });
+        this.edge
+            .createComponentConfig(this.websocket, this.factoryId, properties)
+            .then((response) => {
+                this.form.markAsPristine();
+                this.service.toast("Successfully created in instance of " + this.factoryId + ".", "success");
+            })
+            .catch((reason) => {
+                this.service.toast(
+                    "Error creating an instance of " + this.factoryId + ":" + reason.error.message,
+                    "danger",
+                );
+            });
     }
-
 }

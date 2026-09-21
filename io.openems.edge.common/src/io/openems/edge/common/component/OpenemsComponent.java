@@ -14,6 +14,8 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
@@ -144,14 +146,13 @@ public interface OpenemsComponent {
 	/**
 	 * Returns a Channel defined by its ChannelId string representation.
 	 *
-	 * @param channelName the Channel-ID as a string
-	 * @param <T>         the expected typed Channel
-	 * @return the Channel or throw Exception
-	 * @throws IllegalArgumentException on error
+	 * @param <T>         the type of the channel
+	 * @param channelName the name of the channel
+	 * @return the found channel
+	 * @throws IllegalArgumentException if the channel is not found
 	 */
-	@SuppressWarnings("unchecked")
 	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
-		Channel<?> channel = this._channel(channelName);
+		var channel = this.<T>channelOrNull(channelName);
 		// check for null
 		if (channel == null) {
 			if (this.id() == null) {
@@ -161,15 +162,7 @@ public interface OpenemsComponent {
 			throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for ID [" + this.id()
 					+ "]. Implementation [" + this.getClass().getCanonicalName() + "]");
 		}
-		// check correct type
-		T typedChannel;
-		try {
-			typedChannel = (T) channel;
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(
-					"Channel [" + this.id() + "/" + channelName + "] is not of expected type.");
-		}
-		return typedChannel;
+		return channel;
 	}
 
 	/**
@@ -183,6 +176,37 @@ public interface OpenemsComponent {
 	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId)
 			throws IllegalArgumentException {
 		return this.<T>channel(channelId.id());
+	}
+
+	/**
+	 * Returns a Channel defined by its ChannelId string representation or null if
+	 * not found.
+	 * 
+	 * @param <T>         the type of the channel
+	 * @param channelName the name of the channel
+	 * @return the channel
+	 */
+	@SuppressWarnings("unchecked")
+	default <T extends Channel<?>> T channelOrNull(String channelName) {
+		Channel<?> channel = this._channel(channelName);
+
+		if (channel == null) {
+			return null;
+		}
+
+		return (T) channel;
+	}
+
+	/**
+	 * Returns a Channel defined by its ChannelId string representation or null if
+	 * not found.
+	 *
+	 * @param <T>       the type of the channel
+	 * @param channelId the {@link ChannelId}
+	 * @return the found channel
+	 */
+	default <T extends Channel<?>> T channelOrNull(io.openems.edge.common.channel.ChannelId channelId) {
+		return this.channelOrNull(channelId.id());
 	}
 
 	/**
@@ -626,7 +650,14 @@ public interface OpenemsComponent {
 		}
 	}
 
-	private static String getComponentIdentifier(OpenemsComponent component) {
+	/**
+	 * Gets the Component identifier.
+	 * 
+	 * @param component the component
+	 * @return the identifier of the component
+	 */
+	@VisibleForTesting
+	static String getComponentIdentifier(OpenemsComponent component) {
 		if (component == null) {
 			return null;
 		}

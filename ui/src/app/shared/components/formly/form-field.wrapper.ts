@@ -1,43 +1,49 @@
-import { Component, ViewEncapsulation } from "@angular/core";
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from "@angular/core";
 import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-wrapper-ion-form-field",
     templateUrl: "./form-field.wrapper.html",
     encapsulation: ViewEncapsulation.None,
-    styles: [`
-        formly-field-ion-toggle, formly-field-ion-checkbox, formly-custom-select,
-        formly-input-serial-number, formly-custom-select {
-            width: 100%;
-        }
+    styles: [
+        `
+            formly-field-ion-toggle,
+            formly-field-ion-checkbox,
+            formly-custom-select,
+            formly-input-serial-number,
+            formly-custom-select {
+                width: 100%;
+            }
+            formly-field-ion-toggle,
+            ion-toggle {
+                padding: 0 !important;
+                margin: 0 !important;
+                transform: none !important;
+            }
+            ion-toggle::part(label),
+            ion-checkbox::part(label),
+            ion-radio::part(label) {
+                white-space: pre-wrap !important;
+                flex: 1;
+                margin-inline-end: 0 !important;
+            }
 
-        formly-field-ion-toggle, ion-toggle  {
-            padding: 0 !important;
-            margin: 0 !important;
-            transform: none !important;
-        }
-
-        ion-toggle::part(label),
-        ion-checkbox::part(label),
-        ion-radio::part(label) {
-            white-space: pre-wrap !important;
-            flex: 1;
-            margin-inline-end: 0 !important;
-        }
-
-        /* Description text colors */
-        formly-field .sc-ion-label-md-s p,
-        formly-field ion-label p {
+            /* Description text colors */
+            formly-field .sc-ion-label-md-s p,
+            formly-field ion-label p {
                 color: var(--ion-text-description-color) !important;
             }
-        .helper-text, .hint-text, ion-note.helper-text {
-            color: var(--ion-text-description-color) !important;
-        }
-    `],
+            .helper-text,
+            .hint-text,
+            ion-note.helper-text {
+                color: var(--ion-text-description-color) !important;
+            }
+        `,
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlyWrapperFormFieldComponent extends FieldWrapper {
-
     get itemLines(): "none" | "inset" {
         // Helper to find the nearest fieldGroup that represents the whole form (or subform)
         const rootGroup = this.getRootFieldGroup();
@@ -47,9 +53,7 @@ export class FormlyWrapperFormFieldComponent extends FieldWrapper {
         }
 
         // Consider only visible fields
-        const visibleFields = rootGroup.filter(
-            f => !f.hide && !f.props?.hidden
-        );
+        const visibleFields = rootGroup.filter((f) => !f.hide && !f.props?.hidden);
 
         const lastVisibleField = visibleFields[visibleFields.length - 1];
         const isLastVisibleField: boolean = lastVisibleField === this.field;

@@ -1,4 +1,4 @@
-import { CHANNEL_LINE, DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_INFO } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
@@ -8,9 +8,10 @@ import heatEn from "../i18n/en.json";
 import { ControllerHeatModalComponent } from "./modal";
 
 const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
-    "heat0/Status": 0,
+    "heat0/Status": 1,
     "heat0/ActivePower": 1000,
     "heat0/Temperature": 230,
+    "heat0/Mode": 2,
     ...properties,
 });
 
@@ -41,7 +42,7 @@ describe("ControllerHeatModalComponent", () => {
                 CHANNEL_LINE("Status", "Heating is running"),
                 CHANNEL_LINE("Heating output", "1.000 W"),
                 CHANNEL_LINE("Current temperature", "23 °C"),
-                CHANNEL_LINE("Selected mode", ""),
+                CHANNEL_LINE("Selected mode", "Fast heat"),
                 {
                     type: "image-line",
                     img: {
@@ -62,13 +63,12 @@ describe("ControllerHeatModalComponent", () => {
         const component = new EdgeConfig.Component("heat0", "ASKOMA", true, false, "Heat.Askoma", { readOnly: true });
         const edge = DummyConfig.dummyEdge({});
 
-        expectView(component, edge, VIEW_CONTEXT(), testContext, {
+        expectView(component, edge, VIEW_CONTEXT({ "heat0/Mode": null }), testContext, {
             title: "ASKOMA",
             lines: [
                 CHANNEL_LINE("Status", "Heating is running"),
                 CHANNEL_LINE("Heating output", "1.000 W"),
                 CHANNEL_LINE("Current temperature", "23 °C"),
-                CHANNEL_LINE("Selected mode", ""),
                 {
                     type: "image-line",
                     img: {
@@ -85,23 +85,56 @@ describe("ControllerHeatModalComponent", () => {
         });
     });
 
-    it("+generateView() for non-Askoma Heat hides Askoma-specific lines", () => {
-        const component = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv.AcThor9s", {});
+    it("+generateView() for writable myPV includes shared lines and settings controls", () => {
+        const component = new EdgeConfig.Component("heat0", "MyPV", true, false, "Heat.MyPv", {});
         const edge = DummyConfig.dummyEdge({});
 
-        expectView(component, edge, VIEW_CONTEXT({
-            "heat1/Status": 0,
-            "heat1/ActivePower": 1000,
-            "heat1/Temperature": 230,
-        }), testContext, {
-            title: "Heat",
+        expectView(component, edge, VIEW_CONTEXT(), testContext, {
+            title: "MyPV",
             lines: [
                 CHANNEL_LINE("Status", "Heating is running"),
                 CHANNEL_LINE("Heating output", "1.000 W"),
                 CHANNEL_LINE("Current temperature", "23 °C"),
+                CHANNEL_LINE("Selected mode", "Fast heat"),
+                LINE_INFO("You can make changes to the settings of your AC-Thor heating element in your MyPV app."),
                 {
-                    type: "info-line",
-                    name: "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+                    type: "image-line",
+                    img: {
+                        url: environment.images.HEAT.MYPV.HEATING_ELEMENT,
+                        width: 50,
+                        style: {
+                            maxWidth: "30rem",
+                            justifySelf: "center",
+                            paddingBottom: "var(--ion-padding)",
+                        },
+                    },
+                },
+            ],
+        });
+    });
+
+    it("+generateView() for read-only myPV hides writable settings controls", () => {
+        const component = new EdgeConfig.Component("heat0", "MyPV", true, false, "Heat.MyPv.AcThor9s", { readOnly: true });
+        const edge = DummyConfig.dummyEdge({});
+
+        expectView(component, edge, VIEW_CONTEXT({ "heat0/Mode": null }), testContext, {
+            title: "MyPV",
+            lines: [
+                CHANNEL_LINE("Status", "Heating is running"),
+                CHANNEL_LINE("Heating output", "1.000 W"),
+                CHANNEL_LINE("Current temperature", "23 °C"),
+                LINE_INFO("You can make changes to the settings of your AC-Thor heating element in your MyPV app."),
+                {
+                    type: "image-line",
+                    img: {
+                        url: environment.images.HEAT.MYPV.HEATING_ELEMENT,
+                        width: 50,
+                        style: {
+                            maxWidth: "30rem",
+                            justifySelf: "center",
+                            paddingBottom: "var(--ion-padding)",
+                        },
+                    },
                 },
             ],
         });

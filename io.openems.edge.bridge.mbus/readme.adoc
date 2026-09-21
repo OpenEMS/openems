@@ -7,6 +7,7 @@ Serial bridge for meter communication using the M-Bus standard.
 M-Bus (Meter-Bus) is an international standard (EN 13757-2) for fieldbus communication with meter devices. The M-Bus Bridge enables OpenEMS to read data from M-Bus compatible meters such as water meters, gas meters, heat meters, and other utility meters via serial connection.
 
 M-Bus is ideal for:
+
 * Reading utility meters (water, gas, heat, electricity)
 * Remote meter data collection
 * Utility billing and energy management
@@ -27,6 +28,7 @@ The bridge uses the jMbus library for protocol implementation and RxTx for seria
 *Purpose*: Master bridge for M-Bus serial communication with utility and facility meters.
 
 *Use Cases*:
+
 * Reading water meter consumption
 * Monitoring gas meter usage
 * Heat meter energy readings
@@ -35,6 +37,7 @@ The bridge uses the jMbus library for protocol implementation and RxTx for seria
 * Building energy accounting systems
 
 .*Configuration*:
+
 * `id` (String): Unique bridge identifier; default: `"mbus0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`

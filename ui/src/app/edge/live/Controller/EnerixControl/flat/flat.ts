@@ -1,20 +1,22 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
-import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
+import { SharedControllerEnerixControl } from "../shared/shared";
 
 @Component({
     selector: "Controller_EnerixControl",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
-    protected readonly CONVERT_ENERIX_CONTROL_STATE = Converter.CONVERT_ENERIX_CONTROL_STATE(this.translate);
+    protected readonly CONVERT_ENERIX_CONTROL_STATE = SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
+        this.translate,
+    );
 
     protected controlMode: ControlMode | null = null;
     protected state: State | null = null;
@@ -34,10 +36,12 @@ export class FlatComponent extends AbstractFlatWidget {
                 component: this.component,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        if (!this.component) { return []; }
+        if (!this.component) {
+            return [];
+        }
 
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_READ_ONLY),
@@ -64,7 +68,6 @@ export class FlatComponent extends AbstractFlatWidget {
             this.state = this.unableToSend ? State.DISCONNECTED : State.CONNECTED;
             return;
         } else {
-
             if (this.controlMode === null) {
                 return;
             }
@@ -80,9 +83,7 @@ export class FlatComponent extends AbstractFlatWidget {
         }
         switch (mode) {
             case ControlMode.IDLE:
-                return this.component.properties.controlMode === "REMOTE_CONTROL"
-                    ? State.ON
-                    : State.OFF;
+                return this.component.properties.controlMode === "REMOTE_CONTROL" ? State.ON : State.OFF;
             case ControlMode.NO_DISCHARGE:
                 return State.NO_DISCHARGE;
             case ControlMode.CHARGE_FROM_GRID:
@@ -102,7 +103,7 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 }
 
-enum ControlMode {
+export enum ControlMode {
     IDLE,
     NO_DISCHARGE,
     CHARGE_FROM_GRID,

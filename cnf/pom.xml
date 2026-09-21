@@ -29,9 +29,21 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.2.3</version>
+			<version>7.4.0</version>
 		</dependency>
 		<!-- com -->
+		<dependency>
+			<!--
+			Javaluator is a simple, but powerful, infix expression evaluator for Java
+			Changelog: https://github.com/fathzer/javaluator/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
+			-->
+			<groupId>com.fathzer</groupId>
+			<artifactId>javaluator</artifactId>
+			<version>3.0.6</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
@@ -54,7 +66,7 @@
 			-->
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.21</version>
+			<version>2.22</version>
 		</dependency>
 		<!-- START EEBUS Dependencies -->
         <dependency>
@@ -93,7 +105,7 @@
 			Gson: A Java serialization/deserialization library to convert Java Objects into JSON and back
 			Changelog: https://github.com/google/gson/releases
 			Wrapper: io.openems.wrapper/gson.bnd
-			Keep in sync with default buildpath in cnf/build.bnd
+			Keep in sync with buildpath "com.google.gson" in cnf/build.bnd
 			-->
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -103,17 +115,17 @@
 			<!--
 			Guava: Google Core Libraries For Java
 			Changelog: https://github.com/google/guava/releases
-			Keep in sync with default buildpath in cnf/build.bnd
+			Keep in sync with buildpath "com.google.guava" in cnf/build.bnd
 			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.6.0-jre</version>
+			<version>33.7.1-jre</version>
 		</dependency>
 		<dependency>
 			<!--
 			Guava InternalFutureFailureAccess and InternalFutures
 			Changelog: https://github.com/google/guava/releases
-			Keep in sync with default buildpath cnf/build.bnd
+			Keep in sync with buildpath "com.google.guava.failureaccess" cnf/build.bnd
 			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
@@ -126,7 +138,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.35.0</version>
+			<version>4.36.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -138,7 +150,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.7.0</version>
+			<version>5.2.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -150,7 +162,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.5.2</version>
+			<version>4.6.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -177,16 +189,24 @@
 			<version>5.3.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: Logging Interceptor
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.2</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: OkHttp
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.3.2</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -195,7 +215,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.17.0</version>
+			<version>3.18.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -228,11 +248,13 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<!-- HikariCP A solid, high-performance, JDBC connection pool at
-			last. -->
+			<!--
+			HikariCP A solid, high-performance, JDBC connection pool
+			Changelog: https://github.com/brettwooldridge/HikariCP/blob/dev/CHANGES
+			-->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>7.0.2</version>
+			<version>7.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -302,7 +324,7 @@
 			-->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.3.0-openems.2</version>
+			<version>3.4.0-openems.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
@@ -320,10 +342,13 @@
 		</dependency>
 		<!-- net -->
 		<dependency>
-			<!-- Used by SDNotify -->
+			<!--
+			Java Native Access
+			Changelog: https://github.com/java-native-access/jna/blob/master/CHANGES.md
+			-->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.18.1</version>
+			<version>5.19.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -396,7 +421,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.10</version>
+			<version>2.0.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -454,6 +479,16 @@
 			<version>2.3.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Java annotation for documenting the @API status of types and members in Java APIs
+			Changelog: https://github.com/apiguardian-team/apiguardian/releases
+			Keep in sync with testpath "org.apiguardian.api" in cnf/build.bnd
+			-->
+			<groupId>org.apiguardian</groupId>
+			<artifactId>apiguardian-api</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
 			<version>4.13.2_1</version>
@@ -465,7 +500,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.86</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -474,7 +509,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.86</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -486,7 +521,7 @@
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.20.1</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -498,7 +533,7 @@
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.20.1</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
@@ -525,7 +560,7 @@
 			<!--
 			Mockito JUnit 5 support
 			Changelog: https://github.com/mockito/mockito/releases
-			Keep in sync with openems.mockito.version in cnf/build.bnd
+			Keep in sync with testpath "org.mockito.junit-jupiter" in cnf/build.bnd
 			-->
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
@@ -535,21 +570,21 @@
 			<!--
 			Byte Buddy is a Java library for creating Java classes at run time
 			Changelog: https://github.com/raphw/byte-buddy/releases
-			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			Keep in sync with testpath "net.bytebuddy.byte-buddy" in cnf/build.bnd
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.13</version>
 		</dependency>
 		<dependency>
 			<!--
 			The Byte Buddy agent offers convenience for attaching an agent to the VM
 			Changelog: https://github.com/raphw/byte-buddy/releases
-			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			Keep in sync with testpath "net.bytebuddy.byte-buddy-agent" in cnf/build.bnd
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.13</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -601,7 +636,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.3.21</version>
+			<version>2.4.20</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -632,90 +667,107 @@
 			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.22.2</version>
+			<version>1.23.2</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Jupiter API
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-api" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Jupiter Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Jupiter Params
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-params" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Platform Commons
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-commons" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Platform Engine API
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Platform Launcher
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-launcher" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Vintage Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-vintage-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.3</version>
+		</dependency>
+		<dependency>
+			<!--
+			A library for instantiating Java objects
+			Changelog: https://github.com/easymock/objenesis/releases
+			Keep in sync with testpath "org.objenesis" in cnf/build.bnd
+			-->
+			<groupId>org.objenesis</groupId>
+			<artifactId>objenesis</artifactId>
+			<version>3.6</version>
 		</dependency>
 		<dependency>
 			<!--
 			Open Test Alliance for the JVM
 			Changelog: https://github.com/ota4j-team/opentest4j/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Keep in sync with testpath "org.opentest4j" in cnf/build.bnd
 			-->
 			<groupId>org.opentest4j</groupId>
 			<artifactId>opentest4j</artifactId>
@@ -778,7 +830,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.4</version>
+			<version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -787,7 +839,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.4</version>
+			<version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

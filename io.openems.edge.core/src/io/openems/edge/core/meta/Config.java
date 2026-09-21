@@ -26,6 +26,9 @@ import io.openems.edge.common.meta.types.SubdivisionCode;
 	@AttributeDefinition(name = "Is Ess Charge From Grid Allowed", description = "Charging the battery from grid is allowed.")
 	boolean isEssChargeFromGridAllowed() default false;
 
+	@AttributeDefinition(name = "Is Ess Discharge To Grid Allowed", description = "Discharging the battery to grid is allowed.")
+	boolean isEssDischargeToGridAllowed() default false;
+
 	@AttributeDefinition(name = "Grid Connection Point Fuse Limit", description = "Maximum current allowed at the Grid Connection Point (GCP), i.e. the rating of the fuses [A].")
 	int gridConnectionPointFuseLimit() default 32;
 

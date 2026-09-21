@@ -1645,7 +1645,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @return the current or null if power or voltage or null
 	 */
 	private static Integer currentFromActivePowerAndVoltage(Integer power, Integer voltage) {
-		if (power == null || voltage == null) {
+		if (power == null || voltage == null || voltage == 0) {
 			return null;
 		}
 		// somewhat complicated computation, but prevents integer overflows

@@ -9,6 +9,7 @@ The OneWire Bridge provides direct communication with 1-Wire (OneWire) devices s
 The bridge communicates directly with a OneWire busmaster device (e.g., DS9490R USB dongle) without requiring the OneWire File System (OWFS). It accesses the native Maxim Integrated C library via Java JNI for optimal performance.
 
 Common use cases:
+
 * Temperature monitoring (thermometers at different locations)
 * Humidity and environmental sensors
 * Battery voltage and current monitoring via smart battery controllers
@@ -25,6 +26,7 @@ Common use cases:
 *Purpose*: Master bridge for 1-Wire communication with temperature and sensor devices.
 
 .*Configuration*:
+
 * `id` (String): Unique bridge identifier; default: `"onewire0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
@@ -47,6 +49,7 @@ For complete device list, query the bridge via getDevices() JSON-RPC method (see
 === OneWire Adapter
 
 Supported adapters:
+
 * **DS9490R** - USB dongle (recommended, most common)
 * **DS9481** - Serial adapter
 * Compatible third-party 1-Wire adapters
@@ -168,6 +171,7 @@ Use the **address** field to configure individual thermometer components (see `i
 === Device Addresses
 
 Each 1-Wire device has a unique 64-bit address in hexadecimal format:
+
 * Example: `4D0000094xxxxxxx`
 * Format: `FFXXXXXXXXXXXXXXXXXX` where FF is family code, X is unique serial
 

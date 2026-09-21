@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -9,10 +9,10 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "oe-multiple-evcs-api-cluster",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     public channelAddresses: ChannelAddress[] = [];
     public evcsIdsInCluster: string[] = [];
     public evcssInCluster: EdgeConfig.Component[] = [];
@@ -39,7 +39,6 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override getChannelAddresses() {
-
         this.evcsIdsInCluster = this.config.components[this.componentId].properties["evcs.ids"];
         const nature = "io.openems.edge.evcs.api.Evcs";
 
@@ -63,25 +62,25 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-
         this.evcsComponent = this.config.getComponent(this.componentId);
-        this.alias = this.config.components[this.componentId].properties.alias ?? "EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER";
+        this.alias =
+            this.config.components[this.componentId].properties.alias ??
+            "EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER";
         this.isConnectionSuccessful = currentData.allComponents[this.componentId + "/State"] != 3 ? true : false;
 
         // Initialise the Map with all evcss
-        this.evcssInCluster.forEach(evcs => {
+        this.evcssInCluster.forEach((evcs) => {
             this.evcsMap[evcs.id] = null;
         });
 
         const controllers = this.config.getComponentsByFactory("Controller.Evcs");
 
         // Adds the controllers to the each charging stations
-        controllers.forEach(controller => {
+        controllers.forEach((controller) => {
             if (this.evcsIdsInCluster.includes(controller.properties["evcs.id"])) {
                 this.evcsMap[controller.properties["evcs.id"]] = controller;
             }
         });
-
     }
 
     private fillChannelAddresses(componentId: string, channelAddresses: ChannelAddress[]) {

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -12,15 +12,20 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 @Component({
     selector: "oe-common-production-history-sum",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonProductionSumChartDetailsComponent extends AbstractHistoryChart {
-
-    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-
+    public static getChartData(
+        config: EdgeConfig,
+        route: ActivatedRoute,
+        translate: TranslateService,
+    ): HistoryUtils.ChartData {
         const component = config.getComponent(route.snapshot.params.componentId);
-        const hasCharger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0;
-        const hasAsymmetricMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0;
+        const hasCharger =
+            config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0;
+        const hasAsymmetricMeters =
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0;
 
         const input: HistoryUtils.InputChannel[] = [
             {
@@ -37,10 +42,13 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
                 powerChannel: ChannelAddress.fromString("_sum/ProductionDcActualPower"),
             });
 
-            converter = (data: HistoryUtils.ChannelData, phase: string) => data[component.id + "ActualPower"]?.reduce((arr, el, index) => {
-                arr.push(Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]));
-                return arr;
-            }, []);
+            converter = (data: HistoryUtils.ChannelData, phase: string) =>
+                data[component.id + "ActualPower"]?.reduce((arr, el, index) => {
+                    arr.push(
+                        Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]),
+                    );
+                    return arr;
+                }, []);
         }
 
         if (hasAsymmetricMeters) {
@@ -48,26 +56,31 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
         }
 
         if (hasAsymmetricMeters || hasCharger) {
-            input.push(...Phase.THREE_PHASE.map(phase => ({
-                name: "ProductionAcActivePower" + phase,
-                powerChannel: ChannelAddress.fromString(component.id + "/ProductionAcActivePower" + phase),
-            })));
+            input.push(
+                ...Phase.THREE_PHASE.map((phase) => ({
+                    name: "ProductionAcActivePower" + phase,
+                    powerChannel: ChannelAddress.fromString(component.id + "/ProductionAcActivePower" + phase),
+                })),
+            );
         }
 
-        const phaseOutput: (data: HistoryUtils.ChannelData) => HistoryUtils.DisplayValue[] =
-            converter ? (data) => Phase.THREE_PHASE.map((phase, i) => ({
-                name: "Phase " + phase,
-                converter: () => converter(data, phase),
-                color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
-                stack: 3,
-            })) : () => [];
+        const phaseOutput: (data: HistoryUtils.ChannelData) => HistoryUtils.DisplayValue[] = converter
+            ? (data) =>
+                  Phase.THREE_PHASE.map((phase, i) => ({
+                      name: "Phase " + phase,
+                      converter: () => converter(data, phase),
+                      color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+                      stack: 3,
+                  }))
+            : () => [];
 
         const chartObject: HistoryUtils.ChartData = {
             input: input,
             output: (data: HistoryUtils.ChannelData) => [
                 {
                     name: translate.instant("GENERAL.TOTAL"),
-                    nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data["_sum/ProductionActiveEnergy"],
+                    nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
+                        energyQueryResponse.result.data["_sum/ProductionActiveEnergy"],
                     converter: () => data[component.id],
                     color: ChartConstants.Colors.BLUE,
                     hiddenOnInit: false,
@@ -79,11 +92,13 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
                 formatNumber: "1.1-2",
                 afterTitle: translate.instant("GENERAL.TOTAL"),
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+            ],
         };
 
         return chartObject;

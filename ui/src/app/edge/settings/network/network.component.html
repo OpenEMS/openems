@@ -6,22 +6,17 @@
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
-              <ion-label> {{ form.name === 'eth0' ? 'LAN' : form.name + ' (INTERNAL)' }}</ion-label>
+              <ion-label> {{ form.name === "eth0" ? "LAN" : form.name + " (INTERNAL)" }}</ion-label>
               <ion-text translate>EDGE.NETWORK.ADVANCED_MODE</ion-text>
-              <ion-toggle button tabindex="0" mode="md" slot="end"
-                (keydown.enter)="form.model.advancedMode = !form.model.advancedMode;hideOrShowFields(form)" (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
-              hideOrShowFields(form)" [checked]="form.model.advancedMode">
-              </ion-toggle>
-              <oe-help-button slot="end" key="REDIRECT.SETTINGS_NETWORK_CONFIGURATION"
-                [useDefaultPrefix]="false"></oe-help-button>
+              <ion-toggle button tabindex="0" mode="md" slot="end" (keydown.enter)="form.model.advancedMode = !form.model.advancedMode; hideOrShowFields(form)" (ionChange)="form.model.advancedMode = !form.model.advancedMode; hideOrShowFields(form)" [checked]="form.model.advancedMode"></ion-toggle>
+              <oe-help-button slot="end" key="REDIRECT.SETTINGS_NETWORK_CONFIGURATION"></oe-help-button>
             </ion-item>
             <ion-card-content>
               <form (ngSubmit)="submit(form)">
-                <formly-form [form]="form.formGroup" [fields]="form.fields" [model]="form.model">
-                </formly-form>
+                <formly-form [form]="form.formGroup" [fields]="form.fields" [model]="form.model"></formly-form>
                 <ion-item>
                   <ion-button [disabled]="form.formGroup.pristine" type="submit" color="primary">
-                    {{ 'EDGE.NETWORK.SUBMIT' | translate}}
+                    {{ "EDGE.NETWORK.SUBMIT" | translate }}
                   </ion-button>
                 </ion-item>
               </form>

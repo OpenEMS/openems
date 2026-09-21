@@ -13,8 +13,8 @@ import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.types.Tuple2;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.type.Tuple;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents.Request;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents.Response;
@@ -70,9 +70,9 @@ public class GetDigitalInputChannelsOfComponents implements EndpointRequestType<
 			return jsonObjectSerializer(GetDigitalInputChannelsOfComponents.Response.class, json -> {
 				final var resultMap = json.getList("channelsPerComponent", t -> {
 					final var element = t.getAsJsonObjectPath();
-					return Tuple.of(element.getString("componentId"),
+					return Tuple2.of(element.getString("componentId"),
 							element.getList("channels", ChannelRecord.serializer()));
-				}).stream().collect(toMap(Tuple::a, Tuple::b));
+				}).stream().collect(toMap(Tuple2::a, Tuple2::b));
 
 				return new Response(resultMap);
 			}, obj -> {

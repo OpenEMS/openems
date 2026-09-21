@@ -1,9 +1,9 @@
 package io.openems.edge.io.shelly.shellypluspmmini;
 
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -21,7 +21,7 @@ public class IoShellyPlusPmMiniImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
@@ -99,7 +99,7 @@ public class IoShellyPlusPmMiniImplTest {
 	@Test
 	public void testInvert() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //

@@ -22,24 +22,16 @@ public abstract class AbstractCheckable implements Checkable {
 	}
 
 	protected static String getTranslation(Language language, String key, Object... params) {
-		if (language == null) {
-			language = Language.DEFAULT;
-		}
-		// TODO translation
-		switch (language) {
-		case CZ:
-		case ES:
-		case FR:
-		case NL:
-			language = Language.EN;
-			break;
-		case DE:
-		case EN:
-			break;
-		}
+		final var availableLanguage = switch (language) {
+		// Language was not set -> fall back to default (currently GERMAN)
+		case null -> Language.DEFAULT;
+		// Translations are not available -> fall back to ENGLISH
+		case CS, ES, FR, NL, JA -> Language.EN;
+		case DE, EN -> language;
+		};
 
 		var translationBundle = ResourceBundle.getBundle("io.openems.edge.core.appmanager.validator.translation",
-				language.getLocal());
+				availableLanguage.getLocal());
 		return TranslationUtil.getTranslation(translationBundle, key, params);
 	}
 

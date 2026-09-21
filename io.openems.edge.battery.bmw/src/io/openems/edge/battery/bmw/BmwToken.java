@@ -83,7 +83,7 @@ public class BmwToken {
 		return this.token != null && this.tokenExpiration != null && Instant.now().isBefore(this.tokenExpiration);
 	}
 
-	private static final class BmwTokenDelayProvider implements DelayTimeProvider {
+	private static final class BmwTokenDelayProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		@Override
 		public Delay onFirstRunDelay() {

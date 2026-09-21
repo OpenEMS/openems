@@ -14,7 +14,7 @@ public enum HttpBridgeTimeServiceDefinition implements HttpBridgeServiceDefiniti
 			BridgeHttpExecutor executor, //
 			EndpointFetcher endpointFetcher //
 	) {
-		return new HttpBridgeTimeServiceImpl(bridgeHttp, executor, endpointFetcher);
+		return new HttpBridgeTimeServiceImpl(bridgeHttp, executor);
 	}
 
 }

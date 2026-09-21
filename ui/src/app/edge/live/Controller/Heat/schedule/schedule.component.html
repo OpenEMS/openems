@@ -1,9 +1,66 @@
-@if(isInitialized){
-  @if (!isAskomaReadOnlyValue) {
-    <oe-components-scheduler (schedule)="schedule" [(payload)]="payload">
+@if (isInitialized) {
+  @if (!isAskomaReadOnly) {
+    <oe-components-scheduler (schedule)="(schedule)" [(payload)]="payload" [sectionTitle]="isIntersolarSmartEventVisible ? ('HEAT.SCHEDULE.MANUAL_EVENTS' | translate) : null">
       <ng-template let-task="task">
         {{ ("HEAT.SCHEDULE.MODE" | translate) + " " + task.payloadText }}
       </ng-template>
+
+      <ion-grid afterSchedule>
+        <ion-row>
+          <ion-col>
+            <h2 class="ion-margin-bottom">
+              {{ "HEAT.SCHEDULE.SMART_EVENTS" | translate }}
+            </h2>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size-sm="12" size-md="12" size-lg="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-label>{{ "HEAT.SCHEDULE.SMART_EVENT" | translate }}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col class="ion-text-bold">
+                      {{ "JS_SCHEDULE.END" | translate }}
+                    </ion-col>
+                    <ion-col class="ion-text-align-end">
+                      {{ "HEAT.SCHEDULE.SMART_EVENT_END" | translate }}
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col class="ion-text-bold">
+                      {{ "HEAT.SCHEDULE.END_TEMPERATURE" | translate }}
+                    </ion-col>
+                    <ion-col class="ion-text-align-end">65 °C</ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col class="ion-text-bold">
+                      {{ "JS_SCHEDULE.FREQUENCY" | translate }}
+                    </ion-col>
+                    <ion-col class="ion-text-align-end">
+                      {{ "JS_SCHEDULE.FREQ.DAILY" | translate }}
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col class="ion-align-items-start">
+                      <oe-flat-button [disabled]="!canWrite" size="small" expand="block" fill="outline">
+                        <ion-icon slot="start" name="pencil-outline"></ion-icon>
+                        {{ "JS_SCHEDULE.EDIT" | translate | uppercase }}
+                      </oe-flat-button>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+            <oe-flat-button [disabled]="!canWrite" size="small">
+              <ion-icon slot="start" name="add-outline"></ion-icon>
+              {{ "JS_SCHEDULE.ADD" | translate | uppercase }}
+            </oe-flat-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </oe-components-scheduler>
   }
 }

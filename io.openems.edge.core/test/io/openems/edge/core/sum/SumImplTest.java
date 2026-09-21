@@ -7,7 +7,7 @@ import static io.openems.edge.timeofusetariff.test.DummyTariffGridSellProvider.f
 import static io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider.fromQuarterlyPrices;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;

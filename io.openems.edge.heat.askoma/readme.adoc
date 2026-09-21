@@ -41,6 +41,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Askoma heating elements. Monitors heating power consumption and enables dynamic control for demand response and load shifting. Can operate in read-only mode for monitoring only or managed mode for active heating control.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "heat0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -49,5 +50,9 @@ This bundle implements the following OpenEMS Components:
 * `readOnly` (Boolean): Read-only mode (monitoring only) vs managed mode (default: true)
 
 [[_askoma_heating]]
+
+=== Modbus Register Documentation
+
+https://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html[Askomaheat+ Modbus (External Link)]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.askoma[Source Code icon:github[]]

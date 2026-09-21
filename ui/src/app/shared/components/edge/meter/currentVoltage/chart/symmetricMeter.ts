@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -13,6 +13,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     selector: "oe-current-voltage-chart",
     templateUrl: "../../../../../components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         BaseChartDirective,
@@ -23,16 +24,13 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     ],
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
-
     protected override getChartData(): HistoryUtils.ChartData {
-
         const component = this.config.getComponent(this.route.snapshot.params.componentId);
         const chartObject: HistoryUtils.ChartData = {
             input: [
                 {
                     name: component.id + "Current",
                     powerChannel: ChannelAddress.fromString(component.id + "/Current"),
-
                 },
                 {
                     name: component.id + "Voltage",
@@ -40,7 +38,6 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
                 },
             ],
             output: (data: HistoryUtils.ChannelData) => [
-
                 {
                     name: this.translate.instant("EDGE.HISTORY.CURRENT"),
                     converter: () => {
@@ -67,20 +64,21 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
                 formatNumber: "1.1-2",
                 afterTitle: this.translate.instant("GENERAL.TOTAL"),
             },
-            yAxes: [{
-                unit: YAxisType.VOLTAGE,
-                position: "right",
-                yAxisId: ChartAxis.RIGHT,
-                displayGrid: false,
-                scale: {
-                    dynamicScale: true,
+            yAxes: [
+                {
+                    unit: YAxisType.VOLTAGE,
+                    position: "right",
+                    yAxisId: ChartAxis.RIGHT,
+                    displayGrid: false,
+                    scale: {
+                        dynamicScale: true,
+                    },
                 },
-            },
-            {
-                unit: YAxisType.CURRENT,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            },
+                {
+                    unit: YAxisType.CURRENT,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
             ],
         };
 

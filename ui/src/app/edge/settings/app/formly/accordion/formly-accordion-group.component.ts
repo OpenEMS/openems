@@ -1,18 +1,25 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core";
 import { FormlyFieldProps } from "@ngx-formly/ionic/form-field";
 
 @Component({
     selector: "formly-accordion-group",
     templateUrl: "./formly-accordion-group.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class FormlyAccordionGroupComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
-    isMulti?: boolean,
-    missingOptionsText?: string,
-    openAccordions?: string[],
-}>> implements OnInit {
-
+export class FormlyAccordionGroupComponent
+    extends FieldType<
+        FieldTypeConfig<
+            FormlyFieldProps & {
+                isMulti?: boolean;
+                missingOptionsText?: string;
+                openAccordions?: string[];
+            }
+        >
+    >
+    implements OnInit
+{
     protected accordions: FormlyFieldConfig[] = [];
     protected expandedAccordions: string[] | string | null = null;
 
@@ -22,7 +29,6 @@ export class FormlyAccordionGroupComponent extends FieldType<FieldTypeConfig<For
     }
 
     private fillExpandedAccordions(): void {
-
         if (this.props.openAccordions == null) {
             return;
         }
@@ -31,16 +37,16 @@ export class FormlyAccordionGroupComponent extends FieldType<FieldTypeConfig<For
     }
 
     private getExistingAccordions(isMulti: boolean): string | string[] | null {
-
         const accordions: string[] = [];
-        this.props.openAccordions?.forEach(openAccordion => {
-            const existingAccordion = this.accordions.find(accordion =>
-                // customeId from IBN implementation
-                accordion.props?.["accordionId"] === openAccordion ||
-                // Fallback to App center's original key logic
-                accordion.key === openAccordion ||
-                // Fallback to Formly's auto-generated ID
-                accordion.id === openAccordion
+        this.props.openAccordions?.forEach((openAccordion) => {
+            const existingAccordion = this.accordions.find(
+                (accordion) =>
+                    // customeId from IBN implementation
+                    accordion.props?.["accordionId"] === openAccordion ||
+                    // Fallback to App center's original key logic
+                    accordion.key === openAccordion ||
+                    // Fallback to Formly's auto-generated ID
+                    accordion.id === openAccordion,
             );
 
             if (existingAccordion != null) {

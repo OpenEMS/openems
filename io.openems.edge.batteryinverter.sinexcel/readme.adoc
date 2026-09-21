@@ -42,6 +42,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Sinexcel hybrid battery inverters. Manages bidirectional AC/DC power flow for both grid-tied and off-grid operation, monitors inverter status and parameters, and supports emergency power switching for backup scenarios. Country code settings ensure regulatory compliance across different markets.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "batteryInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

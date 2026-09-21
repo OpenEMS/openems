@@ -30,6 +30,7 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.evse.chargepoint.hardybarth.common.AbstractHardyBarthHandler;
 import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -119,6 +120,17 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		super.logError(log, message);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>
+	 * Note: unlike the general {@link ManagedEvcs} contract, the returned boolean
+	 * only reflects that the target was locally accepted (dispatched or coalesced)
+	 * by {@link AbstractHardyBarthHandler#setTarget(int)} - it does <b>not</b>
+	 * confirm that the charger received or applied it. See
+	 * {@link HardyBarth.ChannelId#TARGET_WRITE_FAILED} for asynchronous feedback
+	 * about the outcome of the last completed write.
+	 */
 	@Override
 	public boolean applyChargePowerLimit(int power) {
 		// Convert it to ampere and apply hard limits
@@ -128,6 +140,13 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		return this.handler.setTarget(current);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>
+	 * Note: see {@link #applyChargePowerLimit(int)} regarding the local-acceptance
+	 * semantics of the returned boolean.
+	 */
 	@Override
 	public boolean pauseChargeProcess() {
 		return this.handler.setTarget(0);

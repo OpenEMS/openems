@@ -8,8 +8,8 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -40,7 +40,7 @@ public class TestFeneconHome30 {
 	private OpenemsApp integratedSystemApp;
 	private SocomecMeter meterApp;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

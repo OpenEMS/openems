@@ -101,4 +101,26 @@ public final class PropsUtil {
 		).isEmpty();
 	}
 
+	/**
+	 * Checks if the product type is installed, that is compatible with the
+	 * Masterbox.
+	 *
+	 * @param util the {@link AppManagerUtil} to get the installed instances
+	 * @return true if the product type is installed, that is compatible with the
+	 *         Masterbox, otherwise false
+	 */
+	public static boolean isProductTypeWithCompatibleMasterboxInstalled(AppManagerUtil util) {
+		return !util.getInstantiatedAppsOf(//
+				"App.FENECON.Home.20", //
+				"App.FENECON.Home.30", //
+				"App.FENECON.Home6", //
+				"App.FENECON.Home10.Gen2", //
+				"App.FENECON.Home15", //
+				"App.FENECON.Commercial.92", //
+				"App.FENECON.Commercial.50.Gen3", //
+				"App.FENECON.Commercial.100", //
+				"App.FENECON.Commercial.92.ClusterSlave" //
+		).isEmpty();
+	}
+
 }

@@ -25,6 +25,11 @@ public enum OpenemsAppCategory {
 	TIME_OF_USE_TARIFF("timeOfUseTariff"),
 
 	/**
+	 * Grid-sell tariffs.
+	 */
+	TARIFF_GRID_SELL("tariffGridSell"),
+
+	/**
 	 * Electric vehicle charging station.
 	 */
 	EVCS("evcs"),

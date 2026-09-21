@@ -205,6 +205,11 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
 	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}

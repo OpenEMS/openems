@@ -4,8 +4,8 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -20,7 +20,7 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig;
 public class UpdateComponentDirectlyTest {
 	private AppManagerTestBundle appManagerTestBundle;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

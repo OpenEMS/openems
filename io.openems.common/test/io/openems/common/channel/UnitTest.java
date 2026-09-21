@@ -10,6 +10,8 @@ public class UnitTest {
 	public void testFromSymbolOrElse() {
 		assertEquals(Unit.AMPERE, Unit.fromSymbolOrElse("A", Unit.NONE));
 		assertEquals(Unit.NONE, Unit.fromSymbolOrElse("FOOBAR", Unit.NONE));
+		assertEquals(Unit.DEGREE_CELSIUS, Unit.fromSymbolOrElse("C", Unit.NONE));
+		assertEquals(Unit.DEGREE_CELSIUS, Unit.fromSymbolOrElse("°C", Unit.NONE));
 	}
 
 }

@@ -7,14 +7,15 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonPrimitive;
 
@@ -33,7 +34,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 	private PersistencePredictorAggregateTask task;
 	private DummyPseudoComponentManager componentManager;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
 		this.componentManager.setConfigurationAdmin(new DummyConfigurationAdmin());
@@ -50,11 +51,11 @@ public class PersistencePredictorAggregateTaskImplTest {
 		this.task.aggregate(config, config);
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testCreateWithoutPredictor() throws Exception {
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(config, null);
-		this.task.create(DUMMY_ADMIN, emptyList());
+		assertThrows(OpenemsNamedException.class, () -> this.task.create(DUMMY_ADMIN, emptyList()));
 	}
 
 	@Test

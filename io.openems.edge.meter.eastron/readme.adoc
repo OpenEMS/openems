@@ -36,6 +36,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Three-phase electricity meter via Modbus protocol. Compatible with SDM630 and SDM72D-M-2 models.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -66,6 +67,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Single-phase electricity meter via Modbus protocol.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

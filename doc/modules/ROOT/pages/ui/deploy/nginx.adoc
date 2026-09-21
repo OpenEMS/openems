@@ -15,7 +15,7 @@ NOTE: These instructions are intended for a quick setup, e.g. to get started wit
 
 === Setup
 
-We assume that the files for OpemEMS UI are in /home/user/openems/openems-ui
+We assume that the files for OpenEMS UI are in /home/user/openems/openems-ui
 
 . Install nginx (e.g. `apt install nginx` on Debian / Ubuntu and derivatives)
  
@@ -35,7 +35,7 @@ server {
 }
 ```
 
-. Start nginx. See `man nginx` and the documentation on https://nginx.org for more information.
+. Start nginx (`systemctl restart nginx`). See `man nginx` and the documentation on https://nginx.org for more information.
 
 OpenEMS UI should now be available on port 4200.
 

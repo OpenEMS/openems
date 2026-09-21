@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, model } from "@angular/core";
+import { ChangeDetectorRef, Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -16,15 +16,15 @@ import { SharedSchedulerJsCalendar } from "../../../shared-scheduler-js-calendar
 
 @Component({
     templateUrl: "./add.html",
-    imports: [
-        AddTaskComponent,
-        CommonUiModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [AddTaskComponent, CommonUiModule],
 })
 export class SchedulerJsCalendarAddTaskComponent extends JsCalendarAddTaskComponent {
     public allowedPeriods: TSignalValue<TaskFormComponent["allowedPeriods"]> = ["daily", "weekly", "monthly"];
-    protected payload = model<SharedSchedulerJsCalendar.SchedulerJsCalendarPayload>(new SharedSchedulerJsCalendar.SchedulerJsCalendarPayload());
-    protected controllerOptions: { value: string, label: string }[] = [];
+    protected payload = model<SharedSchedulerJsCalendar.SchedulerJsCalendarPayload>(
+        new SharedSchedulerJsCalendar.SchedulerJsCalendarPayload(),
+    );
+    protected controllerOptions: { value: string; label: string }[] = [];
 
     constructor(
         protected override websocket: Websocket,
@@ -44,7 +44,10 @@ export class SchedulerJsCalendarAddTaskComponent extends JsCalendarAddTaskCompon
     }
 
     setValue(event: CustomEvent) {
-        this.payload.update(el => { el.setValue({ controllerIds: [event.detail.value] as string[] }); return el; });
+        this.payload.update((el) => {
+            el.setValue({ controllerIds: [event.detail.value] as string[] });
+            return el;
+        });
     }
 
     public ionViewWillEnter() {

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect } from "@angular/core";
+import { Component, effect, ChangeDetectionStrategy } from "@angular/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { filter, timer } from "rxjs";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -21,6 +21,7 @@ import { OeSystemUpdateComponent } from "./oe-system-update.component";
     selector: SystemComponent.SELECTOR,
     templateUrl: "./system.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         ChangelogComponent,
@@ -32,7 +33,6 @@ import { OeSystemUpdateComponent } from "./oe-system-update.component";
     ],
 })
 export class SystemComponent {
-
     private static readonly SELECTOR = "system";
     private static readonly REFRESH_UPDATE_STATE_INTERVAL: number = 5_000; // 5s
 
@@ -73,42 +73,54 @@ export class SystemComponent {
     }
 
     protected executeUpdate(updateableState: UpdateableState) {
-        this.edge.sendRequest<ExecuteUpdate.Response>(this.websocket, new ComponentJsonApiRequest({
-            componentId: "_updateManager",
-            payload: new ExecuteUpdate.Request({ id: updateableState.updateable.id }),
-        })).then(_ => {
-            updateableState.updateState = { type: "running", percentCompleted: 0, logs: [] };
-        });
+        this.edge
+            .sendRequest<ExecuteUpdate.Response>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_updateManager",
+                    payload: new ExecuteUpdate.Request({ id: updateableState.updateable.id }),
+                }),
+            )
+            .then((_) => {
+                updateableState.updateState = { type: "running", percentCompleted: 0, logs: [] };
+            });
     }
 
     private async initializeUpdateStateFetcher(cancellationToken: CancellationToken): Promise<void> {
         let isUpdatePending = false;
 
         const source = timer(1, SystemComponent.REFRESH_UPDATE_STATE_INTERVAL);
-        source.pipe(
-            cancellationToken.observablePipe(),
-            filter(_ => this.edge.isOnline && !isUpdatePending)
-        ).subscribe(async _ => {
-            isUpdatePending = true;
-            try {
-                const updateablesToFetch = this.updateables.filter(x => this.doesUpdateableRequireStateUpdate(x));
-                const promises = updateablesToFetch.map(x => this.updateUpdateableState(x));
-                await Promise.allSettled(promises);
-            } catch (err) {
-                console.error("Failed to update updateable states", err);
-            } finally {
-                isUpdatePending = false;
-            }
-        });
+        source
+            .pipe(
+                cancellationToken.observablePipe(),
+                filter((_) => this.edge.isOnline && !isUpdatePending),
+            )
+            .subscribe(async (_) => {
+                isUpdatePending = true;
+                try {
+                    const updateablesToFetch = this.updateables.filter((x) => this.doesUpdateableRequireStateUpdate(x));
+                    const promises = updateablesToFetch.map((x) => this.updateUpdateableState(x));
+                    await Promise.allSettled(promises);
+                } catch (err) {
+                    console.error("Failed to update updateable states", err);
+                } finally {
+                    isUpdatePending = false;
+                }
+            });
     }
 
     private async fetchUpdateables(): Promise<UpdateableState[]> {
-        const result = (await this.edge.sendRequest<GetUpdateables.Response>(this.websocket, new ComponentJsonApiRequest({
-            componentId: "_updateManager",
-            payload: new GetUpdateables.Request(),
-        }))).result;
+        const result = (
+            await this.edge.sendRequest<GetUpdateables.Response>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_updateManager",
+                    payload: new GetUpdateables.Request(),
+                }),
+            )
+        ).result;
 
-        return result.updateables.map(u => <UpdateableState>{ updateable: u });
+        return result.updateables.map((u) => <UpdateableState>{ updateable: u });
     }
 
     private doesUpdateableRequireStateUpdate(updateable: UpdateableState): boolean {
@@ -127,10 +139,13 @@ export class SystemComponent {
 
     private async updateUpdateableState(updateable: UpdateableState): Promise<void> {
         try {
-            const response = await this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
-                componentId: "_updateManager",
-                payload: new GetUpdateState.Request({ id: updateable.updateable.id }),
-            }));
+            const response = await this.edge.sendRequest<GetUpdateState.Response>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_updateManager",
+                    payload: new GetUpdateState.Request({ id: updateable.updateable.id }),
+                }),
+            );
 
             updateable.updateState = response.result.state;
         } catch (err) {
@@ -140,6 +155,6 @@ export class SystemComponent {
 }
 
 type UpdateableState = {
-    updateable: Updateable,
-    updateState?: UpdateState
+    updateable: Updateable;
+    updateState?: UpdateState;
 };

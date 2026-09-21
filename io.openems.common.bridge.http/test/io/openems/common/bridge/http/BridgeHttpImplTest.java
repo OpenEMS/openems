@@ -1,9 +1,9 @@
 package io.openems.common.bridge.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
@@ -11,7 +11,7 @@ import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 public class BridgeHttpImplTest {
 
 	@Test
-	public void setMaximumPoolSize() {
+	void setMaximumPoolSize() {
 		final var executor = new DummyBridgeHttpExecutor();
 		final var bridge = new BridgeHttpImpl(new DummyEndpointFetcher(), executor);
 

@@ -381,8 +381,8 @@ public class SwitchEvcsEvseTest {
 		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
 		var capturedRequest = captor.getValue();
 		boolean hasV1Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.getName().equals("version")
-						&& p.getValue().getAsString().equals(io.openems.edge.energy.api.Version.V1_ESS_ONLY.name()));
+				.anyMatch(p -> p.name().equals("version")
+						&& p.value().getAsString().equals(io.openems.edge.energy.api.Version.V1_ESS_ONLY.name()));
 		assertTrue(hasV1Version);
 
 		assertEquals(2, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Keba")).toList().size());
@@ -422,7 +422,7 @@ public class SwitchEvcsEvseTest {
 		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
 		var capturedRequest = captor.getValue();
 		boolean hasV2Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.getName().equals("version") && p.getValue().getAsString()
+				.anyMatch(p -> p.name().equals("version") && p.value().getAsString()
 						.equals(io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE.name()));
 		assertTrue(hasV2Version);
 

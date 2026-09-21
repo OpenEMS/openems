@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -34,10 +34,11 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointMode;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -48,6 +49,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ctrls")
 public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, ControllerEvseCluster, Controller, ComponentJsonApi, EnergySchedulable {
 
@@ -57,18 +59,16 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	private ComponentManager componentManager;
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private Sum sum;
 
 	private Config config;
-	private EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
+	private EshWithDifferentModes<JointMode<Mode>, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
 
 	// TODO sort by configuration
 	private List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();
 
-	@Reference(cardinality = MULTIPLE, policy = DYNAMIC, policyOption = GREEDY)
+	@Reference(name = "ctrls", cardinality = MULTIPLE, policy = DYNAMIC, policyOption = GREEDY, //
+			target = "(&(id=${config.ctrl_ids})(enabled=true))")
 	private void bindController(ControllerEvseSingle ctrl) {
 		this.ctrls.add(ctrl);
 		Optional.ofNullable(this.energyScheduleHandler).ifPresent(

@@ -83,6 +83,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 				.setModbusId("modbus0") //
 				.setActivateWatchdog(true) //
 				.setGridCode(GridCode.UNDEFINED) //
+				.setDcMinVoltage(650) //
 				.build()); //
 
 		// let SunSpec initialize

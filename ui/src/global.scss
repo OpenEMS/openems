@@ -8,7 +8,6 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-
 /* Core CSS required for Ionic components to work properly */
 @use "node_modules/@ionic/angular/css/core.css" as *;
 @use "node_modules/@ionic/angular/css/display.css" as *;
@@ -70,7 +69,6 @@ input:-webkit-autofill:focus {
     ion-list-header {
         display: none;
     }
-
 }
 
 .paragraph-space {
@@ -180,7 +178,6 @@ ion-select::part(icon) {
 }
 
 .custom-ion-popover {
-
     --background: var(--ion-background-color);
 
     // Floating label
@@ -324,10 +321,6 @@ table.full_width {
     width: 100%;
 }
 
-.full_height {
-    height: 100%;
-}
-
 .bold {
     font-weight: 600;
 }
@@ -353,7 +346,7 @@ button.activated {
     background-color: var(--ion-color-success);
 }
 
-svg::part('container') {
+svg::part("container") {
     --border-color: white;
     --checkmark-color: red;
 }
@@ -423,7 +416,6 @@ formly-input-section {
 }
 
 :root {
-
     ion-text {
         small {
             color: var(--ion-card-content-color);

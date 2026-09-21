@@ -10,7 +10,6 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest;
@@ -34,7 +33,6 @@ public class ControllerHeatingElementImplTest10 {
         return new ControllerTest(new ControllerIoHeatingElementImpl()) //
                 .addReference("componentManager", new DummyComponentManager(CLOCK)) //
                 .addReference("sum", new DummySum()) //
-                .addReference("cm", new DummyConfigurationAdmin()) //
                 .addComponent(new DummyInputOutput("io0")) //
                 .activate(MyConfig.create() //
                         .setId("ctrl0") //

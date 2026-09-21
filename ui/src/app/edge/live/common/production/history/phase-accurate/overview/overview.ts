@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -9,12 +9,13 @@ import { Role } from "src/app/shared/type/role";
 
 @Component({
     templateUrl: "./overview.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonProductionDetailsOverviewComponent extends AbstractHistoryChartOverview {
     protected navigationButtons: NavigationOption[] = [];
 
-    protected componentSome: { type: "sum" | "productionMeter" | "charger", displayName: string } | null = null;
+    protected componentSome: { type: "sum" | "productionMeter" | "charger"; displayName: string } | null = null;
 
     constructor(
         public override service: Service,
@@ -29,15 +30,22 @@ export class CommonProductionDetailsOverviewComponent extends AbstractHistoryCha
     protected override afterIsInitialized() {
         this.componentSome = this.getComponentType();
 
-        this.service.getCurrentEdge().then(edge => {
-
+        this.service.getCurrentEdge().then((edge) => {
             // Hide current & voltage
             if (this.component?.factoryId === "Core.Sum") {
                 return;
             }
 
             this.navigationButtons = [
-                { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+                {
+                    id: "currentVoltage",
+                    isEnabled: edge.roleIsAtLeast(Role.INSTALLER),
+                    alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"),
+                    callback: () => {
+                        this.router.navigate(["./currentVoltage"], { relativeTo: this.route });
+                    },
+                },
+            ];
         });
     }
 
@@ -46,7 +54,10 @@ export class CommonProductionDetailsOverviewComponent extends AbstractHistoryCha
             return null;
         }
 
-        if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
+        if (
+            this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) &&
+            this.component.isEnabled
+        ) {
             return { type: "charger", displayName: this.component.alias };
         }
 

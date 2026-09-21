@@ -1,6 +1,7 @@
 package io.openems.edge.app.openemshardware;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.openemshardware.TechbaseCm4sGen2.APPID;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -38,9 +39,11 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 
-@Component(name = "App.OpenemsHardware.CM4S.Gen2")
+@Component(name = APPID)
 public class TechbaseCm4sGen2 extends AbstractOpenemsAppWithProps<TechbaseCm4sGen2, Property, Parameter.BundleParameter>
 		implements OpenemsApp {
+
+	public static final String APPID = "App.OpenemsHardware.CM4S.Gen2";
 
 	public static enum Property implements Type<Property, TechbaseCm4sGen2, Parameter.BundleParameter> {
 		// Properties

@@ -96,6 +96,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -162,6 +163,7 @@ public class JsonUtilsTest {
 			.addProperty("ZonedDateTime", ZonedDateTime.of(1900, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))) //
 			.addProperty("LocalDateTime", LocalDateTime.of(1900, 1, 1, 0, 0, 0, 0)) //
 			.addProperty("LocalDate", LocalDate.of(1900, 1, 1)) //
+			.addProperty("LocalTime", LocalTime.of(15, 45, 30)) //
 			.addProperty("Duration", Duration.ZERO) //
 			.addPropertyIfNotNull("Boolean1", (Boolean) null) //
 			.addPropertyIfNotNull("Boolean2", Boolean.FALSE) //
@@ -732,6 +734,11 @@ public class JsonUtilsTest {
 	public void testGetAsLocalDate() throws OpenemsNamedException {
 		// TODO Implement getAsLocalDate and getAsOptionalLocalDate
 		assertEquals("1900-01-01", getAsString(JSON_OBJECT, "LocalDate").toString());
+	}
+
+	@Test
+	public void testGetAsLocalTime() throws OpenemsNamedException {
+		assertEquals("15:45:30", getAsString(JSON_OBJECT, "LocalTime"));
 	}
 
 	@Test

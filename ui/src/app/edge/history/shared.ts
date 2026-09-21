@@ -4,6 +4,7 @@ import * as Chart from "chart.js";
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+import { ChartTypes } from "src/app/shared/components/chart/chart.types";
 
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Service } from "src/app/shared/shared";
@@ -160,7 +161,7 @@ export type ChartOptions = {
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     responsive: true,
-
+    indexAxis: "x",
     // Important for point style on chart hover for line chart
     interaction: {
         mode: "index",  // Detect x-axis alignment
@@ -275,7 +276,8 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     },
     layout: {
         padding: {
-            top: 35, // Increase the top padding to create room for the title
+            top: 35,
+            left: 0,
         },
     },
 });
@@ -371,23 +373,24 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" } {
     const days = Math.abs(differenceInDays(toDate, fromDate));
+    const isSmartphoneResolution = service.getIsSmartphoneResolution();
     let result: { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" };
 
     if (days <= 1) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Day
         } else {
             result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 5 Minutes
         }
     } else if (days == 2) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "hour" }; // 1 Day
         } else {
             result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 4) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
         } else {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "hour" }; // 1 Hour
@@ -396,7 +399,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     } else if (days <= 6) {
 
 
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         } else {
             // >> show Hours
@@ -404,7 +407,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         }
 
 
-    } else if (days <= 31 && service.isSmartphoneResolution) {
+    } else if (days <= 31 && isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
         result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
 
@@ -413,7 +416,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 
     } else if (days <= 144) {
         // >> show Days
-        if (service.isSmartphoneResolution == true) {
+        if (isSmartphoneResolution == true) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Month
         } else {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
@@ -518,7 +521,7 @@ export type ChartData = {
     yAxisTitle: string,
 };
 
-export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.ChartOptions => ({
+export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.ChartOptions => ({
     responsive: true,
     maintainAspectRatio: false,
     elements: {

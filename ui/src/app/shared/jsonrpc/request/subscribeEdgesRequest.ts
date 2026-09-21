@@ -1,4 +1,4 @@
-import { States } from "../../ngrx-store/states";
+import { States } from "../../states/states";
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -14,16 +14,14 @@ import { JsonrpcRequest } from "../base";
  * </pre>
  */
 export class SubscribeEdgesRequest extends JsonrpcRequest {
-
     private static METHOD: string = "subscribeEdges";
     protected override requiredState: States = States.EDGE_SELECTED;
 
     public constructor(
         public override readonly params: {
-            edges: string[]
+            edges: string[];
         },
     ) {
         super(SubscribeEdgesRequest.METHOD, params);
     }
-
 }

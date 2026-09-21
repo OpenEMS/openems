@@ -38,6 +38,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 *Description*: Core communication component. Always required to establish communication with the inverter.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "kostalPiko0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -59,6 +60,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 *Description*: Energy storage system component for battery control and monitoring.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -80,6 +82,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 *Description*: DC Charger/MPP tracker for photovoltaic system.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -100,6 +103,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 *Description*: Grid meter component for monitoring grid power.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -128,6 +132,7 @@ The Plenticore family components communicate via Modbus TCP.
 *Description*: Hybrid energy storage system (battery) with management capabilities.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -158,6 +163,7 @@ The Plenticore family components communicate via Modbus TCP.
 *Description*: Hybrid inverter component for photovoltaic production monitoring and power limiting.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "pvInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -183,6 +189,7 @@ The Plenticore family components communicate via Modbus TCP.
 *Description*: Smart Energy Meter (KSEM) for grid or inverter-based energy monitoring.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

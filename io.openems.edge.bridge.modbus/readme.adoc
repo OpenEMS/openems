@@ -7,6 +7,7 @@ Master bridge for Modbus/TCP and Modbus/RTU communication with industrial device
 Modbus is a widely-used industrial communication standard for fieldbus communications. The Modbus Bridge enables OpenEMS to communicate with all kinds of hardware devices like photovoltaic inverters, electric meters, battery systems, and other industrial equipment that support Modbus protocol.
 
 The bridge manages:
+
 * Modbus task execution scheduling and prioritization
 * Read and write request coordination across all Modbus components
 * Automatic defective component handling and retry logic
@@ -14,6 +15,7 @@ The bridge manages:
 * Detailed logging and debugging capabilities
 
 Two transport protocols are supported:
+
 * **Modbus/TCP** - Network-based communication via TCP/IP
 * **Modbus/RTU** - Serial-based communication via RS485 or RS232
 
@@ -29,12 +31,14 @@ Two transport protocols are supported:
 *Purpose*: Master bridge for Modbus/TCP network communication.
 
 *Use Cases*:
+
 * Network-connected industrial devices
 * Distributed systems across network segments
 * Devices with native Ethernet interfaces
 * Preferred for modern installations
 
 .*Configuration*:
+
 * `id` (String): Unique bridge identifier; default: `"modbusTcp0"`
 * `ip` (String): IP address of Modbus master; default: `"192.168.1.100"`
 * `port` (Integer): TCP port number; default: `502` (standard Modbus port)
@@ -51,12 +55,14 @@ Two transport protocols are supported:
 *Purpose*: Master bridge for Modbus/RTU serial communication via RS485 or RS232.
 
 *Use Cases*:
+
 * Legacy equipment with serial interfaces
 * Short-distance installations (under 1km)
 * Isolated systems without network connectivity
 * Multi-drop serial bus configurations
 
 .*Configuration*:
+
 * `id` (String): Unique bridge identifier; default: `"modbusSerial0"`
 * `serialPort` (String): Serial port name; examples: `"/dev/ttyUSB0"`, `"COM3"`
 * `baudRate` (Integer): Baud rate; default: `9600` (typical: 9600, 19200, 38400)
@@ -107,6 +113,7 @@ The **ModbusWorker** manages task execution:
 * Defective components gradually delay up to 5 minutes
 
 *Priority Levels*:
+
 * `HIGH` - Executed every cycle (typical for control feedback)
 * `LOW` - Round-robin execution (one LOW task per cycle per component)
 
@@ -131,6 +138,7 @@ If a component repeatedly fails:
 *Timing Optimization*:
 
 The ModbusWorker "learns" an ideal delay time each cycle:
+
 * Measures time to execute all write tasks
 * Calculates when read tasks should start
 * Automatically applies CycleDelay for just-in-time reads

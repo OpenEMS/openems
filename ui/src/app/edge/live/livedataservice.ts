@@ -1,6 +1,7 @@
 import { Directive, effect, EffectRef, Inject, inject, Injector, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../shared/shared";
@@ -29,6 +30,10 @@ export class LiveDataService extends DataService implements OnDestroy {
     public subscribeChannels(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
 
         AssertionUtils.assertIsDefined(edge);
+
+        if (this.subscribedChannelAddresses.length !== 0 && ArrayUtils.containsAll<ChannelAddress>({ arr: channelAddresses, strings: this.subscribedChannelAddresses })) {
+            return;
+        };
 
         for (const channelAddress of channelAddresses) {
             this.subscribedChannelAddresses.push(channelAddress);

@@ -1,7 +1,6 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.vectis;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -53,11 +52,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String core_id() {
 		return this.builder.coreId;
-	}
-
-	@Override
-	public String core_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.core_id());
 	}
 
 	@Override

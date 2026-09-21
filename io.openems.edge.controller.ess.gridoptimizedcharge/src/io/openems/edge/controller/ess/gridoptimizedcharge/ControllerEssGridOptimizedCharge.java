@@ -224,7 +224,14 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 */
 		NO_LIMITATION_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_SECONDS)//
-				.persistencePriority(PersistencePriority.HIGH)),//
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Enable state of the controller run execution.
+		 */
+		RUN_ENABLED(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Enable state of the controller run execution.")), //
+
 		;
 
 		private final Doc doc;
@@ -238,6 +245,37 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 			return this.doc;
 		}
 	}
+
+	/**
+	 * Enables execution of the {@link Controller#run()} method.
+	 */
+	void enableRun();
+
+	/**
+	 * Disables execution of the {@link Controller#run()} method.
+	 */
+	void disableRun();
+
+	/**
+	 * Gets the configured {@link Mode} of this controller.
+	 *
+	 * @return the current controller mode
+	 */
+	Mode getMode();
+
+	/**
+	 * Gets the configured {@link DelayChargeRiskLevel} of this controller.
+	 *
+	 * @return the current risk level
+	 */
+	DelayChargeRiskLevel getRiskLevel();
+
+	/**
+	 * Gets the configured manual target time of this controller.
+	 *
+	 * @return the manual target time
+	 */
+	LocalTime getManualTargetTime();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#DELAY_CHARGE_STATE}.

@@ -30,7 +30,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -48,7 +50,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -67,7 +71,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -86,7 +92,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -107,7 +115,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -125,7 +135,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -143,7 +155,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -158,7 +172,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -179,11 +195,15 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power) //
-				.withAllowedChargePower(-30000).withAllowedDischargePower(30000).withMaxApparentPower(30000) //
+				.withAllowedChargePower(-30000)//
+				.withAllowedDischargePower(30000)//
+				.withMaxApparentPower(30000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0, ess1);
@@ -203,7 +223,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> p0.set(r.activePower()));
 
 		var sut = V2TestUtils.createComponentTest(power, ess0);
@@ -227,7 +249,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(power) //
-				.withAllowedChargePower(-50000).withAllowedDischargePower(50000).withMaxApparentPower(50000) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000) //
 				.withSymmetricApplyPowerCallback(r -> {
 					p0.set(r.activePower());
 					q0.set(r.reactivePower());
@@ -244,6 +268,24 @@ public class PowerDistributionHandlerV2Test {
 		assertEquals(2000, q0.get());
 	}
 
+	@Test
+	public void testReactivePowerExtremaWithNoConstraint() throws Exception {
+		final var power = new EssPowerImpl();
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(power) //
+				.withAllowedChargePower(-50000)//
+				.withAllowedDischargePower(50000)//
+				.withMaxApparentPower(50000);
+
+		var sut = V2TestUtils.createComponentTest(power, ess0);
+		sut.next(new TestCase() //
+				.onBeforeWriteCallbacks(() -> {
+					// No Q constraint — full apparent power should be available for reactive
+					assertEquals(50000, power.getMaxPower(ess0, ALL, REACTIVE));
+					assertEquals(-50000, power.getMinPower(ess0, ALL, REACTIVE));
+				}));
+	}
+
 	// ========== Cluster ==========
 
 	@Test
@@ -252,7 +294,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1);
 
@@ -272,7 +316,9 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1);
 
@@ -290,15 +336,21 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(20) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var ess3 = new DummyManagedSymmetricEss("ess3") //
 				.setPower(power).withSoc(80) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2, ess3);
 
@@ -317,11 +369,15 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(5000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(5000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(15000).withMaxApparentPower(15000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(15000)//
+				.withMaxApparentPower(15000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2);
 
@@ -348,11 +404,15 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(5000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(5000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(5000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(5000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2);
 
@@ -380,19 +440,27 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var ess3 = new DummyManagedSymmetricEss("ess3") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
 		var ess4 = new DummyManagedSymmetricEss("ess4") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p4.set(r.activePower()));
 
 		var cluster1 = new DummyMetaEss("cluster1", ess1, ess2);
@@ -422,19 +490,27 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var ess3 = new DummyManagedSymmetricEss("ess3") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
 		var ess4 = new DummyManagedSymmetricEss("ess4") //
 				.setPower(power).withSoc(50) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p4.set(r.activePower()));
 
 		var cluster1 = new DummyMetaEss("cluster1", ess1, ess2);
@@ -574,20 +650,27 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(10) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(30) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var ess3 = new DummyManagedSymmetricEss("ess3") //
 				.setPower(power).withSoc(70) //
 				.withAllowedChargePower(2000) // BMS forcing discharge
-				.withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
 		var ess4 = new DummyManagedSymmetricEss("ess4") //
 				.setPower(power).withSoc(90) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p4.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2, ess3, ess4);
 
@@ -620,20 +703,27 @@ public class PowerDistributionHandlerV2Test {
 		final var power = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(power).withSoc(10) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
 		var ess2 = new DummyManagedSymmetricEss("ess2") //
 				.setPower(power).withSoc(30) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
 		var ess3 = new DummyManagedSymmetricEss("ess3") //
 				.setPower(power).withSoc(70) //
 				.withAllowedChargePower(2000) // BMS forcing discharge
-				.withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
 		var ess4 = new DummyManagedSymmetricEss("ess4") //
 				.setPower(power).withSoc(90) //
-				.withAllowedChargePower(-10000).withAllowedDischargePower(10000).withMaxApparentPower(10000) //
+				.withAllowedChargePower(-10000)//
+				.withAllowedDischargePower(10000)//
+				.withMaxApparentPower(10000) //
 				.withSymmetricApplyPowerCallback(r -> p4.set(r.activePower()));
 		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2, ess3, ess4);
 

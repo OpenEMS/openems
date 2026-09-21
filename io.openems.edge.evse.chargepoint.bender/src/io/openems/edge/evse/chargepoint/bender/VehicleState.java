@@ -10,7 +10,7 @@ public enum VehicleState implements OptionsEnum {
 	STATE_D(4, "Connected, ready for charging and ventilation is required", true), //
 	STATE_E(5, "Electrical short to earth on the controller of the EVSE, no power supply", false) //
 	;
-	
+
 	public final boolean isEvConnected;
 
 	private final int value;

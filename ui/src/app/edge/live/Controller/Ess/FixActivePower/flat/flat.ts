@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -10,14 +10,14 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "Controller_Ess_FixActivePower",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
-    public chargeDischargePower: { name: string, value: number };
+    public chargeDischargePower: { name: string; value: number };
     public propertyMode: DefaultTypes.ManualOnOff | null = null;
 
     protected modalComponent: Modal | null = null;
@@ -33,7 +33,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 component: this.component,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
@@ -43,8 +43,10 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/_PropertyPower"]);
+        this.chargeDischargePower = Utils.convertChargeDischargePower(
+            this.translate,
+            currentData.allComponents[this.component.id + "/_PropertyPower"],
+        );
         this.propertyMode = currentData.allComponents[this.component.id + "/_PropertyMode"];
     }
-
 }

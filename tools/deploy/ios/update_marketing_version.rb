@@ -3,6 +3,29 @@
 require 'xcodeproj'
 require 'plist'
 require 'fileutils'
+require_relative 'shared.rb'
+require 'optparse'
+
+options = { targetName: nil, scheme: nil }
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: update_marketing_version.rb --target-name VALUE --scheme VALUE"
+  
+  opts.on("--target-name VALUE", "Second required argument") do |v|
+    options[:targetName] = v
+  end
+  opts.on("--scheme VALUE", "Third required argument") do |v|
+    options[:scheme] = v
+  end
+end.parse!
+
+if options[:targetName].nil?
+  puts "Error: Both --target-name are required"
+  puts OptionParser.new.help
+  exit 1
+end
+
+puts "Arguments: #{options[:scheme]}, #{options[:targetName]}"
 
 def colorize(text, color_code)
   "\e[#{color_code}m#{text}\e[0m"
@@ -10,25 +33,6 @@ end
 
 def red(text); colorize(text, 31); end
 def green(text); colorize(text, 32); end
-
-# Extracts the MARKETING_VERSION from a target/scheme and configuration
-def extract_marketing_version(target_name, configuration, project_path)
-  project = Xcodeproj::Project.open(project_path)
-  # Find the target
-  target = project.targets.find { |t| t.name == target_name }
-  
-  if target
-    # Get the build settings for the specified configuration
-    build_settings = target.build_configurations.find { |config| config.name == configuration }.build_settings
-  
-    # Extract the marketing version (MARKETING_VERSION)
-    marketing_version = build_settings['MARKETING_VERSION']
-    puts "Marketing Version for target '#{target_name}' and configuration '#{configuration}': #{marketing_version}"
-    return marketing_version
-  else
-    puts red("Target '#{target_name}' not found.")
-  end
-end
 
 # Updates the marketing version of an app
 # 
@@ -48,9 +52,7 @@ def update_marketing_version(target_name, configuration, project_path, new_marke
       build_configuration.build_settings['MARKETING_VERSION'] = new_marketing_version
   
       # Save the changes to the project file
-      project.save
-  
-      puts green("Updated MARKETING_VERSION to '#{new_marketing_version}' for target '#{target_name}' and configuration '#{configuration}'.")
+      project.save  
     else
       puts red("Configuration '#{configuration}' not found for target '#{target_name}'.")
     end
@@ -99,23 +101,15 @@ def get_package_id(target_name)
   end
 end
 
-# Check if the correct number of arguments is provided
-if ARGV.length != 1
-  puts "Usage: ruby update_marketing_version.rb <target_name>"
-  exit 1
-end
-
-target_name = ARGV[0]
-
 # Constants
 target_configuration = "Release"
-project_path = 'App.xcodeproj'
+project_path = "#{options[:scheme]}.xcodeproj"
 local_pbxproj_path= "#{project_path}/project.pbxproj"
 global_pbxproj_path= "/opt/mac-build-env/project.pbxproj"
 
-
 replace_file(local_pbxproj_path, global_pbxproj_path)                                               # replace project.pbxproj
-previous_version = extract_marketing_version(target_name, target_configuration, project_path).to_i  # extract MARKETING_VERSION from pbxproj
-new_version = previous_version + 1                                                                  # bump version by 1
-update_marketing_version(target_name, target_configuration, project_path, new_version)              # update marketing version
+previous_version = extract_marketing_version(options[:targetName], target_configuration, project_path).to_i  # extract MARKETING_VERSION from pbxproj
+new_version = previous_version + 1                                                               # bump version by 1
+
+update_marketing_version(options[:targetName], target_configuration, project_path, new_version)              # update marketing version
 replace_file(global_pbxproj_path, local_pbxproj_path)                                               # replace global file

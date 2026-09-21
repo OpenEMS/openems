@@ -2,16 +2,11 @@
 import { DefaultTypes } from "../../type/defaulttypes";
 import { Utils } from "../../utils/utils";
 
-/**
- * @deprecated this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
- */
+/** @deprecated This class will eventually be dropped, when abstract-widgets are finished and used everywhere. */
 export class CurrentData {
-
     public readonly summary: DefaultTypes.Summary;
 
-    constructor(
-        public readonly channel: { [channelAddress: string]: any } = {},
-    ) {
+    constructor(public readonly channel: { [channelAddress: string]: any } = {}) {
         this.summary = this.getSummary(channel);
     }
 
@@ -19,38 +14,45 @@ export class CurrentData {
         if (buyFromGrid != null && consumptionActivePower != null) {
             return Math.max(
                 Utils.orElse(
-                    (
-                        1 - (
-                            Utils.divideSafely(
-                                Utils.orElse(buyFromGrid, 0),
-                                Math.max(Utils.orElse(consumptionActivePower, 0), 0),
-                            )
-                        )
-                    ) * 100, 0,
-                ), 0);
+                    (1 -
+                        Utils.divideSafely(
+                            Utils.orElse(buyFromGrid, 0),
+                            Math.max(Utils.orElse(consumptionActivePower, 0), 0),
+                        )) *
+                        100,
+                    0,
+                ),
+                0,
+            );
         } else {
             return null;
         }
     }
 
     /**
-  * Calculates the powerRatio depending on the available Channels for each version.
-  * If version older than '2024.2.2' we use "_sum/EssMaxApparentPower", otherwise we use "_sum/EssMaxDischargePower" & "_sum/EssMinDischargePower" in newer versions.
-  *
-  * @param maxApparentPower the maxApparentPower
-  * @param minDischargePower the minDischargePower
-  * @param effectivePower the essActivePower
-  * @param result the result
-  * @returns the powerRatio
-  */
-    public static getEssPowerRatio(maxApparentPower: number | null, minDischargePower: number | null, effectivePower: number | null): number {
+     * Calculates the powerRatio depending on the available Channels for each version.
+     *
+     * @param maxDischargePower The maxDischargePower
+     * @param minDischargePower The minDischargePower
+     * @param effectivePower The essActivePower
+     * @param result The result
+     * @returns The powerRatio
+     */
+    public static getEssPowerRatio(
+        maxDischargePower: number | null,
+        minDischargePower: number | null,
+        effectivePower: number | null,
+    ): number {
         if (!effectivePower) {
             return 0;
         }
-        return Utils.orElse(Utils.divideSafely(effectivePower,
-            effectivePower > 0
-                ? maxApparentPower
-                : Utils.multiplySafely(minDischargePower, -1)), 0);
+        return Utils.orElse(
+            Utils.divideSafely(
+                effectivePower,
+                effectivePower > 0 ? maxDischargePower : Utils.multiplySafely(minDischargePower, -1),
+            ),
+            0,
+        );
     }
 
     private getSummary(c: { [channelAddress: string]: any }): DefaultTypes.Summary {
@@ -60,7 +62,8 @@ export class CurrentData {
                 autarchy: null,
                 selfConsumption: null,
                 state: null,
-            }, storage: {
+            },
+            storage: {
                 soc: null,
                 activePowerL1: null,
                 activePowerL2: null,
@@ -81,7 +84,8 @@ export class CurrentData {
                 effectivePower: null,
                 effectiveChargePower: null,
                 effectiveDischargePower: null,
-            }, production: {
+            },
+            production: {
                 hasDC: false,
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
@@ -91,7 +95,8 @@ export class CurrentData {
                 activePowerAcL3: null,
                 activePowerDc: null,
                 maxActivePower: null,
-            }, grid: {
+            },
+            grid: {
                 gridMode: null,
                 powerRatio: null,
                 activePowerL1: null,
@@ -105,7 +110,9 @@ export class CurrentData {
                 sellActivePowerL3: null,
                 maxSellActivePower: null,
                 restrictionMode: null,
-            }, consumption: {
+                gridBuyPrice: null,
+            },
+            consumption: {
                 powerRatio: null,
                 activePower: null,
                 activePowerL1: null,
@@ -116,10 +123,10 @@ export class CurrentData {
 
         {
             /*
-       * Grid
-       * > 0 => Buy from grid
-       * < 0 => Sell to grid
-       */
+             * Grid
+             * > 0 => Buy from grid
+             * < 0 => Sell to grid
+             */
             const gridActivePower: number = c["_sum/GridActivePower"];
             result.grid.activePowerL1 = c["_sum/GridActivePowerL1"];
             result.grid.activePowerL2 = c["_sum/GridActivePowerL2"];
@@ -134,21 +141,28 @@ export class CurrentData {
             }
             result.grid.gridMode = c["_sum/GridMode"];
             result.grid.restrictionMode = c["ctrlEssLimiter14a0/RestrictionMode"];
+            result.grid.gridBuyPrice = c["_sum/GridBuyPrice"];
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;
-                result.grid.powerRatio = Utils.orElse(Utils.divideSafely(gridActivePower, result.grid.maxBuyActivePower), 0);
+                result.grid.powerRatio = Utils.orElse(
+                    Utils.divideSafely(gridActivePower, result.grid.maxBuyActivePower),
+                    0,
+                );
             } else {
                 result.grid.sellActivePower = gridActivePower * -1;
                 result.grid.buyActivePower = 0;
-                result.grid.powerRatio = Utils.orElse(Utils.divideSafely(gridActivePower, result.grid.maxSellActivePower), 0);
+                result.grid.powerRatio = Utils.orElse(
+                    Utils.divideSafely(gridActivePower, result.grid.maxSellActivePower),
+                    0,
+                );
             }
         }
 
         {
             /*
-       * Production
-       */
+             * Production
+             */
             result.production.activePowerAc = c["_sum/ProductionAcActivePower"];
             result.production.activePowerAcL1 = c["_sum/ProductionAcActivePowerL1"];
             result.production.activePowerAcL2 = c["_sum/ProductionAcActivePowerL2"];
@@ -158,16 +172,19 @@ export class CurrentData {
             if (!result.production.maxActivePower) {
                 result.production.maxActivePower = 10000;
             }
-            result.production.powerRatio = Utils.orElse(Utils.divideSafely(result.production.activePower, result.production.maxActivePower), 0);
+            result.production.powerRatio = Utils.orElse(
+                Utils.divideSafely(result.production.activePower, result.production.maxActivePower),
+                0,
+            );
             result.production.activePowerDc = c["_sum/ProductionDcActualPower"];
         }
 
         {
             /*
-       * Storage
-       * > 0 => Discharge
-       * < 0 => Charge
-       */
+             * Storage
+             * > 0 => Discharge
+             * < 0 => Charge
+             */
             result.storage.soc = c["_sum/EssSoc"];
             result.storage.activePowerL1 = c["_sum/EssActivePowerL1"];
             result.storage.activePowerL2 = c["_sum/EssActivePowerL2"];
@@ -185,20 +202,33 @@ export class CurrentData {
                 result.storage.chargeActivePowerAc = null;
                 result.storage.dischargeActivePowerAc = essActivePower;
                 // TODO: should consider DC-Power of ratio
-                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
+                result.storage.powerRatio = Utils.orElse(
+                    Utils.divideSafely(essActivePower, result.storage.maxApparentPower),
+                    0,
+                );
             } else {
                 result.storage.chargeActivePowerAc = Utils.multiplySafely(essActivePower, -1);
                 result.storage.dischargeActivePowerAc = null;
-                result.storage.powerRatio = Utils.orElse(Utils.divideSafely(essActivePower, result.storage.maxApparentPower), 0);
+                result.storage.powerRatio = Utils.orElse(
+                    Utils.divideSafely(essActivePower, result.storage.maxApparentPower),
+                    0,
+                );
             }
-            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAc, result.storage.chargeActivePowerDc);
+            result.storage.chargeActivePower = Utils.addSafely(
+                result.storage.chargeActivePowerAc,
+                result.storage.chargeActivePowerDc,
+            );
             result.storage.dischargeActivePower = result.storage.dischargeActivePowerAc;
 
             let effectivePower;
             let effectivePowerL1;
             let effectivePowerL2;
             let effectivePowerL3;
-            if (result.storage.chargeActivePowerAc == null && result.storage.dischargeActivePowerAc == null && result.production.activePowerDc == null) {
+            if (
+                result.storage.chargeActivePowerAc == null &&
+                result.storage.dischargeActivePowerAc == null &&
+                result.production.activePowerDc == null
+            ) {
                 result.storage.effectivePower = null;
                 effectivePower = null;
                 effectivePowerL1 = null;
@@ -206,21 +236,30 @@ export class CurrentData {
                 effectivePowerL3 = null;
             } else {
                 effectivePowerL1 = Utils.subtractSafely(
-                    result.storage.activePowerL1, result.production.activePowerDc / 3);
+                    result.storage.activePowerL1,
+                    result.production.activePowerDc / 3,
+                );
                 result.storage.effectiveActivePowerL1 = effectivePowerL1;
 
                 effectivePowerL2 = Utils.subtractSafely(
-                    result.storage.activePowerL2, result.production.activePowerDc / 3);
+                    result.storage.activePowerL2,
+                    result.production.activePowerDc / 3,
+                );
                 result.storage.effectiveActivePowerL2 = effectivePowerL2;
 
                 effectivePowerL3 = Utils.subtractSafely(
-                    result.storage.activePowerL3, result.production.activePowerDc / 3);
+                    result.storage.activePowerL3,
+                    result.production.activePowerDc / 3,
+                );
                 result.storage.effectiveActivePowerL3 = effectivePowerL3;
 
                 effectivePower = Utils.subtractSafely(
                     Utils.subtractSafely(
-                        Utils.orElse(result.storage.dischargeActivePowerAc, 0), result.storage.chargeActivePowerAc,
-                    ), result.production.activePowerDc);
+                        Utils.orElse(result.storage.dischargeActivePowerAc, 0),
+                        result.storage.chargeActivePowerAc,
+                    ),
+                    result.production.activePowerDc,
+                );
                 result.storage.effectivePower = effectivePower;
             }
             if (effectivePower != null) {
@@ -236,8 +275,8 @@ export class CurrentData {
 
         {
             /*
-       * Consumption
-       */
+             * Consumption
+             */
             result.consumption.activePower = c["_sum/ConsumptionActivePower"];
             result.consumption.activePowerL1 = c["_sum/ConsumptionActivePowerL1"];
             result.consumption.activePowerL2 = c["_sum/ConsumptionActivePowerL2"];
@@ -246,7 +285,10 @@ export class CurrentData {
             if (!consumptionMaxActivePower) {
                 consumptionMaxActivePower = 10000;
             }
-            result.consumption.powerRatio = Utils.orElse(Utils.divideSafely(result.consumption.activePower, consumptionMaxActivePower), 0);
+            result.consumption.powerRatio = Utils.orElse(
+                Utils.divideSafely(result.consumption.activePower, consumptionMaxActivePower),
+                0,
+            );
             if (result.consumption.powerRatio < 0) {
                 result.consumption.powerRatio = 0;
             }
@@ -254,26 +296,31 @@ export class CurrentData {
 
         {
             /*
-      * Total
-      */
+             * Total
+             */
             result.system.totalPower = Math.max(
                 // Productions
-                result.grid.buyActivePower
-        + (result.production.activePower > 0 ? result.production.activePower : 0)
-        + result.storage.dischargeActivePowerAc,
-                + (result.consumption.activePower < 0 ? result.consumption.activePower * -1 : 0),
+                result.grid.buyActivePower +
+                    (result.production.activePower > 0 ? result.production.activePower : 0) +
+                    result.storage.dischargeActivePowerAc,
+                +(result.consumption.activePower < 0 ? result.consumption.activePower * -1 : 0),
                 // Consumptions
-                result.grid.sellActivePower
-        + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
-        + result.storage.chargeActivePowerAc,
-                + (result.consumption.activePower > 0 ? result.consumption.activePower : 0),
+                result.grid.sellActivePower +
+                    (result.production.activePower < 0 ? result.production.activePower * -1 : 0) +
+                    result.storage.chargeActivePowerAc,
+                +(result.consumption.activePower > 0 ? result.consumption.activePower : 0),
             );
-            result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);
-            result.system.selfConsumption = Utils.calculateSelfConsumption(result.grid.sellActivePower, result.production.activePower);
+            result.system.autarchy = CurrentData.calculateAutarchy(
+                result.grid.buyActivePower,
+                result.consumption.activePower,
+            );
+            result.system.selfConsumption = Utils.calculateSelfConsumption(
+                result.grid.sellActivePower,
+                result.production.activePower,
+            );
             // State
             result.system.state = c["_sum/State"];
         }
         return result;
     }
-
 }

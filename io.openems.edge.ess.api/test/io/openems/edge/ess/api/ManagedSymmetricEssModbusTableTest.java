@@ -60,6 +60,14 @@ public class ManagedSymmetricEssModbusTableTest {
 		assertTrue(setReactivePowerGreaterOrEquals instanceof ModbusRecordChannel);
 		assertEquals(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS,
 				((ModbusRecordChannel) setReactivePowerGreaterOrEquals).getChannelId());
+
+		var availableChargeEnergy = getRecordByOffset(table, 16);
+		assertEquals("Available Charge Energy", availableChargeEnergy.getName());
+		assertEquals(ModbusType.FLOAT32, availableChargeEnergy.getType());
+
+		var availableDischargeEnergy = getRecordByOffset(table, 18);
+		assertEquals("Available Discharge Energy", availableDischargeEnergy.getName());
+		assertEquals(ModbusType.FLOAT32, availableDischargeEnergy.getType());
 	}
 
 	private static ModbusRecord getRecordByOffset(io.openems.edge.common.modbusslave.ModbusSlaveNatureTable table,

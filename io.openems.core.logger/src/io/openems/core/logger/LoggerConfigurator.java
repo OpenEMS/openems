@@ -92,13 +92,15 @@ public class LoggerConfigurator {
 	}
 
 	static Optional<Dictionary<String, Object>> fileConfiguration(Configuration config, String xmlConfigFile) {
-		final var file = DictionaryUtils.getAsOptionalString(config.getProperties(),
-				"org.ops4j.pax.logging.log4j2.config.file");
 
-		if (file.isPresent() && file.get().equals(xmlConfigFile)) {
+		final var file = DictionaryUtils.getAsOptionalString(config.getProperties(),
+		"org.ops4j.pax.logging.log4j2.config.file");
+		
+		if (file.filter(xmlConfigFile::equals).isPresent()) {
 			return Optional.empty();
 		}
-		var log4j = new Hashtable<String, Object>();
+
+		final var log4j = new Hashtable<String, Object>();
 		log4j.put("org.ops4j.pax.logging.log4j2.config.file", xmlConfigFile);
 
 		return Optional.of(log4j);

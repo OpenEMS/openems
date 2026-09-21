@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -19,10 +19,10 @@ import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/ap
 @Component({
     selector: "oe-power-soc-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart implements OnChanges {
-
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public override component!: EdgeConfig.Component;
@@ -134,7 +134,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     protected override getChartHeight(): number | null {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected override async loadChart(): Promise<void> {
@@ -149,13 +149,13 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         this.chartObject = this.getChartData();
 
         try {
-            const response = await this.edge.sendRequest(
+            const response = (await this.edge.sendRequest(
                 this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: this.component.id,
                     payload: new GetScheduleRequest(),
                 }),
-            ) as GetScheduleResponse;
+            )) as GetScheduleResponse;
 
             const schedule = response?.result?.schedule ?? [];
 
@@ -164,22 +164,40 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 return;
             }
 
-            this.labels = schedule.map(entry => new Date(entry.timestamp));
+            this.labels = schedule.map((entry) => new Date(entry.timestamp));
 
             const channelData: HistoryUtils.ChannelData = {
-                gridBuy: schedule.map(entry => NumberUtils.divideSafely(HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid), 1000) ?? 0),
-                gridSell: schedule.map(entry => NumberUtils.divideSafely(HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid), 1000) ?? 0),
-                production: schedule.map(entry => NumberUtils.divideSafely(entry.production, 1000) ?? 0),
-                consumption: schedule.map(entry => NumberUtils.divideSafely(entry.consumption, 1000) ?? 0),
-                essCharge: schedule.map(entry => NumberUtils.divideSafely(HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess), 1000) ?? 0),
-                essDischarge: schedule.map(entry => NumberUtils.divideSafely(HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess), 1000) ?? 0),
-                soc: schedule.map(entry => entry.soc ?? 0),
+                gridBuy: schedule.map(
+                    (entry) =>
+                        NumberUtils.divideSafely(HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid), 1000) ?? 0,
+                ),
+                gridSell: schedule.map(
+                    (entry) =>
+                        NumberUtils.divideSafely(
+                            HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid),
+                            1000,
+                        ) ?? 0,
+                ),
+                production: schedule.map((entry) => NumberUtils.divideSafely(entry.production, 1000) ?? 0),
+                consumption: schedule.map((entry) => NumberUtils.divideSafely(entry.consumption, 1000) ?? 0),
+                essCharge: schedule.map(
+                    (entry) =>
+                        NumberUtils.divideSafely(
+                            HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess),
+                            1000,
+                        ) ?? 0,
+                ),
+                essDischarge: schedule.map(
+                    (entry) =>
+                        NumberUtils.divideSafely(HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess), 1000) ?? 0,
+                ),
+                soc: schedule.map((entry) => entry.soc ?? 0),
             };
 
             this.datasets = this.buildDatasetsFromChartData(channelData, this.labels as Date[]);
             this.legendOptions = this.datasets
-                .filter((dataset, index, arr) => arr.findIndex(d => d.label === dataset.label) === index)
-                .map(dataset => ({
+                .filter((dataset, index, arr) => arr.findIndex((d) => d.label === dataset.label) === index)
+                .map((dataset) => ({
                     label: dataset.label?.toString() ?? "",
                     strokeThroughHidingStyle: false,
                     hideLabelInLegend: false,
@@ -203,15 +221,12 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
         }
     }
 
-    private buildDatasetsFromChartData(
-        data: HistoryUtils.ChannelData,
-        labels: Date[],
-    ): Chart.ChartDataset[] {
+    private buildDatasetsFromChartData(data: HistoryUtils.ChannelData, labels: Date[]): Chart.ChartDataset[] {
         AssertionUtils.assertIsDefined(this.chartObject);
 
         const displayValues = this.chartObject.output(data, labels);
 
-        const baseDatasets = displayValues.map(displayValue => {
+        const baseDatasets = displayValues.map((displayValue) => {
             const dataset = AbstractHistoryChart.getDataSet(
                 displayValue,
                 displayValue.name,
@@ -238,17 +253,17 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 const isPastOrNow = DateUtils.isDateBefore(timestamp, now);
 
                 if (isPastOrNow) {
-                    pastData.push(dataset.data[i] as number ?? null);
+                    pastData.push((dataset.data[i] as number) ?? null);
                     futureData.push(null);
                     lastPastDatasetEntryIndex = i;
                 } else {
                     pastData.push(null);
-                    futureData.push(dataset.data[i] as number ?? null);
+                    futureData.push((dataset.data[i] as number) ?? null);
                 }
             });
 
             if (lastPastDatasetEntryIndex != null) {
-                futureData[lastPastDatasetEntryIndex] = dataset.data[lastPastDatasetEntryIndex] as number ?? null;
+                futureData[lastPastDatasetEntryIndex] = (dataset.data[lastPastDatasetEntryIndex] as number) ?? null;
             }
 
             return [
@@ -269,11 +284,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     private createScheduleChartOptions(): Chart.ChartOptions {
         AssertionUtils.assertIsDefined(this.chartObject);
 
-        let options = AbstractHistoryChart.getDefaultXAxisOptions(
-            this.xAxisScalingType,
-            this.service,
-            this.labels,
-        );
+        let options = AbstractHistoryChart.getDefaultXAxisOptions(this.xAxisScalingType, this.service, this.labels);
 
         options = AbstractHistoryChart.getYAxisOptions(
             options,
@@ -320,8 +331,10 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 }
 
                 return {
-                    borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
-                    backgroundColor: ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
+                    borderColor:
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
+                    backgroundColor:
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
                 };
             };
         }
@@ -332,10 +345,14 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
                 chart.data.datasets.forEach((dataset, index) => {
                     const typedDataset = dataset as StatePriceChartDataset;
-                    const existingItem = legendItems.find(item => item.text === dataset.label);
+                    const existingItem = legendItems.find((item) => item.text === dataset.label);
 
-                    const borderColor = Array.isArray(typedDataset.borderColor) ? typedDataset.borderColor[0] : dataset.borderColor;
-                    const backgroundColor = Array.isArray(typedDataset.backgroundColor) ? typedDataset.backgroundColor[0] : typedDataset.backgroundColor;
+                    const borderColor = Array.isArray(typedDataset.borderColor)
+                        ? typedDataset.borderColor[0]
+                        : dataset.borderColor;
+                    const backgroundColor = Array.isArray(typedDataset.backgroundColor)
+                        ? typedDataset.backgroundColor[0]
+                        : typedDataset.backgroundColor;
 
                     if (existingItem != null) {
                         existingItem.datasetIndex = index;
@@ -370,14 +387,17 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem) {
                 const chart: Chart.Chart = this.chart;
 
-                const legendItems = chart.data.datasets.reduce((arr, ds, i) => {
-                    if (ds.label === legendItem.text) {
-                        arr.push({ index: i });
-                    }
-                    return arr;
-                }, [] as { index: number }[]);
+                const legendItems = chart.data.datasets.reduce(
+                    (arr, ds, i) => {
+                        if (ds.label === legendItem.text) {
+                            arr.push({ index: i });
+                        }
+                        return arr;
+                    },
+                    [] as { index: number }[],
+                );
 
-                legendItems.forEach(item => {
+                legendItems.forEach((item) => {
                     const visible = chart.isDatasetVisible(legendItem.datasetIndex ?? 0);
                     const meta = chart.getDatasetMeta(item.index);
                     meta.hidden = visible;
@@ -389,15 +409,15 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                     return;
                 }
 
-                for (const key of Object.keys(scales).filter(key => key !== "x")) {
+                for (const key of Object.keys(scales).filter((key) => key !== "x")) {
                     const axisDatasets = chart.data.datasets
                         .map((d, i) => ({ dataset: d, index: i }))
-                        .filter(d => {
+                        .filter((d) => {
                             const typedDataset = d.dataset as StatePriceChartDataset;
                             return typedDataset.yAxisID === key;
                         });
 
-                    chart.scales[key].options.display = axisDatasets.some(d => chart.isDatasetVisible(d.index));
+                    chart.scales[key].options.display = axisDatasets.some((d) => chart.isDatasetVisible(d.index));
                 }
 
                 chart.update();
@@ -432,8 +452,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 }
 
-type StatePriceChartDataset =
-    | (Chart.ChartDataset<"line", (number | null)[]> & {
-        yAxisID?: string;
-        borderDash?: number[];
-    });
+type StatePriceChartDataset = Chart.ChartDataset<"line", (number | null)[]> & {
+    yAxisID?: string;
+    borderDash?: number[];
+};

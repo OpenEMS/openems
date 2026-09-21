@@ -1,7 +1,5 @@
 package io.openems.edge.ess.generic.common;
 
-import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.VOLTAGE_CONTROL_FILTER_TIME_CONSTANT;
-import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.calculateMaxCurrent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -13,8 +11,9 @@ import org.junit.jupiter.api.Test;
 import io.openems.common.test.TestUtils;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
-import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.ess.generic.common.essprotection.EpVoltageRegulationHandler;
+import io.openems.edge.ess.generic.common.essprotection.EssProtectionHandler.EssProtectionLimits;
 
 public class AbstractAllowedChargeDischargeHandlerTest {
 
@@ -23,15 +22,16 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 		final var clock = TestUtils.createDummyClock();
 		final var battery = new DummyBattery("batter0");
 		final var batteryInverter = new DummyManagedSymmetricBatteryInverter("batteryInverter0");
-		final var pt1Filter = new PT1Filter(clock, VOLTAGE_CONTROL_FILTER_TIME_CONSTANT);
-		Supplier<Integer> maxCurrent = () -> {
+		final var handler = new EpVoltageRegulationHandler(clock);
+
+		Supplier<EssProtectionLimits> limits = () -> {
 			clock.leap(500, ChronoUnit.MILLIS);
-			return calculateMaxCurrent(battery, batteryInverter, pt1Filter, //
-					Math::min, (a, b) -> a - b, true /* invert */);
+			return handler.calculateEssProtectionLimits(battery, batteryInverter);
 		};
 
 		// Without data
-		assertNull(maxCurrent.get());
+		assertNull(limits.get().chargeMaxCurrent());
+		assertNull(limits.get().dischargeMaxCurrent());
 
 		battery //
 				.withStartStop(StartStop.START) //
@@ -46,29 +46,29 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 
 		// Initialize PT1 filter
 		for (var i = 0; i < 100; i++) {
-			maxCurrent.get();
+			limits.get();
 		}
 
 		battery //
 				.withCurrent(-50);
 		for (var i = 0; i < 20; i++) {
-			maxCurrent.get();
+			limits.get();
 		}
-		assertEquals(103, maxCurrent.get().intValue());
+
+		assertEquals(103, limits.get().chargeMaxCurrent().intValue());
 
 		battery //
 				.withCurrent(-45);
 		for (var i = 0; i < 20; i++) {
-			maxCurrent.get();
+			limits.get();
 		}
-		assertEquals(99, maxCurrent.get().intValue());
+		assertEquals(99, limits.get().chargeMaxCurrent().intValue());
 
 		battery //
 				.withCurrent(-40);
 		for (var i = 0; i < 20; i++) {
-			maxCurrent.get();
+			limits.get();
 		}
-		assertEquals(94, maxCurrent.get().intValue());
+		assertEquals(94, limits.get().chargeMaxCurrent().intValue());
 	}
-
 }

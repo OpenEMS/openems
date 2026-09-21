@@ -3,7 +3,6 @@ package io.openems.edge.system.fenecon.masterbox2v0.meter;
 import org.junit.Test;
 
 import io.openems.common.channel.Level;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -32,7 +31,6 @@ public class MasterBox2v0MeterImplTest {
 		var meter = new MasterBox2v0MeterImpl();
 
 		new ComponentTest(meter) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ioc", ioc) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //

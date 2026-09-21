@@ -160,6 +160,7 @@ To read/write specific channels:
 3. Read/write to register address = component_start + channel_offset
 
 Example:
+
 * Read register `302` to get `_sum/EssSoc` (total ESS state of charge)
 * Write to register `806` to set `ess0/SetActivePowerEquals` (control charging/discharging)
 
@@ -184,10 +185,12 @@ Only channels explicitly listed can be written. All other channels are read-only
 
 Instead of parsing the Modbus protocol manually, download the component/channel mapping from OpenEMS UI:
 
-1. Open UI → System → System Profile
-2. Export as Excel file
-3. Maps all registers to components and channels
-4. Example file included in bundle's `doc` folder
+1. Open UI → Profile → System Settings → System profile
+2. Card Configuration, section External interfaces
+3. Expand the respective component entry
+4. Click button Download protocol
+5. The Excel file contains a maping of all registers to components and channels
+6. Example file included in bundle's `doc` folder
 
 == Timeout Behavior
 

@@ -12,11 +12,11 @@ public enum OcppState implements OptionsEnum {
 	 */
 	SUSPENDED_EVSE(4, "SuspendedEVSE", true), //
 	/**
-	 * Note: SUSPENDED_EV is considered readyForCharging = true intentionally.
-	 * This follows the same logic as the KEBA implementation, where a suspended
-	 * charging session (paused by the vehicle) is still treated as operational
-	 * and capable of resuming charging without requiring a new session.
-	 * (KEBA State NOT_READY_FOR_CHARGING -> true)
+	 * Note: SUSPENDED_EV is considered readyForCharging = true intentionally. This
+	 * follows the same logic as the KEBA implementation, where a suspended charging
+	 * session (paused by the vehicle) is still treated as operational and capable
+	 * of resuming charging without requiring a new session. (KEBA State
+	 * NOT_READY_FOR_CHARGING -> true)
 	 */
 	SUSPENDED_EV(5, "SuspendedEV", true), //
 	FINISHING(6, "Finishing", false), //

@@ -7,12 +7,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.TreeMap;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -37,7 +38,7 @@ public class AppManagerImplTest {
 	private AwattarHourly awattarApp;
 	private StromdaoCorrently stromdao;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 
 		final var essId = "ess0";
@@ -386,9 +387,10 @@ public class AppManagerImplTest {
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void testGetInstantiatedApps() {
-		this.appManagerTestBundle.sut.getInstantiatedApps().add(null);
+		assertThrows(UnsupportedOperationException.class,
+				() -> this.appManagerTestBundle.sut.getInstantiatedApps().add(null));
 	}
 
 	@Test

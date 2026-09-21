@@ -1,7 +1,6 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
@@ -189,11 +188,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String endTimeWithMeter() {
 		return this.builder.endTimeWithMeter;
-	}
-
-	@Override
-	public String meter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 	@Override

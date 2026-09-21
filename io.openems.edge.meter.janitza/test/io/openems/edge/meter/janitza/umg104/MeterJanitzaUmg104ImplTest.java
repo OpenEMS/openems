@@ -2,22 +2,16 @@ package io.openems.edge.meter.janitza.umg104;
 
 import static io.openems.common.types.MeterType.GRID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.test.InvertTest;
 
 public class MeterJanitzaUmg104ImplTest {
 
-	private ComponentTest test;
-
-	@Before
-	public void setup() throws Exception {
-		this.test = new ComponentTest(new MeterJanitzaUmg104Impl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
+	private static ComponentTest prepareTest() throws Exception {
+		return new ComponentTest(new MeterJanitzaUmg104Impl()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")//
 						.withRegisters(1317,
 								// VOLTAGE_L1
@@ -87,9 +81,9 @@ public class MeterJanitzaUmg104ImplTest {
 	}
 
 	@Test
-	public void testNonInvert() throws Exception {
-		this.test.activate(//
-				MyConfig.create() //
+	void testNonInvert() throws Exception {
+		prepareTest() //
+				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
 						.setType(GRID) //
@@ -99,9 +93,9 @@ public class MeterJanitzaUmg104ImplTest {
 	}
 
 	@Test
-	public void testInvert() throws Exception {
-		this.test.activate(//
-				MyConfig.create() //
+	void testInvert() throws Exception {
+		prepareTest() //
+				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
 						.setType(GRID) //

@@ -4,6 +4,9 @@ import { AuthenticateWithPasswordRequest } from "../../jsonrpc/request/authentic
 import { AuthenticateWithTokenRequest } from "../../jsonrpc/request/authenticateWithTokenRequest";
 
 export class DummyWebsocket implements WebsocketInterface {
+    sendRequest<T extends JsonrpcResponseSuccess = JsonrpcResponseSuccess>(request: JsonrpcRequest): Promise<T> {
+        return Promise.resolve(new JsonrpcResponseSuccess(request.id, {}) as T);
+    }
 
     public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest) {
         throw new Error("Method not implemented.");
@@ -22,5 +25,4 @@ export class DummyWebsocket implements WebsocketInterface {
     public sendNotification(notification: JsonrpcNotification): void {
         throw new Error("Method not implemented.");
     }
-
 }

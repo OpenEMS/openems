@@ -11,6 +11,8 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ClusterConfigura
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
@@ -23,6 +25,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpConfiguration;
+import io.openems.edge.energy.api.Version;
 
 public class Tasks {
 
@@ -194,6 +197,16 @@ public class Tasks {
 	 */
 	public static Task<PersistencePredictorConfiguration> persistencePredictor(String... channels) {
 		return createTask(PersistencePredictorAggregateTask.class, new PersistencePredictorConfiguration(channels));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link EnergySchedulerVersionConfiguration}.
+	 *
+	 * @param version the desired {@link Version} to apply to the EnergyScheduler
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<EnergySchedulerVersionConfiguration> energySchedulerVersion(Version version) {
+		return createTask(EnergySchedulerVersionAggregateTask.class, new EnergySchedulerVersionConfiguration(version));
 	}
 
 	private static <C, T extends AggregateTask<C>> Task<C> createTask(Class<T> clazz, C configuration) {

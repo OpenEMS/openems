@@ -18,6 +18,7 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 		implements EnergyScheduleHandler.WithOnlyOneMode {
 
 	private final Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+	private final OneMode.Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator;
 	private final SortedMap<ZonedDateTime, OneMode.Period<OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	protected EshWithOnlyOneMode(//
@@ -25,9 +26,11 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 			Serializer<?> serializer, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
-			Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {
+			Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
+			OneMode.Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
 		this.simulator = simulator;
+		this.evaluator = evaluator;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -41,6 +44,13 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 	public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
 			EnergyFlow.Model ef, Fitness.Builder fitness) {
 		this.simulator.simulate(this.getParentId(), period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef, fitness);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow ef,
+			Fitness.Builder fitness) {
+		this.evaluator.evaluate(this.getParentId(), period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef, fitness);
 	}
 
 	@Override

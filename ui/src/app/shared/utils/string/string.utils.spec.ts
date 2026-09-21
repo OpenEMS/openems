@@ -2,7 +2,6 @@ import { ArrayUtils } from "../array/array.utils";
 import { StringUtils } from "./string.utils";
 
 describe("StringUtils", () => {
-
     describe("+getSubstringInBetween", () => {
         it("valid", () => {
             const msg = "(valid)";
@@ -17,11 +16,15 @@ describe("StringUtils", () => {
             expect(StringUtils.getSubstringInBetween("(", ")", msg)).toEqual(null);
         });
         it("invalid input string, start and end character", () => {
-            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("valid string, invalid start and end character", () => {
             const msg = "(valid)";
-            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(new Error(StringUtils.INVALID_STRING));;
+            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
     });
 
@@ -33,7 +36,9 @@ describe("StringUtils", () => {
             expect(StringUtils.isNotInArr("test3", ["test", "test2"])).toBeTrue();
         });
         it("value is null", () => {
-            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("arr is empty", () => {
             expect(StringUtils.isNotInArr("test", [])).toBeTrue();
@@ -64,6 +69,18 @@ describe("StringUtils", () => {
         });
         it("should correctly handle zero", () => {
             expect(StringUtils.getTrailingNumber("Index0")).toBe(0);
+        });
+    });
+
+    describe("+replaceSegment", () => {
+        it("replaces segment at specified index", () => {
+            expect(StringUtils.replaceSegment("a/b/c", 1, "x")).toEqual("a/x/c");
+        });
+        it("returns null if path is null", () => {
+            expect(StringUtils.replaceSegment(null, 1, "x")).toBeNull();
+        });
+        it("uses custom splitBy delimiter", () => {
+            expect(StringUtils.replaceSegment("a|b|c", 1, "x", "|")).toEqual("a|x|c");
         });
     });
 });

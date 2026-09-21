@@ -7,7 +7,7 @@ import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.common.test.DummyOptionsEnum;

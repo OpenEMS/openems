@@ -24,7 +24,6 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		// ignored during this time. Due to this situation, hasFault is preferred
 		// instead of hasFailure.
 		if (inverter.hasFaults()) {
-			inverter._setInverterCurrentStateFault(true);
 			return State.ERROR;
 		}
 

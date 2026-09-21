@@ -46,6 +46,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Single-phase Socomec meter. Actual meter type is identified automatically.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -74,6 +75,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Three-phase Socomec meter. Actual meter type is identified automatically.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

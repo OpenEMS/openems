@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean activateWatchdog;
 		private GridCode gridCode;
 		private ErrorRestartBehaviourConfig errorBehaviour = ErrorRestartBehaviourConfig.NO_RESTART;
+		private int dcMinVoltage;
 
 		private Builder() {
 		}
@@ -45,6 +46,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setErrorBehaviour(ErrorRestartBehaviourConfig errorBehaviour) {
 			this.errorBehaviour = errorBehaviour;
+			return this;
+		}
+
+		public Builder setDcMinVoltage(int dcMinVoltage) {
+			this.dcMinVoltage = dcMinVoltage;
 			return this;
 		}
 
@@ -92,6 +98,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public ErrorRestartBehaviourConfig errorBehaviour() {
 		return this.builder.errorBehaviour;
+	}
+
+	@Override
+	public int dcMinVoltage() {
+		return this.builder.dcMinVoltage;
 	}
 
 }

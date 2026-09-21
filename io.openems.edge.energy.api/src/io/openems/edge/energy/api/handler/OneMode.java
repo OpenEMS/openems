@@ -10,6 +10,8 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 
+import java.util.Objects;
+
 /**
  * Helper methods and classes for {@link EnergyScheduleHandler.WithOnlyOneMode}.
  */
@@ -19,6 +21,8 @@ public class OneMode {
 			AbstractEnergyScheduleHandler.Builder<Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
 		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = (id, period, gsc, coc, csc, ef,
+				fitness) -> doNothing();
+		private Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator = (id, period, gsc, coc, csc, ef,
 				fitness) -> doNothing();
 
 		/**
@@ -71,6 +75,19 @@ public class OneMode {
 		}
 
 		/**
+		 * Sets a {@link Evaluator} that simulates a Mode for one Period of a Schedule.
+		 *
+		 * @param evaluator a {@link Evaluator}
+		 * @return myself
+		 */
+		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setEvaluator(
+				Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
+			Objects.requireNonNull(evaluator);
+			this.evaluator = evaluator;
+			return this;
+		}
+
+		/**
 		 * Builds the {@link EnergyScheduleHandler.WithOnlyOneMode} instance.
 		 *
 		 * @return a {@link EnergyScheduleHandler.WithOnlyOneMode}
@@ -80,7 +97,8 @@ public class OneMode {
 					this.parentFactoryPid, this.parentId, this.serializer, //
 					this.cocFunction, //
 					this.cscFunction, //
-					this.simulator);
+					this.simulator, //
+					this.evaluator);
 		}
 	}
 
@@ -136,6 +154,23 @@ public class OneMode {
 		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
 				Fitness.Builder fitness);
+	}
+
+	public static interface Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+
+		/**
+		 * Evaluates one simulated period, adjusting fitness as needed.
+		 *
+		 * @param parentComponentId the parent Component-ID
+		 * @param period            the {@link GlobalSimulationsContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the final {@link EnergyFlow}
+		 * @param fitness           the {@link Fitness.Builder} result
+		 */
+		void evaluate(String parentComponentId, GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
+				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow ef, Fitness.Builder fitness);
 	}
 
 	private OneMode() {

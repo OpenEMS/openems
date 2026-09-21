@@ -129,16 +129,16 @@ public class UserServiceImpl implements UserService {
 		this.usersFromConfig.clear();
 
 		this.users.add(//
-				new ManagedUser("admin", "Admin", Language.DEFAULT, Role.ADMIN, config.adminPassword(),
+				new ManagedUser("admin", "Admin", config.language(), Role.ADMIN, config.adminPassword(),
 						config.adminSalt()));
 		this.users.add(//
-				new ManagedUser("installer", "Installer", Language.DEFAULT, Role.INSTALLER, config.installerPassword(),
+				new ManagedUser("installer", "Installer", config.language(), Role.INSTALLER, config.installerPassword(),
 						config.installerSalt()));
 		this.users.add(//
-				new ManagedUser("owner", "Owner", Language.DEFAULT, Role.OWNER, config.ownerPassword(),
+				new ManagedUser("owner", "Owner", config.language(), Role.OWNER, config.ownerPassword(),
 						config.ownerSalt()));
 		this.users.add(//
-				new ManagedUser("guest", "Guest", Language.DEFAULT, Role.GUEST, config.guestPassword(),
+				new ManagedUser("guest", "Guest", config.language(), Role.GUEST, config.guestPassword(),
 						config.guestSalt()));
 
 		if (config.users() == null || config.users().isBlank()) {
@@ -189,7 +189,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void registerAdminUser(String setupKey, String username, String password) throws OpenemsNamedException {
+	public void registerAdminUser(String setupKey, String username, String password, Language language)
+			throws OpenemsNamedException {
 		this.checkBackendSetupPassword(setupKey);
 
 		final var salt = getRandomSalt(16);
@@ -198,8 +199,7 @@ public class UserServiceImpl implements UserService {
 				ManagedUser.KEY_LENGTH);
 		final var passwordEncoded = Base64.getEncoder().encodeToString(passwordHash);
 
-		final var user = new ManagedUser(username, username, Language.DEFAULT, Role.ADMIN, passwordEncoded,
-				saltEncoded);
+		final var user = new ManagedUser(username, username, language, Role.ADMIN, passwordEncoded, saltEncoded);
 
 		// replace user if existing
 		this.users.removeIf(u -> u.getName().equals(username));
@@ -207,6 +207,29 @@ public class UserServiceImpl implements UserService {
 		this.usersFromConfig.add(
 				new UserConfig(username, username, user.getLanguage(), user.getRole(), passwordEncoded, saltEncoded));
 		this.saveUsers();
+	}
+
+	@Override
+	public void updateLanguage(Language language) {
+		try {
+			final var configuration = this.configurationAdmin.getConfiguration("Core.User", "?");
+			final var properties = configuration.getProperties() == null //
+					? new Hashtable<String, Object>()
+					: configuration.getProperties();
+			properties.put("language", language.name());
+			configuration.updateIfDifferent(properties);
+			this.users.forEach(u -> u.setLanguage(language));
+		} catch (IOException e) {
+			this.log.warn("Unable to set language.", e);
+		}
+	}
+
+	@Override
+	public Optional<User> getUserById(String userId) {
+		return this.users.stream() //
+				.filter(user -> user.getId().equals(userId)) //
+				.<User>map(t -> t) //
+				.findFirst();
 	}
 
 	private static byte[] getRandomSalt(int length) {

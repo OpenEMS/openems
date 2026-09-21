@@ -6,9 +6,10 @@ import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -24,7 +25,7 @@ public class AppPropertyPermissionsTest {
 
 	private TestPermissions testPermissions;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -41,10 +42,11 @@ public class AppPropertyPermissionsTest {
 				.instance();
 	}
 
-	@Test(expected = OpenemsException.class)
+	@Test
 	public void testAdminOnlyAsInstaller() throws OpenemsNamedException {
 		final var req = this.request("ADMIN_ONLY");
-		this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_INSTALLER, req);
+		assertThrows(OpenemsException.class,
+				() -> this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_INSTALLER, req));
 	}
 
 	@Test
@@ -53,10 +55,11 @@ public class AppPropertyPermissionsTest {
 		this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_ADMIN, req);
 	}
 
-	@Test(expected = OpenemsException.class)
+	@Test
 	public void testInstallerOnlyAsOwner() throws OpenemsNamedException {
 		final var req = this.request("INSTALLER_ONLY");
-		this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_OWNER, req);
+		assertThrows(OpenemsException.class,
+				() -> this.appManagerTestBundle.sut.handleUpdateAppConfigRequest(DUMMY_OWNER, req));
 	}
 
 	@Test

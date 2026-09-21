@@ -13,7 +13,11 @@ public enum StateMachine implements OptionsEnum {
 	/*
 	 * Peak-Shaving internally does the same as CHARGE_GRID.
 	 */
-	PEAK_SHAVING(5, "Grid Peak-Shaving") //
+	PEAK_SHAVING(5, "Grid Peak-Shaving"), //
+	DELAY_CHARGE(6, "Delay charge"), //
+	LIMIT_CHARGE(7, "Limit charge"), //
+	AVOID_GRID_SELL_LIMIT(8, "Avoid grid-sell limit"), //
+	DISCHARGE_CONSUMPTION(9, "Discharge to consumption"), //
 	;
 
 	private final int value;
@@ -38,5 +42,4 @@ public enum StateMachine implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return BALANCING;
 	}
-
 }

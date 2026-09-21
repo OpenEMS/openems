@@ -11,9 +11,8 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -32,7 +31,6 @@ public class ControllerEssBalancingScheduleImplTest {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
 		new ControllerTest(new ControllerEssBalancingScheduleImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //

@@ -1,20 +1,21 @@
 package io.openems.common.bridge.http.thirdparty.entsoe;
 
-import io.openems.common.bridge.http.time.DelayTimeProvider;
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.types.EntsoeBiddingZone;
-import io.openems.common.xml.serialization.XmlParser;
-import org.junit.Test;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import static io.openems.common.test.TestUtils.createDummyClock;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.EntsoeBiddingZone;
+import io.openems.common.xml.serialization.XmlParser;
 
 public class EntsoeApiTest {
 	private static final String XML = """
@@ -4838,23 +4839,23 @@ public class EntsoeApiTest {
 
 		// Test Quarterly resolution
 		var prices = api.readPriceData(parser.parseXml(XML), biddingZone, clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertFalse(prices.getValues().isEmpty(), "Price map should not be empty");
 		assertEquals(120.26, prices.getValues().getAt(Instant.parse("2025-10-14T22:00:00Z")), 0.001);
 		assertEquals(116.09, prices.getValues().getAt(Instant.parse("2025-10-14T22:15:00Z")), 0.001);
 		assertEquals(90.22, prices.getValues().getAt(Instant.parse("2025-10-15T22:00:00Z")), 0.001);
 
 		prices = api.readPriceData(parser.parseXml(XML_ONLY_WITH_SEQUENCE_2), biddingZone, clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertFalse(prices.getValues().isEmpty(), "Price map should not be empty");
 
 		prices = api.readPriceData(parser.parseXml(MISSING_DATA_AND_MULTIPLE_PERIODS_XML), biddingZone, clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertFalse(prices.getValues().isEmpty(), "Price map should not be empty");
 
 		prices = api.readPriceData(parser.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), biddingZone, clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertFalse(prices.getValues().isEmpty(), "Price map should not be empty");
 
 		prices = api.readPriceData(parser.parseXml(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2), biddingZone,
 				clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertFalse(prices.getValues().isEmpty(), "Price map should not be empty");
 	}
 
 	@Test
@@ -4869,10 +4870,11 @@ public class EntsoeApiTest {
 		var xml = XmlParser.INSTANCE.parseXml(MISSING_DATA_AND_MULTIPLE_PERIODS_XML);
 		var data = EntsoeApi.INSTANCE.readPriceData(xml, EntsoeBiddingZone.GERMANY, createDummyClock());
 
-		assertEquals("Missing position should be filled with adjacent value", //
+		assertEquals(//
 				data.getValues().getAt(Instant.parse("2024-10-23T18:00:00Z")), //
 				data.getValues().getAt(Instant.parse("2024-10-23T19:00:00Z")), //
-				0.001);
+				0.001, //
+				"Missing position should be filled with adjacent value");
 	}
 
 	@Test
@@ -4901,28 +4903,30 @@ public class EntsoeApiTest {
 		// Assert
 		assertTrue(delay instanceof DelayTimeProvider.Delay.DurationDelay);
 		var duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
-		assertTrue("Delay should be less than 1 hour", duration.compareTo(Duration.ofHours(1)) < 0);
+		assertTrue(duration.compareTo(Duration.ofHours(1)) < 0, "Delay should be less than 1 hour");
 
 		baseTime = ZonedDateTime.parse("2025-10-21T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
-		assertTrue("Delay should be less than 1 hour", duration.compareTo(Duration.ofHours(1)) < 0);
+		assertTrue(duration.compareTo(Duration.ofHours(1)) < 0, "Delay should be less than 1 hour");
 
 		baseTime = ZonedDateTime.parse("2025-10-14T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
-		assertTrue("Delay should be 2 hours", duration.toHours() == 2);
+		assertTrue(duration.toHours() == 2, "Delay should be 2 hours");
 
 		baseTime = ZonedDateTime.parse("2025-10-14T14:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
-		assertTrue("Delay should be 24 hours", duration.toHours() == 24);
-
+		assertTrue(duration.toHours() == 24, "Delay should be 24 hours");
 	}
 }

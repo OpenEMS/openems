@@ -18,6 +18,10 @@ public enum GpioHardwareType {
 	 */
 	MODBERRY_X500_M4S_F, //
 	/**
+	 * CM4 S Gen3.
+	 */
+	MODBERRY_X500_M4S_GEN3, //
+	/**
 	 * CM3.
 	 */
 	MODBERRY_X500_M3, //

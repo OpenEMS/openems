@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -553,7 +554,7 @@ public class Rrd4jReadHandler {
 				channel = this.componentManager.getChannel(channelAddress);
 			} catch (Exception e) {
 				this.log.warn("Unable to query [" + channelAddress + "] from RRD4j: " + e.getMessage());
-				return Optional.empty();
+				throw new CompletionException("Unable to query [" + channelAddress + "] from RRD4j", e);
 			}
 
 			try (var database = this.rrd4jSupplier.getExistingUpdatedRrdDb(rrdDbId, channelAddress,

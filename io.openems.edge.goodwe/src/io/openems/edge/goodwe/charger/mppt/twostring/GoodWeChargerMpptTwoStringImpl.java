@@ -1,27 +1,28 @@
 package io.openems.edge.goodwe.charger.mppt.twostring;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -49,6 +50,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("essOrBatteryInverter")
 public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 		implements EssDcCharger, GoodWeCharger, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 
@@ -61,13 +63,11 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 	private Config config;
 	private boolean timedataQueryIsRunning = false;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.essOrBatteryInverter_id})(enabled=true))")
 	private GoodWe essOrBatteryInverter;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	public GoodWeChargerMpptTwoStringImpl() {
@@ -80,7 +80,7 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
@@ -92,11 +92,6 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 				config.mpptPort().mpptVoltageChannelId, EssDcCharger.ChannelId.VOLTAGE);
 
 		this.essOrBatteryInverter.addCharger(this);
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "essOrBatteryInverter",
-				config.essOrBatteryInverter_id())) {
-			return;
-		}
 	}
 
 	@Override
@@ -170,36 +165,40 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 		}
 
 		this.timedataQueryIsRunning = true;
-		timedata.getLatestValue(new ChannelAddress(this.id(), actualEnergyChannel.id())).thenAccept(currentEnergy -> {
+		timedata.getLatestValue(new ChannelAddress(this.id(), actualEnergyChannel.id()))//
+				.whenComplete((currentEnergy, throwable) -> {
 
-			if (currentEnergy.isEmpty()) {
+					if (throwable != null || currentEnergy.isEmpty()) {
 
-				final String[] stringIds = switch (this.config.mpptPort()) {
-				case MPPT_1 -> new String[] { "charger0", "charger1" };
-				case MPPT_2 -> new String[] { "charger2", "charger3" };
-				case MPPT_3 -> new String[] { "charger4", "charger5" };
-				default -> throw new IllegalStateException("Unexpected value: " + this.config.mpptPort());
-				};
+						final String[] stringIds = switch (this.config.mpptPort()) {
+						case MPPT_1 -> new String[] { "charger0", "charger1" };
+						case MPPT_2 -> new String[] { "charger2", "charger3" };
+						case MPPT_3 -> new String[] { "charger4", "charger5" };
+						default -> throw new IllegalStateException("Unexpected value: " + this.config.mpptPort());
+						};
 
-				/*
-				 * Calculate total base energy from separate string energy values
-				 */
-				timedata.getLatestValueOfNotExistingChannel(new ChannelAddress(stringIds[0], actualEnergyChannel.id()),
-						actualEnergyChannel.doc().getUnit())
-						.thenCombine(timedata.getLatestValueOfNotExistingChannel(
-								new ChannelAddress(stringIds[1], actualEnergyChannel.id()),
-								actualEnergyChannel.doc().getUnit()), (energyString1, energyString2) -> {
-									return caculateEnergyFromTwoStrings(energyString1, energyString2);
-								})
-						.thenAccept(combinedEnergy -> {
-							this.channel(actualEnergyChannel).setNextValue(combinedEnergy);
-							this.calculateActualEnergy.setBaseEnergyManually(combinedEnergy);
-						});
-			} else {
-				this.channel(actualEnergyChannel)
-						.setNextValue(TypeUtils.getAsType(OpenemsType.LONG, currentEnergy.get()));
-			}
-		});
+						/*
+						 * Calculate total base energy from separate string energy values
+						 */
+						timedata.getLatestValueOfNotExistingChannel(
+								new ChannelAddress(stringIds[0], actualEnergyChannel.id()),
+								actualEnergyChannel.doc().getUnit())
+								.thenCombine(
+										timedata.getLatestValueOfNotExistingChannel(
+												new ChannelAddress(stringIds[1], actualEnergyChannel.id()),
+												actualEnergyChannel.doc().getUnit()),
+										(energyString1, energyString2) -> {
+											return caculateEnergyFromTwoStrings(energyString1, energyString2);
+										})
+								.thenAccept(combinedEnergy -> {
+									this.channel(actualEnergyChannel).setNextValue(combinedEnergy);
+									this.calculateActualEnergy.setBaseEnergyManually(combinedEnergy);
+								});
+					} else {
+						this.channel(actualEnergyChannel)
+								.setNextValue(TypeUtils.getAsType(OpenemsType.LONG, currentEnergy.get()));
+					}
+				});
 	}
 
 	/**

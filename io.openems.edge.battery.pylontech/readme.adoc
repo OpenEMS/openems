@@ -30,6 +30,7 @@ This bundle implements the following OpenEMS Components:
 *Note*: This implementation is tested and validated for the Pylontech Powercube M2 model. Compatibility with other Pylontech battery models has not been verified.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "battery0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

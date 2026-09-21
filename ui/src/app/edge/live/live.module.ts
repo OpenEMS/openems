@@ -15,16 +15,17 @@ import { SohStatusBannerComponent } from "./common/soh/components/soh-status-ban
 import { StorageLiveModule } from "./common/storage/storage.module";
 import { WeatherModule } from "./common/weather/weather.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
-import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
+import { ControllerChpFlatComponent } from "./Controller/ChpSoc/flat/ChpSoc";
 import { Controller_ChpSocModalComponent } from "./Controller/ChpSoc/modal/modal.component";
 import { Controller_EnerixControl } from "./Controller/EnerixControl/EnerixControl";
-import { ControllerEssFixActivePower } from "./Controller/Ess/FixActivePower/Ess_FixActivePower";
+import { ControllerEssFixActivePower } from "./Controller/Ess/FixActivePower/fix-active-power";
 import { ControllerEssGridOptimizedChargeModule } from "./Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge";
 import { ControllerEssTimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff";
 import { AdministrationComponent } from "./Controller/Evcs/administration/administration.component";
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
 import { ControllerEvseSingle } from "./Controller/Evse/EvseSingle.module";
 import { ControllerHeatModule } from "./Controller/Heat/Heat";
+import { ControllerBraiinsModule } from "./Controller/Io/Braiins/braiins.module";
 import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/flat/flat";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller/Io/ChannelSingleThreshold/modal/modal.component";
 import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/fix-digital-output.module";
@@ -32,12 +33,12 @@ import { ControllerIoHeatingElement } from "./Controller/Io/HeatingElement/Io_He
 import { Controller_Io_HeatingRoom } from "./Controller/Io/HeatingRoom/Io_HeatingRoom";
 import { ControllerIoHeatpumpModule } from "./Controller/Io/Heatpump/controller-io-heatpump";
 import { Controller_Api_ModbusTcp } from "./Controller/ModbusTcpApi/modbusTcpApi.module";
-import { Controller_Asymmetric_PeakShavingComponent } from "./Controller/PeakShaving/Asymmetric/Asymmetric";
-import { Controller_Asymmetric_PeakShavingModalComponent } from "./Controller/PeakShaving/Asymmetric/modal/modal.component";
-import { Controller_Symmetric_PeakShavingModalComponent } from "./Controller/PeakShaving/Symmetric/modal/modal.component";
-import { Controller_Symmetric_PeakShavingComponent } from "./Controller/PeakShaving/Symmetric/Symmetric";
-import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./Controller/PeakShaving/Symmetric_TimeSlot/modal/modal.component";
-import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from "./Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot";
+import { Controller_Asymmetric_PeakShavingComponent } from "./Controller/peak-shaving/Asymmetric/Asymmetric";
+import { Controller_Asymmetric_PeakShavingModalComponent } from "./Controller/peak-shaving/Asymmetric/modal/modal.component";
+import { Controller_Symmetric_PeakShavingModalComponent } from "./Controller/peak-shaving/symmetric/modal/modal.component";
+import { Controller_Symmetric_PeakShavingComponent } from "./Controller/peak-shaving/symmetric/Symmetric";
+import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./Controller/peak-shaving/Symmetric_TimeSlot/modal/modal.component";
+import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from "./Controller/peak-shaving/Symmetric_TimeSlot/Symmetric_TimeSlot";
 import { DelayedSellToGridComponent } from "./delayedselltogrid/delayedselltogrid.component";
 import { DelayedSellToGridModalComponent } from "./delayedselltogrid/modal/modal.component";
 import { EnergymonitorModule } from "./energymonitor/energymonitor.module";
@@ -49,6 +50,7 @@ import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-ap
 import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
 import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
 import { NavigationInfoComponent } from "./navigation-info/navigation-info";
+
 import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage-info";
 
 @NgModule({
@@ -83,13 +85,14 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         PullToRefreshComponent,
         HelpButtonComponent,
         EvcsClusterApiChartComponent,
+        ControllerBraiinsModule,
+        ControllerChpFlatComponent,
     ],
     declarations: [
         AdministrationComponent,
         Controller_Asymmetric_PeakShavingComponent,
         Controller_Asymmetric_PeakShavingModalComponent,
         Controller_ChannelthresholdComponent,
-        Controller_ChpSocComponent,
         Controller_ChpSocModalComponent,
         Controller_Io_ChannelSingleThresholdComponent,
         Controller_Io_ChannelSingleThresholdModalComponent,
@@ -108,4 +111,4 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         NavigationInfoComponent,
     ],
 })
-export class LiveModule { }
+export class LiveModule {}

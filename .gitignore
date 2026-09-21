@@ -15,6 +15,8 @@
 # IntelliJ IDEA files and metadata
 /.idea/*
 !/.idea/runConfigurations
+!/.idea/eclipseCodeFormatter.xml
+!/.idea/checkstyle-idea.xml
 *.iml
 *.eml
 
@@ -35,6 +37,9 @@ testem.log
 .DS_Store
 .gradle/
 /generated/
+
+# nvm
+.nvmrc
 
 ### Eclipse ###
 

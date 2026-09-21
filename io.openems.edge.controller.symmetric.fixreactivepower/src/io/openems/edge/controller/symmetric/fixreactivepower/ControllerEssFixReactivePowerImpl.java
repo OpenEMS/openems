@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -56,14 +57,19 @@ public class ControllerEssFixReactivePowerImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		switch (this.config.mode()) {
+		case MANUAL_ON -> {
+			// adjust value so that it fits into Min/MaxActivePower
+			var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, REACTIVE,
+					this.config.power());
 
-		// adjust value so that it fits into Min/MaxActivePower
-		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, REACTIVE,
-				this.config.power());
+			/*
+			 * set result
+			 */
+			ess.addPowerConstraintAndValidate("SymmetricFixReactivePower", ALL, REACTIVE, EQUALS, calculatedPower);
+		}
 
-		/*
-		 * set result
-		 */
-		ess.addPowerConstraintAndValidate("SymmetricFixReactivePower", ALL, REACTIVE, EQUALS, calculatedPower);
+		case MANUAL_OFF -> FunctionUtils.doNothing();
+		}
 	}
 }

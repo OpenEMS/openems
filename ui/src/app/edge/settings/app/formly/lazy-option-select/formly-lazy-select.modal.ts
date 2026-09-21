@@ -1,4 +1,4 @@
-import { Component, effect, Input, OnInit } from "@angular/core";
+import { Component, effect, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -10,14 +10,10 @@ import { Option } from "./jsonrpc/getOptions";
 @Component({
     selector: FormlyLazySelectModal.SELECTOR,
     templateUrl: "./formly-lazy-select.modal.html",
-    imports: [
-        CommonUiModule,
-        NgxSpinnerComponent,
-        FlatWidgetButtonComponent,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, NgxSpinnerComponent, FlatWidgetButtonComponent],
 })
 export class FormlyLazySelectModal implements OnInit {
-
     public static readonly SELECTOR = "formly-lazy-select-modal";
 
     @Input({ required: true })
@@ -69,5 +65,4 @@ export class FormlyLazySelectModal implements OnInit {
             value: this.selectedOption,
         });
     }
-
 }

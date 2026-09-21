@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;

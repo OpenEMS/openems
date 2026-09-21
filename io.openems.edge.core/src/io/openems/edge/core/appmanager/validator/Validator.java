@@ -3,10 +3,12 @@ package io.openems.edge.core.appmanager.validator;
 import static java.util.stream.Collectors.joining;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
@@ -102,6 +104,12 @@ public interface Validator {
 					"App is not compatible! " + this.getErrorCompatibleMessages(validatorConfig, language).stream() //
 							.collect(joining(";")));
 		case COMPATIBLE:
+			if (this.hasCardinalityConflict(openemsApp, language)) {
+				// Reported as a distinct, structured error since it is the one conflict the UI
+				// can resolve on its own (by removing the conflicting/leftover App instance and
+				// retrying).
+				throw OpenemsError.EDGE_APP_CATEGORY_CONFLICT.exception(openemsApp.getAppId());
+			}
 			throw new OpenemsException(
 					"App can not be installed! " + this.getErrorInstallableMessages(validatorConfig, language).stream() //
 							.collect(joining(";")));
@@ -110,6 +118,21 @@ public interface Validator {
 			return;
 		}
 		throw new OpenemsException("Status '" + status.name() + "' is not implemented.");
+	}
+
+	/**
+	 * Checks if the given {@link OpenemsApp} currently fails
+	 * {@link CheckCardinality}, e. g. because another App of the same,
+	 * single-instance category is already installed.
+	 *
+	 * @param openemsApp the {@link OpenemsApp} to check
+	 * @param language   the current {@link Language}
+	 * @return true if a cardinality conflict exists
+	 */
+	private boolean hasCardinalityConflict(OpenemsApp openemsApp, Language language) {
+		final var cardinalityCheckableConfig = new CheckableConfig(CheckCardinality.COMPONENT_NAME,
+				Map.of("openemsApp", openemsApp));
+		return !this.getErrorMessages(List.of(cardinalityCheckableConfig), language, true).isEmpty();
 	}
 
 }

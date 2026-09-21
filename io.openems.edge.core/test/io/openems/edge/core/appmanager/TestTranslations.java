@@ -16,7 +16,9 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.core.GridFeedInLimitationType;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
@@ -28,9 +30,11 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
-public class TestTranslations {
+class TestTranslations {
 
 	private record TestTranslation(OpenemsApp app, boolean validateAppAssistant, JsonObject config) {
 
@@ -115,7 +119,6 @@ public class TestTranslations {
 					.addProperty("LOW_PRICE", 14.8) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.stadtwerkHassfurt(t), true, JsonUtils.buildJsonObject() //
 					.build()));
@@ -135,11 +138,16 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen3(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
-					.addProperty("URL", "url")//
+					.addProperty("URL",
+							"https://push.clever-pv.com/api/v1/first-id/electricMeters/fenecon/"
+									+ "second-id?code=code") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
-					.addProperty("URL", "url")//
+					.addProperty("URL",
+							"https://push.clever-pv.com/api/v1/first-id/electricMeters/fenecon/"
+									+ "second-id?code=code") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
@@ -153,6 +161,21 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.timedataInfluxDb(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_KEY", "123456789") //
 					.addProperty("BUCKET", "bucket")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.meta(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("CURRENCY", CurrencyConfig.EUR) //
+					.addProperty("IS_ESS_CHARGE_FROM_GRID_ALLOWED", false) //
+					.addProperty("IS_ESS_DISCHARGE_TO_GRID_ALLOWED", false) //
+					.addProperty("GRID_CONNECTION_POINT_FUSE_LIMIT", 32) //
+					.addProperty("SUBDIVISION_CODE", SubdivisionCode.DE_BY) //
+					.addProperty("PLACE_NAME", "") //
+					.addProperty("GRID_FEED_IN_LIMITATION_TYPE", GridFeedInLimitationType.NO_LIMITATION) //
+					.addProperty("MAXIMUM_GRID_FEED_IN_LIMIT", 0) //
+					.addProperty("POSTCODE", "12345") //
+					.addProperty("LATITUDE", -1) //
+					.addProperty("LONGITUDE", -1) //
+					.addProperty("TIMEZONE", "Europe/Berlin") //
+					.addProperty("THIRD_PARTY_USAGE_ACCEPTANCE", ThirdPartyUsageAcceptance.UNDECIDED) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ablEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
@@ -172,6 +195,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.masterBox2v0(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M4S_GEN3) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
@@ -214,6 +240,9 @@ public class TestTranslations {
 					.addProperty("PASSWORD", "xxxx") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.siemensMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.carloGavazziMeter(t), true, JsonUtils.buildJsonObject() //
@@ -278,6 +307,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.fixReactivePower(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.fixStateOfCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
@@ -286,6 +318,10 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.limiter14a(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.heatMyPv(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("IP", "192.168.178.152") //
+					.addProperty("MAX_HEAT_POWER", 3000) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
@@ -308,19 +344,19 @@ public class TestTranslations {
 	}
 
 	@Test
-	public void testGermanTranslation() throws Exception {
+	void testGermanTranslation() throws Exception {
 		this.testTranslations(Language.DE);
 	}
 
 	@Test
-	public void testEnglishTranslation() throws Exception {
+	void testEnglishTranslation() throws Exception {
 		this.testTranslations(Language.EN);
 	}
 
 	@Test
 	// TODO this is certainly not the best place for this test, but it holds the
 	// most testable Apps.
-	public void testOemWebsiteUrl() throws Exception {
+	void testOemWebsiteUrl() throws Exception {
 		var dummyOem = new DummyOpenemsEdgeOem();
 		this.addEvseApps();
 		var missing = this.apps.stream() //

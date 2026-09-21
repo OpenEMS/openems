@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.sum.GridMode;
 
 @SuppressWarnings("all")
@@ -93,10 +92,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public GridMode gridMode() {
 		return this.builder.gridMode;
 	}
-
-	@Override
-	public String datasource_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.datasource_id());
-	}
-
 }

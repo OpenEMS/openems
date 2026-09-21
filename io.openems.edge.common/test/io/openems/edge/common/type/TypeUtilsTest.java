@@ -82,11 +82,6 @@ public class TypeUtilsTest {
 	}
 
 	@Test
-	public void testMin() {
-		assertEquals(null, TypeUtils.min((Double) null, null, null));
-	}
-
-	@Test
 	public void testSumDouble() {
 		assertNull(sum((Double) null, null));
 		assertEquals(4.0, sum(1.5, 2.5), 0.1);

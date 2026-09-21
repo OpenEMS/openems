@@ -32,6 +32,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Single-phase electricity meter via Modbus. The device-specific communication address is exposed as a custom channel, while cumulative import energy is mapped to the standard OpenEMS energy channels.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -61,6 +62,7 @@ This bundle implements the following OpenEMS Components:
 Unlike the DDSU666 single-phase support in this bundle, DTSU666 uses `FC4` / input registers for the verified live register map.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -73,6 +75,7 @@ Unlike the DDSU666 single-phase support in this bundle, DTSU666 uses `FC4` / inp
 *Configuration note*: the OSGi attribute is named `modbus_id`, but in FileInstall/Felix `.config` files the property key is typically `modbus.id`.
 
 *Verified DTSU666 communication assumptions*:
+
 * Use `FC4` / input registers
 * Recommended serial bridge settings are `9600-N-8-2`
 * Total import energy is read from register `0x4000`

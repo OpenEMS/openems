@@ -3,7 +3,7 @@ package io.openems.common.oem;
 import java.util.Map;
 
 import io.openems.common.session.Language;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 
 public interface OpenemsEdgeOem {
 
@@ -151,7 +151,7 @@ public interface OpenemsEdgeOem {
 	 * 
 	 * @return the value
 	 */
-	public default Tuple<String, String> getBmwBatteryAuth() {
+	public default Tuple2<String, String> getBmwBatteryAuth() {
 		return null;
 	}
 

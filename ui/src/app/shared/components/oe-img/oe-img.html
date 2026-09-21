@@ -1,2 +1,5 @@
-<ion-img [src]="img?.url ?? FALLBACK_IMG_URL" [style.width]="img?.width + '%'" [style.height]="img?.height + '%'"
-    (ionError)="onImgError($event)" [style.object-fit]="'contain'" [style]="img?.style"></ion-img>
+@if (inlineSvg) {
+  <div class="svg-container" [innerHTML]="inlineSvg" [style.width.%]="img?.width ?? null" [style.height.%]="img?.height ?? null" [style.color]="img?.color ?? null" [style]="img?.style"></div>
+} @else {
+  <ion-img [src]="renderedUrl" [style.width.%]="img?.width ?? null" [style.height.%]="img?.height ?? null" [style.object-fit]="'contain'" [style]="img?.style" (ionError)="onImgError()"></ion-img>
+}

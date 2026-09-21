@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonParser;
 

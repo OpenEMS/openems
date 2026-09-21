@@ -10,8 +10,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.app.common.props.RelayProps.RelayContactFilter;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -21,7 +21,7 @@ public class RelayContactFilterTest {
 
 	private RelayContactFilter relayContactFilter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		final Predicate<DigitalOutput> componentFilter = t -> true;
 		final Function<DigitalOutput, String> componentAliasMapper = t -> t.alias();

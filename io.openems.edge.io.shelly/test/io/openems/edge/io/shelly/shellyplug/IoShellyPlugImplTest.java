@@ -2,10 +2,10 @@ package io.openems.edge.io.shelly.shellyplug;
 
 import static io.openems.common.types.MeterType.PRODUCTION;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -21,7 +21,7 @@ public class IoShellyPlugImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new IoShellyPlugImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
@@ -109,7 +109,7 @@ public class IoShellyPlugImplTest {
 								dummyCycleSubscriber.triggerNextCycle();
 							});
 							testCase.onAfterWriteCallbacks(() -> {
-								assertTrue("Failed to turn on relay", relayTurnedOn.get());
+								assertTrue(relayTurnedOn.get(), "Failed to turn on relay");
 							});
 						})) //
 
@@ -119,7 +119,7 @@ public class IoShellyPlugImplTest {
 	@Test
 	public void testInvert() throws Exception {
 		final var sut = new IoShellyPlugImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //

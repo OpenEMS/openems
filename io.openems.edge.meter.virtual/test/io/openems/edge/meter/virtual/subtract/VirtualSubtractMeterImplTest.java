@@ -4,9 +4,8 @@ import static io.openems.common.types.MeterType.GRID;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -19,7 +18,6 @@ public class VirtualSubtractMeterImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new VirtualSubtractMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("minuend", new DummyElectricityMeter("meter1")) //
 				.addReference("subtrahends", List.of(//
 						new DummyElectricityMeter("meter2"), //

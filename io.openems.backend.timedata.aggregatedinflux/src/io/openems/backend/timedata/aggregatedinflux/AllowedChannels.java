@@ -36,6 +36,7 @@ public final class AllowedChannels {
 		final var ctrlEssRippleControlReceiver = new Namespace("ctrlEssRippleControlReceiver", 0, 3);
 		final var heat = new Namespace("heat", 0, 5);
 		final var enerix = new Namespace("ctrlEnerixControl", 0, 1);
+		final var braiins = new Namespace("ctrlBraiinsSingle0", 0, 10);
 
 		ALLOWED_AVERAGE_CHANNELS = ImmutableMap.<String, DataType>builder() //
 				.put("_sum/EssSoc", DataType.LONG) //
@@ -59,6 +60,7 @@ public final class AllowedChannels {
 				.put("_sum/ConsumptionActivePowerL2", DataType.LONG) //
 				.put("_sum/ConsumptionActivePowerL3", DataType.LONG) //
 				.put("_sum/GridBuyPrice", DataType.DOUBLE) //
+				.put("_sum/GridSellPrice", DataType.DOUBLE) //
 				.put("_sum/UnmanagedConsumptionActivePower", DataType.LONG) //
 				.putAll(multiChannels(ctrlIoHeatPump, "Status", DataType.LONG)) //
 				.putAll(multiChannels(ess, "Soc", DataType.LONG)) //
@@ -112,6 +114,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(evcs, "Voltage", DataType.LONG)) //
 				.putAll(multiChannels(evcs, "CurrentL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(evcs, "VoltageL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels(braiins, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels(ctrlTimeslotPeakshaving, "StateMachine", DataType.LONG)) //
 				.putAll(multiChannels(ctrlTimeslotPeakshaving, "_PropertyRechargePower", DataType.LONG)) //
 				.putAll(multiChannels(ctrlTimeslotPeakshaving, "_PropertyPeakShavingPower", DataType.LONG)) //
@@ -193,6 +196,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlEssRippleControlReceiver, "CumulatedRestrictionTime", DataType.LONG)) //
 				.putAll(multiChannels(heat, "ActiveConsumptionEnergy", DataType.LONG)) // @Deprecated(use=ActiveProductionEnergy)
 				.putAll(multiChannels(heat, "ActiveProductionEnergy", DataType.LONG)) //
+				.putAll(multiChannels(braiins, "ActiveProductionEnergy", DataType.LONG)) //
 				.put("system0/CumulatedTimeCompressor1RunningState", DataType.LONG) //
 				.put("system0/CumulatedTimeCompressor2RunningState", DataType.LONG) //
 				.put("system0/CumulatedTimeCompressor1And2RunningState", DataType.LONG) //

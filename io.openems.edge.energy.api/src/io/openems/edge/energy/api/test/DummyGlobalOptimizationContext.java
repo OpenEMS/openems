@@ -35,7 +35,7 @@ public class DummyGlobalOptimizationContext {
 		return new GlobalOptimizationContext(//
 				CLOCK, Environment.TEST, TIME, //
 				eshs, filterEshsWithDifferentModes(eshs).collect(toImmutableList()), //
-				new GlobalOptimizationContext.Grid(16000, 20000, JSCalendar.Tasks.empty()), //
+				new GlobalOptimizationContext.Grid(16000, 20000, 19000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(5000, 22000, 16000, 16000), //
 				Periods.builder(Environment.TEST) //
 						.addPeriodIfValid(time(0, 0), null, 0, 106, 293.70, null) //

@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.pvinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -47,11 +46,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String datasource_id() {
 		return this.builder.datasourceId;
-	}
-
-	@Override
-	public String datasource_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.datasource_id());
 	}
 
 }

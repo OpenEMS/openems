@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import io.openems.common.types.EntsoeBiddingZone;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -74,9 +75,9 @@ public class TariffManualEeg2025GridSellImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.fixedGridSellPrice = config.fixedGridSellPrice();
+		this.fixedGridSellPrice = config.fixedGridSellPrice() * 10; // Config is in Cent/kWh, channel unit is in Euro/MWh
 		this.marketPriceProvider = this.marketPriceProviderPool
-				.get(new EntsoeConfiguration(config.biddingZone(), config.securityToken()));
+				.get(new EntsoeConfiguration(EntsoeBiddingZone.GERMANY, config.securityToken()));
 
 		this.marketPriceProvider.getMarketPrices().subscribe(this.onNewMarketPrices);
 		this.marketPriceProvider.getUpdateState().subscribe(this.onUpdateEvent);

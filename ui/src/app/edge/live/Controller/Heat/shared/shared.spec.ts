@@ -8,51 +8,66 @@ describe("SharedControllerHeat", () => {
 
     beforeEach(async () => {
         testContext = await TestingUtils.sharedSetup();
-        testContext.translate.setTranslation("en", {
-            GENERAL: {
-                HISTORY: "History",
-            },
-            HEAT: {
-                SCHEDULE: {
-                    SCHEDULE: "Schedule",
+        testContext.translate.setTranslation(
+            "en",
+            {
+                GENERAL: {
+                    HISTORY: "History",
+                },
+                HEAT: {
+                    SCHEDULE: {
+                        SCHEDULE: "Schedule",
+                    },
+                },
+                JS_SCHEDULE: {
+                    ADD_TASK: "Add task",
+                    EDIT_TASK: "Edit task",
+                },
+                MENU: {
+                    SETTINGS: "Settings",
                 },
             },
-            JS_SCHEDULE: {
-                ADD_TASK: "Add task",
-                EDIT_TASK: "Edit task",
-            },
-            MENU: {
-                SETTINGS: "Settings",
-            },
-        }, true);
+            true,
+        );
         testContext.translate.use("en");
     });
 
     it("#getNavigationTree() includes schedule and settings for writable Askoma", () => {
         const component = new EdgeConfig.Component("heat0", "ASKOMA", true, false, "Heat.Askoma", {});
 
-        const navigationTree = getNavigationTree(component);
+        const navigationTree = getNavigationTree(component, true);
 
-        expect(navigationTree.children.map(child => child.id)).toEqual(["history", "schedule", "settings"]);
+        expect(navigationTree.children.map((child) => child.id)).toEqual([
+            "heat0-forecast",
+            "heat0-history",
+            "heat0-schedule",
+            "heat0-settings",
+        ]);
     });
 
     it("#getNavigationTree() hides schedule and settings for read-only Askoma", () => {
         const component = new EdgeConfig.Component("heat0", "ASKOMA", true, false, "Heat.Askoma", { readOnly: true });
 
-        const navigationTree = getNavigationTree(component);
+        const navigationTree = getNavigationTree(component, true);
 
-        expect(navigationTree.children.map(child => child.id)).toEqual(["history"]);
+        expect(navigationTree.children.map((child) => child.id)).toEqual(["heat0-history"]);
     });
 
-    it("#getNavigationTree() does not include settings or schedule for non-Askoma Heat", () => {
-        const component = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv.AcThor9s", {});
+    it("#getNavigationTree() includes settings and schedule for MyPV Heat", () => {
+        const component = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv", {});
 
-        const navigationTree = getNavigationTree(component);
-
-        expect(navigationTree.children.map(child => child.id)).toEqual(["history"]);
+        const navigationTree = getNavigationTree(component, false);
+        expect(navigationTree.children.length).toEqual(3);
+        expect(navigationTree.children.map((child) => child.id)).toEqual([
+            "heat1-history",
+            "heat1-schedule",
+            "heat1-settings",
+        ]);
     });
 
-    function getNavigationTree(component: EdgeConfig.Component): NavigationTree {
-        return new NavigationTree(...SharedControllerHeat.getNavigationTree(testContext.translate, component));
+    function getNavigationTree(component: EdgeConfig.Component, isAskoma: boolean): NavigationTree {
+        return new NavigationTree(
+            ...SharedControllerHeat.getNavigationTree(testContext.translate, component, isAskoma),
+        );
     }
 });

@@ -4,10 +4,10 @@ import java.util.ResourceBundle;
 
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.Parity;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
-import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 public class ProHybridGwComponents {
@@ -15,20 +15,23 @@ public class ProHybridGwComponents {
 	/**
 	 * Creates a default ess component for a FENECON Pro Hybrid GW.
 	 * 
-	 * @param bundle the translation bundle
-	 * @param essId  es id of the ess
+	 * @param bundle          the translation bundle
+	 * @param essId           es id of the ess
+	 * @param capacity        the capacity of the ess in Wh
+	 * @param maxBatteryPower the maximum battery power in W
 	 * @return the {@link ComponentDef}
 	 */
 	public static ComponentDef ess(//
 			final ResourceBundle bundle, //
-			String essId //
+			String essId, //
+			int capacity, //
+			int maxBatteryPower //
 	) {
 		return new ComponentDef(essId, //
 				TranslationUtil.getTranslation(bundle, "App.FENECON.ProHybrid.GW.Name"), "GoodWe.Ess", //
 				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
-						.addProperty("capacity", 9000) //
-						.addProperty("controlMode", ControlMode.INTERNAL) //
-						.addProperty("maxBatteryPower", 5200) //
+						.addProperty("capacity", capacity) //
+						.addProperty("maxBatteryPower", maxBatteryPower) //
 						.addProperty("modbus.id", "modbus0") //
 						.addProperty("modbusUnitId", 247) //
 						.build()), //
@@ -63,19 +66,22 @@ public class ProHybridGwComponents {
 	 * Creates a default modbus component for a FENECON Pro Hybrid GW.
 	 * 
 	 * @param modbusId the id of the modbus component
+	 * @param t        the current {@link ConfigurationTarget}
 	 * @return the {@link ComponentDef}
 	 */
 	public static ComponentDef modbus(//
-			final String modbusId //
+			final String modbusId, //
+			final ConfigurationTarget t //
 	) {
 		return new ComponentDef(modbusId, modbusId, "Bridge.Modbus.Serial", //
 				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 						.addProperty("baudRate", 9600) //
 						.addProperty("databits", 8) //
-						.addProperty("invalidateElementsAfterReadErrors", 1) //
+						.onlyIf(t == ConfigurationTarget.ADD,
+								b -> b.addProperty("invalidateElementsAfterReadErrors", 1)) //
 						.addProperty("logVerbosity", LogVerbosity.NONE) //
 						.addProperty("parity", Parity.NONE) //
-						.addProperty("portName", "/dev/ttyUSB0") //
+						.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("portName", "/dev/ttyUSB0")) //
 						.addProperty("stopbits", "ONE") //
 						.build()), //
 				ComponentDef.Configuration.defaultConfig());

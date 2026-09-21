@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
@@ -136,7 +137,9 @@ public final class ResendHistoricDataWorker extends AbstractWorker {
 			}
 		}
 
-		final var latestResendTimestamp = timedata.getLatestValue(config.addressForSuccessfulResend()).get() //
+		final var latestResendTimestamp = timedata.getLatestValue(config.addressForSuccessfulResend()) //
+				.handle((opt, throwable) -> throwable != null ? Optional.empty() : opt) //
+				.get() //
 				.map(t -> TypeUtils.<Long>getAsType(OpenemsType.LONG, t)) //
 				.orElse(-1L);
 

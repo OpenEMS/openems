@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.meter.grid.reacting;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -16,7 +16,7 @@ public class SimulatorGridMeterReactingImplTest {
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.build()) //
-				.next(new TestCase());
+				.next(new TestCase()) //
+				.deactivate();
 	}
-
 }

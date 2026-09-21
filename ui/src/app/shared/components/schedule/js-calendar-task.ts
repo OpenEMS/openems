@@ -93,13 +93,13 @@ export namespace JsCalendar {
 
     export interface Task<Payload = {}> {
         "@type": "Task";
-        "start": string;              // e.g. "08:30:00"
+        start: string;              // e.g. "08:30:00"
         /** JsCalendar format accepts multiple recurrenceRules per task  */
-        "recurrenceRules": Types.RecurrenceRule[];
+        recurrenceRules: Types.RecurrenceRule[];
 
-        "uid"?: string;
-        "updated"?: string;            // ISO timestamp string
-        "duration"?: string;           // e.g. "PT15M"
+        uid?: string;
+        updated?: string;            // ISO timestamp string
+        duration?: string;           // e.g. "PT15M"
 
         /** Differentiates between controllers/components */
         ["openems.io:payload"]?: Payload;
@@ -123,7 +123,7 @@ export namespace JsCalendar {
             };
 
         export type UpdateTask<Payload extends Record<string, unknown> = {}> = Task<Payload> & {
-            "uid": string
+            uid: string
         };
 
         export type WeekDayKeys = ReturnType<typeof TaskFormWeeklyComponent.WEEK_DAYS>[number]["key"];

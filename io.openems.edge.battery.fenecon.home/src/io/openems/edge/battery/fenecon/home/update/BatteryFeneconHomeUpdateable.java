@@ -43,6 +43,7 @@ public class BatteryFeneconHomeUpdateable implements Updateable {
 	private final BridgeModbus bridgeModbus;
 	private final Consumer<FeneconBatteryUpdateEvent> eventCallback;
 
+	private final String componentAlias;
 	private final int modbusId;
 	private final BatteryData batteryData;
 
@@ -51,6 +52,7 @@ public class BatteryFeneconHomeUpdateable implements Updateable {
 
 	public BatteryFeneconHomeUpdateable(//
 			BridgeModbus bridgeModbus, //
+			String componentAlias, //
 			int modbusId, //
 			BatteryFeneconHomeUpdateParams updateParamsProvider, //
 			BatteryData batteryData, //
@@ -58,6 +60,7 @@ public class BatteryFeneconHomeUpdateable implements Updateable {
 			Logger logger) {
 		this.log = logger;
 		this.bridgeModbus = bridgeModbus;
+		this.componentAlias = componentAlias;
 		this.modbusId = modbusId;
 		this.updateParamsProvider = updateParamsProvider;
 		this.batteryData = batteryData;
@@ -67,12 +70,14 @@ public class BatteryFeneconHomeUpdateable implements Updateable {
 	@VisibleForTesting
 	protected BatteryFeneconHomeUpdateable(//
 			BridgeModbus bridgeModbus, //
+			String componentAlias, //
 			int modbusId, //
 			BatteryFeneconHomeUpdateParams updateParamsProvider, //
 			BatteryData batteryData, //
 			Logger logger) {
 		this.log = logger;
 		this.bridgeModbus = bridgeModbus;
+		this.componentAlias = componentAlias;
 		this.modbusId = modbusId;
 		this.updateParamsProvider = updateParamsProvider;
 		this.batteryData = batteryData;
@@ -88,7 +93,11 @@ public class BatteryFeneconHomeUpdateable implements Updateable {
 
 	@Override
 	public UpdateableMetaInfo getMetaInfo(Language language) {
-		return this.updateParamsProvider.getMetaInfo();
+		final var paramsInfo = this.updateParamsProvider.getMetaInfo();
+		return new UpdateableMetaInfo(paramsInfo.name(), """
+				Update for '%s'.
+				Update takes about %d minutes and the battery can't be used during that time.
+				""".formatted(this.componentAlias, AVG_UPDATE_DURATION_IN_MINUTES), paramsInfo.requiredMinRole());
 	}
 
 	@Override

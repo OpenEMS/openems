@@ -4,7 +4,6 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.UuidUtils.getNilUuid;
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
-import static io.openems.edge.controller.ess.timeofusetariff.UtilsTest.CLOCK;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_GRID_BUY_PRICES;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_GRID_SELL_PRICES;
@@ -15,6 +14,8 @@ import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PR
 import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 import static org.junit.Assert.assertEquals;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
@@ -37,6 +39,8 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class GetScheduleResponseTest {
+
+	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
 
 	@Test
 	public void test() throws Exception {

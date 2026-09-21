@@ -1,11 +1,29 @@
 @if (isInitialized) {
   <oe-navigation-view [title]="Help">
+
     <div class="ion-padding ion-text-wrap ion-font">
 
       <!-- Icon -->
       <ion-icon name="information-outline" class="ion-margin-bottom ion-color-primary"
         style="font-size: 2rem;"></ion-icon>
 
+      @if (docs !== null){
+        <ion-grid class="ion-no-padding-left-right">
+          <ion-row class="ion-no-padding-left-right">
+            <ion-col class="ion-no-padding-left-right">
+              <ion-button [href]="docs.link" target="_blank" fill="outline">
+                @if (docs.icon !== null){
+                  <ion-icon slot="start" [name]="docs.icon.name"></ion-icon>
+                }
+                <ion-label>{{ docs.displayName }}</ion-label>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+
+        <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+      }
       <!-- Text -->
       <p class="ion-margin-bottom" translate>
         GENERAL.NAVIGATION_INFO
@@ -19,13 +37,6 @@
         <strong translate>GENERAL.LINK</strong><br>
         <a href="{{link}}" translate>
           GENERAL.LINK_TEXT
-        </a>
-      </p> 
-
-      <p>
-        <strong translate>GENERAL.SURVEY</strong><br>
-        <a href="{{linkSurvey}}" translate>
-          GENERAL.SURVEY_LINK
         </a>
       </p>
 

@@ -193,7 +193,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			throw new IllegalStateException(
 					"You cannot initialize a reconnect out of the websocket thread. Use reconnect in another thread to ensure a successful cleanup.");
 		}
-		var closeSuccess = FunctionUtils.runWithTimeout(this.thread.getName() + "::Close", CLOSE_TIMEOUT_MILLIS, () -> {
+		var closeSuccess = FunctionUtils.runWithTimeout(this.getThreadName() + "::Close", CLOSE_TIMEOUT_MILLIS, () -> {
 			try {
 				// This socket null check ensures we can reconnect a socket that failed to
 				// connect. It's an uncommon edge case, but we want to make sure we support it

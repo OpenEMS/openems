@@ -1,11 +1,16 @@
 package io.openems.edge.app.heat;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.ComponentProps.externMeterIdsForMeterIntegration;
+import static io.openems.edge.app.common.props.ComponentProps.howMeasured;
+import static io.openems.edge.app.common.props.MeterIntegrationUtil.resolveInternMeterDependencyAndGetMeterId;
+import static io.openems.edge.app.common.props.MeterIntegrationUtil.retrieveExternMeterDependency;
 import static io.openems.edge.app.common.props.RelayProps.createPhaseInformation;
 import static io.openems.edge.app.common.props.RelayProps.phaseGroup;
 import static io.openems.edge.app.common.props.RelayProps.relayContactDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -23,10 +28,12 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.PropsUtil;
 import io.openems.edge.app.common.props.RelayProps;
 import io.openems.edge.app.common.props.RelayProps.RelayContactInformation;
 import io.openems.edge.app.common.props.RelayProps.RelayContactInformationProvider;
+import io.openems.edge.app.enums.MeterIntegration;
 import io.openems.edge.app.heat.HeatPump.HeatPumpParameter;
 import io.openems.edge.app.heat.HeatPump.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -35,6 +42,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -47,6 +55,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
@@ -62,7 +71,8 @@ import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilte
     "properties":{
     	"CTRL_IO_HEAT_PUMP_ID": "ctrlIoHeatPump0",
     	"OUTPUT_CHANNEL_1": "io0/Relay2",
-    	"OUTPUT_CHANNEL_2": "io0/Relay3"
+    	"OUTPUT_CHANNEL_2": "io0/Relay3",
+ 		"IS_ELEMENT_MEASURED": false,
     },
     "dependencies": [
     	{
@@ -77,7 +87,8 @@ import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilte
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Heat.HeatPump")
-public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, HeatPumpParameter> implements OpenemsApp {
+public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, HeatPumpParameter>
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public record HeatPumpParameter(//
 			ResourceBundle bundle, //
@@ -86,7 +97,7 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 
 	}
 
-	public static enum Property implements Type<Property, HeatPump, HeatPumpParameter> {
+	public enum Property implements Type<Property, HeatPump, HeatPumpParameter> {
 		// Component-IDs
 		CTRL_IO_HEAT_PUMP_ID(AppDef.componentId("ctrlIoHeatPump0")), //
 		// Properties
@@ -94,6 +105,14 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 		OUTPUT_CHANNEL_1(heatPumpRelayContactDef(1)), //
 		OUTPUT_CHANNEL_2(heatPumpRelayContactDef(2)), //
 		PHASE_GROUP(phaseGroup(OUTPUT_CHANNEL_1, OUTPUT_CHANNEL_2)), //
+		IS_ELEMENT_MEASURED(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef//
+				.setTranslatedLabelWithAppPrefix(".measured")//
+				.setDefaultValue(false)//
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+				.setRequired(true))), //
+		HOW_MEASURED(howMeasured(IS_ELEMENT_MEASURED)//
+				.setDefaultValue(MeterIntegration.EXTERN)), //
+		METER_ID(externMeterIdsForMeterIntegration(IS_ELEMENT_MEASURED, HOW_MEASURED)), //
 		;
 
 		private final AppDef<? super HeatPump, ? super Property, ? super HeatPumpParameter> def;
@@ -116,12 +135,18 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 		public Function<GetParameterValues<HeatPump>, HeatPumpParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new HeatPumpParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
-										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false,
+										deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, false, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5, 6 }), //
 										PreferredRelay.of(4, new int[] { 2, 3 }), //
 										PreferredRelay.of(8, new int[] { 2, 3 }))) //
@@ -153,12 +178,33 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 
 			final var outputChannel1 = this.getString(p, Property.OUTPUT_CHANNEL_1);
 			final var outputChannel2 = this.getString(p, Property.OUTPUT_CHANNEL_2);
+			final var isElementMeasured = this.getBoolean(p, Property.IS_ELEMENT_MEASURED);
+			final var howMeasured = this.getEnum(p, MeterIntegration.class, Property.HOW_MEASURED);
+			var meterId = "";
 
+			final var deviceHardware = this.appManagerUtil
+					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
+			final var dependencies = new ArrayList<DependencyDeclaration>();
+
+			if (isElementMeasured) {
+
+				if (howMeasured == MeterIntegration.INTERN) {
+					meterId = resolveInternMeterDependencyAndGetMeterId(this, l, t, deviceHardware, dependencies);
+				} else {
+					meterId = this.getString(p, l, Property.METER_ID);
+					dependencies.add(retrieveExternMeterDependency(this, meterId));
+				}
+			}
+
+			final var tmpMeterId = meterId;
 			final var components = List.of(//
 					new EdgeConfig.Component(ctrlIoHeatPumpId, alias, "Controller.Io.HeatPump.SgReady",
 							JsonUtils.buildJsonObject() //
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
+									.onlyIf(t != ConfigurationTarget.VALIDATE,
+											b -> b.addProperty("meter.id", tmpMeterId)) //
 									.build()) //
 			);
 
@@ -170,10 +216,11 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 				// relay may be created but not as an app
 				return AppConfiguration.create() //
 						.addTask(Tasks.component(components)) //
+						.addDependencies(dependencies) //
 						.build();
 			}
 
-			final var dependencies = List.of(new DependencyDeclaration("RELAY", //
+			dependencies.add(new DependencyDeclaration("RELAY", //
 					DependencyDeclaration.CreatePolicy.NEVER, //
 					DependencyDeclaration.UpdatePolicy.NEVER, //
 					DependencyDeclaration.DeletePolicy.NEVER, //
@@ -197,9 +244,14 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(2, CheckRelayCountFilters.feneconHome(false),
-						CheckRelayCountFilters.deviceHardware()));
+				.setInstallableCheckableConfigs(checkRelayCount(2, //
+						CheckRelayCountFilters.feneconHome(false, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(false, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override
@@ -215,6 +267,11 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 	@Override
 	protected Property[] propertyValues() {
 		return Property.values();
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //

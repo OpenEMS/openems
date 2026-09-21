@@ -3,7 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service, Websocket } from "../../shared";
 import { Language } from "../../type/language";
 import { AbstractModal } from "../modal/abstractModal";

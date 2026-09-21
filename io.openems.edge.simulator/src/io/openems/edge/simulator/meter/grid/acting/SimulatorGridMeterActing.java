@@ -16,11 +16,11 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public interface SimulatorGridMeterActing extends ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current State of State-Machine")),
 
-		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT));
 
 		private final Doc doc;

@@ -1,7 +1,6 @@
 package io.openems.common.websocket;
 
 import static io.openems.common.exceptions.OpenemsError.JSONRPC_UNHANDLED_METHOD;
-import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
 import static io.openems.common.utils.StringUtils.toShortString;
 import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -143,7 +142,7 @@ public final class OnMessageHandler implements Runnable {
 
 		log //
 				.append("for Request ") //
-				.append(toShortString(simplifyJsonrpcMessage(request), 200));
+				.append(toShortString(request.getFullyQualifiedMethod(), 200));
 		this.logWarn.accept(this.log, log.toString());
 
 		// Get JSON-RPC Response Error

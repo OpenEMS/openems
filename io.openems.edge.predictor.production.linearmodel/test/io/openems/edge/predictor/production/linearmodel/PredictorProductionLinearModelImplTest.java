@@ -88,7 +88,6 @@ public class PredictorProductionLinearModelImplTest {
 				.addReference("predictorPersistenceModel", this.predictorPersistenceModel);
 	}
 
-
 	@Test
 	public void testCreateNewPrediction_ShouldReturnEmptyPrediction_WhenSnowStateMachineThrowsException()
 			throws Exception {
@@ -151,7 +150,6 @@ public class PredictorProductionLinearModelImplTest {
 		when(this.sut.createLongTermPrediction(any())).thenReturn(longtermPrediction);
 		when(this.snowStateMachine.getCurrentState()).thenReturn(State.SNOW);
 		when(this.snowStateMachine.getSnowStart()).thenReturn(this.now.minusHours(Integer.MAX_VALUE));
-
 
 		var result = this.sut.createNewPrediction(PRODUCTION_CHANNEL_ADDRESS);
 

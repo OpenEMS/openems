@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -8,27 +8,23 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 import { ChannelAddress } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
-
 /** Will be used in the Future again */
 @Component({
     selector: "productionMeterchart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
-    imports: [
-        NgxSpinnerModule,
-        CommonUiModule,
-        HistoryDataErrorModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [NgxSpinnerModule, CommonUiModule, HistoryDataErrorModule],
 })
 export class ProductionMeterChartComponent extends AbstractHistoryChart {
-
     protected override getChartData(): HistoryUtils.ChartData {
-        const channels: HistoryUtils.InputChannel[] = [{
-            name: "ActivePower",
-            powerChannel: ChannelAddress.fromString(this.component.id + "/ActivePower"),
-            energyChannel: ChannelAddress.fromString(this.component.id + "/ActiveProductionEnergy"),
-            converter: (data) => data != null ? data : null,
-        },
+        const channels: HistoryUtils.InputChannel[] = [
+            {
+                name: "ActivePower",
+                powerChannel: ChannelAddress.fromString(this.component.id + "/ActivePower"),
+                energyChannel: ChannelAddress.fromString(this.component.id + "/ActiveProductionEnergy"),
+                converter: (data) => (data != null ? data : null),
+            },
         ];
 
         // Phase 1 to 3
@@ -54,7 +50,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
                     color: "rgb(0,152,204)",
                 });
                 if (this.showPhases) {
-
                     // Phase 1 to 3
                     for (let i = 1; i < 4; i++) {
                         datasets.push({
@@ -71,12 +66,13 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
             tooltip: {
                 formatNumber: "1.1-2",
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+            ],
         };
     }
 }
-

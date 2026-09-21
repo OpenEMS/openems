@@ -5,6 +5,7 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.MetaSupplier;
@@ -64,6 +66,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
+import io.openems.edge.energy.api.Version;
 
 /**
  * Describes a Keba evcs App.
@@ -88,7 +91,7 @@ import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
  */
 @Component(name = "App.Evcs.Keba")
 public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier, EMobilityApp {
 
 	public enum Property implements Type<Property, KebaEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -137,7 +140,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
-		CONFIGURE_VEHICLE(EvseProps.configureVehicle()
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle() //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
@@ -172,6 +175,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		// Properties for P40 app
 		MODBUS_ID(AppDef.componentId("modbus0")), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(EvseProps.acknowledgeNavigationMigration(EVCS_ID, ARCHITECTURE_TYPE)), //
 		;
 
 		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
@@ -290,6 +294,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				}
 			}
 			case EVSE -> {
+				appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var wiring = this.getEnum(p, SingleOrThreePhase.class, Property.WIRING);
 				switch (hardwareType) {
 				case P30 -> {
@@ -415,5 +420,10 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				SwitchEvcsEvse.METHOD // switch method name
 		));
 		return flags.toArray(Flag[]::new);
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS, EMobilityArchitectureType.EVSE);
 	}
 }

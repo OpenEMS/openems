@@ -1,0 +1,17 @@
+Bundle-Name: javaluator
+Bundle-Description: Javaluator is a simple, but powerful, infix expression evaluator for Java. 
+Bundle-DocURL: https://github.com/fathzer/javaluator
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 3.0.6
+
+Include-Resource: \
+	@javaluator-3.0.6.jar,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+    com.fathzer.soft.javaluator,\
+
+-sources: false

@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component, inject, model } from "@angular/core";
+import { Component, inject, model, ChangeDetectionStrategy } from "@angular/core";
 import { v4 as uuidv4 } from "uuid";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -21,21 +21,17 @@ import { JsCalendar } from "../js-calendar-task";
 @Component({
     selector: "oe-components-scheduler-edit-task",
     templateUrl: "./edit-task.component.html",
-    imports: [
-        CommonUiModule,
-        ComponentsBaseModule,
-        TaskFormComponent,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    imports: [CommonUiModule, ComponentsBaseModule, TaskFormComponent],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
-
 export class EditTaskComponent extends JsCalendarEditTaskComponent {
     public payload = model<JsCalendar.OpenEMSPayload<string> | null>(null);
     public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>([]);
@@ -68,10 +64,13 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         AssertionUtils.assertIsDefined(componentId);
 
         const [err, _result] = await JsonRpcUtils.handle(
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId: componentId,
-                payload: new GetAllTasks(),
-            }))
+            this.edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: componentId,
+                    payload: new GetAllTasks(),
+                }),
+            ),
         );
 
         if (err) {
@@ -80,18 +79,17 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         }
 
         const result = _result as JsCalendar.GetAllTasksResponse;
-        const task = result.result.tasks.find(t => t.uid === this.uid);
+        const task = result.result.tasks.find((t) => t.uid === this.uid);
 
         if (task === null || task === undefined) {
             console.warn("Task with the given UID not found.");
             return;
         }
 
-
         this.startTime.set(task.start);
         this.endTime.set(JsCalendar.Utils.calculateEndTimeFromDuration(task?.start ?? null, task?.duration ?? null));
-        this.payload.update(el => el?.update(el, task) ?? null);
-        this.recurrenceRuleByDay.update(el => task.recurrenceRules?.[0]);
+        this.payload.update((el) => el?.update(el, task) ?? null);
+        this.recurrenceRuleByDay.update((el) => task.recurrenceRules?.[0]);
     }
 
     protected override updateComponent(config: EdgeConfig): void {
@@ -122,7 +120,10 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
             return;
         }
 
-        const [start, duration] = [JsCalendar.Utils.formatIsoLocalDateTime(startDate), JsCalendar.Utils.computeIsoDuration(startDate, endDate)];
+        const [start, duration] = [
+            JsCalendar.Utils.formatIsoLocalDateTime(startDate),
+            JsCalendar.Utils.computeIsoDuration(startDate, endDate),
+        ];
         if (start == null || duration == null) {
             this.service.toast(this.translate.instant("JS_SCHEDULE.VALIDATION_ERROR_7"), "danger");
             return;
@@ -131,9 +132,9 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         const recurrenceRuleByDay = this.recurrenceRuleByDay();
         const task: JsCalendar.Types.UpdateTask = {
             "@type": "Task",
-            "uid": this.uid ?? "",
-            "start": start,
-            "recurrenceRules": recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
+            uid: this.uid ?? "",
+            start: start,
+            recurrenceRules: recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
             ...duration,
             ...this.payload()?.toOpenEMSPayload(),
         };
@@ -150,10 +151,13 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         }
 
         const [err] = await JsonRpcUtils.handle(
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId,
-                payload: new JsCalendar.UpdateTaskRequest({ task }),
-            }))
+            this.edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId,
+                    payload: new JsCalendar.UpdateTaskRequest({ task }),
+                }),
+            ),
         );
 
         if (err) {
@@ -175,10 +179,13 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         }
 
         const [err] = await JsonRpcUtils.handle(
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId: this.componentId,
-                payload: new DeleteTask.Request({ uid: this.uid }),
-            }))
+            this.edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: this.componentId,
+                    payload: new DeleteTask.Request({ uid: this.uid }),
+                }),
+            ),
         );
 
         if (err) {
@@ -196,7 +203,7 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
             this.endTime(),
             this.payload(),
             this.recurrenceRuleByDay(),
-            this.translate
+            this.translate,
         );
 
         if (!result.valid) {

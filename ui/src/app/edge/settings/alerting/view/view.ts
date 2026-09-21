@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AlertingComponent } from "../component/alerting.component";
 
@@ -9,11 +9,7 @@ import { AlertingComponent } from "../component/alerting.component";
             <alerting></alerting>
         </ion-content>
     `,
-    imports: [
-        CommonUiModule,
-        AlertingComponent,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, AlertingComponent],
 })
-export class AlertingViewComponent {
-
-}
+export class AlertingViewComponent {}

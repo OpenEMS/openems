@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { RouteService } from "src/app/shared/service/route.service";
+import { PlatFormService } from "src/app/platform.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service } from "src/app/shared/shared";
 import { SohDeterminationService } from "../../service/soh-determination.service";
 import { SohStatusBannerComponent } from "./soh-status-banner";
@@ -17,11 +18,9 @@ describe("SohStatusBannerComponent", () => {
         ]);
 
         await TestBed.configureTestingModule({
-            imports: [
-                SohStatusBannerComponent,
-                TranslateModule.forRoot(),
-            ],
+            imports: [SohStatusBannerComponent, TranslateModule.forRoot()],
             providers: [
+                PlatFormService,
                 RouteService,
                 Service,
                 { provide: SohDeterminationService, useValue: sohDeterminationServiceSpy },

@@ -1,0 +1,6 @@
+@if (isInitialized) {
+  <oe-chart [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" [period]="service.historyPeriod"
+    [title]="'EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.TITLE'| translate">
+    <oe-controller-channel-threshold-chart [isOnlyChart]="true"></oe-controller-channel-threshold-chart>
+  </oe-chart>
+}

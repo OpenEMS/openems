@@ -6,17 +6,20 @@ import io.openems.common.utils.JsonUtils;
 public class ProHybrid10Components {
 
 	/**
-	 * Crrates a default ess component for a FENECON Pro Hybrid.
+	 * Creates a default ess component for a FENECON Pro Hybrid.
 	 * 
-	 * @param essId the id of the ess
+	 * @param essId    the id of the ess
+	 * @param capacity the capacity of the ess
 	 * @return the {@link Component}
 	 */
-	public static Component ess(final String essId) {
+	public static Component ess(//
+			final String essId, //
+			final int capacity //
+	) {
 		return new Component(essId, essId, "Kaco.BlueplanetHybrid10.Ess", JsonUtils.buildJsonObject() //
 				.addProperty("enabled", true) //
-				.addProperty("capacity", 10200) //
+				.addProperty("capacity", capacity) //
 				.addProperty("core.id", "kacoCore0") //
-				.addProperty("readOnly", true) //
 				.build());
 	}
 
@@ -26,12 +29,13 @@ public class ProHybrid10Components {
 	 * @param meterId the id of the grid meter
 	 * @return the {@link Component}
 	 */
-	public static Component gridMeter(final String meterId) {
+	public static Component gridMeter(//
+			final String meterId //
+	) {
 		return new Component(meterId, meterId, "Kaco.BlueplanetHybrid10.GridMeter", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("core.id", "kacoCore0") //
-						.addProperty("external", false) //
 						.build());
 	}
 

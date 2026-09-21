@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,10 +8,10 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonConsumptionHistoryOverviewComponent extends AbstractHistoryChartOverview {
-
     protected navigationButtons: NavigationOption[] = [];
     protected evcsComponents: EdgeConfig.Component[] = [];
     protected consumptionMeterComponents: EdgeConfig.Component[] = [];
@@ -27,29 +27,49 @@ export class CommonConsumptionHistoryOverviewComponent extends AbstractHistoryCh
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
+        this.evcsComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+            .filter(
+                (component) =>
+                    !(component.factoryId === "Evcs.Cluster.SelfConsumption") &&
+                    !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
+                    !component.isEnabled === false,
+            );
 
-        this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component =>
-                !(component.factoryId === "Evcs.Cluster.SelfConsumption") &&
-                !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
-                !component.isEnabled === false);
+        const heatComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(
+                (component) =>
+                    !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+            );
 
-        const heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-            .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
-
-        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs")
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
+        this.consumptionMeterComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter(
+                (component) =>
+                    component.isEnabled &&
+                    this.config.isTypeConsumptionMetered(component) &&
+                    !this.config
+                        .getNatureIdsByFactoryId(component.factoryId)
+                        .includes("io.openems.edge.evcs.api.Evcs") &&
+                    !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"),
+            );
 
         const sum: EdgeConfig.Component = this.config.getComponent("_sum");
         sum.alias = this.translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
-        this.navigationButtons = [sum, ...this.evcsComponents, ...heatComponents, ...this.consumptionMeterComponents].map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
-        ));
+        this.navigationButtons = [
+            sum,
+            ...this.evcsComponents,
+            ...heatComponents,
+            ...this.consumptionMeterComponents,
+        ].map((el) => ({
+            id: el.id,
+            alias: el.alias,
+            callback: () => {
+                this.router.navigate(["./" + el.id], { relativeTo: this.route });
+            },
+        }));
 
         return [];
     }

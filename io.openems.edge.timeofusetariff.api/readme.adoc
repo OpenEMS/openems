@@ -1,7 +1,17 @@
-= Time-Of-Use Tariff API.
+= Time-Of-Use Tariff API
 
 Provides abstract access for getting prices from every "Time-Of-Use" tariff providers like:
-- aWATTar
-- Stromdao with Corrently
+
+- aWATTar by tado°
+- Corrently by STROMDAO
+- ENTSO-E spot prices
+- EWS Schönau
+- Groupe E
+- Stadtwerk Haßfurt
+- LUOX Energy by Lumenaza
+- rabot.charge
+- Swisspower
+- Tibber
+- ...
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.api[Source Code icon:github[]]

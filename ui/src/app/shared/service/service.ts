@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { effect, inject, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
+import { effect, inject, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal, } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService, Spinner } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
 import { take } from "rxjs/operators";
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
@@ -19,76 +20,65 @@ import { GetEdgeResponse } from "../jsonrpc/response/getEdgeResponse";
 import { GetEdgesResponse } from "../jsonrpc/response/getEdgesResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { User } from "../jsonrpc/shared";
-import { States } from "../ngrx-store/states";
 import { ChannelAddress } from "../shared";
+import { States } from "../states/states";
 import { DefaultTypes } from "../type/defaulttypes";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
 import { AbstractService } from "./abstractservice";
-import { RouteService } from "./route.service";
+import { RouteService } from "./route/route.service";
 import { Websocket } from "./websocket";
 
 @Injectable()
 export class Service extends AbstractService {
-
     public static readonly TIMEOUT = 15_000;
 
     public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
-    /**
-   * Currently selected history period
-   */
+    /** Currently selected history period */
     public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
 
     /**
      * Currently selected history period string
      *
-     * initialized as day, is getting changed by pickdate component
+     * Initialized as day, is getting changed by pickdate component
      */
     public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 
-    /**
-     * Represents the resolution of used device
-     * Checks if smartphone resolution is used
-     */
+    /** Represents the resolution of used device Checks if smartphone resolution is used */
     public deviceHeight: number = 0;
     public deviceWidth: number = 0;
-    public isSmartphoneResolution: boolean = false;
-    public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
     public activeQueryData: string;
 
-    /**
-     * Holds the currenty selected Page Title.
-     */
+    /** Holds the currenty selected Page Title. */
     public currentPageTitle: string;
 
-    /**
-     * Holds reference to Websocket. This is set by Websocket in constructor.
-    */
+    /** Holds reference to Websocket. This is set by Websocket in constructor. */
     public websocket: Websocket = null;
-    /**
-     * Holds the currently selected Edge.
-     */
+    /** Holds the currently selected Edge. */
     public readonly currentEdge: WritableSignal<Edge> = signal(null);
 
-    /**
-     * Holds references of Edge-IDs (=key) to Edge objects (=value)
-     */
+    /** Holds references of Edge-IDs (=key) to Edge objects (=value) */
     public readonly metadata: BehaviorSubject<{
-        user: User, edges: { [edgeId: string]: Edge }
+        user: User;
+        edges: { [edgeId: string]: Edge };
     }> = new BehaviorSubject(null);
 
-    /**
-     * Holds the current Activated Route
-     */
+    /** Holds the current Activated Route */
     private currentActivatedRoute: ActivatedRoute | null = null;
 
     private queryEnergyQueue: {
-        fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+        fromDate: Date;
+        toDate: Date;
+        channels: ChannelAddress[];
+        promises: { resolve; reject }[];
     }[] = [];
     private queryEnergyTimeout: any = null;
     private injector = inject(Injector);
+
+    /** @deprecated */
+    private isSmartphoneResolution = signal<boolean>(this.computeIsSmartphoneResolution());
 
     constructor(
         private router: Router,
@@ -98,10 +88,9 @@ export class Service extends AbstractService {
         private _injector: Injector,
         private routeService: RouteService,
     ) {
-
         super();
         // add language
-        translate.addLangs(Language.ALL.map(l => l.key));
+        translate.addLangs(Language.ALL.map((l) => l.key));
         // this language will be used as a fallback when a translation isn't found in the current language
         translate.setFallbackLang(Language.DEFAULT.key);
         // translate.use(Language.DEFAULT.key);
@@ -113,6 +102,10 @@ export class Service extends AbstractService {
         translate.onLangChange.subscribe((event: LangChangeEvent) => {
             registerLocaleData(Language.getLocale(Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key));
         });
+    }
+
+    public getIsSmartphoneResolution() {
+        return this.isSmartphoneResolution();
     }
 
     public setLang(language: Language) {
@@ -128,12 +121,16 @@ export class Service extends AbstractService {
         // TODO set locale for date-fns: https://date-fns.org/docs/I18n
     }
 
+    /**
+     * Gets the current language, mapped to the reduced set of documentation languages.
+     *
+     * Only a subset of languages is available for documentation, falls back to the default documentation language
+     * otherwise. See {@link Language.getDocsLang}.
+     *
+     * @returns {@link Language.DE.key} Or {@link Language.EN.key}
+     */
     public getDocsLang(): string {
-        if (this.translate.getCurrentLang() == "de") {
-            return "de";
-        } else {
-            return "en";
-        }
+        return Language.getDocsLang(this.translate.getCurrentLang());
     }
 
     public notify(notification: DefaultTypes.Notification) {
@@ -152,7 +149,10 @@ export class Service extends AbstractService {
         // this.notify(notification);
     }
 
-    public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
+    public setCurrentComponent(
+        currentPageTitle: string | { languageKey: string; interpolateParams?: {} },
+        activatedRoute: ActivatedRoute,
+    ): Promise<Edge> {
         return new Promise((resolve, reject) => {
             // Set the currentPageTitle only once per ActivatedRoute
             if (this.currentActivatedRoute != activatedRoute) {
@@ -163,19 +163,21 @@ export class Service extends AbstractService {
                     } else {
                         this.currentPageTitle = currentPageTitle;
                     }
-
                 } else {
                     // Translate from key
-                    this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
-                        take(1),
-                    ).subscribe(title => this.currentPageTitle = title);
+                    this.translate
+                        .get(currentPageTitle.languageKey, currentPageTitle.interpolateParams)
+                        .pipe(take(1))
+                        .subscribe((title) => (this.currentPageTitle = title));
                 }
             }
             this.currentActivatedRoute = activatedRoute;
 
-            this.getCurrentEdge().then(edge => {
-                resolve(edge);
-            }).catch(reject);
+            this.getCurrentEdge()
+                .then((edge) => {
+                    resolve(edge);
+                })
+                .catch(reject);
         });
     }
 
@@ -201,21 +203,21 @@ export class Service extends AbstractService {
 
     public getConfig(): Promise<EdgeConfig> {
         return new Promise<EdgeConfig>((resolve, reject) => {
-            this.getCurrentEdge().then(edge => {
-                edge.getFirstValidConfig(this.websocket)
-                    .then(resolve)
-                    .catch(reject);
-            }).catch(reason => reject(reason));
+            this.getCurrentEdge()
+                .then((edge) => {
+                    edge.getFirstValidConfig(this.websocket).then(resolve).catch(reject);
+                })
+                .catch((reason) => reject(reason));
         });
     }
 
     public getNextConfig(): Promise<EdgeConfig> {
         return new Promise<EdgeConfig>((resolve, reject) => {
-            this.getCurrentEdge().then(edge => {
-                edge.getFirstValidConfig(this.websocket)
-                    .then(resolve)
-                    .catch(reject);
-            }).catch(reason => reject(reason));
+            this.getCurrentEdge()
+                .then((edge) => {
+                    edge.getFirstValidConfig(this.websocket).then(resolve).catch(reject);
+                })
+                .catch((reason) => reject(reason));
         });
     }
 
@@ -233,7 +235,11 @@ export class Service extends AbstractService {
         });
     }
 
-    public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    public queryEnergy(
+        fromDate: Date,
+        toDate: Date,
+        channels: ChannelAddress[],
+    ): Promise<QueryHistoricTimeseriesEnergyResponse> {
         // keep only the date, without time
         fromDate.setHours(0, 0, 0, 0);
         toDate.setHours(0, 0, 0, 0);
@@ -254,10 +260,10 @@ export class Service extends AbstractService {
                 this.queryEnergyTimeout = null;
 
                 const mergedRequests: {
-                    fromDate: Date,
-                    toDate: Date,
-                    channels: ChannelAddress[],
-                    promises: { resolve, reject }[];
+                    fromDate: Date;
+                    toDate: Date;
+                    channels: ChannelAddress[];
+                    promises: { resolve; reject }[];
                 }[] = [];
 
                 let request;
@@ -267,14 +273,20 @@ export class Service extends AbstractService {
                     } else {
                         let merged = false;
                         for (const mergedRequest of mergedRequests) {
-                            if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
-                                && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
+                            if (
+                                mergedRequest.fromDate.valueOf() === request.fromDate.valueOf() &&
+                                mergedRequest.toDate.valueOf() === request.toDate.valueOf()
+                            ) {
                                 // same date -> merge
                                 mergedRequest.promises = mergedRequest.promises.concat(request.promises);
                                 for (const newChannel of request.channels) {
-                                    if (!mergedRequest.channels.some(existingChannel =>
-                                        existingChannel.channelId === newChannel.channelId &&
-                                        existingChannel.componentId === newChannel.componentId)) {
+                                    if (
+                                        !mergedRequest.channels.some(
+                                            (existingChannel) =>
+                                                existingChannel.channelId === newChannel.channelId &&
+                                                existingChannel.componentId === newChannel.componentId,
+                                        )
+                                    ) {
                                         mergedRequest.channels.push(newChannel);
                                     }
                                 }
@@ -288,9 +300,8 @@ export class Service extends AbstractService {
                 }
 
                 // send merged requests
-                this.getCurrentEdge().then(edge => {
+                this.getCurrentEdge().then((edge) => {
                     for (const source of mergedRequests) {
-
                         // Jump to next request for empty channelAddresses
                         if (!source?.channels?.length) {
                             continue;
@@ -304,7 +315,7 @@ export class Service extends AbstractService {
 
                         this.activeQueryData = request.id;
                         edge.sendRequest(this.websocket, request)
-                            .then(response => {
+                            .then((response) => {
                                 if (this.activeQueryData !== response.id) {
                                     return;
                                 }
@@ -313,7 +324,12 @@ export class Service extends AbstractService {
 
                                 if (Object.keys(result.data).length === 0) {
                                     for (const promise of source.promises) {
-                                        promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                        promise.reject(
+                                            new JsonrpcResponseError(response.id, {
+                                                code: 0,
+                                                message: "Result was empty",
+                                            }),
+                                        );
                                     }
                                     return;
                                 }
@@ -322,9 +338,14 @@ export class Service extends AbstractService {
                                     promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
                                 }
                             })
-                            .catch(async reason => {
+                            .catch(async (reason) => {
                                 for (const promise of source.promises) {
-                                    promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
+                                    promise.reject(
+                                        new JsonrpcResponseError((await response).id, {
+                                            code: 0,
+                                            message: "Result was empty",
+                                        }),
+                                    );
                                 }
                             });
                     }
@@ -337,12 +358,13 @@ export class Service extends AbstractService {
     /**
      * Gets the page for the given number.
      *
-     * @param req the get edges request
-     * @returns a promise with the resulting edges
+     * @param req The get edges request
+     * @returns A promise with the resulting edges
      */
     public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
         return new Promise<Edge[]>((resolve, reject) => {
-            this.websocket.sendRequest<GetEdgesResponse>(req)
+            this.websocket
+                .sendRequest<GetEdgesResponse>(req)
                 .then((response) => {
                     const result = (response as GetEdgesResponse).result;
 
@@ -352,9 +374,9 @@ export class Service extends AbstractService {
                     for (const edge of result.edges) {
                         const mappedEdge = new Edge(
                             edge.id,
-                            edge.comment,
+                            this.updateCommentForDemoUser(value.user.id, edge.id, edge.comment),
                             edge.producttype,
-                            ("version" in edge) ? edge["version"] : "0.0.0",
+                            "version" in edge ? edge["version"] : "0.0.0",
                             Role.getRole(edge.role.toString()),
                             edge.isOnline,
                             edge.lastmessage,
@@ -368,7 +390,8 @@ export class Service extends AbstractService {
 
                     this.metadata.next(value);
                     resolve(mappedResult);
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     reject(err);
                 });
         });
@@ -377,10 +400,19 @@ export class Service extends AbstractService {
     /**
      * Updates the currentEdge in metadata
      *
-     * @param edgeId the edgeId
-     * @returns a empty Promise
+     * @param edgeId The edgeId
+     * @returns A empty Promise
      */
     public updateCurrentEdge(edgeId: string): Promise<Edge> {
+        // TODO INTERSOLAR
+        if (this.metadata.getValue()?.user.id === "intersolar@fenecon.de") {
+            if (edgeId === "fems17289") {
+                this.setLang(Language.EN);
+            } else {
+                this.setLang(Language.DE);
+            }
+        }
+
         return new Promise<Edge>((resolve, reject) => {
             const existingEdge = this.metadata.value?.edges[edgeId];
             if (existingEdge) {
@@ -389,15 +421,16 @@ export class Service extends AbstractService {
                 return;
             }
 
-            this.websocket.sendStateFullRequest<GetEdgeResponse>(new GetEdgeRequest({ edgeId: edgeId }))
+            this.websocket
+                .sendStateFullRequest<GetEdgeResponse>(new GetEdgeRequest({ edgeId: edgeId }))
                 .then((response) => {
                     const edgeData = (response as GetEdgeResponse).result.edge;
                     const value = this.metadata.value;
                     const currentEdge = new Edge(
                         edgeData.id,
-                        edgeData.comment,
+                        this.updateCommentForDemoUser(value.user.id, edgeData.id, edgeData.comment),
                         edgeData.producttype,
-                        ("version" in edgeData) ? edgeData["version"] : "0.0.0",
+                        "version" in edgeData ? edgeData["version"] : "0.0.0",
                         Role.getRole(edgeData.role.toString()),
                         edgeData.isOnline,
                         edgeData.lastmessage,
@@ -409,15 +442,16 @@ export class Service extends AbstractService {
                     value.edges[edgeData.id] = currentEdge;
                     this.metadata.next(value);
                     resolve(currentEdge);
-                }).catch(reject);
+                })
+                .catch(reject);
         });
     }
 
     /**
      * Starts a spinner.
      *
-     * @param selector the unique selector
-     * @param spinner the spinner to show
+     * @param selector The unique selector
+     * @param spinner The spinner to show
      */
     public startSpinner(selector: string, spinner?: Spinner) {
         this.spinnerService.show(selector, {
@@ -452,5 +486,48 @@ export class Service extends AbstractService {
             id: "toast-container",
         });
         toast.present();
+    }
+
+    private computeIsSmartphoneResolution() {
+        const platFormService = this.injector.get(PlatFormService);
+        const device = platFormService.getDevice();
+        return device.isSmartphone();
+    }
+
+    // TODO INTERSOLAR remove
+    private updateCommentForDemoUser(userId: string, edgeId: string, comment: string): string {
+        if (userId !== "intersolar@fenecon.de") {
+            return comment;
+        }
+        switch (edgeId) {
+            case "fems31372":
+                return "C 100 - dyn. RSE";
+            case "fems888":
+                return "H 10 - WB + Dyn. Tarif";
+            case "fems4":
+                return "H 30 - Vollausbau";
+            case "fems82085":
+                return "H 10 - FP-EEG 25 + Heizstab";
+            case "fems666":
+                return "C 50 - 2x Hardy + my-PV";
+            case "fems10303":
+                return "H 10 - Keba + Askoma";
+            case "fems72127":
+                return "H 10 - FP + 60 % Abregelung";
+            case "fems17289":
+                return "H 10 - Schweden + LSK";
+            case "fems65456":
+                return "H 30 - Direktvermarktung";
+            case "fems33006":
+                return "XL - Vermarktungsspeicher";
+            case "fems31113":
+                return "C 92 - Ladepark";
+            case "fems30776":
+                return "S - Fahrplan - dyn. Tarif";
+            case "fems3625":
+                return "M  - Multiuse";
+            default:
+                return comment;
+        }
     }
 }

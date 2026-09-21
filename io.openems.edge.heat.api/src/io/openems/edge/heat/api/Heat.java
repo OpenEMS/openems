@@ -26,7 +26,7 @@ public interface Heat extends OpenemsComponent {
 		 * </ul>
 		 */
 		STATUS(Doc.of(Status.values())//
-				.persistencePriority(PersistencePriority.LOW)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		/**

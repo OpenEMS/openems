@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractModalLine } from "../abstract-modal-line";
@@ -6,13 +6,10 @@ import { AbstractModalLine } from "../abstract-modal-line";
 @Component({
     selector: "oe-modal-toggle-line",
     templateUrl: "./modal-toggle-line.html",
-    imports: [
-        CommonUiModule,
-        ReactiveFormsModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, ReactiveFormsModule],
 })
 export class ModalToggleLineComponent extends AbstractModalLine {
-
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input({ required: true }) protected leftColumnWidth!: number;
 
@@ -22,7 +19,7 @@ export class ModalToggleLineComponent extends AbstractModalLine {
     public override ngOnInit() {
         super.ngOnInit();
 
-        this.formGroup.valueChanges.subscribe(value => {
+        this.formGroup.valueChanges.subscribe((value) => {
             this.displayValue = this.togglePrefix(value);
         });
     }

@@ -105,7 +105,8 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
 				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.VOLTAGE, //
-				ignored -> this.allowedChargeDischargeHandler.calculateVoltageRegulationLimits(battery, inverter));
+				ignored -> this.allowedChargeDischargeHandler //
+						.calculateEssProtectionLimits(battery, inverter));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);

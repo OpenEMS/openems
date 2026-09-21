@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { IonPopover } from "@ionic/angular";
 
@@ -6,17 +6,19 @@ import { IonPopover } from "@ionic/angular";
     selector: "oe-pick-date-time-range",
     templateUrl: "./pick-date-time-range.html",
     standalone: false,
-    styles: [`
-        .time-display-item {
-            border: 0.067em; /* 1px in em */
-            border-radius: 1em; /* 15px in em */
-            border-style: solid;
-            text-align: center;
-        }
-        `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            .time-display-item {
+                border: 0.067em; /* 1px in em */
+                border-radius: 1em; /* 15px in em */
+                border-style: solid;
+                text-align: center;
+            }
+        `,
+    ],
 })
 export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
-
     @Input() public control!: FormControl;
     @Input() public mode: "time" | "date" | "datetime" = "time";
     @Input() public displayValue: string | null = null;
@@ -69,9 +71,7 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
 
     private updateDisplayText(): void {
         if (this.displayValue === null || this.displayValue === "") {
-            this.displayText = this.mode === "date"
-                ? "TT.MM.JJJJ"
-                : "00:00";
+            this.displayText = this.mode === "date" ? "TT.MM.JJJJ" : "00:00";
         } else {
             this.displayText = this.displayValue;
         }
@@ -94,7 +94,6 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
         this.borderColor = newBorderColor;
     }
 
-
     private formatValue(value: string | Date | null): string {
         if (value === null || value === "") {
             return this.mode === "date" ? "TT.MM.JJJJ" : "00:00";
@@ -110,7 +109,8 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
                 minute: "2-digit",
                 hourCycle: "h23",
             })} ${date.toLocaleDateString("default")}`;
-        } else { // This is the 'time' mode
+        } else {
+            // This is the 'time' mode
             return date.toLocaleTimeString("default", {
                 hour: "2-digit",
                 minute: "2-digit",

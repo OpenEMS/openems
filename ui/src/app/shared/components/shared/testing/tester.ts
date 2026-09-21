@@ -20,21 +20,24 @@ import { OeTester } from "./common";
 import { TestContext } from "./utils.spec";
 
 export class OeFormlyViewTester {
-
-    public static apply(view: OeFormlyView, context: OeFormlyViewTester.Context, fg: FormGroup | null = null): OeFormlyViewTester.View {
+    public static apply(
+        view: OeFormlyView,
+        context: OeFormlyViewTester.Context,
+        fg: FormGroup | null = null,
+    ): OeFormlyViewTester.View {
         return {
             title: view.title,
-            lines: view.lines
-                .map(line => OeFormlyViewTester.applyField(line, context, fg))
-                .filter(line => line),
+            lines: view.lines.map((line) => OeFormlyViewTester.applyField(line, context, fg)).filter((line) => line),
         };
     }
 
-    private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context, fg: FormGroup): OeFormlyViewTester.Field {
+    private static applyField(
+        field: OeFormlyField,
+        context: OeFormlyViewTester.Context,
+        fg: FormGroup,
+    ): OeFormlyViewTester.Field {
         switch (field.type) {
-            /**
-             * OeFormlyField.Line
-             */
+            /** OeFormlyField.Line */
             case "children-line": {
                 const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
                 if (tmp == null) {
@@ -53,8 +56,9 @@ export class OeFormlyViewTester {
 
                 // Recursive call for children
                 if (field.children) {
-                    result.children = field.children
-                        ?.map(child => OeFormlyViewTester.applyField(child, context, null));
+                    result.children = field.children?.map((child) =>
+                        OeFormlyViewTester.applyField(child, context, null),
+                    );
                 }
 
                 return result;
@@ -68,7 +72,7 @@ export class OeFormlyViewTester {
 
                 // Read or generate name
                 let name: string;
-                if (typeof (field.name) === "function") {
+                if (typeof field.name === "function") {
                     name = field.name(tmp.rawValue);
                 } else {
                     name = field.name;
@@ -93,10 +97,7 @@ export class OeFormlyViewTester {
                 return result;
             }
 
-
-            /**
-             * {@link OeFormlyField.ValueLineFromMultipleChannels}
-             */
+            /** {@link OeFormlyField.ValueLineFromMultipleChannels} */
             case "value-from-channels-line": {
                 const tmp = OeFormlyViewTester.applyValueLineFromChannels(field, context);
                 if (tmp == null) {
@@ -104,7 +105,17 @@ export class OeFormlyViewTester {
                 }
 
                 // Read or generate name
-                const name: string = field.name;
+                let name: string;
+                if (typeof field.name === "object") {
+                    const channelValue =
+                        field.name.channel != null && field.name.channel.toString() in context
+                            ? context[field.name.channel.toString()]
+                            : null;
+
+                    name = field.name.converter(channelValue);
+                } else {
+                    name = field.name;
+                }
 
                 // Prepare result
                 const result: OeFormlyViewTester.Field.ValueLine = {
@@ -123,9 +134,7 @@ export class OeFormlyViewTester {
                 return result;
             }
 
-            /**
-             * OeFormlyField.Item
-             */
+            /** OeFormlyField.Item */
             case "item": {
                 const tmp = OeFormlyViewTester.applyLineOrItem(field, context);
                 if (tmp == null) {
@@ -138,9 +147,7 @@ export class OeFormlyViewTester {
                 };
             }
 
-            /**
-             * OeFormlyField.Info
-             */
+            /** OeFormlyField.Info */
             case "info-line": {
                 return {
                     type: field.type,
@@ -148,9 +155,7 @@ export class OeFormlyViewTester {
                 };
             }
 
-            /**
-             * OeFormlyField.SvgLine
-             */
+            /** OeFormlyField.SvgLine */
             case "image-line": {
                 return {
                     type: field.type,
@@ -158,17 +163,20 @@ export class OeFormlyViewTester {
                 };
             }
 
-            /**
-             * OeFormlyField.Horizontal
-             */
+            /** OeFormlyField.Horizontal */
             case "horizontal-line": {
                 return {
                     type: field.type,
                 };
             }
-            /**
-             * {@link OeFormlyField.ButtonsFromFormControlLine}
-             */
+
+            case "component-line": {
+                return {
+                    type: field.type,
+                    component: field.component.name,
+                };
+            }
+            /** {@link OeFormlyField.ButtonsFromFormControlLine} */
             case "buttons-from-form-control-line": {
                 return {
                     type: "buttons-from-form-control-line",
@@ -178,9 +186,7 @@ export class OeFormlyViewTester {
                 };
             }
 
-            /**
-            * {@link OeFormlyField.RadioButtonsFromFormControlLine}
-            */
+            /** {@link OeFormlyField.RadioButtonsFromFormControlLine} */
             case "radio-buttons-from-form-control-line": {
                 return {
                     type: "radio-buttons-from-form-control-line",
@@ -190,11 +196,8 @@ export class OeFormlyViewTester {
                 };
             }
 
-            /**
-             * {@link OeFormlyField.RangeButtonFromFormControlLine}
-             */
+            /** {@link OeFormlyField.RangeButtonFromFormControlLine} */
             case "range-button-from-form-control-line": {
-
                 // Exlude properties, only testable per ui interaction test
                 const properties = ObjectUtils.excludeProperties(field.properties, ["pinFormatter", "tickFormatter"]);
                 const expectedValue = FormUtils.findFormControlsValueSafely(fg, field.controlName) ?? null;
@@ -206,20 +209,37 @@ export class OeFormlyViewTester {
                     properties: properties,
                 };
             }
+
+            case "input-line": {
+                const expectedValue = fg
+                    ? (FormUtils.findFormControlsValueSafely<string>(fg, field.controlName) ?? null)
+                    : null;
+
+                return {
+                    type: "input-line",
+                    name: field.name,
+                    controlName: field.controlName,
+                    properties: field.properties,
+                    expectedValue: expectedValue,
+                };
+            }
         }
     }
 
     /**
      * Common method for Line and Item as they share some fields and logic.
      *
-     * @param field the field
-     * @param context the test context
-     * @returns result or null
+     * @param field The field
+     * @param context The test context
+     * @returns Result or null
      */
-    private static applyLineOrItem(field: OeFormlyField.ChannelLine | OeFormlyField.Item, context: OeFormlyViewTester.Context):
-    /* result */ { rawValue: number | null, value: string }
-   /* filter did not pass */ | null {
-
+    private static applyLineOrItem(
+        field: OeFormlyField.ChannelLine | OeFormlyField.Item,
+        context: OeFormlyViewTester.Context,
+    ):
+        | /* result */ { rawValue: number | null; value: string }
+          /* filter did not pass */
+        | null {
         // Read value from channels
         const rawValue = field.channel && field.channel in context ? context[field.channel] : null;
 
@@ -229,9 +249,7 @@ export class OeFormlyViewTester {
         }
 
         // Apply converter
-        const value: string = field.converter
-            ? field.converter(rawValue)
-            : rawValue === null ? null : "" + rawValue;
+        const value: string = field.converter ? field.converter(rawValue) : rawValue === null ? null : "" + rawValue;
 
         return {
             rawValue: rawValue,
@@ -241,48 +259,48 @@ export class OeFormlyViewTester {
 }
 
 export namespace OeChartTester {
-
     export type Context = {
-        energyChannel: { [id: string]: number[] }[]
-        powerChannel: { [id: string]: number[] }[]
+        energyChannel: { [id: string]: number[] }[];
+        powerChannel: { [id: string]: number[] }[];
     }[];
 
     export type View = {
         datasets: {
-            data: OeChartTester.Dataset.Data[],
-            labels: OeChartTester.Dataset.LegendLabel,
-            options: OeChartTester.Dataset.Option
-        }
+            data: OeChartTester.Dataset.Data[];
+            labels: OeChartTester.Dataset.LegendLabel;
+            options: OeChartTester.Dataset.Option;
+        };
     };
 
-    export type Dataset =
-        | Dataset.Data
-        | Dataset.LegendLabel
-        | Dataset.Option;
+    export type Dataset = Dataset.Data | Dataset.LegendLabel | Dataset.Option;
 
     export namespace Dataset {
-
         export type Data = {
-            type: "data",
-            label: string | Converter,
-            value: (number | null)[]
+            type: "data";
+            label: string | Converter;
+            value: (number | null)[];
         };
 
         export type LegendLabel = {
-            type: "label",
-            timestamps: Date[]
+            type: "label";
+            timestamps: Date[];
         };
         export type Option = {
-            type: "option",
-            options: Chart.ChartOptions
+            type: "option";
+            options: Chart.ChartOptions;
         };
     }
 }
 
 export class OeChartTester {
-
-    public static apply(chartData: HistoryUtils.ChartData, chartType: "line" | "bar", channels: OeTester.Types.Channels, testContext: TestContext, config: EdgeConfig, xAxisScalingType: XAxisType = XAxisType.TIMESERIES): OeChartTester.View {
-
+    public static apply(
+        chartData: HistoryUtils.ChartData,
+        chartType: "line" | "bar",
+        channels: OeTester.Types.Channels,
+        testContext: TestContext,
+        config: EdgeConfig,
+        xAxisScalingType: XAxisType = XAxisType.TIMESERIES,
+    ): OeChartTester.View {
         const channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
         // Set historyPeriod manually with passed timestamps
@@ -294,10 +312,27 @@ export class OeChartTester {
         });
 
         // Fill Data
-        const configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
+        const configuration = AbstractHistoryChart.fillChart(
+            chartType,
+            chartData,
+            channelData,
+            channels.energyChannelWithValues,
+        );
         const data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
-        const labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-        const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang, config, configuration.datasets, xAxisScalingType, configuration.labels);
+        const labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(
+            configuration.labels,
+        );
+        const options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(
+            chartData,
+            chartType,
+            testContext,
+            channels,
+            testContext.translate.currentLang,
+            config,
+            configuration.datasets,
+            xAxisScalingType,
+            configuration.labels,
+        );
 
         return {
             datasets: {
@@ -311,8 +346,8 @@ export class OeChartTester {
     /**
      * Converts chartLabels to legendLabels
      *
-     * @param labels the labels
-     * @returns legendlabels
+     * @param labels The labels
+     * @returns Legendlabels
      */
     public static convertChartLabelsToLegendLabels(labels: Date[]): OeChartTester.Dataset.LegendLabel {
         return {
@@ -324,19 +359,18 @@ export class OeChartTester {
     /**
      * Converts chartData to Dataset
      *
-     * @param datasets the datasets
-     * @returns data from a chartData dataset
+     * @param datasets The datasets
+     * @returns Data from a chartData dataset
      */
     public static convertChartDatasetsToDatasets(datasets: ChartDataset[]): OeChartTester.Dataset.Data[] {
         const fields: OeChartTester.Dataset.Data[] = [];
 
         for (const dataset of datasets) {
-            fields.push(
-                {
-                    type: "data",
-                    label: dataset.label,
-                    value: dataset.data as number[],
-                });
+            fields.push({
+                type: "data",
+                label: dataset.label,
+                value: dataset.data as number[],
+            });
         }
 
         return fields;
@@ -345,26 +379,55 @@ export class OeChartTester {
     /**
      * Converts chartData to chartOptions
      *
-     * @param chartObject the chartObject
-     * @param chartType the chartType
-     * @param testContext the testContext
-     * @param channels the channels
-     * @returns dataset options
+     * @param chartObject The chartObject
+     * @param chartType The chartType
+     * @param testContext The testContext
+     * @param channels The channels
+     * @returns Dataset options
      */
-    public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: "line" | "bar", testContext: TestContext, channels: OeTester.Types.Channels, locale: string, config: EdgeConfig, datasets: Chart.ChartDataset[], xAxisType: XAxisType = XAxisType.TIMESERIES, labels: (Date | string)[] = []): OeChartTester.Dataset.Option {
-
-        const channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
+    public static convertChartDataToOptions(
+        chartData: HistoryUtils.ChartData,
+        chartType: "line" | "bar",
+        testContext: TestContext,
+        channels: OeTester.Types.Channels,
+        locale: string,
+        config: EdgeConfig,
+        datasets: Chart.ChartDataset[],
+        xAxisType: XAxisType = XAxisType.TIMESERIES,
+        labels: (Date | string)[] = [],
+    ): OeChartTester.Dataset.Option {
+        const channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse =
+            OeChartTester.getChannelDataByCharttype(chartType, channels);
 
         const displayValues = chartData.output(channelData.result.data);
         const legendOptions: any[] = [];
 
-        displayValues.forEach(displayValue => {
-            const yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
-            const label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == "function" ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
+        displayValues.forEach((displayValue) => {
+            const yAxis = chartData.yAxes.find(
+                (yaxis) => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId),
+            );
+            const label = AbstractHistoryChart.getTooltipsLabelName(
+                displayValue.name,
+                yAxis?.unit,
+                typeof displayValue.nameSuffix == "function"
+                    ? displayValue.nameSuffix(channels.energyChannelWithValues)
+                    : null,
+            );
             legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
         });
 
-        let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, config, datasets, xAxisType, labels);
+        let options: Chart.ChartOptions = AbstractHistoryChart.getOptions(
+            chartData,
+            chartType,
+            testContext.service,
+            testContext.translate,
+            legendOptions,
+            channelData.result,
+            config,
+            datasets,
+            xAxisType,
+            labels,
+        );
         options = prepareOptionsForTesting(options, chartData);
 
         return {
@@ -373,7 +436,10 @@ export class OeChartTester {
         };
     }
 
-    private static getChannelDataByCharttype(chartType: "line" | "bar", channels: OeTester.Types.Channels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
+    private static getChannelDataByCharttype(
+        chartType: "line" | "bar",
+        channels: OeTester.Types.Channels,
+    ): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
         switch (chartType) {
             case "line":
                 return channels.dataChannelWithValues;
@@ -384,12 +450,11 @@ export class OeChartTester {
 }
 
 export namespace OeFormlyViewTester {
-
     export type Context = { [id: string]: number | null };
 
     export type View = {
-        title: string,
-        lines: Field[]
+        title: string;
+        lines: Field[];
     };
 
     export type Field =
@@ -403,50 +468,50 @@ export namespace OeFormlyViewTester {
         | Field.RangeButtonFromFormControlLine
         | Field.RadioButtonsFromFormControlLine
         | Field.ImageLine
-        ;
+        | Field.ComponentLine
+        | Field.InputLine;
 
     export namespace Field {
-
         export type InfoLine = {
-            type: "info-line",
-            name: string | { text: string, lineStyle?: string }[],
+            type: "info-line";
+            name: string | { text: string; lineStyle?: string }[];
         };
 
         export type Item = {
-            type: "item",
-            value: string
+            type: "item";
+            value: string;
         };
 
         export type ChannelLine = {
-            type: "channel-line",
-            name: string,
-            value?: string,
-            indentation?: TextIndentation,
+            type: "channel-line";
+            name: string;
+            value?: string;
+            indentation?: TextIndentation;
         };
 
         export type ValueLine = {
-            type: "value-from-channels-line",
-            name: string,
-            value?: string,
-            indentation?: TextIndentation,
-            filter?: (currentData: CurrentData) => boolean,
+            type: "value-from-channels-line";
+            name: string;
+            value?: string;
+            indentation?: TextIndentation;
+            filter?: (currentData: CurrentData) => boolean;
         };
 
         export type ChildrenLine = {
-            type: "children-line",
-            name: string,
-            indentation?: TextIndentation,
-            children?: Field[]
+            type: "children-line";
+            name: string;
+            indentation?: TextIndentation;
+            children?: Field[];
         };
 
         export type HorizontalLine = {
-            type: "horizontal-line",
+            type: "horizontal-line";
         };
         export type ButtonsFromFormControlLine = {
-            type: "buttons-from-form-control-line",
-            name: string,
-            controlName: string,
-            buttons: ButtonLabel[],
+            type: "buttons-from-form-control-line";
+            name: string;
+            controlName: string;
+            buttons: ButtonLabel[];
         };
 
         export type RadioButtonsFromFormControlLine = {
@@ -456,20 +521,35 @@ export namespace OeFormlyViewTester {
             buttons: ButtonLabel[];
         };
         export type RangeButtonFromFormControlLine<T = any> = {
-            type: "range-button-from-form-control-line",
-            controlName: string,
-            expectedValue: T,
-            properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+            type: "range-button-from-form-control-line";
+            controlName: string;
+            expectedValue: T;
+            properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
         };
         export type ImageLine = {
-            type: "image-line",
-            img: OeImageComponent["img"],
+            type: "image-line";
+            img: OeImageComponent["img"];
+        };
+        export type ComponentLine = {
+            type: "component-line";
+            component: string;
+            inputs?: Record<string, unknown>;
+        };
+        export type InputLine = {
+            type: "input-line";
+            name: string;
+            controlName: string;
+            properties: {
+                unit: string;
+            };
+            expectedValue?: number | string | null;
         };
     }
 
-    export function applyLineWithChildren(field: OeFormlyField.ChildrenLine, context: Context): { rawValue: number | null, value: string }
-        | null {
-
+    export function applyLineWithChildren(
+        field: OeFormlyField.ChildrenLine,
+        context: Context,
+    ): { rawValue: number | null; value: string } | null {
         // Apply filter
         if (field.filter && field.channel) {
             const rawValues = field.channel.toString() in context ? context[field.channel.toString()] : null;
@@ -484,11 +564,16 @@ export namespace OeFormlyViewTester {
         let rawValue: number | null = null;
 
         if (typeof field.name == "object") {
-            rawValue = typeof field.name == "object" ? (field.name.channel.toString() in context ? context[field.name.channel.toString()] : null) : null;
+            rawValue =
+                typeof field.name == "object"
+                    ? field.name.channel.toString() in context
+                        ? context[field.name.channel.toString()]
+                        : null
+                    : null;
             value = field.name.converter(rawValue);
         }
 
-        if (typeof (field.name) === "string") {
+        if (typeof field.name === "string") {
             value = field.name;
         }
 
@@ -498,10 +583,14 @@ export namespace OeFormlyViewTester {
         };
     }
 
-    export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string, currentData: CurrentData } {
-
+    export function applyValueLineFromChannels(
+        field: OeFormlyField.ValueFromChannelsLine,
+        context: Context,
+    ): { rawValues: number[] | null; value: string; currentData: CurrentData } {
         // Read values from channels
-        const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
+        const rawValues = field.channelsToSubscribe.map((channel) =>
+            channel && channel.toString() in context ? context[channel.toString()] : null,
+        );
         const currentData: CurrentData = { allComponents: context };
 
         // Apply filter
@@ -510,9 +599,7 @@ export namespace OeFormlyViewTester {
         }
 
         // Apply converter
-        const value: string = field.value
-            ? field.value(currentData)
-            : rawValues === null ? null : "";
+        const value: string = field.value ? field.value(currentData) : rawValues === null ? null : "";
 
         return {
             rawValues: rawValues,
@@ -522,23 +609,44 @@ export namespace OeFormlyViewTester {
     }
 }
 
-/** Exclude properties that dont need to be tested  */
+/** Exclude properties that dont need to be tested */
 function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: HistoryUtils.ChartData): Chart.ChartOptions {
-    options.scales["x"]["ticks"] = ObjectUtils.excludeProperties(options.scales["x"]["ticks"] as Chart.RadialTickOptions, ["color"]);
+    options.scales["x"]["ticks"] = ObjectUtils.excludeProperties(
+        options.scales["x"]["ticks"] as Chart.RadialTickOptions,
+        ["color"],
+    );
     options.elements.point.radius = 0;
-    chartData.yAxes.filter(axis => axis.unit != null).forEach(axis => {
-
-        // Remove custom scale calculations from unittest, seperate unittest existing
-        options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], ["min", "max"]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
-        options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions, ["stepSize"]);
-        options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions, ["color"]);
-    });
+    chartData.yAxes
+        .filter((axis) => axis.unit != null)
+        .forEach((axis) => {
+            // Remove custom scale calculations from unittest, seperate unittest existing
+            options.scales[axis.yAxisId] = ObjectUtils.excludeProperties(options.scales[axis.yAxisId], [
+                "min",
+                "max",
+            ]) as Chart.ScaleOptionsByType<"radialLinear" | keyof Chart.CartesianScaleTypeRegistry>;
+            options.scales[axis.yAxisId].ticks = ObjectUtils.excludeProperties(
+                options.scales[axis.yAxisId].ticks as Chart.RadialTickOptions,
+                ["stepSize"],
+            );
+            options.scales[axis.yAxisId]["title"] = ObjectUtils.excludeProperties(
+                options.scales[axis.yAxisId]["title"] as Chart.RadialTickOptions,
+                ["color"],
+            );
+        });
 
     delete options.plugins.tooltip.caretPadding;
     delete options.layout;
-    options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, ["boxHeight", "boxWidth", "boxPadding"]);
-    options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, ["boxHeight", "boxWidth"]);
+    delete options.plugins["syncChart"];
+    delete options.indexAxis;
+    options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, [
+        "boxHeight",
+        "boxWidth",
+        "boxPadding",
+    ]);
+    options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, [
+        "boxHeight",
+        "boxWidth",
+    ]);
 
     return options;
 }
-

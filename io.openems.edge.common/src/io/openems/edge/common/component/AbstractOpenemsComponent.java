@@ -1,5 +1,7 @@
 package io.openems.edge.common.component;
 
+import static io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -18,7 +20,6 @@ import org.slf4j.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CaseFormat;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.PropertyChannel;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -26,8 +27,8 @@ import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.ServiceUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -261,29 +262,15 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		if (bundle == null) {
 			return;
 		}
-		final var mti = metaTypeService.getMetaTypeInformation(bundle);
-		if (mti == null) {
-			return;
-		}
 		final var properties = context.getProperties();
-		if (properties == null) {
-			return;
-		}
-
-		// get Factory-PIDs in this Bundle
-		final var props = context.getProperties();
-		final var factoryPid = (String) props.get(OpenemsConstants.PROPERTY_FACTORY_PID);
-		final var pid = (String) props.get(OpenemsConstants.PROPERTY_PID);
-
-		if (ArrayUtils.containsIgnoreNull(mti.getFactoryPids(), factoryPid)) {
-			this.addChannelsForProperties(mti.getObjectClassDefinition(factoryPid, null), properties);
-		} else if (ArrayUtils.containsIgnoreNull(mti.getPids(), pid)) {
-			this.addChannelsForProperties(mti.getObjectClassDefinition(pid, null), properties);
-		} else {
+		final var ocd = ServiceUtils.getOcd(metaTypeService, bundle, properties);
+		if (ocd == null) {
 			this.log.warn("Unable to find ObjectClassDefinition."//
 					+ " No Channels for Properties will be created."//
 					+ " You may not inherit from this superclass");
+			return;
 		}
+		this.addChannelsForProperties(ocd, properties);
 	}
 
 	/**
@@ -339,8 +326,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		final var methodName = propertyIdToMethodName(property.getId());
 		final var channelName = PROPERTY_CHANNEL_ID_PREFIX
 				+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
-		final var channel = this.channels
-				.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
+		final var channel = this.channels.get(channelIdUpperToCamel(channelName));
 		if (channel != null) {
 			return channel;
 		}

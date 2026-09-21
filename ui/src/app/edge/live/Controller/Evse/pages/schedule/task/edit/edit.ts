@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, model } from "@angular/core";
+import { Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { Mode } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -14,30 +14,29 @@ import { EvseManualPayload } from "../../js-calender-utils";
 
 @Component({
     templateUrl: "./edit.html",
-    imports: [
-        CommonUiModule,
-        EditTaskComponent,
-        ComponentsBaseModule,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    imports: [CommonUiModule, EditTaskComponent, ComponentsBaseModule],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
 export class EvseEditTaskComponent extends JsCalendarEditTaskComponent {
-
     public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
     public payload = model<EvseManualPayload>(new EvseManualPayload());
-    protected modeOptions: { value: Mode, label: string }[] = Object.values(Mode).map(mode => ({
+    protected modeOptions: { value: Mode; label: string }[] = Object.values(Mode).map((mode) => ({
         value: mode,
         label: ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate)(mode),
     }));
 
     setValue(event: CustomEvent) {
-        this.payload.update(el => { el.setValue({ class: "Manual", mode: event.detail.value }); return el; });
+        this.payload.update((el) => {
+            el.setValue({ class: "Manual", mode: event.detail.value });
+            return el;
+        });
     }
 }

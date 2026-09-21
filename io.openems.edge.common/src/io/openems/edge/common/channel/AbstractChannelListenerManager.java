@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import io.openems.common.function.Disposable;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -45,6 +46,7 @@ public abstract class AbstractChannelListenerManager {
 
 	private final List<OnSetNextValueListener<?>> onSetNextValueListeners = new ArrayList<>();
 	private final List<OnChangeListener<?>> onChangeListeners = new ArrayList<>();
+	private final List<Disposable> onDeactivateListeners = new ArrayList<>();
 
 	/**
 	 * Called on deactivate(). Remove all callbacks from Channels.
@@ -60,6 +62,10 @@ public abstract class AbstractChannelListenerManager {
 			channel.removeOnChangeCallback(listener.callback);
 		}
 		this.onChangeListeners.clear();
+		for (var disposable : this.onDeactivateListeners) {
+			disposable.dispose();
+		}
+		this.onDeactivateListeners.clear();
 	}
 
 	/**
@@ -95,4 +101,9 @@ public abstract class AbstractChannelListenerManager {
 		channel.onChange(callback);
 		callback.accept(null, channel.getNextValue());
 	}
+
+	protected void addOnDeactivateListener(Disposable callback) {
+		this.onDeactivateListeners.add(callback);
+	}
+
 }

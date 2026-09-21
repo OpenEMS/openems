@@ -16,6 +16,20 @@ public final class Phase {
 		private SingleOrAllPhase(String symbol) {
 			this.symbol = symbol;
 		}
+
+		/**
+		 * Gets the {@link SinglePhase} for this {@link SingleOrAllPhase}.
+		 * 
+		 * @return {@link SinglePhase}; or null for {@link SingleOrAllPhase#ALL}
+		 */
+		public final SinglePhase getSinglePhase() {
+			return switch (this) {
+			case ALL -> null;
+			case L1 -> SinglePhase.L1;
+			case L2 -> SinglePhase.L2;
+			case L3 -> SinglePhase.L3;
+			};
+		}
 	}
 
 	public enum SinglePhase {

@@ -23,7 +23,11 @@ public enum Wrappers {
 	 * Input with unit.
 	 */
 	INPUT_WITH_UNIT("input-with-unit"), //
-	;
+
+	/**
+	 * Checkbox with hint.
+	 */
+	CHECKBOX_WITH_HINT("checkbox-with-hint");
 
 	private final String wrapperClass;
 

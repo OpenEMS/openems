@@ -30,6 +30,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 *Description*: Core communication component. Always required to establish communication with the hardware device.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "kacoCore0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -53,6 +54,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 *Description*: Implements energy storage system component for battery control. Supports both read-only (fast internal control) and read-write (slow external control) modes.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -79,6 +81,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 *Description*: Implements DC Charger/MPP tracker for photovoltaic system. Note that there is only one instance for both MPP trackers because the inverter does not provide separated power values.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -101,6 +104,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 *Description*: Implements the inverter as pure photovoltaics inverter. Use this instead of Ess+Charger if you are using the inverter purely as PV inverter without a battery.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "pvInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -124,6 +128,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 *Description*: Implements the grid meter (product name "VECTIS" or "blueplanet hy-switch") connected to the inverter for grid monitoring.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

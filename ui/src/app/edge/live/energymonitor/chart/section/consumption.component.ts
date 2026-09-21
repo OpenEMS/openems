@@ -1,34 +1,49 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition, } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[consumptionsection]",
     templateUrl: "./consumption.component.html",
     styleUrls: ["../animation.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
+    protected consumptionAnimationClass: string = "consumption-hide";
 
-    private unitpipe: UnitvaluePipe;
-    private consumptionAnimationClass: string = "consumption-hide";
     private subShow?: Subscription;
 
     constructor(
-        unitpipe: UnitvaluePipe,
+        private unitpipe: UnitvaluePipe,
         translate: TranslateService,
         service: Service,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
         private animationService: AnimationService,
     ) {
-        super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, "Consumption");
-        this.unitpipe = unitpipe;
+        super(
+            "GENERAL.CONSUMPTION",
+            "right",
+            "var(--ion-color-warning)",
+            translate,
+            service,
+            navigationService,
+            router,
+            route,
+            "Consumption",
+            ["common", "consumption"],
+        );
     }
 
     ngOnInit() {
@@ -62,15 +77,12 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         } else {
             arrowIndicate = 0;
         }
-        super.updateSectionData(
-            sum.consumption.activePower,
-            sum.consumption.powerRatio,
-            arrowIndicate);
+        super.updateSectionData(sum.consumption.activePower, sum.consumption.powerRatio, arrowIndicate);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         const x = innerRadius - 5 - square.length;
-        const y = (square.length / 2) * (-1);
+        const y = (square.length / 2) * -1;
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
@@ -89,8 +101,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
+        this.square.valueText.y = this.square.valueText.y - this.square.valueText.y * 0.3;
+        this.square.image.y = this.square.image.y - this.square.image.y * 0.3;
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -117,7 +129,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         const v = Math.abs(ratio);
         const r = radius;
-        const animationWidth = (r * -1) - v;
+        const animationWidth = r * -1 - v;
         let p = {
             topLeft: { x: v, y: v * -1 },
             middleLeft: { x: 0, y: 0 },
@@ -137,5 +149,4 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         }
         return p;
     }
-
 }

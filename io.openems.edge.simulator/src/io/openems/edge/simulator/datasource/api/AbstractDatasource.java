@@ -18,8 +18,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.DataContainer;
 
-public abstract class AbstractDatasource extends AbstractOpenemsComponent
-		implements SimulatorDatasource, EventHandler {
+public abstract class AbstractDatasource extends AbstractOpenemsComponent implements SimulatorDatasource, EventHandler {
 
 	private int timeDelta;
 	private LocalDateTime lastIteration = LocalDateTime.MIN;

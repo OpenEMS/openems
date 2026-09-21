@@ -2,6 +2,8 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.capacityEss;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxBatteryPower;
 
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,8 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 		 "instanceId": UUID,
 		 "image": base64,
 		 "properties":{
+ 			 "CAPACITY_ESS" : 9000,
+ 			 "MAX_BATTERY_POWER" : 5200,
 			 "SERIAL_NUMBER" : null,
 			 "IP" : null,
 			 "USER_KEY" : "xxx"
@@ -63,12 +67,15 @@ public class FeneconProHybridGw
 
 	public enum Property implements Type<Property, FeneconProHybridGw, Parameter.BundleParameter> {
 		ALIAS(alias()), //
+		CAPACITY_ESS(capacityEss(9000)), //
+		MAX_BATTERY_POWER(maxBatteryPower(5200)), //
+
 		// DC PV Charger 1
-		HAS_DC_PV1(AppDef.copyOfGeneric(defaultDef(), def -> def//
+		HAS_DC_PV1(AppDef.copyOfGeneric(defaultDef(), appdef -> appdef//
 				.setTranslatedLabel("App.FENECON.Home.hasDcPV1.label")//
 				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
-		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
+		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setLabel("DC-PV 1 Alias") //
 				.setDefaultValue("charger0") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
@@ -76,17 +83,16 @@ public class FeneconProHybridGw
 				}))), //
 
 		// DC PV Charger 2
-		HAS_DC_PV2(AppDef.copyOfGeneric(defaultDef(), def -> def//
+		HAS_DC_PV2(AppDef.copyOfGeneric(defaultDef(), appdef -> appdef//
 				.setTranslatedLabel("App.FENECON.Home.hasDcPV2.label")//
 				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
-		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
+		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), appdef -> appdef //
 				.setLabel("DC-PV 2 Alias") //
 				.setDefaultValue("charger1") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV2).notNull());
-				}))), //
-		;
+				})));
 
 		private final AppDef<? super FeneconProHybridGw, ? super Property, ? super Parameter.BundleParameter> def;
 
@@ -145,10 +151,14 @@ public class FeneconProHybridGw
 			final var pvAliases = List.of(this.getStringOrNull(p, l, Property.DC_PV1_ALIAS),
 					this.getStringOrNull(p, l, Property.DC_PV2_ALIAS));
 
+			final var capacityEss = this.getInt(p, Property.CAPACITY_ESS);
+			final var maxBatteryPower = this.getInt(p, Property.MAX_BATTERY_POWER);
+
 			final var components = Lists.newArrayList(//
-					ProHybridGwComponents.ess(bundle, essId), //
+					ProHybridGwComponents.ess(bundle, essId, capacityEss, maxBatteryPower), //
 					ProHybridGwComponents.gridMeter(bundle, gridMeterId, modbusId, modbusUnitId), //
-					ProHybridGwComponents.modbus(modbusId));
+					ProHybridGwComponents.modbus(modbusId, t) //
+			);
 
 			for (int i = 0; i < hasPvs.size(); i++) {
 				var factoryIdIndex = i + 1;

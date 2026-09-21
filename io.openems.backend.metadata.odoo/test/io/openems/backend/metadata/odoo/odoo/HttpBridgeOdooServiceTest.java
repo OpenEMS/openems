@@ -1,102 +1,96 @@
 package io.openems.backend.metadata.odoo.odoo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static io.openems.backend.common.test.DummyUser.DUMMY_OWNER;
+import static io.openems.backend.metadata.odoo.postgres.CredentialsTest.DUMMY_ODOO_CREDENTIALS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringEndsWith.endsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.backend.metadata.odoo.odoo.http.OdooDeviceData;
-import io.openems.backend.metadata.odoo.odoo.http.OdooGetEdgeWithRoleRequest;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.common.channel.Level;
+import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
-public class HttpBridgeOdooServiceTest {
+class HttpBridgeOdooServiceTest {
 
-	private static final Credentials DUMMY_ODOO_CREDENTIALS = new Credentials("http://127.0.0.1:8069", 1, "admin", "admin",
-			"db");
-	private static final String DUMMY_SESSION_EXPIRED_RESPONSE = """
-			{
-			  "jsonrpc": "2.0",
-			  "id": null,
-			  "error": {
-			    "code": 100,
-			    "message": "Odoo Session Expired",
-			    "data": {
-			      "name": "odoo.http.SessionExpiredException",
-			      "debug": "Traceback (most recent call last):\\n  File \\"/opt/odoo/server/odoo/http.py\\", line 2175, in _transactioning\\n    return service_model.retrying(func, env=self.env)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \\"/opt/odoo/server/odoo/service/model.py\\", line 156, in retrying\\n    result = func()\\n             ^^^^^^\\n  File \\"/opt/odoo/server/odoo/http.py\\", line 2140, in _serve_ir_http\\n    self.registry['ir.http']._authenticate(rule.endpoint)\\n  File \\"/opt/odoo/server/odoo/addons/base/models/ir_http.py\\", line 263, in _authenticate\\n    cls._authenticate_explicit(auth)\\n  File \\"/opt/odoo/server/odoo/addons/base/models/ir_http.py\\", line 272, in _authenticate_explicit\\n    getattr(cls, f'_auth_method_{auth}')()\\n  File \\"/opt/odoo/server/odoo/addons/base/models/ir_http.py\\", line 248, in _auth_method_user\\n    raise http.SessionExpiredException(\\"Session expired\\")\\nodoo.http.SessionExpiredException: Session expired\\n",
-			      "message": "Session expired",
-			      "arguments": [
-			        "Session expired"
-			      ],
-			      "context": {}
-			    }
-			  }
-			}
-			""";
+	private DummyBridgeHttpBundle testBundle;
+	private HttpBridgeOdooService odooService;
 
-	@Test
-	public void testAuthenticateOnFirstRequest() throws Exception {
-		final var testBundle = new DummyBridgeHttpBundle();
+	@BeforeEach
+	void setUp() {
+		this.testBundle = DummyBridgeHttpBundle.of();
 
-		final var bridge = testBundle.factory().get();
-		final var odooService = bridge.createService(new HttpBridgeOdooServiceDefinition(DUMMY_ODOO_CREDENTIALS));
-
-		// 1. initially there is no session token available so it goes to authenticate
-		// immediately
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok("{}") //
-				.withHeader("Set-Cookie", List.of("session_id=123412")));
-
-		// 2. Request is the edge query
-		final var edge = new OdooDeviceData("edge0", "", "", Role.GUEST, null, Level.OK, null, null);
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok(JsonUtils.buildJsonObject() //
-				.add("result", OdooDeviceData.serializer().serialize(edge)) //
-				.build().toString()));
-
-		final var result = odooService.getEdgeWithRole(new OdooGetEdgeWithRoleRequest("1111", "edge0")).get();
-		assertEquals(edge, result);
+		final var bridge = this.testBundle.bridgeFactory().get();
+		this.odooService = bridge.createService(new HttpBridgeOdooServiceDefinition(DUMMY_ODOO_CREDENTIALS));
 	}
 
 	@Test
-	public void testReauthenticateOnSessionExpired() throws Exception {
-		final var testBundle = new DummyBridgeHttpBundle();
+	void testGetEdges() throws Exception {
+		final var endpointCalled = this.testBundle.expect(endpoint -> {
+			assertThat(endpoint.url(), endsWith("/openems_backend/get_edges"));
+			assertEquals(JsonUtils.parseOptional("""
+					{
+					  "params": {
+					    "external_uid": "owner",
+					    "page": 1,
+					    "limit": 10,
+					    "query": "edge"
+					  }
+					}
+					"""), JsonUtils.parseOptional(endpoint.body()));
+			return true;
+		}).toBeCalled();
 
-		final var bridge = testBundle.factory().get();
-		final var odooService = bridge.createService(new HttpBridgeOdooServiceDefinition(DUMMY_ODOO_CREDENTIALS));
+		this.testBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+				{
+				  "jsonrpc": "2.0",
+				  "id": null,
+				  "result": {
+				    "devices": [
+				      {
+				        "id": 39,
+				        "name": "edge1",
+				        "comment": "My first edge",
+				        "producttype": "prototype",
+				        "role": "admin",
+				        "lastmessage": "2026-07-02 09:26:03",
+				        "openems_sum_state_level": "fault"
+				      },
+				      {
+				        "id": 44,
+				        "name": "edge2",
+				        "comment": "My second edge",
+				        "producttype": "real-product",
+				        "role": "installer",
+				        "lastmessage": "2026-07-03 19:26:03",
+				        "openems_sum_state_level": "ok"
+				      }
+				    ]
+				  }
+				}
+				"""));
 
-		// 1. initially there is no session token available so it goes to authenticate
-		// immediately
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok("{}") //
-				.withHeader("Set-Cookie", List.of("session_id=123412")));
+		final var result = this.odooService
+				.getEdges(DUMMY_OWNER, new GetEdgesRequest.PaginationOptions(1, 10, "edge", null)).get();
 
-		// 2. Request is the edge query
-		final var edge = new OdooDeviceData("edge0", "", "", Role.GUEST, null, Level.OK, null, null);
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok(JsonUtils.buildJsonObject() //
-				.add("result", OdooDeviceData.serializer().serialize(edge)) //
-				.build().toString()));
+		assertTrue(endpointCalled.get());
 
-		var result = odooService.getEdgeWithRole(new OdooGetEdgeWithRoleRequest("1111", "edge0")).get();
-		assertEquals(edge, result);
-
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok(DUMMY_SESSION_EXPIRED_RESPONSE));
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok(DUMMY_SESSION_EXPIRED_RESPONSE));
-
-		assertThrows(ExecutionException.class, () -> {
-			odooService.getEdgeWithRole(new OdooGetEdgeWithRoleRequest("1111", "edge0")).get();
-		});
-
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok("{}") //
-				.withHeader("Set-Cookie", List.of("session_id=123412")));
-		testBundle.forceNextSuccessfulResult(HttpResponse.ok(JsonUtils.buildJsonObject() //
-				.add("result", OdooDeviceData.serializer().serialize(edge)) //
-				.build().toString()));
-		result = odooService.getEdgeWithRole(new OdooGetEdgeWithRoleRequest("1111", "edge0")).get();
-		assertEquals(edge, result);
+		assertEquals(List.of(//
+				new OdooDeviceData("edge1", "My first edge", "prototype", Role.ADMIN,
+						ZonedDateTime.parse("2026-07-02T09:26:03Z[UTC]"), Level.FAULT, null, null), //
+				new OdooDeviceData("edge2", "My second edge", "real-product", Role.INSTALLER,
+						ZonedDateTime.parse("2026-07-03T19:26:03Z[UTC]"), Level.OK, null, null) //
+		), result.devices());
 	}
 
 }

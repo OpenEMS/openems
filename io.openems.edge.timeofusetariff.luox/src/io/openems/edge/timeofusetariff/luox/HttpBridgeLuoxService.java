@@ -1,8 +1,7 @@
 package io.openems.edge.timeofusetariff.luox;
 
-import java.time.Clock;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
@@ -18,15 +17,13 @@ import io.openems.common.bridge.http.api.EndpointFetcher;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpError;
-import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
-import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
-import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.timeofusetariff.api.utils.TimeOfUseDelayTimeProvider;
 
 public class HttpBridgeLuoxService implements HttpBridgeService {
 
@@ -108,13 +105,15 @@ public class HttpBridgeLuoxService implements HttpBridgeService {
 			final Runnable onServerError, //
 			final Consumer<LuoxApi.PricesResponse> onUpdatePrices //
 	) {
-		this.timeService.subscribeJsonTime(new FetchPricesDelayTimeProvider(this.componentManager.getClock()),
+		this.timeService.subscribeJsonTime(
+				new TimeOfUseDelayTimeProvider(this.componentManager.getClock(), LocalTime.of(14, 0)),
 				this.createPricesEndpoint(accessToken, contractId), httpResponse -> {
 					final var response = LuoxApi.PricesResponse.serializer().deserialize(httpResponse.data());
 					this.log.info("Fetched prices: {}", response);
 
 					// Parse the response for the prices
 					onUpdatePrices.accept(response);
+					return response.toTimeOfUsePrices();
 				}, //
 				httpError -> {
 					this.handleFailedRequest(httpError, onAuthenticationFailed, onServerError);
@@ -162,35 +161,4 @@ public class HttpBridgeLuoxService implements HttpBridgeService {
 
 	}
 
-	private record FetchPricesDelayTimeProvider(Clock clock) implements DelayTimeProvider {
-
-		@Override
-		public Delay onFirstRunDelay() {
-			return Delay.immediate();
-		}
-
-		@Override
-		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofHours(24)) //
-					.plusFixedAmount(Duration.ofHours(16)) //
-					.plusRandomDelay(60, ChronoUnit.SECONDS) //
-					.getDelay();
-		}
-
-		@Override
-		public Delay onErrorRunDelay(HttpError error) {
-			return switch (error) {
-			case HttpError.ResponseError responseError -> {
-				if (responseError.status.code() == HttpStatus.UNAUTHORIZED.code()) {
-					yield Delay.infinite();
-				}
-				yield Delay.of(Duration.ofMinutes(10));
-			}
-			case HttpError.UnknownError unknownError -> {
-				yield Delay.of(Duration.ofMinutes(10));
-			}
-			};
-		}
-
-	}
 }

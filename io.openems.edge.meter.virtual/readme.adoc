@@ -31,10 +31,12 @@ This bundle implements the following OpenEMS Components:
 *Description*: Virtual meter that subtracts multiple meters or energy storage systems from a minuend. Useful for calculating derived energy values through arithmetic subtraction.
 
 *Use Cases*:
+
 * Calculate grid meter from consumption - production - battery: `Grid = Consumption - ESS - Production`
 * Calculate consumption from grid + production - battery: `Consumption = Grid + Production - ESS`
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -61,11 +63,13 @@ This bundle implements the following OpenEMS Components:
 *Description*: Virtual meter that sums values from multiple meters. Useful for aggregating measurements from multiple systems into a single virtual meter for averaging and statistics.
 
 *Use Cases*:
+
 * Combine production from multiple PV inverters
 * Aggregate consumption across multiple buildings or zones
 * Create average values from distributed meter readings
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

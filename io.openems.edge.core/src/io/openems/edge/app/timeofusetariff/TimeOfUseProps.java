@@ -160,9 +160,10 @@ public final class TimeOfUseProps {
 	public static ValidatorConfig.CheckableConfig getAllCheckableSystems() {
 		return Checkables.checkHome() //
 				.or(Checkables.checkCommercial92()) //
+				.or(Checkables.checkCommercial92Master()) //
 				.or(Checkables.checkIndustrial()) //
 				.or(Checkables.checkCommercial50Gen3())//
-				.or(Checkables.checkCommercial92Master());
+				.or(Checkables.checkCommercial100());
 	}
 
 }

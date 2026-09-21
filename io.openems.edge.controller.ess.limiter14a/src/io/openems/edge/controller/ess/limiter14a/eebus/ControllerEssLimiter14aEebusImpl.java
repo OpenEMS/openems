@@ -1,9 +1,7 @@
 package io.openems.edge.controller.ess.limiter14a.eebus;
 
-import io.openems.common.referencetarget.GenerateTargetsFromReferences;
-import io.openems.edge.bridge.eebus.api.BridgeEebus;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,8 +14,14 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
+import io.openems.edge.bridge.eebus.api.BridgeEebus;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -29,10 +33,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,9 +40,10 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@GenerateTargetsFromReferences({"ess", "eebusBridge"})
+@GenerateTargetsFromReferences({ "ess", "eebusBridge" })
 public class ControllerEssLimiter14aEebusImpl extends AbstractOpenemsComponent implements //
-		ControllerEssLimiter14aEebus, ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider, ILimitPowerConsumptionHandler {
+		ControllerEssLimiter14aEebus, ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider,
+		ILimitPowerConsumptionHandler {
 
 	@Reference
 	private Sum sum;
@@ -57,8 +58,7 @@ public class ControllerEssLimiter14aEebusImpl extends AbstractOpenemsComponent i
 	private ComponentManager componentManager;
 
 	@Reference(//
-			target = "(&(id=${config.eebus_id})(enabled=true))",
-			policy = ReferencePolicy.STATIC, //
+			target = "(&(id=${config.eebus_id})(enabled=true))", policy = ReferencePolicy.STATIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MANDATORY //
 	)
@@ -155,11 +155,14 @@ public class ControllerEssLimiter14aEebusImpl extends AbstractOpenemsComponent i
 
 	private void setRestrictionReason(LimitPowerState state, boolean isRestrictionActive) {
 		if (!isRestrictionActive) {
-			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON, RestrictionModeReason.NO_LIMIT);
+			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON,
+					RestrictionModeReason.NO_LIMIT);
 		} else if (state == LimitPowerState.FAILSAFE) {
-			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON, RestrictionModeReason.ACTIVE_FAILSAFE);
+			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON,
+					RestrictionModeReason.ACTIVE_FAILSAFE);
 		} else {
-			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON, RestrictionModeReason.LIMITED);
+			setValue(this, ControllerEssLimiter14aEebus.ChannelId.RESTRICTION_MODE_REASON,
+					RestrictionModeReason.LIMITED);
 		}
 	}
 }

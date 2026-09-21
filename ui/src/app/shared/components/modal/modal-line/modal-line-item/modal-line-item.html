@@ -1,7 +1,6 @@
 @if (isAllowedToBeSeen && show && displayValue) {
-  <td style="width: fit-content; display: inline;  margin-right: 0%; text-align: end;"
-    >
+  <td style="width: fit-content; display: inline; margin-right: 0%; text-align: end">
     <!-- 'Normal' line, name and value  -->
-    <span style="width: fit-content;">&nbsp;&nbsp;{{ displayValue }}</span>
+    <span style="width: fit-content">&nbsp;&nbsp;<span [innerHTML]="displayValue"></span></span>
   </td>
 }

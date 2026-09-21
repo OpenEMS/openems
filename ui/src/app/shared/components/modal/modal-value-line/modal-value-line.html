@@ -1,21 +1,21 @@
 @if (shouldShow && isAllowedToBeSeen && show) {
-  @if(singleLine) {
-    <ng-container>{{ displayValue }}</ng-container>
+  @if (singleLine) {
+    <span [innerHTML]="displayValue"></span>
   } @else {
     <table class="full_width" style="line-height: 1.4; margin-top: 0.5%">
       @if (textIndent) {
         <tr [style.text-indent]="textIndent">
           <!-- Name of Parameter on the left side -->
-          <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">
+          <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_left">
             @if (displayName) {
               {{ displayName }}
             }
           </td>
           <!-- Value of Parameter on the right side -->
           @if (displayValue) {
-            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
+            <td [style.width]="100 - (leftColumnWidth ?? 50) + '%'" class="align_right">
               <!-- 'Normal' line, name and value  -->
-              <ng-container>{{ displayValue }}</ng-container>
+              <span [innerHTML]="displayValue"></span>
             </td>
           }
         </tr>

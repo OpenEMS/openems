@@ -1,7 +1,6 @@
 package io.openems.edge.system.fenecon.masterbox2v0.meter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -48,10 +47,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String ioc_id() {
 		return this.builder.iocId;
 	}
-
-	@Override
-	public String ioc_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ioc_id());
-	}
-
 }

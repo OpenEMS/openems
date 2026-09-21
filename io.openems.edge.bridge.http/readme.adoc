@@ -7,6 +7,7 @@ HTTP bridge for periodic communication with REST API endpoints.
 The HTTP Bridge provides cycle-synchronized HTTP communication with remote devices and services using REST APIs. It enables OpenEMS components to periodically fetch data from HTTP endpoints and handle responses asynchronously. The bridge is widely used to integrate hardware devices like electric meters, relays, inverters, and other devices that expose RESTful APIs.
 
 Key capabilities:
+
 * Cycle-synchronized periodic HTTP requests (every N cycles)
 * Configurable connect and read timeouts
 * Automatic error handling and retry logic
@@ -29,6 +30,7 @@ The HTTP Bridge consists of:
 *Purpose*: Provides cycle-synchronized HTTP communication with remote endpoints.
 
 *Key Features*:
+
 * `subscribeCycle(int cycle, String url, Consumer<HttpResponse<String>>)` - Fetch every N cycles
 * `subscribeEveryCycle(String url, Consumer<HttpResponse<String>>)` - Fetch every cycle
 * `subscribeCycle(CycleEndpoint endpoint)` - Advanced configuration with custom callbacks
@@ -50,6 +52,7 @@ httpBridgeCycleService.subscribeEveryCycle("http://device.local/status",
 ```
 
 *Cycle Scheduling*:
+
 * If cycle=1: Fetch every OpenEMS cycle
 * If cycle=5: Fetch every 5th cycle (reduced polling)
 * If request takes longer than cycle period: Wait for completion, then schedule next
@@ -60,6 +63,7 @@ httpBridgeCycleService.subscribeEveryCycle("http://device.local/status",
 Configuration record for a single HTTP subscription:
 
 *Fields*:
+
 * `cycle` (int): How many cycles to wait between requests (minimum 1)
 * `endpoint` (Supplier<Endpoint>): Supplies the HTTP endpoint to fetch
 * `onResult` (Consumer<HttpResponse<String>>): Callback for successful responses

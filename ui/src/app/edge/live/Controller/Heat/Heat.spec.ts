@@ -16,10 +16,6 @@ describe("ControllerHeatModule", () => {
         expect(ControllerHeatModule).toBeDefined();
     });
 
-    it("should have the correct module name", () => {
-        expect(ControllerHeatModule.name).toBe("ControllerHeatModule");
-    });
-
     it("should support translation initialization", async () => {
         await expect(() => {
             translate.setTranslation("de", heatDe, true);
@@ -27,4 +23,3 @@ describe("ControllerHeatModule", () => {
         }).not.toThrow();
     });
 });
-

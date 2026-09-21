@@ -1,0 +1,6 @@
+<div id="chart-area" style="height: 4vh" class="semi-transparent-background">
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+  <ng-container>
+    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
+  </ng-container>
+</div>

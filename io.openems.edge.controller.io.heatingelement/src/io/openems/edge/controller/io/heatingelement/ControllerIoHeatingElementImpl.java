@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -36,6 +35,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -63,6 +63,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
+@GenerateTargetsFromReferences("meter")
 public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		implements ControllerIoHeatingElement, Controller, OpenemsComponent, TimedataProvider {
 
@@ -88,15 +89,13 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME));
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	protected ComponentManager componentManager;
 
 	@Reference
 	private Sum sum;
 
-	@Reference(cardinality = OPTIONAL, policyOption = GREEDY)
+	@Reference(cardinality = OPTIONAL, policyOption = GREEDY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	private volatile ElectricityMeter meter;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
@@ -189,11 +188,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		this.resetProps();
 		if (this.config.mode() == Mode.AUTOMATIC) {
 			this.updateEndTime();
-		}
-		if (this.config.meter_id() == null || this.config.meter_id().isEmpty()) {
-			OpenemsComponent.updateReferenceFilterRaw(this.cm, this.servicePid(), "meter", "(false=true)");
-		} else {
-			OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id());
 		}
 	}
 

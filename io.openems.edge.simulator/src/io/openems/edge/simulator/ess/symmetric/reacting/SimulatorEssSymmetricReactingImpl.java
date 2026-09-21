@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -57,9 +56,6 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private Power power;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private ComponentManager componentManager;

@@ -1,7 +1,6 @@
 @use "variables" as *;
 
 :root {
-
     --ion-padding: 16px;
     --ion-placeholder-opacity: 0.6;
 
@@ -69,7 +68,6 @@
 }
 
 :root[data-theme="light"] {
-
     /** success **/
     --ion-color-success-contrast-rgb: 255, 255, 255;
     --ion-color-success-contrast: #fff;
@@ -168,6 +166,7 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
+    --ion-color-svg: #00204e;
 
     --ion-color-label: var(--ion-text-color);
     --ion-color-background-pull-to-refresh: lightgray;
@@ -176,12 +175,15 @@
     --ion-skeleton-start: rgba(0, 0, 0, 0.6);
     --ion-skeleton-mid: rgba(0, 0, 0, 0.3);
     --ion-skeleton-end: rgba(0, 0, 0, 0.6);
-    --ion-skeleton-gradient: linear-gradient(90deg, var(--ion-skeleton-start) 0%, var(--ion-skeleton-mid) 50%, var(--ion-skeleton-end) 100%);
+    --ion-skeleton-gradient: linear-gradient(
+        90deg,
+        var(--ion-skeleton-start) 0%,
+        var(--ion-skeleton-mid) 50%,
+        var(--ion-skeleton-end) 100%
+    );
 }
 
-
 :root[data-theme="dark"] {
-
     /** success **/
     --ion-color-success: #20bf6b;
     --ion-color-success-rgb: 32, 191, 107;
@@ -225,7 +227,7 @@
     /** light **/
     --ion-color-light: var(--ion-color-toolbar-primary); // Background color for header of each widget.
     --ion-color-light-rgb: 50, 63, 75;
-    --ion-color-light-contrast: #F5F7FA; // Font color in the title of all widgets.
+    --ion-color-light-contrast: #f5f7fa; // Font color in the title of all widgets.
     --ion-color-light-contrast-rgb: 255, 255, 255;
     --ion-color-light-shade: #383a3e;
     --ion-color-light-tint: #1e2023;
@@ -240,6 +242,7 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
+    --ion-color-svg: var(--ion-text-color); // dark mode color for svg in image-lines
 
     --ion-color-background-menu: #1d2c42;
 
@@ -278,7 +281,7 @@
     --ion-background-percentagebar-color: #384352;
 
     /** Card **/
-    --ion-card-content: #EBEBEB;
+    --ion-card-content: #ebebeb;
     --ion-card-content-color: #cccccc;
     --ion-card-header-shadow: #59677a;
     --ion-color-label: var(--ion-item-color);
@@ -288,5 +291,10 @@
     --ion-skeleton-start: rgba(255, 255, 255, 0.08);
     --ion-skeleton-mid: rgba(255, 255, 255, 0.04);
     --ion-skeleton-end: rgba(255, 255, 255, 0.08);
-    --ion-skeleton-gradient: linear-gradient(90deg, var(--ion-skeleton-start) 0%, var(--ion-skeleton-mid) 50%, var(--ion-skeleton-end) 100%);
+    --ion-skeleton-gradient: linear-gradient(
+        90deg,
+        var(--ion-skeleton-start) 0%,
+        var(--ion-skeleton-mid) 50%,
+        var(--ion-skeleton-end) 100%
+    );
 }

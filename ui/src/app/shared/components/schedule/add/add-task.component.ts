@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { Component, inject, model } from "@angular/core";
+import { Component, inject, model, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -15,14 +15,10 @@ import { JsCalendar } from "../js-calendar-task";
     selector: "oe-components-scheduler-add-task",
     templateUrl: "./add-task.component.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        TaskFormComponent,
-        ComponentsBaseModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, TaskFormComponent, ComponentsBaseModule],
 })
 export class AddTaskComponent extends JsCalendarAddTaskComponent {
-
     public payload = model<JsCalendar.OpenEMSPayload<any>>(new JsCalendar.BaseOpenEMSPayload());
     public allowedPeriods = model<JsCalendar.Task["recurrenceRules"][number]["frequency"][]>([]);
     public startTime = model<string | null>(null);
@@ -36,7 +32,6 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
     }
 
     protected async saveTaskToEdge() {
-
         if (this.validateInputs() === false || this.startTime() === null || this.endTime() === null) {
             return;
         }
@@ -46,7 +41,7 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
         const validatorResult = this.payload().validator(this.translate);
 
         if (validatorResult.valid == false) {
-            this.service.toast(validatorResult.errors.map(el => el.message).join(","), "danger");
+            this.service.toast(validatorResult.errors.map((el) => el.message).join(","), "danger");
             return;
         }
 
@@ -63,8 +58,8 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
 
         const task: JsCalendar.Task = {
             "@type": "Task",
-            "start": localDateTime,
-            "recurrenceRules": recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
+            start: localDateTime,
+            recurrenceRules: recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
             ...JsCalendar.Utils.computeIsoDuration(startDate, endDate),
             ...this.payload().toOpenEMSPayload(),
         };
@@ -74,10 +69,13 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
         }
 
         const [err] = await JsonRpcUtils.handle(
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId: this.component.id,
-                payload: new JsCalendar.AddTaskRequest({ task }),
-            }))
+            this.edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: this.component.id,
+                    payload: new JsCalendar.AddTaskRequest({ task }),
+                }),
+            ),
         );
 
         if (err) {
@@ -113,4 +111,3 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
         this.recurrenceRuleByDay.set(null);
     }
 }
-

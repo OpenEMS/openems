@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
@@ -1310,11 +1309,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override

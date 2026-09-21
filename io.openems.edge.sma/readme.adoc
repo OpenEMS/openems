@@ -5,7 +5,13 @@
 Tested on
 - SMA SunnyIsland 6.0H
 - Sunny Island 4.4M
+- SMA Sunny Boy Storage 2.5
 - SMA STP 10.0 Hybrid ESS. (The implementation is split into Battery, Inverter and DC Charger. The inverter only works with that battery, but the implementation had to be split up as the devices use different Modbus Unit IDs.)
+
+The Sunny Boy Storage implementation uses the SMA BMS external control interface
+(CmpBMS). The control registers for BMS mode, min/max charge power,
+min/max discharge power and grid power setpoint must be written within every
+60-second window or the device reverts to autonomous mode.
 
 == Meter
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
@@ -9,10 +9,10 @@ import { ChartOptionsPopoverComponent } from "./popover/popover.component";
 @Component({
     selector: "chartOptions",
     templateUrl: "./chartoptions.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartOptionsComponent {
-
     @Input({ required: true }) public showPhases!: boolean | null;
     @Input({ required: true }) public showTotal!: boolean | null;
     @Output() public setShowPhases = new EventEmitter<boolean>();
@@ -22,7 +22,7 @@ export class ChartOptionsComponent {
         public service: Service,
         public translate: TranslateService,
         public popoverCtrl: PopoverController,
-    ) { }
+    ) {}
 
     async presentPopover(ev: any) {
         const componentProps = {};
@@ -38,7 +38,6 @@ export class ChartOptionsComponent {
             translucent: false,
             componentProps: componentProps,
         });
-        await popover.present();
         popover.onDidDismiss().then((data) => {
             if (data["role"] == "Phases" && data["data"] == true) {
                 this.setShowPhases.emit(true);

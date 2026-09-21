@@ -43,6 +43,7 @@ Main component for FENECON Home battery integration. Communicates via Modbus to 
 * Temperature-based protection and limiting
 
 .*Configuration*:
+
 * `id` (String): Unique component identifier; default: `"battery0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`

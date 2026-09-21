@@ -85,7 +85,9 @@ public class OdooUtils {
 	 */
 	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request)
 			throws OpenemsNamedException {
-		return OdooUtils.sendJsonrpcRequest(url, cookie, request, 5000);
+		// TODO temporarly increased due to timeouts
+		// should be decreased again to 5000 and requests migrated to http service
+		return OdooUtils.sendJsonrpcRequest(url, cookie, request, 10000);
 	}
 
 	/**
