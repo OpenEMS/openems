@@ -9,20 +9,18 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
-import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
 import io.openems.edge.pytes.enums.RemoteDispatchRealtimeControlSwitch;
 
 public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<PytesJs3Impl> {
 
-	private final PytesBattery battery;
 	private final PytesDcCharger dcCharger;
 	private final RemoteDispatchRealtimeControlSwitch essSetpoint;
 	private final Logger log;
 
-	public AllowedChargeDischargeHandler(PytesJs3Impl parent, PytesBattery battery, PytesDcCharger dcCharger, RemoteDispatchRealtimeControlSwitch essSetpoint) {
+	public AllowedChargeDischargeHandler(PytesJs3Impl parent, PytesDcCharger dcCharger,
+			RemoteDispatchRealtimeControlSwitch essSetpoint) {
 		super(parent);
-		this.battery = battery;
 		this.dcCharger = dcCharger;
 		this.essSetpoint = essSetpoint;
 		this.log = this.parent.getLogger();
@@ -57,17 +55,10 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 	 */
 	public void accept(ClockProvider clockProvider) {
 
-		if (this.battery == null) {
-		    this._setAllowedChargePower(0);
-		    parent._setAllowedDischargePower(0);
-		    return;
+		Integer batteryMaxChargeCurrent = this.parent.getBmsChargeCurrentLimit().get(); // mA
+		Integer batteryMaxDischargeCurrent = this.parent.getBmsDischargeCurrentLimit().get(); // mA
 
-		}
-
-		Integer batteryMaxChargeCurrent = this.battery.getBmsChargeCurrentLimit().get(); // mA
-		Integer batteryMaxDischargeCurrent = this.battery.getBmsDischargeCurrentLimit().get(); // mA
-
-		Integer batteryVoltage = this.battery.getBatteryVoltage().get(); // mV. NOT the battery nature
+		Integer batteryVoltage = this.parent.getBatteryVoltage().get(); // mV, inverter battery port
 		
 		Integer maxApparentPower = parent.getMaxApparentPower().get();
 
@@ -85,11 +76,11 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 
 
 
-		Integer configuredMaxChargeCurrent = this.battery.getConfiguredMaxChargeCurrent(); // A
-		Integer configuredMaxDischargeCurrent = this.battery.getConfiguredMaxDischargeCurrent();
+		Integer configuredMaxChargeCurrent = this.parent.getConfiguredMaxChargeCurrent(); // A
+		Integer configuredMaxDischargeCurrent = this.parent.getConfiguredMaxDischargeCurrent();
 
 		// The smallest of all known limits wins (measured 2026-09-17):
-		// - EMS config (battery0 maxCharge/DischargeCurrent) - enforced by us
+		// - EMS config (maxChargeCurrent / maxDischargeCurrent) - enforced by us
 		// - BMS request (regs 33143/33144) - the BMS only protects hard, the
 		//   inverter is supposed to honour it (it exceeded it by ~10 % once)
 		// - inverter storage-control setting (regs 43117/43118) - what the

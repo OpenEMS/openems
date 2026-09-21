@@ -24,7 +24,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
 import io.openems.edge.pytes.enums.Appendix2;
 import io.openems.edge.pytes.enums.Appendix8;
@@ -1200,9 +1199,114 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 				.text("Discharge or charging Power (including DC-PV power, if applicable)."
 						+ " For the actual charging or discharging power of the battery, please refer to address"
 						+ " \"ess0/DcDischargePower\". Negative values for charge; positive for discharge.")//
-		);		
+		),
 		
 
+
+		// -----------------------------------------------------------------------
+		// Battery port and BMS values (reg 33133-33150). The battery has no bus
+		// of its own, all its values come through the inverter (Appendix 9 for
+		// the fault bits; LV = 3-5K low-voltage, HV = 5-10K high-voltage models).
+		// -----------------------------------------------------------------------
+
+		/** Battery voltage at the inverter battery port (reg 33133, 0.1 V). */
+		BATTERY_VOLTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIVOLT)),
+		/**
+		 * Battery current magnitude at the inverter port (reg 33134, 0.1 A), always
+		 * positive; the direction is in {@link #BATTERY_CURRENT_DIRECTION}.
+		 */
+		BATTERY_CURRENT_WITHOUT_DIRECTION(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIAMPERE)),
+		/** Battery current direction (reg 33135): 0 = charging, 1 = discharging. */
+		BATTERY_CURRENT_DIRECTION(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)),
+		/** Signed battery current (calculated, positive = discharging). */
+		BATTERY_CURRENT(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.AMPERE)),
+		/** LLC DC bus voltage between battery and inverter (reg 33136, 0.1 V). */
+		LLC_BUS_VOLTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIVOLT)),
+		/** Battery state of health from the BMS (reg 33140). */
+		BATTERY_SOH(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.PERCENT)//
+				.persistencePriority(HIGH)),
+		/** Battery voltage as reported by the BMS (reg 33141, 0.01 V). */
+		BMS_BATTERY_VOLTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIVOLT)),
+		/** Battery current as reported by the BMS (reg 33142, 0.1 A), magnitude only. */
+		BMS_BATTERY_CURRENT(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIAMPERE)),
+		/** BMS maximum charge current (reg 33143, 0.1 A), adjusted by the BMS with SoC and temperature. */
+		BMS_CHARGE_CURRENT_LIMIT(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIAMPERE)),
+		/** BMS maximum discharge current (reg 33144, 0.1 A). */
+		BMS_DISCHARGE_CURRENT_LIMIT(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIAMPERE)),
+		/**
+		 * Battery power measured by the BMS (voltage x current x direction),
+		 * positive = discharging. Lags the AC side by several seconds; the ESS
+		 * channel DcDischargePower is derived from ActivePower - PV instead, this
+		 * value is used for the DC energy counters and as cross-check.
+		 */
+		BATTERY_DC_DISCHARGE_POWER(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.WATT)//
+				.persistencePriority(HIGH)),
+		/** Battery power as computed by the inverter (reg 33149, S32), positive = charging. */
+		BATTERY_POWER_INVERTER(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.WATT)),
+		/**
+		 * Backup port load power (reg 33148). In AC output control the inverter
+		 * regulates the grid-side port only, backup loads come on top.
+		 */
+		BACKUP_LOAD_POWER(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(Unit.WATT)//
+				.persistencePriority(HIGH)),
+
+		// Fault status word 01 (reg 33145), Appendix 9
+		/** LV: overvoltage protection. HV: discharge undervoltage. */
+		BMS_FAULT01_OVERVOLTAGE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: undervoltage protection. HV: core over temperature. */
+		BMS_FAULT01_UNDERVOLTAGE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: over temperature protection. HV: core under temperature. */
+		BMS_FAULT01_OVER_TEMPERATURE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: under temperature protection. HV: charge overcurrent. */
+		BMS_FAULT01_UNDER_TEMPERATURE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: over temperature while charging. HV: discharge overcurrent. */
+		BMS_FAULT01_OVER_TEMPERATURE_CHARGE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: under temperature while charging. HV: battery internal communication failure. */
+		BMS_FAULT01_UNDER_TEMPERATURE_CHARGE_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: discharge overcurrent protection. HV: BMS system reboot. */
+		BMS_FAULT01_DISCHARGE_OVERCURRENT_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+
+		// Fault status word 02 (reg 33146), Appendix 9
+		/** LV: charge overcurrent protection. HV: mismatch between battery modules. */
+		BMS_FAULT02_CHARGE_OVERCURRENT_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** HV only: battery system temperature low, level 1. */
+		BMS_FAULT02_SYSTEM_LOW_TEMPERATURE_1(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** HV only: battery system temperature low, level 2 (charging stopped). */
+		BMS_FAULT02_SYSTEM_LOW_TEMPERATURE_2(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV: BMS internal protection. HV: system high temperature. */
+		BMS_FAULT02_BMS_INTERNAL_PRO(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV only: unbalanced battery modules. */
+		BMS_FAULT02_UNBALANCED_MODULES(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV only: the BMS requests a full charge cycle (calibration/balancing, not a fault). */
+		BMS_FAULT02_FULL_CHARGE_REQUEST(Doc.of(BOOLEAN).accessMode(READ_ONLY)),
+		/** LV only: the BMS requests an immediate charge (battery critically low). */
+		BMS_FAULT02_FORCE_CHARGE_REQUEST(Doc.of(BOOLEAN).accessMode(READ_ONLY)), //
+		;
 
 		// -----------------------------------------------------------------------------------------------------------------------
 		// -----------------------------------------------------------------------------------------------------------------------
@@ -6338,20 +6442,109 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 	}
 
 
-	//
 	/**
-	 * Adds Battery to ESS hybrid system.
+	 * Gets the Channel for {@link ChannelId#BATTERY_VOLTAGE}.
 	 *
-	 * @param battery link to Pytes battery
+	 * @return the Channel
 	 */
-	public void addBattery(PytesBattery battery);
+	public default IntegerReadChannel getBatteryVoltageChannel() {
+		return this.channel(ChannelId.BATTERY_VOLTAGE);
+	}
 
 	/**
-	 * Removes link to battery.
+	 * Gets the battery voltage at the inverter port in [mV].
 	 *
-	 * @param battery link to Pytes battery
+	 * @return the Channel {@link Value}
 	 */
-	public void removeBattery(PytesBattery battery);
+	public default Value<Integer> getBatteryVoltage() {
+		return this.getBatteryVoltageChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_CHARGE_CURRENT_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBmsChargeCurrentLimitChannel() {
+		return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
+	}
+
+	/**
+	 * Gets the BMS charge current limit in [mA].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsChargeCurrentLimit() {
+		return this.getBmsChargeCurrentLimitChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BMS_DISCHARGE_CURRENT_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBmsDischargeCurrentLimitChannel() {
+		return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
+	}
+
+	/**
+	 * Gets the BMS discharge current limit in [mA].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBmsDischargeCurrentLimit() {
+		return this.getBmsDischargeCurrentLimitChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BATTERY_DC_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBatteryDcDischargePowerChannel() {
+		return this.channel(ChannelId.BATTERY_DC_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the battery power measured by the BMS in [W], positive = discharging.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBatteryDcDischargePower() {
+		return this.getBatteryDcDischargePowerChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BACKUP_LOAD_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getBackupLoadPowerChannel() {
+		return this.channel(ChannelId.BACKUP_LOAD_POWER);
+	}
+
+	/**
+	 * Gets the backup port load power in [W].
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getBackupLoadPower() {
+		return this.getBackupLoadPowerChannel().value();
+	}
+
+	/**
+	 * Gets the configured EMS-side maximum battery charge current in [A].
+	 *
+	 * @return the current
+	 */
+	public int getConfiguredMaxChargeCurrent();
+
+	/**
+	 * Gets the configured EMS-side maximum battery discharge current in [A].
+	 *
+	 * @return the current
+	 */
+	public int getConfiguredMaxDischargeCurrent();
 
 	/**
 	 * Adds DC-charger to ESS hybrid system. Represents PV production

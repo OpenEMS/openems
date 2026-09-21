@@ -30,6 +30,15 @@ import io.openems.edge.pytes.enums.WorkMode;
 	@AttributeDefinition(name = "Max. Apparent Power", description = "Inverter´s apparent power limit")
 	int maxApparentPower() default 10000;
 
+	@AttributeDefinition(name = "Max. battery charge current [A]", description = "Additional EMS-side upper limit for the battery charge current. The smallest of this value, the BMS limit and the inverter's own setting (reg 43117, app 'max. charge current') is used. Only enforceable while the inverter follows the EMS set-point - with an active grid feed-in limit the inverter charges autonomously up to its own setting, so do not configure a value below the inverter setting.")
+	int maxChargeCurrent() default 40;
+
+	@AttributeDefinition(name = "Max. battery discharge current [A]", description = "Additional EMS-side upper limit for the battery discharge current. The smallest of this value, the BMS limit and the inverter's own setting (reg 43118, app 'max. discharge current') is used. Only enforceable while the inverter follows the EMS set-point.")
+	int maxDischargeCurrent() default 40;
+
+	@AttributeDefinition(name = "Battery capacity [Wh]", description = "Nominal battery capacity, e.g. 100 Ah x 51.2 V = 5120 Wh. The BMS does not report it via the inverter (BMS extension block 34345-34364 is empty, reg 43387 is a fixed 3.0 kWh placeholder). 0 = unknown.")
+	int capacity() default 0;
+
 	@AttributeDefinition(name = "Min SoC [5-100%]", description = "NOT applied: the SoC limits configured in the inverter are authoritative. Kept for a possible opt-in (see PytesJs3Impl.setDefaultValues()).")
 	int minSoc() default 10;
 

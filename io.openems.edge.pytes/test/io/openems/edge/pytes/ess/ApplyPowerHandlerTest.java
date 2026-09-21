@@ -24,7 +24,6 @@ public class ApplyPowerHandlerTest {
 	private static final int MAX_APPARENT_POWER = 10_000;
 
 	private DummyApplyPowerEss ess;
-	private DummyPytesBattery battery;
 	private DummyPytesDcCharger charger;
 	private ApplyPowerHandler handler;
 
@@ -36,13 +35,12 @@ public class ApplyPowerHandlerTest {
 				.withAllowedDischargePower(2300) //
 				.withBatteryLimits(-2100, 2100) //
 				.withActivePower(0) //
-				.withDcDischargePower(0);
-		this.battery = new DummyPytesBattery("battery0") //
 				.withDcDischargePower(0) //
+				.withBatteryDcDischargePower(0) //
 				.withBackupLoadPower(0);
 		this.charger = new DummyPytesDcCharger("dccharger0") //
 				.withActualPower(0);
-		this.handler = new ApplyPowerHandler(this.ess, this.battery, this.charger);
+		this.handler = new ApplyPowerHandler(this.ess, this.charger);
 	}
 
 	private Optional<?> written(PytesJs3.ChannelId channelId) {
@@ -68,7 +66,7 @@ public class ApplyPowerHandlerTest {
 		// losses 30 + 3 % * (300 + 200) = 45 -> 535 W -> register -54
 		this.charger.withActualPower(200);
 		this.ess.withActivePower(500);
-		this.battery.withDcDischargePower(300);
+		this.ess.withBatteryDcDischargePower(300);
 
 		assertEquals(-54, this.applyBatteryControl(500));
 		assertEquals(RemoteDispatchRealtimeControlSwitch.BATTERY_CONTROL.getValue(),
@@ -98,7 +96,7 @@ public class ApplyPowerHandlerTest {
 		// 1.2 kW EV on the backup port: the grid-side port only has to deliver
 		// the difference
 		this.charger.withActualPower(200);
-		this.battery.withBackupLoadPower(1190);
+		this.ess.withBackupLoadPower(1190);
 		this.ess.withActivePower(1200);
 
 		assertEquals(1, this.applyAcOutputControl(1200));
@@ -146,7 +144,7 @@ public class ApplyPowerHandlerTest {
 	public void trimStartsAfterWarmUpAndIntegratesSlowly() throws Exception {
 		// battery control, no PV: target 500 W, the inverter only delivers 300 W
 		this.ess.withActivePower(300);
-		this.battery.withDcDischargePower(300);
+		this.ess.withBatteryDcDischargePower(300);
 
 		int expectedWithoutTrim = -74; // 500 + 190 + (30 + 3 % * 500) = 735 W
 		for (int cycle = 1; cycle <= 30; cycle++) {
@@ -162,7 +160,7 @@ public class ApplyPowerHandlerTest {
 	@Test
 	public void trimFreezesAfterSetPointStep() throws Exception {
 		this.ess.withActivePower(300);
-		this.battery.withDcDischargePower(300);
+		this.ess.withBatteryDcDischargePower(300);
 		for (int cycle = 1; cycle <= 40; cycle++) {
 			this.applyBatteryControl(500);
 		}

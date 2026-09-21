@@ -14,14 +14,13 @@ bridge and unit id; the inverter accepts only **one** TCP connection at a time.
 |`ManagedSymmetricEss`, `HybridEss`
 |The inverter itself. Receives the OpenEMS AC set-point, owns the work state machine
 and the remote dispatch registers 44100–44108, does the dynamic feed-in limitation.
-Battery and DC charger register themselves at the ESS (`addBattery()` / `addCharger()`).
-
-|`Pytes.Battery`
-|`Battery`
-|Battery values from the inverter's battery port and the BMS (regs 33133–33150):
-voltage, current, SoC, BMS current limits, fault words. `DcDischargePower` is
-calculated from BMS current × voltage × direction. Also reads the backup port load
-(reg 33148), because it sits in the same register block.
+Also carries the battery values, because OpenEMS has no communication with the battery
+of its own - everything comes through the inverter's battery port and BMS registers
+33133–33150: SoC, SoH, voltage, current, BMS current limits, fault words
+(`Battery…`/`Bms…` channels), the backup port load (reg 33148) and the battery power
+`BatteryDcDischargePower` calculated from BMS current × voltage × direction. The battery
+capacity is not reported by the inverter and is configured (`capacity`). The DC charger
+registers itself at the ESS (`addCharger()`).
 
 |`Pytes.Hybrid.DcCharger`
 |`EssDcCharger`
@@ -139,7 +138,7 @@ cap - that is the only "give everything you have" the inverter knows.
 
 * `ess0/DcDischargePower` is derived as `ActivePower − PV` (the AC-side battery
   contribution, what Sum, UI and all OpenEMS controllers use). The measured DC value is
-  `battery0/DcDischargePower`; the DC energy counters use the measured value.
+  `ess0/BatteryDcDischargePower`; the DC energy counters use the measured value.
 * `ActivePower` follows a set-point change after ~5 s, the BMS values after ~11 s.
 * The inverter's own battery power reading (reg 33149) and the BMS calculation agree within a
   few watts.
@@ -151,7 +150,7 @@ cap - that is the only "give everything you have" the inverter knows.
 Four sources exist; the smallest value wins in `AllowedChargeDischargeHandler`
 (measured 2026-09-17):
 
-* EMS config (`Pytes.Battery` maxChargeCurrent / maxDischargeCurrent) - enforced by
+* EMS config (`maxChargeCurrent` / `maxDischargeCurrent`) - enforced by
   the EMS via the set-point clamps; only effective while the inverter follows the
   EMS set-point.
 * BMS request (regs 33143/33144, "From BMS") - a request to the inverter; the BMS

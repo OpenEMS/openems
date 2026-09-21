@@ -117,7 +117,7 @@ public class PytesInternalMeterBackupPortImpl extends AbstractOpenemsModbusCompo
 
 				// LOW: these registers overlap with the battery block 33133-33150 that
 				// is read every cycle; the fresh backup load for the control loop
-				// comes from battery0/BackupLoadPower (reg 33148). This meter only
+				// comes from the ESS channel BackupLoadPower (reg 33148). This meter only
 				// feeds Sum/UI, so a few seconds delay are fine. Saves one HIGH frame.
 				new FC4ReadInputRegistersTask(33137, Priority.LOW,
 						// reg 33137 - Backup AC voltage Phase A [mV]

@@ -3,7 +3,6 @@ package io.openems.edge.pytes.ess;
 import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
 import io.openems.edge.pytes.enums.EnableDisable;
 import io.openems.edge.pytes.enums.RemoteDispatchRealtimeControlSwitch;
@@ -14,7 +13,6 @@ public class ApplyPowerHandler {
 
 	// === Dependencies ===
 	private final ApplyPowerEss ess;
-	private final PytesBattery battery;
 	private final PytesDcCharger dcCharger;
 	private final Logger log;
 
@@ -65,9 +63,8 @@ public class ApplyPowerHandler {
 
 	private final PvSurplusProbe surplusProbe = new PvSurplusProbe();
 
-	public ApplyPowerHandler(ApplyPowerEss ess, PytesBattery battery, PytesDcCharger dcCharger) {
+	public ApplyPowerHandler(ApplyPowerEss ess, PytesDcCharger dcCharger) {
 		this.ess = ess;
-		this.battery = battery;
 		this.dcCharger = dcCharger;
 		this.log = ess.getLogger();
 	}
@@ -118,7 +115,7 @@ public class ApplyPowerHandler {
 			return;
 		}
 
-		Integer batteryPower = this.battery.getDcDischargePower().get();
+		Integer batteryPower = this.ess.getBatteryDcDischargePower().get();
 
 		if (batteryPower == null) {
 			this.log.debug("[ApplyPower] batteryPower is null. Skipping ApplyPower");
@@ -203,7 +200,7 @@ public class ApplyPowerHandler {
 		// backup load therefore has to be taken out of the register value (seen
 		// live on 2026-09-17: a 1.2 kW EV on the backup port led to 850 W grid
 		// export). In battery control the total is what matters, nothing to do.
-		int backupLoad = batteryControl ? 0 : Math.max(0, this.battery.getBackupLoadPower().orElse(0));
+		int backupLoad = batteryControl ? 0 : Math.max(0, this.ess.getBackupLoadPower().orElse(0));
 
 		// Feed-forward: bias and losses always act in discharge direction.
 		final int feedForward = batteryControl && !idle ? BIAS_W + expectedLosses(target, pvPower) : 0;
