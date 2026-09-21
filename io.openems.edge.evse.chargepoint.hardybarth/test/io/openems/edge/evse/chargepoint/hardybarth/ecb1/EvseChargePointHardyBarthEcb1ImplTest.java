@@ -77,6 +77,23 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 			}
 			""";
 
+	/** Chargecontrol response that should be forced back to manual mode. */
+	private static final String CHARGECONTROL_AUTOMATIC_MODE = """
+			{
+			  "chargecontrol": {
+			    "mode": "automatic",
+			    "connected": true,
+			    "manualmodeamp": 10.0,
+			    "stateid": 17,
+			    "currentpwmamp": 0.0,
+			    "state": "B",
+			    "vendor": "Phoenix Contact",
+			    "version": "V1.3.1"
+			  },
+			  "protocol-version": "1.4"
+			}
+			""";
+
 	/** Meter response with charging values. */
 	private static final String METER_CHARGING = """
 			{
@@ -199,7 +216,42 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null));
+	}
+
+	@Test
+	void testMalformedMeterResponseClearsPreviousValues() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		var test = buildTest(sut);
+		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
+		test //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse("{")) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null));
+	}
+
+	@Test
+	void testMissingMeterClearsPreviousValues() throws Exception {
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		var test = buildTest(sut);
+		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
+		test //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> handler.handleMeterResponse("{}")) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null));
 	}
 
 	@Test
@@ -241,6 +293,74 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 				"Expected a start POST");
 		assertTrue(sentBodies.stream().anyMatch(b -> b.contains("manualmodeamp=10")),
 				"Expected manualmodeamp=10");
+	}
+
+	@Test
+	void testSetCurrentSkipsDuplicateTarget() throws Exception {
+		final var pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(false);
+		final var httpBundle = DummyBridgeHttpBundle.of(pool);
+		final var sentUrls = new java.util.ArrayList<String>();
+
+		httpBundle.fetcher().addEndpointHandler(ep -> {
+			sentUrls.add(ep.url());
+			return HttpResponse.ok("ok");
+		});
+
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber())) //
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setIp("192.168.2.8") //
+						.setChargeControlId(1) //
+						.setMeterId(1) //
+						.setMaxHwCurrent(32_000) //
+						.build());
+
+		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
+		handler.setTarget(10);
+		pool.update();
+		handler.setTarget(10);
+		pool.update();
+
+		assertEquals(1, sentUrls.stream().filter(u -> u.contains("/mode/manual/ampere")).count());
+		assertEquals(1, sentUrls.stream().filter(u -> u.contains("/start")).count());
+	}
+
+	@Test
+	void testAutomaticModeIsForcedBackToManual() throws Exception {
+		final var pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(false);
+		final var httpBundle = DummyBridgeHttpBundle.of(pool);
+		final var sentBodies = new java.util.ArrayList<String>();
+
+		httpBundle.fetcher().addEndpointHandler(ep -> {
+			if (ep.body() != null) {
+				sentBodies.add(ep.body());
+			}
+			return HttpResponse.ok("ok");
+		});
+
+		var sut = new EvseChargePointHardyBarthEcb1Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber())) //
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setIp("192.168.2.8") //
+						.setChargeControlId(1) //
+						.setMeterId(1) //
+						.setMaxHwCurrent(32_000) //
+						.build());
+
+		sentBodies.clear();
+		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
+		handler.handleChargeControlResponse(CHARGECONTROL_AUTOMATIC_MODE);
+		pool.update();
+
+		assertTrue(sentBodies.stream().anyMatch(b -> b.contains("mode=manual")), "Expected mode=manual");
 	}
 
 	@Test
