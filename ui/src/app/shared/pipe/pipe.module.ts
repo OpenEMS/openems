@@ -7,7 +7,6 @@ import { ConverterPipe } from "./converter/converter";
 import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSecondsToDuration.pipe";
 import { IsclassPipe } from "./isclass/isclass.pipe";
 import { KeysPipe } from "./keys/keys.pipe";
-import { SignPipe } from "./sign/sign.pipe";
 import { TimedisplayPipe } from "./timedisplay/timedisplay.pipe";
 import { TypeofPipe } from "./typeof/typeof.pipe";
 import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
@@ -16,7 +15,6 @@ import { VersionPipe } from "./version/version.pipe";
     imports: [ArrayIncludesPipe, WeekDayFormatPipe],
     declarations: [
         UnitvaluePipe,
-        SignPipe,
         FormatSecondsToDurationPipe,
         KeysPipe,
         IsclassPipe,
@@ -27,7 +25,6 @@ import { VersionPipe } from "./version/version.pipe";
     ],
     exports: [
         UnitvaluePipe,
-        SignPipe,
         FormatSecondsToDurationPipe,
         KeysPipe,
         IsclassPipe,
