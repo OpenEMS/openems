@@ -121,7 +121,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
 
     protected override onCurrentData(currentData: CurrentData): void {
         this.setFormControlSafelyWithChannel<number>(
-            this.form,
+            this.form(),
             EvsePhaseSwitchingComponent.formControlName,
             currentData,
             this.phaseSwitchingChannel,

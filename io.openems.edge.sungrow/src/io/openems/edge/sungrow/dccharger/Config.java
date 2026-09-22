@@ -1,0 +1,25 @@
+package io.openems.edge.sungrow.dccharger;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+@ObjectClassDefinition(//
+		name = "ESS Sungrow DC charger", //
+		description = "Implements DC charger from Sungrow Hybrid ESS.")
+@interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "charger0";
+
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+
+	@AttributeDefinition(name = "ESS-ID", description = "ID of the Sungrow Ess Component.")
+	String ess_id() default "ess0";
+
+	String webconsole_configurationFactory_nameHint() default "ESS Sungrow DC charger [{id}]";
+
+}
