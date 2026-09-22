@@ -1,0 +1,217 @@
+﻿Implemented,Name,Description,Unit,Resolution,Default,Min,Max,Datatype,Modbus Addr,Type,Length,FCr,FCw,Access
+,SettingsParamList,,,,,,,,,,,,,
+,ComTimeOutEMS,EMS communication timeout (0 = timeout deaktivate),s,1.0,120,0,3600,UINT16,1016,Register,1,03,06,rw
+,SoftwareReset,Setting this flag will restart the CPU (only in idle or error state),-,1.0,0,0,1,UINT16,1017,Register,1,,06,w
+,Standby Mode ,Set the inverter to low Power mode (System Offline) SoftwareReset to wakeup,-,1.0,0,0,1,UINT16,1018,Register,1,03,06,rw
+,FirmwareHashNumberMaster,Code Version Master,-,,,,,UINT16,2050,Register,2,04,,r
+,FirmwareHashNumberModule,Code Version Modules,-,,,,,UINT16,2052,Register,2,04,,r
+,SetPointsParamList,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,ActivatePowerStage,"Power stage configuration:
+1 = power stage on;
+0 = power stage off;",-,1.0,0,0,1,UINT16,4000,Register,1,03,06,rw
+,,,,,,,,,,,,,,
+,ResetAlarmsFlag,Resets current alarm and warning messages,-,1.0,0,0,1,UINT16,4002,Register,1,03,06,rw
+,GridType,"Grid type:
+0 = grid-tied, 400V, 50Hz
+2 = island mode, 400V, 50Hz
+",-,1.0,0,0,4,UINT16,4009,Register,1,03,06,rw
+,GridCode,0 = VDE AR 4105 (set by EMS),-,1.0,0,0,0,UINT16,4010,Register,1,03,06,rw
+,SystemSignedPowerSetPointAC,Signed power set value AC (sign influences cos phi),kVA,0.1,0,-6750,6750,INT16,4195,Register,1,03,06,rw
+,CosPhiSetPointAC,,-,0.001,1000,-1000,1000,INT16,4196,Register,1,03,06,rw
+,IslandFrequencyOffset,Frequency offset in island operation,Hz,0.001,0,0,2000,INT16,4222,Register,1,03,06,rw
+,STABLExtendedValuesParamList,,,,,,,,,,,,,
+,Temperature,"Temperture of System,String and Module in Min,Max and Avg",°C,0.01,0,-10000,20000,INT16,6000,Register,192,03,,r
+,TemperatureMinSystem,,°C,0.01,0,-10000,20000,INT16,6000,Register,1,03,,r
+,TemperatureMinString1,,°C,0.01,0,-10000,20000,INT16,6001,Register,1,03,,r
+,TemperatureMinString1ModuleX,,°C,0.01,0,-10000,20000,INT16,6002,Register,20,03,,r
+,TemperatureMinString2,,°C,0.01,0,-10000,20000,INT16,6022,Register,1,03,,r
+,TemperatureMinString2ModuleX,,°C,0.01,0,-10000,20000,INT16,6023,Register,20,03,,r
+,TemperatureMinString3,,°C,0.01,0,-10000,20000,INT16,6043,Register,1,03,,r
+,TemperatureMinString3ModuleX,,°C,0.01,0,-10000,20000,INT16,6044,Register,20,03,,r
+,TemperatureMaxSystem,,°C,0.01,0,-10000,20000,INT16,6064,Register,1,03,,r
+,TemperatureMaxString1,,°C,0.01,0,-10000,20000,INT16,6065,Register,1,03,,r
+,TemperatureMaxString1ModuleX,,°C,0.01,0,-10000,20000,INT16,6066,Register,20,03,,r
+,TemperatureMaxString2,,°C,0.01,0,-10000,20000,INT16,6086,Register,1,03,,r
+,TemperatureMaxString2ModuleX,,°C,0.01,0,-10000,20000,INT16,6087,Register,20,03,,r
+,TemperatureMaxString3,,°C,0.01,0,-10000,20000,INT16,6107,Register,1,03,,r
+,TemperatureMaxString3ModuleX,,°C,0.01,0,-10000,20000,INT16,6108,Register,20,03,,r
+,TemperatureAvgSystem,,°C,0.01,0,-10000,20000,INT16,6128,Register,1,03,,r
+,TemperatureAvgString1,,°C,0.01,0,-10000,20000,INT16,6129,Register,1,03,,r
+,TemperatureAvgString1ModuleX,,°C,0.01,0,-10000,20000,INT16,6130,Register,20,03,,r
+,TemperatureAvgString2,,°C,0.01,0,-10000,20000,INT16,6150,Register,1,03,,r
+,TemperatureAvgString2ModuleX,,°C,0.01,0,-10000,20000,INT16,6151,Register,20,03,,r
+,TemperatureAvgString3,,°C,0.01,0,-10000,20000,INT16,6171,Register,1,03,,r
+,TemperatureAvgString3ModuleX,,°C,0.01,0,-10000,20000,INT16,6172,Register,20,03,,r
+,Voltage,"Voltage of System,String and Module in Min,Max and Avg",V,0.01,0,0,7200,UINT16,6192,Register,192,03,,r
+,VoltageMinSytem,,V,0.01,0,0,7200,UINT16,6192,Register,1,03,,r
+,VoltageMinString1,,V,0.01,0,0,7200,UINT16,6193,Register,1,03,,r
+,VotageMinString1ModuleX,,V,0.01,0,0,7200,UINT16,6194,Register,20,03,,r
+,VoltageMinString2,,V,0.01,0,0,7200,UINT16,6214,Register,1,03,,r
+,VotageMinString2ModuleX,,V,0.01,0,0,7200,UINT16,6215,Register,20,03,,r
+,VoltageMinString3,,V,0.01,0,0,7200,UINT16,6235,Register,1,03,,r
+,VotageMinString3ModuleX,,V,0.01,0,0,7200,UINT16,6236,Register,20,03,,r
+,VoltageMaxSytem,,V,0.01,0,0,7200,UINT16,6256,Register,1,03,,r
+,VoltageMaxString1,,V,0.01,0,0,7200,UINT16,6257,Register,1,03,,r
+,VotageMaxString1ModuleX,,V,0.01,0,0,7200,UINT16,6258,Register,20,03,,r
+,VoltageMaxString2,,V,0.01,0,0,7200,UINT16,6278,Register,1,03,,r
+,VotageMaxString2ModuleX,,V,0.01,0,0,7200,UINT16,6279,Register,20,03,,r
+,VoltageMaxString3,,V,0.01,0,0,7200,UINT16,6299,Register,1,03,,r
+,VotageMaxString3ModuleX,,V,0.01,0,0,7200,UINT16,6300,Register,20,03,,r
+,VoltageAvgSytem,,V,0.01,0,0,7200,UINT16,6320,Register,1,03,,r
+,VoltageAvgString1,,V,0.01,0,0,7200,UINT16,6321,Register,1,03,,r
+,VotageAvgString1ModuleX,,V,0.01,0,0,7200,UINT16,6322,Register,20,03,,r
+,VoltageAvgString2,,V,0.01,0,0,7200,UINT16,6342,Register,1,03,,r
+,VotageAvgString2ModuleX,,V,0.01,0,0,7200,UINT16,6343,Register,20,03,,r
+,VoltageAvgString3,,V,0.01,0,0,7200,UINT16,6363,Register,1,03,,r
+,VotageAvgString3ModuleX,,V,0.01,0,0,7200,UINT16,6364,Register,20,03,,r
+,Current,"Current of System,String and Module in Min,Max and Avg",A,0.01,0,-20000,20000,INT16,6384,Register,192,03,,r
+,CurrentMinSystem,,A,0.01,0,-20000,20000,INT16,6384,Register,1,03,,r
+,CurrentMinString1,,A,0.01,0,-20000,20000,INT16,6385,Register,1,03,,r
+,CurrentMinString1ModuleX,,A,0.01,0,-20000,20000,INT16,6386,Register,20,03,,r
+,CurrentMinString2,,A,0.01,0,-20000,20000,INT16,6406,Register,1,03,,r
+,CurrentMinString2ModuleX,,A,0.01,0,-20000,20000,INT16,6407,Register,20,03,,r
+,CurrentMinString3,,A,0.01,0,-20000,20000,INT16,6427,Register,1,03,,r
+,CurrentMinString3ModuleX,,A,0.01,0,-20000,20000,INT16,6428,Register,20,03,,r
+,CurrentMaxSystem,,A,0.01,0,-20000,20000,INT16,6448,Register,1,03,,r
+,CurrentMaxString1,,A,0.01,0,-20000,20000,INT16,6449,Register,1,03,,r
+,CurrentMaxString1ModuleX,,A,0.01,0,-20000,20000,INT16,6450,Register,20,03,,r
+,CurrentMaxString2,,A,0.01,0,-20000,20000,INT16,6470,Register,1,03,,r
+,CurrentMaxString2ModuleX,,A,0.01,0,-20000,20000,INT16,6471,Register,20,03,,r
+,CurrentMaxString3,,A,0.01,0,-20000,20000,INT16,6491,Register,1,03,,r
+,CurrentMaxString3ModuleX,,A,0.01,0,-20000,20000,INT16,6492,Register,20,03,,r
+,CurrentAvgSystem,,A,0.01,0,-20000,20000,INT16,6512,Register,1,03,,r
+,CurrentAvgString1,,A,0.01,0,-20000,20000,INT16,6513,Register,1,03,,r
+,CurrentAvgString1ModuleX,,A,0.01,0,-20000,20000,INT16,6514,Register,20,03,,r
+,CurrentAvgString2,,A,0.01,0,-20000,20000,INT16,6534,Register,1,03,,r
+,CurrentAvgString2ModuleX,,A,0.01,0,-20000,20000,INT16,6535,Register,20,03,,r
+,CurrentAvgString3,,A,0.01,0,-20000,20000,INT16,6555,Register,1,03,,r
+,CurrentAvgString3ModuleX,,A,0.01,0,-20000,20000,INT16,6556,Register,20,03,,r
+,SOC - State of Charge,"SOC of System,String and Module in Min,Max and Avg",%,0.01,0,0,10000,UINT16,6576,Register,192,03,,r
+,SocMinSystem,,%,0.01,0,0,10000,UINT16,6576,Register,1,03,,r
+,SocMinString1,,%,0.01,0,0,10000,UINT16,6577,Register,1,03,,r
+,SocMinString1ModuleX,,%,0.01,0,0,10000,UINT16,6578,Register,20,03,,r
+,SocMinString2,,%,0.01,0,0,10000,UINT16,6598,Register,1,03,,r
+,SocMinString2ModuleX,,%,0.01,0,0,10000,UINT16,6599,Register,20,03,,r
+,SocMinString3,,%,0.01,0,0,10000,UINT16,6619,Register,1,03,,r
+,SocMinString3ModuleX,,%,0.01,0,0,10000,UINT16,6620,Register,20,03,,r
+,SocMaxSystem,,%,0.01,0,0,10000,UINT16,6640,Register,1,03,,r
+,SocMaxString1,,%,0.01,0,0,10000,UINT16,6641,Register,1,03,,r
+,SocMaxString1ModuleX,,%,0.01,0,0,10000,UINT16,6642,Register,20,03,,r
+,SocMaxString2,,%,0.01,0,0,10000,UINT16,6662,Register,1,03,,r
+,SocMaxString2ModuleX,,%,0.01,0,0,10000,UINT16,6663,Register,20,03,,r
+,SocMaxString3,,%,0.01,0,0,10000,UINT16,6683,Register,1,03,,r
+,SocMaxString3ModuleX,,%,0.01,0,0,10000,UINT16,6684,Register,20,03,,r
+,SocAvgSystem,,%,0.01,0,0,10000,UINT16,6704,Register,1,03,,r
+,SocAvgString1,,%,0.01,0,0,10000,UINT16,6705,Register,1,03,,r
+,SocAvgString1ModuleX,,%,0.01,0,0,10000,UINT16,6706,Register,20,03,,r
+,SocAvgString2,,%,0.01,0,0,10000,UINT16,6726,Register,1,03,,r
+,SocAvgString2ModuleX,,%,0.01,0,0,10000,UINT16,6727,Register,20,03,,r
+,SocAvgString3,,%,0.01,0,0,10000,UINT16,6747,Register,1,03,,r
+,SocAvgString3ModuleX,,%,0.01,0,0,10000,UINT16,6748,Register,20,03,,r
+,SOH - State of Health,"SOH of System,String and Module in Min,Max and Avg",%,0.01,0,0,10000,UINT16,6768,Register,192,03,,r
+,SohMinSystem,,%,0.01,0,0,10000,UINT16,6768,Register,1,03,,r
+,SohMinString1,,%,0.01,0,0,10000,UINT16,6769,Register,1,03,,r
+,SohMinString1ModuleX,,%,0.01,0,0,10000,UINT16,6770,Register,20,03,,r
+,SohMinString2,,%,0.01,0,0,10000,UINT16,6790,Register,1,03,,r
+,SohMinString2ModuleX,,%,0.01,0,0,10000,UINT16,6791,Register,20,03,,r
+,SohMinString3,,%,0.01,0,0,10000,UINT16,6811,Register,1,03,,r
+,SohMinString3ModuleX,,%,0.01,0,0,10000,UINT16,6812,Register,20,03,,r
+,SohMaxSystem,,%,0.01,0,0,10000,UINT16,6832,Register,1,03,,r
+,SohMaxString1,,%,0.01,0,0,10000,UINT16,6833,Register,1,03,,r
+,SohMaxString1ModuleX,,%,0.01,0,0,10000,UINT16,6834,Register,20,03,,r
+,SohMaxString2,,%,0.01,0,0,10000,UINT16,6854,Register,1,03,,r
+,SohMaxString2ModuleX,,%,0.01,0,0,10000,UINT16,6855,Register,20,03,,r
+,SohMaxString3,,%,0.01,0,0,10000,UINT16,6875,Register,1,03,,r
+,SohMaxString3ModuleX,,%,0.01,0,0,10000,UINT16,6876,Register,20,03,,r
+,SohAvgSystem,,%,0.01,0,0,10000,UINT16,6896,Register,1,03,,r
+,SohAvgString1,,%,0.01,0,0,10000,UINT16,6897,Register,1,03,,r
+,SohAvgString1ModuleX,,%,0.01,0,0,10000,UINT16,6898,Register,20,03,,r
+,SohAvgString2,,%,0.01,0,0,10000,UINT16,6918,Register,1,03,,r
+,SohAvgString2ModuleX,,%,0.01,0,0,10000,UINT16,6919,Register,20,03,,r
+,SohAvgString3,,%,0.01,0,0,10000,UINT16,6939,Register,1,03,,r
+,SohAvgString3ModuleX,,%,0.01,0,0,10000,UINT16,6940,Register,20,03,,r
+,CurrentLimits,Current Limits of System and String depend on Charge and Discharge,A,0.01,0,0,20000,UINT16,6960,Register,8,03,,r
+,CurrentLimitDischargeSystem,,A,1.0,0,-98,98,UINT16,6960,Register,1,03,,r
+,CurrentLimitDischargeString1,,A,1.0,0,-98,98,UINT16,6961,Register,1,03,,r
+,CurrentLimitDischargeString2,,A,1.0,0,-98,98,UINT16,6962,Register,1,03,,r
+,CurrentLimitDischargeString3,,A,1.0,0,-98,98,UINT16,6963,Register,1,03,,r
+,CurrentLimitChargeSystem,,A,1.0,0,-98,98,UINT16,6964,Register,1,03,,r
+,CurrentLimitChargeString1,,A,1.0,0,-98,98,UINT16,6965,Register,1,03,,r
+,CurrentLimitChargeString2,,A,1.0,0,-98,98,UINT16,6966,Register,1,03,,r
+,CurrentLimitChargeString3,,A,1.0,0,-98,98,UINT16,6967,Register,1,03,,r
+,CapacityTotal,Battery Capacity,Ah,1.0,0,-,-,UINT16,6968,Register,1,04,,r
+,ActivePowerModSetpointString1ModuleX,"Active power set point for each Module of String 1; for research projects, not commercial use",W,1.0,0,-10000,10000,UINT16,7000,Register,20,,06,w
+,ActivePowerModSetpointString2ModuleX,"Active power set point for each Module of String 2; for research projects, not commercial use",W,1.0,0,-10000,10000,UINT16,7020,Register,20,,06,w
+,ActivePowerModSetpointString3ModuleX,"Active power set point for each Module of String 3; for research projects, not commercial use",W,1.0,0,-10000,10000,UINT16,7040,Register,20,,06,w
+,ActualValuesParamList,,,,,,,,,,,,,
+,ActualMainState,"State of device: Init -> 0, Ready -> 1, Idle -> 2, Run -> 3, Error -> 4, Emergency -> 5, Standby -> 6",-,1.0,0,0,6,INT16,5000,Register,1,04,,r
+,NumberOfConnectedStablModulesL1,Number of connected Stabl Modules on L1,cnt,1.0,0,0,16,UINT16,5001,Register,1,04,,r
+,NumberOfConnectedStablModulesL2,Number of connected Stabl Modules on L2,cnt,1.0,0,0,16,UINT16,5002,Register,1,04,,r
+,NumberOfConnectedStablModulesL3,Number of connected Stabl Modules on L3,cnt,1.0,0,0,16,UINT16,5003,Register,1,04,,r
+,AcDcActiveGridType,"Actvie grid type:
+
+0 = grid-tied, 400V, 50Hz
+1 = grid-tied, 480V, 60Hz
+2 = island mode, 400V, 50Hz
+3 = island mode, 480V, 60Hz
+4 = grid-tied, 380V, 60Hz",-,1.0,0,0,4,UINT16,5023,Register,1,04,,r
+,ActiveGridCode,see register 4010,-,1.0,0,0,0,UINT16,5024,Register,1,04,,r
+,ActualPowerAcL1,Active power L1,kW,0.01,0,-6750,6750,INT16,5140,Register,1,04,,r
+,ActualPowerAcL2,Active power L2,kW,0.01,0,-6750,6750,INT16,5141,Register,1,04,,r
+,ActualPowerAcL3,Active power L3,kW,0.01,0,-6750,6750,INT16,5142,Register,1,04,,r
+,ReactivePowerAcL1,Reactive power L1,kVAR,0.01,0,-6750,6750,INT16,5143,Register,1,04,,r
+,ReactivePowerAcL2,Reactive power L2,kVAR,0.01,0,-6750,6750,INT16,5144,Register,1,04,,r
+,ReactivePowerAcL3,Reactive power L3,kVAR,0.01,0,-6750,6750,INT16,5145,Register,1,04,,r
+,GridVoltageL1,Grid voltage RMS L1,V,0.01,0,0,31000,UINT16,5160,Register,1,04,,r
+,GridVoltageL2,Grid voltage RMS L2,V,0.01,0,0,31000,UINT16,5161,Register,1,04,,r
+,GridVoltageL3,Grid voltage RMS L3,V,0.01,0,0,31000,UINT16,5162,Register,1,04,,r
+,InletAirTemperature,Inlet Air temperature,°C,0.01,0,-,-,INT16,5500,Register,1,04,,r
+,mcuCoreTemperature,core temperature of Mastercontroller,°C,0.01,0,-,-,INT16,5501,Register,1,04,,r
+,maintainenceMode,EMS commands blocked protect the system if remote access is active and system changes are in operation,-,1.0,0,0,1,UINT16,5600,Register,1,04,,r
+,ErrorsAndWarnings,,,,,,,,,,,,,
+,TotalWarningsCnt,Sum of all pending warnings,Count,,,0,19,UINT16,2401,Register,1,04,,
+,Warnings,Warning Code of Alarms,,,,,,UINT16,2403,Register,1,04,,r
+,Warning1,,,,,,,UINT16,2403,Register,1,04,,r
+,Warning2,,,,,,,UINT16,2404,Register,1,04,,r
+,Warning3,,,,,,,UINT16,2405,Register,1,04,,r
+,Warning4,,,,,,,UINT16,2406,Register,1,04,,r
+,Warning5,,,,,,,UINT16,2407,Register,1,04,,r
+,Warning6,,,,,,,UINT16,2408,Register,1,04,,r
+,Warning7,,,,,,,UINT16,2409,Register,1,04,,r
+,Warning8,,,,,,,UINT16,2410,Register,1,04,,r
+,Warning9,,,,,,,UINT16,2411,Register,1,04,,r
+,Warning10,,,,,,,UINT16,2412,Register,1,04,,r
+,Warning11,,,,,,,UINT16,2413,Register,1,04,,r
+,Warning12,,,,,,,UINT16,2414,Register,1,04,,r
+,Warning13,,,,,,,UINT16,2415,Register,1,04,,r
+,Warning14,,,,,,,UINT16,2416,Register,1,04,,r
+,Warning15,,,,,,,UINT16,2417,Register,1,04,,r
+,Warning16,,,,,,,UINT16,2418,Register,1,04,,r
+,Warning17,,,,,,,UINT16,2419,Register,1,04,,r
+,Warning18,,,,,,,UINT16,2420,Register,1,04,,r
+,Warning19,,,,,,,UINT16,2421,Register,1,04,,r
+,Warning20,,,,,,,UINT16,2422,Register,1,04,,r
+,TotalAlarmsCnt,Sum of all pending alarms,Count,,,0,19,UINT16,2808,Register,1,04,,r
+,Alarms,Error Code of Alarms,,,,,,UINT16,2810,Register,1,04,,r
+,Alarm1,,,,,,,UINT16,2810,Register,1,04,,r
+,Alarm2,,,,,,,UINT16,2811,Register,1,04,,r
+,Alarm3,,,,,,,UINT16,2812,Register,1,04,,r
+,Alarm4,,,,,,,UINT16,2813,Register,1,04,,r
+,Alarm5,,,,,,,UINT16,2814,Register,1,04,,r
+,Alarm6,,,,,,,UINT16,2815,Register,1,04,,r
+,Alarm7,,,,,,,UINT16,2816,Register,1,04,,r
+,Alarm8,,,,,,,UINT16,2817,Register,1,04,,r
+,Alarm9,,,,,,,UINT16,2818,Register,1,04,,r
+,Alarm10,,,,,,,UINT16,2819,Register,1,04,,r
+,Alarm11,,,,,,,UINT16,2820,Register,1,04,,r
+,Alarm12,,,,,,,UINT16,2821,Register,1,04,,r
+,Alarm13,,,,,,,UINT16,2822,Register,1,04,,r
+,Alarm14,,,,,,,UINT16,2823,Register,1,04,,r
+,Alarm15,,,,,,,UINT16,2824,Register,1,04,,r
+,Alarm16,,,,,,,UINT16,2825,Register,1,04,,r
+,Alarm17,,,,,,,UINT16,2826,Register,1,04,,r
+,Alarm18,,,,,,,UINT16,2827,Register,1,04,,r
+,Alarm19,,,,,,,UINT16,2828,Register,1,04,,r
+,Alarm20,,,,,,,UINT16,2829,Register,1,04,,r
+,nsProtectionErrorCode,Error Code of NS Protection ,number,1.0,255,0,255,UINT16,3000,Register,1,03,06,rw
