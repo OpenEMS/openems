@@ -3,7 +3,6 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { WeekDayFormatPipe } from "../components/schedule/pipe/date";
 import { ArrayIncludes as ArrayIncludesPipe } from "./array-includes/array-includes";
-import { ClassnamePipe } from "./classname/classname.pipe";
 import { ConverterPipe } from "./converter/converter";
 import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSecondsToDuration.pipe";
 import { IsclassPipe } from "./isclass/isclass.pipe";
@@ -14,17 +13,13 @@ import { TypeofPipe } from "./typeof/typeof.pipe";
 import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
 import { VersionPipe } from "./version/version.pipe";
 @NgModule({
-    imports: [
-        ArrayIncludesPipe,
-        WeekDayFormatPipe,
-    ],
+    imports: [ArrayIncludesPipe, WeekDayFormatPipe],
     declarations: [
         UnitvaluePipe,
         SignPipe,
         FormatSecondsToDurationPipe,
         KeysPipe,
         IsclassPipe,
-        ClassnamePipe,
         VersionPipe,
         TypeofPipe,
         ConverterPipe,
@@ -36,7 +31,6 @@ import { VersionPipe } from "./version/version.pipe";
         FormatSecondsToDurationPipe,
         KeysPipe,
         IsclassPipe,
-        ClassnamePipe,
         VersionPipe,
         TypeofPipe,
         ConverterPipe,
@@ -44,24 +38,12 @@ import { VersionPipe } from "./version/version.pipe";
         ArrayIncludesPipe,
         WeekDayFormatPipe,
     ],
-    providers: [
-        DecimalPipe,
-        FormatSecondsToDurationPipe,
-        UnitvaluePipe,
-        TypeofPipe,
-        WeekDayFormatPipe,
-    ],
+    providers: [DecimalPipe, FormatSecondsToDurationPipe, UnitvaluePipe, TypeofPipe, WeekDayFormatPipe],
 })
-export class PipeComponentsModule { }
+export class PipeComponentsModule {}
 
 @NgModule({
-    imports: [
-        BrowserModule,
-        PipeComponentsModule,
-    ],
-    exports: [
-        PipeComponentsModule,
-    ],
+    imports: [BrowserModule, PipeComponentsModule],
+    exports: [PipeComponentsModule],
 })
-export class PipeModule { }
-
+export class PipeModule {}
