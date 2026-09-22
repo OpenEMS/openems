@@ -85,7 +85,6 @@ export class EdgePermission {
         edge: Edge | null,
         historyPeriods?: DefaultTypes.PeriodStringValues[],
     ): `${DefaultTypes.PeriodString}`[] {
-
         if (historyPeriods?.length > 0) {
             return historyPeriods;
         }
