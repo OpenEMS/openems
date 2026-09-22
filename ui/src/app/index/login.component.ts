@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, ChangeDetectionStrategy, } from "@angular/core";
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -74,8 +74,8 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      */
     public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
         return {
-            password: password?.trim(),
-            ...(username && { username: username?.trim().toLowerCase() }),
+            password: password.trim(),
+            ...(username && { username: username.trim().toLowerCase() }),
         };
     }
 

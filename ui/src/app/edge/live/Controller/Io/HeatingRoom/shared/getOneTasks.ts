@@ -3,12 +3,26 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../../../shared
 /**
  * Represents a JSON-RPC Request for 'getOneTasks'.
  *
- * @typedef {"jsonrpc": "2.0", "id": "UUID", "method": "getOneTasks",
- * "params": { "from": string, "to": string }} Request
+ * Request:
  *
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "getOneTasks",
+ *   "params": { "from": string, "to": string }
+ * }
+ * ```
  *
- * @typedef {"jsonrpc": "2.0", "id": "UUID", "result": { "oneTasks": [{ "start": string, "end": string,
- *   "duration": string }] }} Response
+ * Response:
+ *
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "result": { "oneTasks": [{ "start": string, "end": string, "duration": string }] }
+ * }
+ * ```
  */
 export namespace GetOneTasks {
     export const METHOD: string = "getOneTasks";
