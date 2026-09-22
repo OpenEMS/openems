@@ -1,6 +1,6 @@
 import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { IonInput } from "@ionic/angular";
+import { IonInput, IonRange } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -14,7 +14,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { Stat } from "../stats/stats";
@@ -573,12 +573,23 @@ export namespace OeFormlyField {
         buttons: ButtonLabel[];
     };
 
-    export type RangeLineProperties = Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+    export type RangeLineProperties = Partial<{
+        tickMin: number;
+        tickMax: number;
+        tickMaxControlName?: string;
+        tickFormatter?: IonRange["pinFormatter"];
+        unit: "H" | string;
+        keepValue?: boolean; // keeps the value as is without conversion (e.g. / 1000 for kWh or kW)
+        step?: number;
+        pinFormatter: IonRange["pinFormatter"];
+        label?: IonRange["label"];
+        snaps?: boolean;
+    }>;
 
     export type RangeButtonFromFormControlLine = {
         type: "range-button-from-form-control-line";
         controlName: string;
-        properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+        properties: RangeLineProperties;
     };
 
     export type DualKnobRangeButtonFromFormControlLine = {
