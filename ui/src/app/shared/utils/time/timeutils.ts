@@ -6,15 +6,16 @@ import { Utils } from "../../shared";
 import { Language } from "../../type/language";
 
 export class TimeUtils {
-
     /**
-   * Formats a value in seconds to hours and minutes
-   *
-   * @param value the value
-   * @returns a time string with hours and minutes
-   */
-    public static formatSecondsToDuration(value: number | null | undefined, locale: string | null | undefined): string | null {
-
+     * Formats a value in seconds to hours and minutes
+     *
+     * @param value The value
+     * @returns A time string with hours and minutes
+     */
+    public static formatSecondsToDuration(
+        value: number | null | undefined,
+        locale: string | null | undefined,
+    ): string | null {
         if (value === null || value === undefined) {
             return null;
         }
@@ -28,32 +29,6 @@ export class TimeUtils {
             return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
         } else {
             return decimalPipe.transform(hours, "1.0-0") + "h";
-        }
-    }
-
-    /**
-   * Formats a value in seconds to a valid duration
-   *
-   * @param seconds the value
-   * @returns a time string with hours and minutes
-   */
-    public static formatSecondsToRelevantDuration(seconds: number | null | undefined, threshold: number, locale: string): string | null {
-
-        if (seconds == null) {
-            return null;
-        }
-
-        if (seconds < threshold) {
-            return null;
-        }
-
-        const decimalPipe: DecimalPipe = new DecimalPipe(locale);
-        const minutes = Math.floor(seconds / 60);
-
-        if (minutes > 0) {
-            return decimalPipe.transform(minutes, "1.0-0") + " min";
-        } else {
-            return decimalPipe.transform(seconds, "1.0-0") + " s";
         }
     }
 
@@ -72,14 +47,15 @@ export class TimeUtils {
     }
 
     /**
-   * Creates a converter that formats “minutes since midnight” into a locale-aware time string.
-   * - Uses Intl.DateTimeFormat for HH:mm or h:mm AM/PM
-   * - Detects 12h vs 24h and appends locale-specific suffix (Uhr, h, hodin, etc.)
-   *
-   * @param translate  TranslateService (for currentLang)
-   * @param locale     locale tag (e.g. "de", "en", "cs")
-   * @returns           (minutes: number) ⇒ formatted time string
-  */
+     * Creates a converter that formats “minutes since midnight” into a locale-aware time string.
+     *
+     * - Uses Intl.DateTimeFormat for HH:mm or h:mm AM/PM
+     * - Detects 12h vs 24h and appends locale-specific suffix (Uhr, h, hodin, etc.)
+     *
+     * @param translate TranslateService (for currentLang)
+     * @param locale Locale tag (e.g. "de", "en", "cs")
+     * @returns (minutes: number) ⇒ formatted time string
+     */
     public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string) => {
         const effectiveLocale = locale ?? translate.currentLang ?? Language.DEFAULT.key;
         const dtf = new Intl.DateTimeFormat(effectiveLocale, { hour: "2-digit", minute: "2-digit" });
@@ -98,7 +74,7 @@ export class TimeUtils {
                 date.setMinutes(value);
 
                 const timeString = dtf.format(date);
-                const hasDayPeriod = dtf.formatToParts(date).some(p => p.type === "dayPeriod");
+                const hasDayPeriod = dtf.formatToParts(date).some((p) => p.type === "dayPeriod");
 
                 const suffix = getHourSuffix();
 
