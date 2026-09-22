@@ -47,10 +47,6 @@ describe("ControllerHeatSettingsComponent", () => {
 
         const view = ControllerHeatSettingsComponent.generateView(component, edge, testContext.translate);
 
-        expect(view.title).toBe("ASKOMA");
-        expect(view.component).toBe(component);
-        expect(view.edge).toBe(edge);
-        expect(view.lines.length).toBe(2);
         expect(view.lines[0]).toEqual({
             type: "image-line",
             img: {
@@ -63,6 +59,10 @@ describe("ControllerHeatSettingsComponent", () => {
                 },
             },
         });
+        expect(view.title).toBe("ASKOMA");
+        expect(view.component).toBe(component);
+        expect(view.edge).toBe(edge);
+        expect(view.lines.length).toBe(2);
         expect(view.lines[1]).toEqual({
             type: "radio-buttons-from-form-control-line",
             name: "select-mode",
