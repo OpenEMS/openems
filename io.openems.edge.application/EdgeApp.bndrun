@@ -124,6 +124,7 @@
 	bnd.identity;id='io.openems.edge.edge2edge',\
 	bnd.identity;id='io.openems.edge.energy',\
 	bnd.identity;id='io.openems.edge.ess.adstec.storaxe',\
+	bnd.identity;id='io.openems.edge.ess.api',\
 	bnd.identity;id='io.openems.edge.ess.cluster',\
 	bnd.identity;id='io.openems.edge.ess.core',\
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
@@ -530,7 +531,7 @@
 	io.netty.resolver;version='[4.2.12,4.2.13)',\
 	io.netty.transport;version='[4.2.12,4.2.13)',\
 	io.netty.transport-native-unix-common;version='[4.2.12,4.2.13)',\
-	org.openmuc.jeebus.ship;version='[2.2.1,2.2.2)',\
+	org.openmuc.jeebus.ship;version=snapshot,\
 	io.openems.common.bridge.eebus;version=snapshot,\
 	com.fasterxml.jackson.core.jackson-core;version='[2.21.2,2.21.3)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.21.2,2.21.3)',\
@@ -540,7 +541,7 @@
 	jakarta.xml.bind-api;version='[4.0.5,4.0.6)',\
 	org.glassfish.jaxb.core;version='[4.0.7,4.0.8)',\
 	org.jvnet.jaxb.plugins-runtime;version='[4.0.12,4.0.13)',\
-	org.openmuc.jeebus.spine;version='[4.1.0,4.1.1)',\
-	org.openmuc.jeebus.usecase.powerlimitation.abstract-controllablesystem;version='[1.0.0,1.0.1)',\
-	org.openmuc.jeebus.usecase.powerlimitation.lpc-controllablesystem;version='[1.0.0,1.0.1)',\
-	org.openmuc.jeebus.usecase.powerlimitation.lpp-controllablesystem;version='[1.0.0,1.0.1)',\
+	org.openmuc.jeebus.spine;version=snapshot,\
+	org.openmuc.jeebus.usecase.powerlimitation.abstract-controllablesystem;version=snapshot,\
+	org.openmuc.jeebus.usecase.powerlimitation.lpc-controllablesystem;version=snapshot,\
+	org.openmuc.jeebus.usecase.powerlimitation.lpp-controllablesystem;version=snapshot,\

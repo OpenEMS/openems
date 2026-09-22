@@ -4,20 +4,16 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static org.openmuc.jeebus.shipspine.ShipCommunication.ConnectClientsTo.TRUSTED;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
+import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.openems.common.bridge.http.time.DelayTimeProvider;
-import io.openems.common.bridge.http.time.DelayTimeProviderChain;
-import io.openems.common.bridge.http.time.periodic.PeriodicExecutor;
-import io.openems.common.bridge.http.time.periodic.PeriodicExecutorFactory;
+import org.openmuc.jeebus.ship.api.ConfigBuilder;
 import org.openmuc.jeebus.ship.api.ShipConnectionInfoSnapshot;
-import org.openmuc.jeebus.ship.api.ShipNodeConfiguration;
-import org.openmuc.jeebus.ship.node.KeyManagement;
+import org.openmuc.jeebus.ship.node.ShipConfig;
 import org.openmuc.jeebus.shipspine.ShipCommunication;
 import org.openmuc.jeebus.spine.api.Device;
 import org.openmuc.jeebus.spine.xsd.v1.DeviceTypeEnumType;
@@ -42,6 +38,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.bridge.eebus.api.EebusDeviceDiscovery;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.periodic.PeriodicExecutor;
+import io.openems.common.bridge.http.time.periodic.PeriodicExecutorFactory;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
 import io.openems.edge.bridge.eebus.api.EebusPeer;
@@ -79,8 +79,8 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 	private final EebusUseCaseManagerImpl useCaseManager;
 	private final List<InternalEebusPeer> peers = new CopyOnWriteArrayList<>();
 
+	private Config config;
 	private ConfigCertificateStorage certificateStorage;
-	private ShipNodeConfiguration shipNodeConfig;
 	private ShipCommunication shipCommunication;
 	private Device eebusDevice;
 	private int connectionsAmount = 0;
@@ -102,7 +102,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.certificateStorage = new ConfigCertificateStorage(this.cm, this.servicePid());
-		this.shipNodeConfig = this.createNodeConfig(config);
+		this.config = config;
 
 		this.reInitScheduler = this.periodicExecutorFactory.execute("BridgeEebus-DeviceReInit", () -> {
 			if (this.reInitRequired || this.useCaseManager.isDirty()) {
@@ -116,8 +116,8 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 	protected void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 
+		this.config = config;
 		this.certificateStorage = new ConfigCertificateStorage(this.cm, this.servicePid());
-		this.shipNodeConfig = this.createNodeConfig(config);
 		this.reInitRequired = true;
 	}
 
@@ -173,9 +173,9 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 		}
 
 		try {
-			var shipCommunication = new ShipCommunication(this.shipNodeConfig) //
-					.withConnectClientsTo(TRUSTED) //
-					.withTrustedSkis(this.getTrustedSkis()); //
+			final var shipConfig = this.createShipConfig(this.config);
+			final var shipCommunication = new ShipCommunication(shipConfig) //
+					.withConnectClientsTo(TRUSTED); //
 
 			this.eebusDevice = this.buildDevice(shipCommunication);
 			this.shipCommunication = shipCommunication;
@@ -203,18 +203,24 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 				.build();
 	}
 
-	private ShipNodeConfiguration createNodeConfig(Config config) {
-		return new ShipNodeConfiguration(//
-				Set.of(config.bindHost()), //
-				config.bindPort(), //
-				"/ship/", //
-				true, //
-				config.serviceID(), "local.", //
-				config.serviceInstance(), //
-				this.certificateStorage, //
-				"CN=" + config.serviceID() + ", O=OpenEMS", //
-				40 * 365 //
+	private InetSocketAddress getBindHost(Config config) {
+		return new InetSocketAddress(//
+				config.bindHost() == null || config.bindHost().isEmpty() ? "0.0.0.0" : config.bindHost(), //
+				config.bindPort() //
 		);
+	}
+
+	private ShipConfig createShipConfig(Config config) {
+		return ShipConfig.getBuilder() //
+				.withNetworkInterfaceScanInitialDelay(0) //
+				.withServerBindAddresses(Collections.singleton(this.getBindHost(config))) //
+				.withId(config.serviceID()) //
+				.withMDnsServiceInstance(config.serviceInstance()) //
+				.withCertificateStorage(this.certificateStorage) //
+				.withCertificateDistinguishedName(String.format("CN=%s, O=OpenEMS", config.serviceID())) //
+				.withCertificateValidity(40 * 365) //
+				.withTrustedSkis(this.getTrustedSkis()) //
+				.build();
 	}
 
 	@Override
@@ -259,7 +265,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 
 		Comparator<ShipConnectionInfoSnapshot> sorting = Comparator.comparing(ShipConnectionInfoSnapshot::getTrustLevel)
 				.reversed()
-				.thenComparing(Comparator.comparing(ShipConnectionInfoSnapshot::getConnectionDate).reversed());
+				.thenComparing(Comparator.comparing(ShipConnectionInfoSnapshot::getConnectionStartDate).reversed());
 
 		var allConnections = this.shipCommunication.getConnectionInfos();
 		this.connectionsAmount = allConnections.size();

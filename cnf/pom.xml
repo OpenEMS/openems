@@ -29,7 +29,7 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.4.0</version>
+			<version>7.2.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -934,16 +934,6 @@
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
 			<version>1.3.2</version>
-		</dependency>
-		<dependency>
-			<!--
-			A library for instantiating Java objects
-			Changelog: https://github.com/easymock/objenesis/releases
-			Keep in sync with openems.mockito.version in cnf/build.bnd
-			-->
-			<groupId>org.objenesis</groupId>
-			<artifactId>objenesis</artifactId>
-			<version>3.5</version>
 		</dependency>
 		<dependency>
             <groupId>io.netty</groupId>

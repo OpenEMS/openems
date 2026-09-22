@@ -65,7 +65,7 @@ public class EebusPeerImpl extends AbstractOpenemsComponent implements EebusPeer
 		setValue(this, EebusPeer.ChannelId.CONNECTION_TYPE, this.mapConnectionType(connectionInfo.getConnectionType()));
 		setValue(this, EebusPeer.ChannelId.TRUST_LEVEL, connectionInfo.getTrustLevel());
 		setValue(this, EebusPeer.ChannelId.MISSING_TRUST, connectionInfo.getTrustLevel() < 16);
-		setValue(this, EebusPeer.ChannelId.REMOTE_IP, connectionInfo.getRemoteIP());
+		setValue(this, EebusPeer.ChannelId.REMOTE_IP, connectionInfo.getSocketAddress().toString());
 	}
 
 	private EebusPeerConnectionType mapConnectionType(ShipConnectionInfoSnapshot.ConnectionTypeEnum type) {
