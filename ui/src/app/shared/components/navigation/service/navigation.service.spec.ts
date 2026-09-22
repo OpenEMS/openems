@@ -186,7 +186,7 @@ describe("NavigationService", () => {
             );
 
             await testRoutes(navigationTree, harness);
-        }, 2000 /* Timeout for angular application to get stable*/);
+        });
     });
 
     describe("are all navigation tree routerLink existing in favorites routes", () => {
@@ -215,7 +215,7 @@ describe("NavigationService", () => {
             );
 
             await testRoutes(updatedNavigationTree, harness);
-        }, 2000 /* Timeout for angular application to get stable*/);
+        });
     });
 });
 
