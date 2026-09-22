@@ -1,4 +1,4 @@
-import { Component, model, ModelSignal, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model, ModelSignal } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -26,7 +26,19 @@ import en from "../../i18n/en.json";
             }
 
             .picker-opts {
-                --background: none;
+                --background: transparent;
+                --wheel-highlight-background: transparent;
+            }
+
+            .button-grid {
+                width: max-content;
+                margin: 0 auto;
+                background: transparent;
+
+                ion-row {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                }
             }
         `,
     ],
@@ -35,6 +47,26 @@ export class TaskFormTimeComponent {
     public startTime: ModelSignal<string | null> = model<string | null>(null);
     public endTime: ModelSignal<string | null> = model<string | null>(null);
     protected readonly spinnerId: string = uuidv4();
+
+    protected readonly timeFields: ReadonlyArray<{
+        key: string;
+        label: string;
+        id: string;
+        signal: ModelSignal<string | null>;
+    }> = [
+        {
+            key: "start",
+            label: this.translate.instant("JS_SCHEDULE.START"),
+            id: "-start-time",
+            signal: this.startTime,
+        },
+        {
+            key: "end",
+            label: this.translate.instant("JS_SCHEDULE.END"),
+            id: "-end-time",
+            signal: this.endTime,
+        },
+    ];
 
     constructor(private translate: TranslateService) {
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {

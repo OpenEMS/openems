@@ -53,7 +53,7 @@ export class ControllerEnerixControlSettingsComponent extends AbstractFormlyComp
         this.component ??= this.getComponent();
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "controlMode",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyControlMode"),

@@ -12,7 +12,7 @@ public interface TariffEntsoeGridSell extends OpenemsComponent, TariffGridSell {
 		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.text("Displays the HTTP status code")), //
 		UNABLE_TO_FETCH_MARKET_PRICES(Doc.of(Level.WARNING)//
-				.text("Unable to fetch market prices from ENTSO-E API")), //
+				.translationKey(TariffEntsoeGridSell.class, "unableToFetchMarketPrices")), //
 		;
 
 		private final Doc doc;

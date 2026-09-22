@@ -4,7 +4,6 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnOpen;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
@@ -13,7 +12,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
-	private final OnClose onClose = new io.openems.backend.uiwebsocket.impl.OnClose();
+	private final OnClose onClose;
 	private final int requestLimit;
 
 	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, int requestLimit) {
@@ -22,6 +21,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		this.onRequest = new OnRequest(parent);
 		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
+		this.onClose = new OnClose(parent);
 		this.requestLimit = requestLimit;
 	}
 

@@ -70,7 +70,6 @@ import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils;
-import io.openems.backend.metadata.odoo.odoo.http.OdooDeviceData;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.common.channel.Level;
@@ -78,7 +77,6 @@ import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.oem.OpenemsBackendOem;
@@ -750,28 +748,6 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				throw new CompletionException(e);
 			}
 		});
-	}
-
-	private EdgeMetadata deviceDataToEdgeMetadata(User user, OdooDeviceData deviceData) {
-
-		// TODO remove cached edge
-		final var cachedEdge = this.getEdge(deviceData.name()).orElse(null);
-		if (cachedEdge == null) {
-			throw new OpenemsRuntimeException("Unable to find edge with id [" + deviceData.name() + "]");
-		}
-
-		return new EdgeMetadata(//
-				deviceData.name(), //
-				deviceData.comment(), //
-				deviceData.producttype(), //
-				cachedEdge.getVersion(), //
-				deviceData.role(), //
-				cachedEdge.isOnline(), //
-				deviceData.lastmessage(), //
-				deviceData.firstSetupProtocol(), //
-				deviceData.sumState(), //
-				deviceData.settings() //
-		);
 	}
 
 	@Override
