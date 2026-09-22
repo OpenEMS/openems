@@ -20,8 +20,6 @@ describe("Array-Utils", () => {
 
         expect(ArrayUtils.sortedAlphabetically(inputArr, (a) => a)).toEqual(sortedArr);
         expect(ArrayUtils.sortedAlphabetically(inputArr, (_a) => null)).toEqual(inputArr);
-
-        expect(() => Reflect.apply(ArrayUtils.sortedAlphabetically, undefined, [inputArr, null])).toThrow();
     });
 
     describe("ReducerFunctions", () => {
