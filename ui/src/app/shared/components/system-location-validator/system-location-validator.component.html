@@ -2,10 +2,10 @@
 
 <ion-item lines="none">
   <ion-button class="ion-float-right" (click)="validateAddress()" [disabled]="isValidating || form.invalid" slot="end">
-    @if (context === 'PROFILE') {
-      <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_PROFILE' | translate }}</ion-label>
+    @if (context === "PROFILE") {
+      <ion-label>{{ "SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_PROFILE" | translate }}</ion-label>
     } @else {
-      <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_INSTALLATION' | translate }}</ion-label>
+      <ion-label>{{ "SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_INSTALLATION" | translate }}</ion-label>
     }
     <ion-icon name="sync-outline" slot="start"></ion-icon>
   </ion-button>
@@ -15,7 +15,7 @@
   @if (addressesAvailable) {
     <ion-item>
       <ion-label class="ion-font-size-larger">
-        {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_TITLE' | translate: { edgeShortName: environment.edgeShortName, id: id } }}
+        {{ "SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_TITLE" | translate: { edgeShortName: environment.edgeShortName, id: id } }}
       </ion-label>
     </ion-item>
 
@@ -24,22 +24,21 @@
         <formly-form [form]="geoCodeForm" [fields]="geoCodeFields" [model]="geoCodeModel"></formly-form>
       }
 
-      <p style="font-size: small; color: var(--ion-color-medium);">
-        @if (context === 'PROFILE') {
-          {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_PROFILE' | translate }}
+      <p style="font-size: small; color: var(--ion-color-medium)">
+        @if (context === "PROFILE") {
+          {{ "SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_PROFILE" | translate }}
         } @else {
-          {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_INSTALLATION' | translate }}
+          {{ "SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_INSTALLATION" | translate }}
         }
       </p>
     </ion-card-content>
 
-    @if (context === 'PROFILE') {
+    @if (context === "PROFILE") {
       <ion-item lines="none">
-        <ion-button class="ion-float-right" (click)="onSaveClicked()" slot="end"
-          [disabled]="isSaving || geoCodeForm.invalid || !isGeoFormVisible">
-          <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.APPLY_BUTTON_LABEL' | translate }}</ion-label>
+        <ion-button class="ion-float-right" (click)="onSaveClicked()" slot="end" [disabled]="isSaving || geoCodeForm.invalid || !isGeoFormVisible">
+          <ion-label>{{ "SYSTEM_LOCATION_VALIDATOR.APPLY_BUTTON_LABEL" | translate }}</ion-label>
           @if (isSaving) {
-            <ion-spinner name="crescent" style="color: white;" slot="start"></ion-spinner>
+            <ion-spinner name="crescent" style="color: white" slot="start"></ion-spinner>
           } @else {
             <ion-icon name="checkmark-outline" slot="start"></ion-icon>
           }
