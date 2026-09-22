@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.jenetics.engine.Limits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,6 +318,7 @@ public class Simulator {
 		try {
 			var stream = engine.build() //
 					.stream(initialPopulation) //
+					.limit(Limits.bySteadyFitness(500)) //
 					.limit(result -> !Thread.currentThread().isInterrupted());
 			if (evolutionStreamInterceptor != null) {
 				stream = evolutionStreamInterceptor.apply(stream);
