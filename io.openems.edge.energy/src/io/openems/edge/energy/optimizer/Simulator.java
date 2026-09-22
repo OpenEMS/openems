@@ -38,6 +38,7 @@ import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
+import io.jenetics.engine.Limits;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -317,6 +318,7 @@ public class Simulator {
 		try {
 			var stream = engine.build() //
 					.stream(initialPopulation) //
+					.limit(Limits.bySteadyFitness(500)) //
 					.limit(result -> !Thread.currentThread().isInterrupted());
 			if (evolutionStreamInterceptor != null) {
 				stream = evolutionStreamInterceptor.apply(stream);
@@ -355,17 +357,15 @@ public class Simulator {
 			});
 
 			// Apply final best result
-			if (Instant.now().isAfter(earliestCallback)) {
-				if (bestPt.get() == null) {
-					onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
-					return;
-				}
-				onBestResult.accept(SimulationResult.fromQuarters(//
-						this.goc, //
-						codec.decode(bestPt.get().genotype()), //
-						this.getTotalNumberOfSimulations(), //
-						this.getTotalNumberOfGenerations()));
+			if (bestPt.get() == null) {
+				onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+				return;
 			}
+			onBestResult.accept(SimulationResult.fromQuarters(//
+					this.goc, //
+					codec.decode(bestPt.get().genotype()), //
+					this.getTotalNumberOfSimulations(), //
+					this.getTotalNumberOfGenerations()));
 		} finally {
 			if (executor instanceof ThreadPoolExecutor poolExecutor) {
 				poolExecutor.shutdownNow();

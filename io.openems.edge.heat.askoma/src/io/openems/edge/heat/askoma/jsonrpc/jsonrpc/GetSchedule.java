@@ -134,7 +134,7 @@ public class GetSchedule implements EndpointRequestType<GetSchedule.Request, Get
 		 * @return the created {@link Response}
 		 */
 		public static Response create(Request request,
-				EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> esh) {
+		                              EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, EnergyScheduler.ScheduleContext> esh) {
 			return new Response(esh.getSchedule().entrySet().stream() //
 					.map(e -> {
 						final var componentId = request.componentId;

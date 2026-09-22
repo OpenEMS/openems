@@ -1,41 +1,44 @@
 package io.openems.edge.predictor.persistencemodel;
 
+import static io.openems.common.utils.DateUtils.QUARTERS_PER_DAY;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.SortedMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
-import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
-import com.google.common.util.concurrent.AtomicDouble;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.predictor.api.mlcore.datastructures.Series;
+import io.openems.edge.predictor.api.mlcore.interpolation.Interpolator;
+import io.openems.edge.predictor.api.mlcore.interpolation.LinearInterpolator;
+import io.openems.edge.predictor.api.mlcore.smoothing.GaussianKernels;
+import io.openems.edge.predictor.api.mlcore.smoothing.GaussianSmoother;
+import io.openems.edge.predictor.api.mlcore.smoothing.Smoother;
+import io.openems.edge.predictor.api.mlcore.transformer.InterpolationTransformer;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
@@ -45,23 +48,21 @@ import io.openems.edge.timedata.api.Timedata;
 @Component(//
 		name = "Predictor.PersistenceModel", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 public class PredictorPersistenceModelImpl extends AbstractPredictor
 		implements Predictor, PredictorPersistenceModel, OpenemsComponent {
 
-	/** Use that many quarters to calculate regression. */
-	private static final int REGRESSION_QUERY_QUARTERS = 2 /* hours */ * 4 /* quarters */;
-	/** Prediction that many quarters by regression. */
-	private static final int REGRESSION_APPLY_QUARTERS = 2 /* quarters */;
-	/** Use that many quarters for smoothing short-term prediction. */
-	private static final int SMOOTH_QUERY_QUARTERS = 2 /* hours */ * 4 /* quarters */;
-	/** Apply smooth factor on that many quarters. */
-	private static final int SMOOTH_APPLY_QUARTERS = 3 /* hours */ * 4 /* quarters */;
-
-	private static final int EXTRA_QUERY_QUARTERS = Math.max(SMOOTH_QUERY_QUARTERS, REGRESSION_QUERY_QUARTERS);
+	private static final int MINUTES_PER_QUARTER = 15;
+	private static final int FORECAST_QUARTERS = QUARTERS_PER_DAY * 2;
+	private static final int HISTORY_DAYS = 7;
+	private static final int MAX_INTERPOLATION_GAP_QUARTERS = 4;
+	private static final int TRANSITION_QUARTERS = 2;
 
 	private final Logger log = LoggerFactory.getLogger(PredictorPersistenceModelImpl.class);
+
+	private final InterpolationTransformer<Instant> interpolationTransformer;
+	private final Smoother smoother;
 
 	@Reference
 	private Sum sum;
@@ -72,11 +73,34 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor
 	@Reference
 	private ComponentManager componentManager;
 
-	public PredictorPersistenceModelImpl() throws OpenemsNamedException {
+	PredictorPersistenceModelImpl(//
+			Interpolator interpolator, //
+			Smoother smoother) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				PredictorPersistenceModel.ChannelId.values() //
+				PredictorPersistenceModel.ChannelId.values()//
+		);
+		this.interpolationTransformer = new InterpolationTransformer<>(interpolator);
+		this.smoother = smoother;
+	}
+
+	PredictorPersistenceModelImpl(//
+			Interpolator interpolator, //
+			Smoother smoother, //
+			Sum sum, //
+			Timedata timedata, //
+			ComponentManager componentManager) {
+		this(interpolator, smoother);
+		this.sum = sum;
+		this.timedata = timedata;
+		this.componentManager = componentManager;
+	}
+
+	public PredictorPersistenceModelImpl() {
+		this(//
+				new LinearInterpolator(MAX_INTERPOLATION_GAP_QUARTERS), //
+				new GaussianSmoother(GaussianKernels.SIZE_9)//
 		);
 	}
 
@@ -87,158 +111,172 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor
 	}
 
 	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	@Override
 	public Prediction createNewPrediction(ChannelAddress channelAddress) {
-		var now = ZonedDateTime.now(this.componentManager.getClock());
-		var fromDate = now.minus(24 * 60 + EXTRA_QUERY_QUARTERS * 15, ChronoUnit.MINUTES);
+		final var now = DateUtils.roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock()));
+		final var historyStart = now.minus(Duration.ofDays(HISTORY_DAYS));
 
-		// Query database
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
-					new Resolution(15, ChronoUnit.MINUTES));
+			queryResult = this.timedata.queryHistoricData(//
+					null, //
+					historyStart, //
+					now, //
+					Set.of(channelAddress), //
+					new Resolution(MINUTES_PER_QUARTER, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "Historic data is not available: " + e.getMessage());
-			e.printStackTrace();
+			this.logWarn(this.log, "Historic data is not available: " + e.getMessage());
 			return EMPTY_PREDICTION;
 		}
 		if (queryResult == null) {
-			this.logError(this.log, "Historic data is not available: query result is null");
-			return EMPTY_PREDICTION;
-		}
-		// Extract data
-		var data = queryResult.values().stream() //
-				.map(SortedMap::values) //
-				// extract JsonElement values as flat stream
-				.flatMap(Collection::stream) //
-				// convert JsonElement to Integer
-				.map(v -> {
-					if (v.isJsonNull()) {
-						return (Integer) null;
-					}
-					return v.getAsInt();
-				}).toList();
-		if (data.isEmpty()) {
-			this.logError(this.log, "Historic data is not available: query result is empty");
+			this.logWarn(this.log, "Historic data is not available: query result is null");
 			return EMPTY_PREDICTION;
 		}
 
-		// Apply regression for ultra-short-term prediction
-		final var regression = this.getRegressionPrediction(data);
+		final var historicSeries = extractHistoricValues(queryResult, channelAddress);
+		if (!hasExpectedResolution(historicSeries)) {
+			this.logWarn(this.log, "Historic data has gaps in timestamps");
+			return EMPTY_PREDICTION;
+		}
 
-		final var factor = this.getSmoothFactor(data);
+		final var lastDaySeries = getValuesOfLastDay(historicSeries);
+		final var interpolatedValues = this.interpolationTransformer.transform(lastDaySeries);
+		this.fillRemainingGapsWithPeriodAverage(interpolatedValues, historicSeries);
+		if (interpolatedValues.getValues().stream()//
+				.anyMatch(v -> v == null || v.isNaN())) {
+			this.logWarn(this.log, "Historic data is not available: unable to fill all gaps");
+			return EMPTY_PREDICTION;
+		}
 
-		final double reduce = -1. / SMOOTH_APPLY_QUARTERS;
-		final var i = new AtomicDouble(1.);
+		final var forecastValues = this.buildForecast(interpolatedValues);
+		final Double latestMeasuredValue = extractValue(queryResult.get(queryResult.lastKey()), channelAddress);
+		if (latestMeasuredValue != null) {
+			this.applyTransitionSmoothing(forecastValues, latestMeasuredValue);
+		}
 
-		// Prepare and return result
-		var result = Streams.concat(//
-				// -> Next 24 hours
-				// Ultra-short term prediction (by regression)
-				regression.stream(),
-				// Apply factor
-				data.stream() //
-						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS) //
-						.limit(SMOOTH_APPLY_QUARTERS) //
-						.map(v -> v == null ? null : (int) Math.round(v * reduceFactor(factor, i.getAndAdd(reduce)))), //
-				// Keep remaining
-				data.stream() //
-						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS), //
-
-				// -> to 48 hours
-				// Apply factor
-				data.stream() //
-						.skip(EXTRA_QUERY_QUARTERS) // no regression, more smoothing
-						.limit(REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
-						.map(v -> v == null ? null : (int) Math.round(v * reduceFactor(factor, i.getAndAdd(reduce)))), //
-				// Keep remaining
-				data.stream() //
-						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
-		).toArray(Integer[]::new);
-
+		final var smoothedForecastValues = this.smoother.smooth(forecastValues);
+		final var result = Arrays.stream(smoothedForecastValues)//
+				.mapToObj(value -> (int) Math.round(value))//
+				.toArray(Integer[]::new);
 		return Prediction.from(this.sum, channelAddress, now.toInstant(), result);
 	}
 
-	/**
-	 * Generate a ultra-short-term prediction purely based on regression.
-	 * 
-	 * @param data the timedata
-	 * @return the list of predictions
-	 */
-	private List<Integer> getRegressionPrediction(List<Integer> data) {
-		final var regression = new SimpleRegression();
-		final var counter = new AtomicInteger(0);
-		data.stream() //
-				.skip(data.size() - REGRESSION_QUERY_QUARTERS) //
-				.forEach(v -> {
-					var i = counter.incrementAndGet();
-					if (v == null) {
-						return;
-					}
-					regression.addData(i, v);
-				});
-		var start = counter.incrementAndGet();
-		return IntStream.range(start, start + REGRESSION_APPLY_QUARTERS) //
-				.mapToObj(i -> {
-					var p = regression.predict(i);
-					if (Double.isNaN(i)) {
-						return null; // TODO use proper value
-					}
-					return (int) Math.round(p);
-				}) //
-				.toList();
+	private static Series<Instant> extractHistoricValues(//
+			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult, //
+			ChannelAddress channelAddress) {
+		final var index = new ArrayList<Instant>(queryResult.size());
+		final var values = new ArrayList<Double>(queryResult.size());
+
+		for (var entry : queryResult.entrySet()) {
+			index.add(entry.getKey().toInstant());
+			values.add(extractValue(entry.getValue(), channelAddress));
+		}
+
+		return new Series<>(index, values);
 	}
 
-	/**
-	 * Generate a smooth factor forshort-term prediction smoothing.
-	 * 
-	 * @param data the timedata
-	 * @return the smooth factor
-	 */
-	private double getSmoothFactor(List<Integer> data) {
-		var predicted = data.stream() //
-				.limit(SMOOTH_QUERY_QUARTERS) //
-				.filter(Objects::nonNull) //
-				.mapToInt(Integer::intValue) //
-				.average();
-		var actual = Lists.reverse(data).stream() //
-				.limit(SMOOTH_QUERY_QUARTERS) //
-				.filter(Objects::nonNull) //
-				.mapToInt(Integer::intValue) //
-				.average();
-		if (actual.isPresent() && predicted.isPresent() && predicted.getAsDouble() != 0) {
-			var f = actual.getAsDouble() / predicted.getAsDouble();
-			if (f <= 0) {
-				return 1.; // Disallow zero or negative
-			} else if (f < 0 && f > -0.1) { // Avoid small negative number
-				return -0.1;
-			} else if (f > 0 && f < 0.1) { // Avoid small positive number
-				return 0.1;
-			} else {
-				return f;
+	static boolean hasExpectedResolution(Series<Instant> values) {
+		if (values.size() < QUARTERS_PER_DAY) {
+			return false;
+		}
+
+		Instant previous = null;
+
+		for (var timestamp : values.getIndex()) {
+			if (previous != null && !previous.plus(Duration.ofMinutes(MINUTES_PER_QUARTER)).equals(timestamp)) {
+				return false;
 			}
-		} else {
-			return 1.; // Avoid divide by zero
+
+			previous = timestamp;
+		}
+
+		return true;
+	}
+
+	static Series<Instant> getValuesOfLastDay(Series<Instant> historicSeries) {
+		final var end = historicSeries.getIndex().getLast();
+		final var start = end.minus(Duration.ofDays(1));
+
+		final var index = new ArrayList<Instant>();
+		final var values = new ArrayList<Double>();
+
+		for (int i = 0; i < historicSeries.size(); i++) {
+			final var timestamp = historicSeries.getIndex().get(i);
+			if (!timestamp.isBefore(start)) {
+				index.add(timestamp);
+				values.add(historicSeries.getAt(i));
+			}
+		}
+
+		return new Series<>(index, values);
+	}
+
+	void fillRemainingGapsWithPeriodAverage(//
+			Series<Instant> values, //
+			Series<Instant> historicValues) {
+		for (int i = 0; i < values.size(); i++) {
+			final var timestamp = values.getIndex().get(i);
+			final Double value = values.getAt(i);
+
+			if (value != null && !value.isNaN()) {
+				continue;
+			}
+
+			double sum = 0.0;
+			int count = 0;
+
+			for (int days = 1; days <= HISTORY_DAYS; days++) {
+				final var historicTimestamp = timestamp.minus(Duration.ofDays(days));
+				final Double historicValue = historicValues.get(historicTimestamp);
+
+				if (historicValue != null && !historicValue.isNaN()) {
+					sum += historicValue;
+					count++;
+				}
+			}
+
+			if (count > 0) {
+				values.setValueAt(i, sum / count);
+			}
 		}
 	}
 
-	/**
-	 * Steadily reduces the original factor to 1.
-	 * 
-	 * @param originalFactor the original factor
-	 * @param reduceFactor   multiply delta to 1 with this factor
-	 * @return reduced original factor
-	 */
-	private static double reduceFactor(double originalFactor, double reduceFactor) {
-		if (originalFactor > 1.) {
-			return 1. + ((originalFactor - 1) * reduceFactor);
-		} else {
-			return 1. - ((1. - originalFactor) * reduceFactor);
+	double[] buildForecast(Series<Instant> lastDaySeries) {
+		final var lastDayValues = lastDaySeries.getValues().stream()//
+				.mapToDouble(Double::doubleValue)//
+				.toArray();
+
+		final var result = new double[FORECAST_QUARTERS];
+
+		for (var i = 0; i < FORECAST_QUARTERS; i++) {
+			result[i] = lastDayValues[i % lastDayValues.length];
+		}
+
+		return result;
+	}
+
+	void applyTransitionSmoothing(double[] forecastValues, double latestMeasuredValue) {
+		final int limit = Math.min(TRANSITION_QUARTERS, forecastValues.length);
+		for (int i = 0; i < limit; i++) {
+			final double weight = (double) (i + 1) / (TRANSITION_QUARTERS + 1);
+			forecastValues[i] = latestMeasuredValue * (1 - weight) + forecastValues[i] * weight;
+		}
+	}
+
+	private static Double extractValue(//
+			SortedMap<ChannelAddress, JsonElement> valuesByChannel, ChannelAddress channelAddress) {
+		if (valuesByChannel == null) {
+			return null;
+		}
+
+		final var value = valuesByChannel.get(channelAddress);
+		if (value == null || value.isJsonNull()) {
+			return null;
+		}
+
+		try {
+			return value.getAsDouble();
+		} catch (RuntimeException e) {
+			return null;
 		}
 	}
 
@@ -246,5 +284,4 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor
 	protected ClockProvider getClockProvider() {
 		return this.componentManager;
 	}
-
 }

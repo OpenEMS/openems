@@ -130,12 +130,6 @@ describe("ControllerHeatHomeComponent", () => {
                 {
                     title: "my-PV",
                     lines: [
-                        CHANNEL_LINE("Status", "No heating"),
-                        CHANNEL_LINE("Heating output", "0 W"),
-                        CHANNEL_LINE("Current temperature", "74 °C"),
-                        LINE_INFO(
-                            "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
-                        ),
                         {
                             type: "image-line",
                             img: {
@@ -148,6 +142,12 @@ describe("ControllerHeatHomeComponent", () => {
                                 },
                             },
                         },
+                        CHANNEL_LINE("Status", "No heating"),
+                        CHANNEL_LINE("Heating output", "0 W"),
+                        CHANNEL_LINE("Current temperature", "74 °C"),
+                        LINE_INFO(
+                            "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+                        ),
                     ],
                 },
                 {

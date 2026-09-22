@@ -85,31 +85,31 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
         this.chargeStartEpochSeconds = currentData.allComponents[component.id + "/PredictedChargeStartEpochSeconds"];
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(component.id, "_PropertyMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "delayChargeState",
             currentData,
             new ChannelAddress(component.id, "DelayChargeState"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "workMode",
             currentData,
             new ChannelAddress(component.id, "_PropertyWorkMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "manualTargetTime",
             currentData,
             new ChannelAddress(component.id, "_PropertyManualTargetTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "delayChargeRiskLevel",
             currentData,
             new ChannelAddress(component.id, "_PropertyDelayChargeRiskLevel"),

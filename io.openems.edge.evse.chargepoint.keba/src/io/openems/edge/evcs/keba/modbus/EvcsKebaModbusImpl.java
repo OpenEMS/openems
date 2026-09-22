@@ -370,8 +370,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 			modbusProtocol.addTasks(//
 					new FC6WriteRegisterTask(5004,
 							m(Keba.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))),
-					new FC6WriteRegisterTask(5010,
-							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010), SCALE_FACTOR_1)),
 					new FC6WriteRegisterTask(5012, m(Keba.ChannelId.SET_UNLOCK_PLUG, new UnsignedWordElement(5012))),
 					new FC6WriteRegisterTask(5014, m(Keba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 					new FC6WriteRegisterTask(5050,

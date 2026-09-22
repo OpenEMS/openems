@@ -5,7 +5,7 @@ import localeDeExtra from "@angular/common/locales/extra/de";
 import { LOCALE_ID, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
-import { TranslateLoader, TranslateModule, TranslateService, } from "@ngx-translate/core";
+import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { User } from "src/app/shared/jsonrpc/shared";
@@ -18,34 +18,18 @@ import { registerTranslateExtension } from "./app/app.module";
 import { SettingsComponent } from "./settings.component";
 
 describe("Edge", () => {
-    const serviceSypObject = jasmine.createSpyObj<Service>(
-        "Service",
-        ["getCurrentEdge"],
-        {
-            metadata: new BehaviorSubject({
-                edges: null,
-                user: new User(
-                    "",
-                    "test.user",
-                    "admin",
-                    Language.DE.key,
-                    true,
-                    {},
-                ),
-            }),
-        },
-    );
+    const serviceSypObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "currentEdge"], {
+        metadata: new BehaviorSubject({
+            edges: null,
+            user: new User("", "test.user", "admin", Language.DE.key, true, {}),
+        }),
+        currentEdge: signal(DummyConfig.dummyEdge({})),
+    });
 
     let settingsComponent: SettingsComponent;
-    const userServiceSpyObj = jasmine.createSpyObj<UserService>(
-        "UserService",
-        ["currentUser"],
-        {
-            currentUser: signal(
-                new User("", "", "admin", "", true, { theme: Theme.LIGHT }),
-            ),
-        },
-    );
+    const userServiceSpyObj = jasmine.createSpyObj<UserService>("UserService", ["currentUser"], {
+        currentUser: signal(new User("", "", "admin", "", true, { theme: Theme.LIGHT })),
+    });
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
@@ -77,21 +61,12 @@ describe("Edge", () => {
                 translateService.addLangs(["de"]);
                 translateService.use("de");
                 registerLocaleData(localDE, "de", localeDeExtra);
-                settingsComponent = new SettingsComponent(
-                    Utils,
-                    serviceSypObject,
-                    translateService,
-                    userServiceSpyObj,
-                );
+                settingsComponent = new SettingsComponent(Utils, serviceSypObject, userServiceSpyObj);
             });
     });
 
     it("+ngOnInit - Role.ADMIN", async () => {
-        const result = await expectNgOnInit(
-            serviceSypObject,
-            Role.ADMIN,
-            settingsComponent,
-        );
+        const result = await expectNgOnInit(serviceSypObject, Role.ADMIN, settingsComponent);
         expect(result).toEqual({
             isAtLeastOwner: true,
             isAtLeastInstaller: true,
@@ -99,11 +74,7 @@ describe("Edge", () => {
         });
     });
     it("+ngOnInit - Role.INSTALLER", async () => {
-        const result = await expectNgOnInit(
-            serviceSypObject,
-            Role.INSTALLER,
-            settingsComponent,
-        );
+        const result = await expectNgOnInit(serviceSypObject, Role.INSTALLER, settingsComponent);
         expect(result).toEqual({
             isAtLeastOwner: true,
             isAtLeastInstaller: true,
@@ -111,11 +82,7 @@ describe("Edge", () => {
         });
     });
     it("+ngOnInit - Role.OWNER", async () => {
-        const result = await expectNgOnInit(
-            serviceSypObject,
-            Role.OWNER,
-            settingsComponent,
-        );
+        const result = await expectNgOnInit(serviceSypObject, Role.OWNER, settingsComponent);
         expect(result).toEqual({
             isAtLeastOwner: true,
             isAtLeastInstaller: false,

@@ -40,7 +40,10 @@ COPY --from=build_edge --chown=abc:abc /opt/openems-edge.jar /opt/openems/openem
 
 RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
 
-RUN echo "Alpine Linux $(apk version alpine-baselayout 2>/dev/null | awk -F'-' '{print $3}' | grep -v '^$')" | tee /app/version
+RUN echo "Alpine Linux $(apk version alpine-baselayout 2>/dev/null | awk -F'-' '{print $3}' | grep -v '^$')" \
+    | tee /app/version
+
+ENV EXTRA_JVM_OPTS=""
 
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data

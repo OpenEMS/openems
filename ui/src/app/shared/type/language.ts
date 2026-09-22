@@ -195,8 +195,8 @@ export class Language {
      *
      * Only German and English documentation is available, falls back to English otherwise.
      *
-     * @param key the language key
-     * @returns {@link Language.DE.key} or {@link Language.EN.key}
+     * @param key The language key
+     * @returns {@link Language.DE.key} Or {@link Language.EN.key}
      */
     public static getDocsLang(key: string): typeof Language.DE.key | typeof Language.EN.key {
         return key === Language.DE.key ? Language.DE.key : Language.EN.key;
