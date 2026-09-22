@@ -3,6 +3,7 @@ package io.openems.edge.predictor.api.mlcore.datastructures;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -82,10 +83,8 @@ public class SeriesTest {
 	}
 
 	@Test
-	public void testGet_ShouldThrow_WhenIndexNotFound() {
-		assertThrows(//
-				IllegalArgumentException.class, //
-				() -> this.series.get(4));
+	public void testGet_ShouldReturnNull_WhenIndexNotFound() {
+		assertNull(this.series.get(4));
 	}
 
 	@Test

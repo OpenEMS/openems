@@ -80,13 +80,12 @@ public class Series<I> implements DataStructure<I> {
 	 * Returns the value associated with the given index.
 	 *
 	 * @param idx index key
-	 * @return value at the specified index
-	 * @throws IllegalArgumentException if index is not found
+	 * @return value at the specified index; {@code null} if the index is not found
 	 */
 	public Double get(I idx) {
 		var pos = this.indexToPos.get(idx);
 		if (pos == null) {
-			throw new IllegalArgumentException("Index not found: " + idx);
+			return null;
 		}
 		return this.values.get(pos);
 	}
