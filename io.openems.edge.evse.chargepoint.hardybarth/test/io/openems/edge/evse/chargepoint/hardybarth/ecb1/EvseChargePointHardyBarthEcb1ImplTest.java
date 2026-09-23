@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Test;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.channel.Level;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase;
@@ -184,16 +186,55 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
 		test //
 				.next(new TestCase() //
+						.activateStrictMode() //
 						.onBeforeProcessImage(() -> {
 							handler.handleChargeControlResponse(CHARGECONTROL_CHARGING);
 							handler.handleMeterResponse(METER_CHARGING);
 						}) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
-						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, "C") //
+
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 3680) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 3680) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 3680) //
+
+						.output(ElectricityMeter.ChannelId.CURRENT, 48000) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, 16_000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 16_000) //
+
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 230_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 10000L) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 230_000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 230_000) //
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 10000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, null) //
+						.output(ElectricityMeter.ChannelId.FREQUENCY, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, null) //
+
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, true) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, 16.0) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, 16.0) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, 75740051) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, "eCB1 intern") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, "eCHARGE") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_MODE, "manual") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, "C") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE_ID, 5) //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_VENDOR, "Phoenix Contact") //
+						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_VERSION, "V1.3.1") //
+
+						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
 				);
 	}
 
@@ -287,12 +328,9 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		handler.setTarget(10);
 		pool.update();
 
-		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/mode/manual/ampere")),
-				"Expected a manualmodeamp POST");
-		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/start")),
-				"Expected a start POST");
-		assertTrue(sentBodies.stream().anyMatch(b -> b.contains("manualmodeamp=10")),
-				"Expected manualmodeamp=10");
+		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/mode/manual/ampere")), "Expected a manualmodeamp POST");
+		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/start")), "Expected a start POST");
+		assertTrue(sentBodies.stream().anyMatch(b -> b.contains("manualmodeamp=10")), "Expected manualmodeamp=10");
 	}
 
 	@Test
@@ -467,9 +505,7 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		handler.setTarget(0);
 		pool.update();
 
-		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/stop")),
-				"Expected a stop POST");
-		assertFalse(sentUrls.stream().anyMatch(u -> u.contains("/start")),
-				"Should not send /start when stopping");
+		assertTrue(sentUrls.stream().anyMatch(u -> u.contains("/stop")), "Expected a stop POST");
+		assertFalse(sentUrls.stream().anyMatch(u -> u.contains("/start")), "Should not send /start when stopping");
 	}
 }

@@ -1,8 +1,12 @@
 package io.openems.edge.evse.chargepoint.hardybarth.ecb1;
 
 import static io.openems.common.bridge.http.api.HttpMethod.POST;
+import static io.openems.common.utils.JsonUtils.getAsBooleanOrNull;
+import static io.openems.common.utils.JsonUtils.getAsDoubleOrNull;
+import static io.openems.common.utils.JsonUtils.getAsIntOrNull;
+import static io.openems.common.utils.JsonUtils.getAsStringOrNull;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-import static java.lang.Math.round;
+import static io.openems.edge.common.type.TypeUtils.multiply;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -16,10 +20,15 @@ import com.google.gson.JsonObject;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonObjectPath;
+import io.openems.common.jsonrpc.serialization.JsonObjectPathActual;
+import io.openems.common.jsonrpc.serialization.JsonObjectPathActual.JsonObjectPathActualNonNull;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.LatestWinsFutureExecutor;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Handles all HTTP communication with the Hardy Barth cPH1 ECB1 REST API.
@@ -158,34 +167,34 @@ public class Ecb1Handler {
 			json = JsonUtils.parseToJsonObject(body);
 		} catch (Exception e) {
 			this.log.warn("Cannot parse ECB1 charge-control response: " + e.getMessage());
-			return;
+			json = new JsonObject();
 		}
 
-		var cc = json.getAsJsonObject("chargecontrol");
-		if (cc == null) {
-			return;
-		}
+		final var cc = JsonUtils.getAsOptionalJsonObject(json, "chargecontrol").orElse(null);
+		final var hb = this.parent;
 
-		var stateId = getIntOrNull(cc, "stateid");
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
-		var state = getStringOrNull(cc, "state");
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, state);
-		var mode = getStringOrNull(cc, "mode");
+		final var stateId = getAsIntOrNull(cc, "stateid");
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE_ID, stateId);
+		final var state = getAsStringOrNull(cc, "state");
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_STATE, state);
+		final var mode = getAsStringOrNull(cc, "mode");
 		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_MODE, mode);
-		var connected = getBooleanOrNull(cc, "connected");
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP, getDoubleOrNull(cc, "manualmodeamp"));
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP, getDoubleOrNull(cc, "currentpwmamp"));
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VENDOR, getStringOrNull(cc, "vendor"));
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VERSION, getStringOrNull(cc, "version"));
+		final var connected = getAsBooleanOrNull(cc, "connected");
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CONNECTED, connected);
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_MANUAL_MODE_AMP,
+				getAsDoubleOrNull(cc, "manualmodeamp"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_CURRENT_PWM_AMP,
+				getAsDoubleOrNull(cc, "currentpwmamp"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VENDOR, getAsStringOrNull(cc, "vendor"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_VERSION, getAsStringOrNull(cc, "version"));
 
 		// Re-set manual mode if the device has drifted to another mode
 		if (mode != null && !mode.equals("manual")) {
 			this.setManualMode();
 		}
 
-		this.parent.onCommunicationFailed(false);
-		this.parent.onChargeControlStatus(state, stateId, connected);
+		hb.onCommunicationFailed(false);
+		hb.onChargeControlStatus(state, stateId, connected);
 	}
 
 	/**
@@ -203,112 +212,36 @@ public class Ecb1Handler {
 		JsonObject json;
 		try {
 			json = JsonUtils.parseToJsonObject(body);
-		} catch (Exception e) {
+		} catch (OpenemsNamedException e) {
 			this.log.warn("Cannot parse ECB1 meter response: " + e.getMessage());
-			this.clearMeterValues();
-			return;
+			json = new JsonObject();
 		}
 
-		var meter = JsonUtils.getAsOptionalJsonObject(json, "meter").orElse(null);
-		if (meter == null) {
-			this.clearMeterValues();
-			return;
-		}
+		final var meter = JsonUtils.getAsOptionalJsonObject(json, "meter").orElse(null);
+		final var data = JsonUtils.getAsOptionalJsonObject(meter, "data").orElse(null);
+		final var hb = this.parent;
 
-		var data = JsonUtils.getAsOptionalJsonObject(meter, "data").orElse(null);
-		if (data == null) {
-			this.clearMeterValues();
-			return;
-		}
-
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, getIntOrNull(meter, "serial"));
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, getStringOrNull(meter, "vendor"));
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, getStringOrNull(meter, "type"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, getAsIntOrNull(meter, "serial"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, getAsStringOrNull(meter, "vendor"));
+		setValue(hb, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, getAsStringOrNull(meter, "type"));
 
 		// Active power (W)
-		var powerTotal = roundToInt(getObisDouble(data, OBIS_POWER_TOTAL));
-		var powerL1 = roundToInt(getObisDouble(data, OBIS_POWER_L1));
-		var powerL2 = roundToInt(getObisDouble(data, OBIS_POWER_L2));
-		var powerL3 = roundToInt(getObisDouble(data, OBIS_POWER_L3));
-
-		this.parent._setActivePower(powerTotal);
-		this.parent._setActivePowerL1(powerL1);
-		this.parent._setActivePowerL2(powerL2);
-		this.parent._setActivePowerL3(powerL3);
+		setValue(hb, ElectricityMeter.ChannelId.ACTIVE_POWER, getAsDoubleOrNull(data, OBIS_POWER_TOTAL));
+		setValue(hb, ElectricityMeter.ChannelId.ACTIVE_POWER_L1, getAsDoubleOrNull(data, OBIS_POWER_L1));
+		setValue(hb, ElectricityMeter.ChannelId.ACTIVE_POWER_L2, getAsDoubleOrNull(data, OBIS_POWER_L2));
+		setValue(hb, ElectricityMeter.ChannelId.ACTIVE_POWER_L3, getAsDoubleOrNull(data, OBIS_POWER_L3));
 
 		// Current (A → mA)
-		var currentL1 = roundToInt(scale(getObisDouble(data, OBIS_CURRENT_L1), 1000.0));
-		var currentL2 = roundToInt(scale(getObisDouble(data, OBIS_CURRENT_L2), 1000.0));
-		var currentL3 = roundToInt(scale(getObisDouble(data, OBIS_CURRENT_L3), 1000.0));
-
-		this.parent._setCurrentL1(currentL1);
-		this.parent._setCurrentL2(currentL2);
-		this.parent._setCurrentL3(currentL3);
+		setValue(hb, ElectricityMeter.ChannelId.CURRENT_L1, multiply(getAsDoubleOrNull(data, OBIS_CURRENT_L1), 1000.0));
+		setValue(hb, ElectricityMeter.ChannelId.CURRENT_L2, multiply(getAsDoubleOrNull(data, OBIS_CURRENT_L2), 1000.0));
+		setValue(hb, ElectricityMeter.ChannelId.CURRENT_L3, multiply(getAsDoubleOrNull(data, OBIS_CURRENT_L3), 1000.0));
 
 		// Voltage (V → mV)
-		var voltageL1 = roundToInt(scale(getObisDouble(data, OBIS_VOLTAGE_L1), 1000.0));
-		var voltageL2 = roundToInt(scale(getObisDouble(data, OBIS_VOLTAGE_L2), 1000.0));
-		var voltageL3 = roundToInt(scale(getObisDouble(data, OBIS_VOLTAGE_L3), 1000.0));
-
-		this.parent._setVoltageL1(voltageL1);
-		this.parent._setVoltageL2(voltageL2);
-		this.parent._setVoltageL3(voltageL3);
+		setValue(hb, ElectricityMeter.ChannelId.VOLTAGE_L1, multiply(getAsDoubleOrNull(data, OBIS_VOLTAGE_L1), 1000.0));
+		setValue(hb, ElectricityMeter.ChannelId.VOLTAGE_L2, multiply(getAsDoubleOrNull(data, OBIS_VOLTAGE_L2), 1000.0));
+		setValue(hb, ElectricityMeter.ChannelId.VOLTAGE_L3, multiply(getAsDoubleOrNull(data, OBIS_VOLTAGE_L3), 1000.0));
 
 		// Energy (Wh)
-		var energyWh = getObisDouble(data, OBIS_ENERGY_TOTAL);
-		Long energyWhLong = energyWh == null ? null : (long) Math.round(energyWh);
-		this.parent._setActiveProductionEnergy(energyWhLong);
-		this.parent._setActiveConsumptionEnergy(energyWhLong);
-	}
-
-	private void clearMeterValues() {
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, null);
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, null);
-		setValue(this.parent, EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_TYPE, null);
-
-		this.parent._setActivePower(null);
-		this.parent._setActivePowerL1(null);
-		this.parent._setActivePowerL2(null);
-		this.parent._setActivePowerL3(null);
-		this.parent._setCurrentL1(null);
-		this.parent._setCurrentL2(null);
-		this.parent._setCurrentL3(null);
-		this.parent._setVoltageL1(null);
-		this.parent._setVoltageL2(null);
-		this.parent._setVoltageL3(null);
-		this.parent._setActiveProductionEnergy(null);
-		this.parent._setActiveConsumptionEnergy(null);
-	}
-
-	// -------------------------------------------------------------------------
-	// JSON helpers
-	// -------------------------------------------------------------------------
-
-	private static Double getObisDouble(JsonObject data, String obisCode) {
-		return JsonUtils.getAsOptionalDouble(data, obisCode).orElse(null);
-	}
-
-	private static Integer roundToInt(Double value) {
-		return value == null ? null : (int) round(value);
-	}
-
-	private static Double scale(Double value, double factor) {
-		return value == null ? null : value * factor;
-	}
-
-	private static Integer getIntOrNull(JsonObject obj, String key) {
-		return JsonUtils.getAsOptionalInt(obj, key).orElse(null);
-	}
-
-	private static String getStringOrNull(JsonObject obj, String key) {
-		return JsonUtils.getAsOptionalString(obj, key).orElse(null);
-	}
-
-	private static Boolean getBooleanOrNull(JsonObject obj, String key) {
-		return JsonUtils.getAsOptionalBoolean(obj, key).orElse(null);
-	}
-
-	private static Double getDoubleOrNull(JsonObject obj, String key) {
-		return JsonUtils.getAsOptionalDouble(obj, key).orElse(null);
+		setValue(hb, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, getAsDoubleOrNull(data, OBIS_ENERGY_TOTAL));
 	}
 }
