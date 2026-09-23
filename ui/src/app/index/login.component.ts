@@ -1,9 +1,7 @@
-import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnDestroy, } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
-import { ModalController, ViewWillEnter } from "@ionic/angular";
-import { CookieService } from "ngx-cookie-service";
+import { ViewWillEnter } from "@ionic/angular";
 import { DeviceInfo } from "ngx-device-detector";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
@@ -13,8 +11,7 @@ import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
-import { UserService } from "../shared/service/user.service";
-import { Edge, Service, Utils, Websocket } from "../shared/shared";
+import { Edge, Service, Websocket } from "../shared/shared";
 import { States } from "../shared/states/states";
 
 @Component({
@@ -25,16 +22,18 @@ import { States } from "../shared/states/states";
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
-    public currentThemeMode!: UserTheme;
-    public environment = environment;
-    public form!: FormGroup;
+
+    public readonly environment = environment;
+
+    protected readonly operatingSystem: DeviceInfo["os"] | null = null;
+    protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
+    protected readonly States = States;
+
     protected formIsDisabled: boolean = false;
     protected popoverActive: "android" | "ios" | null = null;
     protected showPassword: boolean = false;
-    protected readonly operatingSystem: DeviceInfo["os"] | null = null;
-    protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
     protected websocketStatus = computed(() => this.websocket.state());
-    protected readonly States = States;
+
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
 
@@ -43,21 +42,11 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     constructor(
         public service: Service,
         public websocket: Websocket,
-        public utils: Utils,
         private router: Router,
         private route: ActivatedRoute,
         private cdref: ChangeDetectorRef,
-        protected modalCtrl: ModalController,
-        private userService: UserService,
-        private cookieService: CookieService,
     ) {
         this.operatingSystem = this.platFormService.getDevice().getDeviceInfo().os;
-        effect(() => {
-            const user = this.userService.currentUser();
-            this.currentThemeMode = userService.getValidBrowserTheme(
-                user?.getThemeFromSettings() ?? (localStorage.getItem("THEME") as UserTheme),
-            );
-        });
     }
 
     public static getCurrentTheme(user: User): UserTheme {
@@ -71,7 +60,10 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      * @param username The username
      * @returns Trimmed credentials
      */
-    public static preprocessCredentials(password: string | null, username?: string | null): { password: string; username?: string } {
+    public static preprocessCredentials(
+        password: string | null,
+        username?: string | null,
+    ): { password: string; username?: string } {
         return {
             password: password?.trim() ?? "",
             ...(username && { username: username?.trim().toLowerCase() }),
