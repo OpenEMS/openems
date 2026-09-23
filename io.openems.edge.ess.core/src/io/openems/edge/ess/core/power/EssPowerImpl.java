@@ -3,8 +3,8 @@ package io.openems.edge.ess.core.power;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE;
-import static org.osgi.service.component.annotations.ConfigurationPolicy.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -18,6 +18,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +39,10 @@ import io.openems.edge.common.filter.Filter;
 import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+
 import io.openems.edge.ess.core.power.v1.PowerDistributionHandlerV1;
 import io.openems.edge.ess.core.power.v2.PowerDistributionHandlerV2;
 import io.openems.edge.ess.power.api.Coefficient;
@@ -51,7 +55,7 @@ import io.openems.edge.ess.power.api.Relationship;
 @Component(//
 		name = EssPower.SINGLETON_SERVICE_PID, //
 		immediate = true, //
-		configurationPolicy = OPTIONAL, //
+		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
 				"enabled=true" //
 		})
@@ -71,6 +75,10 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
@@ -100,6 +108,9 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		if (this.httpBridgeFactory != null) {
+			this.httpBridge = this.httpBridgeFactory.get();
+		}
 		this.updateConfig(config);
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
@@ -120,6 +131,10 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		if (this.httpBridge != null && this.httpBridgeFactory != null) {
+			this.httpBridgeFactory.unget(this.httpBridge);
+			this.httpBridge = null;
+		}
 		super.deactivate();
 	}
 
@@ -135,7 +150,8 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 				OPTIMIZE_BY_MOVING_TOWARDS_TARGET, //
 				OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER, //
 				OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
-				OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL //
+				OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
+				OPTIMIZE_BY_HTTP_EXTERNAL //
 			-> new PowerDistributionHandlerV1(//
 					config.strategy(), config.symmetricMode(), config.debugMode(), //
 					() -> this.esss, //
@@ -144,6 +160,9 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 		case BALANCE //
 			-> new PowerDistributionHandlerV2(() -> this.esss, this::_setNotSolved);
 		};
+		if (this.powerDistributionHandler instanceof PowerDistributionHandlerV1 v1Handler && this.httpBridge != null) {
+			v1Handler.setHttpBridge(this.httpBridge);
+		}
 		this.powerDistributionHandler.onUpdateEsss();
 	}
 

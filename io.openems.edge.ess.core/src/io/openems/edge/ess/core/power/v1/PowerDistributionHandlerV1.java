@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.BooleanConsumer;
+import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.PowerDistributionHandler;
@@ -53,6 +54,10 @@ public class PowerDistributionHandlerV1 implements PowerDistributionHandler {
 			onSetSolveDuration.accept(duration);
 			onSetSolveStrategy.accept(strategy);
 		});
+	}
+
+	public void setHttpBridge(BridgeHttp httpBridge) {
+		this.solver.setHttpBridge(httpBridge);
 	}
 
 	@Override

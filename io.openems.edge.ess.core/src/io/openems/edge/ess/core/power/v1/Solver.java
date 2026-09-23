@@ -6,6 +6,7 @@ import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_A
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_HTTP_EXTERNAL;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
+import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
@@ -32,6 +34,7 @@ import io.openems.edge.ess.core.power.v1.data.InverterPrecision;
 import io.openems.edge.ess.core.power.v1.data.LogUtil;
 import io.openems.edge.ess.core.power.v1.data.TargetDirection;
 import io.openems.edge.ess.core.power.v1.optimizers.AddConstraintsForNotStrictlyDefinedCoefficients;
+import io.openems.edge.ess.core.power.v1.optimizers.HttpPollSolver;
 import io.openems.edge.ess.core.power.v1.optimizers.KeepAllEqual;
 import io.openems.edge.ess.core.power.v1.optimizers.KeepAllNearEqual;
 import io.openems.edge.ess.core.power.v1.optimizers.KeepTargetDirectionAndMaximizeInOrder;
@@ -58,6 +61,8 @@ public class Solver {
 
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
+
+	private BridgeHttp httpBridge;
 
 	private final ThrowingFunction<List<Inverter>, PointValuePair, Exception> solveWithDisabledInverters;
 
@@ -88,6 +93,26 @@ public class Solver {
 	 */
 	public void onSolved(OnSolved onSolvedCallback) {
 		this.onSolvedCallback = onSolvedCallback;
+	}
+
+	/**
+	 * Sets or updates the HTTP bridge for external solver communication.
+	 *
+	 * @param httpBridge the BridgeHttp instance, can be null to disable HTTP
+	 *                   optimization
+	 */
+	public void setHttpBridge(BridgeHttp httpBridge) {
+		this.httpBridge = httpBridge;
+		this.log.debug("HTTP bridge {} for external solver", httpBridge != null ? "configured" : "disabled");
+	}
+
+	/**
+	 * Checks if HTTP-based optimization is available.
+	 *
+	 * @return true if HTTP bridge is configured
+	 */
+	public boolean isHttpOptimizationAvailable() {
+		return this.httpBridge != null;
 	}
 
 	/**
@@ -200,6 +225,13 @@ public class Solver {
 						OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
 						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						OPTIMIZE_BY_MOVING_TOWARDS_TARGET); // //
+
+			case OPTIMIZE_BY_HTTP_EXTERNAL //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						OPTIMIZE_BY_HTTP_EXTERNAL, //
+						OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
+						OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
+						OPTIMIZE_BY_MOVING_TOWARDS_TARGET); //
 			};
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
@@ -276,6 +308,14 @@ public class Solver {
 			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
 				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.esssSupplier.get(), allInverters,
 						allConstraints, targetDirection, this.debugMode);
+				break;
+			case OPTIMIZE_BY_HTTP_EXTERNAL:
+				if (this.isHttpOptimizationAvailable()) {
+					solution = HttpPollSolver.apply(this.data.getCoefficients(), this.esssSupplier.get(), allInverters,
+							allConstraints, targetDirection, this.httpBridge);
+				} else {
+					this.log.warn("HTTP optimization requested but HTTP bridge not available, skipping strategy");
+				}
 				break;
 			}
 
