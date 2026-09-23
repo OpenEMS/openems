@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.cph2;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;

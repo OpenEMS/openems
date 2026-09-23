@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.cph2;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;

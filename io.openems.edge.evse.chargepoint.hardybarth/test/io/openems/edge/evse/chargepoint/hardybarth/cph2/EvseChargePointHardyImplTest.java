@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.cph2;
 
 import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.common.test.TestUtils.withValue;
@@ -202,8 +202,8 @@ class EvseChargePointHardyImplTest {
 				boolean expectedCanStart) throws Exception {
 			final var sut = generateSut();
 			sut.test.next(new TestCase() //
-					.onBeforeProcessImage(
-							() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
+					.onBeforeProcessImage(() -> sut.evseHandler //
+							.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
 					.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, expectedRawValue) //
 					// An undefined or unknown value must not trigger a warning/fault channel.
 					.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
