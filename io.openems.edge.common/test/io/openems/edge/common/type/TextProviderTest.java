@@ -2,11 +2,12 @@ package io.openems.edge.common.type;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.session.Language;
 
 public class TextProviderTest {
+
 	@Test
 	public void testTextProvider() {
 		var translationProvider = TextProvider.byTranslation(TextProviderTest.class, "Testing");

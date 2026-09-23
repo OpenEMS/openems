@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.cph2;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;

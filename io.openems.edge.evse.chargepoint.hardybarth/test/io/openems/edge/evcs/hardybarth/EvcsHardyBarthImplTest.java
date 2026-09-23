@@ -9,8 +9,8 @@ import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.EMPTY_
 import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_MISSING;
 import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_STATUS_IDLE;
 import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -319,8 +319,8 @@ class EvcsHardyBarthImplTest {
 
 	/**
 	 * Lightweight check that {@link HardyBarth#hasPhaseSwitchingApi()} and
-	 * {@link HardyBarth#canStartPhaseSwitch()} are available on this
-	 * architecture too; the detailed mapping/interpretation is covered by
+	 * {@link HardyBarth#canStartPhaseSwitch()} are available on this architecture
+	 * too; the detailed mapping/interpretation is covered by
 	 * {@code EvseChargePointHardyImplTest}.
 	 */
 	@Test
@@ -345,8 +345,8 @@ class EvcsHardyBarthImplTest {
 		var rh = ReflectionUtils.<EvcsHandler>getValueViaReflection(sut, "handler");
 
 		test.next(new TestCase() //
-				.onBeforeProcessImage(
-						() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE), phaseRotation)));
+				.onBeforeProcessImage(() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE),
+						phaseRotation)));
 		assertTrue(sut.hasPhaseSwitchingApi());
 		assertTrue(sut.canStartPhaseSwitch());
 

@@ -1,4 +1,4 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.cph2;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -6,8 +6,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.PhaseRotation;
 
-@ObjectClassDefinition(name = "EVSE Charge-Point Hardy Barth", //
-		description = "The Hardy Barth P electric vehicle charging station")
+@ObjectClassDefinition(name = "EVSE Charge-Point Hardy Barth cPH2", //
+		description = "The Hardy Barth cPH2 electric vehicle charging station with Salia")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -31,5 +31,5 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
-	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point Hardy Barth [{id}]";
+	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point Hardy Barth cPH2 [{id}]";
 }

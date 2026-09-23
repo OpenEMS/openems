@@ -1,12 +1,13 @@
-= Hardy Barth Salia Charging Station
+= Hardy Barth Charging Stations
 
-Three-phase AC charging station with REST API integration.
+Three-phase AC charging stations with REST API integration.
 
 == Overview
 
-This bundle provides integration with the Salia charging station by Hardy Barth, a three-phase AC electric vehicle charging station designed for commercial and residential charging applications. The station communicates via REST API over IP for flexible integration with energy management systems.
+This bundle provides integration with Hardy Barth charging stations. Two device families are supported, each using a different REST API:
 
-Hardy Barth Salia is suitable for commercial charging networks, workplace charging, and site energy management requiring three-phase charging integration.
+* **Hardy Barth Salia** (`Evcs.HardyBarth`, `Evse.ChargePoint.HardyBarth`) – Salia controller API (`/api/secc`)
+* **Hardy Barth cPH1 (ECB1)** (`Evse.ChargePoint.HardyBarth.cPH1`) – eCharge ECB1 REST API (`/api/v1/chargecontrols/`, `/api/v1/meters/`)
 
 == Supported Devices
 
@@ -82,5 +83,65 @@ This bundle implements the following OpenEMS Components:
 * `logVerbosity` (LogVerbosity): Debug logging level
 
 [[_evcs_hardy]]
+
+=== <<_evse_cph1,EVSE Charge-Point Hardy Barth cPH1>>
+
+*Name*: EVSE Charge-Point Hardy Barth cPH1
+
+*Factory-PID*: `Evse.ChargePoint.HardyBarth.cPH1`
+
+.Implemented Natures/Interfaces
+* EvseChargePointHardyBarthEcb1
+* OpenemsComponent
+* EvseChargePoint
+* ElectricityMeter
+
+*Description*: EVSE interface for the Hardy Barth eCharge cPH1 wallbox (EVCC Basic controller, ECB1 REST API).
+Reads charge-control status and meter data from `/api/v1/chargecontrols/{id}` and `/api/v1/meters/{id}`.
+Write operations (start, stop, set current) are dispatched as HTTP POST requests.
+
+.*Configuration*:
+
+* `id` (String): Component ID for unique identification (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component
+* `ip` (String): IP address of the cPH1 wallbox (required, e.g. "192.168.2.8")
+* `chargeControlId` (Integer): Charge-control unit ID (default: 1)
+* `meterId` (Integer): Energy-meter ID (default: 1)
+* `minHwCurrent` (Integer): Minimum hardware current in mA (default: 6000)
+* `maxHwCurrent` (Integer): Maximum hardware current in mA (default: 32000)
+* `phaseRotation` (PhaseRotation): Phase wiring configuration (default: L1_L2_L3)
+* `readOnly` (Boolean): Read-only mode (monitoring only) vs managed control (default: false)
+
+.ECB1 API Endpoints Used
+|===
+| Operation | Method | Endpoint
+
+| Read charge-control status
+| GET
+| `/api/v1/chargecontrols/{id}`
+
+| Read meter data
+| GET
+| `/api/v1/meters/{id}`
+
+| Set manual mode
+| POST
+| `/api/v1/chargecontrols/{id}/mode` (`mode=manual`)
+
+| Start charging
+| POST
+| `/api/v1/chargecontrols/{id}/start`
+
+| Stop charging
+| POST
+| `/api/v1/chargecontrols/{id}/stop`
+
+| Set current
+| POST
+| `/api/v1/chargecontrols/{id}/mode/manual/ampere` (`manualmodeamp={A}`)
+|===
+
+[[_evse_cph1]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.hardybarth[Source Code icon:github[]]
