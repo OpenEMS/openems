@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, untracked } from "@angular/core";
-import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -30,7 +29,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if the logged in user is allowed to install new edges. */
     public loggedInUserCanInstall = model<boolean>(false);
 
-    public form!: FormGroup;
     public filteredEdges = model<Edge[]>([]);
 
     protected loading = signal(false);
