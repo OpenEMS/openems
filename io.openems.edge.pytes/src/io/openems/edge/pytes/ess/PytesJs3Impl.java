@@ -109,12 +109,14 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	private Meta meta;
 
-	// Grid meter for the dynamic feed-in limitation (optional). The target is
-	// bound to the config directly (like Controller.Ess.Balancing); a "Meter_target"
-	// config property would clash with the DS property "meter.target" (service
-	// properties are case-insensitive).
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL, //
-			target = "(&(id=${config.meter_id})(enabled=true))")
+	// Grid meter for the dynamic feed-in limitation (optional). The filter is
+	// written into the configuration as "meter.target" by updateReferenceFilter()
+	// in activate(); a target attribute with a ${config...} placeholder is not
+	// resolved at runtime and the reference would never bind. The policy has to
+	// be DYNAMIC as well, because the Pytes grid meter takes unit id and Modbus
+	// bridge from this ESS and is therefore always activated after it.
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile ElectricityMeter meter;
 
 	private final PvLimitHandler pvLimitHandler = new PvLimitHandler();
@@ -174,6 +176,10 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
+		}
+		if (config.meter_id() != null && !config.meter_id().isBlank() //
+				&& OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 		this.workMode = this.config.workMode();
