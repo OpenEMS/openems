@@ -1,10 +1,6 @@
-// @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnDestroy, } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
-import { ModalController, ViewWillEnter } from "@ionic/angular";
-import { CookieService } from "ngx-cookie-service";
 import { DeviceInfo } from "ngx-device-detector";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
@@ -14,8 +10,7 @@ import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
-import { UserService } from "../shared/service/user.service";
-import { Edge, Service, Utils, Websocket } from "../shared/shared";
+import { Edge, Service, Websocket } from "../shared/shared";
 import { States } from "../shared/states/states";
 
 @Component({
@@ -24,18 +19,20 @@ import { States } from "../shared/states/states";
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
+export class LoginComponent implements AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
-    public currentThemeMode: UserTheme;
-    public environment = environment;
-    public form: FormGroup;
+
+    public readonly environment = environment;
+
+    protected readonly operatingSystem: DeviceInfo["os"] | null = null;
+    protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
+    protected readonly States = States;
+
     protected formIsDisabled: boolean = false;
     protected popoverActive: "android" | "ios" | null = null;
     protected showPassword: boolean = false;
-    protected readonly operatingSystem: DeviceInfo["os"] | null = null;
-    protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
     protected websocketStatus = computed(() => this.websocket.state());
-    protected readonly States = States;
+
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
 
@@ -44,21 +41,11 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     constructor(
         public service: Service,
         public websocket: Websocket,
-        public utils: Utils,
         private router: Router,
         private route: ActivatedRoute,
         private cdref: ChangeDetectorRef,
-        protected modalCtrl: ModalController,
-        private userService: UserService,
-        private cookieService: CookieService,
     ) {
         this.operatingSystem = this.platFormService.getDevice().getDeviceInfo().os;
-        effect(() => {
-            const user = this.userService.currentUser();
-            this.currentThemeMode = userService.getValidBrowserTheme(
-                user?.getThemeFromSettings() ?? (localStorage.getItem("THEME") as UserTheme),
-            );
-        });
     }
 
     public static getCurrentTheme(user: User): UserTheme {
@@ -74,39 +61,13 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      */
     public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
         return {
-            password: password.trim(),
-            ...(username && { username: username.trim().toLowerCase() }),
+            password: password?.trim() ?? "",
+            ...(username && { username: username?.trim().toLowerCase() }),
         };
     }
 
     ngAfterContentChecked() {
         this.cdref.detectChanges();
-    }
-
-    async ionViewWillEnter() {
-        // Execute Login-Request if url path matches 'demo'
-        if (this.route.snapshot.routeConfig.path == "demo") {
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                    // Wait for Websocket
-                    if (States.isAtLeast(this.websocket.state(), States.WEBSOCKET_CONNECTED)) {
-                        this.service.startSpinner("loginspinner");
-                        const lang = this.route.snapshot.queryParamMap.get("lang") ?? null;
-                        if (lang) {
-                            localStorage.DEMO_LANGUAGE = lang;
-                        }
-                        resolve(
-                            this.doLogin({
-                                username: "demo@fenecon.de",
-                                password: "femsdemo",
-                            }),
-                        );
-                    }
-                }, 2000),
-            );
-        } else {
-            localStorage.removeItem("DEMO_LANGUAGE");
-        }
     }
 
     /**
@@ -124,7 +85,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
         this.formIsDisabled = true;
         this.websocket.login(new AuthenticateWithPasswordRequest(param)).finally(() => {
-            this.ionViewWillEnter();
             this.formIsDisabled = false;
         });
     }

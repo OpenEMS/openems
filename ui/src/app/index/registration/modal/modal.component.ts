@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -18,11 +17,12 @@ import { environment } from "src/environments";
     standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
-    protected formGroup: FormGroup;
-    protected activeSegment: string = "installer";
     protected readonly countries = COUNTRY_OPTIONS(this.translate);
+    protected readonly spinnerId = uuidv4();
+
+    protected formGroup!: FormGroup;
+    protected activeSegment: string = "installer";
     protected docsLink: string | null = null;
-    protected spinnerId: string | null = uuidv4();
 
     constructor(
         private formBuilder: FormBuilder,
