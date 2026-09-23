@@ -1,12 +1,14 @@
 // @ts-strict-ignore
-import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { Utils } from "src/app/shared/utils/utils";
+import { SharedControllerIoHeatingElement } from "../shared/shared";
 import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State, Unit } from "../util/utils";
 
 @Component({
@@ -17,8 +19,6 @@ import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State, Unit } fro
 })
 export class ModalComponent extends AbstractModal implements OnInit {
     private static PROPERTY_MODE: string = "_PropertyMode";
-    private static PREDICTED_PV_PRODUCTION_HOUR = 5;
-    private static POWER_OVERSHOOT_FACTOR = 1.1;
     protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(this.translate);
     protected mode: string;
     protected runState: State;
@@ -142,15 +142,24 @@ export class ModalComponent extends AbstractModal implements OnInit {
         const avgPowerPhase3 = currentData.allComponents[this.component.id + "/Phase3AvgPower"];
         const totalPower = Utils.addSafely(avgPowerPhase1, avgPowerPhase2, avgPowerPhase3);
 
-        if (totalPower !== null && (totalPower / 1000) * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR > this.maxPower) {
-            this.maxPower = Math.round(totalPower / 1000) * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR;
+        if (
+            totalPower !== null &&
+            NumberUtils.multiplySafely(
+                (NumberUtils.divideSafely(totalPower, 1000),
+                SharedControllerIoHeatingElement.PREDICTED_PV_PRODUCTION_HOUR),
+            ) > this.maxPower
+        ) {
+            this.maxPower = NumberUtils.multiplySafely(
+                Math.round(NumberUtils.divideSafely(totalPower, 1000)),
+                SharedControllerIoHeatingElement.PREDICTED_PV_PRODUCTION_HOUR,
+            );
         }
 
         const currentEnergy = currentData.allComponents[this.component.id + "/SessionEnergy"];
         this.requiredPower = this.getRequiredPower(currentEnergy);
         this.isUnreachable =
             this.requiredPower !== null
-                ? this.requiredPower > totalPower * ModalComponent.POWER_OVERSHOOT_FACTOR
+                ? this.requiredPower > totalPower * SharedControllerIoHeatingElement.POWER_OVERSHOOT_FACTOR
                 : false;
         this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
     }

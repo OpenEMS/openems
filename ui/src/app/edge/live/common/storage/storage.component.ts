@@ -54,7 +54,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @param value Takes passed value when called
      * @returns Only positive and 0
      */
-    public convertPower(value: number, isCharge?: boolean) {
+    public convertPower(value: number | null, isCharge?: boolean) {
         const locale: string = Language.geti18nLocale();
         if (value == null) {
             return "-";

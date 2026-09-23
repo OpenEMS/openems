@@ -90,7 +90,7 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
         this.component ??= this.getComponent();
 
         const inputChannelAddressToggleValueControl = FormUtils.findFormControlSafely(
-            this.form,
+            this.form(),
             "inputChannelAddressToggleValue",
         ) as FormControl<SharedIoChannelSingleThreshold.InputMode> | null;
 
@@ -107,7 +107,7 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
         const inputMode = SharedIoChannelSingleThreshold.getInputMode(this.component, inputChannelAddress, currentData);
 
         const inputChannelAddressToggleValue = FormUtils.findFormControlsValueSafely<string>(
-            this.form,
+            this.form(),
             "inputChannelAddressToggleValue",
         );
 
@@ -120,22 +120,22 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
                 currentData,
                 new ChannelAddress(this.component.id, "_PropertyInputChannelAddress").toString(),
             );
-            this.form.get("inputChannelAddress")?.markAsPristine();
+            this.form().get("inputChannelAddress")?.markAsPristine();
             this.refreshInputMode = false;
         }
 
-        this.setFormControlSafelyWithValue(this.form, "inputChannelAddressToggleValue", value);
+        this.setFormControlSafelyWithValue(this.form(), "inputChannelAddressToggleValue", value);
 
-        if (this.form.controls["invert"]?.value === null) {
+        if (this.form().controls["invert"]?.value === null) {
             this.setFormControlSafelyWithValue(
-                this.form,
+                this.form(),
                 "invert",
                 currentData.allComponents[new ChannelAddress(this.component.id, "_PropertyInvert").toString()] == 1,
             );
         }
         if (inputChannelAddressToggleValueControl != null && inputChannelAddressToggleValue != null) {
             this.setFormControlSafelyWithValue(
-                this.form,
+                this.form(),
                 "inputChannelAddress",
                 SharedIoChannelSingleThreshold.convertToChannelAddress(inputChannelAddressToggleValueControl.value),
             );
@@ -146,29 +146,29 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
             inputMode != null &&
             inputChannelAddressToggleValue != inputMode
         ) {
-            FormUtils.findFormControlSafely(this.form, "inputChannelAddress")?.markAsDirty();
+            FormUtils.findFormControlSafely(this.form(), "inputChannelAddress")?.markAsDirty();
         }
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "threshold",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyThreshold"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "switchedLoadPower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertySwitchedLoadPower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "minimumSwitchingTime",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMinimumSwitchingTime"),
@@ -176,10 +176,13 @@ export class ControllerIoChannelSingleThresholdSettingsComponent extends Abstrac
     }
 
     private normalizeThresholdForInputMode(): void {
-        const modeCtrl = this.form.get(
+        const form = this.form();
+
+        const modeCtrl = form.get(
             "inputChannelAddressToggleValue",
         ) as FormControl<SharedIoChannelSingleThreshold.InputMode> | null;
-        const thresholdCtrl = this.form.get("threshold") as FormControl<number | null> | null;
+
+        const thresholdCtrl = form.get("threshold") as FormControl<number | null> | null;
 
         if (!modeCtrl || !thresholdCtrl) {
             return;

@@ -70,7 +70,8 @@ import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Contr
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
 import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
-import { ModalComponent as IoHeatingRoomModalComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/modal/modal";
+import { ControllerIoHeatingRoomHomeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/new-navigation/new-navigation";
+import { ControllerIoHeatingRoomModeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/pages/mode/mode";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
@@ -134,7 +135,11 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         },
         {
             path: "io-heating-room/:componentId",
-            component: IoHeatingRoomModalComponent,
+            component: ControllerIoHeatingRoomHomeComponent,
+        },
+        {
+            path: "io-heating-room/:componentId/mode",
+            component: ControllerIoHeatingRoomModeComponent,
         },
         {
             path: "controller/io-fix-digital-output",

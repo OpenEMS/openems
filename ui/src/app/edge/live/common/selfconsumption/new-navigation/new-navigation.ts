@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -31,7 +31,7 @@ export class CommonSelfConsumptionHomeComponent extends AbstractFormlyComponent 
 
     protected override onCurrentData(currentData: CurrentData): void {
         this.setFormControlSafelyWithValue(
-            this.form,
+            this.form(),
             "selfConsumption",
             SharedSelfConsumption.getSelfConsumptionValue(currentData),
         );

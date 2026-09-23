@@ -71,7 +71,7 @@
       </table>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate" [value]="formGroup.controls['minTime'].value + ' h'"></oe-modal-line>
-      <oe-modal-line controlName="minTime" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true } }" [formGroup]="formGroup"></oe-modal-line>
+      <oe-range-slider controlName="minTime" [properties]="{ tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true }" [formGroup]="formGroup"></oe-range-slider>
     }
     @if (formGroup.controls["mode"].value === Mode.AUTOMATIC && consumptionMeter && consumptionMeter.isEnabled) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -87,7 +87,7 @@
     @if (formGroup.controls["mode"].value === Mode.AUTOMATIC && formGroup.controls["workMode"].value === WorkMode.ENERGY && consumptionMeter && consumptionMeter.isEnabled) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMAL_ENERGY_LIMIT' | translate" [value]="formGroup.controls['minEnergyLimitInKwh'].value + ' kWh'"></oe-modal-line>
-      <oe-modal-line controlName="minEnergyLimitInKwh" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: maxPower, unit: 'kWh ', pinFormatter: pinFormatterEnergy, snaps: true } }" [formGroup]="formGroup"></oe-modal-line>
+      <oe-range-slider [formGroup]="formGroup" controlName="minEnergyLimitInKwh" [properties]="{ tickMin: 1, tickMax: maxPower, unit: 'kWh ', pinFormatter: pinFormatterEnergy, snaps: true }"></oe-range-slider>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       <table style="width: 100%">
         <tr>
