@@ -1,7 +1,6 @@
 import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnDestroy, } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
-import { ViewWillEnter } from "@ionic/angular";
 import { DeviceInfo } from "ngx-device-detector";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
@@ -20,7 +19,7 @@ import { States } from "../shared/states/states";
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
+export class LoginComponent implements AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
 
     public readonly environment = environment;
@@ -60,10 +59,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
      * @param username The username
      * @returns Trimmed credentials
      */
-    public static preprocessCredentials(
-        password: string | null,
-        username?: string | null,
-    ): { password: string; username?: string } {
+    public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
         return {
             password: password?.trim() ?? "",
             ...(username && { username: username?.trim().toLowerCase() }),
@@ -72,32 +68,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
     ngAfterContentChecked() {
         this.cdref.detectChanges();
-    }
-
-    async ionViewWillEnter() {
-        // Execute Login-Request if url path matches 'demo'
-        if (this.route.snapshot.routeConfig?.path == "demo") {
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                    // Wait for Websocket
-                    if (States.isAtLeast(this.websocket.state(), States.WEBSOCKET_CONNECTED)) {
-                        this.service.startSpinner("loginspinner");
-                        const lang = this.route.snapshot.queryParamMap.get("lang") ?? null;
-                        if (lang) {
-                            localStorage.DEMO_LANGUAGE = lang;
-                        }
-                        resolve(
-                            this.doLogin({
-                                username: "demo@fenecon.de",
-                                password: "femsdemo",
-                            }),
-                        );
-                    }
-                }, 2000),
-            );
-        } else {
-            localStorage.removeItem("DEMO_LANGUAGE");
-        }
     }
 
     /**
@@ -115,7 +85,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
         this.formIsDisabled = true;
         this.websocket.login(new AuthenticateWithPasswordRequest(param)).finally(() => {
-            this.ionViewWillEnter();
             this.formIsDisabled = false;
         });
     }

@@ -24,16 +24,8 @@ describe("Login", () => {
             expect(LoginComponent.preprocessCredentials(password)).toEqual({ password: "password" });
         }
         {
-            // Password is null
-            expect(LoginComponent.preprocessCredentials(null)).toEqual({ password: "" });
-        }
-        {
-            // Username is null
-            expect(LoginComponent.preprocessCredentials(password, null)).toEqual({ password: "password" });
-        }
-        {
-            // Username and password are null
-            expect(LoginComponent.preprocessCredentials(null, null)).toEqual({ password: "" });
+            // Whitespace-only password is trimmed to empty string
+            expect(LoginComponent.preprocessCredentials("   ")).toEqual({ password: "" });
         }
         {
             // Username in Upper case
