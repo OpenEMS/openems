@@ -17,11 +17,12 @@ import { environment } from "src/environments";
     standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
+    protected readonly countries = COUNTRY_OPTIONS(this.translate);
+    protected readonly spinnerId = uuidv4();
+
     protected formGroup!: FormGroup;
     protected activeSegment: string = "installer";
-    protected readonly countries = COUNTRY_OPTIONS(this.translate);
     protected docsLink: string | null = null;
-    protected spinnerId: string | null = uuidv4();
 
     constructor(
         private formBuilder: FormBuilder,
@@ -93,7 +94,7 @@ export class RegistrationModalComponent implements OnInit {
                 name: companyName,
             };
         }
-        this.service.startSpinner(this.spinnerId ?? "");
+        this.service.startSpinner(this.spinnerId);
         this.websocket
             .sendRequest(request)
             .then(() => {
@@ -103,7 +104,7 @@ export class RegistrationModalComponent implements OnInit {
             .catch((reason) => {
                 this.service.toast(reason.error.message, "danger");
             })
-            .finally(() => this.service.stopSpinner(this.spinnerId ?? ""));
+            .finally(() => this.service.stopSpinner(this.spinnerId));
     }
 
     /** Get from depending on given role. If no role matches then the default (owner) from will be returnd. */
