@@ -1,5 +1,5 @@
-import { addDays, addHours, endOfToday, startOfToday, subHours, } from "date-fns";
-import { JsonrpcRequest, JsonrpcResponseSuccess, } from "src/app/shared/jsonrpc/base";
+import { addDays, addHours, endOfToday, startOfToday, subHours } from "date-fns";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
@@ -7,21 +7,28 @@ import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 /**
  * Gets a 24h Schedule.
  *
- * @typedef {{
- *     jsonrpc: "2.0";
- *     id: "UUID";
- *     method: "getSchedule";
- *     params: { from: ZonedDateTime };
- * }} Request
+ * Request:
  *
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "getSchedule",
+ *   "params": { "from": ZonedDateTime }
+ * }
+ * ```
  *
- * @typedef {{
- *     jsonrpc: "2.0";
- *     id: "UUID";
- *     result: {
- *         data: [{}];
- *     };
- * }} Response
+ * Response:
+ *
+ * ```json
+ * {
+ *     "id": "UUID",
+ *     "jsonrpc": "2.0",
+ *     "result": {
+ *         "data": [{}]
+ *     }
+ * }
+ * ```
  */
 export namespace GetSchedule {
     export const METHOD: string = "getSchedule";
@@ -108,9 +115,7 @@ export namespace GetSchedule {
 
             // Provide index of last HISTORY data
             this.lastHistoryIndex = this.getLastHistoryIndex(this.data);
-            this.data24hLastHistoryIndex = this.getLastHistoryIndex(
-                this.data24h,
-            );
+            this.data24hLastHistoryIndex = this.getLastHistoryIndex(this.data24h);
         }
 
         public getLabels24h(): Date[] {
@@ -132,20 +137,13 @@ export namespace GetSchedule {
             const entries = this.data24h.map((e) => ({
                 entry: e,
                 timestamp: new Date(e.timestamp),
-                value: this.convertByDataPoint(
-                    channel,
-                    e._sum[channel] ?? null,
-                ),
+                value: this.convertByDataPoint(channel, e._sum[channel] ?? null),
             }));
             const labels = entries.map((e) => e.timestamp);
 
             // Fill history and prediction arrays. Both share a value at lastHistoryIndex to avoid gaps in the chart line.
-            const history = entries.map((e, index) =>
-                index <= this.data24hLastHistoryIndex ? e.value : null,
-            );
-            const prediction = entries.map((e, index) =>
-                index >= this.data24hLastHistoryIndex ? e.value : null,
-            );
+            const history = entries.map((e, index) => (index <= this.data24hLastHistoryIndex ? e.value : null));
+            const prediction = entries.map((e, index) => (index >= this.data24hLastHistoryIndex ? e.value : null));
 
             return {
                 labels,
@@ -155,13 +153,13 @@ export namespace GetSchedule {
         }
 
         /**
-         * Calculates energy from power values over time intervals for today or
-         * tomorrow. Energy (kWh) = Power (kW) × Time (hours)
+         * Calculates energy from power values over time intervals for today or tomorrow. Energy (kWh) = Power (kW) ×
+         * Time (hours)
          *
          * @param day Calculate for Today or Tomorrow
          * @param channel The power channel to convert to energy, or an ESH id
-         * @returns Object with history energy (before now), prediction energy
-         *   (after now), and total energy for the day (midnight to midnight)
+         * @returns Object with history energy (before now), prediction energy (after now), and total energy for the day
+         *   (midnight to midnight)
          */
         public calculateEnergyFromPower(
             day: "today" | "tomorrow",
@@ -174,10 +172,8 @@ export namespace GetSchedule {
             const result = { history: 0, prediction: 0, total: 0 };
             const now = new Date();
 
-            const startOfDayDate =
-                day === "today" ? startOfToday() : addDays(startOfToday(), 1);
-            const endOfDayDate =
-                day === "today" ? endOfToday() : addDays(endOfToday(), 1);
+            const startOfDayDate = day === "today" ? startOfToday() : addDays(startOfToday(), 1);
+            const endOfDayDate = day === "today" ? endOfToday() : addDays(endOfToday(), 1);
 
             // Determine if this is an ESH id or a _sum channel
             const isEshsChannel = typeof channel === "object";
@@ -185,10 +181,7 @@ export namespace GetSchedule {
 
             this.data.forEach((entry, index) => {
                 // Only process entries within the requested day
-                if (
-                    entry.timestamp < startOfDayDate ||
-                    entry.timestamp > endOfDayDate
-                ) {
+                if (entry.timestamp < startOfDayDate || entry.timestamp > endOfDayDate) {
                     return;
                 }
 
@@ -203,9 +196,7 @@ export namespace GetSchedule {
                     return;
                 }
 
-                const timeDeltaMs =
-                    entry.timestamp.getTime() -
-                    previousEntry.timestamp.getTime();
+                const timeDeltaMs = entry.timestamp.getTime() - previousEntry.timestamp.getTime();
                 const timeDeltaHours = timeDeltaMs / (1000 * 60 * 60);
 
                 // Get the current power value
@@ -213,10 +204,7 @@ export namespace GetSchedule {
                 if (isEshsChannel) {
                     // Extract managedConsumption from the matching ESHS
                     const eshs = entry.eshs.find((e) => e.id === eshsId);
-                    currentPowerKw = this.convertByDataPoint(
-                        null,
-                        eshs?.managedConsumption ?? null,
-                    );
+                    currentPowerKw = this.convertByDataPoint(null, eshs?.managedConsumption ?? null);
                 } else {
                     // Use _sum channel
                     currentPowerKw = this.convertByDataPoint(
@@ -239,10 +227,7 @@ export namespace GetSchedule {
             return result;
         }
 
-        private convertByDataPoint(
-            key: keyof Data["_sum"] | null,
-            value: number | null,
-        ): number | null {
+        private convertByDataPoint(key: keyof Data["_sum"] | null, value: number | null): number | null {
             switch (key) {
                 case "EssSoc":
                     return value;
@@ -255,9 +240,7 @@ export namespace GetSchedule {
         }
 
         private getLastHistoryIndex(data: Data[]): number {
-            const reversedIndex = [...data]
-                .reverse()
-                .findIndex((e) => e.type === "HISTORY");
+            const reversedIndex = [...data].reverse().findIndex((e) => e.type === "HISTORY");
 
             return reversedIndex === -1 ? -1 : data.length - 1 - reversedIndex;
         }
@@ -268,15 +251,10 @@ export namespace GetSchedule {
      *
      * @param edge The edge
      * @param websocket The websocket connection
-     * @param from The from date. Schedule starts 4 hours before this; ends 20
-     *   hours after this
+     * @param from The from date. Schedule starts 4 hours before this; ends 20 hours after this
      * @returns A Promise of GetSchedule.Response
      */
-    export function getSchedule(
-        edge: Edge,
-        websocket: Websocket,
-        from: Date,
-    ): Promise<GetSchedule.Response> {
+    export function getSchedule(edge: Edge, websocket: Websocket, from: Date): Promise<GetSchedule.Response> {
         // Round down to next full 15-minutes
         from.setMinutes(Math.floor(from.getMinutes() / 15) * 15, 0, 0);
 
@@ -290,11 +268,7 @@ export namespace GetSchedule {
                     }),
                 }),
             )
-                .then((response) =>
-                    resolve(
-                        new GetSchedule.Response(response.id, response.result),
-                    ),
-                )
+                .then((response) => resolve(new GetSchedule.Response(response.id, response.result)))
                 .catch((error) => reject(error));
         });
     }

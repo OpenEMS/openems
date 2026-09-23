@@ -3,56 +3,46 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../../../shared
 /**
  * Represents a JSON-RPC Request for 'getOneTasks'.
  *
- * <pre>
+ * Request:
+ *
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": "getOneTasks",
- *   "params": {
- *     "from": string,
- *     "to": string
- *   }
+ *   "params": { "from": string, "to": string }
  * }
- * </pre>
+ * ```
  *
- * <p>
  * Response:
- * <pre>
+ *
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "result": {
- *     "oneTasks": [{
- *       "start": string,
- *       "end": string,
- *       "duration": string
- *     }]
- *   }
+ *   "result": { "oneTasks": [{ "start": string, "end": string, "duration": string }] }
  * }
- * </pre>
+ * ```
  */
 export namespace GetOneTasks {
-
     export const METHOD: string = "getOneTasks";
 
     export class Request extends JsonrpcRequest {
-
         public constructor(
             public override params: {
-                from: string,
-                to: string
-            }
+                from: string;
+                to: string;
+            },
         ) {
             super(GetOneTasks.METHOD, params);
         }
     }
 
     export class Response extends JsonrpcResponseSuccess {
-
         public constructor(
             public override readonly id: string,
             public override readonly result: {
-                oneTasks: OneTask[]
+                oneTasks: OneTask[];
             },
         ) {
             super(id, result);

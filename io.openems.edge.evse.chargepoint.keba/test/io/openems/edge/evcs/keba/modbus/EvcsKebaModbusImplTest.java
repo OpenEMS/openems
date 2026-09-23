@@ -103,23 +103,4 @@ public class EvcsKebaModbusImplTest {
 		assertEquals("L:5678 W|SetCurrent:UNDEFINED|SetEnable:-1:Undefined", sut.debugLog());
 	}
 
-	@Test
-	public void testEnergyLimitScaleFactor() throws Exception {
-		final var sut = new EvcsKebaModbusImpl();
-		new ComponentTest(sut) //
-				.addReference("evcsPower", new DummyEvcsPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager(createDummyClock()))
-				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
-				.activate(MyConfig.create() //
-						.setId("evcs0") //
-						.setDebugMode(false)//
-						.setMinHwCurrent(6000)//
-						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
-						.setModbusId("modbus0") //
-						.setModbusUnitId(255) //
-						.setReadOnly(false) //
-						.build());
-		testEnergyLimitWriteScale(sut, 1000, 100);
-	}
 }

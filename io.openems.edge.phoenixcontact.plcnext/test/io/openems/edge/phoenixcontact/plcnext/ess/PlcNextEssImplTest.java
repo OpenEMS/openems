@@ -94,10 +94,10 @@ public class PlcNextEssImplTest {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<>(HttpStatus.OK, Map.of(),
 							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<>(HttpStatus.OK, Map.of(),
 							"{'access_token': '" + this.accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
@@ -127,8 +127,8 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(createSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+				.thenReturn(CompletableFuture
+						.completedFuture(new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		var maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
 				.buildUrlString(this.dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
@@ -139,7 +139,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(maintainSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.dummyPower = new DummyPower();
 
@@ -182,7 +182,7 @@ public class PlcNextEssImplTest {
 				PlcNextGdsDataProvider.PATH_VARIABLES);
 		when(this.mockDummyDataBridgeHttp.requestJson(argThat(
 				arg -> Objects.nonNull(arg) && arg.method() == HttpMethod.POST && arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(readDataResponseBody)));
 
 		// -- Write
 		var setActivePowerEqualsValue = 140002;
@@ -209,7 +209,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.PUT //
 						&& arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(writeDataResponseBody)));
 
 		// test + check
 		var expectedGridModeValue = gridModeValue.getValue();
@@ -264,7 +264,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(readDataResponseBody)));
 
 		// -- Write
 		var setActivePowerEqualsValue = 140002;
@@ -291,7 +291,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.PUT //
 						&& arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(writeDataResponseBody)));
 
 		// test + check
 		var expectedGridModeValue = GridMode.UNDEFINED.getValue();
@@ -348,7 +348,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(readDataResponseBody)));
 
 		// -- Write
 		var setActivePowerEqualsValue = 140002;
@@ -375,7 +375,7 @@ public class PlcNextEssImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.PUT //
 						&& arg.url().equals(dataEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(writeDataResponseBody)));
 
 		// test + check
 		var expectedGridModeValue = GridMode.UNDEFINED.getValue();

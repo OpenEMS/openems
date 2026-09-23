@@ -4,15 +4,24 @@ import { States } from "src/app/shared/states/states";
 /**
  * Initiates a OAuth connection.
  *
- * @typedef {"jsonrpc": "2.0",
+ * Request:
+ *
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": "initiateConnect",
  *   "params": {
  *     "identifier": string
- *   }} Request
+ *   }
+ * }
+ * ```
  *
+ * Response:
  *
- * @typedef {"jsonrpc": "2.0",
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
  *     "url": string,
@@ -21,8 +30,10 @@ import { States } from "src/app/shared/states/states";
  *     "state": string,
  *     "redirectUri": string,
  *     "codeChallenge"?: string,
- *     "codeChallengeMethod"?: string,
- *   }} Response
+ *     "codeChallengeMethod"?: string
+ *   }
+ * }
+ * ```
  */
 export namespace InitiateConnect {
     export const METHOD: string = "initiateConnect";

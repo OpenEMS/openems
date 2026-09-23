@@ -39,11 +39,11 @@ export namespace Converter {
         return "" + value + " %";
     };
 
-    export const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
+    export const IF_NUMBER = (value: number | string | null | undefined, callback: (number: number) => string) => {
         if (typeof value === "number") {
             return callback(value);
         }
-        return "-"; // null or string
+        return "-"; // null, undefined or string
     };
 
     export const IF_STRING = (value: number | string | null, callback: (text: string) => string) => {
@@ -466,7 +466,7 @@ export namespace Converter {
     export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
         return (raw: number): any => {
             return IF_NUMBER(raw, (value) => {
-                return TimeUtils.formatSecondsToDuration(value, locale);
+                return TimeUtils.formatSecondsToDuration(value, locale) ?? "-";
             });
         };
     };
