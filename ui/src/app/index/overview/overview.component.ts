@@ -152,7 +152,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 return;
             }
 
-            const searchParamsObj: Record<string, unknown> = {};
+            const searchParamsObj: Record<string, ChosenFilter["value"]> = {};
             if (this.searchParams && this.searchParams.size > 0) {
                 for (const [key, value] of this.searchParams) {
                     searchParamsObj[key] = value;
