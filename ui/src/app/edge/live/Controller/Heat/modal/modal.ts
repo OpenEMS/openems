@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -53,7 +53,7 @@ export class ControllerHeatModalComponent extends AbstractFormlyComponent {
         const channelAddress =
             !readOnly && this.component != null ? new ChannelAddress(this.component.id, "_PropertyMode") : null;
         this.setFormControlSafelyWithChannel<PropertyMode>(
-            this.form,
+            this.form(),
             ControllerHeatModalComponent.formControlName,
             currentData,
             channelAddress,

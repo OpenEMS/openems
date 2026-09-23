@@ -193,7 +193,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         return environment.icons.COMMON.GRID;
     }
 
-    protected getValueText(value: number): string {
+    protected getValueText(value: number | null): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }

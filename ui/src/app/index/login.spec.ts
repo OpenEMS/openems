@@ -14,7 +14,10 @@ describe("Login", () => {
     it("#preprocessCredentials should trim password and username and should lowerCase username", () => {
         {
             // Username and password - OpenEMS Backend
-            expect(LoginComponent.preprocessCredentials(password, username)).toEqual({ password: "password", username: "username" });
+            expect(LoginComponent.preprocessCredentials(password, username)).toEqual({
+                password: "password",
+                username: "username",
+            });
         }
         {
             // Only Password - OpenEMS Edge
@@ -34,7 +37,10 @@ describe("Login", () => {
         }
         {
             // Username in Upper case
-            expect(LoginComponent.preprocessCredentials(password, username.toUpperCase())).toEqual({ password: "password", username: "username" });
+            expect(LoginComponent.preprocessCredentials(password, username.toUpperCase())).toEqual({
+                password: "password",
+                username: "username",
+            });
         }
     });
 });

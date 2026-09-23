@@ -83,8 +83,8 @@ export class Language {
         return Language.getByKey(localStorage.LANGUAGE);
     }
 
-    public static getByKey(key: string | null): Language | null {
-        if (key === null) {
+    public static getByKey(key: string | null | undefined): Language | null {
+        if (key == null) {
             return null;
         }
         for (const language of Language.ALL) {
@@ -95,7 +95,7 @@ export class Language {
         return null;
     }
 
-    public static getByBrowserLang(browserLang: string): Language | null {
+    public static getByBrowserLang(browserLang: string | null | undefined): Language | null {
         switch (browserLang) {
             case "de":
                 return Language.DE;
@@ -144,7 +144,7 @@ export class Language {
      * @param language The language
      * @returns The i18n locale
      */
-    public static geti18nLocaleByKey(language: string) {
+    public static geti18nLocaleByKey(language: string | null | undefined) {
         const lang = this.getByBrowserLang(language?.toLowerCase());
 
         if (!lang) {
@@ -195,8 +195,8 @@ export class Language {
      *
      * Only German and English documentation is available, falls back to English otherwise.
      *
-     * @param key the language key
-     * @returns {@link Language.DE.key} or {@link Language.EN.key}
+     * @param key The language key
+     * @returns {@link Language.DE.key} Or {@link Language.EN.key}
      */
     public static getDocsLang(key: string): typeof Language.DE.key | typeof Language.EN.key {
         return key === Language.DE.key ? Language.DE.key : Language.EN.key;
