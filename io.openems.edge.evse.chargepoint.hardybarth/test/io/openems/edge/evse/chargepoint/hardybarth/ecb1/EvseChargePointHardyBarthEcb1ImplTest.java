@@ -246,14 +246,12 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		test //
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
-						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, "eCHARGE") //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 10000L)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 10000L)) //
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_WITHOUT_DATA)) //
-						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_VENDOR, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
