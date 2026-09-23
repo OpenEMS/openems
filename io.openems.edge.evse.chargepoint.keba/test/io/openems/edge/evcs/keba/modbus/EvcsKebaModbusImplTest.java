@@ -7,7 +7,6 @@ import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.tes
 import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.testManagedEvcsChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.EvcsKebaTest.testEvcsKebaChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.prepareKebaModbus;
-import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.testEnergyLimitWriteScale;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.testKebaModbusChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaTest.testKebaChannels;
 import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;

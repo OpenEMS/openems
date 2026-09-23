@@ -973,7 +973,7 @@ public final class JsonUtils {
 
 	/**
 	 * Gets the member of the {@link JsonElement} as {@link String} if it exists; or
-	 * `null` otherwise
+	 * `null` otherwise.
 	 *
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
@@ -1058,7 +1058,7 @@ public final class JsonUtils {
 
 	/**
 	 * Gets the member of the {@link JsonElement} as {@link Boolean} if it exists;
-	 * or `null` otherwise
+	 * or `null` otherwise.
 	 *
 	 * @param jElement   the {@link JsonElement}
 	 * @param memberName the name of the member
