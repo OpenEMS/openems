@@ -59,7 +59,7 @@ public class EshUtils {
 						final var csc = clusterCsc.getCsc(p.ctrlSingleId());
 						final var scheduledMode = mode.getMode(p.ctrlSingleId());
 						final var abilities = p.combinedAbilities();
-						final var energySetPointRange = resolveEnergySetPointRangeInWatt(p);
+						final var energySetPointRange = resolveEnergySetPointRangeInWatt(p, scheduledMode);
 
 						// Evaluate Energy limit
 						final var energyLimit = minInt(//
@@ -85,7 +85,12 @@ public class EshUtils {
 		private record EnergySetPointRangeInWatt(int minPowerInWatt, int maxPowerInWatt) {
 		}
 
-		private static EnergySetPointRangeInWatt resolveEnergySetPointRangeInWatt(Params p) {
+		private static EnergySetPointRangeInWatt resolveEnergySetPointRangeInWatt(Params p, Mode scheduledMode) {
+			if (scheduledMode == Mode.EXTERNAL) {
+				final var externalApplySetPoint = p.createExternalApplySetPoint();
+				return new EnergySetPointRangeInWatt(externalApplySetPoint.min(), externalApplySetPoint.max());
+			}
+
 			final var applySetPoint = p.combinedAbilities().applySetPoint();
 			var minPowerInWatt = applySetPoint.min();
 			var maxPowerInWatt = applySetPoint.max();
@@ -144,7 +149,7 @@ public class EshUtils {
 			this.entries.stream().forEach(e -> {
 				e.actualEnergy = switch (e.actualMode) {
 				case MINIMUM -> e.energyInModeMinimum;
-				case FORCE -> e.maxEnergy;
+				case EXTERNAL, FORCE -> e.maxEnergy;
 				case SURPLUS, ZERO -> 0;
 				};
 			});
