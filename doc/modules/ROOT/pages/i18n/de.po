@@ -5090,13 +5090,13 @@ msgstr "apache-felix-console-backend-configuration.png"
 
 #. type: Plain text
 #: gettingstarted.adoc:263
-msgid "Configure Edge.Websocket"
-msgstr "Edge.Websocket konfigurieren"
+msgid "Configure Edge.Manager"
+msgstr "Edge.Manager konfigurieren"
 
 #. type: Plain text
 #: gettingstarted.adoc:265
-msgid "The *Edge.Websocket* service is responsible for the communication between OpenEMS Backend and OpenEMS Edge."
-msgstr "Der * Edge.Websocket *-Service ist für die Kommunikation zwischen OpenEMS Backend und OpenEMS Edge verantwortlich."
+msgid "The *Edge.Manager* service is responsible for the communication between OpenEMS Backend and OpenEMS Edge."
+msgstr "Der * Edge.Manager *-Service ist für die Kommunikation zwischen OpenEMS Backend und OpenEMS Edge verantwortlich."
 
 #. type: Plain text
 #: gettingstarted.adoc:267
@@ -5106,8 +5106,8 @@ msgstr "In dem Beispiel konfigurieren wir den Port 8081. Dieser Port muss mit de
 #. type: Block title
 #: gettingstarted.adoc:268
 #, no-wrap
-msgid "Configuration of Backend Edge.Websocket"
-msgstr "Konfiguration von Backend Edge.Websocket"
+msgid "Configuration of Backend Edge.Manager"
+msgstr "Konfiguration von Backend Edge.Manager"
 
 #. type: Target for macro image
 #: gettingstarted.adoc:269
@@ -5204,8 +5204,8 @@ msgstr "OpenEMS Edge"
 
 #. type: Plain text
 #: gettingstarted.adoc:301
-msgid "Next we will configure OpenEMS Edge to connect to the OpenEMS Backend `Edge.Websocket` service."
-msgstr "Als nächstes werden wir OpenEMS Edge konfigurieren, um uns mit dem OpenEMS-Backend ' Edge.Websocket ' zu verbinden."
+msgid "Next we will configure OpenEMS Edge to connect to the OpenEMS Backend `Edge.Manager` service."
+msgstr "Als nächstes werden wir OpenEMS Edge konfigurieren, um uns mit dem OpenEMS-Backend ' Edge.Manager ' zu verbinden."
 
 #. type: Plain text
 #: gettingstarted.adoc:303
@@ -5241,8 +5241,8 @@ msgstr "\"Apikey\" wird verwendet, um diesen Edge im Backend Metadata-Dienst zu 
 
 #. type: Plain text
 #: gettingstarted.adoc:313
-msgid "\"Uri\" is set to `ws://localhost:8081`. This defines an unencrypted websocket (\"ws://\") connection to the local computer on port \"8081\" like we configured before for the Edge.Websocket."
-msgstr "\"Uri\" ist auf ' ws://localhost:8081 ' gesetzt. Damit wird eine unverschlüsselte Websocket (\"ws://\")-Verbindung zum lokalen Computer auf Port \"8081\" definiert, wie wir sie zuvor für den Edge.Websocket konfiguriert haben."
+msgid "\"Uri\" is set to `ws://localhost:8081`. This defines an unencrypted websocket (\"ws://\") connection to the local computer on port \"8081\" like we configured before for the Edge.Manager."
+msgstr "\"Uri\" ist auf ' ws://localhost:8081 ' gesetzt. Damit wird eine unverschlüsselte Websocket (\"ws://\")-Verbindung zum lokalen Computer auf Port \"8081\" definiert, wie wir sie zuvor für den Edge.Manager konfiguriert haben."
 
 #. type: Plain text
 #: gettingstarted.adoc:314
@@ -5266,8 +5266,8 @@ msgstr "**OpenEMS Edge** läuft vor Ort und steuert die lokalen Geräte"
 
 #. type: Plain text
 #: gettingstarted.adoc:322
-msgid "`[Edge.Websocket] Edge [edge0] connected`"
-msgstr "' [Edge.Websocket] Edge [edge0] connected '"
+msgid "`[Edge.Manager] Edge [edge0] connected`"
+msgstr "' [Edge.Manager] Edge [edge0] connected '"
 
 #. type: Title ===
 #: gettingstarted.adoc:323
