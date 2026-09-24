@@ -144,7 +144,7 @@ public class EshUtils {
 				e.actualEnergy = switch (e.actualMode) {
 				case MINIMUM -> e.energyInModeMinimum;
 				case FORCE -> e.maxEnergy;
-				case SURPLUS, ZERO -> 0;
+				case EXTERNAL, SURPLUS, ZERO -> 0;
 				};
 			});
 		}
