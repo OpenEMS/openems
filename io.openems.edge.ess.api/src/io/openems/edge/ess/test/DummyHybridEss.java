@@ -19,6 +19,8 @@ import io.openems.edge.ess.api.SymmetricEss;
 public class DummyHybridEss extends AbstractDummyManagedSymmetricEss<DummyHybridEss>
 		implements HybridEss, ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
+	private Integer pvProduction = null;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SURPLUS_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
@@ -52,6 +54,11 @@ public class DummyHybridEss extends AbstractDummyManagedSymmetricEss<DummyHybrid
 		return this;
 	}
 
+	@Override
+	public final Integer getPvProduction() {
+		return this.pvProduction;
+	}
+
 	/**
 	 * Set {@link HybridEss.ChannelId#DC_DISCHARGE_POWER}.
 	 *
@@ -72,6 +79,17 @@ public class DummyHybridEss extends AbstractDummyManagedSymmetricEss<DummyHybrid
 	public final DummyHybridEss withSurplusPower(Integer value) {
 		TestUtils.withValue(this, ChannelId.SURPLUS_POWER, value);
 		return this;
+	}
+
+	/**
+	 * Set PV Production.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final DummyHybridEss withPvProduction(int value) {
+		this.pvProduction = value;
+		return this.self();
 	}
 
 	/**
