@@ -2,6 +2,7 @@ package io.openems.edge.controller.evse.cluster.powerdistribute;
 
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
+import static io.openems.edge.controller.evse.single.Mode.EXTERNAL;
 import static io.openems.edge.controller.evse.single.Mode.FORCE;
 import static io.openems.edge.controller.evse.single.Mode.MINIMUM;
 import static io.openems.edge.controller.evse.single.Mode.SURPLUS;
@@ -161,6 +162,52 @@ class PowerDistributionTest {
 				.execute(DistributionStrategy.EQUAL_POWER);
 
 		assertArrayEquals(new int[] { 16000, 16, 16000, 5000, 16000 }, sut.getApplySetPoints());
+	}
+
+	@Test
+	void testExternalModeAppliesWrittenMaximumChargePower() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL) //
+						.setExternalMaxChargePower(10_000)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(14493, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalModeAppliesWrittenStaticChargePower() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL) //
+						.setExternalMinChargePower(6_000) //
+						.setExternalMaxChargePower(10_000) //
+						.setExternalStaticChargePower(8_000)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(11594, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalModeDefaultsToZeroWithoutWrittenChargePower() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalModeStaticZeroForcesZero() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL) //
+						.setExternalMaxChargePower(10_000) //
+						.setExternalStaticChargePower(0)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
 	}
 
 	@Test

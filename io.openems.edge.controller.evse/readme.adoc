@@ -57,6 +57,35 @@ The cluster controller workflow is:
 
 This design keeps the cluster controller focused on optimization and distribution, while each `Evse.Controller.Single` remains responsible for actual charge point interaction and local state transitions.
 
+== External Control Mode
+
+`Evse.Controller.Single` can be configured with `Mode.EXTERNAL` to let an external system provide the setpoint while OpenEMS still remains the single integration layer towards the charge point.
+
+This is intended for systems like evcc:
+
+[source]
+----
+evcc -> OpenEMS EVSE write channels -> Evse.Controller.Single -> EvseChargePoint -> wallbox
+----
+
+In external mode the controller reads the following write channels from the bound `EvseChargePoint`:
+
+- `SetExternalMinChargePower` — requested minimum charge power in [W]
+- `SetExternalMaxChargePower` — requested maximum charge power in [W]
+- `SetExternalStaticChargePower` — requested fixed charge power in [W]
+
+If no external charge power is written, the controller applies a zero setpoint. Otherwise the requested external range or static setpoint is limited to the charge point and electric vehicle abilities and forwarded as regular `ChargePointActions`.
+
+The existing OpenEMS write APIs can be used, e.g.:
+
+[source]
+----
+POST /rest/channel/evseChargePoint0/SetExternalMaxChargePower
+POST /rest/channel/evseChargePoint0/SetExternalStaticChargePower
+----
+
+Phase switching is not controlled by this first external mode implementation. It remains managed by the existing `Phase-Switching` configuration of `Evse.Controller.Single`.
+
 == Phase-Switching Support Detection
 
 Phase-switching is only available when both the charge point and the electric vehicle support it.
