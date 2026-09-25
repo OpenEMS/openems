@@ -48,7 +48,7 @@ public class EshUtilsTest {
 				]
 				""");
 		var params = new Params("ctrlEvseSingle0", "evseChargePoint0", null, null, 0, 0, null, null, null, false, null,
-				tasks);
+				null, null, tasks);
 		var clusterEshConfig = new ClusterEshConfig(null, ImmutableMap.of("ctrl0", params));
 		var goc = new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
 				new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //

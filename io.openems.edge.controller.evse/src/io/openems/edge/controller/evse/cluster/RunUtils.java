@@ -155,6 +155,20 @@ public class RunUtils {
 								.map(ev -> ev.canInterrupt()).orElse(false);
 			}
 
+			private int getExternalSetPointInWatt() {
+				if (Boolean.FALSE.equals(this.params.externalChargingEnabled())) {
+					return 0;
+				}
+				final var requestedSetPoint = Optional.ofNullable(this.params.externalMaximumChargePower()).orElse(0);
+				if (requestedSetPoint <= 0) {
+					return 0;
+				}
+				final var applySetPointAbility = this.params.combinedAbilities().applySetPoint();
+				final var minSetPoint = applySetPointAbility.toPower(applySetPointAbility.min());
+				final var maxSetPoint = applySetPointAbility.toPower(applySetPointAbility.max());
+				return Math.min(Math.max(requestedSetPoint, minSetPoint), maxSetPoint);
+			}
+
 			private int singlePhaseMinimum() {
 				final var applySetPointAbility = this.params.combinedAbilities().applySetPoint();
 				if (applySetPointAbility.phase() == SINGLE_PHASE) {
@@ -237,7 +251,7 @@ public class RunUtils {
 		public final Stream<Entry> streamSurplus() {
 			return this.streamActives() //
 					.filter(e -> switch (e.mode) {
-					case FORCE, MINIMUM, ZERO -> false;
+					case EXTERNAL, FORCE, MINIMUM, ZERO -> false;
 					case SURPLUS -> true;
 					});
 		}
@@ -251,7 +265,7 @@ public class RunUtils {
 		public final Stream<Entry> streamSurplusOrMinimum() {
 			return this.streamActives() //
 					.filter(e -> switch (e.mode) {
-					case FORCE, ZERO -> false;
+					case EXTERNAL, FORCE, ZERO -> false;
 					case SURPLUS, MINIMUM -> true;
 					});
 		}
@@ -336,6 +350,7 @@ public class RunUtils {
 				return;
 			}
 			e.setPointInWatt = switch (e.mode) {
+			case EXTERNAL -> e.getExternalSetPointInWatt();
 			case MINIMUM -> asp.min();
 			case FORCE -> asp.max();
 			case SURPLUS, ZERO -> 0;
@@ -390,7 +405,7 @@ public class RunUtils {
 			}
 			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM, FORCE, SURPLUS -> e.params.combinedAbilities().applySetPoint().min();
-			case ZERO -> 0;
+			case EXTERNAL, ZERO -> 0;
 			};
 		});
 	}
@@ -409,7 +424,9 @@ public class RunUtils {
 	 * @param powerDistribution the {@link PowerDistribution}
 	 */
 	static void applyChangeLimit(Clock clock, PowerDistribution powerDistribution) {
-		powerDistribution.streamActives().forEach(e -> {
+		powerDistribution.streamActives() //
+				.filter(e -> e.mode != Mode.EXTERNAL) //
+				.forEach(e -> {
 			final var applySetPointAbility = e.params.combinedAbilities().applySetPoint();
 			final var fallbackLimit = applySetPointAbility.toPower(applySetPointAbility.min());
 
@@ -727,6 +744,9 @@ public class RunUtils {
 		if (e.mode == Mode.ZERO) {
 			return;
 		}
+		if (e.mode == Mode.EXTERNAL) {
+			return;
+		}
 		final var phaseSwitchAbility = params.combinedAbilities().phaseSwitch();
 		if (phaseSwitchAbility == null) {
 			// Phase-Switching is not available with ChargePoint and/or ElectricVehicle
@@ -808,7 +828,7 @@ public class RunUtils {
 		case SURPLUS -> optimizePhaseForSurplus(e, clock, phaseSwitchAbility, probableSwitchTimestampWasCleared,
 				logVerbosity, logger);
 
-		case ZERO -> doNothing();
+		case EXTERNAL, ZERO -> doNothing();
 		}
 	}
 

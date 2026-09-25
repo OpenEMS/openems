@@ -1,9 +1,15 @@
 package io.openems.edge.evse.api.chargepoint;
 
+import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -24,7 +30,32 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		 * <li>...
 		 * </ul>
 		 */
-		IS_READY_FOR_CHARGING(Doc.of(OpenemsType.BOOLEAN)) //
+		IS_READY_FOR_CHARGING(Doc.of(OpenemsType.BOOLEAN)), //
+
+		/**
+		 * Externally requested maximum charge power in [W].
+		 * 
+		 * <p>
+		 * This write-only channel is intended for external controllers like evcc. It is
+		 * evaluated by {@code Evse.Controller.Single} only when configured in external
+		 * mode.
+		 */
+		SET_MAXIMUM_CHARGE_POWER(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Externally requested maximum charge power in [W]. Evaluated by Evse.Controller.Single in external mode.")), //
+
+		/**
+		 * Externally requested charging enable flag.
+		 * 
+		 * <p>
+		 * This write-only channel is intended for external controllers like evcc. It is
+		 * evaluated by {@code Evse.Controller.Single} only when configured in external
+		 * mode. A missing value is treated as enabled.
+		 */
+		SET_CHARGING_ENABLED(new BooleanDoc() //
+				.accessMode(AccessMode.WRITE_ONLY) //
+				.text("Externally requested charging enable flag. Evaluated by Evse.Controller.Single in external mode.")) //
 		;
 
 		private final Doc doc;
@@ -98,5 +129,23 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	 */
 	public default boolean getIsReadyForCharging() {
 		return this.getIsReadyForChargingChannel().value().orElse(false);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_MAXIMUM_CHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetMaximumChargePowerChannel() {
+		return this.channel(ChannelId.SET_MAXIMUM_CHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SET_CHARGING_ENABLED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getSetChargingEnabledChannel() {
+		return this.channel(ChannelId.SET_CHARGING_ENABLED);
 	}
 }

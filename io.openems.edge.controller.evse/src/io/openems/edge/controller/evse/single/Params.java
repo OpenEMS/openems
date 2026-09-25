@@ -62,6 +62,14 @@ public record Params(//
 		 */
 		CombinedAbilities combinedAbilities, //
 		/**
+		 * Externally requested maximum charge power in [W]; possibly null.
+		 */
+		Integer externalMaximumChargePower, //
+		/**
+		 * Externally requested charging enable flag; possibly null.
+		 */
+		Boolean externalChargingEnabled, //
+		/**
 		 * JSCalendar configuration.
 		 */
 		JSCalendar.Tasks<Payload> tasks) {
@@ -70,8 +78,16 @@ public record Params(//
 			Integer sessionEnergyLimit, History history, PhaseSwitching phaseSwitching,
 			CombinedAbilities combinedAbilities, JSCalendar.Tasks<Payload> tasks) {
 		this(ctrlSingleId, chargePointId, mode, activePower, sessionEnergy, sessionEnergyLimit, history,
+				phaseSwitching, combinedAbilities, null, null, tasks);
+	}
+
+	public Params(String ctrlSingleId, String chargePointId, Mode mode, Integer activePower, int sessionEnergy,
+			Integer sessionEnergyLimit, History history, PhaseSwitching phaseSwitching,
+			CombinedAbilities combinedAbilities, Integer externalMaximumChargePower, Boolean externalChargingEnabled,
+			JSCalendar.Tasks<Payload> tasks) {
+		this(ctrlSingleId, chargePointId, mode, activePower, sessionEnergy, sessionEnergyLimit, history,
 				Hysteresis.from(history), phaseSwitching, history.getAppearsToBeFullyCharged(), combinedAbilities,
-				tasks);
+				externalMaximumChargePower, externalChargingEnabled, tasks);
 	}
 
 	/**
@@ -92,6 +108,8 @@ public record Params(//
 					new History(), // TODO
 					json.getEnum("phaseSwitching", PhaseSwitching.class), //
 					json.getObject("combinedAbilities", CombinedAbilities.serializer()), //
+					json.getOptionalInt("externalMaximumChargePower").orElse(null), //
+					json.getOptionalBoolean("externalChargingEnabled").orElse(null), //
 					json.getObject("tasks", JSCalendar.Tasks.serializer(clock, Payload.serializer()))); //
 		}, obj -> {
 			return buildJsonObject() //
@@ -104,6 +122,8 @@ public record Params(//
 					.addProperty("history", "") // TODO
 					.addProperty("phaseSwitching", obj.phaseSwitching) //
 					.add("combinedAbilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
+					.addProperty("externalMaximumChargePower", obj.externalMaximumChargePower) //
+					.addProperty("externalChargingEnabled", obj.externalChargingEnabled) //
 					.add("tasks", JSCalendar.Tasks.serializer(clock, Payload.serializer()).serialize(obj.tasks)) //
 					.build();
 		});

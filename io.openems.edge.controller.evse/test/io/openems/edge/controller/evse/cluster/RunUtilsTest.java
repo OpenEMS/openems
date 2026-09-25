@@ -6,6 +6,7 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static io.openems.edge.controller.evse.cluster.RunUtils.findFirstEntryWithSameSetPoint;
+import static io.openems.edge.controller.evse.single.Mode.EXTERNAL;
 import static io.openems.edge.controller.evse.single.Mode.FORCE;
 import static io.openems.edge.controller.evse.single.Mode.MINIMUM;
 import static io.openems.edge.controller.evse.single.Mode.SURPLUS;
@@ -303,6 +304,39 @@ class RunUtilsTest {
 				.execute(DistributionStrategy.EQUAL_POWER);
 
 		assertArrayEquals(new int[] { 16000, 16, 16000, 5000, 16000 }, sut.getApplySetPoints());
+	}
+
+	@Test
+	void testExternalModeAppliesWrittenMaximumChargePower() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL) //
+						.setExternalMaximumChargePower(10_000)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(14493, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalModeDefaultsToZeroWithoutWrittenMaximumChargePower() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalModeDisabledForcesZero() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(EXTERNAL) //
+						.setExternalMaximumChargePower(10_000) //
+						.setExternalChargingEnabled(false)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
 	}
 
 	@Test
