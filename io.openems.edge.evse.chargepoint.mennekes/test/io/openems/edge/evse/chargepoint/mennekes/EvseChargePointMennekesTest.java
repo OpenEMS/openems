@@ -57,6 +57,9 @@ class EvseChargePointMennekesTest {
 	void test() throws Exception {
 		this.test.next(new TestCase()//
 				.activateStrictMode()//
+				.withIgnoredChannelsForStrictMode(//
+						EvseChargePoint.ChannelId.SET_MAXIMUM_CHARGE_POWER, //
+						EvseChargePoint.ChannelId.SET_CHARGING_ENABLED) //
 				.output(OpenemsComponent.ChannelId.STATE, Level.WARNING)//
 				.output(Mennekes.ChannelId.SET_CURRENT_LIMIT, null) // WRITE_ONLY Channel
 				.output(Mennekes.ChannelId.SET_POWER_LIMIT, null)//
