@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/pytes/dccharger/Config.java=UTF-8
+encoding//src/io/openems/edge/pytes/dccharger/PytesDcCharger.java=UTF-8
+encoding//src/io/openems/edge/pytes/dccharger/PytesDcChargerImpl.java=UTF-8
+encoding//src/io/openems/edge/pytes/ess/Config.java=UTF-8
+encoding//src/io/openems/edge/pytes/ess/PytesJs3.java=UTF-8
+encoding//src/io/openems/edge/pytes/ess/PytesJs3Impl.java=UTF-8
+encoding//test/io/openems/edge/pytes/ess/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/pytes/ess/MyDeviceTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
