@@ -3,7 +3,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 
 -sub: *.bnd
 -buildpath: \
-	com.auth0:auth0;version='5.2.0',\
+	com.auth0:auth0;version='5.3.0',\
 	com.auth0:java-jwt;version='4.6.1',\
 	com.auth0:jwks-rsa;version='0.24.1',\
 	com.fathzer:javaluator;version='3.0.6',\

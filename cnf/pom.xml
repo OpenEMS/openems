@@ -111,7 +111,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.36.1</version>
+			<version>4.36.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -123,7 +123,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>5.2.0</version>
+			<version>5.3.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -547,7 +547,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.13</version>
+			<version>1.18.14</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -557,7 +557,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.13</version>
+			<version>1.18.14</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
