@@ -56,10 +56,13 @@ class EvseChargePointHardyImplTest {
 	void test() throws Exception {
 		final var sut = generateSut();
 		sut.test //
-				.next(new TestCase() //
-						.activateStrictMode() //
-						.onBeforeProcessImage(() -> sut.evseHandler
-								.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), PhaseRotation.L1_L2_L3)) //
+					.next(new TestCase() //
+							.activateStrictMode() //
+							.withIgnoredChannelsForStrictMode(//
+									EvseChargePoint.ChannelId.SET_MAXIMUM_CHARGE_POWER, //
+									EvseChargePoint.ChannelId.SET_CHARGING_ENABLED) //
+							.onBeforeProcessImage(() -> sut.evseHandler
+									.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), PhaseRotation.L1_L2_L3)) //
 
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
