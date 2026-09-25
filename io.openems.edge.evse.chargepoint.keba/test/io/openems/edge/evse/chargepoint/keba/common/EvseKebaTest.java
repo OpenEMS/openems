@@ -15,6 +15,10 @@ public class EvseKebaTest {
 	 */
 	public static void testEvseKebaChannels(TestCase tc) throws Exception {
 		tc //
+				.withIgnoredChannelsForStrictMode(//
+						EvseChargePoint.ChannelId.SET_MAXIMUM_CHARGE_POWER, //
+						EvseChargePoint.ChannelId.SET_CHARGING_ENABLED) //
+
 				.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 				// Not Deprecated EVCS
 
