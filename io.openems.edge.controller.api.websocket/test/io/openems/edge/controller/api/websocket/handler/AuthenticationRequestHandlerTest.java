@@ -1,13 +1,16 @@
 package io.openems.edge.controller.api.websocket.handler;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.request.AuthenticateWithExternalAuthRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.session.Language;
@@ -42,5 +45,19 @@ public class AuthenticationRequestHandlerTest {
 		final var response = (AuthenticateResponse) call.getResponse();
 		assertEquals(externalUser.getId(), response.getResult().get("user").getAsJsonObject().get("id").getAsString());
 		assertEquals(Role.INSTALLER, wsData.getUser().orElseThrow().getRole());
+	}
+
+	@Test
+	public void testAuthenticateWithExternalAuthFailsWithoutExternalUser() {
+		final var wsData = new WsData(null, null);
+		final var call = new Call<JsonrpcRequest, JsonrpcResponse>(new GenericJsonrpcRequest(
+				AuthenticateWithExternalAuthRequest.METHOD, JsonUtils.buildJsonObject().build()));
+		call.put(OnRequest.WS_DATA_KEY, wsData);
+
+		this.api.handle(call);
+
+		final var response = (JsonrpcResponseError) call.getResponse();
+		assertEquals(OpenemsError.COMMON_AUTHENTICATION_FAILED, response.getOpenemsError());
+		assertTrue(wsData.getUser().isEmpty());
 	}
 }
