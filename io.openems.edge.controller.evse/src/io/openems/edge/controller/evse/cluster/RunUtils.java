@@ -61,7 +61,6 @@ public class RunUtils {
 	 * is checked.
 	 */
 	private static final Duration AUTOMATIC_PROBABLE_PHASE_SWITCH_WINDOW = Duration.ofSeconds(20);
-	private static final int AUTOMATIC_THREE_TO_SINGLE_PHASE_SWITCH_WINDOW_MIN_SAMPLE_COUNT = 20;
 	/**
 	 * Delay for the EpochSecond probable phase switch evaluation. If a probable
 	 * phase switch is detected the next switch is set to now plus this Duration.
@@ -920,8 +919,7 @@ public class RunUtils {
 				.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationForWindow(now, singlePhaseMinInWatt,
 						AutomaticPhaseSwitchThresholdDirection.ABOVE, AUTOMATIC_PROBABLE_PHASE_SWITCH_WINDOW,
 						context.setPointWithoutPhaseLimitation());
-		final var singlePhaseFeasibleInRecentWindow = isAutomaticPhaseSwitchWindowThresholdReached(
-				singlePhaseFeasibilityEvaluation, AUTOMATIC_THREE_TO_SINGLE_PHASE_SWITCH_WINDOW_MIN_SAMPLE_COUNT);
+		final var singlePhaseFeasibleInRecentWindow = singlePhaseFeasibilityEvaluation.shouldSwitch();
 		if (threeToSingleEvaluation.shouldSwitch() && singlePhaseFeasibleInRecentWindow) {
 			setProbableNextPhaseSwitchEpochSecondsIfUnset(context.ctrl(), now, shortWindowEvaluation,
 					context.probableSwitchTimestampWasCleared());
@@ -1057,20 +1055,6 @@ public class RunUtils {
 			return minSetPointInWatt;
 		}
 		return Math.max(minSetPointInWatt, applySetPointAbility.fitWithin(setPointInWatt));
-	}
-
-	private static boolean isAutomaticPhaseSwitchWindowThresholdReached(
-			AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluation, int minSampleCount) {
-		return evaluation.windowActive() && evaluation.sampleCount() >= minSampleCount
-				&& isAutomaticPhaseSwitchThresholdReached(evaluation);
-	}
-
-	private static boolean isAutomaticPhaseSwitchThresholdReached(
-			AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluation) {
-		return switch (evaluation.direction()) {
-		case ABOVE -> evaluation.directionalNinetyPercentAverage() >= evaluation.thresholdInWatt();
-		case BELOW -> evaluation.directionalNinetyPercentAverage() <= evaluation.thresholdInWatt();
-		};
 	}
 
 	private static Long getProbableNextPhaseSwitchEpochSeconds(ControllerEvseSingle ctrl) {
