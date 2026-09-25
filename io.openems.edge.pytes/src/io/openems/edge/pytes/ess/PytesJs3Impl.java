@@ -376,6 +376,20 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent
 						m(PytesJs3.ChannelId.LIMITED_POWER_SETTING, new UnsignedWordElement(43052),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
 
+				// reg 43130/43131 - battery charge/discharge power limits [10 W],
+				// 0 = disabled, not stored in the inverter's flash
+				new FC6WriteRegisterTask(43130,
+						m(PytesJs3.ChannelId.SET_BATTERY_CHARGE_LIMIT_POWER, new UnsignedWordElement(43130),
+								ElementToChannelConverter.SCALE_FACTOR_1)),
+				new FC6WriteRegisterTask(43131,
+						m(PytesJs3.ChannelId.SET_BATTERY_DISCHARGE_LIMIT_POWER, new UnsignedWordElement(43131),
+								ElementToChannelConverter.SCALE_FACTOR_1)),
+				new FC3ReadRegistersTask(43130, Priority.LOW,
+						m(PytesJs3.ChannelId.BATTERY_CHARGE_LIMIT_POWER, new UnsignedWordElement(43130),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(PytesJs3.ChannelId.BATTERY_DISCHARGE_LIMIT_POWER, new UnsignedWordElement(43131),
+								ElementToChannelConverter.SCALE_FACTOR_1)),
+
 				new FC16WriteRegistersTask(43111,
 						m(PytesJs3.ChannelId.SET_BACKUP_CIRCUIT_SETTING, new UnsignedWordElement(43111))),
 

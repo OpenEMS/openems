@@ -634,6 +634,36 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 				.accessMode(READ_ONLY)
 				.unit(Unit.PERCENT)),
 
+		/**
+		 * Battery charge power limit (reg 43130, U16, 10 W steps). 0 disables the
+		 * limit, the register is not stored in the inverter's flash and is gone
+		 * after a restart of the inverter. Unlike the max charge current (regs
+		 * 43117/43118, set by the user in the inverter's app) this is a volatile
+		 * control register, default 0. It is the only known way to stop the
+		 * inverter from charging the battery with the PV surplus while its AC
+		 * output is capped by reg 43052 - measured 2026-09-25: AC capped at
+		 * 2700 W, the battery took 38 A against a controller asking for 0 W, and
+		 * the PV was only curtailed once the BMS tapered its charge current.
+		 */
+		SET_BATTERY_CHARGE_LIMIT_POWER(Doc.of(INTEGER)
+				.accessMode(WRITE_ONLY)
+				.unit(Unit.WATT)),
+
+		/** Battery charge power limit - read-back (reg 43130, U16, FC3). */
+		BATTERY_CHARGE_LIMIT_POWER(Doc.of(INTEGER)
+				.accessMode(READ_ONLY)
+				.unit(Unit.WATT)),
+
+		/** Battery discharge power limit (reg 43131), see {@link #SET_BATTERY_CHARGE_LIMIT_POWER}. */
+		SET_BATTERY_DISCHARGE_LIMIT_POWER(Doc.of(INTEGER)
+				.accessMode(WRITE_ONLY)
+				.unit(Unit.WATT)),
+
+		/** Battery discharge power limit - read-back (reg 43131, U16, FC3). */
+		BATTERY_DISCHARGE_LIMIT_POWER(Doc.of(INTEGER)
+				.accessMode(READ_ONLY)
+				.unit(Unit.WATT)),
+
 		/** PF Adjustment Actual Value (reg 33105, S16, FC4).
 		 * Datasheet: 0.001 resolution. E.g. 1000 = 1.000 (unity PF), 800 = 0.800.
 		 * Range: –1.000 to +1.000. No unit declared. */
