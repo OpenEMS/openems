@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { LOCALE_ID, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -31,8 +30,8 @@ describe("OverviewComponent", () => {
         ["getCurrentEdge", "getEdges", "getIsSmartphoneResolution"],
         {
             metadata: new BehaviorSubject({
-                edges: null,
-                user: null,
+                edges: {},
+                user: new User("", "", "admin", "", true, { theme: Theme.LIGHT }),
             }),
             getIsSmartphoneResolution: () => false,
             getEdges(): Promise<Edge[]> {

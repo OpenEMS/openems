@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INPUT_FROM_FORM_CONTROL, } from "src/app/shared/components/edge/edgeconfig.spec";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
@@ -47,7 +48,7 @@ function createComponent(component: EdgeConfig.Component): any {
     instance.translate = {
         instant: (key: string) => key,
     };
-    instance.form = instance["getFormGroup"]();
+    instance.form = signal(instance["getFormGroup"]());
     instance.component = null;
     instance.skipCurrentData = false;
 
@@ -121,10 +122,10 @@ describe("ControllerPeakShavingAsymmetricSettingsComponent", () => {
 
         instance["onCurrentData"](currentData);
 
-        expect(instance.form.controls["peakShavingPower"].value).toBe(3500);
-        expect(instance.form.controls["rechargePower"].value).toBe(2200);
-        expect(instance.form.controls["peakShavingPower"].pristine).toBeTrue();
-        expect(instance.form.controls["rechargePower"].pristine).toBeTrue();
+        expect(instance.form().controls["peakShavingPower"].value).toBe(3500);
+        expect(instance.form().controls["rechargePower"].value).toBe(2200);
+        expect(instance.form().controls["peakShavingPower"].pristine).toBeTrue();
+        expect(instance.form().controls["rechargePower"].pristine).toBeTrue();
     });
 
     it("#getFormGroup() creates the expected controls", () => {

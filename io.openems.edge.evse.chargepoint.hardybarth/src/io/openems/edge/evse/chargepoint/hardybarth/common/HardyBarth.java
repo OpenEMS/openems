@@ -27,8 +27,7 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "ci", "evse", "basic", "grid_current_limit", "actual"), //
 		RAW_PHASE_COUNT(Doc.of(INTEGER), //
 				"secc", "port0", "ci", "evse", "basic", "phase_count"), //
-		RAW_PHYSICAL_CURRENT_LIMIT(Doc.of(STRING),
-				"secc", "port0", "ci", "evse", "basic", "physical_current_limit"), //
+		RAW_PHYSICAL_CURRENT_LIMIT(Doc.of(STRING), "secc", "port0", "ci", "evse", "basic", "physical_current_limit"), //
 
 		// CHARGE
 		RAW_CHARGE_STATUS_PLUG(Doc.of(STRING), //
@@ -68,10 +67,8 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "salia", "firmwareprogress"), //
 		RAW_SALIA_PUBLISH(Doc.of(STRING), //
 				"secc", "port0", "salia", "publish"), //
-		RAW_SALIA_SOCKET_MAX_AMP(Doc.of(STRING),
-				"secc", "port0", "salia", "socketmaxamp"), //
-		RAW_SALIA_INTCTRL_LIMIT(Doc.of(STRING),
-				"secc", "port0", "salia", "intctrl_limit"), //
+		RAW_SALIA_SOCKET_MAX_AMP(Doc.of(STRING), "secc", "port0", "salia", "socketmaxamp"), //
+		RAW_SALIA_INTCTRL_LIMIT(Doc.of(STRING), "secc", "port0", "salia", "intctrl_limit"), //
 		RAW_SALIA_PHASE_SWITCHING_STATUS(Doc.of(STRING), //
 				"secc", "port0", "salia", "phase_switching", "status"), //
 
@@ -255,6 +252,7 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 
 	/**
 	 * get Salia Device Model Name.
+	 * 
 	 * @return channel value
 	 */
 	public default String getSaliaDeviceModelName() {
@@ -263,6 +261,7 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 
 	/**
 	 * get Raw Device Product Channel.
+	 * 
 	 * @return the channel
 	 */
 	public default StringReadChannel getRawDeviceProductChannel() {
@@ -271,6 +270,7 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 
 	/**
 	 * get raw device product.
+	 * 
 	 * @return channel value
 	 */
 	public default String getRawDeviceProduct() {
@@ -281,8 +281,8 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 	 * Reports whether the phase-switching API is available.
 	 *
 	 * <p>
-	 * Detection is based on the raw
-	 * {@code secc/port0/salia/phase_switching/status} value:
+	 * Detection is based on the raw {@code secc/port0/salia/phase_switching/status}
+	 * value:
 	 * <ul>
 	 * <li>{@code "idle"} and {@code "progress"} indicate support.
 	 * <li>A missing, null, undefined or any unknown value indicates no support.
@@ -310,16 +310,15 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 	 * Reports whether the phase-switching API is currently idle.
 	 *
 	 * <p>
-	 * This is true only if the raw
-	 * {@code secc/port0/salia/phase_switching/status} value is exactly
-	 * {@code "idle"}. A value of {@code "progress"} means a switch is already
-	 * ongoing, so a new one must not be started; missing, null, undefined or
-	 * unknown values return false.
+	 * This is true only if the raw {@code secc/port0/salia/phase_switching/status}
+	 * value is exactly {@code "idle"}. A value of {@code "progress"} means a switch
+	 * is already ongoing, so a new one must not be started; missing, null,
+	 * undefined or unknown values return false.
 	 *
 	 * <p>
-	 * This method evaluates only the API status. It does not verify the device
-	 * role or communication freshness and does not guarantee that a subsequent
-	 * write succeeds. Before controlling phase switching, callers must additionally
+	 * This method evaluates only the API status. It does not verify the device role
+	 * or communication freshness and does not guarantee that a subsequent write
+	 * succeeds. Before controlling phase switching, callers must additionally
 	 * verify that {@link #deviceRole()} is {@link DeviceRole#SLAVE}.
 	 *
 	 * @return true if the last mapped status is exactly {@code "idle"}

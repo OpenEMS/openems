@@ -73,7 +73,7 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(braiinsComponent);
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(braiinsComponent.id, ControllerBraiinsShared.PROPERTY_MODE),

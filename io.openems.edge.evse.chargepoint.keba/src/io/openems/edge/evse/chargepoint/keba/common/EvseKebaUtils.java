@@ -26,6 +26,9 @@ import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 
 public class EvseKebaUtils {
 
+	private static final long SAME_SETPOINT_INTERVAL_SECONDS = 30;
+	private static final long NEW_SETPOINT_INTERVAL_SECONDS = 5;
+
 	private final EvseKeba parent;
 
 	public EvseKebaUtils(EvseKeba keba) {
@@ -90,8 +93,15 @@ public class EvseKebaUtils {
 
 		// Apply Charge Current
 		final var now = Instant.now();
-		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
-			return;
+		if (this.previousCurrent != null) {
+			final var elapsedSeconds = Duration.between(this.previousCurrent.a(), now).getSeconds();
+			if (this.previousCurrent.b() == setPointInMilliAmpere) {
+				if (elapsedSeconds < SAME_SETPOINT_INTERVAL_SECONDS) {
+					return;
+				}
+			} else if (elapsedSeconds < NEW_SETPOINT_INTERVAL_SECONDS) {
+				return;
+			}
 		}
 		this.previousCurrent = Tuple2.of(now, setPointInMilliAmpere);
 
@@ -128,7 +138,7 @@ public class EvseKebaUtils {
 			return null;
 		}
 		final var phases = this.getWiring(config);
-		if (config == null || phases == null) {
+		if (phases == null) {
 			return null;
 		}
 

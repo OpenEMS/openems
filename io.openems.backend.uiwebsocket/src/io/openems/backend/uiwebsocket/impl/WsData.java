@@ -4,12 +4,13 @@ import static java.util.Collections.emptyMap;
 import static java.util.UUID.randomUUID;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.java_websocket.WebSocket;
 
@@ -74,7 +75,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private Optional<String> token = Optional.empty();
 	private volatile User user;
 
-	private Set<String> subscribedEdges = new HashSet<>();
+	/* package */ final Object updateSubscriptionsLock = new Object();
+	private final Set<String> subscribedEdges = ConcurrentHashMap.newKeySet();
 
 	private final RateLimiter limiterGlobal;
 	private final RateLimiter limiterLogMessages = RateLimiter.create(5);
@@ -197,13 +199,30 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
-	 * Applies a SubscribeEdgesRequest.
-	 * 
-	 * @param edgeIds the edges to subscribe
+	 * Clears all subscribed Edges of this UI session.
 	 */
-	public void handleSubscribeEdgesRequest(Set<String> edgeIds) {
-		// TODO maybe only add and remove on explicit request
-		this.subscribedEdges = edgeIds;
+	public void clearSubscribedEdges() {
+		this.subscribedEdges.clear();
+	}
+
+	/**
+	 * Adds the given Edge-IDs to the subscribed Edges of this UI session.
+	 *
+	 * @param edgeIds the Edge-IDs to add
+	 */
+	public void addSubscribedEdges(Set<String> edgeIds) {
+		this.subscribedEdges.addAll(edgeIds);
+	}
+
+	/**
+	 * Removes the given Edge-IDs from the subscribed Edges of this UI session.
+	 *
+	 * @param edgeIds the Edge-IDs to remove
+	 */
+	public void removeSubscribedEdges(Set<String> edgeIds) {
+		for (var edgeId : edgeIds) {
+			this.subscribedEdges.remove(edgeId);
+		}
 	}
 
 	/**
@@ -227,12 +246,21 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Is the given Edge subscribed by this UI session?.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return true if subscribed
 	 */
 	public boolean isEdgeSubscribed(String edgeId) {
 		return this.subscribedEdges.contains(edgeId);
+	}
+
+	/**
+	 * Gets the Edge-IDs this UI session is currently subscribed to.
+	 *
+	 * @return the subscribed Edge-IDs (read-only)
+	 */
+	public Set<String> getSubscribedEdges() {
+		return Set.copyOf(this.subscribedEdges);
 	}
 
 	public UUID getId() {
@@ -245,4 +273,19 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.subscribedChannels.dispose();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof WsData wsData)) {
+			return false;
+		}
+        return Objects.equals(this.id, wsData.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.id);
+	}
 }

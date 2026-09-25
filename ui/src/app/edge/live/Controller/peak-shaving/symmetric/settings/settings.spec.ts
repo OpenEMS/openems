@@ -1,6 +1,7 @@
+import { signal } from "@angular/core";
 import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INPUT_FROM_FORM_CONTROL, } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
-import { TestContext, TestingUtils, } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 
 import { Role } from "src/app/shared/type/role";
@@ -13,10 +14,7 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
     ...properties,
 });
 
-function peakShavingComponent(
-    id: string,
-    meterId: string | null = "meter0",
-): EdgeConfig.Component {
+function peakShavingComponent(id: string, meterId: string | null = "meter0"): EdgeConfig.Component {
     return new EdgeConfig.Component(
         id,
         "Peak Shaving",
@@ -29,13 +27,9 @@ function peakShavingComponent(
 }
 
 function createComponent(component: EdgeConfig.Component): any {
-    const instance = Object.create(
-        ControllerPeakShavingSymmetricSettingsComponent.prototype,
-    );
+    const instance = Object.create(ControllerPeakShavingSymmetricSettingsComponent.prototype);
 
-    const config = jasmine.createSpyObj<EdgeConfig>("EdgeConfig", [
-        "getComponentSafely",
-    ]);
+    const config = jasmine.createSpyObj<EdgeConfig>("EdgeConfig", ["getComponentSafely"]);
     config.getComponentSafely.and.returnValue(component);
 
     const edge = DummyConfig.dummyEdge({});
@@ -50,7 +44,7 @@ function createComponent(component: EdgeConfig.Component): any {
     instance.translate = {
         instant: (key: string) => key,
     };
-    instance.form = instance["getFormGroup"]();
+    instance.form = signal(instance["getFormGroup"]());
     instance.component = null;
     instance.skipCurrentData = false;
 
@@ -74,17 +68,13 @@ describe("ControllerPeakShavingSymmetricSettingsComponent", () => {
                 CHANNEL_LINE("Gemessener Wert", "1.000 W"),
                 LINE_HORIZONTAL,
                 LINE_INPUT_FROM_FORM_CONTROL(
-                    TEST_CONTEXT.translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER",
-                    ),
+                    TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
                     "peakShavingPower",
                     "W",
                     null,
                 ),
                 LINE_INPUT_FROM_FORM_CONTROL(
-                    TEST_CONTEXT.translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER",
-                    ),
+                    TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
                     "rechargePower",
                     "W",
                     null,
@@ -101,10 +91,7 @@ describe("ControllerPeakShavingSymmetricSettingsComponent", () => {
 
         expectView(component, edge, VIEW_CONTEXT(), TEST_CONTEXT, {
             title: "Peak Shaving",
-            lines: [
-                CHANNEL_LINE("Gemessener Wert", "1.000 W"),
-                LINE_HORIZONTAL,
-            ],
+            lines: [CHANNEL_LINE("Gemessener Wert", "1.000 W"), LINE_HORIZONTAL],
         });
     });
 
@@ -122,23 +109,18 @@ describe("ControllerPeakShavingSymmetricSettingsComponent", () => {
 
         instance["onCurrentData"](currentData);
 
-        expect(instance.form.controls["peakShavingPower"].value).toBe(3500);
-        expect(instance.form.controls["rechargePower"].value).toBe(2200);
-        expect(instance.form.controls["peakShavingPower"].pristine).toBeTrue();
-        expect(instance.form.controls["rechargePower"].pristine).toBeTrue();
+        expect(instance.form().controls["peakShavingPower"].value).toBe(3500);
+        expect(instance.form().controls["rechargePower"].value).toBe(2200);
+        expect(instance.form().controls["peakShavingPower"].pristine).toBeTrue();
+        expect(instance.form().controls["rechargePower"].pristine).toBeTrue();
     });
 
     it("#getFormGroup() creates the expected controls", () => {
-        const instance = createComponent(
-            peakShavingComponent("ctrlPeakShaving0"),
-        );
+        const instance = createComponent(peakShavingComponent("ctrlPeakShaving0"));
 
         const form = instance["getFormGroup"]();
 
-        expect(Object.keys(form.controls).sort()).toEqual([
-            "peakShavingPower",
-            "rechargePower",
-        ]);
+        expect(Object.keys(form.controls).sort()).toEqual(["peakShavingPower", "rechargePower"]);
         expect(form.getRawValue()).toEqual({
             peakShavingPower: null,
             rechargePower: null,
@@ -148,19 +130,16 @@ describe("ControllerPeakShavingSymmetricSettingsComponent", () => {
     it("#getChannelAddresses() delegates to the shared helper", async () => {
         const component = peakShavingComponent("ctrlPeakShaving0");
         const instance = createComponent(component);
-        const expectedChannels = [
-            new ChannelAddress("ctrlPeakShaving0", "_PropertyPeakShavingPower"),
-        ];
+        const expectedChannels = [new ChannelAddress("ctrlPeakShaving0", "_PropertyPeakShavingPower")];
 
-        spyOn(SharedControllerPeakShaving, "getChannelAddresses").and.resolveTo(
-            expectedChannels,
-        );
+        spyOn(SharedControllerPeakShaving, "getChannelAddresses").and.resolveTo(expectedChannels);
 
         const channels = await instance["getChannelAddresses"]();
 
-        expect(
-            SharedControllerPeakShaving.getChannelAddresses,
-        ).toHaveBeenCalledWith(instance.service, instance.routeService);
+        expect(SharedControllerPeakShaving.getChannelAddresses).toHaveBeenCalledWith(
+            instance.service,
+            instance.routeService,
+        );
         expect(channels).toEqual(expectedChannels);
     });
 });

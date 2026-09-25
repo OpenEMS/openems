@@ -31,7 +31,7 @@ public enum DeviceRole {
 	 * {@link #UNKNOWN}.
 	 *
 	 * @param modelName salia device model name
-	 * @param product raw device product
+	 * @param product   raw device product
 	 * @return device role
 	 */
 	public static DeviceRole fromModelNameAndProduct(String modelName, String product) {
@@ -41,11 +41,13 @@ public enum DeviceRole {
 			return result;
 		}
 
-		if (modelName.toUpperCase().contains(DeviceRole.MASTER.name()) && product.trim().equals(DeviceRole.MASTER.product)) {
+		if (modelName.toUpperCase().contains(DeviceRole.MASTER.name())
+				&& product.trim().equals(DeviceRole.MASTER.product)) {
 			result = MASTER;
 		}
 
-		if (modelName.toUpperCase().contains(DeviceRole.SLAVE.name()) && product.trim().equals(DeviceRole.SLAVE.product)) {
+		if (modelName.toUpperCase().contains(DeviceRole.SLAVE.name())
+				&& product.trim().equals(DeviceRole.SLAVE.product)) {
 			result = SLAVE;
 		}
 
