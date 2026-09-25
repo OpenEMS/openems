@@ -13,7 +13,9 @@ import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -127,6 +129,9 @@ public final class ConstraintUtil {
 				// ignore
 				continue;
 			}
+			if (!hasCoefficient(coefficients, ess.id(), ALL, ACTIVE)) {
+				continue;
+			}
 
 			// Allowed Charge Power
 			result.add(createSimpleConstraint(coefficients, ess.id() + ": Allowed Charge", //
@@ -202,6 +207,9 @@ public final class ConstraintUtil {
 		} else {
 			// Asymmetric Mode
 			for (var ess : esss) {
+				if (!hasCoefficient(coefficients, ess.id(), ALL, ACTIVE)) {
+					continue;
+				}
 				for (var pwr : Pwr.values()) {
 					// creates two constraint of the form
 					// 1*P - 1*L1 - 1*L2 - 1*L3 = 0
@@ -231,6 +239,9 @@ public final class ConstraintUtil {
 			List<ManagedSymmetricEss> esss, boolean symmetricMode) throws OpenemsException {
 		var result = new ArrayList<Constraint>();
 		for (var ess : esss) {
+			if (!hasCoefficient(coefficients, ess.id(), ALL, ACTIVE)) {
+				continue;
+			}
 			var essType = getEssType(ess);
 			if (!symmetricMode && essType == SYMMETRIC) {
 				/*
@@ -300,19 +311,30 @@ public final class ConstraintUtil {
 	 */
 	public static List<Constraint> createMetaEssConstraints(Coefficients coefficients, List<ManagedSymmetricEss> esss,
 			boolean symmetricMode) throws OpenemsException {
+		Set<String> liveEssIds = new HashSet<>();
+		for (var ess : esss) {
+			liveEssIds.add(ess.id());
+		}
+
 		List<Constraint> result = new ArrayList<>();
 		for (var ess : esss) {
 			if (ess instanceof MetaEss e) {
 				if (symmetricMode) {
 					// Symmetric Mode
 					for (var pwr : Pwr.values()) {
-						result.add(createOneClusterConstraint(coefficients, e, SingleOrAllPhase.ALL, pwr));
+						var c = createOneClusterConstraint(coefficients, e, SingleOrAllPhase.ALL, pwr, liveEssIds);
+						if (c != null) {
+							result.add(c);
+						}
 					}
 				} else {
 					// Asymmetric Mode
 					for (var phase : SingleOrAllPhase.values()) {
 						for (var pwr : Pwr.values()) {
-							result.add(createOneClusterConstraint(coefficients, e, phase, pwr));
+							var c = createOneClusterConstraint(coefficients, e, phase, pwr, liveEssIds);
+							if (c != null) {
+								result.add(c);
+							}
 						}
 					}
 				}
@@ -328,16 +350,33 @@ public final class ConstraintUtil {
 	 * @param e            the {@link MetaEss} Cluster
 	 * @param phase        the {@link SingleOrAllPhase}
 	 * @param pwr          the {@link Pwr}
-	 * @return the {@link Constraint}
+	 * @param liveEssIds   Component-IDs currently bound to Ess-Power
+	 * @return the pack {@link Constraint}, or null if the cluster has no column yet
 	 * @throws OpenemsException on error
 	 */
 	private static Constraint createOneClusterConstraint(Coefficients coefficients, MetaEss e, SingleOrAllPhase phase,
-			Pwr pwr) throws OpenemsException {
+			Pwr pwr, Set<String> liveEssIds) throws OpenemsException {
+		if (!hasCoefficient(coefficients, e.id(), phase, pwr)) {
+			return null;
+		}
+
 		List<LinearCoefficient> cos = new ArrayList<>();
 		cos.add(new LinearCoefficient(coefficients.of(e.id(), phase, pwr), 1));
 		for (var subEssId : e.getEssIds()) {
+			if (!liveEssIds.contains(subEssId)) {
+				continue;
+			}
 			cos.add(new LinearCoefficient(coefficients.of(subEssId, phase, pwr), -1));
 		}
 		return new Constraint(e.id() + ": Sum of " + pwr.symbol + phase.symbol, cos, Relationship.EQUALS, 0);
+	}
+
+	private static boolean hasCoefficient(Coefficients coefficients, String essId, SingleOrAllPhase phase, Pwr pwr) {
+		for (var c : coefficients.getAll()) {
+			if (c.getEssId().equals(essId) && c.getPhase() == phase && c.getPwr() == pwr) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
