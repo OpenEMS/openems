@@ -49,8 +49,8 @@ testpath: \
 	junit-platform-engine;version=6.1.3,\
 	junit-platform-launcher;version=6.1.3,\
 	junit-vintage-engine;version=6.1.3,\
-	net.bytebuddy.byte-buddy-agent;version=1.18.13,\
-	net.bytebuddy.byte-buddy;version=1.18.13,\
+	net.bytebuddy.byte-buddy-agent;version=1.18.14,\
+	net.bytebuddy.byte-buddy;version=1.18.14,\
 	org.apache.servicemix.bundles.junit;version=4.12,\
 	org.apiguardian.api;version=1.1.2,\
 	org.mockito.junit-jupiter;version=5.23.0,\
