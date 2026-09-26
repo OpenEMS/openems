@@ -233,20 +233,26 @@
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>common</artifactId>
-			<version>1.0.2</version>
+			<artifactId>ocpp-common</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>OCPP-J</artifactId>
-			<version>1.0.2</version>
+			<artifactId>ocpp-json</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>v1_6</artifactId>
-			<version>1.1.0</version>
+			<artifactId>ocpp16j</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>ocpp16</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<!-- fr -->
 		<dependency>
