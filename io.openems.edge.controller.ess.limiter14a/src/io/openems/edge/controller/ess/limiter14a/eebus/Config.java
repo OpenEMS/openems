@@ -1,11 +1,11 @@
-package io.openems.edge.controller.ess.limiter14a;
+package io.openems.edge.controller.ess.limiter14a.eebus;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller Ess Limiter §14a", //
-		description = "Established by law (for Germany), this controller lowers active power to -4200W in response to grid operator limitations, aiming to alleviate load on transformers.")
+		name = "Controller Ess Limiter §14a - EEBUS", //
+		description = "Established by law (for Germany), this controller lowers active power to -4200W in response to grid operator limitations, aiming to alleviate load on transformers. Signal is received by ethernet over EEBUS.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -20,9 +20,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess.")
 	String ess_id() default "ess0";
 
-	@AttributeDefinition(name = "Input Channel", description = "When receiving a signal, this channel triggers the execution of the limitation.")
-	String inputChannelAddress();
+	@AttributeDefinition(name = "Eebus-ID", description = "ID of the EEBUS Bridge.")
+	String eebus_id() default "eebus0";
 
-	String webconsole_configurationFactory_nameHint() default "Controller Ess Limiter §14a [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller Ess Limiter §14a - EEBUS [{id}]";
+
 
 }

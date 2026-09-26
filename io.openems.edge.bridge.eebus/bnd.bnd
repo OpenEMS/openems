@@ -1,0 +1,27 @@
+Bundle-Name: OpenEMS Edge Bridge EEBUS
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.common.bridge.eebus,\
+	io.openems.common.bridge.http,\
+	io.openems.edge.common,\
+	org.openmuc.jeebus.usecase.powerlimitation.abstract-controllablesystem,\
+	org.openmuc.jeebus.ship,\
+	org.openmuc.jeebus.spine,\
+    org.openmuc.jeebus.usecase.powerlimitation.lpc-controllablesystem,\
+    org.openmuc.jeebus.usecase.powerlimitation.lpp-controllablesystem,\
+    jakarta.xml.bind-api;version='[4.0.5,4.0.6)',\
+    org.jvnet.jaxb.plugins-runtime;version='[4.0.12,4.0.13)',\
+    bcpkix;version='[1.83,2)',\
+    bcprov;version='[1.83,2)',\
+    bcutil;version='[1.83,2)',\
+
+-testpath: \
+	${testpath},\
+    bcpkix;version='[1.83,2)',\
+    bcprov;version='[1.83,2)',\
+    bcutil;version='[1.83,2)',\
