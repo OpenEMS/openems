@@ -5,6 +5,7 @@ import io.openems.edge.bridge.eebus.Config;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
 import io.openems.edge.bridge.eebus.api.EebusPeer;
 import io.openems.edge.bridge.eebus.api.EebusUseCaseManager;
+import io.openems.edge.bridge.eebus.api.LogVerbosity;
 import io.openems.edge.bridge.eebus.usecase.EebusUseCaseManagerImpl;
 import io.openems.edge.bridge.eebus.usecase.EebusUseCaseType;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerConsumptionUseCase;
@@ -41,6 +42,11 @@ public class DummyBridgeEebus extends AbstractDummyOpenemsComponent<DummyBridgeE
 	@Override
 	public EebusUseCaseManager getUseCaseManager() {
 		return this.useCaseManager;
+	}
+
+	@Override
+	public LogVerbosity getLogLevel() {
+		return LogVerbosity.NONE;
 	}
 
 	@Override

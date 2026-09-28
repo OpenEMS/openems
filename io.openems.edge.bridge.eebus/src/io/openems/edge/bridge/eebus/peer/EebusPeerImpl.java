@@ -29,7 +29,7 @@ public class EebusPeerImpl extends AbstractOpenemsComponent implements EebusPeer
 	public EebusPeerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				BridgeEebus.ChannelId.values() //
+				EebusPeer.ChannelId.values() //
 		);
 	}
 

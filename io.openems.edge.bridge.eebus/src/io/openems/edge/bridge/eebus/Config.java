@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.eebus;
 
+import io.openems.edge.bridge.eebus.api.LogVerbosity;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
@@ -30,8 +31,8 @@ public @interface Config {
 	@AttributeDefinition(name = "TLS Certificate", description = "Self-signed TLS certificate for EEBUS. Automatically generated if left empty. Changing this value will also change the SKI.")
 	String tlsCertificate();
 
-	@AttributeDefinition(name = "Debug Mode", description = "Enable debug logging for MQTT communication")
-	boolean debugMode() default false;
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Bridge EEBUS [{id}]";
 }

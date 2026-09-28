@@ -54,4 +54,6 @@ public interface BridgeEebus extends OpenemsComponent {
 
 	EebusUseCaseManager getUseCaseManager();
 
+	LogVerbosity getLogLevel();
+
 }

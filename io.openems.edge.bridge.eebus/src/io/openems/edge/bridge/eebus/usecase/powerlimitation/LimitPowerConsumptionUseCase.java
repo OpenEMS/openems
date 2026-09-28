@@ -5,6 +5,7 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.openems.edge.bridge.eebus.api.LogVerbosity;
 import org.openmuc.jeebus.spine.spi.UseCase;
 import org.openmuc.jeebus.spine.utils.datatypes.ScaledNumberWrapper;
 import org.openmuc.jeebus.usecase.powerlimitation.controllablesystem.ActiveLimit;
@@ -22,14 +23,13 @@ import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsu
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 
 public class LimitPowerConsumptionUseCase extends EebusUseCase {
-	private final BridgeEebus bridge;
 	private final List<ILimitPowerConsumptionHandler> handlers = new ArrayList<ILimitPowerConsumptionHandler>();
 	private final Logger log = LoggerFactory.getLogger(LimitPowerConsumptionUseCase.class);
 
 	private LimitationConfig configSnapshot;
 
 	public LimitPowerConsumptionUseCase(BridgeEebus bridge) {
-		this.bridge = bridge;
+		super(bridge);
 	}
 
 	public long getNominalMax() {
@@ -65,7 +65,9 @@ public class LimitPowerConsumptionUseCase extends EebusUseCase {
 	}
 
 	protected void handleEebusEvent(Event event, State state, ActiveLimit activeLimit) {
-		this.log.info("Received eebus LPC signal | State: {}, ActiveLimit: {}", state, activeLimit);
+		if (this.bridge.getLogLevel().isReadsAndWrites()) {
+			this.log.info("Received eebus LPC signal | State: {}, ActiveLimit: {}", state, activeLimit);
+		}
 
 		var mappedState = this.mapState(state);
 		this.handleLimit(mappedState, activeLimit != null ? activeLimit.getResultingValue() : null);

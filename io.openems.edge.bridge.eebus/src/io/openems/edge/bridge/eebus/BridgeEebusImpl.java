@@ -11,9 +11,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.openmuc.jeebus.ship.api.ConfigBuilder;
+import io.openems.edge.bridge.eebus.api.LogVerbosity;
 import org.openmuc.jeebus.ship.api.ShipConnectionInfoSnapshot;
-import org.openmuc.jeebus.ship.node.ShipConfig;
+import org.openmuc.jeebus.ship.api.ShipConfig;
 import org.openmuc.jeebus.shipspine.ShipCommunication;
 import org.openmuc.jeebus.spine.api.Device;
 import org.openmuc.jeebus.spine.xsd.v1.DeviceTypeEnumType;
@@ -105,7 +105,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 		this.config = config;
 
 		this.reInitScheduler = this.periodicExecutorFactory.execute("BridgeEebus-DeviceReInit", () -> {
-			if (this.reInitRequired || this.useCaseManager.isDirty()) {
+			if (this.reInitRequired || this.useCaseManager.isReInitRequired()) {
 				this.reinitializeDevice();
 			}
 			return DelayTimeProviderChain.fixedDelay(Duration.ofMinutes(1)).getDelay();
@@ -164,6 +164,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 		if (this.eebusDevice != null) {
 			this.eebusDevice.close();
 			this.eebusDevice = null;
+			this.shipCommunication = null;
 		}
 	}
 
@@ -247,6 +248,11 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 	}
 
 	@Override
+	public LogVerbosity getLogLevel() {
+		return this.config.logVerbosity();
+	}
+
+	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;
@@ -271,6 +277,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 		this.connectionsAmount = allConnections.size();
 
 		var connectionInfos = allConnections.stream() //
+				.filter(s -> s.getSki() != null) //
 				.filter(ShipConnectionInfoSnapshot::isDataExchangeEstablished) //
 				.sorted(sorting) //
 				.toList();

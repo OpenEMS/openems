@@ -181,7 +181,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference
 	private Meta meta;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	protected volatile PowerProductionLimiter powerProductionLimiter;
 
 	@Override
@@ -1045,9 +1045,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Limit from Ripple Control Receiver (Minimum of both limits)
 		if (this.powerProductionLimiter != null) {
 			this.powerProductionLimiter.setMaxNominalProductionPower(maxApparentPower);
+			var limitByLimiter = this.powerProductionLimiter.getGridFeedInLimit();
 
-			enableFeedInLimit = true;
-			gridFeedInLimit = Math.min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
+			if (limitByLimiter != null) {
+				enableFeedInLimit = true;
+				gridFeedInLimit = Math.min(gridFeedInLimit, limitByLimiter);
+			}
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());

@@ -22,14 +22,13 @@ import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerProdu
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 
 public class LimitPowerProductionUseCase extends EebusUseCase {
-	private final BridgeEebus bridge;
 	private final List<ILimitPowerProductionHandler> handlers = new ArrayList<>();
 	private final Logger log = LoggerFactory.getLogger(LimitPowerProductionUseCase.class);
 
 	private LimitationConfig configSnapshot;
 
 	public LimitPowerProductionUseCase(BridgeEebus bridge) {
-		this.bridge = bridge;
+		super(bridge);
 	}
 
 	private long getNominalMax() {
@@ -65,10 +64,12 @@ public class LimitPowerProductionUseCase extends EebusUseCase {
 	}
 
 	protected void handleEebusEvent(Event event, State state, ActiveLimit activeLimit) {
-		this.log.info("Received eebus LPP signal | State: {}, ActiveLimit: {}", state, activeLimit);
+		if (this.bridge.getLogLevel().isReadsAndWrites()) {
+			this.log.info("Received eebus LPP signal | State: {}, ActiveLimit: {}", state, activeLimit);
+		}
 
 		var mappedState = this.mapState(state);
-		this.handleLimit(mappedState, activeLimit.getResultingValue());
+		this.handleLimit(mappedState, activeLimit != null ? activeLimit.getResultingValue() : null);
 	}
 
 	public void addHandler(ILimitPowerProductionHandler handler) {

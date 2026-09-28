@@ -13,8 +13,12 @@ import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerConsumptio
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerProductionUseCase;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerProductionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EebusUseCaseManagerImpl implements EebusUseCaseManager {
+	private final Logger log = LoggerFactory.getLogger(EebusUseCaseManagerImpl.class);
+
 	private final BridgeEebus bridge;
 	protected Map<EebusUseCaseType, EebusUseCase> useCases = new EnumMap<>(EebusUseCaseType.class);
 	protected boolean dirty = true;
@@ -57,8 +61,10 @@ public class EebusUseCaseManagerImpl implements EebusUseCaseManager {
 			updateMethod.accept(useCase);
 			this.useCases.put(useCaseType, useCase);
 			this.dirty = true;
+			this.logDebug("Added use-case " + useCaseType);
 		} else {
 			updateMethod.accept(useCase);
+			this.logDebug("Updated use-case " + useCaseType);
 		}
 	}
 
@@ -93,7 +99,25 @@ public class EebusUseCaseManagerImpl implements EebusUseCaseManager {
 		return "UseCases:" + shortNames;
 	}
 
-	public boolean isDirty() {
-		return this.dirty || this.useCases.values().stream().anyMatch(EebusUseCase::requiresReInit);
+	public boolean isReInitRequired() {
+		if (this.dirty) {
+			this.logDebug("A re-initialization is required because a use-case was added or removed");
+			return true;
+		}
+
+		for (var useCase : this.useCases.values()) {
+			if (useCase.requiresReInit()) {
+				this.logDebug("A re-initialization is required because use-case " + useCase + " requires a re-init.");
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void logDebug(String msg) {
+		if (this.bridge.getLogLevel().isDebug()) {
+			this.log.info(msg);
+		}
 	}
 }
