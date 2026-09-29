@@ -379,4 +379,55 @@ public final class ConstraintUtil {
 		}
 		return false;
 	}
+
+	/**
+	 * Creates EQUALS ZERO constraints for sub-ESS members of a {@link MetaEss} that
+	 * are not present in the current esss list (e.g. removed or deactivated).
+	 *
+	 * <p>
+	 * When a sub-ESS is removed from EssPower while its ID still appears in
+	 * {@link MetaEss#getEssIds()}, the corresponding LP coefficient has no bounds
+	 * and makes the objective function unbounded. Forcing such members to zero
+	 * keeps the LP well-defined.
+	 *
+	 * @param coefficients  the {@link Coefficients}
+	 * @param esss          list of current {@link ManagedSymmetricEss}s
+	 * @param symmetricMode Symmetric-Mode enabled?
+	 * @return List of {@link Constraint}s
+	 * @throws OpenemsException on error
+	 */
+	public static List<Constraint> createZeroConstraintsForOrphanedMetaEssMembers(Coefficients coefficients,
+			List<ManagedSymmetricEss> esss, boolean symmetricMode) throws OpenemsException {
+		Set<String> activeIds = new HashSet<>();
+		for (var ess : esss) {
+			activeIds.add(ess.id());
+		}
+		var result = new ArrayList<Constraint>();
+		for (var ess : esss) {
+			if (!(ess instanceof MetaEss me)) {
+				continue;
+			}
+			for (var subEssId : me.getEssIds()) {
+				if (activeIds.contains(subEssId)) {
+					continue;
+				}
+				// Sub-ESS is referenced by cluster but not active -> force P and Q to zero
+				if (symmetricMode) {
+					for (var pwr : Pwr.values()) {
+						result.add(createSimpleConstraint(coefficients, subEssId + ": Deactivated member of " + me.id(),
+								subEssId, ALL, pwr, Relationship.EQUALS, 0));
+					}
+				} else {
+					for (var phase : SingleOrAllPhase.values()) {
+						for (var pwr : Pwr.values()) {
+							result.add(createSimpleConstraint(coefficients,
+									subEssId + ": Deactivated member of " + me.id(), subEssId, phase, pwr,
+									Relationship.EQUALS, 0));
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
 }
