@@ -79,10 +79,13 @@ public class DataTest {
 		var ess2 = new DummyManagedSymmetricEss("ess2").setPower(powerComponent);
 		var cluster = new DummyMetaEss("essCluster0", ess1, ess2).setPower(powerComponent);
 
+		// Only the cluster in esss — mirrors the real OSGi scenario where members may
+		// not be collected before the cluster processes its cycle
 		var clusterOnly = Lists.<ManagedSymmetricEss>newArrayList(cluster);
 		var clusterData = new Data(() -> clusterOnly);
 		clusterData.setSymmetricMode(true);
 
+		// Expected: coefficients for essCluster0, ess1, ess2 = 3 IDs × 2 pwr = 6
 		assertEquals(3 * 2, clusterData.getCoefficients().getNoOfCoefficients());
 	}
 

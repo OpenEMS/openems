@@ -977,7 +977,22 @@ public class EssPowerImplTest {
 	}
 
 	/**
-	 * Removing the Ess and adding the ess.
+	 * Verifies power distribution when a sub-ESS is temporarily removed from an
+	 * EssCluster — a scenario seen intermittently in production FEMS, e.g. when a
+	 * battery inverter restarts or loses communication while the cluster controller
+	 * is still active.
+	 *
+	 * <p>
+	 * Without fix: removing ess3 from EssPower leaves its LP coefficients (ess3_P,
+	 * ess3_Q) unconstrained. The solver objective becomes unbounded,
+	 * {@code setActivePowerEqualsWithoutFilter()} short-circuits (getMinPower /
+	 * getMaxPower both return 0), the 30 kW target is never set, and
+	 * NOT_SOLVED=true.
+	 *
+	 * <p>
+	 * With fix: {@code createZeroConstraintsForOrphanedMetaEssMembers()} pins
+	 * ess3_P=0 and ess3_Q=0, the LP stays bounded, and the 30 kW target is split
+	 * equally between the two remaining inverters (ess1=15 kW, ess2=15 kW).
 	 */
 	@Test
 	public void testClusterWithOneSubEssDeactivated() throws Exception {
