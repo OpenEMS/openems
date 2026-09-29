@@ -67,8 +67,10 @@ public class DataTest {
 	}
 
 	/**
-	 * Columns exist only for the live cluster plus live children. Config children
-	 * that are not bound do not get columns.
+	 * Verifies that member IDs from {@link MetaEss#getEssIds()} are registered as
+	 * coefficient columns even when the members are not in the live esss list. This
+	 * is required so that offline members can be zero-constrained by
+	 * createZeroConstraintsForOrphanedMetaEssMembers().
 	 */
 	@Test
 	public void testMemberCoefficientsRegisteredWhenOnlyClusterInEsss() {
@@ -81,12 +83,13 @@ public class DataTest {
 		var clusterData = new Data(() -> clusterOnly);
 		clusterData.setSymmetricMode(true);
 
-		assertEquals(1 * 2, clusterData.getCoefficients().getNoOfCoefficients());
+		assertEquals(3 * 2, clusterData.getCoefficients().getNoOfCoefficients());
 	}
 
 	/**
-	 * A live ESS that is not a cluster child gets no inverter when a MetaEss is
-	 * present.
+	 * A live ESS that is not a cluster child still gets an inverter and a
+	 * coefficient column when a MetaEss is present — it participates in power
+	 * distribution independently.
 	 */
 	@Test
 	public void testNoInverterForStandaloneWhenClusterPresent() {
@@ -99,8 +102,8 @@ public class DataTest {
 		var mixedData = new Data(() -> mixed);
 		mixedData.setSymmetricMode(true);
 
-		assertEquals(2, mixedData.getInverters().size());
-		assertEquals(3 * 2, mixedData.getCoefficients().getNoOfCoefficients());
+		assertEquals(3, mixedData.getInverters().size());
+		assertEquals(4 * 2, mixedData.getCoefficients().getNoOfCoefficients());
 	}
 
 	/**

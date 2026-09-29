@@ -1028,9 +1028,7 @@ public class EssPowerImplTest {
 		componentTest.next(new TestCase("#1") //
 		);
 
-		var removeEssMethod = EssPowerImpl.class.getDeclaredMethod("removeEss", ManagedSymmetricEss.class);
-		removeEssMethod.setAccessible(true);
-		removeEssMethod.invoke(powerComponent, ess3);
+		componentTest.removeReference("removeEss", ess3);
 
 		expect("#2", ess1, 15000, 0);
 		expect("#2", ess2, 15000, 0);
@@ -1039,9 +1037,7 @@ public class EssPowerImplTest {
 				.output("_power", EssPower.ChannelId.NOT_SOLVED, false) //
 		);
 
-		var addEssMethod = EssPowerImpl.class.getDeclaredMethod("addEss", ManagedSymmetricEss.class);
-		addEssMethod.setAccessible(true);
-		addEssMethod.invoke(powerComponent, ess3);
+		componentTest.addReference("addEss", ess3);
 
 		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
 

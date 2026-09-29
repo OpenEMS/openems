@@ -32,6 +32,8 @@ public class Data {
 
 	private final Supplier<List<ManagedSymmetricEss>> esssSupplier;
 
+	private volatile List<ManagedSymmetricEss> cachedEsss = List.of();
+
 	/**
 	 * Holds all Inverters, always roughly sorted by weight.
 	 */
@@ -75,6 +77,7 @@ public class Data {
 
 	protected synchronized void updateInverters() {
 		final var esss = this.esssSupplier.get();
+		this.cachedEsss = List.copyOf(esss);
 
 		this.inverters.clear();
 
@@ -112,30 +115,23 @@ public class Data {
 	}
 
 	/**
-	 * Cluster present: inverters only for live cluster children. Columns for the
-	 * cluster plus those inverters. Disabled config children and live non-children
-	 * get neither.
+	 * Cluster present: MetaEss wrappers get a coefficient column (plus all member
+	 * IDs from {@link MetaEss#getEssIds()} so offline members can be
+	 * zero-constrained). All other live ESS — cluster children and standalone —
+	 * get both a column and an inverter.
 	 *
 	 * @param esss   live ESS bound to Ess-Power
 	 * @param essIds IDs to register as coefficient columns
 	 */
 	private void collectClusterInvertersAndIds(List<ManagedSymmetricEss> esss, Set<String> essIds) {
-		Set<String> childIds = new HashSet<>();
 		for (ManagedSymmetricEss ess : esss) {
 			if (ess instanceof MetaEss me) {
 				essIds.add(ess.id());
-				Collections.addAll(childIds, me.getEssIds());
+				Collections.addAll(essIds, me.getEssIds()); // register offline members too
+			} else {
+				essIds.add(ess.id());
+				this.addInverter(ess);
 			}
-		}
-		for (ManagedSymmetricEss ess : esss) {
-			if (ess instanceof MetaEss) {
-				continue;
-			}
-			if (!childIds.contains(ess.id())) {
-				continue;
-			}
-			essIds.add(ess.id());
-			this.addInverter(ess);
 		}
 	}
 
@@ -241,7 +237,7 @@ public class Data {
 	 */
 	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters)
 			throws OpenemsException {
-		final var esss = this.esssSupplier.get();
+		final var esss = this.cachedEsss;
 
 		return Streams.concat(//
 				ConstraintUtil.createDisableConstraintsForInactiveInverters(this.coefficients, disabledInverters)
@@ -249,6 +245,9 @@ public class Data {
 				ConstraintUtil.createGenericEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
 				ConstraintUtil.createStaticEssConstraints(esss, this.onStaticConstraintsFailed).stream(), //
 				ConstraintUtil.createMetaEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
+				ConstraintUtil
+						.createZeroConstraintsForOrphanedMetaEssMembers(this.coefficients, esss, this.symmetricMode)
+						.stream(), //
 				ConstraintUtil.createSumOfPhasesConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
 				ConstraintUtil.createSymmetricEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
 				ConstraintUtil.createSinglePhaseEssConstraints(this.coefficients, this.inverters, this.symmetricMode)
