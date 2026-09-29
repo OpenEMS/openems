@@ -1,0 +1,79 @@
+<ion-card class="vpp-dashboard" role="region" [attr.aria-label]="'VPP.TITLE' | translate">
+  <ion-card-header class="vpp-dashboard__header">
+    <div>
+      <ion-card-title>{{ "VPP.TITLE" | translate }}</ion-card-title>
+      <ion-card-subtitle>{{ "VPP.SUBTITLE" | translate }}</ion-card-subtitle>
+    </div>
+    <ion-badge color="medium">{{ "VPP.READ_ONLY" | translate }}</ion-badge>
+  </ion-card-header>
+
+  <ion-card-content>
+    <div class="vpp-dashboard__assets" role="list" [attr.aria-label]="'VPP.ASSETS_TITLE' | translate">
+      @for (asset of state.assets; track asset.id) {
+        <section class="vpp-asset" role="listitem">
+          <div class="vpp-asset__heading">
+            <ion-icon [name]="asset.icon" aria-hidden="true"></ion-icon>
+            <h3>
+              @if (asset.type === "ev") {
+                {{ asset.name }}
+              } @else {
+                {{ asset.name | translate }}
+              }
+            </h3>
+          </div>
+
+          @if (asset.status === "AVAILABLE") {
+            @if (asset.power !== null) {
+              <p class="vpp-asset__value">
+                {{ formatPower(asset.power) | number: "1.0-2" }} kW
+              </p>
+              <p class="vpp-asset__detail">{{ getDirectionKey(asset) | translate }}</p>
+            }
+          } @else {
+            <p class="vpp-asset__status">{{ getStatusKey(asset.status) | translate }}</p>
+          }
+
+          @if (asset.type === "battery" && isStatusCurrent(asset.status)) {
+            @if (asset.soc !== null) {
+              <p class="vpp-asset__detail">
+                {{ "VPP.SOC" | translate }}: {{ asset.soc | number: "1.0-0" }}%
+              </p>
+            } @else {
+              <p class="vpp-asset__detail">{{ "VPP.SOC_UNKNOWN" | translate }}</p>
+            }
+          }
+        </section>
+      }
+    </div>
+
+    <section class="vpp-integrations" [attr.aria-label]="'VPP.INTEGRATIONS_TITLE' | translate">
+      <h3>{{ "VPP.INTEGRATIONS_TITLE" | translate }}</h3>
+      <div class="vpp-integrations__items">
+        <div class="vpp-integration">
+          <span>{{ "VPP.INTEGRATION.OPENEMS_EDGE" | translate }}</span>
+          <ion-badge [color]="state.edgeStatus === 'ONLINE' ? 'success' : 'danger'">
+            {{ getEdgeStatusKey() | translate }}
+          </ion-badge>
+        </div>
+        <div class="vpp-integration">
+          <span>{{ "VPP.INTEGRATION.TELEMETRY" | translate }}</span>
+          <ion-badge
+            [color]="
+              state.telemetryStatus === 'CURRENT'
+                ? 'success'
+                : state.telemetryStatus === 'STALE'
+                  ? 'warning'
+                  : 'medium'
+            "
+          >
+            {{ getTelemetryStatusKey() | translate }}
+          </ion-badge>
+        </div>
+        <div class="vpp-integration">
+          <span>{{ "VPP.INTEGRATION.SOLPLANET" | translate }}</span>
+          <ion-badge color="medium">{{ getSolplanetStatusKey() | translate }}</ion-badge>
+        </div>
+      </div>
+    </section>
+  </ion-card-content>
+</ion-card>

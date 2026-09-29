@@ -1,4 +1,45 @@
 {
+    "VPP": {
+        "TITLE": "Visuelles VPP",
+        "SUBTITLE": "Energiefluss und Live-Telemetrie am Standort",
+        "READ_ONLY": "Nur lesend",
+        "ASSETS_TITLE": "Energieanlagen",
+        "ASSETS": {
+            "PV": "PV / Wechselrichter",
+            "BATTERY": "Batterie",
+            "GRID": "Netz",
+            "EV": "Ladestation"
+        },
+        "STATUS": {
+            "AVAILABLE": "Telemetrie verfügbar",
+            "NOT_CONFIGURED": "Nicht konfiguriert",
+            "UNKNOWN": "Telemetrie nicht verfügbar",
+            "STALE": "Telemetrie ist veraltet",
+            "OFFLINE": "Offline",
+            "ONLINE": "Online",
+            "CURRENT": "Aktuell"
+        },
+        "DIRECTION": {
+            "IDLE": "Leerlauf",
+            "DISCHARGING": "Entladen",
+            "CHARGING": "Laden",
+            "IMPORTING": "Netzbezug",
+            "EXPORTING": "Einspeisung",
+            "GENERATING": "Erzeugung",
+            "POWER_FLOW": "Energiefluss"
+        },
+        "SOC": "Ladezustand",
+        "SOC_UNKNOWN": "Ladezustand nicht verfügbar",
+        "INTEGRATIONS_TITLE": "Integrationsstatus",
+        "INTEGRATION": {
+            "OPENEMS_EDGE": "OpenEMS Edge",
+            "TELEMETRY": "Aktualität der Telemetrie",
+            "SOLPLANET": "Solplanet",
+            "NOT_CONFIGURED": "Keine Komponente konfiguriert",
+            "DISABLED": "Komponente deaktiviert",
+            "UNVERIFIED": "Konfiguriert; Verbindung nicht verifiziert"
+        }
+    },
     "ABOUT": {
         "BUILD": "Dieser Build",
         "CONTACT": "Für Fragen oder Anregungen nutzen Sie bitte das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a>.",
