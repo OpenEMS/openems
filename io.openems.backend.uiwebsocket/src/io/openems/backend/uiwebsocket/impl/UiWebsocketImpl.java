@@ -2,13 +2,12 @@ package io.openems.backend.uiwebsocket.impl;
 
 import static java.util.stream.Collectors.toUnmodifiableMap;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
-import io.openems.backend.authentication.api.AuthUserRegistrationService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -28,6 +27,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.authentication.api.AuthUserAuthorizationCodeFlowService;
 import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationService;
+import io.openems.backend.authentication.api.AuthUserRegistrationService;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeCache;
@@ -61,6 +61,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	private static final String COMPONENT_ID = "uiwebsocket0";
 
 	protected WebsocketServer server = null;
+
+	private final Map<String, Set<WsData>> edgeSubscriptions = new ConcurrentHashMap<>();
 
 	@Reference
 	protected volatile JsonRpcRequestHandler jsonRpcRequestHandler;
@@ -167,7 +169,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 		if (this.server == null) {
 			return;
 		}
-		var wsDatas = this.getWsDatasForEdgeId(edgeId);
+		var wsDatas = this.edgeSubscriptions.get(edgeId);
+		if (wsDatas == null || wsDatas.isEmpty()) {
+			return;
+		}
 		for (WsData wsData : wsDatas) {
 			wsData.send(notification);
 		}
@@ -214,29 +219,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 		return null;
 	}
 
-	/**
-	 * Gets the WebSocket connection attachments of all connections accessing an
-	 * Edge-ID.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @return the WsDatas; empty list if there are none
-	 */
-	private List<WsData> getWsDatasForEdgeId(String edgeId) {
-		var result = new ArrayList<WsData>();
-		var connections = this.server.getConnections();
-		for (var websocket : connections) {
-			WsData wsData = websocket.getAttachment();
-			if (wsData == null) {
-				continue;
-			}
-			if (!wsData.isEdgeSubscribed(edgeId)) {
-				continue;
-			}
-			result.add(wsData);
-		}
-		return result;
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
@@ -251,13 +233,55 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 		if (this.server == null) {
 			return;
 		}
-		var connections = this.server.getConnections();
-		for (var websocket : connections) {
-			WsData wsData = websocket.getAttachment();
-			if (wsData != null) {
-				wsData.sendSubscribedChannels(edgeId, edgeCache);
-			}
+		var wsDatas = this.edgeSubscriptions.get(edgeId);
+		if (wsDatas == null || wsDatas.isEmpty()) {
+			return;
 		}
+		for (var wsData : wsDatas) {
+			wsData.sendSubscribedChannels(edgeId, edgeCache);
+		}
+	}
+
+	/**
+	 * Adds Edge-subscriptions of a UI session.
+	 *
+	 * @param wsData  the {@link WsData} of the UI session
+	 * @param edgeIds the newly subscribed Edge-IDs
+	 */
+	public void addEdgeSubscriptions(WsData wsData, Set<String> edgeIds) {
+		for (var edgeId : edgeIds) {
+			this.edgeSubscriptions.computeIfAbsent(edgeId, id -> ConcurrentHashMap.newKeySet()).add(wsData);
+		}
+	}
+
+	/**
+	 * Removes all Edge-subscriptions of a UI session.
+	 *
+	 * @param wsData the {@link WsData} of the UI session
+	 */
+	public void removeEdgeSubscriptions(WsData wsData) {
+		for (var edgeId : wsData.getSubscribedEdges()) {
+			this.removeEdgeSubscription(edgeId, wsData);
+		}
+	}
+
+	/**
+	 * Removes Edge-subscriptions of a UI session.
+	 *
+	 * @param wsData  the {@link WsData} of the UI session
+	 * @param edgeIds the Edge-IDs to remove
+	 */
+	public void removeEdgeSubscriptions(WsData wsData, Set<String> edgeIds) {
+		for (var edgeId : edgeIds) {
+			this.removeEdgeSubscription(edgeId, wsData);
+		}
+	}
+
+	private void removeEdgeSubscription(String edgeId, WsData wsData) {
+		this.edgeSubscriptions.computeIfPresent(edgeId, (id, wsDatas) -> {
+			wsDatas.remove(wsData);
+			return wsDatas.isEmpty() ? null : wsDatas;
+		});
 	}
 
 	/**
@@ -271,12 +295,12 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	protected User assertUser(WsData wsData, AbstractJsonrpcRequest request) throws OpenemsNamedException {
 		var userIdOpt = wsData.getUserId();
-		if (!userIdOpt.isPresent()) {
+		if (userIdOpt.isEmpty()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
 					.exception("User-ID is empty. Ignoring request [" + request.getMethod() + "]");
 		}
 		var userOpt = this.metadata.getUser(userIdOpt.get());
-		if (!userOpt.isPresent()) {
+		if (userOpt.isEmpty()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("User with ID [" + userIdOpt.get()
 					+ "] is unknown. Ignoring request [" + request.getMethod() + "]");
 		}
@@ -289,12 +313,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append("[").append(this.getName()).append("] ") //
-				.append(this.server != null //
-						? this.server.debugLog() //
-						: "NOT STARTED") //
-				.toString();
+		final var log = (this.server != null ? this.server.debugLog() : "NOT STARTED");
+		return "[" + this.getName() + "] " + log;
 	}
 
 	@Override

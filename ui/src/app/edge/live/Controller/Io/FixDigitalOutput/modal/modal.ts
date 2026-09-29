@@ -41,7 +41,7 @@ export class ControllerFixDigitalOutputModalComponent extends AbstractFormlyComp
             return;
         }
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "isOn",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyIsOn"),

@@ -116,7 +116,7 @@
 
                     <!-- OeFormlyField.RangeButtonFromFormControlLine -->
                     @case ("range-button-from-form-control-line") {
-                      <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'RANGE', properties: line.properties }" [formGroup]="form"></oe-modal-line>
+                      <oe-range-slider [formGroup]="form" [controlName]="line.controlName" [properties]="line.properties"></oe-range-slider>
                     }
 
                     <!-- OeFormlyField.Dual.Knob.RangeButtonFromFormControlLine -->

@@ -237,7 +237,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (emergencyReserveCtrl != null) {
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -246,7 +246,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_SOC(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -261,7 +261,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (prepareBatteryExtensionCtrl != null) {
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -270,7 +270,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_SOC(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -279,7 +279,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -288,7 +288,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_BUFFER(
                         essComponent,
                     ),
@@ -299,7 +299,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_SPECIFIED(
                         essComponent,
                     ),
@@ -310,7 +310,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_EXPECTED_EPOCH_SECONDS(
                         essComponent,
                     ),
@@ -325,7 +325,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
             const meta = new MetaComponent(config);
             if (meta != null) {
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent),
                     currentData,
                     new ChannelAddress(

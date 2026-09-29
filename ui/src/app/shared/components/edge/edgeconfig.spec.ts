@@ -8,8 +8,9 @@ import { Role } from "../../type/role";
 import { TEnumKeys } from "../../type/utility";
 import { WidgetFactory } from "../../type/widget";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeImageComponent } from "../oe-img/oe-img";
+import { OeFormlyField } from "../shared/oe-formly-component";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -1143,7 +1144,7 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (
 export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(
     controlName: string,
     expectedValue: T,
-    properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+    properties: OeFormlyField.RangeLineProperties,
 ): OeFormlyViewTester.Field => ({
     type: "range-button-from-form-control-line",
     controlName,

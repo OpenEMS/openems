@@ -54,7 +54,7 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 	 * device was sent. To make sure that it works in 100% of cases and not only in
 	 * 95%, we are adding a delay here.
 	 */
-	protected static final Duration DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID = Duration.ofMillis(6L);
+	protected static final Duration DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID = Duration.ofMillis(10L);
 
 	private List<TaskHook> modbusTaskHooks = List.of();
 

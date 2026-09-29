@@ -37,6 +37,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Max Heat Power", description = "Maximum power setpoint [W].", max = "9000")
 	int maxHeatPower() default 3000;
 
+	@AttributeDefinition(name = "Effective Storage Volume", description = "Effectively heated storage volume [l].", min = "0")
+	double effectiveStorageVolume();
+
 	String webconsole_configurationFactory_nameHint() default "Heat my-PV [{id}]";
 
 }

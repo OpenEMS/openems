@@ -43,10 +43,10 @@ export namespace SharedControllerHeat {
         const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
 
         return [
-            ...getFormlySharedLines(translate, component),
-            ...(isMyPv ? getMyPVInfoLine(translate) : []),
             ...(isAskoma ? getAskomaIcon() : []),
             ...(isMyPv ? getMyPvIcon() : []),
+            ...getFormlySharedLines(translate, component),
+            ...(isMyPv ? getMyPVInfoLine(translate) : []),
         ];
     };
 

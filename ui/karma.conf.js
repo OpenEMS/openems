@@ -18,6 +18,7 @@ module.exports = function (config) {
         ],
         client: {
             jasmine: {
+                random: false,
                 // you can add configuration options for Jasmine here
                 // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
                 // for example, you can disable the random execution with `random: false`
@@ -35,11 +36,11 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ["ChromeHeadless", "ChromeHeadlessCI"],
+        browsers: ["ChromeHeadlessCI"],
         customLaunchers: {
             ChromeHeadlessCI: {
                 base: "ChromeHeadless",
-                flags: ["--no-sandbox"],
+                flags: ["--no-sandbox", '--disable-dev-shm-usage',],
             },
         },
         singleRun: true,

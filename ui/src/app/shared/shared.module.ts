@@ -54,6 +54,7 @@ import { PercentageBarComponent } from "./components/percentagebar/percentagebar
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { TimeLineComponent } from "./components/picktime/picktime.component";
+import { RangeSliderComponent } from "./components/range-slider/range-slider";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
@@ -213,6 +214,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         DualKnobSliderComponent,
+        RangeSliderComponent,
         FormlyModule.forRoot({
             wrappers: [
                 {

@@ -505,17 +505,19 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Safely multiply Doubles.
+	 * Safely multiply {@link Double}s.
 	 *
-	 * @param factors the factors of the multiplication
-	 * @return the result, possibly null if all factors are null
+	 * @param firstFactor    first factor of the multiplication
+	 * @param furtherFactors further factors of the multiplication
+	 * @return the result, possibly null if the first factor is null
 	 */
-	public static Double multiply(Double... factors) {
-		Double result = null;
-		for (Double factor : factors) {
-			if (result == null) {
-				result = factor;
-			} else if (factor != null) {
+	public static Double multiply(Double firstFactor, Double... furtherFactors) {
+		if (firstFactor == null) {
+			return null;
+		}
+		double result = firstFactor;
+		for (Double factor : furtherFactors) {
+			if (factor != null) {
 				result *= factor;
 			}
 		}

@@ -354,7 +354,7 @@ export class SystemLocationValidatorComponent implements OnInit {
             street === this.model.street.replaceAll(",", "") &&
             geo.postcode === this.model.zip &&
             geo.placeName === this.model.city &&
-            CountryUtils.fromCountryCode(geo.country ?? "") === this.model.country
+            CountryUtils.fromCountryCode(geo.countryCode ?? "") === this.model.country
         );
     }
 }

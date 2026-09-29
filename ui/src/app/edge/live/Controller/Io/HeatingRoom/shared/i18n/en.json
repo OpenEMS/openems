@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "MODE": {
+            "TITLE": "Heating mode",
+            "MANUAL_LOW": "Low",
+            "MANUAL_HIGH": "High"
+        },
+        "HOME": {
+            "POWER_CONSUMPTION": "Power consumption",
+            "FLOOR_ACTUAL": "Floor temperature",
+            "FLOOR_TARGET": "Floor target temperature",
+            "AMBIENT_ACTUAL": "Ambient temperature",
+            "AMBIENT_TARGET": "Ambient target temperature",
+            "UPCOMING_EVENTS": "Upcoming events"
+        }
+    }
+}

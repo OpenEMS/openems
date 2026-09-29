@@ -54,6 +54,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
+import io.openems.edge.heat.api.RemainingHeatEnergyCalculator;
 import io.openems.edge.heat.api.Status;
 import io.openems.edge.heat.askoma.jsonrpc.jsonrpc.GetSchedule;
 import io.openems.edge.heat.askoma.statemachine.Context;
@@ -85,7 +86,8 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private final StateMachine stateMachine;
-	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
+	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext,
+			EnergyScheduler.ScheduleContext> energyScheduleHandler;
 
 	private volatile Config config = null;
 	private volatile JSCalendar.Tasks<HeatAskomaPayload> tasks = JSCalendar.Tasks.empty();
@@ -178,7 +180,7 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(110))),
 
 				new FC3ReadRegistersTask(597, Priority.LOW, //
-						m(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, new UnsignedWordElement(597), SCALE_FACTOR_1)),
+						m(Heat.ChannelId.TARGET_TEMPERATURE, new UnsignedWordElement(597), SCALE_FACTOR_1)),
 
 				new FC4ReadInputRegistersTask(638, Priority.HIGH, //
 						m(Heat.ChannelId.TEMPERATURE, new UnsignedWordElement(638), SCALE_FACTOR_1))); //
@@ -221,7 +223,12 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
 		setValue(this, HeatAskoma.ChannelId.STATE_MACHINE, this.stateMachine.getCurrentState());
 		this.updateStatusChannel();
 		this.updateModeChannel(currentMode);
+		setValue(this, Heat.ChannelId.REMAINING_HEAT_ENERGY, this.calculateRemainingHeatEnergyWh());
+	}
 
+	private Integer calculateRemainingHeatEnergyWh() {
+		return RemainingHeatEnergyCalculator.calculate(this.config.effectiveStorageVolume(),
+				this.getTemperatureChannel().value().get(), this.getTargetTemperatureChannel().value().get());
 	}
 
 	private void updateModeChannel(Mode mode) {
