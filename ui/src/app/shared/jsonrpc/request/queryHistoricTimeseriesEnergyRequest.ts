@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { format } from "date-fns";
 import { ChannelAddress } from "../../type/channeladdress";
 import { JsonrpcRequest } from "../base";
@@ -26,9 +25,9 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
     private static METHOD: string = "queryHistoricTimeseriesEnergy";
 
     public constructor(
-        private fromDate: Date,
-        private toDate: Date,
-        private channels: ChannelAddress[],
+        fromDate: Date,
+        toDate: Date,
+        channels: ChannelAddress[],
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -36,10 +35,6 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
             toDate: format(toDate, "yyyy-MM-dd"),
             channels: JsonRpcUtils.channelsToStringArray(channels),
         });
-        // delete local fields, otherwise they are sent with the JSON-RPC Request
-        delete this.fromDate;
-        delete this.toDate;
-        delete this.channels;
     }
 
 }
