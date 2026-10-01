@@ -30,6 +30,17 @@ import io.openems.common.utils.ServiceUtils;
 @Component(immediate = true)
 public class ReferenceConfigurationPlugin implements ConfigurationPlugin {
 
+	private static final String MATCH_NOTHING = "(&(objectClass=*)(!(objectClass=*)))";
+
+	private static final class ValueTransformationException extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+
+		private ValueTransformationException(String transformerName, IllegalArgumentException cause) {
+			super("Failed to apply transformer: " + transformerName, cause);
+		}
+	}
+
 	private final Logger log = LoggerFactory.getLogger(ReferenceConfigurationPlugin.class);
 
 	@Reference
@@ -59,7 +70,17 @@ public class ReferenceConfigurationPlugin implements ConfigurationPlugin {
 			final var identifierProvider = lazySingleton(() -> getIdentifier(reference, properties));
 
 			for (var filter : filters) {
-				final var valueMap = this.getValuesByParameter(identifierProvider, filter, valueProvider);
+				final Map<StringWithParams.Parameter, Object> valueMap;
+				try {
+					valueMap = this.getValuesByParameter(identifierProvider, filter, valueProvider);
+				} catch (ValueTransformationException e) {
+					properties.put(filter.property() + ".target", MATCH_NOTHING);
+					this.log.error(
+							"Transformation failed for component='{}', reference='{}'; target matches no services",
+							identifierProvider.get(), filter.property(), e);
+					continue;
+				}
+
 				if (valueMap.size() != filter.targetTemplate().parameter().size()) {
 					continue;
 				}
@@ -118,7 +139,15 @@ public class ReferenceConfigurationPlugin implements ConfigurationPlugin {
 				return null;
 			}
 
-			return Map.entry(parameter, value);
+			var transformedValue = value;
+			for (var transformerName : parameter.transformers()) {
+				try {
+					transformedValue = ValueTransformers.byName(transformerName).transform(transformedValue);
+				} catch (IllegalArgumentException e) {
+					throw new ValueTransformationException(transformerName, e);
+				}
+			}
+			return Map.entry(parameter, transformedValue);
 		}).filter(Objects::nonNull) //
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
