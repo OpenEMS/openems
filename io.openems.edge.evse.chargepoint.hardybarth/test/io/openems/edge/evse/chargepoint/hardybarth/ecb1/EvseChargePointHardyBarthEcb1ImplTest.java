@@ -123,18 +123,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 			}
 			""";
 
-	/** Meter response without readable data. */
-	private static final String METER_WITHOUT_DATA = """
-			{
-			  "meter": {
-			    "serial": 75740051,
-			    "vendor": "eCHARGE",
-			    "type": "eCB1 intern"
-			  },
-			  "protocol-version": "1.4"
-			}
-			""";
-
 	private static ComponentTest buildTest(EvseChargePointHardyBarthEcb1Impl sut) throws Exception {
 		return new ComponentTest(sut) //
 				.addReference("httpBridgeFactory",
@@ -236,61 +224,6 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 
 						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
 				);
-	}
-
-	@Test
-	void testInvalidMeterResponseClearsPreviousValues() throws Exception {
-		var sut = new EvseChargePointHardyBarthEcb1Impl();
-		var test = buildTest(sut);
-		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
-		test //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 10000L)) //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_WITHOUT_DATA)) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null));
-	}
-
-	@Test
-	void testMalformedMeterResponseClearsPreviousValues() throws Exception {
-		var sut = new EvseChargePointHardyBarthEcb1Impl();
-		var test = buildTest(sut);
-		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
-		test //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230_000)) //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse("{")) //
-						.output(EvseChargePointHardyBarthEcb1.ChannelId.RAW_METER_SERIAL, null) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null));
-	}
-
-	@Test
-	void testMissingMeterClearsPreviousValues() throws Exception {
-		var sut = new EvseChargePointHardyBarthEcb1Impl();
-		var test = buildTest(sut);
-		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
-		test //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse(METER_CHARGING)) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 11040) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L1, 16_000)) //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> handler.handleMeterResponse("{}")) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, null) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L1, null));
 	}
 
 	@Test

@@ -354,8 +354,8 @@ class EvcsHardyBarthImplTest {
 		var rh = ReflectionUtils.<EvcsHandler>getValueViaReflection(sut, "handler");
 
 		test.next(new TestCase() //
-				.onBeforeProcessImage(() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE),
-						phaseRotation)));
+				.onBeforeProcessImage(
+						() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE), phaseRotation)));
 		assertTrue(sut.hasPhaseSwitchingApi());
 		assertEquals("idle", sut.getSaliaPhaseSwitchingStatus().get());
 		assertEquals(false, sut.channel(HardyBarth.ChannelId.PHASE_SWITCHING_NOT_SLAVE).value().get());

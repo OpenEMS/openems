@@ -256,8 +256,8 @@ class EvseChargePointHardyImplTest {
 		void testStatus(String name, String json, String expectedRawValue, boolean expectedSupport) throws Exception {
 			final var sut = generateSut();
 			sut.test.next(new TestCase() //
-					.onBeforeProcessImage(() -> sut.evseHandler //
-							.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
+					.onBeforeProcessImage(
+							() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
 					.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, expectedRawValue) //
 					// An undefined or unknown value must not trigger a warning/fault channel.
 					.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
