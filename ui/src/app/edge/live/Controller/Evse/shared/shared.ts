@@ -123,9 +123,6 @@ export namespace ControllerEvseSingleShared {
                           ),
                       ]
                     : []),
-                NavigationConstants.CommonNodes.INFO(translate, componentId, {
-                    source: chargePointComponent?.factoryId,
-                }),
             ],
             null,
         ).toConstructorParams();

@@ -1,8 +1,4 @@
 import { TranslateService } from "@ngx-translate/core";
-import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/shared";
-import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
-import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
-import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
 import { SharedControllerChpSoc } from "src/app/edge/live/Controller/ChpSoc/shared/shared";
@@ -77,26 +73,6 @@ export class Widgets {
             if (!this.names.includes(name)) {
                 this.names.push(name);
             }
-        }
-    }
-
-    public static getCommonNavigationTree(
-        edge: Edge,
-        clazz: TEnumKeys<typeof WidgetClass>,
-        translate: TranslateService,
-        config: EdgeConfig,
-    ): ConstructorParameters<typeof NavigationTree> | null {
-        switch (clazz) {
-            case "Grid":
-                return SharedGrid.getNavigationTree(edge, config, translate);
-            case "Consumption":
-                return SharedConsumption.getNavigationTree(edge, config, translate);
-            case "Common_Production":
-                return SharedProduction.getNavigationTree(edge, config, translate);
-            case "Storage":
-                return SharedStorage.getNavigationTree(edge, translate, config);
-            default:
-                return null;
         }
     }
 
