@@ -52,7 +52,6 @@ import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/s
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { UpdateAppConfigComponent } from "src/app/edge/live/Controller/Evse/pages/update-app-config/update-app-config";
-import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/heat-home";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
@@ -222,10 +221,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heat/:componentId",
             component: ControllerHeatHomeComponent,
-        },
-        {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
         },
         {
             path: "controller/heat/:componentId/history",
@@ -402,10 +397,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heat/:componentId",
             component: ControllerHeatHomeComponent,
-        },
-        {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
         },
         {
             path: "controller/heat/:componentId/history",

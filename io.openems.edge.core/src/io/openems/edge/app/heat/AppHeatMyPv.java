@@ -57,7 +57,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "HEAT_ID":"heat0",
       "MODBUS_ID":"modbus0",
       "IP":"e.g.""192.168.178.152",
- "STORAGE_VOLUME": 500,
+      "STORAGE_VOLUME": 500,
       "HEATED_SHARE": 100,
       "MAX_HEAT_POWER":9000
     },

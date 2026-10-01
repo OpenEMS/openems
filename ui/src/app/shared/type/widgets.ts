@@ -123,11 +123,9 @@ export class Widgets {
             case "Controller.Io.HeatPump.SgReady":
                 return SharedControllerIoHeatpump.getNavigationTree(translate, component, edge);
             case "Heat.Askoma":
-                return SharedControllerHeat.getNavigationTree(translate, component, true);
             case "Heat.MyPv":
-                return SharedControllerHeat.getNavigationTree(translate, component, false);
             case "Heat.MyPv.AcThor9s":
-                return SharedControllerHeat.getNavigationTree(translate, component, false);
+                return SharedControllerHeat.getNavigationTree(translate, component);
             case "Evse.Controller.Single":
                 return ControllerEvseSingleShared.getNavigationTree(edge, translate, widget.componentId, config);
             case "Controller.ChannelThreshold":
