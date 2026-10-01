@@ -342,6 +342,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Evse.ChargePoint.Alfen", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Evse.Controller.Cluster", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //

@@ -53,6 +53,7 @@ import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.evse.AppAlfenEvse;
 import io.openems.edge.app.evse.AppEvseCluster;
 import io.openems.edge.app.evse.AppKebaEvse;
 import io.openems.edge.app.evse.AppMennekesEvse;
@@ -866,6 +867,16 @@ public final class Apps {
 	 */
 	public static final AppMennekesEvse mennekesEvse(AppManagerTestBundle t) {
 		return app(t, AppMennekesEvse::new, AppMennekesEvse.APP_EVSE_MENNEKES);
+	}
+
+	/**
+	 * Test method for creating a {@link AppAlfenEvse}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppAlfenEvse alfenEvse(AppManagerTestBundle t) {
+		return app(t, AppAlfenEvse::new, AppAlfenEvse.APP_EVSE_ALFEN);
 	}
 
 	/**
