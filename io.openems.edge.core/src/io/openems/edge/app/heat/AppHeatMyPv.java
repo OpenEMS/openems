@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.energy.api.Version;
 
 /**
  * Describes an App for a writable my-PV heating element.
@@ -91,6 +92,8 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 								.setMin(0)//
 								.setMax(9000)//
 								.setUnit(Unit.WATT, l))), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
+
 		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
@@ -178,6 +181,7 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.build();
 		};
 	}
@@ -185,9 +189,9 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 
