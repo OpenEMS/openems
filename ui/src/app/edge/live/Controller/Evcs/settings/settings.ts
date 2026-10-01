@@ -53,6 +53,7 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
         const IS_NOT_EXCESS_POWER = (el: EvcsSettingsViewModel) => el.chargeMode !== "EXCESS_POWER";
         const IS_OFF_OR_NULL = (el: EvcsSettingsViewModel) => el.chargeMode === "OFF" || el.chargeMode == null;
         const IS_NO_MIN_GUARANTEE = (el: EvcsSettingsViewModel) => el.chargeMode !== "EXCESS_POWER" || !el.minGuarantee;
+        const SHOW_WARNING_MIN_GARUNTEE = (el: EvcsSettingsViewModel) => el.minGuarantee;
         const IS_NO_ENERGY_LIMIT = (el: EvcsSettingsViewModel) => IS_OFF_OR_NULL(el) || !el.energyLimit;
 
         const lines: OeFormlyField<EvcsSettingsViewModel>[] = [
@@ -108,6 +109,21 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
                 ],
                 hide: (el) => IS_NOT_READ_WRITE(el) || ctrl == null,
             },
+            {
+                type: "info-line",
+                name: [
+                    {
+                        text: translate.instant("EDGE.INDEX.WIDGETS.EVCS.KEBA_WARNING"),
+                        lineStyle:
+                            "color:#d32f2f; font-size:0.85em; padding:6px 12px; border:1px solid #d32f2f; border-radius:4px;",
+                    },
+                ],
+                link: {
+                    text: translate.instant("EDGE.INDEX.WIDGETS.EVCS.LINK_TO_DOCUMENTATION"),
+                    href: "https://docs.intranet.fenecon.de/feature/how_to_restart_KEBA_P40/fenecon/de/emobility/Installationsanleitung_KEBA_P40.html#_kommunikationsausfall_zwischen_keba_p40p40_pro_und_fems",
+                },
+                hide: (el) => SHOW_WARNING_MIN_GARUNTEE(el) || ctrl == null || component.factoryId !== "Evcs.Keba.P40",
+            },
             { type: "horizontal-line" },
             // ── Force charge settings ──────────────────────────────────
             {
@@ -136,6 +152,7 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
                 controlName: "minGuarantee",
                 hide: (el) => IS_NOT_EXCESS_POWER(el) || ctrl == null,
             },
+
             {
                 type: "value-from-form-control-line",
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.MIN_CHARGE_POWER"),
@@ -211,7 +228,6 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
                 hide: (el) => IS_NO_ENERGY_LIMIT(el) || ctrl == null,
             },
         ];
-
         return {
             title: component.alias,
             icon: { name: "oe-evcs", color: "normal", size: "large" },

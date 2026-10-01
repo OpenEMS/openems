@@ -218,11 +218,11 @@ export class NavigationService {
      * Checks if the configuration contains writable Heat.Askoma or Heat.MyPv components.
      *
      * @param config The EdgeConfig to check
-     * @returns true if at least one writable Heat component is found (readOnly: false)
+     * @returns True if at least one writable Heat component is found (readOnly: false)
      */
     private static hasWritableHeatComponents(config: EdgeConfig): boolean {
         const heatComponents = Object.values(config.components).filter(
-            (component) => component.factoryId === "Heat.Askoma" || component.factoryId === "Heat.MyPv"
+            (component) => component.factoryId === "Heat.Askoma" || component.factoryId === "Heat.MyPv",
         );
 
         return heatComponents.some((component) => {

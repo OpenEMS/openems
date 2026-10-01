@@ -44,6 +44,7 @@ export class ModalComponent extends AbstractModal {
     protected awaitingHysteresis: boolean | null = null;
     protected isReadWrite: boolean = true;
     protected helpKey: string | null = null;
+    private showKEBAwarining: boolean = false;
 
     private chargePoint: EvcsComponent | null = null;
 
@@ -158,6 +159,7 @@ export class ModalComponent extends AbstractModal {
         }
 
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
+        this.showKEBAwarining = this.helpKey === "REDIRECT.EVCS_KEBA";
         this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false; // 0 !== 3 -> true
         this.status = this.getState(
             this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false,

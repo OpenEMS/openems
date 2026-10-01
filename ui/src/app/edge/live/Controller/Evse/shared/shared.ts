@@ -7,6 +7,7 @@ import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 import { environment } from "src/environments";
+import { Mode } from "../pages/chargemode/chargemode";
 import { EvseChargepoint } from "./evse-chargepoint";
 
 export namespace ControllerEvseSingleShared {
@@ -421,3 +422,7 @@ export namespace ControllerEvseSingleShared {
         return scheduleChartData;
     }
 }
+
+export type EvcsChargeModeViewModel = {
+    mode: Mode | null;
+};
