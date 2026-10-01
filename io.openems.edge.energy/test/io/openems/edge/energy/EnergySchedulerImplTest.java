@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -88,16 +88,18 @@ public class EnergySchedulerImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("meta", new DummyMeta()//
-						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(clock)//
-								.add(t -> t//
-										.setStart("08:00") //
-										.setDuration(Duration.ofHours(12)) //
-										.addRecurrenceRule(b -> b //
-												.setFrequency(DAILY)) //
-										.setPayload(new GridBuySoftLimit(2000))) //
-								.add(t -> t//
-										.setPayload(new GridBuySoftLimit(6000))) //
-								.build())) //
+						.withGridBuyLimit(l -> l //
+								.setHard(new GridBuyLimit.Hard(0))
+								.setSoft(JSCalendar.Tasks.<GridBuyLimit.Soft>create(clock)//
+										.add(t -> t//
+												.setStart("08:00") //
+												.setDuration(Duration.ofHours(12)) //
+												.addRecurrenceRule(b -> b //
+														.setFrequency(DAILY)) //
+												.setPayload(new GridBuyLimit.Soft(2000))) //
+										.add(t -> t//
+												.setPayload(new GridBuyLimit.Soft(6000))) //
+										.build()))) //
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
