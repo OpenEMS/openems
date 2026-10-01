@@ -40,6 +40,8 @@ import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/
 import { ControllerEssTimeOfUseTariffHistoryComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/history/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffHomeComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffSettingsComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/settings/settings";
+import { EvcsHomeComponent } from "src/app/edge/live/Controller/Evcs/new-navigation/new-navigation";
+import { EvcsSettingsComponent } from "src/app/edge/live/Controller/Evcs/settings/settings";
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { ModalComponent as EvseForecastComponent } from "src/app/edge/live/Controller/Evse/pages/forecast/forecast";
@@ -464,6 +466,34 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/chp/:componentId/history",
             component: ControllerChpHistoryComponent,
+        },
+        {
+            path: "controller/evcs-cluster",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId/settings",
+            component: EvcsSettingsComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/settings",
+            component: EvcsSettingsComponent,
         },
     ].map((el) => ({ ...el, path: prefix != null ? prefix + "/" + el.path : el.path }));
 

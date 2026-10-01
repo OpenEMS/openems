@@ -463,7 +463,12 @@ export type OeFormlyField<T = any> = (
     /** Executes a applyable if according name field exists for this line type */
     nameCallback?: (field: T) => string;
     style?: AbstractModalLine["lineStyle"];
-    cssClass?: "ion-padding-top" | "ion-padding-bottom" | "ion-padding-left" | "ion-padding-right";
+    cssClass?:
+        | "ion-padding-top"
+        | "ion-padding-bottom"
+        | "ion-padding-left"
+        | "ion-padding-right"
+        | "ion-text-font-style-italic";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 

@@ -92,6 +92,7 @@ export class NavigationService {
             "System.Fenecon.Industrial.M",
             "System.Fenecon.Industrial.S",
             "Scheduler.JSCalendar",
+            "Evcs.Keba.P40",
         ]);
     }
 
