@@ -59,10 +59,6 @@ export class ModalComponent extends AbstractModal {
         public override ref: ChangeDetectorRef,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
-        ref.detach();
-        setInterval(() => {
-            this.ref.detectChanges(); // manually trigger change detection
-        }, 0);
     }
 
     protected static getHelpKey(factoryId: string): string | null {
