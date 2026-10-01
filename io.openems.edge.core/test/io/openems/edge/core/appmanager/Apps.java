@@ -90,10 +90,6 @@ import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterSlave;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.l.Ilk710;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
-import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
@@ -279,46 +275,6 @@ public final class Apps {
 	 */
 	public static final FeneconCommercial92ClusterSlave feneconCommercial92ClusterSlave(AppManagerTestBundle t) {
 		return app(t, FeneconCommercial92ClusterSlave::new, "App.FENECON.Commercial.92.ClusterSlave");
-	}
-
-	/**
-	 * Test method for creating a {@link Ilk710}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Ilk710 feneconIndustrialLIlk710(AppManagerTestBundle t) {
-		return app(t, Ilk710::new, "App.FENECON.Industrial.L.ILK710");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk110}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk110 feneconIndustrialSIsk110(AppManagerTestBundle t) {
-		return app(t, Isk110::new, "App.FENECON.Industrial.S.ISK110");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk010}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk010 feneconIndustrialSIsk010(AppManagerTestBundle t) {
-		return app(t, Isk010::new, "App.FENECON.Industrial.S.ISK010");
-	}
-
-	/**
-	 * Test method for creating a {@link Isk011}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final Isk011 feneconIndustrialSIsk011(AppManagerTestBundle t) {
-		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
 	}
 
 	/**
