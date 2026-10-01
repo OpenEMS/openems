@@ -185,11 +185,14 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		var test = buildTest(sut);
 		var handler = ReflectionUtils.<Ecb1Handler>getValueViaReflection(sut, "handler");
 		test //
-				.next(new TestCase() //
-						.activateStrictMode() //
-						.onBeforeProcessImage(() -> {
-							handler.handleChargeControlResponse(CHARGECONTROL_CHARGING);
-							handler.handleMeterResponse(METER_CHARGING);
+					.next(new TestCase() //
+							.activateStrictMode() //
+							.withIgnoredChannelsForStrictMode(//
+									EvseChargePoint.ChannelId.SET_MAXIMUM_CHARGE_POWER, //
+									EvseChargePoint.ChannelId.SET_CHARGING_ENABLED) //
+							.onBeforeProcessImage(() -> {
+								handler.handleChargeControlResponse(CHARGECONTROL_CHARGING);
+								handler.handleMeterResponse(METER_CHARGING);
 						}) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
 

@@ -156,6 +156,8 @@ public class TestUtils {
 		private Long probableNextPhaseSwitchEpochSeconds = null;
 		private History history = new History();
 		private PhaseSwitching phaseSwitching = PhaseSwitching.DISABLE;
+		private Integer externalMaximumChargePower = null;
+		private Boolean externalChargingEnabled = null;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
 		private JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
 
@@ -204,6 +206,16 @@ public class TestUtils {
 			return this;
 		}
 
+		public CtrlBuilder setExternalMaximumChargePower(Integer externalMaximumChargePower) {
+			this.externalMaximumChargePower = externalMaximumChargePower;
+			return this;
+		}
+
+		public CtrlBuilder setExternalChargingEnabled(Boolean externalChargingEnabled) {
+			this.externalChargingEnabled = externalChargingEnabled;
+			return this;
+		}
+
 		public CtrlBuilder setChargePointAbilities(Consumer<ChargePointAbilities.Builder> chargePointAbilities) {
 			chargePointAbilities.accept(this.chargePointAbilities);
 			return this;
@@ -233,7 +245,8 @@ public class TestUtils {
 			}
 			var params = new Params(this.ctrlSingleId, this.chargePointId, this.mode, this.activePower,
 					this.sessionEnergy, this.sessionEnergyLimit, this.history, this.phaseSwitching,
-					combinedAbilities.build(), this.tasks);
+					combinedAbilities.build(), this.externalMaximumChargePower, this.externalChargingEnabled,
+					this.tasks);
 			var ctrl = new DummyControllerEvseSingle(this.ctrlSingleId) //
 					.withParams(params);
 			if (this.probableNextPhaseSwitchEpochSeconds != null) {

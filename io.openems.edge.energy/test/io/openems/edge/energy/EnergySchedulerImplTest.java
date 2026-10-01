@@ -117,20 +117,22 @@ public class EnergySchedulerImplTest {
 												io.openems.edge.controller.evse.single.Mode.FORCE, null, 0, null,
 												new io.openems.edge.controller.evse.single.Types.History(),
 												Hysteresis.INACTIVE, null, false, //
-												CombinedAbilities.createFrom(//
-														ChargePointAbilities.create().build(),
-														ElectricVehicleAbilities.create().build()) //
-														.build(),
-												JSCalendar.Tasks.empty()))
-										.put("ctrlEvseSingle1", new Params("ctrlEvseSingle1", "evse1",
-												io.openems.edge.controller.evse.single.Mode.FORCE, null, 0, null,
-												new io.openems.edge.controller.evse.single.Types.History(),
-												Hysteresis.INACTIVE, null, false, //
-												CombinedAbilities.createFrom(//
-														ChargePointAbilities.create().build(),
-														ElectricVehicleAbilities.create().build()) //
-														.build(),
-												JSCalendar.Tasks.empty()))
+													CombinedAbilities.createFrom(//
+															ChargePointAbilities.create().build(),
+															ElectricVehicleAbilities.create().build()) //
+															.build(),
+													null, null,
+													JSCalendar.Tasks.empty()))
+											.put("ctrlEvseSingle1", new Params("ctrlEvseSingle1", "evse1",
+													io.openems.edge.controller.evse.single.Mode.FORCE, null, 0, null,
+													new io.openems.edge.controller.evse.single.Types.History(),
+													Hysteresis.INACTIVE, null, false, //
+													CombinedAbilities.createFrom(//
+															ChargePointAbilities.create().build(),
+															ElectricVehicleAbilities.create().build()) //
+															.build(),
+													null, null,
+													JSCalendar.Tasks.empty()))
 										.build())) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //

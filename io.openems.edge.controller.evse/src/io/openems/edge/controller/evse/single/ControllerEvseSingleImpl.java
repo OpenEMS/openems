@@ -151,7 +151,10 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 		return new Params(this.id(), this.config.chargePoint_id(), this.config.mode(), activePower, //
 				sessionEnergy, sessionEnergyLimit, //
-				this.history, this.config.phaseSwitching(), combinedAbilities, this.tasks);
+				this.history, this.config.phaseSwitching(), combinedAbilities, //
+				this.chargePoint.getSetMaximumChargePowerChannel().getNextWriteValue().orElse(null), //
+				this.chargePoint.getSetChargingEnabledChannel().getNextWriteValue().orElse(null), //
+				this.tasks);
 	}
 
 	@Override
