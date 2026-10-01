@@ -18,8 +18,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -52,8 +50,6 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 @GenerateTargetsFromReferences("ctrls")
 public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, ControllerEvseCluster, Controller, ComponentJsonApi, EnergySchedulable {
-
-	private final Logger log = LoggerFactory.getLogger(ControllerEvseClusterImpl.class);
 
 	@Reference
 	private ComponentManager componentManager;
