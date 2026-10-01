@@ -1,11 +1,10 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectorRef, Component, ContentChild, effect, Inject, input, model, output, TemplateRef, ChangeDetectionStrategy, } from "@angular/core";
+import { ChangeDetectorRef, Component, ContentChild, effect, Inject, input, model, output, TemplateRef, ChangeDetectionStrategy, inject, } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { filter, take } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -16,6 +15,7 @@ import { GetAllTasks } from "src/app/shared/jsonrpc/request/getAllTasks";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { CommonUiModule } from "../../common-ui.module";
 import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { RouteService } from "../../service/route/route.service";
 import { Language } from "../../type/language";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { ComponentsBaseModule } from "../components.module";
@@ -40,6 +40,8 @@ export class ScheduleComponent extends AbstractModal {
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected spinnerId: string = uuidv4();
     protected canWrite: boolean = false;
+
+    private readonly routeService = inject(RouteService);
 
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
@@ -97,17 +99,8 @@ export class ScheduleComponent extends AbstractModal {
     }
 
     public override async updateComponent(config: EdgeConfig) {
-        return new Promise<void>((res) => {
-            this.route.params
-                .pipe(
-                    filter((params) => params != null),
-                    take(1),
-                )
-                .subscribe((params) => {
-                    this.component = config.getComponent(params.componentId);
-                    res();
-                });
-        });
+        const componentId = this.routeService.getRouteParam<string>("componentId");
+        this.component = config.getComponentSafely(componentId);
     }
 
     public override onIsInitialized(): void {

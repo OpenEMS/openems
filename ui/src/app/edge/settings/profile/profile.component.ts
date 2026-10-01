@@ -15,7 +15,7 @@ import { getFileName, GetLatestSetupProtocolCoreInfoResponse, GetSetupProtocolCo
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { FileUtils } from "src/app/shared/utils/file/file-utils";
 import { environment } from "../../../../environments";

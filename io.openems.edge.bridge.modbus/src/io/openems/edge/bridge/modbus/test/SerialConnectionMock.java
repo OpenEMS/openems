@@ -13,6 +13,7 @@ import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.AbstractModbusTransport;
 import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
+
 import io.openems.common.function.Disposable;
 
 public class SerialConnectionMock extends AbstractSerialConnection {
@@ -174,7 +175,8 @@ public class SerialConnectionMock extends AbstractSerialConnection {
 			this.dataFromServer = new ForwardingOutputStream();
 			this.dataToServer = new PipedOutputStream();
 
-			this.server = new SerialConnectionMock(parameters, this.dataFromServer, new PipedInputStream(this.dataToServer));
+			this.server = new SerialConnectionMock(parameters, this.dataFromServer,
+					new PipedInputStream(this.dataToServer));
 		}
 
 		public SerialConnectionMock getServer() {

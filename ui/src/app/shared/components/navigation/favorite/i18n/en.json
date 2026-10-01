@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Added",
+        "DESCRIPTION_OWNER": "Mark content with the heart so you can easily find it later. Your selection will appear here.",
+        "DESCRIPTION_OTHERS": "The system owner can mark content as favorites using the heart icon. This makes it easy to find again here later.",
+        "INFO": "Keep track on important things",
+        "REMOVED_FAVORITE": "Removed"
+    }
+}

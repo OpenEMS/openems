@@ -2,7 +2,6 @@ package io.openems.edge.io.shelly.shellypro2pm;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyTerminalConfig extends AbstractComponentConfig implements TerminalConfig {
@@ -81,10 +80,5 @@ public class MyTerminalConfig extends AbstractComponentConfig implements Termina
 	@Override
 	public String device_id() {
 		return this.builder.deviceId;
-	}
-
-	@Override
-	public String Device_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.device_id());
 	}
 }

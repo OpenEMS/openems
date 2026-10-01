@@ -43,7 +43,6 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUdp;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
-import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -156,11 +155,7 @@ public class EvseKebaUdpImpl extends AbstractOpenemsComponent implements KebaUdp
 			if (this.config.readOnly()) {
 				return;
 			}
-			this.setCurrent(//
-					this.getSetEnableChannel().getNextWriteValueAndReset() //
-							.map(ena -> OptionsEnum.getOption(SetEnable.class, ena)) //
-							.orElse(SetEnable.UNDEFINED), //
-					this.getSetChargingCurrentChannel().getNextWriteValueAndReset().orElse(null));
+			this.setCurrent(this.getSetChargingCurrentChannel().getNextWriteValueAndReset().orElse(null));
 			this.setPhaseSwitch(//
 					this.getSetPhaseSwitchSourceChannel().getNextWriteValueAndReset() //
 							.map(pss -> OptionsEnum.getOption(PhaseSwitchSource.class, pss)) //
@@ -173,18 +168,12 @@ public class EvseKebaUdpImpl extends AbstractOpenemsComponent implements KebaUdp
 		}
 	}
 
-	private void setCurrent(SetEnable setEnable, Integer setChargingCurrent) {
-		final var current = switch (setEnable) {
-		case DISABLE -> 0;
-		case ENABLE -> setChargingCurrent;
-		case UNDEFINED -> null;
-		};
-
-		if (current == null) {
+	private void setCurrent(Integer setChargingCurrent) {
+		if (setChargingCurrent == null) {
 			return;
 		}
 
-		this.send("currtime " + current + " 1");
+		this.send("currtime " + setChargingCurrent + " 1");
 	}
 
 	private void setDisplayText(Optional<String> setText) {

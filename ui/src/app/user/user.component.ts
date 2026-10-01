@@ -14,11 +14,11 @@ import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInfo
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
-import { UserSettings } from "../shared/jsonrpc/shared";
-import { States } from "../shared/ngrx-store/states";
-import { RouteService } from "../shared/service/route.service";
+import { User, UserSettings } from "../shared/jsonrpc/shared";
+import { RouteService } from "../shared/service/route/route.service";
 import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
+import { States } from "../shared/states/states";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
 import { Role } from "../shared/type/role";
@@ -53,6 +53,7 @@ export class UserComponent implements OnInit {
     protected readonly environment = environment;
     protected readonly uiVersion = Changelog.UI_VERSION;
     protected readonly languages: Language[] = Language.ALL;
+    protected readonly isThemeSelectionAvailable = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(environment.theme);
     protected currentLanguage: Language;
     protected isEditModeDisabled: boolean = true;
     protected form: { formGroup: FormGroup; model: UserInformation | CompanyUserInformation };
@@ -123,20 +124,16 @@ export class UserComponent implements OnInit {
         return UserTheme.LIGHT;
     } // Theme as of "Light","Dark" or "System" Themes.
 
-    public static getNavigationTree(
-        service: Service,
-        translate: TranslateService,
-        customLink?: NavigationTree["customLink"],
-    ): NavigationTree {
+    public static getNavigationTree(user: User): NavigationTree {
         return new NavigationTree(
             "user",
             { baseString: "user" },
             { name: "person-outline" },
-            service.metadata.value.user.name,
+            user.name,
             "label",
             [],
             null,
-            { showOrder: "LOW" },
+            { showOrder: "LOW", hideFavorite: true },
         );
     }
 

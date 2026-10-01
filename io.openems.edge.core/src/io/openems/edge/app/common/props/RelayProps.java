@@ -396,7 +396,7 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
+			AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
 		return relayContactDef(false, contactPosition, allContacts);
 	}
 
@@ -414,7 +414,8 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition, Nameable... allContacts) {
+			AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition,
+					Nameable... allContacts) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
 			def.setDefaultValue((app, property, l, parameter) -> {
 				final var preferredRelay = parameter.relayContactInformation().preferredRelays[contactPosition - 1];

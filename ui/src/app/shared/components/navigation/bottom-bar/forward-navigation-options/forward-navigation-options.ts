@@ -20,15 +20,15 @@ import { NavigationTree } from "../../shared";
     `,
 })
 export class ForwardNavigationOptions {
-    public readonly navigationService = inject(NavigationService);
     public shouldForceVisible = input<boolean | null>(null);
+    protected readonly navigationService = inject(NavigationService);
     protected readonly isBottom = computed(() => this.navigationService.position() === "bottom");
 
     protected readonly isAllowed = computed(() => {
         return this.shouldForceVisible() != null ? this.shouldForceVisible() : this.isBottom();
     });
 
-    protected readonly children = computed(() => {
+    protected children = computed(() => {
         return this.filterVisibleNodes(this.navigationService.currentNode()?.getChildren() ?? []);
     });
 

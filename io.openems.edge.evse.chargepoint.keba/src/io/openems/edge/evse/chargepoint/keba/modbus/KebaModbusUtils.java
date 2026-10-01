@@ -2,22 +2,33 @@ package io.openems.edge.evse.chargepoint.keba.modbus;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.component.OpenemsComponent.logInfo;
 import static io.openems.edge.common.type.TypeUtils.getAsType;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbus.FIRMWARE_ENERGY_SCALE_MIN_BUG;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbus.FIRMWARE_OUTDATED_WARNING;
 import static java.lang.Math.round;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
+import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public final class KebaModbusUtils {
 
+	private final Logger log = LoggerFactory.getLogger(KebaModbusUtils.class);
+
 	public final ElementToChannelConverter energyScaleFactor;
 
+	private final KebaModbus keba;
+
 	public KebaModbusUtils(KebaModbus keba) {
+		this.keba = keba;
 		this.energyScaleFactor = createEnergyScaleFactor(keba);
 	}
 
@@ -139,5 +150,25 @@ public final class KebaModbusUtils {
 		meter._setActivePowerL1(activePowerL1);
 		meter._setActivePowerL2(activePowerL2);
 		meter._setActivePowerL3(activePowerL3);
+	}
+
+	/** Holds last setPoint from {@link #setEnableOnCharge(int)}. */
+	private int lastSetPoint = 0;
+
+	/**
+	 * Sends {@link SetEnable#ENABLE} on first non-zero Set-Point.
+	 * 
+	 * @param setPoint the Set-Point in [mA].
+	 */
+	public void setEnableOnCharge(int setPoint) {
+		if (setPoint > 0 && this.lastSetPoint == 0) {
+			logInfo(this.keba, this.log, "Send ENABLED status to KEBA charging station.");
+			try {
+				this.keba.setSetEnable(SetEnable.ENABLE);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+		}
+		this.lastSetPoint = setPoint;
 	}
 }

@@ -4,7 +4,7 @@ import { NavigationConstants, NavigationTree } from "src/app/shared/components/n
 import { State } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { EnerixControlMode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -182,7 +182,10 @@ export namespace SharedControllerEnerixControl {
             { name: "swap-vertical-outline", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
-            [NavigationConstants.CommonNodes.HISTORY(translate), NavigationConstants.CommonNodes.SETTINGS(translate)],
+            [
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+            ],
             null,
         ).toConstructorParams();
     }

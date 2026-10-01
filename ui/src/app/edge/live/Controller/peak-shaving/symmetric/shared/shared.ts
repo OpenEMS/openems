@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Name } from "src/app/shared/components/shared/name";
 import { EdgeConfig } from "src/app/shared/shared";
 
@@ -15,8 +15,8 @@ export namespace SharedControllerPeakShavingSymmetric {
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                NavigationConstants.CommonNodes.HISTORY(translate),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
             ],
             null,
         ).toConstructorParams();

@@ -6,7 +6,6 @@ import { Currency, EdgeConfig } from "../shared";
 import { HistoryUtils, Utils } from "./utils";
 
 describe("Utils", () => {
-
     beforeEach(async () => {
         // Used to load translations globally for CONVERT_PRICE_TO_CENT_PER_KWH, not recommended to implement locale statically
         await TestingUtils.sharedSetup();
@@ -26,7 +25,7 @@ describe("Utils", () => {
         DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", "Wallbox 2"),
         DummyConfig.Component.EVCS_HARDY_BARTH("evcs0", "Charging Station"),
         DummyConfig.Component.EVCS_HARDY_BARTH("evcs1", "Charging Station 2"),
-        DummyConfig.Component.Heat_MYPV_ACTHOR("heat0", "Heatingelement")
+        DummyConfig.Component.HEAT_MYPV_ACTHOR("heat0", "Heatingelement"),
     );
 
     const channelData: HistoryUtils.ChannelData = {
@@ -40,25 +39,34 @@ describe("Utils", () => {
 
     const evcsComponents: EvcsComponent[] = EvcsComponent.getComponents(dummyConfig, null);
 
-    const heatComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-        .filter(component =>
-            !(component.factoryId === "Controller.Heat.Heatingelement") &&
-            !component.isEnabled === false);
+    const heatComponents: EdgeConfig.Component[] = dummyConfig
+        .getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+        .filter(
+            (component) =>
+                !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+        );
 
-    const consumptionMeterComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-        .filter(component => component.isEnabled && dummyConfig.isTypeConsumptionMetered(component));
+    const consumptionMeterComponents: EdgeConfig.Component[] = dummyConfig
+        .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+        .filter((component) => component.isEnabled && dummyConfig.isTypeConsumptionMetered(component));
 
     it("+calculateOtherConsumption - evcs + consumptionMeters", () => {
         const expectedResult = [null, null, null, 565, 214, 561, 373];
-        expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, consumptionMeterComponents)).toEqual(expectedResult);
+        expect(
+            Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, consumptionMeterComponents),
+        ).toEqual(expectedResult);
     });
     it("+calculateOtherConsumption - only consumptionMeters", () => {
         const expectedResult2 = [null, null, null, 565, 214, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(expectedResult2);
+        expect(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(
+            expectedResult2,
+        );
     });
     it("+calculateOtherConsumption - only evcs", () => {
         const expectedResult3 = [null, null, null, 565, 560, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(expectedResult3);
+        expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(
+            expectedResult3,
+        );
     });
     it("+calculateOtherConsumption - no evcs + no consumptionMeters", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];
@@ -66,7 +74,9 @@ describe("Utils", () => {
     });
     it("+calculateOtherConsumption - heat + consumptionMeters", () => {
         const expectedResult = [null, null, null, 565, 214, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(expectedResult);
+        expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(
+            expectedResult,
+        );
     });
     it("+calculateOtherConsumption - only heat", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];

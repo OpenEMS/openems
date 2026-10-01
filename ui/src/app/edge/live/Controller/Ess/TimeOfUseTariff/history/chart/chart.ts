@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, effect, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -322,14 +322,6 @@ export class ChartComponent extends AbstractHistoryChart {
                 } else if (val > 5.5) {
                     return 6; // DelayCharge
                 } else if (val > 4.5) {
-                    // TODO INTERSOLAR
-                    if (userId === "intersolar@fenecon.de") {
-                        if (edgeId === "fems17289") {
-                            return 5; // PeakShaving
-                        } else {
-                            return 1; // Balancing
-                        }
-                    }
                     return 5; // PeakShaving
                 } else if (val > 2.5) {
                     return 3; // ChargeGrid

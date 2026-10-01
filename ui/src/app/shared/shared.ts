@@ -12,7 +12,6 @@ export { SystemLog } from "./type/systemlog";
 export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { isBefore, subDays, subYears } from "date-fns";
 
 import { addIcons } from "ionicons";
 import { environment } from "src/environments";
@@ -20,7 +19,6 @@ import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
-import { StringUtils } from "./utils/string/string.utils";
 
 addIcons({
     "oe-consumption": environment.icons.COMMON.CONSUMPTION,
@@ -46,7 +44,10 @@ addIcons({
     "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
     "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
     "oe-wrap-up": environment.icons.WRAP_UP,
+    "oe-phase-switching-1": environment.icons.COMPONENT.EVCS_PHASE_SWITCHING_1,
+    "oe-phase-switching-3": environment.icons.COMPONENT.EVCS_PHASE_SWITCHING_3,
     "oe-favorites": environment.icons.COMMON.FAVORITES,
+    "oe-favorites-filled": environment.icons.COMMON.FAVORITES_FILLED,
 });
 
 export class Permission {}
@@ -73,19 +74,6 @@ export class EdgePermission {
     }
 
     /**
-     * Checks if the {@link EnergyJourneyComponent energy journey} is allowed to be seen
-     *
-     * @param ibnDate The ibn date - first setup protocol date
-     * @returns True, if ibnDate is at least one year ago and edge producttype is 'Home 10'
-     */
-    public static isEnergyJourneyAllowed(edge: Edge): boolean {
-        const isDateAtLeastOneYearAgo = isBefore(edge.firstSetupProtocol, subDays(subYears(new Date(), 1), 1));
-        return (
-            isDateAtLeastOneYearAgo && StringUtils.isInArr(edge.producttype, [])
-        );
-    }
-
-    /**
      * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent} and if histroyPeriods
      * exist, it gets the correspondent periods accordingly
      *
@@ -93,7 +81,10 @@ export class EdgePermission {
      * @param historyPeriods The historyPeriods i.e 'day', 'week' or 'custom'
      * @returns The list of allowed periods for this edge
      */
-    public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
+    public static getAllowedHistoryPeriods(
+        edge: Edge | null,
+        historyPeriods?: DefaultTypes.PeriodStringValues[],
+    ): `${DefaultTypes.PeriodString}`[] {
         if (historyPeriods?.length > 0) {
             return historyPeriods;
         }

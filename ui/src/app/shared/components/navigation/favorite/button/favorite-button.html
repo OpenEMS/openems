@@ -1,0 +1,18 @@
+@if (isVisible() && !(routesForbidden() | arrIncludes: currentUrl())) {
+  <ion-grid class="ion-no-padding ion-padding-right">
+    <ion-row class="favorite-button-row ion-justify-content-end ion-align-items-center ion-align-items-center">
+      <ion-button fill="clear" (click)="toggleFavorite()" size="small">
+        @if (favoriteIds() | arrIncludes: currentNode()?.id) {
+          <ion-icon slot="icon-only" size="large" style="color: var(--ion-color-primary)" name="oe-favorites-filled"></ion-icon>
+        } @else {
+          <ion-icon slot="icon-only" size="large" style="color: var(--ion-color-primary)" name="oe-favorites"></ion-icon>
+        }
+      </ion-button>
+    </ion-row>
+    <ion-row class="ion-justify-content-end">
+      @if (favoriteMessage()) {
+        <ion-text class="favorite-message ion-font-size-smaller">{{ favoriteMessage() }}</ion-text>
+      }
+    </ion-row>
+  </ion-grid>
+}

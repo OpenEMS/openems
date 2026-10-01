@@ -1,10 +1,10 @@
-import { States } from "../../ngrx-store/states";
+import { States } from "../../states/states";
 import { JsonrpcRequest } from "../base";
 
 /**
- * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
+ * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi.
  *
- * <pre>
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
@@ -14,20 +14,18 @@ import { JsonrpcRequest } from "../base";
  *     "payload": JsonrpcRequest
  *   }
  * }
- * </pre>
+ * ```
  */
 export class ComponentJsonApiRequest extends JsonrpcRequest {
-
     private static METHOD: string = "componentJsonApi";
     protected override requiredState: States = States.EDGE_SELECTED;
 
     public constructor(
         public override readonly params: {
-            componentId: string,
-            payload: JsonrpcRequest
+            componentId: string;
+            payload: JsonrpcRequest;
         },
     ) {
         super(ComponentJsonApiRequest.METHOD, params);
     }
-
 }

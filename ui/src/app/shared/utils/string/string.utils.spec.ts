@@ -71,4 +71,16 @@ describe("StringUtils", () => {
             expect(StringUtils.getTrailingNumber("Index0")).toBe(0);
         });
     });
+
+    describe("+replaceSegment", () => {
+        it("replaces segment at specified index", () => {
+            expect(StringUtils.replaceSegment("a/b/c", 1, "x")).toEqual("a/x/c");
+        });
+        it("returns null if path is null", () => {
+            expect(StringUtils.replaceSegment(null, 1, "x")).toBeNull();
+        });
+        it("uses custom splitBy delimiter", () => {
+            expect(StringUtils.replaceSegment("a|b|c", 1, "x", "|")).toEqual("a|x|c");
+        });
+    });
 });

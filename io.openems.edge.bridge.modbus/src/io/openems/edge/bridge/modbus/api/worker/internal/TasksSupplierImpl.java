@@ -126,7 +126,8 @@ public class TasksSupplierImpl implements TasksSupplier {
 		var result = new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						// Sort HIGH priority to the end. Make sure to send requests to same unit in order.
+						// Sort HIGH priority to the end. Make sure to send requests to same unit in
+						// order.
 						.sorted(Comparator.comparing(Task::getPriority).reversed() //
 								.thenComparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)),
@@ -149,6 +150,12 @@ public class TasksSupplierImpl implements TasksSupplier {
 	private synchronized Tuple2<String, ReadTask> getOneLowPriorityReadTask() {
 		var task = this.nextLowPriorityTasks.poll();
 		if (task != null) {
+			if (task.b().getPriority() == Priority.HIGH) {
+				// Priority changed from LOW to HIGH -> this task is already executed as a
+				// Priority.HIGH task - no need to return here
+				return this.getOneLowPriorityReadTask();
+			}
+
 			return task;
 		}
 

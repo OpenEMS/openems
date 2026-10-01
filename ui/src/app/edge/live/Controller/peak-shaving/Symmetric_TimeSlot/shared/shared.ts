@@ -1,10 +1,10 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { WEEKDAYS } from "src/app/shared/components/formly/formly-weekday-checkbox/formly-weekday-checkbox";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
-import { OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, Edge, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
@@ -19,24 +19,18 @@ export namespace SharedControllerTimeslotPeakshaving {
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.MEASURED_VALUE"),
-                channel:
-                    component.getPropertyFromComponent<string>("meter.id") +
-                    "/ActivePower",
+                channel: component.getPropertyFromComponent<string>("meter.id") + "/ActivePower",
                 converter: Converter.POWER_IN_KILO_WATT,
             },
             {
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
                 channel: component.id + "/_PropertyPeakShavingPower",
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             },
             {
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
                 channel: component.id + "/_PropertyRechargePower",
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             },
@@ -72,9 +66,7 @@ export namespace SharedControllerTimeslotPeakshaving {
             lines.push(
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
                     controlName: "peakShavingPower",
                     properties: {
                         unit: "W",
@@ -82,9 +74,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
                     controlName: "rechargePower",
                     properties: {
                         unit: "W",
@@ -92,9 +82,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.HYSTERESIS_SO_C",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.HYSTERESIS_SO_C"),
                     controlName: "hysteresisSoc",
                     properties: {
                         unit: "%",
@@ -105,9 +93,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.START_DATE",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.START_DATE"),
                     controlName: "startDate",
                     properties: {
                         unit: "",
@@ -115,9 +101,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.END_DATE",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.END_DATE"),
                     controlName: "endDate",
                     properties: {
                         unit: "",
@@ -129,9 +113,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME"),
                     controlName: "startTime",
                     properties: {
                         unit: "",
@@ -139,9 +121,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.END_TIME",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.END_TIME"),
                     controlName: "endTime",
                     properties: {
                         unit: "",
@@ -152,9 +132,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE"),
                     controlName: "slowChargePower",
                     properties: {
                         unit: "W",
@@ -162,9 +140,7 @@ export namespace SharedControllerTimeslotPeakshaving {
                 },
                 {
                     type: "input-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME_CHARGE",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME_CHARGE"),
                     controlName: "slowChargeStartTime",
                     properties: {
                         unit: "",
@@ -176,15 +152,11 @@ export namespace SharedControllerTimeslotPeakshaving {
         return lines;
     };
 
-    export function getChannelAddresses(
-        component: EdgeConfig.Component,
-    ): Promise<ChannelAddress[]> {
+    export function getChannelAddresses(component: EdgeConfig.Component): Promise<ChannelAddress[]> {
         const meterId = component.getPropertyFromComponent<string>("meter.id");
 
         return Promise.resolve([
-            ...(meterId == null
-                ? []
-                : [new ChannelAddress(meterId, "ActivePower")]),
+            ...(meterId == null ? [] : [new ChannelAddress(meterId, "ActivePower")]),
             new ChannelAddress(component.id, "_PropertyPeakShavingPower"),
             new ChannelAddress(component.id, "_PropertyRechargePower"),
             new ChannelAddress(component.id, "_PropertySlowChargeStartTime"),
@@ -207,10 +179,7 @@ export namespace SharedControllerTimeslotPeakshaving {
 
     export function getFormGroup(): FormGroup {
         const weekdayControls = Object.fromEntries(
-            WEEKDAYS.map(({ controlName }) => [
-                controlName,
-                new FormControl(null),
-            ]),
+            WEEKDAYS.map(({ controlName }) => [controlName, new FormControl(null)]),
         );
         return new FormGroup({
             peakShavingPower: new FormControl(null),
@@ -233,16 +202,14 @@ export namespace SharedControllerTimeslotPeakshaving {
         return new NavigationTree(
             component.id,
             {
-                baseString:
-                    "controller/peak-shaving-symmetric-time-slot/" +
-                    component.id,
+                baseString: "controller/peak-shaving-symmetric-time-slot/" + component.id,
             },
             { name: "trending-down-outline", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                NavigationConstants.CommonNodes.HISTORY(translate),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
             ],
             null,
         ).toConstructorParams();

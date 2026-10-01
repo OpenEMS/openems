@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { TestContext, TestingUtils } from "../../components/shared/testing/utils.spec";
 import { TimeUtils } from "./timeutils";
 

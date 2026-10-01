@@ -8,7 +8,7 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
 import { PlatFormService } from "src/app/platform.service";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";

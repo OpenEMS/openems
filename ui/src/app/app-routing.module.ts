@@ -236,9 +236,30 @@ export const routes: Routes = [
                     import("./edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
             },
             {
+                path: "energy-journey",
+                loadChildren: () =>
+                    import("./edge/settings/energy-journey/energy-journey-routing.module").then(
+                        (m) => m.EnergyJourneyRoutingModule,
+                    ),
+            },
+            {
+                path: "energy-journey/index",
+                data: {
+                    navbarTitleToBeTranslated: "SETTINGS.ENERGY_JOURNEY.ANALYSE_BATTERY_EXTENSION_TITLE",
+                },
+                children: [],
+            },
+            {
                 path: "favorites",
                 children: [
-                    { path: "", component: EmptyPageComponent, pathMatch: "full" },
+                    {
+                        path: "",
+                        loadComponent: () =>
+                            import("./shared/components/navigation/favorite/page/favorite-page").then(
+                                (m) => m.FavoritePageComponent,
+                            ),
+                        pathMatch: "full",
+                    },
                     {
                         path: "",
                         loadChildren: () =>

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -224,6 +225,40 @@ public final class ChannelUtils {
 		subscription.accept(channel.getNextValue());
 
 		return () -> channel.removeOnSetNextValueCallback(subscription);
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every setNextValue() call
+	 * of the Channel.
+	 *
+	 * @param <T>          the type of the Component
+	 * @param <V1>         the type of the first Channel Value
+	 * @param <V2>         the type of the second Channel Value
+	 * @param component    the {@link OpenemsComponent}
+	 * @param channelId1   the {@link ChannelId} of the first channel
+	 * @param channelId2   the {@link ChannelId} of the second channel
+	 * @param subscription the callback {@link Consumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnSetNextValue(//
+			T component, //
+			ChannelId channelId1, //
+			ChannelId channelId2, //
+			Consumer<Tuple2<Value<V1>, Value<V2>>> subscription //
+	) {
+		final var currentValue = new AtomicReference<Tuple2<Value<V1>, Value<V2>>>(Tuple2.of(null, null));
+
+		final var subscription1 = ChannelUtils.<T, V1>subscribeOnSetNextValue(component, channelId1, value -> {
+			subscription.accept(currentValue.updateAndGet(v -> v.withA(value)));
+		});
+		final var subscription2 = ChannelUtils.<T, V2>subscribeOnSetNextValue(component, channelId2, value -> {
+			subscription.accept(currentValue.updateAndGet(v -> v.withB(value)));
+		});
+
+		return () -> {
+			subscription1.dispose();
+			subscription2.dispose();
+		};
 	}
 
 	/**

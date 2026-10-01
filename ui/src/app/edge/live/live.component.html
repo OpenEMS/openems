@@ -19,10 +19,6 @@
             <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding ion-justify-content-center">
               <energymonitor tabindex="0"></energymonitor>
             </ion-col>
-
-            <ion-col size-xl="4" offset-xl="1" size-md="5" size="12" class="ion-align-self-end ion-no-padding ion-justify-content-center">
-              <oe-fena></oe-fena>
-            </ion-col>
           </ion-row>
         } @else {
           <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
@@ -195,7 +191,7 @@
                       <Controller_Ess_TimeOfUseTariff [componentId]="widget.componentId"></Controller_Ess_TimeOfUseTariff>
                     </ion-col>
 
-                    <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" [attr.size-lg]="widgetColumnSize"  class="ion-no-padding">
+                    <ion-col *ngSwitchCase="'io.openems.edge.io.api.DigitalInput'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
                       <Io_Api_DigitalInput></Io_Api_DigitalInput>
                     </ion-col>
 

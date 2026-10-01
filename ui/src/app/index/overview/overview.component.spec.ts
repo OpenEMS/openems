@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { LOCALE_ID, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -15,7 +14,7 @@ import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-w
 import { User } from "src/app/shared/jsonrpc/shared";
 import { AuthService } from "src/app/shared/service/auth/auth.service";
 import { Pagination } from "src/app/shared/service/pagination";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
@@ -31,8 +30,8 @@ describe("OverviewComponent", () => {
         ["getCurrentEdge", "getEdges", "getIsSmartphoneResolution"],
         {
             metadata: new BehaviorSubject({
-                edges: null,
-                user: null,
+                edges: {},
+                user: new User("", "", "admin", "", true, { theme: Theme.LIGHT }),
             }),
             getIsSmartphoneResolution: () => false,
             getEdges(): Promise<Edge[]> {
@@ -73,7 +72,7 @@ describe("OverviewComponent", () => {
                     deps: [TranslateService],
                 },
                 { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
-                Websocket,
+                { provide: Websocket, useValue: {} },
                 TranslateService,
                 Pagination,
                 Utils,

@@ -16,6 +16,10 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
+            :host {
+                width: max-content;
+            }
+
             ion-button.pickdate-styles {
                 background: transparent !important;
                 box-shadow: none !important;

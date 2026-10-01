@@ -77,7 +77,7 @@ If after opening the OpenEMS UI page at http://localhost:4200/ you get an error 
 
 * The Apache Felix Web Console is reachable at http://localhost:8080/system/console/configMgr,
   * if not, make sure that the OpenEMS Edge is running (Eclipse: `Run OSGi` in `EdgeApp.bndrun` under `io.openems.edge.application`),
-* Check in Apache Felix, that you have configured the openEMS component 'Controller Api Websocket` with Port set to `8085`.
+* Check in Apache Felix, that you have configured the OpenEMS component 'Controller Api Websocket` with Port set to `8085`.
 
 ==== UI shows "Connection Failed"
 

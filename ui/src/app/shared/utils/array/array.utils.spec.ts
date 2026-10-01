@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ArrayUtils } from "./array.utils";
 
 describe("Array-Utils", () => {
@@ -19,14 +18,11 @@ describe("Array-Utils", () => {
         const inputArr = ["A", null, "C", undefined, "B", "a", "1"];
         const sortedArr = ["1", "A", "a", "B", "C", null, undefined];
 
-        expect(ArrayUtils.sortedAlphabetically(inputArr, a => a)).toEqual(sortedArr);
-        expect(ArrayUtils.sortedAlphabetically(inputArr, _a => null)).toEqual(inputArr);
-
-        expect(() => ArrayUtils.sortedAlphabetically(inputArr, null)).toThrow();
+        expect(ArrayUtils.sortedAlphabetically(inputArr, (a) => a)).toEqual(sortedArr);
+        expect(ArrayUtils.sortedAlphabetically(inputArr, (_a) => null)).toEqual(inputArr);
     });
 
     describe("ReducerFunctions", () => {
-
         it("+sum", () => {
             // Standard summation with positive integers
             expect([1, 2, 3, 4].reduce(ArrayUtils.ReducerFunctions.sum, 0)).toEqual(10);

@@ -88,7 +88,24 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
 								.setMin(250)//
 								.setMax(30000)//
-								.setUnit(Unit.WATT, l)));
+								.setUnit(Unit.WATT, l))), //
+		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
+				.setTranslatedDescriptionWithAppPrefix(".storageVolume.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(1))), //
+		HEATED_SHARE(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setDefaultValue(100) //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".heatedShare.label") //
+				.setTranslatedDescriptionWithAppPrefix(".heatedShare.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(0)//
+								.setMax(100)//
+								.setUnit(Unit.PERCENT, l)));
 
 		private final AppDef<? super AppHeatAskoma, ? super Property, ? super BundleParameter> def;
 
@@ -137,12 +154,16 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, l, Property.IP);
 			final var maxHeatPower = this.getInt(p, Property.MAX_HEAT_POWER);
+			final var storageVolume = this.getInt(p, Property.STORAGE_VOLUME);
+			final var heatedShare = this.getInt(p, Property.HEATED_SHARE);
+			final var effectiveStorageVolume = storageVolume * heatedShare / 100.0;
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatId, alias, "Heat.Askoma", JsonUtils.buildJsonObject() //
 							.addProperty("readOnly", false) //
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("maxHeatPower", maxHeatPower) //
+							.addProperty("effectiveStorageVolume", effectiveStorageVolume) //
 							.build()), //
 					new EdgeConfig.Component(modbusId,
 							TranslationUtil.getTranslation(bundle, "App.Heat.Askoma.modbus.alias"), "Bridge.Modbus.Tcp",

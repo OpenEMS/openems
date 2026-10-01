@@ -1,0 +1,28 @@
+.favorite-button-row {
+    min-height: 2.75rem;
+}
+
+.favorite-message {
+    animation: favorite-message 3s ease-in-out both;
+    color: var(--ion-color-text);
+    margin-right: 0.25rem;
+    white-space: nowrap;
+}
+
+@keyframes favorite-message {
+    0% {
+        opacity: 0;
+        transform: translateX(0.5rem);
+    }
+
+    15%,
+    75% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(0.5rem);
+    }
+}

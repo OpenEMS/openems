@@ -179,7 +179,8 @@ export class Widgets {
                 ) {
                     continue;
                 }
-                const component = config.getComponent(componentId);
+
+                const component = config.getComponentSafelyOrDefault(componentId);
                 if (component.isEnabled) {
                     list.push({
                         name: nature,
@@ -191,7 +192,7 @@ export class Widgets {
         }
         for (const factory of Object.values(WidgetFactory).filter((v) => typeof v === "string")) {
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
-                const component = config.getComponent(componentId);
+                const component = config.getComponentSafelyOrDefault(componentId);
                 if (factory === "Controller.Clever-PV") {
                     // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
                     const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
@@ -199,6 +200,7 @@ export class Widgets {
                         continue;
                     }
                 }
+
                 if (component.isEnabled) {
                     list.push({
                         name: factory,
@@ -215,17 +217,17 @@ export class Widgets {
                 w1.name === "Controller.IO.ChannelSingleThreshold" &&
                 w2.name === "Controller.IO.ChannelSingleThreshold"
             ) {
-                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)[
-                    "outputChannelAddress"
-                ];
-                if (typeof outputChannelAddress1 !== "string") {
+                let outputChannelAddress1: string | string[] | undefined = config.getComponentProperties(
+                    w1.componentId,
+                )?.["outputChannelAddress"];
+                if (Array.isArray(outputChannelAddress1)) {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress1 = outputChannelAddress1[0];
                 }
-                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)[
-                    "outputChannelAddress"
-                ];
-                if (typeof outputChannelAddress2 !== "string") {
+                let outputChannelAddress2: string | string[] | undefined = config.getComponentProperties(
+                    w2.componentId,
+                )?.["outputChannelAddress"];
+                if (Array.isArray(outputChannelAddress2)) {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress2 = outputChannelAddress2[0];
                 }
@@ -243,8 +245,9 @@ export class Widgets {
         edge: Edge,
         translate: TranslateService,
         config: EdgeConfig,
+        /** Widgets to build the navigation trees from. Defaults to all Widgets derived from `config`. */
+        widgets: Widget[] = Widgets.parseWidgets(edge, config).list ?? [],
     ): ConstructorParameters<typeof NavigationTree>[] {
-        const widgets = Widgets.parseWidgets(edge, config).list ?? [];
         const navigationTrees: ConstructorParameters<typeof NavigationTree>[] = [];
         const groupedComponentIdsByWidgetName: Partial<Record<Widget["name"], Widget["componentId"][]>> = {};
 

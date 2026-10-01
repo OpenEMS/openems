@@ -5,9 +5,12 @@ import { SumState } from "src/app/index/shared/sumState";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 
 import { Role } from "../../type/role";
+import { TEnumKeys } from "../../type/utility";
+import { WidgetFactory } from "../../type/widget";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeImageComponent } from "../oe-img/oe-img";
+import { OeFormlyField } from "../shared/oe-formly-component";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -90,7 +93,7 @@ export namespace DummyConfig {
     }
 
     export namespace Factory {
-        export const SUM = {
+        export const SUM: Factory = {
             id: "Core.Sum",
             natureIds: [
                 "io.openems.edge.common.sum.Sum",
@@ -100,7 +103,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const METER_SOCOMEC_THREEPHASE = {
+        export const METER_SOCOMEC_THREEPHASE: Factory = {
             id: "Meter.Socomec.Threephase",
             natureIds: [
                 "io.openems.edge.common.component.OpenemsComponent",
@@ -112,7 +115,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const METER_GOODWE_GRID = {
+        export const METER_GOODWE_GRID: Factory = {
             id: "GoodWe.Grid-Meter",
             natureIds: [
                 "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
@@ -124,7 +127,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const CHARGER_GOODWE_MPPT_TWO_STRING = {
+        export const CHARGER_GOODWE_MPPT_TWO_STRING: Factory = {
             id: "GoodWe.Charger.Mppt.Two-String",
             natureIds: [
                 "io.openems.edge.common.modbusslave.ModbusSlave",
@@ -135,7 +138,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const EVCS_KEBA_KECONTACT = {
+        export const EVCS_KEBA_KECONTACT: Factory = {
             id: "Evcs.Keba.KeContact",
             natureIds: [
                 "io.openems.edge.evcs.keba.kecontact.EvcsKebaKeContact",
@@ -146,7 +149,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const EVSE_CHARGEPOINT_KEBA_UDP = {
+        export const EVSE_CHARGEPOINT_KEBA_UDP: Factory = {
             id: "Evse.ChargePoint.Keba.UDP",
             natureIds: [
                 "io.openems.edge.meter.api.ElectricityMeter",
@@ -158,7 +161,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const ESS_GENERIC_MANAGEDSYMMETRIC = {
+        export const ESS_GENERIC_MANAGEDSYMMETRIC: Factory = {
             id: "Ess.Generic.ManagedSymmetric",
             natureIds: [
                 "io.openems.edge.goodwe.common.GoodWe",
@@ -172,7 +175,7 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
-        export const EDGE_2_EDGE_WEBSOCKET_ESS = {
+        export const EDGE_2_EDGE_WEBSOCKET_ESS: Factory = {
             id: "Edge2Edge.Websocket.Ess",
             natureIds: [
                 "io.openems.edge.edge2edge.websocket.Edge2EdgeWebsocket",
@@ -184,7 +187,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const ESS_LIMITER_14A = {
+        export const ESS_LIMITER_14A: Factory = {
             id: "Controller.Ess.Limiter14a",
             natureIds: [
                 "io.openems.edge.controller.ess.limiter14a",
@@ -193,7 +196,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const ESS_RCR = {
+        export const ESS_RCR: Factory = {
             id: "Controller.Ess.RippleControlReceiver",
             natureIds: [
                 "io.openems.edge.common.meta.Meta",
@@ -204,7 +207,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const SOLAR_EDGE_PV_INVERTER = {
+        export const SOLAR_EDGE_PV_INVERTER: Factory = {
             id: "SolarEdge.PV-Inverter",
             natureIds: [
                 "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter",
@@ -216,7 +219,7 @@ export namespace DummyConfig {
                 "io.openems.edge.common.component.OpenemsComponent",
             ],
         };
-        export const EVCS_HARDY_BARTH = {
+        export const EVCS_HARDY_BARTH: Factory = {
             id: "Evcs.HardyBarth",
             natureIds: [
                 "io.openems.edge.common.component.OpenemsComponent",
@@ -228,7 +231,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const EVCS_MENNEKES = {
+        export const EVCS_MENNEKES: Factory = {
             id: "Evcs.Mennekes",
             natureIds: [
                 "io.openems.edge.common.component.OpenemsComponent",
@@ -239,7 +242,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const MODBUS_TCP_READWRITE = {
+        export const MODBUS_TCP_READWRITE: Factory = {
             id: "Controller.Api.ModbusTcp.ReadWrite",
             natureIds: [
                 "io.openems.edge.common.jsonapi.JsonApi",
@@ -251,7 +254,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const MODBUS_RTU_READWRITE = {
+        export const MODBUS_RTU_READWRITE: Factory = {
             id: "Controller.Api.ModbusRtu.ReadWrite",
             natureIds: [
                 "io.openems.edge.common.jsonapi.JsonApi",
@@ -263,7 +266,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const HEAT_PUMP_SG_READY = {
+        export const HEAT_PUMP_SG_READY: Factory = {
             id: "Controller.Io.HeatPump.SgReady",
             natureIds: [
                 "io.openems.edge.common.component.OpenemsComponent",
@@ -273,7 +276,17 @@ export namespace DummyConfig {
             ],
         };
 
-        export const GOODWE_CHARGER_PV_1 = {
+        export const CONTROLLER_IO_HEATINGELEMENT: Factory = {
+            id: "Controller.IO.HeatingElement",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const GOODWE_CHARGER_PV_1: Factory = {
             id: "GoodWe.Charger-PV1",
             natureIds: [
                 "io.openems.edge.bridge.modbus.api.ModbusComponent",
@@ -284,7 +297,7 @@ export namespace DummyConfig {
             ],
         };
 
-        export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE = {
+        export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE: Factory = {
             id: "Controller.Ess.EmergencyCapacityReserve",
             natureIds: [
                 "io.openems.edge.common.component.OpenemsComponent",
@@ -292,18 +305,33 @@ export namespace DummyConfig {
                 "io.openems.edge.controller.api.Controller",
             ],
         };
-        export const Heat_MYPV_ACTHOR = {
-            id: "HeatMyPv",
+        export const Heat_MYPV_ACTHOR: Factory = {
+            id: "Heat.MyPv",
             natureIds: [
-                "io.openems.edge.heat.mypv.acthor9s.HeatMyPvAcThor9s",
+                "io.openems.edge.heat.mypv.HeatMyPv",
+                "io.openems.edge.energy.api.EnergySchedulable",
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.heat.api.ManagedHeatElement",
                 "io.openems.edge.bridge.modbus.api.ModbusComponent",
                 "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.heat.api.ManagedHeatElement",
+                "io.openems.edge.timedata.api.TimedataProvider",
+                "io.openems.edge.controller.api.Controller",
                 "io.openems.edge.heat.api.Heat",
             ],
         };
 
-        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
+        export const CONTROLLER_CLEVER_PV: Factory = {
+            id: "Controller.Clever-PV",
+            natureIds: [
+                "io.openems.edge.controller.cleverpv.ControllerCleverPv",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
+        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT: Factory = {
             id: "Controller.Io.FixDigitalOutput",
             natureIds: [
                 "io.openems.edge.controller.io.fixdigitaloutput.ControllerIoFixDigitalOutput",
@@ -312,10 +340,199 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+
+        export const EVSE_CONTROLLER_SINGLE: Factory = {
+            id: "Evse.Controller.Single",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.controller.evse.single.ControllerEvseSingle",
+            ],
+        };
+
+        export const EVSE_ELECTRIC_VEHICLE_GENERIC: Factory = {
+            id: "Evse.ElectricVehicle.Generic",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.electricvehicle.generic.EvseElectricVehicleGeneric",
+                "io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle",
+            ],
+        };
+
+        export const SCHEDULER_JS_CALENDAR: Factory = {
+            id: "Scheduler.JSCalendar",
+            natureIds: [
+                "io.openems.edge.scheduler.jscalendar.SchedulerJSCalendar",
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.scheduler.api.Scheduler",
+                "io.openems.edge.common.component.OpenemsComponent",
+            ],
+        };
+
+        export const CONTROLLER_ESS_TIME_OF_USE_TARIFF: Factory = {
+            id: "Controller.Ess.Time-Of-Use-Tariff",
+            natureIds: [
+                "io.openems.edge.energy.api.EnergySchedulable",
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CONTROLLER_SYMMETRIC_FIXREACTIVEPOWER: Factory = {
+            id: "Controller.Symmetric.FixReactivePower",
+            natureIds: [
+                "io.openems.edge.controller.symmetric.fixreactivepower.ControllerEssFixReactivePower",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
+        export const CONTROLLER_SYMMETRIC_PEAKSHAVING: Factory = {
+            id: "Controller.Symmetric.PeakShaving",
+            natureIds: [
+                "io.openems.edge.controller.symmetric.peakshaving.ControllerEssPeakShaving",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
+        export const CONTROLLER_ASYMMETRIC_PEAKSHAVING: Factory = {
+            id: "Controller.Asymmetric.PeakShaving",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.asymmetric.peakshaving.ControllerAsymmetricPeakShaving",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
+        export const CONTROLLER_TIMESLOT_PEAKSHAVING: Factory = {
+            id: "Controller.TimeslotPeakshaving",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.timeslot.peakshaving.ControllerTimeslotPeakShaving",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
+        export const CONTROLLER_BRAIINS_SINGLE: Factory = {
+            id: "Controller.BraiinsOS.Single",
+            natureIds: [
+                "io.openems.edge.energy.api.EnergySchedulable",
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.braiinsos.ControllerBraiinsSingle",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: Factory = {
+            id: "Controller.IO.ChannelSingleThreshold",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.io.channelsinglethreshold.ControllerIoChannelSingleThreshold",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CONTROLLER_ESS_FIXACTIVEPOWER: Factory = {
+            id: "Controller.Ess.FixActivePower",
+            natureIds: [
+                "io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePower",
+                "io.openems.edge.energy.api.EnergySchedulable",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const CONTROLLER_ESS_GRIDOPTIMIZEDCHARGE: Factory = {
+            id: "Controller.Ess.GridOptimizedCharge",
+            natureIds: [
+                "io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge",
+                "io.openems.edge.common.component.ComponentManagerProvider",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const METER_MICROCARE_SDM630: Factory = {
+            id: "Meter.Microcare.SDM630",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.meter.eastron.sdm630.MeterEastronSdm630",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.common.modbusslave.ModbusSlave",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const SYSTEM_FENECON_INDUSTRIAL_XL: Factory = {
+            id: "System.Fenecon.Industrial.Xl",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.system.fenecon.industrial.xl.SystemFeneconIndustrialXl",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.common.startstop.StartStoppable",
+                "io.openems.edge.system.fenecon.industrial.jsonrpc.ErrorAcknowledgeRpc",
+            ],
+        };
+
+        export const SYSTEM_FENECON_INDUSTRIAL_L: Factory = {
+            id: "System.Fenecon.Industrial.L",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+                "io.openems.edge.system.fenecon.industrial.l.SystemFeneconIndustrialL",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.common.startstop.StartStoppable",
+                "io.openems.edge.system.fenecon.industrial.jsonrpc.ErrorAcknowledgeRpc",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const SYSTEM_FENECON_INDUSTRIAL_M: Factory = {
+            id: "System.Fenecon.Industrial.M",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.common.startstop.StartStoppable",
+                "io.openems.edge.system.fenecon.industrial.m.SystemFeneconIndustrialM",
+            ],
+        };
+
+        export const SYSTEM_FENECON_INDUSTRIAL_S: Factory = {
+            id: "System.Fenecon.Industrial.S",
+            natureIds: [
+                "io.openems.edge.common.jsonapi.ComponentJsonApi",
+                "io.openems.edge.system.fenecon.industrial.s.SystemFeneconIndustrialS",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.common.startstop.StartStoppable",
+                "io.openems.edge.system.fenecon.industrial.jsonrpc.ErrorAcknowledgeRpc",
+            ],
+        };
+
+        export const CONTROLLER_CHP_SOC: Factory = {
+            id: "Controller.CHP.SoC",
+            natureIds: [
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.chp.soc.ControllerChpSoc",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
     }
 
+    /** Naming should be according to Factory id */
     export namespace Component {
-        export const SUM = (id: string, alias?: string): Component => ({
+        export const SUM = (id: string = "_sum", alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "Core.Sum",
@@ -491,15 +708,30 @@ export namespace DummyConfig {
             },
             channels: {},
         });
-        export const Heat_MYPV_ACTHOR = (id: string, alias?: string): Component => ({
+        export const HEAT_MYPV_ACTHOR = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.Heat_MYPV_ACTHOR,
             properties: {
                 enabled: "true",
                 modbusUnitId: 1,
+                readonly: true,
                 // TODO
                 type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const CONTROLLER_CLEVER_PV = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_CLEVER_PV,
+            properties: {
+                controlMode: "OFF",
+                debugMode: "OFF",
+                enabled: "true",
+                readOnly: true,
+                url: "xxx",
             },
             channels: {},
         });
@@ -573,6 +805,17 @@ export namespace DummyConfig {
             channels: {},
         });
 
+        export const CONTROLLER_IO_HEATINGELEMENT = (
+            id: string = "ctrlIoHeatingElement0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_IO_HEATINGELEMENT,
+            properties: {},
+            channels: {},
+        });
+
         export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
@@ -584,6 +827,212 @@ export namespace DummyConfig {
             },
             channels: {},
         });
+
+        export const EVSE_CONTROLLER_SINGLE = (
+            id: string,
+            properties: { alias: string; ["chargePoint.id"]: string; ["electricVehicle.id"]: string } = {
+                "chargePoint.id": "evse0",
+                "electricVehicle.id": "evseElectricVehicle0",
+                alias: "",
+            },
+        ): Component => ({
+            id: id,
+            alias: properties.alias ?? id,
+            factory: Factory.EVSE_CONTROLLER_SINGLE,
+            properties: {
+                ...properties,
+                enabled: "true",
+                jsCalendar: [],
+                logVerbosity: "DEBUG_LOG",
+                manualEnergySessionLimit: "0",
+                mode: "MINIMUM",
+                oneShot: "",
+                phaseSwitching: "FORCE_THREE_PHASE",
+            },
+            channels: {},
+        });
+
+        export const EVSE_ELECTRIC_VEHICLE_GENERIC = (
+            id: string = "evseElectricVehicle0",
+            properties: { alias: string } = {
+                alias: "evseElectricVehicle0",
+            },
+        ): Component => ({
+            id: id,
+            alias: properties.alias ?? id,
+            factory: Factory.EVSE_ELECTRIC_VEHICLE_GENERIC,
+            properties: {
+                ...properties,
+                canInterrupt: true,
+                capacity: "50000",
+                enabled: true,
+                maxPowerSinglePhase: "7360",
+                maxPowerThreePhase: "11040",
+                minPowerSinglePhase: "1380",
+                minPowerThreePhase: "4140",
+            },
+            channels: {},
+        });
+
+        export const SCHEDULER_JS_CALENDAR = (id: string = "scheduler0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.SCHEDULER_JS_CALENDAR,
+            properties: {
+                enabled: true,
+                jsCalendar: [],
+            },
+            channels: {},
+        });
+
+        export const CONTROLLER_ESS_TIME_OF_USE_TARIFF = (
+            id: string = "ctrlEssTimeOfUseTariff0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_ESS_TIME_OF_USE_TARIFF,
+            properties: {
+                enabled: true,
+                jsCalendar: [],
+                logVerbosity: "DEBUG_LOG",
+            },
+            channels: {},
+        });
+
+        export const CONTROLLER_SYMMETRIC_FIXREACTIVEPOWER = (
+            id: string = "ctrlFixReactivePower0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_SYMMETRIC_FIXREACTIVEPOWER,
+            properties: {
+                enabled: true,
+                jsCalendar: [],
+                logVerbosity: "DEBUG_LOG",
+            },
+            channels: {},
+        });
+
+        export const CONTROLLER_SYMMETRIC_PEAKSHAVING = (
+            id: string = "ctrlPeakShaving0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_SYMMETRIC_PEAKSHAVING,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_ASYMMETRIC_PEAKSHAVING = (
+            id: string = "ctrlAsymmetricPeakShaving0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_ASYMMETRIC_PEAKSHAVING,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_TIMESLOT_PEAKSHAVING = (
+            id: string = "ctrlTimeslotPeakShaving0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_TIMESLOT_PEAKSHAVING,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_BRAIINS_SINGLE = (id: string = "ctrlBraiinsSingle0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_BRAIINS_SINGLE,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD = (
+            id: string = "ctrlIoChannelSingleThreshold0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_ESS_FIXACTIVEPOWER = (
+            id: string = "ctrlEssFixActivePower0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_ESS_FIXACTIVEPOWER,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_ESS_GRIDOPTIMIZEDCHARGE = (
+            id: string = "ctrlGridOptimizedCharge0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_ESS_GRIDOPTIMIZEDCHARGE,
+            properties: {},
+            channels: {},
+        });
+
+        export const METER_MICROCARE_SDM630 = (id: string = "meter0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.METER_MICROCARE_SDM630,
+            properties: {},
+            channels: {},
+        });
+
+        export const SYSTEM_FENECON_INDUSTRIAL_XL = (id: string = "system0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.SYSTEM_FENECON_INDUSTRIAL_XL,
+            properties: {},
+            channels: {},
+        });
+        export const SYSTEM_FENECON_INDUSTRIAL_L = (id: string = "system0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.SYSTEM_FENECON_INDUSTRIAL_L,
+            properties: {},
+            channels: {},
+        });
+        export const SYSTEM_FENECON_INDUSTRIAL_M = (id: string = "system0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.SYSTEM_FENECON_INDUSTRIAL_M,
+            properties: {},
+            channels: {},
+        });
+        export const SYSTEM_FENECON_INDUSTRIAL_S = (id: string = "system0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.SYSTEM_FENECON_INDUSTRIAL_S,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_CHP_SOC = (id: string = "ctrlChpSoc0", alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_CHP_SOC,
+            properties: {},
+            channels: {},
+        });
     }
 }
 
@@ -591,14 +1040,14 @@ export namespace DummyConfig {
 // identifier `Factory` is also used in namespace
 
 type Factory = {
-    id: string;
+    id: TEnumKeys<typeof WidgetFactory>;
     natureIds: string[];
 };
 
 /** Components */
 // identifier `Component` is also used in namespace
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Component = {
+
+export type Component = {
     id: string;
     alias: string; // defaults to id
     factory: Factory;
@@ -695,7 +1144,7 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (
 export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(
     controlName: string,
     expectedValue: T,
-    properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+    properties: OeFormlyField.RangeLineProperties,
 ): OeFormlyViewTester.Field => ({
     type: "range-button-from-form-control-line",
     controlName,

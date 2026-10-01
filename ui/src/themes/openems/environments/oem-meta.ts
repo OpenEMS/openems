@@ -1,4 +1,4 @@
-import { alertCircleOutline, checkmarkDoneCircleOutline, flame, heart, informationCircleOutline, warningOutline, } from "ionicons/icons";
+import { alertCircleOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -12,7 +12,7 @@ export const OemMeta: BaseMeta = {
     icons: {
         COMMON: {
             CONSUMPTION: "assets/img/icon/consumption.svg",
-            SELFCONSUMPTION: "assets/img/icon/selfconsumption.svg",
+            SELFCONSUMPTION: bagCheckOutline,
             GENERATOR: "assets/img/icon/generator.svg",
             GRID: "assets/img/icon/grid.svg",
             GRID_STORAGE: "assets/img/icon/gridStorage.svg",
@@ -39,14 +39,17 @@ export const OemMeta: BaseMeta = {
                 CLOUD_OFFLINE_OUTLINE: "icons/common/offline/cloud_offline_outline.svg",
             },
             TIME_OF_USE: {
-                TIME_OF_USE: "icons/common/time_of_use/time_of_use.svg",
-                TIME_OF_USE_THIN: "icons/common/time_of_use/time_of_use-thin.svg",
+                TIME_OF_USE: timerOutline,
+                TIME_OF_USE_THIN: timerOutline,
             },
-            FAVORITES: heart,
+            FAVORITES: heartOutline,
+            FAVORITES_FILLED: heart,
         },
         COMPONENT: {
             HEATPUMP: flame,
             EVCS: "assets/img/icon/evcs.svg",
+            EVCS_PHASE_SWITCHING_1: removeOutline,
+            EVCS_PHASE_SWITCHING_3: reorderThreeOutline,
             HEATING_ELEMENT: flame,
         },
         STATUS: {
@@ -56,7 +59,7 @@ export const OemMeta: BaseMeta = {
             INFO: informationCircleOutline,
         },
         BATTERY_EXTENSION: null,
-        ENERGY_JOURNEY: null,
+        ENERGY_JOURNEY: calendarOutline,
         WRAP_UP: null,
     },
     images: {

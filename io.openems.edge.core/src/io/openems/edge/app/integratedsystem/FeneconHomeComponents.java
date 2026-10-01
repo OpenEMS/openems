@@ -1019,12 +1019,19 @@ public final class FeneconHomeComponents {
 	private FeneconHomeComponents() {
 	}
 
-	private static boolean isHardwareGen2OrGen3(OpenemsAppInstance deviceHardware) {
+	/**
+	 * Checks if the provided device hardware is a TechbaseCm4sGen2 or
+	 * TechbaseCm4sGen3.
+	 * 
+	 * @param deviceHardware the device hardware
+	 * @return true if the device hardware is a TechbaseCm4sGen2 or
+	 *         TechbaseCm4sGen3; else false
+	 */
+	public static boolean isHardwareGen2OrGen3(OpenemsAppInstance deviceHardware) {
 		if (deviceHardware == null) {
 			return false;
 		}
 		return deviceHardware.appId.equals(TechbaseCm4sGen2.APPID)
 				|| deviceHardware.appId.equals(TechbaseCm4sGen3.APPID);
 	}
-
 }
