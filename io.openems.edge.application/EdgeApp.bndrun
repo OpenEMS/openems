@@ -155,6 +155,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
+	bnd.identity;id='io.openems.edge.firealarmsystem.hekatron',\
 	bnd.identity;id='io.openems.edge.fluidcooling.hydac',\
 	bnd.identity;id='io.openems.edge.fronius',\
 	bnd.identity;id='io.openems.edge.goodwe',\
@@ -371,6 +372,7 @@
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
 	io.openems.edge.fenecon.pro;version=snapshot,\
+	io.openems.edge.firealarmsystem.hekatron;version=snapshot,\
 	io.openems.edge.fluidcooling.hydac;version=snapshot,\
 	io.openems.edge.fronius;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
