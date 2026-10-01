@@ -1,5 +1,6 @@
-package io.openems.edge.common.type;
+package io.openems.common.utils;
 
+import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -73,7 +74,7 @@ public abstract class TextProvider {
 				return msg;
 			}
 
-			return String.format(msg, this.arguments);
+			return MessageFormat.format(msg, this.arguments);
 		}
 	}
 

@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -120,27 +122,18 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		final var messageBuilder = new StringBuilder(//
-				AbstractCheckable.getTranslation(language, //
-						"Validator.Checkable.CheckRelayCount.Message", //
-						this.count, this.availableRelays) //
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_RELAY_COUNT.exception(//
+				language, //
+				this.count, //
+				this.availableRelays, //
+				this.relayApp.getAppDescriptor(this.oem, language).getWebsiteUrl(), //
+				this.relayApp.getName(language) //
 		);
-
-		// message to install additional relay
-		if (this.relayApp != null) {
-			messageBuilder.append(//
-					AbstractCheckable.getTranslation(language, //
-							"Validator.Checkable.CheckRelayCount.Message.AdditionalRelay", //
-							this.relayApp.getAppDescriptor(this.oem, language).getWebsiteUrl(), //
-							this.relayApp.getName(language)) //
-			);
-		}
-		return messageBuilder.toString();
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -90,11 +90,11 @@ public class CheckIndustrialTest {
 	}
 
 	@Test
-	public void testGetErrorMessage() {
+	public void testGetValidationError() {
 		final var dt = TranslationUtil.enableDebugMode();
 		for (var l : Language.values()) {
-			this.checkIndustrial.getErrorMessage(l);
-			this.checkIndustrial.getInvertedErrorMessage(l);
+			this.checkIndustrial.getValidationError(l);
+			this.checkIndustrial.getInvertedValidationError(l);
 		}
 		assertTrue(dt.getMissingKeys().isEmpty());
 	}

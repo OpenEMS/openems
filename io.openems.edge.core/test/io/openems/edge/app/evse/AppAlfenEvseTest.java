@@ -84,8 +84,9 @@ class AppAlfenEvseTest {
 	}
 
 	private OpenemsAppInstance createApp(String vehicleId) throws Exception {
-		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.alfenEvse.getAppId(), "key", "Alfen", properties(vehicleId)))
+		return this.appManagerTestBundle.sut
+				.handleAddAppInstanceRequest(DUMMY_ADMIN,
+						new AddAppInstance.Request(this.alfenEvse.getAppId(), "key", "Alfen", properties(vehicleId)))
 				.instance();
 	}
 
@@ -99,6 +100,3 @@ class AppAlfenEvseTest {
 				.build();
 	}
 }
-
-
-

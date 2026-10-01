@@ -1,4 +1,4 @@
-package io.openems.edge.common.type;
+package io.openems.common.utils;
 
 import static org.junit.Assert.assertEquals;
 

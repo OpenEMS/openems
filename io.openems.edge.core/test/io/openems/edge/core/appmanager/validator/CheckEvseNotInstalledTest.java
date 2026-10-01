@@ -35,11 +35,11 @@ class CheckEvseNotInstalledTest {
 	}
 
 	@Test
-	void getErrorMessageHasTranslations() {
+	void getValidationErrorHasTranslations() {
 		final var dt = TranslationUtil.enableDebugMode();
 		for (var l : Language.values()) {
-			this.sut.getErrorMessage(l);
-			this.sut.getInvertedErrorMessage(l);
+			this.sut.getValidationError(l);
+			this.sut.getInvertedValidationError(l);
 		}
 		assertTrue(dt.getMissingKeys().isEmpty());
 	}
