@@ -69,6 +69,7 @@ export const OemMeta: BaseMeta = {
             HARDY_BARTH: null,
             ALPITRONIC: null,
             MENNEKES: null,
+            VOLTIE: null,
             SIMULATOR: "assets/img/product_pictures/Evse.ChargePoint.Simulator.webp",
         },
         LOGO: {
