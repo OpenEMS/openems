@@ -123,15 +123,37 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
+     * Gets the current edge
+     *
+     * @returns {@link Edge} The current edge
+     */
+    protected getEdge(): Edge {
+        const edge = this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        return edge;
+    }
+
+    /**
+     * Gets the config from current edge
+     *
+     * @returns {@link EdgeConfig} The Config from the current Edge
+     */
+    protected getConfig(): EdgeConfig {
+        const edge = this.getEdge();
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        return config;
+    }
+
+    /**
      * Gets the component from the route params
      *
      * @returns {@link EdgeConfig.Component} The Component from the route params
      */
     protected getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
+        const config = this.getConfig();
         const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 

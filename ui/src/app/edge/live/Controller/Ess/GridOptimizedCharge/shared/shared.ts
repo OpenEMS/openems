@@ -465,10 +465,10 @@ export namespace SharedGridOptimizedCharge {
         ]);
     }
 
-    export function getFormGroup(): FormGroup {
+    export function getFormGroup(component: EdgeConfig.Component): FormGroup {
         return new FormGroup({
             mode: new FormControl(null),
-            manualTargetTime: new FormControl(null),
+            manualTargetTime: new FormControl(component.getPropertyFromComponent("manualTargetTime")),
             delayChargeRiskLevel: new FormControl(null),
             delayChargeState: new FormControl(null),
         });
