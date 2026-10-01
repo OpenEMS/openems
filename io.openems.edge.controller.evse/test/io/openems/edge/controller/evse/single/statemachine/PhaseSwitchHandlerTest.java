@@ -159,6 +159,7 @@ class PhaseSwitchHandlerTest {
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);// extra needed because of new Entry state
@@ -181,6 +182,9 @@ class PhaseSwitchHandlerTest {
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
 		assertDebugLog(ctrl, "Mode:Zero|Charging");
+
+		chargePoint.withActivePower(1380);
+		ctrl.apply(mode, actions);
 
 		chargePoint.withActivePower(1380);
 		ctrl.apply(mode, actions);
@@ -285,11 +289,12 @@ class PhaseSwitchHandlerTest {
 				.build();
 
 		ctrl.apply(mode, actions);
-		test.accept(null, null); //
+		test.accept(6, PhaseSwitchDirection.TO_THREE_PHASE);
 
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase");
 		ctrl.apply(mode, actions);
-		ctrl.apply(mode, actions);//
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-DeadTime-0s");
 		ctrl.apply(mode, actions);
 
@@ -442,6 +447,7 @@ class PhaseSwitchHandlerTest {
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
 
 		clock.leap(29, SECONDS);
@@ -485,6 +491,7 @@ class PhaseSwitchHandlerTest {
 				.build();
 
 		chargePoint.withActivePower(1234);
+		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);

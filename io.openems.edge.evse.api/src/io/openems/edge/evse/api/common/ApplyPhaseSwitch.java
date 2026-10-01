@@ -8,6 +8,7 @@ import com.google.gson.JsonNull;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
+import io.openems.edge.common.type.Phase;
 
 public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbility ability,
 		ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
@@ -118,5 +119,14 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 	public enum PhaseSwitchDirection {
 		TO_SINGLE_PHASE, //
 		TO_THREE_PHASE, //
+
+		;
+
+		public Phase.SingleOrThreePhase getTargetPhase() {
+			return switch (this) {
+			case TO_SINGLE_PHASE -> Phase.SingleOrThreePhase.SINGLE_PHASE;
+			case TO_THREE_PHASE -> Phase.SingleOrThreePhase.THREE_PHASE;
+			};
+		}
 	}
 }

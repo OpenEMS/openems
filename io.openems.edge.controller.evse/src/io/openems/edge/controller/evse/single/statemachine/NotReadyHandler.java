@@ -3,7 +3,7 @@ package io.openems.edge.controller.evse.single.statemachine;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.evse.single.EvseSingleState;
 
-public class UndefinedHandler extends StateHandler<EvseSingleState, Context> {
+public class NotReadyHandler extends StateHandler<EvseSingleState, Context> {
 
 	@Override
 	public EvseSingleState runAndGetNextState(Context context) {
@@ -11,10 +11,11 @@ public class UndefinedHandler extends StateHandler<EvseSingleState, Context> {
 			return EvseSingleState.EV_NOT_CONNECTED;
 		}
 
-		if (!context.actions.abilities().isReadyForCharging()) {
-			return EvseSingleState.NOT_READY;
+		if (context.actions.abilities().isReadyForCharging()) {
+			return EvseSingleState.UNDEFINED;
 		}
 
-		return EvseSingleState.EV_CONNECTED;
+		context.applyMinSetPointActions();
+		return EvseSingleState.NOT_READY;
 	}
 }
