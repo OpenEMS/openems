@@ -49,6 +49,8 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 			final var polymorphicSerializer = PolymorphicSerializer.<PhaseSwitchAbility>create() //
 					.add(Internal.class, Internal.serializer(), Internal.class.getSimpleName()) //
 					.add(Manual.class, Manual.serializer(), Manual.class.getSimpleName()) //
+					.add(ManualWithoutZeroSetPoint.class, ManualWithoutZeroSetPoint.serializer(),
+							ManualWithoutZeroSetPoint.class.getSimpleName()) //
 					.build();
 
 			return jsonSerializer(PhaseSwitchAbility.class,
@@ -91,6 +93,22 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 			public static JsonSerializer<Manual> serializer() {
 				return jsonObjectSerializer(//
 						json -> new Manual(), //
+						obj -> buildJsonObject() //
+								.build());
+			}
+		}
+
+		record ManualWithoutZeroSetPoint() implements PhaseSwitchAbility {
+
+
+			/**
+			 * Returns a {@link JsonSerializer} for {@link ManualWithoutZeroSetPoint}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<ManualWithoutZeroSetPoint> serializer() {
+				return jsonObjectSerializer(//
+						json -> new ManualWithoutZeroSetPoint(), //
 						obj -> buildJsonObject() //
 								.build());
 			}

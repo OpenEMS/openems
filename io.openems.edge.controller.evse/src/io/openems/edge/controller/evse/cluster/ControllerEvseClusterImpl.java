@@ -1,13 +1,13 @@
 package io.openems.edge.controller.evse.cluster;
 
 import static io.openems.edge.controller.evse.cluster.EnergyScheduler.buildEnergyScheduleHandler;
-import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -33,6 +33,9 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule;
+import io.openems.edge.controller.evse.cluster.powerdistribute.EvsePowerDistributionManager;
+import io.openems.edge.controller.evse.cluster.powerdistribute.ramp.LimitIncreaseByPercentageRamp;
+import io.openems.edge.controller.evse.cluster.powerdistribute.ramp.PowerDistributionRamp;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -59,6 +62,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	private Config config;
 	private EshWithDifferentModes<JointMode<Mode>, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
+	private PowerDistributionRamp powerDistributionRamp;
 
 	// TODO sort by configuration
 	private List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();
@@ -96,6 +100,8 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.powerDistributionRamp = new LimitIncreaseByPercentageRamp(
+				EvsePowerDistributionManager.MAX_PERCENTAGE_CHANGE_PER_SECOND, this.componentManager.getClock());
 
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
 				() -> ControllerEvseClusterImpl.this.componentManager.getClock(), //
@@ -122,14 +128,14 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				.map(Period::mode) //
 				.orElse(null);
 
-		calculate(this.componentManager.getClock(), this.config.distributionStrategy(), this.sum, this.ctrls, eshMode, //
-				this.config.logVerbosity(), message -> this.logInfo(this.log, message)) //
-				.streamEntries() //
-				.filter(e -> e.params.combinedAbilities().chargePointAbilities() != null) //
-				.forEach(e -> {
-					// Apply actions
-					e.ctrl.apply(e.mode, e.actions.build());
-				});
+		var params = this.ctrls.stream() //
+				.map(ControllerEvseSingle::getParams) //
+				.filter(Objects::nonNull) //
+				.toList();
+
+		var distributionManager = new EvsePowerDistributionManager(params, this.config.distributionStrategy(), eshMode,
+				this.powerDistributionRamp, this.config.logVerbosity(), this.sum, this.componentManager.getClock());
+		distributionManager.runAndApply(this.ctrls);
 	}
 
 	@Override
