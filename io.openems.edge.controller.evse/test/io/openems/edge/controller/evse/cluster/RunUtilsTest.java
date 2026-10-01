@@ -1013,8 +1013,19 @@ class RunUtilsTest {
 		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, exec.get(0).getPhaseSwitchDirection());
 	}
 
+	/**
+	 * Number of History entries required in the 2-minute automatic phase switch
+	 * window at a simulated 1-second Core-Cycle-Time, i.e.
+	 * {@code ceil(120 * 0.9) = 108} samples (see
+	 * {@code Types.History.calculateMinSampleCount()}). The warmup below builds up
+	 * one entry short of that (107), so that the caller's own subsequent
+	 * {@code execute()} call becomes the 108th sample and is the one expected to
+	 * trigger the switch.
+	 */
+	private static final int AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT = 108;
+
 	private static void executeAutomaticPhaseSwitchWarmup(CalculateTester ct, History history, int index) {
-		IntStream.range(0, 59).forEach(i -> {
+		IntStream.range(0, AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT - 1).forEach(i -> {
 			var warmup = ct.execute(DistributionStrategy.EQUAL_POWER);
 			assertNull(warmup.get(index).getPhaseSwitchDirection());
 			appendHistoryEntry(ct, history, warmup, index);

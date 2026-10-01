@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.stream.IntStream;
 
@@ -79,10 +80,14 @@ public class TypesTest {
 
 	@Test
 	public void testAutomaticPhaseSwitchRequiresMinimumSampleCount() {
+		// Simulates a 1-second Core-Cycle-Time. The required sample count is derived
+		// from the same window/factor constants the production code uses, so this
+		// test keeps working automatically if either constant is ever tuned.
 		var now = Instant.now(createDummyClock());
 		var h = new History();
+		var minSampleCount = expectedMinSampleCount(Duration.ofSeconds(1));
 
-		for (int i = 0; i < 59; i++) {
+		for (int i = 0; i < minSampleCount - 1; i++) {
 			var evaluation = h.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitation(now.plusSeconds(i), 5_000,
 					4_100, History.AutomaticPhaseSwitchThresholdDirection.ABOVE);
 			assertFalse(evaluation.shouldSwitch());
@@ -90,10 +95,51 @@ public class TypesTest {
 			h.addEntry(now.plusSeconds(i), 1_000, 1_000, 5_000, true);
 		}
 
-		var sixtiethEvaluation = h.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitation(now.plusSeconds(59),
-				5_000, 4_100, History.AutomaticPhaseSwitchThresholdDirection.ABOVE);
-		assertTrue(sixtiethEvaluation.shouldSwitch());
-		assertEquals(60, sixtiethEvaluation.sampleCount());
+		var evaluationAtMinSampleCount = h.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitation(
+				now.plusSeconds(minSampleCount - 1), 5_000, 4_100,
+				History.AutomaticPhaseSwitchThresholdDirection.ABOVE);
+		assertTrue(evaluationAtMinSampleCount.shouldSwitch());
+		assertEquals(minSampleCount, evaluationAtMinSampleCount.sampleCount());
+	}
+
+	@Test
+	public void testAutomaticPhaseSwitchMinimumSampleCountScalesWithCycleTime() {
+		// Simulates a slower 5-second Core-Cycle-Time (e.g. a loaded system). With the
+		// previous fixed threshold of 60 samples this could never be reached, so
+		// automatic phase switching would never trigger. The expected count below
+		// scales dynamically with the Cycle-Time, same as the production code.
+		var now = Instant.now(createDummyClock());
+		var h = new History();
+		var cycleTime = Duration.ofSeconds(5);
+		var minSampleCount = expectedMinSampleCount(cycleTime);
+
+		for (int i = 0; i < minSampleCount - 1; i++) {
+			var evaluation = h.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitation(
+					now.plus(cycleTime.multipliedBy(i)), 5_000, 4_100,
+					History.AutomaticPhaseSwitchThresholdDirection.ABOVE);
+			assertFalse(evaluation.shouldSwitch());
+			h.addEntry(now.plus(cycleTime.multipliedBy(i)), 1_000, 1_000, 5_000, true);
+		}
+
+		var evaluationAtMinSampleCount = h.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitation(
+				now.plus(cycleTime.multipliedBy(minSampleCount - 1)), 5_000, 4_100,
+				History.AutomaticPhaseSwitchThresholdDirection.ABOVE);
+		assertTrue(evaluationAtMinSampleCount.shouldSwitch());
+		assertEquals(minSampleCount, evaluationAtMinSampleCount.sampleCount());
+	}
+
+	/**
+	 * Mirrors {@code Types.History.calculateMinSampleCount(Duration)} using the
+	 * package-visible window/factor constants, so tests derive their expectations
+	 * from the same source of truth instead of hardcoded numbers.
+	 *
+	 * @param cycleTime the simulated Core-Cycle-Time
+	 * @return the expected minimum sample count
+	 */
+	private static int expectedMinSampleCount(Duration cycleTime) {
+		final var expectedSampleCount = (double) History.AUTOMATIC_PHASE_SWITCH_PV_LIMIT_WINDOW.toMillis()
+				/ cycleTime.toMillis();
+		return (int) Math.ceil(expectedSampleCount * History.AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT_FACTOR);
 	}
 
 }
