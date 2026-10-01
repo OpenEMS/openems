@@ -35,6 +35,8 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
                 return new Mennekes(chargePoint);
+            case "Evse.ChargePoint.Alfen":
+                return new Alfen(chargePoint);
             case "Simulator.Evse.ChargePoint":
                 return new Simulator(chargePoint);
             case null:
@@ -113,6 +115,16 @@ export class Mennekes extends EvseChargepoint {
 
     public override hasPhaseSwitchingAbility(): boolean {
         return true;
+    }
+}
+
+export class Alfen extends EvseChargepoint {
+    public img = {
+        url: environment.images.EVSE.ALFEN,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return this.hasPropertyValue("wiring", "THREE_PHASE");
     }
 }
 

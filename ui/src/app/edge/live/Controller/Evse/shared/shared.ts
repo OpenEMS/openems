@@ -27,6 +27,9 @@ export namespace ControllerEvseSingleShared {
             return null;
         }
 
+        const chargePointComponent =
+            config.getComponentFromOtherComponentsProperty(component.id, "chargePoint.id") ?? null;
+
         return new NavigationTree(
             componentId,
             { baseString: "evse/" + componentId },
@@ -120,6 +123,9 @@ export namespace ControllerEvseSingleShared {
                           ),
                       ]
                     : []),
+                NavigationConstants.CommonNodes.INFO(translate, componentId, {
+                    source: chargePointComponent?.factoryId,
+                }),
             ],
             null,
         ).toConstructorParams();

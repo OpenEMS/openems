@@ -21,6 +21,12 @@ type NavigationCardFooter = {
     linkText: string;
 };
 
+export type DocsMapValue = {
+    displayName: string;
+    icon: IconWithRequiredName;
+    link: NonNullable<HelpButtonComponent["key"]>;
+};
+
 export type NavigationCard = {
     infoText: string;
     iconName: IonIcon["name"];
@@ -31,12 +37,25 @@ export type NavigationCard = {
     footer?: NavigationCardFooter;
 };
 
+const EVSE_DOC_LINKS = {
+    "Evse.ChargePoint.Keba.UDP": "REDIRECT.EVCS_KEBA",
+    "Evse.ChargePoint.Keba.Modbus": "REDIRECT.EVCS_KEBA",
+    "Evse.ChargePoint.HardyBarth": "REDIRECT.EVCS_HARDY_BARTH",
+    "Evse.ChargePoint.Alpitronic": "REDIRECT.EVCS_ALPITRONIC_HYPER",
+    "Evse.ChargePoint.Mennekes": "REDIRECT.EVCS_MENNEKES",
+    "Evse.ChargePoint.Alfen": "REDIRECT.EVSE_ALFEN",
+} as const;
+
 function initializeNavigationInfoTranslations(translate: TranslateService): void {
     void Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
         for (const { lang, translation, shouldMerge } of translations) {
             translate.setTranslation(lang, translation, shouldMerge);
         }
     });
+}
+
+function isEvseDocLink(factoryId: string | null): factoryId is keyof typeof EVSE_DOC_LINKS {
+    return factoryId != null && factoryId in EVSE_DOC_LINKS;
 }
 
 @Component({
@@ -71,6 +90,7 @@ export class NavigationInfoComponent extends AbstractModal {
         ];
         return cards;
     });
+
     protected docs: {
         link: string | null;
         displayName: string;
@@ -94,12 +114,10 @@ export class NavigationInfoComponent extends AbstractModal {
         initializeNavigationInfoTranslations(translate);
     }
 
-    public static readonly DOCS_LINKS: (
-        translate: TranslateService,
-    ) => Map<
-        string,
-        { displayName: string; icon: IconWithRequiredName; link: NonNullable<HelpButtonComponent["key"]> }
-    > = (translate) =>
+    public static readonly DOCS_LINKS: (translate: TranslateService, factoryId: string) => Map<string, DocsMapValue> = (
+        translate,
+        factoryId,
+    ) =>
         new Map([
             [
                 "grid",
@@ -161,6 +179,20 @@ export class NavigationInfoComponent extends AbstractModal {
                     icon: { name: "oe-selfconsumption" },
                 },
             ],
+            ...(isEvseDocLink(factoryId)
+                ? [
+                      [
+                          factoryId,
+                          {
+                              displayName: translate.instant("NAVIGATION_INFO_MANUAL", {
+                                  source: translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION"),
+                              }),
+                              link: EVSE_DOC_LINKS[factoryId],
+                              icon: { name: "oe-consumption" },
+                          },
+                      ] as const,
+                  ]
+                : []),
         ]);
 
     ionViewWillLeave() {
@@ -181,7 +213,7 @@ export class NavigationInfoComponent extends AbstractModal {
         this.isGlobalInfo.set(source === "global");
 
         if (source && source !== "global") {
-            const page = NavigationInfoComponent.DOCS_LINKS(this.translate).get(source);
+            const page = NavigationInfoComponent.DOCS_LINKS(this.translate, source).get(source);
             if (page != null) {
                 this.docs = {
                     displayName: page.displayName,

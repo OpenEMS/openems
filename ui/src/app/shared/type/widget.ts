@@ -57,6 +57,7 @@ export enum WidgetFactory {
     "Evcs.Keba.KeContact",
     "Evcs.Keba.P40",
     "Evcs.Mennekes",
+    "Evse.ChargePoint.Alfen",
     "Evse.ChargePoint.Keba.UDP",
     "Evse.Controller.Cluster",
     "Evse.Controller.Single",

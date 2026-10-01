@@ -71,6 +71,7 @@ export class ModalComponent extends AbstractModal {
             "Evcs.Keba.KeContact": "EVCS_KEBA",
             "Evcs.HardyBarth": "EVCS_HARDY_BARTH",
             "Evcs.Mennekes": "EVCS_MENNEKES",
+            "Evse.Alfen": "EVSE_ALFEN",
             "Evcs.Goe.Http": "EVCS_GO_E",
             "Evcs.Ocpp.IesKeywattSingle": "EVCS_IES",
             "Evcs.AlpitronicHypercharger": "EVCS_ALPITRONIC_HYPER",
