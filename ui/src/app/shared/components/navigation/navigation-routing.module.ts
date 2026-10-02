@@ -40,6 +40,8 @@ import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/
 import { ControllerEssTimeOfUseTariffHistoryComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/history/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffHomeComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffSettingsComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/settings/settings";
+import { EvcsHomeComponent } from "src/app/edge/live/Controller/Evcs/new-navigation/new-navigation";
+import { EvcsSettingsComponent } from "src/app/edge/live/Controller/Evcs/settings/settings";
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { ModalComponent as EvseForecastComponent } from "src/app/edge/live/Controller/Evse/pages/forecast/forecast";
@@ -50,7 +52,6 @@ import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/s
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { UpdateAppConfigComponent } from "src/app/edge/live/Controller/Evse/pages/update-app-config/update-app-config";
-import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/heat-home";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
@@ -220,10 +221,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heat/:componentId",
             component: ControllerHeatHomeComponent,
-        },
-        {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
         },
         {
             path: "controller/heat/:componentId/history",
@@ -402,10 +399,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
             component: ControllerHeatHomeComponent,
         },
         {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
-        },
-        {
             path: "controller/heat/:componentId/history",
             component: ControllerHeatHistoryComponent,
         },
@@ -464,6 +457,34 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/chp/:componentId/history",
             component: ControllerChpHistoryComponent,
+        },
+        {
+            path: "controller/evcs-cluster",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId/settings",
+            component: EvcsSettingsComponent,
+        },
+        {
+            path: "controller/evcs-cluster/evcs/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/settings",
+            component: EvcsSettingsComponent,
         },
     ].map((el) => ({ ...el, path: prefix != null ? prefix + "/" + el.path : el.path }));
 

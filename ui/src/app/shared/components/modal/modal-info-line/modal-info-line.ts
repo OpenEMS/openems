@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Icon } from "src/app/shared/type/widget";
 
 @Component({
@@ -10,6 +10,7 @@ import { Icon } from "src/app/shared/type/widget";
 export class ModalInfoLineComponent {
     @Input({ required: true }) public info!: { text: string; lineStyle?: string }[] | string;
     @Input() public html?: string;
+    @Input() public link?: { text: string; href: string };
 
     /** Icon, displayed on the left side */
     @Input({ required: true }) protected icon!: Icon;

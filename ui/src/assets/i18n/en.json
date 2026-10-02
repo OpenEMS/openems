@@ -325,6 +325,8 @@
                     "ENERGY_SINCE_BEGINNING": "Energy since the last charge start",
                     "ENFORCE_CHARGING": "Enforce charging",
                     "ERROR": "Error",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "LINK_TO_DOCUMENTATION": "Mehr Informationen",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "In this mode the loading of the car is enforced, i.e. it is always guaranteed that the car will be charged, even if the charging station needs to access grid power.",
                         "MAX_CHARGING": "Maximum charging power",
@@ -602,7 +604,8 @@
                         "ADD_TASK": "Add task"
                     },
                     "CHARGE_MODE": "Base mode",
-                    "VEHICLE_ID_ERROR": "The vehicle ID could not be found. Please check the configuration. All registered vehicles are displayed."
+                    "VEHICLE_ID_ERROR": "The vehicle ID could not be found. Please check the configuration. All registered vehicles are displayed.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung."
                 }
             }
         },

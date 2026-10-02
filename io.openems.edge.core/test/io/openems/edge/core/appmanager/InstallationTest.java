@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.utils.JsonUtils;
@@ -27,12 +28,12 @@ public class InstallationTest {
 						.build())
 				.build();
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
-			OpenemsException exception = null;
+			OpenemsNamedException exception = null;
 			try {
 				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 								.build()));
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				exception = e;
 			}
 			assertNotNull(exception);
@@ -64,12 +65,12 @@ public class InstallationTest {
 						.setInstallableCheckableConfigs(DummyValidator.testCheckable(() -> false)).build())
 				.build();
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
-			OpenemsException exception = null;
+			OpenemsNamedException exception = null;
 			try {
 				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 								.build()));
-			} catch (OpenemsException e) {
+			} catch (OpenemsNamedException e) {
 				exception = e;
 			}
 			assertNotNull(exception);

@@ -6,6 +6,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.energy.api.EnergyScheduler;
 import io.openems.edge.energy.api.Version;
@@ -35,13 +37,12 @@ public class CheckEnergySchedulerV2 extends AbstractCheckable implements Checkab
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckEnergySchedulerV2.Message");
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2.exception(language);
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language,
-				"Validator.Checkable.CheckEnergySchedulerV2.Message.Inverted");
+	public OpenemsNamedException getInvertedValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2_INVERTED.exception(language);
 	}
 }
