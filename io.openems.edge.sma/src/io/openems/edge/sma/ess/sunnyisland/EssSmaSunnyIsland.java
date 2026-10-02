@@ -17,6 +17,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.sma.ess.enums.OperatingModeForActivePowerLimitation;
 import io.openems.edge.sma.ess.enums.PowerSupplyStatus;
 import io.openems.edge.sma.ess.enums.SetControlMode;
+import io.openems.edge.sma.ess.enums.SunnyIslandDeviceType;
 import io.openems.edge.sma.ess.enums.SystemState;
 
 public interface EssSmaSunnyIsland extends ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss,
@@ -27,6 +28,7 @@ public interface EssSmaSunnyIsland extends ManagedSinglePhaseEss, SinglePhaseEss
 		SYSTEM_STATE(Doc.of(SystemState.values())), //
 		POWER_SUPPLY_STATUS(Doc.of(PowerSupplyStatus.values())), //
 		OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION(Doc.of(OperatingModeForActivePowerLimitation.values())), //
+		DEVICE_TYPE(Doc.of(SunnyIslandDeviceType.values())), //
 
 		// EnumWriteChannsl
 		SET_CONTROL_MODE(Doc.of(SetControlMode.values()).accessMode(AccessMode.READ_WRITE)), //
@@ -48,7 +50,6 @@ public interface EssSmaSunnyIsland extends ManagedSinglePhaseEss, SinglePhaseEss
 
 		// IntegerReadChannels
 		DEVICE_CLASS(Doc.of(OpenemsType.INTEGER)), //
-		DEVICE_TYPE(Doc.of(OpenemsType.INTEGER)), //
 		SOFTWARE_PACKAGE(Doc.of(OpenemsType.INTEGER)), //
 		WAITING_TIME_UNTIL_FEED_IN(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.SECONDS)), //
