@@ -211,6 +211,11 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		return surplusPower > 0 ? (int) surplusPower : null;
 	}
 
+	@Override
+	public Integer getPvProduction() {
+		return this.latestPvPw;
+	}
+
 	private void calculateEnergy() {
 		// Calculate AC Energy
 		var activePower = this.getActivePowerChannel().getNextValue().get();
