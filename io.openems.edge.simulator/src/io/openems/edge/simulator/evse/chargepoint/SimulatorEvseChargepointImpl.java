@@ -160,8 +160,12 @@ public class SimulatorEvseChargepointImpl extends AbstractOpenemsComponent imple
 		}
 
 		var powerInWatt = actions.getApplySetPointInMilliAmpere().value() * this.config.voltage() / 1000;
-		this.applyPower(powerInWatt);
-		this.applyCurrent(actions.getApplySetPointInMilliAmpere().value());
+		this.applyPower(this.config.vehicleConnected() //
+				? powerInWatt
+				: 0);
+		this.applyCurrent(this.config.vehicleConnected() //
+				? actions.getApplySetPointInMilliAmpere().value()
+				: 0);
 		this.applyVoltage(this.config.voltage());
 	}
 
@@ -184,7 +188,9 @@ public class SimulatorEvseChargepointImpl extends AbstractOpenemsComponent imple
 
 	private void applyVoltage(int voltage) {
 		int voltageInMilliVolts = voltage * 1000;
-		int threePhaseVoltage = this.isThreePhase() ? voltageInMilliVolts : 0;
+		int threePhaseVoltage = this.isThreePhase() //
+				? voltageInMilliVolts
+				: 0;
 		setPhaseRotatedVoltageChannels(this, voltageInMilliVolts, threePhaseVoltage, threePhaseVoltage);
 		setValue(this, ElectricityMeter.ChannelId.VOLTAGE, voltageInMilliVolts);
 	}

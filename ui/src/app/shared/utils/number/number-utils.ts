@@ -132,6 +132,20 @@ export namespace NumberUtils {
     }
 
     /**
+     * Ceils a value safely.
+     *
+     * @param value The value
+     * @returns The smallest integer greater than or equal to its numeric argument, if valid, else null
+     */
+    export function ceilSafelyOrElse(value: number | null, orElse: number): number {
+        const result = ceilSafely(value);
+        if (result === null) {
+            return orElse;
+        }
+        return result;
+    }
+
+    /**
      * Floors a value safely.
      *
      * @param value The value
@@ -156,6 +170,50 @@ export namespace NumberUtils {
             return value;
         }
         return Math.min(value, atMost);
+    }
+
+    /**
+     * Converts the number to have a max value or returns a default if null
+     *
+     * @param value The value
+     * @param atMost The max number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtMostOrElse(value: number | null, atMost: number, orElse: number): number {
+        const result = NumberUtils.convertNumberToBeAtMost(value, atMost);
+        if (result == null) {
+            return orElse;
+        }
+        return result;
+    }
+
+    /**
+     * Converts the number to have a max value
+     *
+     * @param value The value
+     * @param atMost The max number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtLeast(value: number | null, atLeast: number): number | null {
+        if (value == null) {
+            return value;
+        }
+        return Math.max(value, atLeast);
+    }
+
+    /**
+     * Converts the number to have a min value
+     *
+     * @param value The value
+     * @param atLeast The min number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtLeastOrElse(value: number | null, atLeast: number, orElse: number): number {
+        const result = NumberUtils.convertNumberToBeAtLeast(value, atLeast);
+        if (result == null) {
+            return orElse;
+        }
+        return result;
     }
 
     /**
@@ -185,5 +243,19 @@ export namespace NumberUtils {
             return true;
         }
         return orElse;
+    }
+
+    export function isNumberHigherThan(params: {value: number | null, valueToBeHigher: number | null}): boolean {
+        if (params == null || params.value == null || params.valueToBeHigher == null) {
+            return false;
+        }
+        return params.value > params.valueToBeHigher;
+    }
+
+    export function isNumberLowerThan(params: {value: number | null, valueToBeSmaller: number | null}): boolean {
+        if (params == null || params.value == null || params.valueToBeSmaller == null) {
+            return false;
+        }
+        return params.value > params.valueToBeSmaller;
     }
 }

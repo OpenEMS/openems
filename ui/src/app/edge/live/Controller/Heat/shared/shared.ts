@@ -186,24 +186,9 @@ export namespace SharedControllerHeat {
     export function getNavigationTree(
         translate: TranslateService,
         component: EdgeConfig.Component,
-        isAskoma: boolean,
     ): ConstructorParameters<typeof NavigationTree> {
         const isWritable = component.properties?.readOnly !== true;
         const children = [];
-
-        if (isWritable && isAskoma) {
-            children.push(
-                new NavigationTree(
-                    component.id + "-forecast",
-                    { baseString: "forecast" },
-                    { name: "stats-chart-outline", color: "success" },
-                    translate.instant("HEAT.FORECAST.FORECAST"),
-                    "label",
-                    [],
-                    null,
-                ),
-            );
-        }
 
         children.push(NavigationConstants.CommonNodes.HISTORY(translate, component.id));
 

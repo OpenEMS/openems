@@ -6,9 +6,6 @@
         "READ_ONLY": {
             "NOT_AVAILABLE": "Not available in read-only mode."
         },
-        "FORECAST": {
-            "FORECAST": "Forecast"
-        },
         "SCHEDULE": {
             "SCHEDULE": "Schedule",
             "MODE": "Heating mode",

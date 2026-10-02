@@ -1,16 +1,17 @@
 package io.openems.edge.controller.evse.single.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
+import io.openems.edge.controller.evse.single.EvseSingleState;
 
-public class FinishedEnergySessionLimitHandler extends StateHandler<State, Context> {
+public class FinishedEnergySessionLimitHandler extends StateHandler<EvseSingleState, Context> {
 
 	@Override
-	public State runAndGetNextState(Context context) {
+	public EvseSingleState runAndGetNextState(Context context) {
 		// Stop charging
 		context.applyAdjustedActions(b -> b //
-				.setApplyZeroSetPoint());
+				.setApplyZeroSetPoint() //
+				.setPhaseSwitch(null));
 
-		return State.FINISHED_ENERGY_SESSION_LIMIT;
+		return EvseSingleState.FINISHED_ENERGY_SESSION_LIMIT;
 	}
 }

@@ -56,7 +56,6 @@ import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
 import io.openems.edge.heat.api.RemainingHeatEnergyCalculator;
 import io.openems.edge.heat.api.Status;
-import io.openems.edge.heat.askoma.jsonrpc.jsonrpc.GetSchedule;
 import io.openems.edge.heat.askoma.statemachine.Context;
 import io.openems.edge.heat.askoma.statemachine.StateMachine;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -314,8 +313,6 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
 				() -> this.tasks, //
 				() -> new UpdateJsCalendarRecord(this.configurationAdmin, this.componentManager, this.servicePid(),
 						"jsCalendar"));
-		builder.handleRequest(new GetSchedule(), //
-				call -> GetSchedule.Response.create(call.getRequest(), this.energyScheduleHandler));
 	}
 
 	@Override
