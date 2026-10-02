@@ -982,6 +982,19 @@ public interface Sum extends OpenemsComponent {
 				.persistencePriority(VERY_HIGH)), //
 
 		/**
+		 * Symmetric Battery Inverter: Max Apparent Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Max Apparent Power (origin: SymmetricBatteryInverter))
+		 * <li>Type: Integer
+		 * <li>Unit: VA
+		 * </ul>
+		 */
+		BATTERY_INVERTER_MAX_APPARENT_POWER(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE)//
+				.persistencePriority(VERY_HIGH)), //
+
+		/**
 		 * Is there any Component Info/Warning/Fault that is getting ignored/hidden
 		 * because of the 'ignoreStateComponents' configuration setting?.
 		 */

@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.fazecast.jSerialComm,\
 	com.squareup.okhttp3,\
 	io.openems.common,\
+	io.openems.common.bridge.eebus,\
 	io.openems.common.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\

@@ -46,7 +46,9 @@ import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.PowerProductionLimiter;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -122,7 +124,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected ElectricityMeter meter;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile ControllerEssRippleControlReceiver rcr;
+	protected volatile PowerProductionLimiter powerProductionLimiter;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -475,9 +477,10 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	private void updateMaximumSellToGridPower() {
 		final var gridSellHardLimit = this.meta.getGridSellHardLimit();
 		final Integer dynamicGridFeedInLimit;
-		var maxApparentPower = this.ess.getMaxApparentPower();
-		if (this.rcr != null && this.rcr.isEnabled() && maxApparentPower.isDefined()) {
-			dynamicGridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower.get());
+		if (this.powerProductionLimiter != null) {
+			this.ess.getMaxApparentPower()
+					.ifPresent(power -> this.powerProductionLimiter.setMaxNominalProductionPower(power));
+			dynamicGridFeedInLimit = this.powerProductionLimiter.getGridFeedInLimit();
 		} else {
 			dynamicGridFeedInLimit = null;
 		}
