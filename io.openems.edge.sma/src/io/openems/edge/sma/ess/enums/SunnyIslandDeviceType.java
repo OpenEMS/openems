@@ -7,7 +7,7 @@ import io.openems.common.types.OptionsEnum;
  * ("Device type").
  *
  * <p>
- * The first generation (-11) does not provide register 30231 ("Maximum active
+ * The generation -11 does not provide register 30231 ("Maximum active
  * power device"). For these types a fixed maximum apparent power of one device
  * is defined. All other types provide the register and have no fixed value
  * (null).
