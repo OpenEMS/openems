@@ -6,9 +6,6 @@
         "READ_ONLY": {
             "NOT_AVAILABLE": "Im Read-only-Modus nicht verfügbar."
         },
-        "FORECAST": {
-            "FORECAST": "Prognose"
-        },
         "SCHEDULE": {
             "SCHEDULE": "Zeitplan",
             "MODE": "Heizmodus",

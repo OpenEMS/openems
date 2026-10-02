@@ -3,21 +3,18 @@ import { NavigationTree, PartialedIcon } from "src/app/shared/components/navigat
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { environment } from "src/environments";
 
-export abstract class EvseChargepoint extends EdgeConfig.Component {
+/**
+ * Wrapper around an EVSE charge point {@link EdgeConfig.Component}.
+ *
+ * Deliberately does not extend {@link EdgeConfig.Component}, so that this module has no runtime dependency on
+ * 'edgeconfig'. That would create a circular import edgeconfig -> widgets -> Evse/shared -> evse-chargepoint ->
+ * edgeconfig, whose 'extends' dereferences a not yet initialized module.
+ */
+export abstract class EvseChargepoint {
     public icon: PartialedIcon = { color: "normal", name: "oe-evcs" };
     public abstract img: OeImageComponent["img"];
 
-    constructor(component: EdgeConfig.Component) {
-        super(
-            component.id,
-            component.alias,
-            component.isEnabled,
-            false,
-            component.factoryId,
-            component.properties,
-            component.channels,
-        );
-    }
+    constructor(public readonly component: EdgeConfig.Component) {}
 
     public static getEvseChargepoint(chargePoint: EdgeConfig.Component | null): EvseChargepoint | null {
         if (chargePoint == null) {
@@ -35,6 +32,8 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
                 return new Mennekes(chargePoint);
+            case "Evse.ChargePoint.Alfen":
+                return new Alfen(chargePoint);
             case "Simulator.Evse.ChargePoint":
                 return new Simulator(chargePoint);
             case null:
@@ -42,6 +41,11 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return null;
         }
     }
+
+    public hasPropertyValue<T>(propertyName: string, value: T): boolean {
+        return this.component.hasPropertyValue<T>(propertyName, value);
+    }
+
     /**
      * Gets the navigation tree for phase switching if the evse chargepoint supports phase switching.
      *
@@ -113,6 +117,16 @@ export class Mennekes extends EvseChargepoint {
 
     public override hasPhaseSwitchingAbility(): boolean {
         return true;
+    }
+}
+
+export class Alfen extends EvseChargepoint {
+    public img = {
+        url: environment.images.EVSE.ALFEN,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return this.hasPropertyValue("wiring", "THREE_PHASE");
     }
 }
 

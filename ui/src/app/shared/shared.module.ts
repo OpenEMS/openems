@@ -25,6 +25,7 @@ import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
+import { FormlyWrapperComponent } from "./components/formly/formly-field-navigation/wrapper/wrapper.component";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
@@ -329,6 +330,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyWrapperComponent,
     ],
     declarations: [
         AppHeaderComponent,

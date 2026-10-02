@@ -1,6 +1,6 @@
 package io.openems.edge.system.fenecon.masterbox2v0.meter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -14,7 +14,6 @@ public class MasterBox2v0MeterImplTest {
 
 	@Test
 	public void test() throws Exception {
-
 		var ioc = new DummyMasterBox2v0("ioc0") //
 				.withVoltageL1EnergyMeter(2000) //
 				.withVoltageL2EnergyMeter(2000) //

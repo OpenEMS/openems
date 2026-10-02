@@ -123,15 +123,37 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
+     * Gets the current edge
+     *
+     * @returns {@link Edge} The current edge
+     */
+    protected getEdge(): Edge {
+        const edge = this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        return edge;
+    }
+
+    /**
+     * Gets the config from current edge
+     *
+     * @returns {@link EdgeConfig} The Config from the current Edge
+     */
+    protected getConfig(): EdgeConfig {
+        const edge = this.getEdge();
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        return config;
+    }
+
+    /**
      * Gets the component from the route params
      *
      * @returns {@link EdgeConfig.Component} The Component from the route params
      */
     protected getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
+        const config = this.getConfig();
         const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 
@@ -463,7 +485,12 @@ export type OeFormlyField<T = any> = (
     /** Executes a applyable if according name field exists for this line type */
     nameCallback?: (field: T) => string;
     style?: AbstractModalLine["lineStyle"];
-    cssClass?: "ion-padding-top" | "ion-padding-bottom" | "ion-padding-left" | "ion-padding-right";
+    cssClass?:
+        | "ion-padding-top"
+        | "ion-padding-bottom"
+        | "ion-padding-left"
+        | "ion-padding-right"
+        | "ion-text-font-style-italic";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -494,6 +521,7 @@ export namespace OeFormlyField {
         name?: string | { text: string; lineStyle?: string }[];
         html?: string;
         icon?: Icon;
+        link?: { text: string; href: string };
     };
 
     export type ImageLine = {

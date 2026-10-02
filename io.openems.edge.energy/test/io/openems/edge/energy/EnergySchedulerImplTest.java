@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -39,8 +39,8 @@ import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.evse.cluster.DistributionStrategy;
 import io.openems.edge.controller.evse.single.CombinedAbilities;
+import io.openems.edge.controller.evse.single.EvseSingleState;
 import io.openems.edge.controller.evse.single.Params;
-import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.energy.optimizer.Optimizer;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
@@ -88,16 +88,18 @@ public class EnergySchedulerImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("meta", new DummyMeta()//
-						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(clock)//
-								.add(t -> t//
-										.setStart("08:00") //
-										.setDuration(Duration.ofHours(12)) //
-										.addRecurrenceRule(b -> b //
-												.setFrequency(DAILY)) //
-										.setPayload(new GridBuySoftLimit(2000))) //
-								.add(t -> t//
-										.setPayload(new GridBuySoftLimit(6000))) //
-								.build())) //
+						.withGridBuyLimit(l -> l //
+								.setHard(new GridBuyLimit.Hard(0))
+								.setSoft(JSCalendar.Tasks.<GridBuyLimit.Soft>create(clock)//
+										.add(t -> t//
+												.setStart("08:00") //
+												.setDuration(Duration.ofHours(12)) //
+												.addRecurrenceRule(b -> b //
+														.setFrequency(DAILY)) //
+												.setPayload(new GridBuyLimit.Soft(2000))) //
+										.add(t -> t//
+												.setPayload(new GridBuyLimit.Soft(6000))) //
+										.build()))) //
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
@@ -116,7 +118,7 @@ public class EnergySchedulerImplTest {
 										.put("ctrlEvseSingle0", new Params("ctrlEvseSingle0", "evse0",
 												io.openems.edge.controller.evse.single.Mode.FORCE, null, 0, null,
 												new io.openems.edge.controller.evse.single.Types.History(),
-												Hysteresis.INACTIVE, null, false, //
+												EvseSingleState.UNDEFINED, null, //
 												CombinedAbilities.createFrom(//
 														ChargePointAbilities.create().build(),
 														ElectricVehicleAbilities.create().build()) //
@@ -125,7 +127,7 @@ public class EnergySchedulerImplTest {
 										.put("ctrlEvseSingle1", new Params("ctrlEvseSingle1", "evse1",
 												io.openems.edge.controller.evse.single.Mode.FORCE, null, 0, null,
 												new io.openems.edge.controller.evse.single.Types.History(),
-												Hysteresis.INACTIVE, null, false, //
+												EvseSingleState.UNDEFINED, null, //
 												CombinedAbilities.createFrom(//
 														ChargePointAbilities.create().build(),
 														ElectricVehicleAbilities.create().build()) //

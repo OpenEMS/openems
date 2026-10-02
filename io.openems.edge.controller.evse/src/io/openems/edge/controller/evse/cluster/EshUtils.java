@@ -70,9 +70,10 @@ public class EshUtils {
 								period.duration().convertPowerToEnergy(energySetPointRange.maxPowerInWatt()));
 						final int energyInModeMinimum = period.duration()
 								.convertPowerToEnergy(energySetPointRange.minPowerInWatt());
-						final var actualMode = abilities.isReadyForCharging() && !p.appearsToBeFullyCharged() //
-								? scheduledMode //
-								: Mode.ZERO;
+						final var actualMode = abilities.isReadyForCharging()
+								&& !p.history().getAppearsToBeFullyCharged() //
+										? scheduledMode //
+										: Mode.ZERO;
 						return new EnergyDistribution.Entry(p.ctrlSingleId(), csc, scheduledMode, actualMode,
 								energyInModeMinimum, maxEnergy);
 					}) //

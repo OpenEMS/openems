@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +57,26 @@ public class BehaviorSubject<T> {
 	 * 
 	 * @param value New value
 	 */
-	public synchronized void setValue(T value) {
-		this.value = value;
+	public void setValue(T value) {
+		this.updateValue(v -> value);
+	}
+
+	/**
+	 * Updates the current value in the subject by applying the given function to
+	 * the current value. This will change the value returned from getValue() and it
+	 * publishes the new value to all subscribers synchronously.
+	 * 
+	 * @param updateFunction the update function
+	 */
+	public synchronized void updateValue(UnaryOperator<T> updateFunction) {
+		this.value = updateFunction.apply(this.value);
 		this.consumers.forEach(consumer -> {
 			try {
-				consumer.accept(value);
+				consumer.accept(this.value);
 			} catch (Exception ex) {
 				this.log.error("BehaviorSubject Subscriber caused an exception", ex);
 			}
 		});
 	}
+
 }

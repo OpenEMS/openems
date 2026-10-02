@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
-import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -314,17 +313,6 @@ public interface Meta extends ModbusSlave {
 	public int getGridSellHardLimitWithBuffer();
 
 	/**
-	 * Returns the continuous hard limit for Grid-Buy Power in [W].
-	 * 
-	 * <p>
-	 * This value is derived from GridConnectionPointFuseLimit and
-	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
-	 * 
-	 * @return the value
-	 */
-	public int getGridBuyHardLimit();
-
-	/**
 	 * Returns the continuous limit for ESS Discharge-to-Grid Power in [W].
 	 *
 	 * <p>
@@ -336,15 +324,11 @@ public interface Meta extends ModbusSlave {
 	public int getEssDischargeToGridLimit();
 
 	/**
-	 * Returns the {@link GridBuySoftLimit} {@link JSCalendar.Tasks}.
-	 * 
-	 * <p>
-	 * A Schedule for Grid-Buy Soft-Limits. Controllers will try to achieve this
-	 * Soft-Limit, e.g. via Peak-Shaving with an ESS.
-	 * 
-	 * @return JSCalendar Tasks
+	 * Returns the {@link GridBuyLimit}.
+	 *
+	 * @return the {@link GridBuyLimit}.
 	 */
-	public JSCalendar.Tasks<GridBuySoftLimit> getGridBuySoftLimit();
+	GridBuyLimit getGridBuyLimit();
 
 	/**
 	 * Returns whether the user has accepted, declined, or not yet decided on
