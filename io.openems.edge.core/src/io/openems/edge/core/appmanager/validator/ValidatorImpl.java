@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 
@@ -27,7 +29,7 @@ public class ValidatorImpl implements Validator {
 	}
 
 	@Override
-	public List<String> getErrorMessages(//
+	public List<OpenemsNamedException> getNamedExceptions(//
 			final List<CheckableConfig> checkableConfigs, //
 			final Language language, //
 			final boolean returnImmediate //
@@ -35,7 +37,7 @@ public class ValidatorImpl implements Validator {
 		if (checkableConfigs.isEmpty()) {
 			return emptyList();
 		}
-		final var errorMessages = new ArrayList<String>(checkableConfigs.size());
+		final var checkableErrors = new ArrayList<OpenemsNamedException>(checkableConfigs.size());
 
 		for (var config : checkableConfigs) {
 			try (final var checkable = this.checkableFactory.useCheckable(config.checkableComponentName())) {
@@ -47,27 +49,29 @@ public class ValidatorImpl implements Validator {
 				checkable.setProperties(config.properties());
 				var result = checkable.check();
 				if (result == config.invertResult()) {
-					String errorMessage;
+					var checkableError = new ArrayList<OpenemsNamedException>();
 					try {
-						errorMessage = config.invertResult() ? checkable.getInvertedErrorMessage(language)
-								: checkable.getErrorMessage(language);
+						var error = config.invertResult() ? checkable.getInvertedValidationError(language)
+								: checkable.getValidationError(language);
+						checkableError.add(error);
 					} catch (UnsupportedOperationException e) {
 						this.log.error(
 								"Missing implementation for getting " + (config.invertResult() ? "inverted " : "")
 										+ "error message for check \"" + config.checkableComponentName() + "\"!",
 								e);
-						errorMessage = "Check \"" + config.checkableComponentName() + "\" failed.";
+						checkableError.add(OpenemsError.GENERIC
+								.exception("Check \"" + config.checkableComponentName() + "\" failed."));
 					}
-					errorMessages.add(errorMessage);
+					checkableErrors.addAll(checkableError);
 					if (returnImmediate) {
-						return errorMessages;
+						return checkableErrors;
 					}
 				}
 			} catch (Exception e) {
 				this.log.error("Error while using checkable " + config.checkableComponentName() + "!", e);
 			}
 		}
-		return errorMessages;
+		return checkableErrors;
 	}
 
 }

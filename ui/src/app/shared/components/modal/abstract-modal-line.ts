@@ -76,6 +76,7 @@ export abstract class AbstractModalLine
     /** Selector needed for Subscribe (Identifier) */
     private selector: string = uuidv4();
     private readonly sanitizer = inject(DomSanitizer);
+    private detectChangesIntervalId: ReturnType<typeof setInterval> | null = null;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -87,9 +88,9 @@ export abstract class AbstractModalLine
         private ref: ChangeDetectorRef,
     ) {
         ref.detach();
-        setInterval(() => {
+        this.detectChangesIntervalId = setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection
-        }, 0);
+        }, 100);
     }
 
     /** Name for parameter, displayed on the left side */
@@ -164,6 +165,11 @@ export abstract class AbstractModalLine
     }
 
     public ngOnDestroy() {
+        if (this.detectChangesIntervalId != null) {
+            clearInterval(this.detectChangesIntervalId);
+            this.detectChangesIntervalId = null;
+        }
+
         // Unsubscribe from OpenEMS
         if (this.edge != null) {
             this.edge.unsubscribeChannels(this.websocket, this.selector);

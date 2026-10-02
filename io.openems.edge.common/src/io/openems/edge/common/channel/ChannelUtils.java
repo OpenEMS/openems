@@ -386,6 +386,27 @@ public final class ChannelUtils {
 	}
 
 	/**
+	 * Set next value of a {@link Channel} if the read value is not equal.
+	 *
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the value differs from the current Read-Value.
+	 *
+	 * @param component the {@link OpenemsComponent}
+	 * @param channelId the {@link ChannelId}
+	 * @param value     value to be set
+	 * @throws IllegalArgumentException on error
+	 */
+	public static void setValueIfNotRead(OpenemsComponent component, ChannelId channelId, Object value)
+			throws IllegalArgumentException {
+		final var channel = component.channel(channelId);
+		if (Objects.equals(channel.value().get(), value)) {
+			return;
+		}
+		channel.setNextValue(value);
+	}
+
+	/**
 	 * Set write value of a {@link EnumWriteChannel} if the read value is not equal.
 	 * 
 	 * <p>

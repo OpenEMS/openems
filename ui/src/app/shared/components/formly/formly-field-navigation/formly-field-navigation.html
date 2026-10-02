@@ -7,10 +7,7 @@
         <ion-grid class="ion-no-padding">
           <ion-row class="ion-justify-content-center ion-align-items-center">
             @if (props.attributes.title) {
-              <ion-col>
-                <ion-row class="ion-justify-content-end ion-align-items-end"></ion-row>
-              </ion-col>
-              <ion-col>
+              <ion-col class="ion-full-width ion-padding" size="10">
                 <ion-row class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
                   @if (props.attributes.icon) {
                     <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" [style.color]="props.options[0].icon.color" style="padding-right: 0.2rem"></ion-icon>
@@ -27,11 +24,6 @@
             </ion-col>
           </ion-row>
         </ion-grid>
-        <!-- <ion-grid class="ion-no-padding">
-          <ion-row>
-            <oe-favorite-button  [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'"></oe-favorite-button>
-          </ion-row>
-        </ion-grid> -->
       </ion-toolbar>
     } @else {
       <oe-favorite-button></oe-favorite-button>
@@ -45,7 +37,7 @@
               @for (entry of f.props.options; track entry) {
                 @let line = entry.line;
 
-                <div [class]="line.padding ?? ''" style="padding-top: 1%">
+                <oe-formly-wrapper [class]="line.padding ?? ''">
                   @switch (line.type) {
                     @case ("advanced-electricity-meter-line") {
                       <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
@@ -75,13 +67,20 @@
                       <oe-img [img]="line.img"></oe-img>
                     }
 
+                    @case ("navigation-button-line") {
+                      <ion-item button (click)="navigateTo(line.component.id)" onKeyDown="navigateTo(line.component.id)">
+                        <ion-label>{{ line.component.alias || line.component.id }}</ion-label>
+                        <ion-icon name="chevron-forward" slot="end"></ion-icon>
+                      </ion-item>
+                    }
+
                     @case ("button-line") {
                       <oe-modal-line [name]="line.name" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"></oe-modal-line>
                     }
 
                     <!-- OeFormlyField.InfoLine -->
                     @case ("info-line") {
-                      <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html"></oe-modal-info-line>
+                      <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html" [class]="line.cssClass" [link]="line.link"></oe-modal-info-line>
                     }
 
                     <!-- OeFormlyField.HorizontalLine -->
@@ -96,6 +95,10 @@
                     <!-- FormGrouped -->
                     @case ("value-from-form-control-line") {
                       <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [formGroup]="form" [name]="line.name" [control]="{ type: 'TEXT', valueConverter: line.converter }"></oe-modal-line>
+                    }
+
+                    @case ("value-line") {
+                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [value]="line.value" [converter]="line.converter"></oe-modal-line>
                     }
 
                     @case ("radio-buttons-from-form-control-line") {
@@ -172,7 +175,7 @@
                       <oe-stats-line [stats]="line.stats"></oe-stats-line>
                     }
                   }
-                </div>
+                </oe-formly-wrapper>
               }
             }
           }

@@ -41,7 +41,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
-import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -221,9 +221,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		// NOTE gridBuySoftLimit is nullable to handle deprecation of Config
 		// maxChargePowerFromGrid
-		final var gridBuySoftLimit = Optional.ofNullable(this.meta.getGridBuySoftLimit().getActiveOneTask()) //
+		final var gridBuySoftLimit = Optional.ofNullable(this.meta.getGridBuyLimit().soft().getActiveOneTask()) //
 				.map(OneTask::payload) //
-				.map(GridBuySoftLimit::power) //
+				.map(GridBuyLimit.Soft::power) //
 				.orElse(this.config.maxChargePowerFromGrid());
 		final int gridSellHardLimit = this.meta.getGridSellHardLimitWithBuffer();
 

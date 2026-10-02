@@ -76,11 +76,11 @@ public class CheckHomeTest {
 	}
 
 	@Test
-	public void testGetErrorMessage() {
+	public void testGetValidationError() {
 		final var dt = TranslationUtil.enableDebugMode();
 		for (var l : Language.values()) {
-			this.checkHome.getErrorMessage(l);
-			this.checkHome.getInvertedErrorMessage(l);
+			this.checkHome.getValidationError(l);
+			this.checkHome.getInvertedValidationError(l);
 		}
 		assertTrue(dt.getMissingKeys().isEmpty());
 	}

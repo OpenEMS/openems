@@ -41,22 +41,22 @@ class CheckEnergySchedulerV2Test {
 	}
 
 	@Test
-	void testGetErrorMessage_shouldBeAvailable() {
+	void testGetValidationError_shouldBeAvailable() {
 		final var sut = new CheckEnergySchedulerV2(this.componentContext, this.energyScheduler);
 
-		final var errorMessage = sut.getErrorMessage(Language.EN);
+		final var errorMessage = sut.getValidationError(Language.EN);
 
 		assertNotNull(errorMessage);
-		assertFalse(errorMessage.isBlank());
+		assertFalse(errorMessage.getMessage().isBlank());
 	}
 
 	@Test
-	void testGetInvertedErrorMessage_shouldBeAvailable() {
+	void testGetInvertedValidationError_shouldBeAvailable() {
 		final var sut = new CheckEnergySchedulerV2(this.componentContext, this.energyScheduler);
 
-		final var errorMessage = sut.getInvertedErrorMessage(Language.EN);
+		final var errorMessage = sut.getInvertedValidationError(Language.EN);
 
 		assertNotNull(errorMessage);
-		assertFalse(errorMessage.isBlank());
+		assertFalse(errorMessage.getMessage().isBlank());
 	}
 }

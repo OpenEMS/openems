@@ -4,20 +4,17 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.controller.evse.single.Types.History.allReadyForCharging;
-import static io.openems.edge.controller.evse.single.Types.History.allSetPointsAreZero;
-import static io.openems.edge.controller.evse.single.Types.History.noSetPointsAreZero;
+import static io.openems.edge.controller.evse.single.Utils.CHARGE_THRESHOLD_IN_WATT;
 import static java.util.stream.IntStream.rangeClosed;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.math.Quantiles;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
@@ -47,6 +44,12 @@ public class Types {
 		/** Next allowed timestamp for automatic phase switching. */
 		private Instant automaticPhaseSwitchCooldownUntil;
 
+		/**
+		 * The last time a charge state change was triggered by surplus calculation.
+		 * Used to prevent frequent charge status changes with 5min timer.
+		 */
+		private Instant lastChargeStateChangeTriggeredBySurplus;
+
 		public enum AutomaticPhaseSwitchThresholdDirection {
 			ABOVE, BELOW
 		}
@@ -61,25 +64,23 @@ public class Types {
 				int sampleCount) {
 		}
 
-		public record Entry(Integer activePower, int setPoint, Integer setPointWithoutPhaseLimitation,
+		public record Entry(Instant time, Integer activePower, int setPoint, int idealSetPoint,
 				boolean isReadyForCharging) {
 		}
 
 		/**
 		 * Adds a {@link Entry} to {@link History} and clears outdated entries.
 		 * 
-		 * @param now                            the timestamp
-		 * @param setPointWithoutPhaseLimitation the automatic phase-switch set-point
-		 *                                       without phase limitation sample in [W]
-		 * @param activePower                    the measured {@link EvseChargePoint}
-		 *                                       ActivePower
-		 * @param setPointInWatt                 the Set-Point value in [W]
-		 * @param isReadyForCharging             {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}
+		 * @param now                 the timestamp
+		 * @param activePower         the measured {@link EvseChargePoint} ActivePower
+		 * @param setPointInWatt      the Set-Point value in [W]
+		 * @param idealSetPointInWatt the Set-Point without phase limitation and delays
+		 *                            in [W]
+		 * @param isReadyForCharging  {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}
 		 */
-		public synchronized void addEntry(Instant now, Integer activePower, int setPointInWatt,
-				Integer setPointWithoutPhaseLimitation, boolean isReadyForCharging) {
-			this.entries.put(now,
-					new Entry(activePower, setPointInWatt, setPointWithoutPhaseLimitation, isReadyForCharging));
+		public synchronized void addEntry(Instant now, Integer activePower, int setPointInWatt, int idealSetPointInWatt,
+				boolean isReadyForCharging) {
+			this.entries.put(now, new Entry(now, activePower, setPointInWatt, idealSetPointInWatt, isReadyForCharging));
 			this.cleanupAutomaticPhaseSwitchCooldown(now);
 
 			// Clear outdated entries; update entriesFullyInitialized
@@ -90,16 +91,49 @@ public class Types {
 			outdatedEntries.clear();
 
 			// Update AppearsToBeFullyCharged
-			if (activePower != null && activePower > 500 /* [W] threshold */) {
+			if (activePower != null && activePower > CHARGE_THRESHOLD_IN_WATT /* [W] threshold */) {
 				this.appearsToBeFullyCharged = false;
 
 			} else if (this.entriesAreFullyInitialized //
 					&& this.entries.values().stream() //
-							.map(Entry::setPoint) //
-							.allMatch(sp -> sp != 0)) {
+							.allMatch(e -> e.setPoint != 0
+									&& (e.activePower != null && e.activePower < CHARGE_THRESHOLD_IN_WATT))) {
 				// Fully initialized, no set-points are zero but activePower is null/little
 				this.appearsToBeFullyCharged = true;
 			}
+		}
+
+		/**
+		 * Gets entries before the provided timestamp in reverse chronological order
+		 * (latest first).
+		 *
+		 * @param time exclusive upper bound timestamp
+		 * @return entries sorted from newest to oldest
+		 */
+		public synchronized List<Entry> getLastEntriesSince(Instant time) {
+			return this.entries.tailMap(time).entrySet().stream() //
+					.sorted(Map.Entry.<Instant, Entry>comparingByKey().reversed()) //
+					.map(Map.Entry::getValue) //
+					.toList();
+		}
+
+		/**
+		 * Gets the last timestamp when charge state change was triggered by surplus.
+		 *
+		 * @return timestamp of the last surplus-triggered charge state change; null if
+		 *         never triggered
+		 */
+		public Instant getLastChargeStateChangeTriggeredBySurplus() {
+			return this.lastChargeStateChangeTriggeredBySurplus;
+		}
+
+		/**
+		 * Sets the timestamp of the last charge state change triggered by surplus.
+		 *
+		 * @param time timestamp of the surplus-triggered charge state change
+		 */
+		public void setLastChargeStateChangeTriggeredBySurplus(Instant time) {
+			this.lastChargeStateChangeTriggeredBySurplus = time;
 		}
 
 		/**
@@ -198,17 +232,23 @@ public class Types {
 		public synchronized AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationForWindow(
 				Instant now, int thresholdInWatt, AutomaticPhaseSwitchThresholdDirection direction, Duration window,
 				Integer currentSetPointWithoutPhaseLimitation) {
-			final var samples = new ArrayList<>(this.entries //
-					.tailMap(now.minus(window), true) //
-					.values().stream() //
-					.map(Entry::setPointWithoutPhaseLimitation) //
-					.filter(Objects::nonNull) //
-					.toList());
-			if (currentSetPointWithoutPhaseLimitation != null) {
-				samples.add(currentSetPointWithoutPhaseLimitation);
+
+			final var entries = this.getLastEntriesSince(now.minus(window));
+			final var samplesBuilder = ImmutableList.<Integer>builder();
+
+			for (var entry : entries) {
+				if (entry.activePower < CHARGE_THRESHOLD_IN_WATT && entry.idealSetPoint == 0) {
+					break;
+				}
+
+				samplesBuilder.add(entry.idealSetPoint);
 			}
-			return this.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationSamples(samples, thresholdInWatt,
-					direction);
+
+			if (currentSetPointWithoutPhaseLimitation != null) {
+				samplesBuilder.add(currentSetPointWithoutPhaseLimitation);
+			}
+			return this.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationSamples(samplesBuilder.build(),
+					thresholdInWatt, direction);
 		}
 
 		private AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationSamples(
@@ -409,46 +449,6 @@ public class Types {
 			return toStringHelper(History.class) //
 					.add("entries", this.entries.size()) //
 					.toString();
-		}
-	}
-
-	public enum Hysteresis {
-		INACTIVE, KEEP_CHARGING, KEEP_ZERO;
-
-		/**
-		 * Calculates {@link Hysteresis} from {@link History}.
-		 * 
-		 * @param history the {@link History}
-		 * @return the {@link Hysteresis}
-		 */
-		public static Hysteresis from(History history) {
-			final var lastEntry = history.getLastEntry();
-			if (lastEntry == null) {
-				return Hysteresis.INACTIVE;
-			}
-			if (!allReadyForCharging(history.streamAll())) {
-				// Allow charging if EV just became ready
-				return Hysteresis.KEEP_CHARGING;
-			}
-
-			if (lastEntry.getValue().setPoint == 0) {
-				if (allSetPointsAreZero(history.streamAllButLast())) {
-					// All set-points are zero -> Hysteresis finished
-					return Hysteresis.INACTIVE;
-				} else {
-					// Latest set-point is zero; others are not -> KEEP_ZERO
-					return Hysteresis.KEEP_ZERO;
-				}
-
-			} else {
-				if (noSetPointsAreZero(history.streamAllButLast())) {
-					// All set-points are non-zero -> Hysteresis finished
-					return Hysteresis.INACTIVE;
-				} else {
-					// Latest set-point is non-zero; others are not -> KEEP_CHARGING
-					return Hysteresis.KEEP_CHARGING;
-				}
-			}
 		}
 	}
 

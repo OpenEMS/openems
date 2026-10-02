@@ -84,6 +84,11 @@ export class NavigationService {
             return false;
         }
 
+        // Check for writable Heat components
+        if (NavigationService.hasWritableHeatComponents(config)) {
+            return true;
+        }
+
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
         return config.hasFactories([
             "Evse.Controller.Single",
@@ -206,6 +211,23 @@ export class NavigationService {
             favoritesNode.children = favoriteChildren;
         }
         return navigationTree;
+    }
+
+    /**
+     * Checks if the configuration contains writable Heat.Askoma or Heat.MyPv components.
+     *
+     * @param config The EdgeConfig to check
+     * @returns True if at least one writable Heat component is found (readOnly: false)
+     */
+    private static hasWritableHeatComponents(config: EdgeConfig): boolean {
+        const heatComponents = Object.values(config.components).filter(
+            (component) => component.factoryId === "Heat.Askoma" || component.factoryId === "Heat.MyPv",
+        );
+
+        return heatComponents.some((component) => {
+            const readOnly = component.properties["readOnly"];
+            return readOnly === false || readOnly === "false";
+        });
     }
 
     private static matchesNavigationUrl(node: NavigationTree, url: string): boolean {

@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.CheckableFactory.ClosableCheckable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
@@ -84,26 +86,26 @@ public class CheckOr extends AbstractCheckable implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckOr.Message",
-				this.getCheck1ErrorMessage(language), this.getCheck2ErrorMessage(language));
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_OR.exception(language, this.getCheck1ErrorMessage(language),
+				this.getCheck2ErrorMessage(language));
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 
 	private String getCheck1ErrorMessage(Language language) {
 		return this.check1Config.invertResult() //
-				? this.check1.getInvertedErrorMessage(language)
-				: this.check1.getErrorMessage(language);
+				? this.check1.getInvertedValidationError(language).getMessage()
+				: this.check1.getValidationError(language).getMessage();
 	}
 
 	private String getCheck2ErrorMessage(Language language) {
 		return this.check2Config.invertResult() //
-				? this.check2.getInvertedErrorMessage(language)
-				: this.check2.getErrorMessage(language);
+				? this.check2.getInvertedValidationError(language).getMessage()
+				: this.check2.getValidationError(language).getMessage();
 	}
 
 }

@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.controller.evse.single.Types.Hysteresis;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.Profile;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
@@ -57,9 +55,8 @@ class ControllerEvseSingleImplTest {
 		assertEquals(0, params.sessionEnergy());
 		assertEquals(10000, params.sessionEnergyLimit().intValue());
 		assertEquals(0, params.history().streamAll().count());
-		assertEquals(Hysteresis.INACTIVE, params.hysteresis());
 		assertEquals(PhaseSwitching.DISABLE, params.phaseSwitching());
-		assertFalse(params.appearsToBeFullyCharged());
+		assertFalse(params.history().getAppearsToBeFullyCharged());
 	}
 
 	@Test
@@ -74,7 +71,7 @@ class ControllerEvseSingleImplTest {
 				.build();
 		var actions = ChargePointActions.from(abilities) //
 				.setApplySetPointInMilliAmpere(6000) //
-				.setSetPointWithoutPhaseLimitation(7000) //
+				.setIdealSetPointInWatt(7000) //
 				.build();
 
 		sut.ctrlSingle().addHistoryEntry(actions);
@@ -101,7 +98,7 @@ class ControllerEvseSingleImplTest {
 
 		assertEquals(Mode.FORCE.getValue(),
 				sut.ctrlSingle().channel(ControllerEvseSingle.ChannelId.ACTUAL_MODE).getNextValue().get());
-		assertEquals(State.EV_NOT_CONNECTED.getValue(),
+		assertEquals(EvseSingleState.EV_NOT_CONNECTED.getValue(),
 				sut.ctrlSingle().channel(ControllerEvseSingle.ChannelId.STATE_MACHINE).getNextValue().get());
 
 		assertNull(sut.chargePoint().getLastChargePointActions());

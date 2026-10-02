@@ -59,6 +59,19 @@
           </oe-modal-buttons>
         }
       }
+      @if (showKEBAwarining) {
+        @if (formGroup.controls["minGuarantee"].value !== true) {
+          <oe-modal-info-line
+            [info]="[
+              {
+                text: translate.instant('EDGE.INDEX.WIDGETS.EVCS.KEBA_WARNING'),
+                lineStyle: 'color:#d32f2f; font-size:0.85em; padding:6px 12px; border:1px solid #d32f2f; border-radius:4px;',
+              },
+            ]"
+            [link]="{ text: translate.instant('EDGE.INDEX.WIDGETS.EVCS.LINK_TO_DOCUMENTATION'), href: 'https://docs.intranet.fenecon.de/feature/how_to_restart_KEBA_P40/fenecon/de/emobility/Installationsanleitung_KEBA_P40.html#_kommunikationsausfall_zwischen_keba_p40p40_pro_und_fems' }"
+          ></oe-modal-info-line>
+        }
+      }
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       @if (controller) {
         <!--Force Charge settings-->
@@ -83,6 +96,7 @@
           </ng-container>
           <oe-modal-horizontal-line></oe-modal-horizontal-line>
         }
+
         <!--Excess Power settings-->
         @if (formGroup.value.chargeMode === "EXCESS_POWER") {
           <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.MIN_CHARGING' | translate" [formGroup]="formGroup" controlName="minGuarantee" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"></oe-modal-line>
