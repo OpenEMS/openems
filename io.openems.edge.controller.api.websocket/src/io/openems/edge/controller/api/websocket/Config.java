@@ -26,5 +26,23 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
+	@AttributeDefinition(name = "External Authentication", description = "Allows authentication from trusted reverse proxy headers.")
+	boolean externalAuthEnabled() default false;
+
+	@AttributeDefinition(name = "External Authentication Trusted Proxy CIDRs", description = "IPv4 CIDR ranges that may provide external authentication headers, e.g. 127.0.0.1/32.")
+	String[] externalAuthTrustedProxyCidrs() default {};
+
+	@AttributeDefinition(name = "External Authentication User-ID Header", description = "HTTP header that contains the externally authenticated user id.")
+	String externalAuthUserIdHeader() default "X-OpenEMS-User";
+
+	@AttributeDefinition(name = "External Authentication User-Name Header", description = "HTTP header that contains the externally authenticated display name.")
+	String externalAuthUserNameHeader() default "X-OpenEMS-Name";
+
+	@AttributeDefinition(name = "External Authentication Role Header", description = "HTTP header that contains the OpenEMS role for the externally authenticated user.")
+	String externalAuthRoleHeader() default "X-OpenEMS-Role";
+
+	@AttributeDefinition(name = "External Authentication Default Role", description = "OpenEMS role for externally authenticated users if no role header is present.")
+	String externalAuthDefaultRole() default "guest";
+
 	String webconsole_configurationFactory_nameHint() default "Controller Api Websocket [{id}]";
 }
