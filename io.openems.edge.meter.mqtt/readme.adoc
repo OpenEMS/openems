@@ -1,0 +1,55 @@
+= Meter MQTT
+
+Generic, config-driven electricity meter that maps a flat JSON MQTT payload to standard `ElectricityMeter` channels.
+
+== Overview
+
+This bundle subscribes to a single MQTT topic through the OpenEMS MQTT bridge and, on each received message, parses a flat JSON object and applies a configured list of field-to-channel mappings. No field names, device model, or production/consumption direction are hardcoded; everything is expressed through configuration, so one component can serve 1- or 3-phase meters from any vendor that publishes JSON over MQTT.
+
+== Components
+
+=== <<_meter_mqtt,Meter MQTT>>
+
+*Name*: Meter MQTT
+
+*Factory-PID*: `Meter.Mqtt`
+
+.Implemented Natures/Interfaces
+* MeterMqtt
+* ElectricityMeter
+* OpenemsComponent
+* MqttComponent
+
+*Description*: Subscribes to a configured MQTT topic and maps a flat JSON payload to `ElectricityMeter` channels. Configuration is done through the OpenEMS UI or the Apache Felix Web Console; no example configuration is shipped.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION_METERED (default: CONSUMPTION_METERED). This sets the direction: `PRODUCTION` marks the meter as generating, `CONSUMPTION_METERED`/`GRID` as consuming
+* `phaseRotation` (Enum): Physical rotation of the phases (default: L1_L2_L3)
+* `mqttBridgeId` (String): ID of the MQTT bridge component (default: "mqtt0")
+* `topic` (String): The MQTT topic filter to subscribe to
+* `mapping` (String[]): One entry per mapped value, formatted as `jsonField:CHANNEL:scale`, where `CHANNEL` is an `ElectricityMeter` Channel-ID and `scale` is a numeric factor applied to the raw JSON value
+
+*Mapping format*: each entry is `jsonField:CHANNEL:scale`.
+
+* `jsonField` - the field name to read from the flat JSON payload
+* `CHANNEL` - an `ElectricityMeter` Channel-ID (e.g. `ACTIVE_POWER`, `VOLTAGE`)
+* `scale` - a numeric factor applied to the raw value (e.g. `1000` converts Volt to Millivolt). A *negative* scale *inverts* the value, so a meter wired in reverse can be corrected per-channel (e.g. `PhW:ACTIVE_POWER:-1`). Combined with `type()` (which sets PRODUCTION vs CONSUMPTION), this covers both the sign and the direction of every mapped value.
+
+Energy channels are of type `Long`; all other channels are of type `Integer`. The target type is detected from the Channel, so scaled values are cast to `long` for energy channels and rounded to `int` otherwise.
+
+.*Mapping example*:
+----
+PhW:ACTIVE_POWER:1
+PhV:VOLTAGE:1000
+PhA:CURRENT:1000
+Var:REACTIVE_POWER:1
+Hz:FREQUENCY:1000
+TotWhImport:ACTIVE_CONSUMPTION_ENERGY:1
+----
+
+[[_meter_mqtt]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.mqtt[Source Code icon:github[]]
