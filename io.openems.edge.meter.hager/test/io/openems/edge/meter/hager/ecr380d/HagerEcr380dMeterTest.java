@@ -2,15 +2,22 @@ package io.openems.edge.meter.hager.ecr380d;
 
 import static io.openems.edge.meter.hager.ecr380d.HagerEcr380dMeter.DEVICE_START_ADDRESS;
 import static io.openems.edge.meter.hager.ecr380d.HagerEcr380dMeter.INSTANTANEOUS_MEASURES_START_ADDRESS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -29,6 +36,7 @@ public class HagerEcr380dMeterTest {
 			.build();
 
 	private ComponentTest componentTest;
+	private HagerEcr380dMeterImpl sut;
 
 	@Before
 	public void before() throws Exception {
@@ -76,19 +84,19 @@ public class HagerEcr380dMeterTest {
 						0x0000 // PF_L3_IEEE
 				) //
 				.withRegisters(HagerEcr380dMeter.ENERGY_START_ADDRESS | 0x0000, //
-						0x0098, 0x967F, // ACTIVE_CONSUMPTION_ENERGY
+						0x0098, 0x967F, // EA_PLUS_SUM -> ACTIVE_PRODUCTION_ENERGY
 						0x0032, 0xDCD5, // ER_PLUS_SUM
-						0x0009, 0xFBF1, // ACTIVE_PRODUCTION_ENERGY
+						0x0009, 0xFBF1, // EA_MINUS_SUM -> ACTIVE_CONSUMPTION_ENERGY
 						0x0012, 0xD687, // ER_MINUS_SUM
 						0x0023, 0xCACE, // EA_PLUS_DETAILED_SUM
 						0x0011, 0x201E) // EA_MINUS_DETAILED_SUM
 				.withRegisters(HagerEcr380dMeter.ENERGY_PER_PHASE_START_ADDRESS | 0x0000, //
-						0x0098, 0x961B, // ACTIVE_CONSUMPTION_ENERGY_L1
-						0x0098, 0x95B7, // ACTIVE_CONSUMPTION_ENERGY_L2
-						0x0098, 0x9553, // ACTIVE_CONSUMPTION_ENERGY_L3
-						0x0098, 0x9297, // ACTIVE_PRODUCTION_ENERGY_L1
-						0x0098, 0x8EAF, // ACTIVE_PRODUCTION_ENERGY_L2
-						0x0098, 0x8AC7, // ACTIVE_PRODUCTION_ENERGY_L3
+						0x0098, 0x961B, // EA_PLUS_L1 -> ACTIVE_PRODUCTION_ENERGY_L1
+						0x0098, 0x95B7, // EA_PLUS_L2 -> ACTIVE_PRODUCTION_ENERGY_L2
+						0x0098, 0x9553, // EA_PLUS_L3 -> ACTIVE_PRODUCTION_ENERGY_L3
+						0x0098, 0x9297, // EA_MINUS_L1 -> ACTIVE_CONSUMPTION_ENERGY_L1
+						0x0098, 0x8EAF, // EA_MINUS_L2 -> ACTIVE_CONSUMPTION_ENERGY_L2
+						0x0098, 0x8AC7, // EA_MINUS_L3 -> ACTIVE_CONSUMPTION_ENERGY_L3
 						0x0010, 0xF703, // ER_PLUS_L1
 						0x0010, 0xF69F, // ER_PLUS_L2
 						0x0010, 0xF63B, // ER_PLUS_L2
@@ -104,7 +112,8 @@ public class HagerEcr380dMeterTest {
 		this.withRegister(bridge, DEVICE_START_ADDRESS | 0x0064, "12345678                        ");
 		this.withRegister(bridge, DEVICE_START_ADDRESS | 0x0074, "DE  ");
 
-		this.componentTest = new ComponentTest(new HagerEcr380dMeterImpl()) //
+		this.sut = new HagerEcr380dMeterImpl();
+		this.componentTest = new ComponentTest(this.sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", bridge);
 	}
@@ -115,6 +124,7 @@ public class HagerEcr380dMeterTest {
 			this.componentTest.deactivate();
 		}
 		this.componentTest = null;
+		this.sut = null;
 	}
 
 	@Test
@@ -189,9 +199,11 @@ public class HagerEcr380dMeterTest {
 		this.componentTest //
 				.activate(CONFIG) //
 				.next(new TestCase()//
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 9999999000L) //
+						// Ea+ (imported from grid) is the integral of positive ActivePower and
+						// therefore maps to ACTIVE_PRODUCTION_ENERGY; Ea- to ACTIVE_CONSUMPTION_ENERGY
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 9999999000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_PLUS_SUM, 3333333000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 654321000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 654321000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_MINUS_SUM, 1234567000L) //
 						.output(HagerEcr380dMeter.ChannelId.EA_PLUS_DETAILED_SUM, 2345678000L) //
 						.output(HagerEcr380dMeter.ChannelId.EA_MINUS_DETAILED_SUM, 1122334000L)) //
@@ -203,12 +215,12 @@ public class HagerEcr380dMeterTest {
 		this.componentTest //
 				.activate(CONFIG) //
 				.next(new TestCase()//
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 9999899000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 9999799000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 9999699000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 9998999000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 9997999000L) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 9996999000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 9999899000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, 9999799000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, 9999699000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, 9998999000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, 9997999000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, 9996999000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_PLUS_L1, 1111811000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_PLUS_L2, 1111711000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_PLUS_L3, 1111611000L) //
@@ -216,6 +228,51 @@ public class HagerEcr380dMeterTest {
 						.output(HagerEcr380dMeter.ChannelId.ER_MINUS_L2, 5555755000L) //
 						.output(HagerEcr380dMeter.ChannelId.ER_MINUS_L3, 5555655000L)) //
 				.deactivate();
+	}
+
+	/**
+	 * The Nature table must be gapless (the builder rejects non-contiguous offsets),
+	 * every Channel must appear exactly once and the {@link ModbusType} must match
+	 * the width of the Channel's {@link OpenemsType}.
+	 */
+	@Test
+	public void testModbusSlaveTable() throws Exception {
+		this.componentTest.activate(CONFIG);
+
+		final var natureTable = Stream
+				.of(this.sut.getModbusSlaveTable(AccessMode.READ_ONLY).getNatureTables()) //
+				.filter(t -> t.getNatureClass() == HagerEcr380dMeter.class) //
+				.findFirst().orElseThrow();
+
+		final var records = natureTable.getModbusRecords();
+
+		// No Channel is mapped twice
+		final var channelIds = Stream.of(records) //
+				.filter(ModbusRecordChannel.class::isInstance) //
+				.map(r -> ((ModbusRecordChannel) r).getChannelId()) //
+				.toList();
+		assertEquals(channelIds.size(), Set.copyOf(channelIds).size());
+
+		// ModbusType width matches the Channel type
+		for (var record : records) {
+			if (record instanceof ModbusRecordChannel channelRecord) {
+				final var channelId = (HagerEcr380dMeter.ChannelId) channelRecord.getChannelId();
+				final var expected = switch (channelId.doc().getType()) {
+				case INTEGER -> ModbusType.UINT32;
+				case LONG -> ModbusType.UINT64;
+				default -> throw new IllegalStateException("Unexpected type for " + channelId.id());
+				};
+				assertEquals("wrong ModbusType for " + channelId.id(), expected, record.getType());
+			}
+		}
+
+		// Records are gapless and fit the declared Nature length
+		var offset = 0;
+		for (var record : records) {
+			assertEquals("gap or overlap before offset " + record.getOffset(), offset, record.getOffset());
+			offset += record.getType().getWords();
+		}
+		assertEquals(natureTable.getLength(), offset);
 	}
 
 	private void withRegister(DummyModbusBridge bridge, int address, String value) {
