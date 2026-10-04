@@ -7,19 +7,23 @@ import { JsonRpcUtils } from "../jsonrpcutils";
 /**
  * Represents a JSON-RPC Request to query Historic Timeseries Data.
  *
- * <pre>
+ * ```json
  * {
  *   "jsonrpc": "2.0",
- *   "id": UUID,
+ *   "id": "UUID",
  *   "method": "queryHistoricTimeseriesData",
  *   "params": {
- *     "timezone": String,
- *     "fromDate": YYYY-MM-DD,
- *     "toDate": YYYY-MM-DD,
- *     "channels": ChannelAddress[]
+ *     "timezone": "Europe/Berlin",
+ *     "fromDate": "YYYY-MM-DD",
+ *     "toDate": "YYYY-MM-DD",
+ *     "channels": string[],
+ *     "resolution": {
+ *       "value": Number,
+ *       "unit": String
+ *     }
  *   }
  * }
- * </pre>
+ * ```
  */
 export class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 
