@@ -231,25 +231,49 @@
 		</dependency>
 		<!-- eu -->
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP OCPP Common Package
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>ocpp-common</artifactId>
 			<version>2.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP 1.6 with JSON transport
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>ocpp-json</artifactId>
 			<version>2.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP OCPP 1.6J
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>ocpp16j</artifactId>
 			<version>2.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP 1.6 base dependency package
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
 			<artifactId>ocpp16</artifactId>
 			<version>2.0</version>
