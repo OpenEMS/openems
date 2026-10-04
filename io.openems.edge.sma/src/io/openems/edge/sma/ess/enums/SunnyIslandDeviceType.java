@@ -7,10 +7,9 @@ import io.openems.common.types.OptionsEnum;
  * ("Device type").
  *
  * <p>
- * The generation -11 does not provide register 30231 ("Maximum active
- * power device"). For these types a fixed maximum apparent power of one device
- * is defined. All other types provide the register and have no fixed value
- * (null).
+ * The generation -11 does not provide register 30231 ("Maximum active power
+ * device"). For these types a fixed maximum apparent power of one device is
+ * defined. All other types provide the register and have no fixed value (null).
  *
  * <p>
  * The values are per device. For a three-phase Master/Slave cluster the caller
