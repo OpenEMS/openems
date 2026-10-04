@@ -1,6 +1,6 @@
-import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy, signal, Type } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { IonInput } from "@ionic/angular";
+import { IonInput, IonRange } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -14,7 +14,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { Stat } from "../stats/stats";
@@ -24,14 +24,15 @@ import { Filter } from "./filter";
 
 @Directive()
 export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy {
+    protected readonly fields = signal<FormlyFieldConfig[]>([]);
+    protected readonly form = signal<FormGroup>(new FormGroup({}));
+    protected readonly view = signal<OeFormlyView<T> | null>(null);
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
     protected readonly navigationService: NavigationService = inject(NavigationService);
     protected readonly routeService: RouteService = inject(RouteService);
     protected SKIP_COUNT: number = 2;
     protected dataService: DataService;
-    protected fields: FormlyFieldConfig[] = [];
-    protected form: FormGroup = new FormGroup({});
     protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" | "formly-field-waiting-spinner" =
         "formly-field-modal";
 
@@ -41,7 +42,6 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     protected skipCurrentData: boolean = false;
     private injector: Injector = inject(Injector);
     private subscription: EffectRef | null = null;
-    private view: OeFormlyView<T> | null = null;
 
     constructor() {
         this.initializeView();
@@ -75,9 +75,9 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                         config: config,
                         translate: this.translate,
                     });
-                    this.view = view;
-                    this.form = this.getFormGroup();
-                    this.setFields(view, this.form, websocket);
+                    this.view.set(view);
+                    this.form.set(this.getFormGroup());
+                    this.setFields(view, this.form(), websocket);
                 });
         });
 
@@ -91,7 +91,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     ionViewWillEnter() {
-        this.navigationService.headerTitle.set(this.view?.isCommonWidget ? this.view.title : null);
+        this.navigationService.headerTitle.set(this.view()?.isCommonWidget ? this.view()!.title : null);
     }
 
     ionViewWillLeave() {
@@ -103,6 +103,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         this.initializeView();
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
+        this.subscription?.destroy();
         this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());
     }
 
@@ -122,15 +123,37 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
+     * Gets the current edge
+     *
+     * @returns {@link Edge} The current edge
+     */
+    protected getEdge(): Edge {
+        const edge = this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        return edge;
+    }
+
+    /**
+     * Gets the config from current edge
+     *
+     * @returns {@link EdgeConfig} The Config from the current Edge
+     */
+    protected getConfig(): EdgeConfig {
+        const edge = this.getEdge();
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        return config;
+    }
+
+    /**
      * Gets the component from the route params
      *
      * @returns {@link EdgeConfig.Component} The Component from the route params
      */
     protected getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
+        const config = this.getConfig();
         const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 
@@ -282,7 +305,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         if (currFormControlValue != null && prevFormControlValue !== currFormControlValue) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
-            this.form = fg;
+            this.form.set(fg);
         }
     }
 
@@ -307,20 +330,20 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         if (currFormControlValue != null && prevFormControlValue !== currFormControlValue) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
-            this.form = fg;
+            this.form.set(fg);
         }
     }
 
     /** Initializes the view with empty lines and shows progress spinner. */
     private initializeView() {
-        this.form = new FormGroup({});
-        this.fields = [];
-        this.view = {
+        this.form.set(new FormGroup({}));
+        this.fields.set([]);
+        this.view.set({
             component: new EdgeConfig.Component(),
             lines: [],
             title: "",
-        };
-        this.setFields(this.view, this.form, this.service.websocket, "formly-field-waiting-spinner");
+        });
+        this.setFields(this.view()!, this.form(), this.service.websocket, "formly-field-waiting-spinner");
     }
 
     private setFields(
@@ -331,7 +354,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
             .formlyWrapper,
     ) {
         this.ionViewWillEnter();
-        this.fields = [
+        this.fields.set([
             {
                 fieldGroup: view.lines.map((el, index) => {
                     return {
@@ -395,7 +418,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                     },
                 },
             },
-        ];
+        ]);
     }
 
     /**
@@ -462,7 +485,12 @@ export type OeFormlyField<T = any> = (
     /** Executes a applyable if according name field exists for this line type */
     nameCallback?: (field: T) => string;
     style?: AbstractModalLine["lineStyle"];
-    cssClass?: "ion-padding-top" | "ion-padding-bottom" | "ion-padding-left" | "ion-padding-right";
+    cssClass?:
+        | "ion-padding-top"
+        | "ion-padding-bottom"
+        | "ion-padding-left"
+        | "ion-padding-right"
+        | "ion-text-font-style-italic";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -493,6 +521,7 @@ export namespace OeFormlyField {
         name?: string | { text: string; lineStyle?: string }[];
         html?: string;
         icon?: Icon;
+        link?: { text: string; href: string };
     };
 
     export type ImageLine = {
@@ -573,12 +602,23 @@ export namespace OeFormlyField {
         buttons: ButtonLabel[];
     };
 
-    export type RangeLineProperties = Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+    export type RangeLineProperties = Partial<{
+        tickMin: number;
+        tickMax: number;
+        tickMaxControlName?: string;
+        tickFormatter?: IonRange["pinFormatter"];
+        unit: "H" | string;
+        keepValue?: boolean; // keeps the value as is without conversion (e.g. / 1000 for kWh or kW)
+        step?: number;
+        pinFormatter: IonRange["pinFormatter"];
+        label?: IonRange["label"];
+        snaps?: boolean;
+    }>;
 
     export type RangeButtonFromFormControlLine = {
         type: "range-button-from-form-control-line";
         controlName: string;
-        properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+        properties: RangeLineProperties;
     };
 
     export type DualKnobRangeButtonFromFormControlLine = {

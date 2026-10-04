@@ -805,6 +805,10 @@ public class AppDef<APP extends OpenemsApp, //
 		return this.self();
 	}
 
+	public final boolean isRequired() {
+		return this.required;
+	}
+
 	/**
 	 * Appends the given predicates and collections them into one which checks that
 	 * every predicate returns true to determine if the current field should be

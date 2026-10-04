@@ -14,8 +14,10 @@ import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities
 
 public final class Utils {
 
-	protected static final int FORCE_CHARGE_POWER = 11000; // [W]
-	protected static final int MIN_CHARGE_POWER = 4600; // [W]
+	/**
+	 * Min threshold when we assume that the charging station is charging a car.
+	 */
+	public static final int CHARGE_THRESHOLD_IN_WATT = 500;
 
 	private Utils() {
 	}
@@ -100,12 +102,5 @@ public final class Utils {
 			}
 		}
 		};
-	}
-
-	protected static boolean isSessionLimitReached(Mode mode, Integer energy, int limit) {
-		if (energy != null && limit > 0 && energy >= limit) {
-			return true;
-		}
-		return false;
 	}
 }

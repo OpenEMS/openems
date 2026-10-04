@@ -180,8 +180,20 @@ public class AbstractOpenemsBackendComponent {
 	 * @return a Logger instance
 	 */
 	public static Logger getComponentLogger(AbstractOpenemsBackendComponent component) {
+		return getComponentLogger(component.getClass(), component);
+	}
+
+	/**
+	 * Creates a Logger for the given component, that prefixes all log messages with
+	 * the component's name.
+	 *
+	 * @param clazz     the class for which the Logger should be created
+	 * @param component the component for which the Logger should be created
+	 * @return a Logger instance
+	 */
+	public static Logger getComponentLogger(Class<?> clazz, AbstractOpenemsBackendComponent component) {
 		Objects.requireNonNull(component, "component is null");
-		return new LazyContextLogger(component.getClass(), component::getName);
+		return new LazyContextLogger(clazz, component::getName);
 	}
 
 }

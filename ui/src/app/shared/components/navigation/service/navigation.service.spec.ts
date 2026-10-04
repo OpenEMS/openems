@@ -105,7 +105,8 @@ describe("NavigationService", () => {
 
     let service: jasmine.SpyObj<Service>;
     const edgeConfig: (components: TComponent[]) => EdgeConfig = (components: TComponent[] = []) =>
-        DummyConfig.from(...dummConfigComponents.concat(components));
+    DummyConfig.from(...dummConfigComponents.concat(components));
+    let harness: RouterTestingHarness;
 
     beforeEach(async () => {
         service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {});
@@ -126,6 +127,7 @@ describe("NavigationService", () => {
         }).compileComponents();
         platFormService = TestBed.inject(PlatFormService);
         translateService = TestBed.inject(TranslateService);
+        harness = await RouterTestingHarness.create();
     });
 
     describe("+areIdsUnique", () => {
@@ -173,7 +175,6 @@ describe("NavigationService", () => {
 
     describe("are all navigation tree routerLink existing in predefined routes", () => {
         it("all routes are existing", async () => {
-            const harness = await RouterTestingHarness.create();
 
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig([]));
@@ -186,13 +187,11 @@ describe("NavigationService", () => {
             );
 
             await testRoutes(navigationTree, harness);
-        }, 2000 /* Timeout for angular application to get stable*/);
+        });
     });
 
     describe("are all navigation tree routerLink existing in favorites routes", () => {
         it("all routes are existing", async () => {
-            const harness = await RouterTestingHarness.create();
-
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig([]));
             const baseNavigationTree = await NavigationService.createNavigationTree(
@@ -215,7 +214,7 @@ describe("NavigationService", () => {
             );
 
             await testRoutes(updatedNavigationTree, harness);
-        }, 2000 /* Timeout for angular application to get stable*/);
+        });
     });
 });
 

@@ -25,6 +25,7 @@ import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
+import { FormlyWrapperComponent } from "./components/formly/formly-field-navigation/wrapper/wrapper.component";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
@@ -54,6 +55,7 @@ import { PercentageBarComponent } from "./components/percentagebar/percentagebar
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { TimeLineComponent } from "./components/picktime/picktime.component";
+import { RangeSliderComponent } from "./components/range-slider/range-slider";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
@@ -213,6 +215,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         DualKnobSliderComponent,
+        RangeSliderComponent,
         FormlyModule.forRoot({
             wrappers: [
                 {
@@ -327,6 +330,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyWrapperComponent,
     ],
     declarations: [
         AppHeaderComponent,

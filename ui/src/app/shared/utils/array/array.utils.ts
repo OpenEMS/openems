@@ -58,7 +58,7 @@ export namespace ArrayUtils {
      * @param fn To get a string to sort by
      * @returns Sorted array
      */
-    export function sortedAlphabetically<T>(array: T[], fn: (arg: T) => string = () => ""): T[] {
+    export function sortedAlphabetically<T>(array: T[], fn: (arg: T) => string | null | undefined = () => ""): T[] {
         return array.sort((a: T, b: T) => {
             const aVal = fn(a);
             const bVal = fn(b);
@@ -196,6 +196,13 @@ export namespace ArrayUtils {
         }
 
         return duplicates;
+    }
+
+    export function getFirstSafely<T>(array: T[]): T | null {
+        if (array == null || array.length < 1) {
+            return null;
+        }
+        return array[0];
     }
 
     export namespace ReducerFunctions {

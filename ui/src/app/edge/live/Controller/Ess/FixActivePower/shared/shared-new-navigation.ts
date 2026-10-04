@@ -66,13 +66,13 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
         AssertionUtils.assertIsDefined(component);
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_MODE),
         );
 
-        if (this.skipCurrentData || this.form.dirty || this.form.touched) {
+        if (this.skipCurrentData || this.form().dirty || this.form().touched) {
             return;
         }
 
@@ -83,11 +83,11 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
         }
 
         const direction: PowerDirection = signedPower < 0 ? "CHARGE" : "DISCHARGE";
-        this.setFormControlSafelyWithValue(this.form, "powerDirection", direction);
-        this.setFormControlSafelyWithValue(this.form, "power", Math.abs(signedPower));
+        this.setFormControlSafelyWithValue(this.form(), "powerDirection", direction);
+        this.setFormControlSafelyWithValue(this.form(), "power", Math.abs(signedPower));
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "chargeOncePower",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_CHARGE_ONCE_POWER),
@@ -101,20 +101,20 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
                 ).toString()
             ] ?? null;
         this.setFormControlSafelyWithValue(
-            this.form,
+            this.form(),
             "chargeOnceTargetSocEnable",
             chargeOnceTargetSocEnableRaw != null ? chargeOnceTargetSocEnableRaw === 1 : null,
         );
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "chargeOnceTargetSoc",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_CHARGE_ONCE_TARGET_SOC),
         );
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "dischargeOncePower",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_DISCHARGE_ONCE_POWER),
@@ -128,13 +128,13 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
                 ).toString()
             ] ?? null;
         this.setFormControlSafelyWithValue(
-            this.form,
+            this.form(),
             "dischargeOnceTargetSocEnable",
             dischargeOnceTargetSocEnableRaw != null ? dischargeOnceTargetSocEnableRaw === 1 : null,
         );
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "dischargeOnceTargetSoc",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_DISCHARGE_ONCE_TARGET_SOC),
@@ -143,7 +143,7 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
         const meta = new MetaComponent(this.service.currentEdge().getCurrentConfig());
         if (meta != null) {
             this.setFormControlSafelyWithChannel(
-                this.form,
+                this.form(),
                 "isEssChargeToGridAllowed",
                 currentData,
                 new ChannelAddress(
@@ -153,7 +153,7 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
             );
 
             this.setFormControlSafelyWithChannel(
-                this.form,
+                this.form(),
                 "isEssDischargeToGridAllowed",
                 currentData,
                 new ChannelAddress(

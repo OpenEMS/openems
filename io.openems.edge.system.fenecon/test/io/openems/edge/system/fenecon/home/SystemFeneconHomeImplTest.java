@@ -5,14 +5,11 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.test.TimeLeapClock;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -42,10 +39,9 @@ public class SystemFeneconHomeImplTest {
 
 	@Test
 	public void testProcess() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = TestUtils.createDummyClock();
 		final var io = new DummyCustomInputOutput("io1", "Digital_Output", 1, 3);
 		final var componentManager = new DummyComponentManager(clock);
-		componentManager.addComponent(io);
 		new ComponentTest(new SystemFeneconHomeImpl()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", this.sum) //

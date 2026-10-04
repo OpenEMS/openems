@@ -4,15 +4,29 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
 /**
  * Represents a JSON-RPC Request for 'getAppInstances'.
  *
- * @typedef {"jsonrpc": "2.0",
+ * Request:
+ *
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": "getAppInstances",
  *   "params": {
  *     "appId": string
- *   }} Request
+ *   }
+ * }
+ * ```
  *
+ * Response:
  *
- * @typedef {"jsonrpc": "2.0", "id": "UUID", "alias": "alias", "result": { "instances": AppInstance[] }} Response
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "alias": "alias",
+ *   "result": { "instances": AppInstance[] }
+ * }
+ * ```
  */
 export namespace GetAppInstances {
     export const METHOD: string = "getAppInstances";

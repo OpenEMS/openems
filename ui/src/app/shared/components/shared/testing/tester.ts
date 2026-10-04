@@ -12,7 +12,7 @@ import { HistoryUtils } from "src/app/shared/utils/utils";
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
 import { ButtonLabel } from "../../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../../modal/modal-line/modal-line";
+import { TextIndentation } from "../../modal/modal-line/modal-line";
 import { OeImageComponent } from "../../oe-img/oe-img";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
@@ -524,7 +524,7 @@ export namespace OeFormlyViewTester {
             type: "range-button-from-form-control-line";
             controlName: string;
             expectedValue: T;
-            properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+            properties: OeFormlyField.RangeLineProperties;
         };
         export type ImageLine = {
             type: "image-line";

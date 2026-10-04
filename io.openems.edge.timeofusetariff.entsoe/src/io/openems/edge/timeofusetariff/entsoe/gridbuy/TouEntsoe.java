@@ -18,7 +18,7 @@ public interface TouEntsoe extends OpenemsComponent, TimeOfUseTariff {
 		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.text("Displays the HTTP status code")), //
 		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING)//
-				.text("Unable to update prices from ENTSO-E API")), //
+				.translationKey(TouEntsoe.class, "unableToUpdatePrices")), //
 		;
 
 		private final Doc doc;

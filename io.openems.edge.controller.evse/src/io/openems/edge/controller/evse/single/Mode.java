@@ -31,4 +31,11 @@ public enum Mode implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return ZERO;
 	}
+
+	public boolean isSurplusOrMinimum() {
+		return switch (this) {
+		case MINIMUM, SURPLUS -> true;
+		case ZERO, FORCE -> false;
+		};
+	}
 }
