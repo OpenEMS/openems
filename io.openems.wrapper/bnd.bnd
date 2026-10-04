@@ -21,9 +21,10 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.squareup.retrofit2:converter-scalars;version='3.0.0',\
 	com.squareup.retrofit2:retrofit;version='3.0.0',\
 	com.sun.activation:javax.activation;version='1.2.0',\
-	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
-	eu.chargetime.ocpp:common;version='1.0.2',\
-	eu.chargetime.ocpp:v1_6;version='1.1.0',\
+	eu.chargetime.ocpp:ocpp-common;version='2.0',\
+	eu.chargetime.ocpp:ocpp-json;version='2.0',\
+	eu.chargetime.ocpp:ocpp16j;version='2.0',\
+	eu.chargetime.ocpp:ocpp16;version='2.0',\
 	fr.turri:aXMLRPC;version='1.17.0',\
 	info.faljse:SDNotify;version='1.6.0',\
 	io.helins:linux-common;version='0.1.4',\
