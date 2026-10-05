@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -14,7 +13,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-    public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
+    public static getChartData(component: EdgeConfig.Component | null, translate: TranslateService): HistoryUtils.ChartData {
         AssertionUtils.assertIsDefined(component);
         return {
             input: [
