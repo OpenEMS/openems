@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { Icon } from "src/app/shared/type/widget";
 
@@ -11,12 +10,12 @@ import { Icon } from "src/app/shared/type/widget";
 })
 export class FlatWidgetLineDividerComponent {
     /** Info-Text, displayed on the right side, optional style for all lines Multiple lines with own style is possible */
-    @Input() public info: { text: string; lineStyle?: string }[] | string;
+    @Input() public info!: { text: string; lineStyle?: string }[] | string;
 
     /** Icon, displayed on the left side */
-    @Input() protected icon: Icon;
+    @Input() protected icon!: Icon;
 
-    @Input() protected lineStyle: string;
+    @Input() protected lineStyle!: string;
 
-    @Input() protected rowStyle: string;
+    @Input() protected rowStyle!: string;
 }
