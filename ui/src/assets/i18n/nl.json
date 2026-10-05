@@ -1,4 +1,45 @@
 {
+  "VPP": {
+    "TITLE": "Visuele VPP",
+    "SUBTITLE": "Energiestroom en live telemetrie op locatie",
+    "READ_ONLY": "Alleen-lezen",
+    "ASSETS_TITLE": "Energie-installaties",
+    "ASSETS": {
+      "PV": "PV / omvormer",
+      "BATTERY": "Batterij",
+      "GRID": "Net",
+      "EV": "Laadstation"
+    },
+    "STATUS": {
+      "AVAILABLE": "Telemetrie beschikbaar",
+      "NOT_CONFIGURED": "Niet geconfigureerd",
+      "UNKNOWN": "Telemetrie niet beschikbaar",
+      "STALE": "Telemetrie is verouderd",
+      "OFFLINE": "Offline",
+      "ONLINE": "Online",
+      "CURRENT": "Actueel"
+    },
+    "DIRECTION": {
+      "IDLE": "Inactief",
+      "DISCHARGING": "Ontladen",
+      "CHARGING": "Laden",
+      "IMPORTING": "Afname van het net",
+      "EXPORTING": "Teruglevering aan het net",
+      "GENERATING": "Opwekking",
+      "POWER_FLOW": "Energiestroom"
+    },
+    "SOC": "Laadstatus",
+    "SOC_UNKNOWN": "Laadstatus niet beschikbaar",
+    "INTEGRATIONS_TITLE": "Integratiestatus",
+    "INTEGRATION": {
+      "OPENEMS_EDGE": "OpenEMS Edge",
+      "TELEMETRY": "Actualiteit van telemetrie",
+      "SOLPLANET": "Solplanet",
+      "NOT_CONFIGURED": "Geen component geconfigureerd",
+      "DISABLED": "Component uitgeschakeld",
+      "UNVERIFIED": "Geconfigureerd; verbinding niet geverifieerd"
+    }
+  },
   "ABOUT": {
     "BUILD": "Versie",
     "CURRENT_DEVELOPMENTS": "Huidige ontwikkelingen",

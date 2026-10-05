@@ -52,6 +52,7 @@ import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-
 import { NavigationInfoComponent } from "./navigation-info/navigation-info";
 
 import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage-info";
+import { VppDashboardComponent } from "./vpp-dashboard/vpp-dashboard.component";
 
 @NgModule({
     imports: [
@@ -109,6 +110,7 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         Io_Api_DigitalInputComponent,
         LiveComponent,
         NavigationInfoComponent,
+        VppDashboardComponent,
     ],
 })
 export class LiveModule {}

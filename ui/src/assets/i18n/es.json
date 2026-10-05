@@ -1,4 +1,45 @@
 {
+  "VPP": {
+    "TITLE": "VPP visual",
+    "SUBTITLE": "Flujo de energía y telemetría en directo del sitio",
+    "READ_ONLY": "Solo lectura",
+    "ASSETS_TITLE": "Activos energéticos",
+    "ASSETS": {
+      "PV": "FV / inversor",
+      "BATTERY": "Batería",
+      "GRID": "Red",
+      "EV": "Cargador de vehículo eléctrico"
+    },
+    "STATUS": {
+      "AVAILABLE": "Telemetría disponible",
+      "NOT_CONFIGURED": "No configurado",
+      "UNKNOWN": "Telemetría no disponible",
+      "STALE": "Telemetría desactualizada",
+      "OFFLINE": "Sin conexión",
+      "ONLINE": "Conectado",
+      "CURRENT": "Actual"
+    },
+    "DIRECTION": {
+      "IDLE": "Inactivo",
+      "DISCHARGING": "Descargando",
+      "CHARGING": "Cargando",
+      "IMPORTING": "Importando",
+      "EXPORTING": "Exportando",
+      "GENERATING": "Generando",
+      "POWER_FLOW": "Flujo de energía"
+    },
+    "SOC": "Estado de carga",
+    "SOC_UNKNOWN": "Estado de carga no disponible",
+    "INTEGRATIONS_TITLE": "Estado de las integraciones",
+    "INTEGRATION": {
+      "OPENEMS_EDGE": "OpenEMS Edge",
+      "TELEMETRY": "Actualización de telemetría",
+      "SOLPLANET": "Solplanet",
+      "NOT_CONFIGURED": "Sin componente configurado",
+      "DISABLED": "Componente desactivado",
+      "UNVERIFIED": "Configurado; conexión sin verificar"
+    }
+  },
   "ABOUT": {
     "BUILD": "Esta compilación",
     "CURRENT_DEVELOPMENTS": "Desarrollos actuales",

@@ -1,4 +1,45 @@
 {
+  "VPP": {
+    "TITLE": "Vizuální VPP",
+    "SUBTITLE": "Tok energie a živá telemetrie lokality",
+    "READ_ONLY": "Pouze pro čtení",
+    "ASSETS_TITLE": "Energetická zařízení",
+    "ASSETS": {
+      "PV": "Fotovoltaika / střídač",
+      "BATTERY": "Baterie",
+      "GRID": "Síť",
+      "EV": "Nabíjecí stanice"
+    },
+    "STATUS": {
+      "AVAILABLE": "Telemetrie je dostupná",
+      "NOT_CONFIGURED": "Není nakonfigurováno",
+      "UNKNOWN": "Telemetrie není dostupná",
+      "STALE": "Telemetrie je zastaralá",
+      "OFFLINE": "Offline",
+      "ONLINE": "Online",
+      "CURRENT": "Aktuální"
+    },
+    "DIRECTION": {
+      "IDLE": "Nečinný stav",
+      "DISCHARGING": "Vybíjení",
+      "CHARGING": "Nabíjení",
+      "IMPORTING": "Odběr ze sítě",
+      "EXPORTING": "Dodávka do sítě",
+      "GENERATING": "Výroba",
+      "POWER_FLOW": "Tok energie"
+    },
+    "SOC": "Stav nabití",
+    "SOC_UNKNOWN": "Stav nabití není dostupný",
+    "INTEGRATIONS_TITLE": "Stav integrací",
+    "INTEGRATION": {
+      "OPENEMS_EDGE": "OpenEMS Edge",
+      "TELEMETRY": "Aktuálnost telemetrie",
+      "SOLPLANET": "Solplanet",
+      "NOT_CONFIGURED": "Není nakonfigurována žádná komponenta",
+      "DISABLED": "Komponenta je zakázána",
+      "UNVERIFIED": "Nakonfigurováno; připojení není ověřeno"
+    }
+  },
   "ABOUT": {
     "BUILD": "Aktuální verze",
     "CONTACT": "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
