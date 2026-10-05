@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Directive, ElementRef, OnInit } from "@angular/core";
 import { Capacitor } from "@capacitor/core";
 import { Logger } from "../shared";
@@ -15,8 +14,8 @@ export class AutofillDirective implements OnInit {
         if (Capacitor.getPlatform() !== "ios") { return; }
         setTimeout(() => {
             try {
-                this.el.nativeElement.children[0].addEventListener("change", (e) => {
-                    this.el.nativeElement.value = (e.target as any).value;
+                this.el.nativeElement.children[0].addEventListener("change", (e: Event) => {
+                    this.el.nativeElement.value = (e.target as HTMLInputElement).value;
                 });
             } catch {
                 console.error("Android Autofill Directive inactive");
