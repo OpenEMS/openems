@@ -6,14 +6,15 @@ import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.openems.edge.bridge.eebus.api.LogVerbosity;
-import org.openmuc.jeebus.ship.api.ShipConnectionInfoSnapshot;
 import org.openmuc.jeebus.ship.api.ShipConfig;
+import org.openmuc.jeebus.ship.api.ShipConnectionInfoSnapshot;
 import org.openmuc.jeebus.shipspine.ShipCommunication;
 import org.openmuc.jeebus.spine.api.Device;
 import org.openmuc.jeebus.spine.xsd.v1.DeviceTypeEnumType;
@@ -44,13 +45,18 @@ import io.openems.common.bridge.http.time.periodic.PeriodicExecutor;
 import io.openems.common.bridge.http.time.periodic.PeriodicExecutorFactory;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
+import io.openems.edge.bridge.eebus.api.EebusConnectionInfo;
 import io.openems.edge.bridge.eebus.api.EebusPeer;
 import io.openems.edge.bridge.eebus.api.EebusUseCaseManager;
+import io.openems.edge.bridge.eebus.api.LogVerbosity;
+import io.openems.edge.bridge.eebus.jsonrpc.GetEebusConnections;
 import io.openems.edge.bridge.eebus.peer.InternalEebusPeer;
 import io.openems.edge.bridge.eebus.usecase.EebusUseCaseManagerImpl;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.Meta;
 
 @Designate(ocd = Config.class, factory = true)
@@ -62,7 +68,8 @@ import io.openems.edge.common.meta.Meta;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
 @GenerateTargetsFromReferences("Peer")
-public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeEebus, OpenemsComponent, EventHandler {
+public class BridgeEebusImpl extends AbstractOpenemsComponent
+		implements BridgeEebus, OpenemsComponent, EventHandler, ComponentJsonApi {
 	@Reference
 	protected EebusDeviceDiscovery discovery;
 
@@ -83,7 +90,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 	private ConfigCertificateStorage certificateStorage;
 	private ShipCommunication shipCommunication;
 	private Device eebusDevice;
-	private int connectionsAmount = 0;
+	private List<EebusConnectionInfo> connections = new ArrayList<>();
 
 	private PeriodicExecutor reInitScheduler;
 	private boolean reInitRequired = true;
@@ -233,7 +240,7 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 
 	@Override
 	public String debugLog() {
-		return String.format("Connections:%d|Peers:%d|%s", this.connectionsAmount, this.peers.size(),
+		return String.format("Connections:%d|Peers:%d|%s", this.connections.size(), this.peers.size(),
 				this.useCaseManager.debugLog());
 	}
 
@@ -250,6 +257,11 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 	@Override
 	public LogVerbosity getLogLevel() {
 		return this.config.logVerbosity();
+	}
+
+	@Override
+	public List<EebusConnectionInfo> getConnections() {
+		return new ArrayList<>(this.connections);
 	}
 
 	@Override
@@ -274,19 +286,49 @@ public class BridgeEebusImpl extends AbstractOpenemsComponent implements BridgeE
 				.thenComparing(Comparator.comparing(ShipConnectionInfoSnapshot::getConnectionStartDate).reversed());
 
 		var allConnections = this.shipCommunication.getConnectionInfos();
-		this.connectionsAmount = allConnections.size();
-
 		var connectionInfos = allConnections.stream() //
 				.filter(s -> s.getSki() != null) //
 				.filter(ShipConnectionInfoSnapshot::isDataExchangeEstablished) //
 				.sorted(sorting) //
 				.toList();
 
+		var remainingConnectionInfos = new HashSet<>(connectionInfos);
+
 		for (var peer : this.peers) {
 			connectionInfos.stream() //
 					.filter(x -> x.getSki().equals(peer.getSki())) //
 					.findFirst() //
-					.ifPresent(peer::updateConnectionInfo);
+					.ifPresentOrElse(ci -> {
+						remainingConnectionInfos.remove(ci);
+						peer.updateConnectionInfo(ci);
+					}, () -> peer.updateConnectionInfo(null));
 		}
+
+		setValue(this, BridgeEebus.ChannelId.CONNECTED_TO_UNREGISTERED_PEERS, !remainingConnectionInfos.isEmpty());
+		this.connections = connectionInfos.stream().map(this::mapConnectionInfo).toList();
+	}
+
+	private EebusConnectionInfo mapConnectionInfo(ShipConnectionInfoSnapshot connectionInfo) {
+		var connectionType = switch (connectionInfo.getConnectionType()) {
+		case ShipConnectionInfoSnapshot.ConnectionTypeEnum.CLIENT_CONNECTION_TO_PEER ->
+			EebusConnectionInfo.ConnectionType.CLIENT_CONNECTION_TO_PEER;
+		case ShipConnectionInfoSnapshot.ConnectionTypeEnum.PEER_CONNECTED_TO_SERVER ->
+			EebusConnectionInfo.ConnectionType.PEER_CONNECTED_TO_SERVER;
+		};
+
+		return new EebusConnectionInfo(//
+				connectionType, //
+				connectionInfo.getSki(), //
+				connectionInfo.getSocketAddress(), //
+				connectionInfo.getTrustLevel(), //
+				connectionInfo.isDataExchangeEstablished(), //
+				connectionInfo.getConnectionStartDate() //
+		);
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder jsonApiBuilder) {
+		jsonApiBuilder.handleRequest(new GetEebusConnections(),
+				(call) -> new GetEebusConnections.Response(this.getConnections()));
 	}
 }

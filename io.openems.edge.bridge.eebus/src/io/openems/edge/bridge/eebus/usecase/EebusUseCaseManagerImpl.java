@@ -11,8 +11,8 @@ import io.openems.edge.bridge.eebus.api.BridgeEebus;
 import io.openems.edge.bridge.eebus.api.EebusUseCaseManager;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerConsumptionUseCase;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerProductionUseCase;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerProductionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerConsumptionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerProductionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,22 +27,22 @@ public class EebusUseCaseManagerImpl implements EebusUseCaseManager {
 		this.bridge = bridge;
 	}
 
-	public void addLimitPowerProductionHandler(ILimitPowerProductionHandler handler) {
+	public void addLimitPowerProductionHandler(LimitPowerProductionHandler handler) {
 		this.<LimitPowerProductionUseCase>addOrUpdate(EebusUseCaseType.LIMIT_POWER_PRODUCTION,
 				x -> x.addHandler(handler));
 	}
 
-	public void removeLimitPowerProductionHandler(ILimitPowerProductionHandler handler) {
+	public void removeLimitPowerProductionHandler(LimitPowerProductionHandler handler) {
 		this.<LimitPowerProductionUseCase>removeOrUpdate(EebusUseCaseType.LIMIT_POWER_PRODUCTION,
 				x -> x.removeHandler(handler));
 	}
 
-	public void addLimitPowerConsumptionHandler(ILimitPowerConsumptionHandler handler) {
+	public void addLimitPowerConsumptionHandler(LimitPowerConsumptionHandler handler) {
 		this.<LimitPowerConsumptionUseCase>addOrUpdate(EebusUseCaseType.LIMIT_POWER_CONSUMPTION,
 				x -> x.addHandler(handler));
 	}
 
-	public void removeLimitPowerConsumptionHandler(ILimitPowerConsumptionHandler handler) {
+	public void removeLimitPowerConsumptionHandler(LimitPowerConsumptionHandler handler) {
 		this.<LimitPowerConsumptionUseCase>removeOrUpdate(EebusUseCaseType.LIMIT_POWER_CONSUMPTION,
 				x -> x.removeHandler(handler));
 	}

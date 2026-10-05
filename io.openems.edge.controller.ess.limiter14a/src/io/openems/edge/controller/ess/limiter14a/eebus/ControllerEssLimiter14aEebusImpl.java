@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerConsumptionHandler;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -43,7 +43,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 @GenerateTargetsFromReferences({ "ess", "eebusBridge" })
 public class ControllerEssLimiter14aEebusImpl extends AbstractOpenemsComponent implements //
 		ControllerEssLimiter14aEebus, ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider,
-		ILimitPowerConsumptionHandler {
+		LimitPowerConsumptionHandler {
 
 	@Reference
 	private Sum sum;

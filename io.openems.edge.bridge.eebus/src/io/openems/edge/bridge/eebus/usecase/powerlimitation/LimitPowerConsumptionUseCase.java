@@ -5,7 +5,6 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.edge.bridge.eebus.api.LogVerbosity;
 import org.openmuc.jeebus.spine.spi.UseCase;
 import org.openmuc.jeebus.spine.utils.datatypes.ScaledNumberWrapper;
 import org.openmuc.jeebus.usecase.powerlimitation.controllablesystem.ActiveLimit;
@@ -19,11 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
 import io.openems.edge.bridge.eebus.usecase.EebusUseCase;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerConsumptionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerConsumptionHandler;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 
 public class LimitPowerConsumptionUseCase extends EebusUseCase {
-	private final List<ILimitPowerConsumptionHandler> handlers = new ArrayList<ILimitPowerConsumptionHandler>();
+	private final List<LimitPowerConsumptionHandler> handlers = new ArrayList<LimitPowerConsumptionHandler>();
 	private final Logger log = LoggerFactory.getLogger(LimitPowerConsumptionUseCase.class);
 
 	private LimitationConfig configSnapshot;
@@ -34,7 +33,7 @@ public class LimitPowerConsumptionUseCase extends EebusUseCase {
 
 	public long getNominalMax() {
 		return this.handlers.stream() //
-				.mapToLong(ILimitPowerConsumptionHandler::getNominalMaxConsumption) //
+				.mapToLong(LimitPowerConsumptionHandler::getNominalMaxConsumption) //
 				.max() //
 				.getAsLong();
 	}
@@ -73,11 +72,11 @@ public class LimitPowerConsumptionUseCase extends EebusUseCase {
 		this.handleLimit(mappedState, activeLimit != null ? activeLimit.getResultingValue() : null);
 	}
 
-	public void addHandler(ILimitPowerConsumptionHandler handler) {
+	public void addHandler(LimitPowerConsumptionHandler handler) {
 		this.handlers.add(handler);
 	}
 
-	public void removeHandler(ILimitPowerConsumptionHandler handler) {
+	public void removeHandler(LimitPowerConsumptionHandler handler) {
 		this.handlers.remove(handler);
 	}
 

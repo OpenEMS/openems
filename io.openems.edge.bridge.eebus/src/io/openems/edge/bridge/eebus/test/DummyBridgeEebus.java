@@ -3,6 +3,7 @@ package io.openems.edge.bridge.eebus.test;
 import com.google.common.collect.ImmutableList;
 import io.openems.edge.bridge.eebus.Config;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
+import io.openems.edge.bridge.eebus.api.EebusConnectionInfo;
 import io.openems.edge.bridge.eebus.api.EebusPeer;
 import io.openems.edge.bridge.eebus.api.EebusUseCaseManager;
 import io.openems.edge.bridge.eebus.api.LogVerbosity;
@@ -12,6 +13,8 @@ import io.openems.edge.bridge.eebus.usecase.powerlimitation.LimitPowerConsumptio
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+
+import java.util.List;
 
 public class DummyBridgeEebus extends AbstractDummyOpenemsComponent<DummyBridgeEebus> implements BridgeEebus {
 	private final EebusUseCaseManagerImpl useCaseManager;
@@ -47,6 +50,11 @@ public class DummyBridgeEebus extends AbstractDummyOpenemsComponent<DummyBridgeE
 	@Override
 	public LogVerbosity getLogLevel() {
 		return LogVerbosity.NONE;
+	}
+
+	@Override
+	public List<EebusConnectionInfo> getConnections() {
+		return List.of();
 	}
 
 	@Override

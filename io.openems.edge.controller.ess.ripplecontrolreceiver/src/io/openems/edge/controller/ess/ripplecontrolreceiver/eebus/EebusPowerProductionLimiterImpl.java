@@ -17,10 +17,9 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerProductionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerProductionHandler;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -44,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @GenerateTargetsFromReferences({ "eebusBridge" })
 public class EebusPowerProductionLimiterImpl extends AbstractOpenemsComponent
 		implements EebusPowerProductionLimiter, PowerProductionLimiterComponent, PowerProductionLimiter,
-		OpenemsComponent, TimedataProvider, EventHandler, ILimitPowerProductionHandler {
+		OpenemsComponent, TimedataProvider, EventHandler, LimitPowerProductionHandler {
 
 	@Reference
 	private Sum sum;

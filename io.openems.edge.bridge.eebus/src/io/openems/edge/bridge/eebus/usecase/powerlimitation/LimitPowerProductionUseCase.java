@@ -18,11 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.eebus.api.BridgeEebus;
 import io.openems.edge.bridge.eebus.usecase.EebusUseCase;
-import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.ILimitPowerProductionHandler;
+import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerProductionHandler;
 import io.openems.edge.bridge.eebus.usecase.powerlimitation.api.LimitPowerState;
 
 public class LimitPowerProductionUseCase extends EebusUseCase {
-	private final List<ILimitPowerProductionHandler> handlers = new ArrayList<>();
+	private final List<LimitPowerProductionHandler> handlers = new ArrayList<>();
 	private final Logger log = LoggerFactory.getLogger(LimitPowerProductionUseCase.class);
 
 	private LimitationConfig configSnapshot;
@@ -33,7 +33,7 @@ public class LimitPowerProductionUseCase extends EebusUseCase {
 
 	private long getNominalMax() {
 		return this.handlers.stream() //
-				.mapToLong(ILimitPowerProductionHandler::getNominalMaxProduction) //
+				.mapToLong(LimitPowerProductionHandler::getNominalMaxProduction) //
 				.max() //
 				.getAsLong();
 	}
@@ -72,11 +72,11 @@ public class LimitPowerProductionUseCase extends EebusUseCase {
 		this.handleLimit(mappedState, activeLimit != null ? activeLimit.getResultingValue() : null);
 	}
 
-	public void addHandler(ILimitPowerProductionHandler handler) {
+	public void addHandler(LimitPowerProductionHandler handler) {
 		this.handlers.add(handler);
 	}
 
-	public void removeHandler(ILimitPowerProductionHandler handler) {
+	public void removeHandler(LimitPowerProductionHandler handler) {
 		this.handlers.remove(handler);
 	}
 
