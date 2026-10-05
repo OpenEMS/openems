@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Subject, timer } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -16,7 +15,7 @@ export class ExecuteSystemUpdate {
     public canNotBeUpdated: boolean = false;
     public isEdgeRestarting: boolean = false;
     public systemUpdateState: SystemUpdateState = { unknown: {} };
-    public systemUpdateStateChange: (value: SystemUpdateState) => void;
+    public systemUpdateStateChange!: (value: SystemUpdateState) => void;
     private ngUnsubscribe = new Subject<void>();
 
     public constructor(
