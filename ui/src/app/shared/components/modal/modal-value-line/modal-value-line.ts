@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 
@@ -25,7 +24,7 @@ export class ModalValueLineComponent extends AbstractModalLine {
     @Input() protected singleLine: boolean = false;
 
     protected shouldShow: boolean = false;
-    private channels: ChannelAddress[];
+    private channels: ChannelAddress[] = [];
     private _filters: OeFormlyField.ValueFromChannelsLine["filter"] | null = null;
 
     @Input() public set channelsToSubscribe(channels: ChannelAddress[]) {
