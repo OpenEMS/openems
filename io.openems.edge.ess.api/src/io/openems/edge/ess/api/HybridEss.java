@@ -213,4 +213,16 @@ public interface HybridEss extends SymmetricEss {
 				.channel(5, ChannelId.DC_DISCHARGE_ENERGY, ModbusType.FLOAT64) //
 				.build();
 	}
+
+	/**
+	 * Gets the PV production.
+	 *
+	 * <p>
+	 * Returns null if the PV production is not available.
+	 *
+	 * @return production power
+	 */
+	public default Integer getPvProduction() {
+		return null;
+	}
 }
