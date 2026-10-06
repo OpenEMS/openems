@@ -13,7 +13,7 @@
                         <ion-label>{{"LOGIN.TITLE" | translate}}</ion-label>
                     </ion-item>
                     <!-- OpenEMS Edge Login -->
-                    @if (environment.backend === 'OpenEMS Edge') {
+                    @if (environment.backend === 'OpenEMS Edge' && environment.fullLogin !== true) {
                     <ion-card-content>
                         <form (ngSubmit)="doLogin({ password: password.value})">
                             <div class="ion-padding">
@@ -23,9 +23,39 @@
                                     </ion-text>
                                 </ion-item>
                                 <ion-item>
-                                    <ion-input #password required type="password"
+                                    <ion-input #password required type="password" autocomplete="current-password"
                                         [label]="'LOGIN.PASSWORD_LABEL' | translate" label-placement="floating"
                                         [placeholder]="'LOGIN.PASSWORD_LABEL' | translate" value="user"></ion-input>
+                                </ion-item>
+                                <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
+                                <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
+                                <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
+                                    <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
+                                </ion-button>
+                            </div>
+                        </form>
+                    </ion-card-content>
+                    }
+                    <!-- OpenEMS Edge Full Login -->
+                    @if (environment.backend === 'OpenEMS Edge' && environment.fullLogin === true) {
+                    <ion-card-content>
+                        <form (ngSubmit)="doLogin({username: username.value, password: password.value})">
+                            <div class="ion-padding">
+                                <ion-item>
+                                    <ion-text class="ion-text-wrap" color="medium" translate>
+                                        LOGIN.PREAMBLE
+                                    </ion-text>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-input #username required autocomplete="on"
+                                      [label]="('LOGIN.USER' | translate)" label-placement="floating"
+                                      [placeholder]="('LOGIN.USER' | translate)"
+                                      ></ion-input>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-input #password required type="password" autocomplete="current-password"
+                                        [label]="'LOGIN.PASSWORD_LABEL' | translate" label-placement="floating"
+                                        [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"></ion-input>
                                 </ion-item>
                                 <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                                 <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
@@ -47,7 +77,7 @@
                                 </ion-input>
                             </ion-item>
                             <ion-item>
-                                <ion-input #password required type="password"
+                                <ion-input #password required type="password" autocomplete="current-password"
                                     [placeholder]="'LOGIN.PASSWORD_LABEL' | translate" label-placement="floating"
                                     [label]="'LOGIN.PASSWORD_LABEL' | translate">
                                 </ion-input>
