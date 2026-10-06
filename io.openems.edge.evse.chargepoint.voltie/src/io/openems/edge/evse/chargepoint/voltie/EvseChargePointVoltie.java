@@ -40,65 +40,65 @@ public interface EvseChargePointVoltie extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/** Voltie charger ID (register 0x0000). */
-		CHARGER_ID(Doc.of(INTEGER) //
+		CHARGER_ID(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** EVSE firmware build number, e.g. 370 (register 0x0001). */
-		FIRMWARE_BUILD(Doc.of(INTEGER) //
+		FIRMWARE_BUILD(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** MCU serial number (registers 0x0002..0x0005, LSW first). */
-		MCU_SERIAL(Doc.of(LONG) //
+		MCU_SERIAL(Doc.of(LONG)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Power board serial number (registers 0x0006..0x0009, LSW first). */
-		POWER_BOARD_SERIAL(Doc.of(LONG) //
+		POWER_BOARD_SERIAL(Doc.of(LONG)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** EVSE state (register 0x000A). */
-		EVSE_STATE(Doc.of(EvseState.values()) //
+		EVSE_STATE(Doc.of(EvseState.values())//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Autostart enabled (register 0x000B). Never written by this driver. */
-		AUTOSTART_ENABLED(Doc.of(BOOLEAN) //
+		AUTOSTART_ENABLED(Doc.of(BOOLEAN)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Charging enabled (register 0x000C). */
-		CHARGING_ENABLED(Doc.of(BOOLEAN) //
+		CHARGING_ENABLED(Doc.of(BOOLEAN)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Charging active right now; the authoritative flag (register 0x000D). */
-		CHARGING_ACTIVE(Doc.of(BOOLEAN) //
+		CHARGING_ACTIVE(Doc.of(BOOLEAN)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Number of phases with mains voltage present on the charger INPUT (register
 		 * 0x000E).
 		 *
 		 * <p>
-		 * This is supply-side information only. It stays 3 in forced single-phase
-		 * mode; the phases the EV actually charges with are reported separately, see
+		 * This is supply-side information only. It stays 3 in forced single-phase mode;
+		 * the phases the EV actually charges with are reported separately, see
 		 * {@link ChannelId#PHASES_IN_USE}.
 		 */
-		MAINS_PHASES(Doc.of(INTEGER) //
+		MAINS_PHASES(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Stored DLM mode (register 0x000F). Never written by this driver. */
-		STORED_DLM_MODE(Doc.of(INTEGER) //
+		STORED_DLM_MODE(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Charge stop reason (register 0x0012). */
-		CHARGE_STOP_REASON(Doc.of(ChargeStopReason.values()) //
+		CHARGE_STOP_REASON(Doc.of(ChargeStopReason.values())//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Autonomous current limit in [mA] (register 0x0013). Never written by this
 		 * driver.
 		 */
 		AUTONOMOUS_CURRENT_LIMIT(Doc.of(INTEGER)//
-				.unit(MILLIAMPERE) //
+				.unit(MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Software current limit read-back in [mA] (register 0x0014). */
 		CURRENT_LIMIT(Doc.of(INTEGER)//
-				.unit(MILLIAMPERE) //
+				.unit(MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/** Effective DLM mode (register 0x0015). */
-		EFFECTIVE_DLM_MODE(Doc.of(INTEGER) //
+		EFFECTIVE_DLM_MODE(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Forced single-phase state (register 0x0016): false=three-phase,
 		 * true=single-phase. The setting survives restarts.
 		 */
-		FORCED_SINGLE_PHASE(Doc.of(BOOLEAN) //
+		FORCED_SINGLE_PHASE(Doc.of(BOOLEAN)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Communication-loss watchdog in [s] (register 0x0017): if the Modbus master
@@ -111,58 +111,58 @@ public interface EvseChargePointVoltie extends OpenemsComponent {
 		 * made in the Voltie app.
 		 */
 		COMM_WATCHDOG_TIMEOUT(Doc.of(INTEGER)//
-				.unit(SECONDS) //
+				.unit(SECONDS)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
-		 * Hardware maximum current capacity in [mA] (register 0x0018;
-		 * EVSE-board potentiometer limit, cable limit not included).
+		 * Hardware maximum current capacity in [mA] (register 0x0018; EVSE-board
+		 * potentiometer limit, cable limit not included).
 		 */
 		HARDWARE_CURRENT_LIMIT(Doc.of(INTEGER)//
-				.unit(MILLIAMPERE) //
+				.unit(MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Capability bitmask (register 0x0019).
 		 *
 		 * <p>
-		 * Bit 0 ({@link EvseChargePointVoltie#CAPABILITY_PHASE_SWITCHING}) reports
-		 * that 1&lt;-&gt;3 phase switching is supported, that is register 0x0016 is
-		 * writable on this hardware. All other bits are reserved and read 0.
+		 * Bit 0 ({@link EvseChargePointVoltie#CAPABILITY_PHASE_SWITCHING}) reports that
+		 * 1&lt;-&gt;3 phase switching is supported, that is register 0x0016 is writable
+		 * on this hardware. All other bits are reserved and read 0.
 		 */
-		CAPABILITY_FLAGS(Doc.of(INTEGER) //
+		CAPABILITY_FLAGS(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
-		 * Number of phases the EV is actually charging with, 1..3 (register 0x001A);
-		 * 0 = unknown or no charging in progress.
+		 * Number of phases the EV is actually charging with, 1..3 (register 0x001A); 0
+		 * = unknown or no charging in progress.
 		 *
 		 * <p>
 		 * Reported by the firmware, which counts a phase as loaded from 1.0 A. Unlike
 		 * {@link ChannelId#MAINS_PHASES} this reflects the phases under load, so it
 		 * reads 1 in forced single-phase mode on a three-phase supply.
 		 */
-		PHASES_IN_USE(Doc.of(INTEGER) //
+		PHASES_IN_USE(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)), //
 
 		/** Charge duration of the running session in [s] (register 0x200C). */
 		CHARGE_DURATION(Doc.of(INTEGER)//
-				.unit(SECONDS) //
+				.unit(SECONDS)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Session energy in [Wh], converted from [Ws] (register 0x200E).
 		 *
 		 * <p>
-		 * Keeps the last session's value after session end; it is cleared only when
-		 * the next session starts. Use {@link ChannelId#CHARGING_ACTIVE} to detect
-		 * a running session.
+		 * Keeps the last session's value after session end; it is cleared only when the
+		 * next session starts. Use {@link ChannelId#CHARGING_ACTIVE} to detect a
+		 * running session.
 		 */
 		ENERGY_SESSION(Doc.of(INTEGER)//
-				.unit(WATT_HOURS) //
+				.unit(WATT_HOURS)//
 				.persistencePriority(PersistencePriority.LOW)), //
 		/**
 		 * Instantaneous available current capacity in [mA] (register 0x2012;
 		 * cable-aware dynamic maximum).
 		 */
 		AVAILABLE_CURRENT_CAPACITY(Doc.of(INTEGER)//
-				.unit(MILLIAMPERE) //
+				.unit(MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.LOW)), //
 
 		DEBUG_SET_CHARGING_ENABLED(Doc.of(INTEGER)), //

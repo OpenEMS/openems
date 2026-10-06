@@ -90,40 +90,40 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	public static final int MAX_CURRENT = 32;
 	/**
 	 * Minimum firmware build. From build 370 the lifetime energy register (0x2016)
-	 * includes the running session, so it is the meter reading. The readable
-	 * status area has also grown with the firmware: it ends at 0x0015 up to build
-	 * 351, at 0x0018 from 352 and at 0x001A from 357, and reading a longer block
-	 * than the charger serves is answered with exception 0x02.
+	 * includes the running session, so it is the meter reading. The readable status
+	 * area has also grown with the firmware: it ends at 0x0015 up to build 351, at
+	 * 0x0018 from 352 and at 0x001A from 357, and reading a longer block than the
+	 * charger serves is answered with exception 0x02.
 	 */
 	public static final int MIN_FIRMWARE = 370;
 
 	/**
-	 * Minimum interval between repeated writes of the same register, applied to
-	 * the current limit (0x0014) and the phase-switch register (0x0016). A Cycle
-	 * that carries a write issues a second transaction right after the block read;
-	 * the charger answers it only in its next forwarding window (~470 ms
-	 * measured), which is just inside the bridge's 500 ms timeout. Repeated writes
-	 * are therefore rate-limited so this happens rarely. The charging-enable
-	 * register (0x000C) is written once per state change and repeated only after
-	 * a rejected write, no sooner than this interval, see
+	 * Minimum interval between repeated writes of the same register, applied to the
+	 * current limit (0x0014) and the phase-switch register (0x0016). A Cycle that
+	 * carries a write issues a second transaction right after the block read; the
+	 * charger answers it only in its next forwarding window (~470 ms measured),
+	 * which is just inside the bridge's 500 ms timeout. Repeated writes are
+	 * therefore rate-limited so this happens rarely. The charging-enable register
+	 * (0x000C) is written once per state change and repeated only after a rejected
+	 * write, no sooner than this interval, see
 	 * {@link #writeChargingEnabled(boolean)}.
 	 */
 	private static final Duration WRITE_INTERVAL = Duration.ofSeconds(5);
 	/** Minimum interval between diagnostics for rejected control writes. */
 	private static final Duration WRITE_ERROR_LOG_INTERVAL = Duration.ofMinutes(1);
 	/**
-	 * Warn if the communication-loss watchdog (register 0x0017) is configured
-	 * below this many seconds: with the default cycle time of one second and the
-	 * two register blocks, the effective poll interval per block can reach a few
+	 * Warn if the communication-loss watchdog (register 0x0017) is configured below
+	 * this many seconds: with the default cycle time of one second and the two
+	 * register blocks, the effective poll interval per block can reach a few
 	 * seconds.
 	 */
 	private static final int WATCHDOG_WARN_THRESHOLD = 5;
 	/**
-	 * Fallback for detecting a rejected phase-switch write via read-back: number
-	 * of {@link #apply(ChargePointActions)} calls to wait after the first write.
-	 * The primary signal is the FC6 onExecute callback; this is a generous safety
-	 * net (roughly 30 s at the default cycle time, well within the
-	 * PhaseSwitchHandler's 600 s timeout).
+	 * Fallback for detecting a rejected phase-switch write via read-back: number of
+	 * {@link #apply(ChargePointActions)} calls to wait after the first write. The
+	 * primary signal is the FC6 onExecute callback; this is a generous safety net
+	 * (roughly 30 s at the default cycle time, well within the PhaseSwitchHandler's
+	 * 600 s timeout).
 	 */
 	private static final int PHASE_SWITCH_MAX_VERIFY_CYCLES = 30;
 
@@ -158,11 +158,10 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	private boolean protocolExtended = false;
 	private boolean evConnected = false;
 	/**
-	 * Set on the first successful read of the extended status block. The
-	 * firmware probe alone is not enough: control must not start before the
-	 * hardware current limit is known, otherwise the set-point ability would
-	 * fall back to the minimum and throttle a vehicle that is already
-	 * charging.
+	 * Set on the first successful read of the extended status block. The firmware
+	 * probe alone is not enough: control must not start before the hardware current
+	 * limit is known, otherwise the set-point ability would fall back to the
+	 * minimum and throttle a vehicle that is already charging.
 	 */
 	private boolean statusBlockRead = false;
 	private Integer rawEvseState = null;
@@ -216,8 +215,8 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	}
 
 	/**
-	 * Clears the phase-switch latch and the verification state, so phase
-	 * switching is offered and tried again.
+	 * Clears the phase-switch latch and the verification state, so phase switching
+	 * is offered and tried again.
 	 */
 	private void resetPhaseSwitchState() {
 		this.phaseSwitchUnavailable = false;
@@ -362,8 +361,8 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	/**
 	 * Called after execution of the FC6 write to register 0x000C. In addition to
 	 * the shared diagnostics it clears the write-once latch, because a write that
-	 * answered a Modbus exception never reached the charger and has to be
-	 * repeated. See {@link #writeChargingEnabled(boolean)}.
+	 * answered a Modbus exception never reached the charger and has to be repeated.
+	 * See {@link #writeChargingEnabled(boolean)}.
 	 *
 	 * @param state the {@link ExecuteState}
 	 */
@@ -423,12 +422,12 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	 * Called after execution of the FC6 write to register 0x0016. The charger
 	 * rejects the write with Modbus exception 0x03 when control-by-Modbus is
 	 * disabled, on relay/EEPROM error, or while a charging session is active.
-	 * Hardware that does not support phase switching at all is already excluded
-	 * by the capability bitmask, see {@link #getPhaseSwitchAbility()}.
+	 * Hardware that does not support phase switching at all is already excluded by
+	 * the capability bitmask, see {@link #getPhaseSwitchAbility()}.
 	 *
 	 * <p>
-	 * Only that rejection latches phase switching as unavailable. Any other
-	 * failure is transient: the write stays pending and is repeated by
+	 * Only that rejection latches phase switching as unavailable. Any other failure
+	 * is transient: the write stays pending and is repeated by
 	 * {@link #applyPhaseSwitch(PhaseSwitchDirection)}, so a communication failure
 	 * does not disable phase switching.
 	 *
@@ -439,8 +438,7 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 			return;
 		}
 		this.logWarn(this.log, "Phase-switch write was rejected by the charge-point "
-				+ "(control-by-Modbus disabled or relay/EEPROM error); "
-				+ "marking phase switching as unavailable");
+				+ "(control-by-Modbus disabled or relay/EEPROM error); " + "marking phase switching as unavailable");
 		this.phaseSwitchUnavailable = true;
 	}
 
@@ -544,12 +542,11 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	 * Gets the maximum charge current in [A].
 	 *
 	 * <p>
-	 * The hardware maximum (register 0x0018) is the EVSE-board potentiometer
-	 * limit. When the reading is unavailable or implausible, the safe minimum of
-	 * 6 A is used. The cable-aware dynamic capacity (register 0x2012) is
-	 * deliberately not used here, because it may reflect the currently applied
-	 * software limit and would latch the maximum down; it is available as a
-	 * Channel.
+	 * The hardware maximum (register 0x0018) is the EVSE-board potentiometer limit.
+	 * When the reading is unavailable or implausible, the safe minimum of 6 A is
+	 * used. The cable-aware dynamic capacity (register 0x2012) is deliberately not
+	 * used here, because it may reflect the currently applied software limit and
+	 * would latch the maximum down; it is available as a Channel.
 	 *
 	 * @return the value
 	 */
@@ -574,18 +571,18 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	 * reports whether the forced single-phase register 0x0016 is writable on this
 	 * hardware. The Modbus API documentation asks clients to read that bit and to
 	 * offer phase switching only when it is set, rather than probing with a 0x0016
-	 * write: on unsupported hardware the write is rejected with exception 0x03,
-	 * and a client that retries it can repeatedly interrupt charging. The bitmask
-	 * is unavailable until the protocol has been extended, so the ability is not
+	 * write: on unsupported hardware the write is rejected with exception 0x03, and
+	 * a client that retries it can repeatedly interrupt charging. The bitmask is
+	 * unavailable until the protocol has been extended, so the ability is not
 	 * offered before the first successful block read.
 	 *
 	 * <p>
 	 * The {@link #phaseSwitchUnavailable} latch is kept on top of that gate as a
 	 * safety net for a write the charger rejects for another reason, rather than
 	 * retrying: every rejected switch costs up to 600 s at 0 A while the
-	 * PhaseSwitchHandler waits out its timeout. The latch is reset when the
-	 * vehicle is unplugged, so a persistent cause costs at most one attempt per
-	 * session, and on a configuration update, see
+	 * PhaseSwitchHandler waits out its timeout. The latch is reset when the vehicle
+	 * is unplugged, so a persistent cause costs at most one attempt per session,
+	 * and on a configuration update, see
 	 * {@link #modified(ComponentContext, Config)}.
 	 *
 	 * @return the {@link PhaseSwitchDirection} or null
@@ -693,8 +690,8 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	 * <li>the charger left a charging-enabled state it had already confirmed, for
 	 * example after a firmware restart or an unplug, both of which reset register
 	 * 0x000C to 0
-	 * <li>an enable is pending while no vehicle is connected: the firmware
-	 * discards it, so it has to be written again once a vehicle is plugged in
+	 * <li>an enable is pending while no vehicle is connected: the firmware discards
+	 * it, so it has to be written again once a vehicle is plugged in
 	 * </ul>
 	 */
 	void evaluateChargingEnableLatch() {
@@ -721,20 +718,20 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 	 *
 	 * <p>
 	 * The Modbus API documentation is explicit about this register: writing 1 only
-	 * permits charging, it does not force it. The firmware enables the session
-	 * only when a vehicle is already connected, so with no vehicle plugged in the
-	 * write is accepted without an exception but has no effect and the read-back
-	 * stays 0 indefinitely - a client that keeps rewriting the register until the
-	 * read-back matches loops forever. The driver therefore writes the enable only
-	 * while a vehicle is connected, writes each value once and then follows the
-	 * outcome on the EVSE state (0x000A) and the charging flag (0x000D).
+	 * permits charging, it does not force it. The firmware enables the session only
+	 * when a vehicle is already connected, so with no vehicle plugged in the write
+	 * is accepted without an exception but has no effect and the read-back stays 0
+	 * indefinitely - a client that keeps rewriting the register until the read-back
+	 * matches loops forever. The driver therefore writes the enable only while a
+	 * vehicle is connected, writes each value once and then follows the outcome on
+	 * the EVSE state (0x000A) and the charging flag (0x000D).
 	 *
 	 * <p>
 	 * Two guards make sure a genuine state change is never lost: a write that
 	 * answered a Modbus exception is retried after {@link #WRITE_INTERVAL}, see
 	 * {@link #onChargingEnabledWriteExecuted(ExecuteState)}, and a charger that
-	 * leaves an already confirmed state or loses the vehicle before taking over
-	 * the enable is written again, see {@link #evaluateChargingEnableLatch()}.
+	 * leaves an already confirmed state or loses the vehicle before taking over the
+	 * enable is written again, see {@link #evaluateChargingEnableLatch()}.
 	 *
 	 * @param enable true to enable charging
 	 * @return true if the write was applied; false if the same value has already
@@ -792,8 +789,7 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 		// onExecute callback (onPhaseSwitchWriteExecuted); this covers the case that
 		// no Modbus exception is received. Cycles with failed communication are not
 		// counted (the read-back would be null and handled above).
-		if (this.phaseSwitchWritePending
-				&& !this.getModbusCommunicationFailedChannel().value().orElse(false)
+		if (this.phaseSwitchWritePending && !this.getModbusCommunicationFailedChannel().value().orElse(false)
 				&& ++this.phaseSwitchVerifyCycles > PHASE_SWITCH_MAX_VERIFY_CYCLES) {
 			this.logWarn(this.log, "Phase-switch write was not confirmed by the charge-point; "
 					+ "marking phase switching as unavailable");

@@ -101,7 +101,7 @@ public class EvseChargePointVoltieImplTest {
 						1, // 0x0019 CAPABILITY_FLAGS: phase switching supported
 						3 // 0x001A PHASES_IN_USE
 				}) //
-				// Meter block 0x2000..0x201D; INT32 MSW first
+					// Meter block 0x2000..0x201D; INT32 MSW first
 				.withRegisters(0x2000, new int[] { //
 						0x0003, 0x8270, // 0x2000 VOLTAGE_L1: 230_000 mV
 						0x0003, 0x8658, // 0x2002 VOLTAGE_L2: 231_000 mV
@@ -115,7 +115,7 @@ public class EvseChargePointVoltieImplTest {
 						0x0000, 0x3E80, // 0x2012 AVAILABLE_CURRENT_CAPACITY: 16_000 mA
 						// 0x2014, 0x2015 board temperatures: read as part of the block, but
 						// not exposed as Channels (not part of the public Modbus API)
-						45, 55,
+						45, 55, //
 						0x0001, 0xE240, // 0x2016 lifetime energy: 123_456 Wh
 						0x0000, 0x0564, // 0x2018 ACTIVE_POWER_L1: 1_380 W
 						0x0000, 0x064A, // 0x201A ACTIVE_POWER_L2: 1_610 W
@@ -275,8 +275,8 @@ public class EvseChargePointVoltieImplTest {
 	}
 
 	/**
-	 * A write that answered a Modbus exception never reached the charger, so it
-	 * has to be repeated - but not every Cycle: a charger with control-by-Modbus
+	 * A write that answered a Modbus exception never reached the charger, so it has
+	 * to be repeated - but not every Cycle: a charger with control-by-Modbus
 	 * disabled rejects every write.
 	 */
 	@Test
@@ -302,10 +302,9 @@ public class EvseChargePointVoltieImplTest {
 
 	/**
 	 * With no vehicle connected the controller still requests the minimum
-	 * set-point, but the firmware discards an enable written in that state.
-	 * Writing it anyway would set the write-once latch, and the vehicle plugged
-	 * in later would never be started. The enable is written once the vehicle is
-	 * connected.
+	 * set-point, but the firmware discards an enable written in that state. Writing
+	 * it anyway would set the write-once latch, and the vehicle plugged in later
+	 * would never be started. The enable is written once the vehicle is connected.
 	 */
 	@Test
 	public void testChargingEnableIsWrittenWhenAVehicleIsPluggedIn() throws Exception {
@@ -342,8 +341,8 @@ public class EvseChargePointVoltieImplTest {
 	}
 
 	/**
-	 * An enable the charger has not taken over yet is discarded when the vehicle
-	 * is unplugged, so it is written again for the next vehicle.
+	 * An enable the charger has not taken over yet is discarded when the vehicle is
+	 * unplugged, so it is written again for the next vehicle.
 	 */
 	@Test
 	public void testChargingEnableIsRepeatedAfterAnUnplugBeforeConfirmation() throws Exception {
@@ -368,8 +367,8 @@ public class EvseChargePointVoltieImplTest {
 
 	/**
 	 * The driver follows the charger instead of rewriting, but a charger that
-	 * leaves an already confirmed state - a firmware restart resets register
-	 * 0x000C to 0 - is a new situation and is written again.
+	 * leaves an already confirmed state - a firmware restart resets register 0x000C
+	 * to 0 - is a new situation and is written again.
 	 */
 	@Test
 	public void testChargingEnableIsRepeatedWhenTheChargerLeavesTheState() throws Exception {
@@ -579,8 +578,8 @@ public class EvseChargePointVoltieImplTest {
 	 * Modbus API v1.3 asks clients to read bit 0 of the capability bitmask
 	 * (register 0x0019) once and to offer phase switching only when it is set,
 	 * instead of probing with a 0x0016 write. On hardware without the bit that
-	 * write is rejected with exception 0x03, which would strand the controller at
-	 * 0 A for its full 600 s phase-switch timeout.
+	 * write is rejected with exception 0x03, which would strand the controller at 0
+	 * A for its full 600 s phase-switch timeout.
 	 */
 	@Test
 	public void testPhaseSwitchingUnsupportedByHardware() throws Exception {
@@ -614,8 +613,8 @@ public class EvseChargePointVoltieImplTest {
 
 	/**
 	 * PhasesInUse is reported by the firmware on register 0x001A and counts the
-	 * phases under load, so it is not derived from the per-phase currents: here
-	 * all three phases carry current while the register reports one loaded phase.
+	 * phases under load, so it is not derived from the per-phase currents: here all
+	 * three phases carry current while the register reports one loaded phase.
 	 */
 	@Test
 	public void testPhasesInUseComesFromTheRegister() throws Exception {
