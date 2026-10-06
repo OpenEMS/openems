@@ -362,7 +362,7 @@
       "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
       "SUBNETMASK": "Máscara de subred",
       "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
-      "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24"
+      "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IPv4 válida con máscara de red, p. 10.4.1.6/24"
     },
     "SERVICE": {
       "CELL": {

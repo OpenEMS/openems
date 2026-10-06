@@ -361,7 +361,7 @@
       "MANDATORY_FIELDS": "Gelieve de verplichte velden in te vullen",
       "SUBNETMASK": "Subnetmasker",
       "SUCCESS_UPDATE": "Netwerkconfiguratie geüpdatet voor:",
-      "VALID_ADDRESS_WARNING": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24"
+      "VALID_ADDRESS_WARNING": "Voer bij 'Statische IP-adressen toevoegen' een geldig IPv4-adres in met netmasker, b.v. 10.4.1.6/24"
     },
     "SERVICE": {
       "CELL": {
