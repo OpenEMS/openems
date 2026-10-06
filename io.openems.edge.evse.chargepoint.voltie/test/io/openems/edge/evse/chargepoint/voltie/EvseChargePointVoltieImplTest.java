@@ -101,7 +101,8 @@ public class EvseChargePointVoltieImplTest {
 						1, // 0x0019 CAPABILITY_FLAGS: phase switching supported
 						3 // 0x001A PHASES_IN_USE
 				}) //
-					// Meter block 0x2000..0x201D; INT32 MSW first
+
+				// Meter block 0x2000..0x201D; INT32 MSW first
 				.withRegisters(0x2000, new int[] { //
 						0x0003, 0x8270, // 0x2000 VOLTAGE_L1: 230_000 mV
 						0x0003, 0x8658, // 0x2002 VOLTAGE_L2: 231_000 mV
