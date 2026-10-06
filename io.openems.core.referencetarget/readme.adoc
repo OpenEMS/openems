@@ -38,6 +38,64 @@ public class MyOpenemsComponent extends AbstractOpenemsComponent implements Open
 4. Define the target filter with your variable
 5. Your variable of the injected component
 
+== Value transformers
+
+A reference expression can optionally transform a configuration value before
+inserting it into the target filter.
+
+[source,text]
+----
+${config.floorRelays;componentIdFromChannel}
+----
+
+`config` identifies the value source, `floorRelays` identifies the configuration
+property, and `componentIdFromChannel` identifies the transformer.
+
+Expressions without a transformer retain their existing behavior.
+Transformers separated by semicolons are applied from left to right.
+
+=== Component IDs from channel addresses
+
+The `componentIdFromChannel` transformer accepts a channel address, an array
+of channel addresses, or a collection of channel-address strings.
+Collection elements must be strings; other element types are rejected.
+
+For example, `io0/Relay1` becomes `io0`.
+
+For an array containing `io0/Relay1`, `io0/Relay2`, and `io1/Relay1`, the result
+contains `io0` and `io1`. Duplicate component IDs are removed while preserving
+their first occurrence. Empty strings in arrays are ignored.
+
+The original configuration value is not modified. The controller still uses
+the complete channel addresses to access individual channels.
+
+[source,java]
+----
+@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+        target = "(&(id=${config.floorRelays;componentIdFromChannel})(enabled=true))")
+private List<DigitalOutput> floorRelayComponents;
+----
+
+Include `floorRelayComponents` in `@GenerateTargetsFromReferences`.
+
+=== Transformation failures
+
+An unknown transformer or a transformation that throws an
+`IllegalArgumentException` causes the affected reference target to be replaced
+with a filter that matches no services:
+
+[source,text]
+----
+(&(objectClass=*)(!(objectClass=*)))
+----
+
+The plugin logs the failure and continues processing the remaining references.
+This behavior does not guarantee that a physical device switches off.
+
+This handling applies to transformer lookup and execution failures.
+Malformed template syntax and missing configuration values are not covered
+by this transformation-failure handling.
+
 == Migration
 
 === Don't use OpenemsComponent.updateReferenceFilter
