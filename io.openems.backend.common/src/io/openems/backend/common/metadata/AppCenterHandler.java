@@ -1,6 +1,7 @@
 package io.openems.backend.common.metadata;
 
-import java.util.Objects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -31,6 +32,7 @@ import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse;
 import io.openems.common.jsonrpc.response.AppCenterGetRegisteredKeysResponse;
 import io.openems.common.jsonrpc.response.AppCenterIsAppFreeResponse;
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
+import io.openems.common.utils.JsonUtils;
 
 public final class AppCenterHandler {
 
@@ -53,7 +55,12 @@ public final class AppCenterHandler {
 			final User user, //
 			final String edgeId //
 	) throws OpenemsNamedException {
-		Objects.requireNonNull(metadata, "No AppCenter Metadata provided.");
+		if (metadata == null) {
+			// No AppCenter metadata service in this deployment. Answer with
+			// benign empty results instead of an error so UIs and Edges degrade
+			// gracefully.
+			return handleWithoutMetadata(request);
+		}
 
 		return switch (request.getPayload().getMethod()) {
 		case AppCenterAddRegisterKeyHistoryRequest.METHOD -> handleAsync(metadata, request, //
@@ -130,7 +137,10 @@ public final class AppCenterHandler {
 			final AppCenterRequest request, //
 			final String edgeId //
 	) throws OpenemsNamedException {
-		Objects.requireNonNull(metadata, "No AppCenter Metadata provided.");
+		if (metadata == null) {
+			// No AppCenter metadata service; see handleUserRequest.
+			return handleWithoutMetadata(request);
+		}
 
 		return switch (request.getPayload().getMethod()) {
 		case AppCenterAddInstallInstanceHistoryRequest.METHOD -> handleAsync(metadata, request, //
@@ -209,6 +219,31 @@ public final class AppCenterHandler {
 	) throws OpenemsNamedException {
 		return metadataCall.apply(metadata, requestMapper.apply(request.getPayload())) //
 				.thenApply(r -> new GenericJsonrpcResponseSuccess(request.id));
+	}
+
+	private static CompletableFuture<? extends JsonrpcResponseSuccess> handleWithoutMetadata(//
+			final AppCenterRequest request //
+	) throws OpenemsNamedException {
+		final var result = switch (request.getPayload().getMethod()) {
+		case AppCenterGetInstalledAppsRequest.METHOD -> JsonUtils.buildJsonObject() //
+				.add("installedApps", new JsonArray()) //
+				.build();
+		case AppCenterGetPossibleAppsRequest.METHOD -> JsonUtils.buildJsonObject() //
+				.add("bundles", new JsonArray()) //
+				.build();
+		case AppCenterGetRegisteredKeysRequest.METHOD -> JsonUtils.buildJsonObject() //
+				.add("keys", new JsonArray()) //
+				.build();
+		case AppCenterIsKeyApplicableRequest.METHOD -> JsonUtils.buildJsonObject() //
+				.addProperty("isKeyApplicable", false) //
+				.add("additionalInfo", new JsonObject()) //
+				.build();
+		case AppCenterIsAppFreeRequest.METHOD -> JsonUtils.buildJsonObject() //
+				.addProperty("isAppFree", false) //
+				.build();
+		default -> new JsonObject();
+		};
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id, result));
 	}
 
 	private AppCenterHandler() {
