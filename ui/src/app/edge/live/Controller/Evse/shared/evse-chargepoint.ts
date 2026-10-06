@@ -32,6 +32,8 @@ export abstract class EvseChargepoint {
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
                 return new Mennekes(chargePoint);
+            case "Evse.ChargePoint.Voltie":
+                return new Voltie(chargePoint);
             case "Evse.ChargePoint.Alfen":
                 return new Alfen(chargePoint);
             case "Simulator.Evse.ChargePoint":
@@ -117,6 +119,20 @@ export class Mennekes extends EvseChargepoint {
 
     public override hasPhaseSwitchingAbility(): boolean {
         return true;
+    }
+}
+
+export class Voltie extends EvseChargepoint {
+    public img = {
+        url: environment.images.EVSE.VOLTIE,
+    };
+
+    /**
+     * The charge-point reports phase-switching support in its capability bitmask, and the Edge component offers the
+     * ability only when it is set; the UI can only check the configured wiring.
+     */
+    public override hasPhaseSwitchingAbility(): boolean {
+        return this.hasPropertyValue("wiring", "THREE_PHASE");
     }
 }
 
