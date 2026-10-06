@@ -218,7 +218,7 @@ subprojects {
 		}
 
 		extensions.configure<CheckstyleExtension>("checkstyle") {
-			toolVersion = "11.1.0"
+			toolVersion = providers.gradleProperty("checkstyle.toolVersion").get()
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			isIgnoreFailures = false

@@ -61,13 +61,13 @@ export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractForml
         }
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "controlMode",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyControlMode"),
@@ -78,7 +78,7 @@ export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractForml
         }
 
         this.setFormControlSafelyWithValue(
-            this.form,
+            this.form(),
             "chargeConsumptionIsActive",
             currentData.allComponents[this.component.id + "/_PropertyControlMode"] ===
                 Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION
@@ -86,7 +86,7 @@ export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractForml
                 : false,
         );
         this.lastSelectedMode = currentData.allComponents[this.component.id + "/_PropertyControlMode"];
-        this.subscribeToggle(this.component, this.form);
+        this.subscribeToggle(this.component, this.form());
     }
 
     private subscribeToggle(component: EdgeConfig.Component, fg: FormGroup<any>) {
@@ -98,10 +98,10 @@ export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractForml
                     ? Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION
                     : Controller_Ess_TimeOfUseTariffUtils.ControlMode.DELAY_DISCHARGE;
 
-                this.form.controls["controlMode"].setValue(controlMode);
+                this.form().controls["controlMode"].setValue(controlMode);
 
                 if (controlMode != lastControlMode) {
-                    this.form.controls["controlMode"].markAsDirty();
+                    this.form().controls["controlMode"].markAsDirty();
                 }
             });
     }

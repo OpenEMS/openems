@@ -323,7 +323,7 @@ public class EvseAlfenImplTest {
 		// Register 1215 reads "3", but the charge point is wired single-phased
 		var abilities = sut.getChargePointAbilities();
 		assertEquals(SINGLE_PHASE, abilities.applySetPoint().phase());
-		assertNull(abilities.phaseSwitch().direction(), "Single-phase wiring must not offer phase switching");
+		assertNull(abilities.phaseSwitch(), "Single-phase wiring must not offer phase switching");
 
 		test.deactivate();
 	}

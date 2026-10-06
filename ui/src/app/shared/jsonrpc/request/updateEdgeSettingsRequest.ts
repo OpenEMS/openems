@@ -3,7 +3,13 @@ import { JsonrpcRequest } from "../base";
 /**
  * Represents a JSON-RPC Request to update the settings of an EMS.
  *
- * @typedef {"method": "updateEmsSettings", "id": UUID, "params": { "settings": {} }} Request
+ * ```json
+ * {
+ *   "method": "updateEmsSettings",
+ *   "id": UUID,
+ *   "params": { "settings": {} }
+ * }
+ * ```
  */
 export class UpdateEdgeSettingsRequest extends JsonrpcRequest {
     private static METHOD: string = "updateEdgeSettings";

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
@@ -33,7 +32,6 @@ export class SettingsComponent implements OnInit {
     constructor(
         protected utils: Utils,
         private service: Service,
-        private translate: TranslateService,
         private readonly userService: UserService,
     ) {}
 

@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { v4 as uuidv4 } from "uuid";
@@ -9,7 +9,7 @@ import { CommonUiModule } from "../../common-ui.module";
     standalone: true,
     templateUrl: "./picktime.component.html",
     imports: [FormsModule, ReactiveFormsModule, CommonUiModule, IonicModule],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [
         `
             .datetime-button {
@@ -34,12 +34,14 @@ export class TimeLineComponent {
     @Input({ required: true }) public controlName!: string;
 
     @Input() public name!: string;
+
     protected readonly spinnerId: string = uuidv4();
 
     public onTimeChange(value: string | null): void {
         if (value == null) {
             return;
         }
+
         this.formGroup.get(this.controlName)?.setValue(value);
         this.formGroup.get(this.controlName)?.markAsDirty();
     }

@@ -46,7 +46,7 @@ export class ControllerFixDigitalOutputHomeComponent extends AbstractFormlyCompo
         fixDigitalOutputComponent.getPropertyFromComponent("outputChannelAddress");
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "isOn",
             currentData,
             new ChannelAddress(fixDigitalOutputComponent.id, "_PropertyIsOn"),

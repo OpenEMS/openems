@@ -16,8 +16,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TestUtils;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -37,7 +39,9 @@ class ControllerEssFixActivePowerImplTest {
 	void testOn() throws Exception {
 		AtomicReference<DummyMeta> meta = new AtomicReference<>(new DummyMeta() //
 				.withGridSellHardLimit(10_000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssChargeFromGridAllowed(false));
 		final var ess = new DummyManagedAsymmetricEss("ess0");
 		new ControllerTest(new ControllerEssFixActivePowerImpl()) //
@@ -61,7 +65,9 @@ class ControllerEssFixActivePowerImplTest {
 						.onBeforeProcessImage(() -> meta.set(meta.get() //
 								.withIsEssDischargeToGridAllowed(true) //
 								.withIsEssChargeFromGridAllowed(true) //
-								.withGridBuyHardLimit(4200))) //
+								.withGridBuyLimit(b -> b //
+										.setHard(new GridBuyLimit.Hard(4200)) //
+										.setSoft(JSCalendar.Tasks.empty())))) //
 						.input("ess0", SOC, 80) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_META_LIMIT, true) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_ESS_HARDWARE, false) //
@@ -81,9 +87,12 @@ class ControllerEssFixActivePowerImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum() //
 						.withGridActivePower(1000)) //
-				.addReference("meta",
-						new DummyMeta().withGridSellHardLimit(10_000).withGridBuyHardLimit(10_000)
-								.withIsEssChargeFromGridAllowed(true)) //
+				.addReference("meta", new DummyMeta()//
+						.withGridSellHardLimit(10_000) //
+						.withGridBuyLimit(b -> b //
+								.setHard(new GridBuyLimit.Hard(10000)) //
+								.setSoft(JSCalendar.Tasks.empty())) //
+						.withIsEssChargeFromGridAllowed(true)) //
 				.addReference("ess", new DummyManagedAsymmetricEss("ess0")) //
 				.activate(this.baseConfig(Mode.MANUAL_OFF) //
 						.build()) //
@@ -101,7 +110,9 @@ class ControllerEssFixActivePowerImplTest {
 	void testChargeOnce() throws Exception {
 		AtomicReference<DummyMeta> meta = new AtomicReference<>(new DummyMeta() //
 				.withGridSellHardLimit(10_000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssChargeFromGridAllowed(false));
 		final var ess = new DummyManagedAsymmetricEss("ess0");
 		new ControllerTest(new ControllerEssFixActivePowerImpl()) //
@@ -126,7 +137,9 @@ class ControllerEssFixActivePowerImplTest {
 						.onBeforeProcessImage(() -> meta.set(meta.get() //
 								.withIsEssDischargeToGridAllowed(true) //
 								.withIsEssChargeFromGridAllowed(true) //
-								.withGridBuyHardLimit(4200)))
+								.withGridBuyLimit(b -> b //
+										.setHard(new GridBuyLimit.Hard(4200)) //
+										.setSoft(JSCalendar.Tasks.empty())))) //
 						.input("ess0", SOC, 50) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_META_LIMIT, true) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_ESS_HARDWARE, false) //
@@ -146,7 +159,9 @@ class ControllerEssFixActivePowerImplTest {
 	void testChargeOnceWithServicePermission() throws Exception {
 		AtomicReference<DummyMeta> meta = new AtomicReference<>(new DummyMeta() //
 				.withGridSellHardLimit(10_000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssDischargeToGridAllowed(false) //
 				.withIsEssChargeFromGridAllowed(false));
 		final var ess = new DummyManagedAsymmetricEss("ess0");
@@ -175,7 +190,9 @@ class ControllerEssFixActivePowerImplTest {
 				) //
 				.next(new TestCase("Charge (limited by 14a) once with permission") //
 						.onBeforeProcessImage(() -> meta.set(meta.get() //
-								.withGridBuyHardLimit(4200))) //
+								.withGridBuyLimit(b -> b //
+										.setHard(new GridBuyLimit.Hard(4200)) //
+										.setSoft(JSCalendar.Tasks.empty())))) //
 						.input("ess0", SOC, 50) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_META_LIMIT, true) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_ESS_HARDWARE, false) //
@@ -231,7 +248,9 @@ class ControllerEssFixActivePowerImplTest {
 		// E.g. for existing systems that have no valid grid limits configured.
 		AtomicReference<DummyMeta> meta = new AtomicReference<>(new DummyMeta() //
 				.withGridSellHardLimit(10_000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssChargeFromGridAllowed(false));
 		final var ess = new DummyManagedAsymmetricEss("ess0");
 		new ControllerTest(new ControllerEssFixActivePowerImpl()) //
@@ -252,7 +271,9 @@ class ControllerEssFixActivePowerImplTest {
 				) //
 				.next(new TestCase("Charge (limited by 14a) once with permission") //
 						.onBeforeProcessImage(() -> meta.set(meta.get() //
-								.withGridBuyHardLimit(22000))) //
+								.withGridBuyLimit(b -> b //
+										.setHard(new GridBuyLimit.Hard(22000)) //
+										.setSoft(JSCalendar.Tasks.empty())))) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_META_LIMIT, false) //
 						.output(ControllerEssFixActivePower.ChannelId.SETPOINT_LIMITED_BY_ESS_HARDWARE, false) //
 						.output(ControllerEssFixActivePower.ChannelId.NO_LIMIT_APPLIED, false) //
@@ -369,7 +390,9 @@ class ControllerEssFixActivePowerImplTest {
 				.withAllowedDischargePower(7000);
 		var meta = new DummyMeta() //
 				.withGridSellHardLimit(5000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssChargeFromGridAllowed(true) //
 				.withIsEssDischargeToGridAllowed(true);
 		var systemLimits = fromMeta(meta);
@@ -390,7 +413,10 @@ class ControllerEssFixActivePowerImplTest {
 				.withAllowedChargePower(-3000);
 		var meta = new DummyMeta() //
 				.withGridSellHardLimit(5000) //
-				.withGridBuyHardLimit(10_000).withIsEssChargeFromGridAllowed(true);
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
+				.withIsEssChargeFromGridAllowed(true);
 		var systemLimits = fromMeta(meta);
 
 		var input = new ControllerEssFixActivePowerImpl.PowerTarget(ALL, Pwr.ACTIVE, Relationship.EQUALS,
@@ -408,7 +434,9 @@ class ControllerEssFixActivePowerImplTest {
 		var ess = new DummyManagedSymmetricEss("ess0") //
 				.withAllowedChargePower(-8000);
 		var meta = new DummyMeta() //
-				.withGridBuyHardLimit(3464) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(3464)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withGridSellHardLimit(5000) //
 				.withIsEssChargeFromGridAllowed(true);
 		var systemLimits = fromMeta(meta);
@@ -429,7 +457,9 @@ class ControllerEssFixActivePowerImplTest {
 				.withAllowedDischargePower(7000);
 		var meta = new DummyMeta() //
 				.withGridSellHardLimit(5000) //
-				.withGridBuyHardLimit(10_000) //
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withIsEssChargeFromGridAllowed(true) //
 				.withIsEssDischargeToGridAllowed(true);
 		var systemLimits = fromMeta(meta);

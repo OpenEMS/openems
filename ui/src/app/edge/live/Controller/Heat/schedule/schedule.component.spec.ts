@@ -15,6 +15,7 @@ describe("ControllerHeatScheduleComponent", () => {
     let fixture: ComponentFixture<HeatScheduleComponent>;
     let component: HeatScheduleComponent;
     let routeServiceMock: {
+        params: {};
         getRouteParam: jasmine.Spy<(paramName: string) => string>;
         currentUrl: () => null;
         getCurrentUrlWithoutLeading: () => string | null;
@@ -40,6 +41,7 @@ describe("ControllerHeatScheduleComponent", () => {
 
     beforeEach(async () => {
         routeServiceMock = {
+            params: {},
             getRouteParam: jasmine.createSpy("getRouteParam").and.returnValue("heat0"),
             currentUrl: () => null,
             getCurrentUrlWithoutLeading: () => "",

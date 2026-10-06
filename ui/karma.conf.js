@@ -7,6 +7,7 @@ module.exports = function (config) {
         browserDisconnectTimeout: 30000, // default 2000
         browserNoActivityTimeout: 60000, // default 30000
         browserDisconnectTolerance: 2, // default 0
+        processKillTimeout: 5000, // default 2000
         frameworks: ["jasmine", "@angular-devkit/build-angular"],
         preprocessor: {
             "src/**/*.ts": ["coverage"],
@@ -18,6 +19,7 @@ module.exports = function (config) {
         ],
         client: {
             jasmine: {
+                random: false,
                 // you can add configuration options for Jasmine here
                 // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
                 // for example, you can disable the random execution with `random: false`
@@ -35,11 +37,11 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ["ChromeHeadless", "ChromeHeadlessCI"],
+        browsers: ["ChromeHeadlessCI"],
         customLaunchers: {
             ChromeHeadlessCI: {
                 base: "ChromeHeadless",
-                flags: ["--no-sandbox"],
+                flags: ["--no-sandbox", '--disable-dev-shm-usage',],
             },
         },
         singleRun: true,

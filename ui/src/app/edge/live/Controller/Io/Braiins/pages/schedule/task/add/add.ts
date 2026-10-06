@@ -19,6 +19,7 @@ type ModeChangeEvent = CustomEvent<{
 }>;
 
 @Component({
+    selector: "oe-controller-braiins",
     templateUrl: "./add.html",
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AddTaskComponent, CommonUiModule],

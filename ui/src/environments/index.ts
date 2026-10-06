@@ -90,6 +90,7 @@ export interface Environment {
             readonly ALPITRONIC: string | null;
             readonly MENNEKES: string | null;
             readonly VOLTIE: string | null;
+            readonly ALFEN: string | null;
             readonly SIMULATOR: string | null;
         };
         readonly LOGO: {
@@ -168,6 +169,7 @@ export interface Environment {
             readonly EVCS_KEBA: string | null;
             readonly EVCS_HARDY_BARTH: string | null;
             readonly EVCS_MENNEKES: string | null;
+            readonly EVSE_ALFEN: string | null;
             readonly EVCS_GO_E: string | null;
             readonly EVCS_IES: string | null;
             readonly EVCS_ALPITRONIC_HYPER: string | null;

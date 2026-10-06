@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, EventEmitter, Input, OnDestroy, Output, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonCol } from "@ionic/angular";

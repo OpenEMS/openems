@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
@@ -6,7 +7,6 @@ import globalEn from "src/assets/i18n/en.json";
 import { environment } from "src/environments";
 import heatEn from "../i18n/en.json";
 import { PropertyMode } from "../shared/shared";
-
 import { ControllerHeatSettingsComponent, Mode } from "./settings";
 
 function createComponent(component: EdgeConfig.Component): any {
@@ -23,7 +23,7 @@ function createComponent(component: EdgeConfig.Component): any {
     instance.settingsForm = new FormGroup({
         [ControllerHeatSettingsComponent.FORM_CONTROL_NAME]: new FormControl<Mode | null>(null),
     });
-    instance.form = instance["getFormGroup"]();
+    instance.form = signal(instance["getFormGroup"]());
     instance.component = null;
     instance.modeChannel = null;
     instance.skipCurrentData = false;
@@ -37,7 +37,7 @@ describe("ControllerHeatSettingsComponent", () => {
     beforeEach(async () => {
         testContext = await TestingUtils.sharedSetup();
         const mergedEn = { ...globalEn, ...heatEn };
-        testContext.translate.setTranslation("en", mergedEn,true);
+        testContext.translate.setTranslation("en", mergedEn, true);
         testContext.translate.use("en");
     });
 
@@ -47,10 +47,6 @@ describe("ControllerHeatSettingsComponent", () => {
 
         const view = ControllerHeatSettingsComponent.generateView(component, edge, testContext.translate);
 
-        expect(view.title).toBe("ASKOMA");
-        expect(view.component).toBe(component);
-        expect(view.edge).toBe(edge);
-        expect(view.lines.length).toBe(2);
         expect(view.lines[0]).toEqual({
             type: "image-line",
             img: {
@@ -63,6 +59,10 @@ describe("ControllerHeatSettingsComponent", () => {
                 },
             },
         });
+        expect(view.title).toBe("ASKOMA");
+        expect(view.component).toBe(component);
+        expect(view.edge).toBe(edge);
+        expect(view.lines.length).toBe(2);
         expect(view.lines[1]).toEqual({
             type: "radio-buttons-from-form-control-line",
             name: "select-mode",
@@ -71,14 +71,15 @@ describe("ControllerHeatSettingsComponent", () => {
                 {
                     value: PropertyMode.FAST_HEAT,
                     name: "Fast heat",
-                    description: "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
+                    description:
+                        "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
                     icon: { color: "success", name: "oe-consumption", size: "medium" },
-
                 },
                 {
                     value: Mode.SURPLUS,
                     name: "PV surplus",
-                    description: "Enables even heating of different buffer tanks. Activation happens automatically, perfectly adapted to your excess and available PV energy.",
+                    description:
+                        "Enables even heating of different buffer tanks. Activation happens automatically, perfectly adapted to your excess and available PV energy.",
                     icon: { color: "primary", name: "oe-production", size: "medium" },
                 },
                 {
@@ -96,8 +97,8 @@ describe("ControllerHeatSettingsComponent", () => {
 
         const view = ControllerHeatSettingsComponent.generateView(component, edge, testContext.translate);
 
-        expect(view.lines.find(line => line.type === "image-line")).toBeDefined();
-        expect(view.lines.find(line => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
+        expect(view.lines.find((line) => line.type === "image-line")).toBeDefined();
+        expect(view.lines.find((line) => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
     });
 
     it("+generateView() for read-only MyPv hides writable settings controls", () => {
@@ -105,8 +106,8 @@ describe("ControllerHeatSettingsComponent", () => {
         const edge = DummyConfig.dummyEdge({});
 
         const view = ControllerHeatSettingsComponent.generateView(component, edge, testContext.translate);
-        expect(view.lines.find(line => line.type === "image-line")).toBeDefined();
-        expect(view.lines.find(line => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
+        expect(view.lines.find((line) => line.type === "image-line")).toBeDefined();
+        expect(view.lines.find((line) => line.type === "radio-buttons-from-form-control-line")).toBeUndefined();
     });
 
     it("#getChannelAddresses() subscribes to _PropertyMode for Askoma and for MyPV", async () => {
@@ -136,7 +137,9 @@ describe("ControllerHeatSettingsComponent", () => {
 
         instance["onCurrentData"](currentData);
 
-        expect(instance.form.controls[ControllerHeatSettingsComponent.FORM_CONTROL_NAME].value).toBe(Mode.SURPLUS);
-        expect(instance.form.controls[ControllerHeatSettingsComponent.FORM_CONTROL_NAME].pristine).toBeTrue();
+        expect(instance.form().controls[ControllerHeatSettingsComponent.FORM_CONTROL_NAME].value).toBe(
+            PropertyMode.SURPLUS,
+        );
+        expect(instance.form().controls[ControllerHeatSettingsComponent.FORM_CONTROL_NAME].pristine).toBeTrue();
     });
 });

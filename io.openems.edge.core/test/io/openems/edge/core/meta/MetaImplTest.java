@@ -102,7 +102,7 @@ class MetaImplTest {
 								.build().toString()) //
 						.build());
 
-		final var ots = sut.getGridBuySoftLimit() //
+		final var ots = sut.getGridBuyLimit().soft() //
 				.getOneTasksBetween(clock.now(), clock.now().plusHours(48)).iterator();
 		{
 			// from 00:00 to 08:00: defined fallback task
@@ -134,7 +134,7 @@ class MetaImplTest {
 			assertEquals(UID_2, ot.parentTask().uid());
 			assertEquals("2020-01-01T10:00Z", ot.start().toString());
 			assertEquals("PT1H", ot.duration().toString());
-			assertEquals(22170, ot.payload().power());
+			assertEquals(16170, ot.payload().power());
 		}
 		{
 			// from 11:00: fallback task
@@ -146,7 +146,7 @@ class MetaImplTest {
 		}
 
 		// Validate Hard Limits
-		assertEquals(22170, sut.getGridBuyHardLimit());
+		assertEquals(16170, sut.getGridBuyLimit().hard().power());
 		assertEquals(12345, sut.getGridSellHardLimit());
 		assertEquals(12345, sut.getEssDischargeToGridLimit());
 

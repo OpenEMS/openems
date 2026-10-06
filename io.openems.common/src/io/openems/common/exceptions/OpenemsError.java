@@ -1,12 +1,17 @@
 package io.openems.common.exceptions;
 
 import java.io.Serial;
+import java.util.Arrays;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
+
+import io.openems.common.session.Language;
+import io.openems.common.utils.TextProvider;
 
 /**
  * Holds named OpenEMS Errors.
@@ -36,8 +41,45 @@ public enum OpenemsError {
 	EDGE_UNABLE_TO_DELETE_CONFIG(2004, "Unable to delete configuration for Component [%s]: [%s]"), //
 	EDGE_CHANNEL_NO_OPTION(2005, "Channel has no Option [%s]. Existing options: %s"), //
 	EDGE_APP_INSTANCE_NOT_FOUND(2006, "Unable to find App instance with ID [%s]"), //
-	EDGE_APP_CATEGORY_CONFLICT(2007, "An App of the same category as App [%s] is already installed"), //
-	EDGE_APP_COMPONENTS_UPDATE_FAILED(2008, "Unable to update Components for App: [%s]"), //
+	EDGE_APP_COMPONENTS_UPDATE_FAILED(2007, "Unable to update Components for App: [%s]"), //
+	/*
+	 * Edge Validation errors. 2100-2199
+	 */
+	EDGE_APP_VALIDATION_APPS_NOT_INSTALLED(2100), //
+	EDGE_APP_VALIDATION_CHECK_CARDINALITY_SINGLE(2101), //
+	EDGE_APP_VALIDATION_CHECK_CARDINALITY_SINGLE_IN_CATEGORY(2102), //
+	EDGE_APP_VALIDATION_CHECK_HOME(2103), //
+	EDGE_APP_VALIDATION_CHECK_HOME_INVERTED(2104), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL50GEN3(2105), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL50GEN3_INVERTED(2106), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL92(2107), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL92_INVERTED(2108), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL92_MASTER(2109), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL92_MASTER_INVERTED(2110), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL100(2111), //
+	EDGE_APP_VALIDATION_CHECK_COMMERCIAL100_INVERTED(2112), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL_L(2113), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL_L_INVERTED(2114), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL_XL(2115), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL_XL_INVERTED(2116), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL(2117), //
+	EDGE_APP_VALIDATION_CHECK_INDUSTRIAL_INVERTED(2118), //
+	EDGE_APP_VALIDATION_CHECK_HOST_NOT_REACHABLE(2119), //
+	EDGE_APP_VALIDATION_CHECK_HOST_WRONG_IP(2120), //
+	EDGE_APP_VALIDATION_CHECK_NO_COMPONENT_INSTALLED_OF_FACTORY_ID(2121), //
+	EDGE_APP_VALIDATION_CHECK_OR(2122), //
+	EDGE_APP_VALIDATION_CHECK_3RD_PARTY_ACCESS_ACCEPTED(2123), //
+	EDGE_APP_VALIDATION_CHECK_COORDINATES_SET(2124), //
+	EDGE_APP_VALIDATION_CHECK_EVSE_NOT_INSTALLED(2125), //
+	EDGE_APP_VALIDATION_CHECK_EVSE_NOT_INSTALLED_INVERTED(2126), //
+	EDGE_APP_VALIDATION_CHECK_EVCS_NOT_INSTALLED(2127), //
+	EDGE_APP_VALIDATION_CHECK_EVCS_NOT_INSTALLED_INVERTED(2128), //
+	EDGE_APP_VALIDATION_CHECK_COUNTRY(2129), //
+	EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2(2130), //
+	EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2_INVERTED(2131), //
+	EDGE_APP_VALIDATION_CHECK_RELAY_COUNT(2132), //
+	EDGE_APP_VALIDATION_CHECK_RELAY_COUNT_ADDITIONAL_RELAY(2133), //
+
 	/*
 	 * Backend errors. 3000-3999
 	 */
@@ -123,11 +165,22 @@ public enum OpenemsError {
 	private final int code;
 	private final String message;
 	private final int noOfParams;
+	private final String translationKey;
 
 	private OpenemsError(int code, String message) {
 		this.code = code;
 		this.message = message;
 		this.noOfParams = CharMatcher.is('%').countIn(message);
+		this.translationKey = null;
+	}
+
+	private OpenemsError(int code) {
+		this.code = code;
+		this.message = null;
+		this.translationKey = this.getTranslationKeyFromName();
+		final var defaultMessage = TextProvider.byTranslation(OpenemsError.class, this.translationKey)
+				.getText(Language.DEFAULT);
+		this.noOfParams = CharMatcher.is('{').countIn(defaultMessage);
 	}
 
 	public int getCode() {
@@ -139,17 +192,40 @@ public enum OpenemsError {
 	}
 
 	/**
-	 * Gets the formatted Error message.
+	 * Gets the formatted Error message. Use this method only if the error message
+	 * is set for this error.
 	 *
 	 * @param params the error parameters
 	 * @return the error message as String
 	 */
 	public String getMessage(Object... params) {
-		if (params.length != this.noOfParams) {
-			OpenemsError.log.warn("OpenEMS-Error [" + this.name() + "] expects [" + this.noOfParams + "] params, got ["
-					+ params.length + "]");
+		this.checkNumberOfParams(params);
+		if (this.message != null) {
+			return String.format(this.message, params);
 		}
-		return String.format(this.message, params);
+		if (this.translationKey != null) {
+			return getTranslation(Language.DEFAULT, this.translationKey, params);
+		}
+		return "";
+	}
+
+	/**
+	 * Gets the formatted, translated Error message. Use this method only if the
+	 * translation key is set for this error.
+	 *
+	 * @param lang   the {@link Language}
+	 * @param params the error parameters
+	 * @return the error message as String
+	 */
+	public String getMessage(Language lang, Object... params) {
+		this.checkNumberOfParams(params);
+		if (this.translationKey != null) {
+			return getTranslation(lang, this.translationKey, params);
+		}
+		if (this.message != null) {
+			return String.format(this.message, params);
+		}
+		return "";
 	}
 
 	/*
@@ -159,7 +235,7 @@ public enum OpenemsError {
 		for (OpenemsError error : OpenemsError.values()) {
 			var duplicate = OpenemsError.ALL_ERRORS.putIfAbsent(error.code, error);
 			if (duplicate != null) {
-				OpenemsError.log.warn("Duplicate OpenEMS-Error with code [" + error.code + "]");
+				OpenemsError.log.warn("Duplicate OpenEMS-Error with code [{}]", error.code);
 			}
 		}
 	}
@@ -175,6 +251,20 @@ public enum OpenemsError {
 	 */
 	public OpenemsNamedException exception(Object... params) {
 		return new OpenemsNamedException(this, params);
+	}
+
+	/**
+	 * Creates a OpenEMS Named Exception from this Error.
+	 *
+	 * <p>
+	 * Use like: `throw OpenemsError.GENERIC.exception(...)`
+	 *
+	 * @param language the {@link Language}
+	 * @param params   the params for the Error message
+	 * @return OpenemsNamedException
+	 */
+	public OpenemsNamedException exception(Language language, Object... params) {
+		return new OpenemsNamedException(this, language, params);
 	}
 
 	/**
@@ -199,6 +289,12 @@ public enum OpenemsError {
 
 		public OpenemsNamedException(OpenemsError error, Object... params) {
 			super(error.getMessage(params));
+			this.error = error;
+			this.params = params;
+		}
+
+		public OpenemsNamedException(OpenemsError error, Language language, Object... params) {
+			super(error.getMessage(language, params));
 			this.error = error;
 			this.params = params;
 		}
@@ -241,5 +337,40 @@ public enum OpenemsError {
 		public Object[] getParams() {
 			return this.params;
 		}
+	}
+
+	private static String getTranslation(Language language, String key, Object... params) {
+		final var availableLanguage = switch (language) {
+		case null -> Language.DEFAULT;
+		// Translations are not available -> fall back to ENGLISH
+		case CS, ES, FR, NL, JA -> Language.EN;
+		case DE, EN -> language;
+		};
+
+		var textProvider = TextProvider //
+				.byTranslation(OpenemsError.class, key) //
+				.formatWithArguments(params);
+
+		return textProvider.getText(availableLanguage);
+	}
+
+	private void checkNumberOfParams(Object... params) {
+		if (params.length != this.noOfParams) {
+			OpenemsError.log.warn("OpenEMS-Error [{}] expects [{}] params, got [{}]", this.name(), this.noOfParams,
+					params.length);
+		}
+	}
+
+	private String getTranslationKeyFromName() {
+		final var name = this.name();
+		final var parts = name//
+				.replace("_", ".") //
+				.toLowerCase() //
+				.split("\\.");
+
+		return Arrays.stream(parts)
+				.map(part -> part.isEmpty() ? part : Character.toUpperCase(part.charAt(0)) + part.substring(1))
+				.collect(Collectors.joining(".")) //
+				.concat(".Message");
 	}
 }

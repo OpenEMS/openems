@@ -1,6 +1,7 @@
 import { Directive, effect, EffectRef, Inject, inject, Injector, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
+
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DataService } from "../../shared/components/shared/dataservice";
@@ -8,7 +9,6 @@ import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../sha
 
 @Directive()
 export class LiveDataService extends DataService implements OnDestroy {
-
     private subscribeId: string = uuidv4();
     private subscribedChannelAddresses: ChannelAddress[] = [];
     private subscription: EffectRef | null = null;
@@ -22,18 +22,19 @@ export class LiveDataService extends DataService implements OnDestroy {
 
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
-                .subscribe(() => this.lastUpdated.set(new Date()));
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(() => this.lastUpdated.set(new Date()));
         });
     }
 
     public subscribeChannels(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
-
         AssertionUtils.assertIsDefined(edge);
 
-        if (this.subscribedChannelAddresses.length !== 0 && ArrayUtils.containsAll<ChannelAddress>({ arr: channelAddresses, strings: this.subscribedChannelAddresses })) {
+        if (
+            this.subscribedChannelAddresses.length !== 0 &&
+            ArrayUtils.containsAll<ChannelAddress>({ arr: channelAddresses, strings: this.subscribedChannelAddresses })
+        ) {
             return;
-        };
+        }
 
         for (const channelAddress of channelAddresses) {
             this.subscribedChannelAddresses.push(channelAddress);
@@ -42,11 +43,11 @@ export class LiveDataService extends DataService implements OnDestroy {
         this.subscribeId = uuidv4();
         this.edge = edge;
         if (channelAddresses.length != 0) {
-            edge.subscribeChannels(this.websocket, this.subscribeId, channelAddresses);
+            edge.subscribeChannelsWithState(this.websocket, this.subscribeId, channelAddresses);
         }
 
         // call onCurrentData() with latest data
-        edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+        edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe((currentData) => {
             const allComponents: { [id: string]: any } = this.currentValue().allComponents;
             for (const channelAddress of channelAddresses) {
                 const ca = channelAddress.toString();
@@ -59,7 +60,6 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     ngOnDestroy() {
-
         if (this == null) {
             return;
         }
@@ -86,31 +86,42 @@ export class LiveDataService extends DataService implements OnDestroy {
     /**
      * Gets the first valid --non null/undefined-- value for passed channels and unsubscribes afterwards
      *
-     * @param channelAddresses the channel addresses
-     * @returns the currentData for thes channelAddresses
+     * @param channelAddresses The channel addresses
+     * @returns The currentData for thes channelAddresses
      */
-    public async subscribeAndGetFirstValidValueForChannels(channelAddresses: ChannelAddress[], componentId: string): Promise<CurrentData> {
+    public async subscribeAndGetFirstValidValueForChannels(
+        channelAddresses: ChannelAddress[],
+        componentId: string,
+    ): Promise<CurrentData> {
         this.subscribeChannels(channelAddresses, this.edge, componentId);
         return new Promise<any>((res) => {
-            this.subscription = effect(() => {
-                const currentValue = this.currentValue();
-                if (!currentValue) {
-                    return;
-                }
+            this.subscription = effect(
+                () => {
+                    const currentValue = this.currentValue();
+                    if (!currentValue) {
+                        return;
+                    }
 
-                const allValuesValid = channelAddresses.every(el => currentValue.allComponents[el.toString()] != null);
-                if (!allValuesValid) {
-                    return;
-                }
+                    const allValuesValid = channelAddresses.every(
+                        (el) => currentValue.allComponents[el.toString()] != null,
+                    );
+                    if (!allValuesValid) {
+                        return;
+                    }
 
-                this.unsubscribeFromChannels(channelAddresses);
-                const allComponents: typeof currentValue.allComponents = channelAddresses.reduce((arr: typeof currentValue.allComponents, channel) => {
-                    arr[channel.toString()] = currentValue.allComponents[channel.toString()];
-                    return arr;
-                }, {});
-                currentValue.allComponents = allComponents;
-                res(currentValue);
-            }, { injector: this.injector });
+                    this.unsubscribeFromChannels(channelAddresses);
+                    const allComponents: typeof currentValue.allComponents = channelAddresses.reduce(
+                        (arr: typeof currentValue.allComponents, channel) => {
+                            arr[channel.toString()] = currentValue.allComponents[channel.toString()];
+                            return arr;
+                        },
+                        {},
+                    );
+                    currentValue.allComponents = allComponents;
+                    res(currentValue);
+                },
+                { injector: this.injector },
+            );
 
             this.subscription.destroy();
         });
@@ -119,23 +130,26 @@ export class LiveDataService extends DataService implements OnDestroy {
     /**
      * Gets the first valid --non null/undefined-- value for this channel
      *
-     * @param channelAddress the channel address
-     * @returns a non null/undefined value
+     * @param channelAddress The channel address
+     * @returns A non null/undefined value
      */
     public async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T | null> {
         return new Promise<any>((res) => {
-            this.subscription = effect(() => {
-                const currentValue = this.currentValue();
+            this.subscription = effect(
+                () => {
+                    const currentValue = this.currentValue();
 
-                if (!currentValue) {
-                    res(null);
-                }
-                const channelValue = currentValue.allComponents[channelAddress.toString()];
+                    if (!currentValue) {
+                        res(null);
+                    }
+                    const channelValue = currentValue.allComponents[channelAddress.toString()];
 
-                if (channelValue != null) {
-                    res(channelValue);
-                }
-            }, { injector: this.injector });
+                    if (channelValue != null) {
+                        res(channelValue);
+                    }
+                },
+                { injector: this.injector },
+            );
         });
     }
 }

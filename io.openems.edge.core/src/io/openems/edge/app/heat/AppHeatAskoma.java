@@ -44,6 +44,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.energy.api.Version;
 
 /**
  * Describes an App for a writable ASKOMA heating element.
@@ -88,7 +89,26 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
 								.setMin(250)//
 								.setMax(30000)//
-								.setUnit(Unit.WATT, l)));
+								.setUnit(Unit.WATT, l))), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
+
+		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
+				.setTranslatedDescriptionWithAppPrefix(".storageVolume.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(1))), //
+		HEATED_SHARE(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setDefaultValue(100) //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".heatedShare.label") //
+				.setTranslatedDescriptionWithAppPrefix(".heatedShare.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(0)//
+								.setMax(100)//
+								.setUnit(Unit.PERCENT, l)));
 
 		private final AppDef<? super AppHeatAskoma, ? super Property, ? super BundleParameter> def;
 
@@ -137,12 +157,16 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, l, Property.IP);
 			final var maxHeatPower = this.getInt(p, Property.MAX_HEAT_POWER);
+			final var storageVolume = this.getInt(p, Property.STORAGE_VOLUME);
+			final var heatedShare = this.getInt(p, Property.HEATED_SHARE);
+			final var effectiveStorageVolume = storageVolume * heatedShare / 100.0;
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatId, alias, "Heat.Askoma", JsonUtils.buildJsonObject() //
 							.addProperty("readOnly", false) //
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("maxHeatPower", maxHeatPower) //
+							.addProperty("effectiveStorageVolume", effectiveStorageVolume) //
 							.build()), //
 					new EdgeConfig.Component(modbusId,
 							TranslationUtil.getTranslation(bundle, "App.Heat.Askoma.modbus.alias"), "Bridge.Modbus.Tcp",
@@ -155,6 +179,7 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.build();
 		};
 	}
@@ -162,9 +187,9 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

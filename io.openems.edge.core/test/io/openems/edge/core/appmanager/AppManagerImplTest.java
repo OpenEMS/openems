@@ -405,7 +405,7 @@ public class AppManagerImplTest {
 				.put("openemsApp", this.homeApp) //
 				.build());
 		assertFalse(checkable.check());
-		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
+		assertNotNull(checkable.getValidationError(Language.DEFAULT));
 	}
 
 	@Test
@@ -419,7 +419,7 @@ public class AppManagerImplTest {
 				.put("openemsApp", this.kebaEvcsApp) //
 				.build());
 		assertTrue(checkable.check());
-		assertNull(checkable.getErrorMessage(Language.DEFAULT));
+		assertNull(checkable.getValidationError(Language.DEFAULT));
 	}
 
 	@Test
@@ -431,6 +431,6 @@ public class AppManagerImplTest {
 				.put("openemsApp", this.stromdao) //
 				.build());
 		assertFalse(checkable.check());
-		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
+		assertNotNull(checkable.getValidationError(Language.DEFAULT));
 	}
 }

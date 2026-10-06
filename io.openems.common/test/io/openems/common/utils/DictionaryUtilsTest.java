@@ -1,13 +1,13 @@
 package io.openems.common.utils;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Hashtable;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Hashtable;
+
+import org.junit.jupiter.api.Test;
 
 class DictionaryUtilsTest {
 
@@ -105,19 +105,19 @@ class DictionaryUtilsTest {
 		assertFalse(DictionaryUtils.containsAnyKey(empty, new String[] {}));
 		assertFalse(DictionaryUtils.containsAnyKey(empty, "1"));
 	}
-	
+
 	@Test
 	void getAsOptionalStringReturnsEmptyForNullDictionary() {
 		assertTrue(DictionaryUtils.getAsOptionalString(null, "alias").isEmpty());
 	}
-	
+
 	@Test
 	void getAsOptionalStringReturnsEmptyForMissingKey() {
 		var properties = new Hashtable<String, Object>();
 
 		assertTrue(DictionaryUtils.getAsOptionalString(properties, "alias").isEmpty());
 	}
-	
+
 	@Test
 	void getAsOptionalStringReturnsValue() {
 		var properties = new Hashtable<String, Object>();

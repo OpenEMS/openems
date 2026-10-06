@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.energy.api.Version;
 
 /**
  * Describes an App for a writable my-PV heating element.
@@ -57,6 +58,8 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "HEAT_ID":"heat0",
       "MODBUS_ID":"modbus0",
       "IP":"e.g.""192.168.178.152",
+      "STORAGE_VOLUME": 500,
+      "HEATED_SHARE": 100,
       "MAX_HEAT_POWER":9000
     },
     "appDescriptor":{
@@ -88,7 +91,26 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
 								.setMin(0)//
 								.setMax(9000)//
-								.setUnit(Unit.WATT, l)));
+								.setUnit(Unit.WATT, l))), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
+
+		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
+				.setTranslatedDescriptionWithAppPrefix(".storageVolume.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(1))), //
+		HEATED_SHARE(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setDefaultValue(100) //
+				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".heatedShare.label") //
+				.setTranslatedDescriptionWithAppPrefix(".heatedShare.description"))
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+								.setMin(0)//
+								.setMax(100)//
+								.setUnit(Unit.PERCENT, l)));
 
 		private final AppDef<? super AppHeatMyPv, ? super Property, ? super BundleParameter> def;
 
@@ -137,12 +159,16 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, l, Property.IP);
 			final var maxHeatPower = this.getInt(p, Property.MAX_HEAT_POWER);
+			final var storageVolume = this.getInt(p, Property.STORAGE_VOLUME);
+			final var heatedShare = this.getInt(p, Property.HEATED_SHARE);
+			final var effectiveStorageVolume = storageVolume * heatedShare / 100.0;
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatId, alias, "Heat.MyPv", JsonUtils.buildJsonObject() //
 							.addProperty("readOnly", false) //
 							.addProperty("modbus.id", modbusId) //
 							.addProperty("maxHeatPower", maxHeatPower) //
+							.addProperty("effectiveStorageVolume", effectiveStorageVolume) //
 							.build()), //
 					new EdgeConfig.Component(modbusId,
 							TranslationUtil.getTranslation(bundle, "App.Heat.MyPv.modbus.alias"), "Bridge.Modbus.Tcp",
@@ -155,6 +181,7 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.build();
 		};
 	}
@@ -162,9 +189,9 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

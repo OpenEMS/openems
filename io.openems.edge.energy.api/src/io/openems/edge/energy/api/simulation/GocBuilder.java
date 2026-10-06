@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -227,10 +227,10 @@ public class GocBuilder {
 
 	private GlobalOptimizationContext.Grid buildGrid() {
 		return new GlobalOptimizationContext.Grid(//
-				/* maxBuyPower */ this.meta.getGridBuyHardLimit(), //
+				/* maxBuyPower */ this.meta.getGridBuyLimit().hard().power(), //
 				/* maxSellPower */ this.meta.getGridSellHardLimit(), //
 				/* maxSellPowerWithBuffer */ this.meta.getGridSellHardLimitWithBuffer(), //
-				/* gridBuySoftLimit */ this.meta.getGridBuySoftLimit());
+				/* gridBuySoftLimit */ this.meta.getGridBuyLimit().soft());
 	}
 
 	private GlobalOptimizationContext.Ess buildEss(int essCapacity, int essSoc) {
@@ -251,7 +251,7 @@ public class GocBuilder {
 
 	private Periods buildPeriods(//
 			ZonedDateTime startTime, //
-			JSCalendar.OneTasks<GridBuySoftLimit> gridBuySoftLimits, //
+			JSCalendar.OneTasks<GridBuyLimit.Soft> gridBuySoftLimits, //
 			Prediction productionValues, //
 			Prediction consumptionValues, //
 			TimeOfUsePrices gridBuyPrices, //
@@ -260,7 +260,7 @@ public class GocBuilder {
 		for (var i = 0;; i++) {
 			final var time = startTime.plusMinutes(i * 15L);
 			final var gridBuySoftLimit = Optional.ofNullable(gridBuySoftLimits.getPayloadAt(time)) //
-					.map(GridBuySoftLimit::power) //
+					.map(GridBuyLimit.Soft::power) //
 					.map(QUARTER::convertPowerToEnergy) //
 					.orElse(null);
 			final int production = QUARTER.convertPowerToEnergy(//

@@ -42,6 +42,30 @@ public interface Heat extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
+		/**
+		 * Target temperature.
+		 * <ul>
+		 * <li>Interface: Heat
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		TARGET_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEZIDEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.accessMode(AccessMode.READ_ONLY)), //
+
+		/**
+		 * Currently calculated thermal energy required to reach the target temperature.
+		 *
+		 * <ul>
+		 * <li>Interface: Heat
+		 * <li>Type: Integer
+		 * </ul>
+		 */
+		REMAINING_HEAT_ENERGY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)), //
+
 		;
 
 		private final Doc doc;
@@ -64,6 +88,24 @@ public interface Heat extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getTemperatureChannel() {
 		return this.channel(ChannelId.TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#TARGET_TEMPERATURE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getTargetTemperatureChannel() {
+		return this.channel(ChannelId.TARGET_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REMAINING_HEAT_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getRemainingHeatEnergyChannel() {
+		return this.channel(ChannelId.REMAINING_HEAT_ENERGY);
 	}
 
 	/**

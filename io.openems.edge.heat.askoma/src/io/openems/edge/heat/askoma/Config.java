@@ -38,6 +38,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Max Heat Power", description = "Maximum power setpoint [W].", max = "30000")
 	int maxHeatPower() default 30000;
 
+	@AttributeDefinition(name = "Effective Storage Volume", description = "Effectively heated storage volume [l].", min = "0")
+	double effectiveStorageVolume();
+
 	String webconsole_configurationFactory_nameHint() default "Heat Askoma [{id}]";
 
 }

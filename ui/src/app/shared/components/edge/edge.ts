@@ -33,7 +33,6 @@ import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getProper
 import { User } from "../../jsonrpc/shared";
 import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
-import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { SharedBottomNavigationBar } from "../navigation/bottom-bar/shared";
@@ -680,29 +679,6 @@ export class Edge {
             includes: Array.isArray(favorites?.includes) ? favorites.includes : [],
             excludes: Array.isArray(favorites?.excludes) ? favorites.excludes : [],
         };
-    }
-
-    protected addCommonWidgetNavigation(
-        edge: Edge,
-        config: EdgeConfig,
-        currentNavigationTree: NavigationTree,
-        translate: TranslateService,
-    ): void {
-        const classes = Widgets.parseWidgets(edge, config).classes;
-
-        for (const clazz of classes) {
-            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getCommonNavigationTree(
-                edge,
-                clazz,
-                translate,
-                config,
-            );
-
-            if (navigationTree == null) {
-                continue;
-            }
-            currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
-        }
     }
 
     /** Refresh the config. */

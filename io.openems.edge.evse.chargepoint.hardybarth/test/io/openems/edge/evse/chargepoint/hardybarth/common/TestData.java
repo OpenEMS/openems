@@ -63,6 +63,7 @@ public class TestData {
 			            "socketmaxamp":"16",
 			            "intctrl_limit":"16",
 			            "phase_switching":{
+						   "actual":"3",
 			               "status":"idle"
 			            }
 			         },
@@ -347,82 +348,82 @@ public class TestData {
 			""";
 
 	public static final String PHASE_SWITCHING_STATUS_IDLE = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                     "phase_switching":{
-			                        "status":"idle"
-			                     }
-			                  }
-			               }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
+			            "phase_switching":{
+			               "status":"idle"
 			            }
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 	public static final String PHASE_SWITCHING_STATUS_PROGRESS = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                     "phase_switching":{
-			                        "status":"progress"
-			                     }
-			                  }
-			               }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
+			            "phase_switching":{
+			               "status":"progress"
 			            }
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 	public static final String PHASE_SWITCHING_STATUS_UNKNOWN = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                     "phase_switching":{
-			                        "status":"error"
-			                     }
-			                  }
-			               }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
+			            "phase_switching":{
+			               "status":"error"
 			            }
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 	public static final String PHASE_SWITCHING_STATUS_NULL = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                     "phase_switching":{
-			                        "status":null
-			                     }
-			                  }
-			               }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
+			            "phase_switching":{
+			               "status":null
 			            }
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 	public static final String PHASE_SWITCHING_NULL = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                     "phase_switching":null
-			                  }
-			               }
-			            }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
+			            "phase_switching":null
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 	public static final String PHASE_SWITCHING_MISSING = """
-			         {
-			            "secc":{
-			               "port0":{
-			                  "salia":{
-			                  }
-			               }
-			            }
+			{
+			   "secc":{
+			      "port0":{
+			         "salia":{
 			         }
-			         """;
+			      }
+			   }
+			}
+			""";
 
 }

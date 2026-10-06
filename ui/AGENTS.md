@@ -18,6 +18,7 @@ This directory contains the Angular/Ionic frontend for OpenEMS/FEMS.
 - Keep theme-specific behavior and branding in the relevant theme directory instead of hardcoding it in generic application code.
 - Update `src/app/shared/i18n/` whenever user-facing text changes.
 - When changing backend or Edge connectivity behavior, inspect the relevant environment files under `src/themes/*/environments/` and the matching configuration in `angular.json`.
+- Document JSON-RPC Request/Response shapes with a fenced ` ```json ` code block in the class/namespace JSDoc (see `src/app/shared/jsonrpc/request/*.ts`), not `@typedef` or `<pre>`/HTML tags: `@typedef` is meant for real type aliases, not JSON examples, and `prettier-plugin-jsdoc` collapses `<p>`/`<pre>` onto the preceding line and destroys the example's formatting.
 
 ## Tests
 

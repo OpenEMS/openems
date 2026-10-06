@@ -22,6 +22,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
 import io.openems.edge.heat.mypv.statemachine.StateMachine.State;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -29,6 +30,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 class HeatMyPvImplTest {
 
 	private static final int MAX_HEAT_POWER = 3_000;
+	private static final int EFFECTIVE_STORAGE_VOLUME = 400;
 
 	@Test
 	void testReadOnlyActivation() throws Exception {
@@ -205,6 +207,30 @@ class HeatMyPvImplTest {
 						.output(ManagedHeatElement.ChannelId.TARGET_ACTIVE_POWER, 3_000) //
 						.output(HeatMyPv.ChannelId.STATE_MACHINE, State.FAST_HEAT) //
 						.output(HeatMyPv.ChannelId.MODE, ChannelMode.FAST_HEAT)) //
+				.deactivate();
+	}
+
+	@Test
+	void testRemainingHeatEnergyIsCalculatedFromTemperatures() throws Exception {
+		new ControllerTest(new HeatMyPvImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(EFFECTIVE_STORAGE_VOLUME) //
+						.build()) //
+				.next(new TestCase("missing temperatures keep value undefined") //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, null)) //
+				.next(new TestCase("70.0 C target and 64.4 C actual result in about 2605 Wh") //
+						.input(Heat.ChannelId.TEMPERATURE, 644) //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 700) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, 2605)) //
+				.next(new TestCase("actual temperature above target results in zero remaining energy") //
+						.input(Heat.ChannelId.TEMPERATURE, 710) //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 700) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, 0)) //
 				.deactivate();
 	}
 
