@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { FieldWrapper } from "@ngx-formly/core";
 import { Subscription } from "rxjs";
@@ -18,7 +17,7 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
         this.getOptions().forEach((item: FieldDefaultCases) => {
             this.subscriptions.add(
                 this.form.valueChanges.subscribe((value) => {
-                    const indicesToRemove = [];
+                    const indicesToRemove: number[] = [];
                     const casesToSub = this.casesToSubscribe;
                     this.casesToSubscribe = [];
                     casesToSub.forEach((defaultCase, i) => {

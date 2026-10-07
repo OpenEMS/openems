@@ -1,8 +1,7 @@
-// @ts-strict-ignore
-import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
-import { ChannelAddress, Currency, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChannelAddress, Currency, CurrentData, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
 
@@ -35,13 +34,19 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
+        if (this.component == null) {
+            return [];
+        }
         return [new ChannelAddress(this.component.id, "QuarterlyPrices")];
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
+        if (this.component == null) {
+            return;
+        }
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
-        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
-        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
+        const meta = this.config?.getComponent("_meta");
+        const currency = this.config?.getPropertyFromComponent<string>(meta ?? null, "currency") ?? null;
         const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
