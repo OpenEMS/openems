@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Injectable, WritableSignal, signal } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, Service } from "../../shared";
@@ -34,7 +33,7 @@ export abstract class DataService {
      *
      * @param channels The channels
      */
-    public abstract unsubscribeFromChannels(channels: ChannelAddress[]);
+    public abstract unsubscribeFromChannels(channels: ChannelAddress[]): void;
 
-    public abstract refresh(ev: CustomEvent);
+    public abstract refresh(ev: CustomEvent): void;
 }
