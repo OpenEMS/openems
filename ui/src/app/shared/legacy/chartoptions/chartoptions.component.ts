@@ -3,7 +3,6 @@ import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
 import { Service } from "../../shared";
-// @ts-strict-ignore
 import { ChartOptionsPopoverComponent } from "./popover/popover.component";
 
 @Component({
@@ -25,7 +24,7 @@ export class ChartOptionsComponent {
     ) {}
 
     async presentPopover(ev: any) {
-        const componentProps = {};
+        const componentProps: { showPhases?: boolean; showTotal?: boolean } = {};
         if (this.showPhases !== null) {
             componentProps["showPhases"] = this.showPhases;
         }
