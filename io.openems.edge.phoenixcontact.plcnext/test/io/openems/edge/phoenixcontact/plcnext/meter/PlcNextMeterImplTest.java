@@ -77,10 +77,10 @@ public class PlcNextMeterImplTest {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<String>(HttpStatus.OK, Map.of(),
 							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<String>(HttpStatus.OK, Map.of(),
 							"{'access_token': '" + PlcNextMeterImplTest.this.accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
@@ -108,8 +108,8 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(createSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+				.thenReturn(CompletableFuture
+						.completedFuture(new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		var maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
 				.buildUrlString(this.dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
@@ -120,7 +120,7 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(maintainSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.test = new ComponentTest(this.componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
@@ -173,7 +173,7 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().equals(dataEndpointUrl)))) //
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(responseBody)));
 
 		// test + check
 		this.test.activate(this.myConfig)
