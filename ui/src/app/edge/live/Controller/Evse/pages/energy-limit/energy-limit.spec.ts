@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { FormControl, FormGroup } from "@angular/forms";
 import { DummyConfig, RANGE_BUTTONS_FROM_FORM_CONTROL_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
@@ -13,7 +12,7 @@ function expectView(component: EdgeConfig.Component, edge: Edge, viewContext: Oe
 }
 
 describe("EVSE Settings", () => {
-    let TEST_CONTEXT;
+    let TEST_CONTEXT: TestContext;
     beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
 
     it("+generateView()", () => {
