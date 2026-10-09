@@ -1,0 +1,66 @@
+# OpenEMS Edge + UI, built from this source tree (includes the custom
+# battery/inverter/pvcurtail/simulated bundles listed in EdgeApp.bndrun).
+#
+# Run from the repository root:
+#   docker compose -f tools/docker/iplon/docker-compose.yml up -d --build
+#
+# Every port is published on all host interfaces (0.0.0.0).
+#
+# On first start (empty config volume) the Edge gets default configs for the
+# Websocket (8085), REST read-write (8084) and Modbus/TCP read-write (502) APIs
+# from tools/docker/edge/root/var/lib/openems-default-config/. To re-apply them
+# after changing defaults: docker compose ... down -v
+#
+# Node-RED Modbus servers: point Bridge.Modbus.Tcp "ip" at the device/Node-RED
+# LAN IP, or at host.docker.internal when Node-RED runs on this host.
+
+services:
+  openems-edge:
+    build:
+      context: ../../..
+      dockerfile: tools/docker/edge/Dockerfile
+    image: iplon/openems-edge:local
+    container_name: openems_edge
+    hostname: openems-edge
+    restart: unless-stopped
+    # Lets the non-root Edge process bind ports < 1024 (e.g. Modbus/TCP slave on 502)
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    # Node-RED / simulated Modbus devices run on the host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - openems-edge-conf:/var/opt/openems/config:rw
+      - openems-edge-data:/var/opt/openems/data:rw
+    ports:
+      - "0.0.0.0:8080:8080" # Apache Felix web console (configuration)
+      - "0.0.0.0:8085:8085" # Controller.Api.Websocket (UI)
+      - "0.0.0.0:8084:8084" # Controller.Api.Rest.ReadWrite (ctrlApiRest0, user admin/admin)
+      - "0.0.0.0:5020:502"  # Controller.Api.ModbusTcp.ReadWrite (ctrlApiModbusTcp0); host 502 is taken by Node-RED
+
+  openems-ui:
+    build:
+      context: ../../..
+      dockerfile: tools/docker/ui/Dockerfile.edge
+    image: iplon/openems-ui-edge:local
+    container_name: openems_ui
+    hostname: openems-ui
+    restart: unless-stopped
+    depends_on:
+      - openems-edge
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=openems-edge
+      - WEBSOCKET_PORT=8085
+      - REST_PORT=8084
+    ports:
+      - "0.0.0.0:80:80"   # UI (proxies /openems-edge and /rest to the Edge)
+      - "0.0.0.0:443:443" # UI over HTTPS (set ENABLE_HTTPS=true)
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+  openems-ui-conf:
+  openems-ui-log:

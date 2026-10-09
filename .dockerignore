@@ -1,0 +1,13 @@
+# Keep the Docker build context small (used by tools/docker/*/Dockerfile*).
+# Everything here is regenerated inside the image build.
+.git
+.gradle
+build/
+**/bin/
+**/bin_test/
+**/generated/
+ui/node_modules/
+ui/.angular/
+ui/target/
+# Stray data dir from a Windows-style "c:\openems" path used on Linux
+io.openems.edge.application/c:

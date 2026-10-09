@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/controller/ess/soc/pvcurtail/Config.java=UTF-8
+encoding//src/io/openems/edge/controller/ess/soc/pvcurtail/PvCurtailBySoc.java=UTF-8
+encoding//src/io/openems/edge/controller/ess/soc/pvcurtail/PvCurtailBySocImpl.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8

@@ -238,6 +238,11 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
+	bnd.identity;id='io.openems.edge.meter.simulated',\
+	bnd.identity;id='io.openems.edge.inverter.simulated',\
+	bnd.identity;id='io.openems.edge.battery.custom',\
+	bnd.identity;id='io.openems.edge.batteryinverter.custom',\
+	bnd.identity;id='io.openems.edge.controller.ess.soc.pvcurtail',\
 
 -runbundles: \
 	bcpkix;version='[1.86.0,1.86.1)',\
@@ -535,4 +540,9 @@
 	org.owasp.encoder;version='[1.6.0,1.6.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.10.0,3.10.1)',\
-	stax2-api;version='[4.3.0,4.3.1)'
+	stax2-api;version='[4.3.0,4.3.1)',\
+	io.openems.edge.meter.simulated;version=snapshot,\
+	io.openems.edge.inverter.simulated;version=snapshot,\
+	io.openems.edge.battery.custom;version=snapshot,\
+	io.openems.edge.batteryinverter.custom;version=snapshot,\
+	io.openems.edge.controller.ess.soc.pvcurtail;version=snapshot
