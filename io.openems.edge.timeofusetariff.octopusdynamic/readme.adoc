@@ -42,7 +42,7 @@ Octopus supplies gross unit rates in ct/kWh. The component converts them to Open
 
 Prices returned by the component are the rates provided by the account API. Additional charges must not be applied again without verifying whether they are already included in the account rate.
 
-If a refresh fails or returns inconsistent data, the component retains the last successfully validated forecast and retries after 5 minutes. Expired intervals are removed when OpenEMS reads the forecast; missing future periods are not filled with synthetic prices.
+If a refresh fails or returns inconsistent data, the component retains the last successfully validated forecast and retries after 5 minutes. Elapsed intervals are excluded from the forecast returned to OpenEMS; missing future periods are not filled with synthetic prices. The active tariff forecast is not a historical archive. Historical price reporting should use OpenEMS' time-series persistence facilities, independently of the tariff refresh cache.
 
 == Scope
 
