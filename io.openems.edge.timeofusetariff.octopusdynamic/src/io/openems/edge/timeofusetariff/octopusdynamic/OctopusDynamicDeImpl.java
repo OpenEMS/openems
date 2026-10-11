@@ -186,7 +186,11 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		if (!(exception instanceof IOException)) {
 			return "UNEXPECTED_RESPONSE";
 		}
-		return switch (exception.getMessage()) {
+		var message = exception.getMessage();
+		if (message == null) {
+			return "REQUEST_FAILED";
+		}
+		return switch (message) {
 		case "CONFIGURATION_INCOMPLETE" -> "CONFIGURATION_INCOMPLETE";
 		case "ACCOUNT_NOT_FOUND" -> "ACCOUNT_NOT_FOUND";
 		case "AUTH_TOKEN_MISSING", "AUTH_TOKEN_EMPTY" -> "AUTHENTICATION_REJECTED";
