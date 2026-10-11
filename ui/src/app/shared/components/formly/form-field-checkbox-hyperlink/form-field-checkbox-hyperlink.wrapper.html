@@ -3,7 +3,10 @@
         <ion-col>
             <ion-item lines="none">
                 <ion-label style="white-space:pre-wrap">
-                    <a [href]="props.url" class="underline" target="_blank">{{props.label}}</a>&nbsp;{{secondLabel}}
+                    <a [href]="props.url" class="underline" target="_blank">{{props.label}}</a>
+                    @if (secondLabel) {
+                        <span>&nbsp;{{secondLabel}}</span>
+                    }
                 </ion-label>
             </ion-item>
         </ion-col>
