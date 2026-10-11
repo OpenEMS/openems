@@ -7,7 +7,7 @@ Bundle-Version: 1.0.0.${tstamp}
     ${buildpath},\
     com.squareup.okhttp3,\
     com.squareup.okio,\
-    com.google.code.gson,\
+    com.google.code.gson:gson;version='2.14.0',\
     com.google.guava,\
     io.openems.common,\
     io.openems.edge.common,\
