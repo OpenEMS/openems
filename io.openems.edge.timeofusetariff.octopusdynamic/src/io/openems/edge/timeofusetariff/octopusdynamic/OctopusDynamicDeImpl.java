@@ -1,6 +1,8 @@
 package io.openems.edge.timeofusetariff.octopusdynamic;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.TreeMap;
@@ -167,8 +169,9 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			return true;
 		} catch (Exception ex) {
 			String reason = categorizeFailure(stage, ex);
-			this.log.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; retaining previously valid prices",
-					stage, reason);
+			this.log.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]: {}. "
+					+ "Previously valid prices retained; retry scheduled in 5 minutes.",
+					stage, reason, describeFailure(reason));
 			return false;
 		}
 	}
@@ -183,6 +186,12 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	 * @return a non-sensitive diagnostic category
 	 */
 	static String categorizeFailure(String stage, Exception exception) {
+		if (exception instanceof SocketTimeoutException) {
+			return "NETWORK_TIMEOUT";
+		}
+		if (exception instanceof UnknownHostException) {
+			return "NETWORK_UNREACHABLE";
+		}
 		if (!(exception instanceof IOException)) {
 			return "UNEXPECTED_RESPONSE";
 		}
@@ -198,7 +207,34 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			"authentication".equals(stage) ? "AUTHENTICATION_REJECTED" : "ACCOUNT_ACCESS_DENIED";
 		case "GRAPHQL_ERRORS" ->
 			"authentication".equals(stage) ? "AUTHENTICATION_REJECTED" : "PROVIDER_REJECTED_REQUEST";
+		case "HTTP_STATUS_429" -> "API_RATE_LIMITED";
+		case "HTTP_STATUS_500", "HTTP_STATUS_502", "HTTP_STATUS_503", "HTTP_STATUS_504" -> "PROVIDER_UNAVAILABLE";
+		case "RESPONSE_NOT_JSON", "GRAPHQL_DATA_MISSING", "Unexpected Octopus price schema" ->
+			"INVALID_API_RESPONSE";
+		case "Unaligned quarter-hour price", "Ambiguous price", "Invalid price",
+			"Conflicting price records", "Empty price list", "Missing quarter-hour price" ->
+			"INVALID_PRICE_FORECAST";
 		default -> "REQUEST_FAILED";
+		};
+	}
+
+	/**
+	 * Human-readable diagnostics. Never include API payloads, exception messages,
+	 * passwords, tokens, account identifiers or email addresses.
+	 */
+	static String describeFailure(String category) {
+		return switch (category) {
+		case "CONFIGURATION_INCOMPLETE" -> "Please configure the account number, email and password";
+		case "AUTHENTICATION_REJECTED" -> "Authentication failed; please check the email address and password";
+		case "ACCOUNT_NOT_FOUND", "ACCOUNT_ACCESS_DENIED", "PROVIDER_REJECTED_REQUEST" ->
+			"Account price request rejected; check the account number and account access permissions";
+		case "NETWORK_TIMEOUT" -> "Connection to Octopus Energy timed out";
+		case "NETWORK_UNREACHABLE" -> "Octopus Energy API host could not be reached";
+		case "API_RATE_LIMITED" -> "Octopus Energy API rate limit reached";
+		case "PROVIDER_UNAVAILABLE" -> "Octopus Energy API is temporarily unavailable";
+		case "INVALID_PRICE_FORECAST" -> "Octopus Energy returned incomplete or inconsistent quarter-hour prices";
+		case "INVALID_API_RESPONSE" -> "Octopus Energy returned an unexpected API response";
+		default -> "Octopus Energy price refresh failed";
 		};
 	}
 
