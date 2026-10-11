@@ -72,7 +72,7 @@ public class OctopusDynamicDeImplTest {
     @Test
     public void authenticatesAndUsesTokenForAccountForecast() {
         var provider = new StubProvider();
-        provider.respond("{\\"obtainKrakenToken\\":{\\"token\\":\\"mock-token\\"}}");
+        provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
         provider.respond(validFutureForecast());
 
         assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
@@ -94,7 +94,7 @@ public class OctopusDynamicDeImplTest {
     @Test
     public void rejectsMissingAuthenticationToken() {
         var provider = new StubProvider();
-        provider.respond("{\\"obtainKrakenToken\\":{}}");
+        provider.respond("{\"obtainKrakenToken\":{}}");
 
         assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
         assertEquals(1, provider.requests);
@@ -103,7 +103,7 @@ public class OctopusDynamicDeImplTest {
     @Test
     public void retainsValidatedForecastWhenConnectionFails() {
         var provider = new StubProvider();
-        provider.respond("{\\"obtainKrakenToken\\":{\\"token\\":\\"mock-token\\"}}");
+        provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
         provider.respond(validFutureForecast());
         assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 
