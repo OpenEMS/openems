@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -34,15 +33,17 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 /**
- * Octopus Energy Germany dynamic tariff provider.
+ * Provides account-specific dynamic electricity tariffs from Octopus Energy
+ * Germany.
  *
  * <p>
- * All prices are provider-gross final prices (cent/kWh -> EUR/MWh).
- * Existing supplier/network charges MUST NOT be added again.
+ * The component retrieves the gross quarter-hourly rates supplied by the
+ * provider and converts them from ct/kWh to EUR/MWh as required by OpenEMS.
+ * Authentication credentials are supplied through the component configuration.
  *
  * <p>
- * Credentials are provided via the OpenEMS component configuration.
- * Do NOT log GraphQL responses, tokens or credentials.
+ * Previously validated forecasts remain available during temporary API
+ * failures. The {@link #getPrices()} method excludes elapsed time intervals.
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "TimeOfUseTariff.OctopusDynamicDE", immediate = true,
@@ -112,7 +113,6 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 
     @Override
     public TimeOfUsePrices getPrices() {
-        // Only publish from the current quarter onward; stale periods are removed.
         return TimeOfUsePrices.from(Instant.now(), this.prices.get());
     }
 
@@ -162,7 +162,6 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
             this.prices.set(parsePrices(forecast));
             return true;
         } catch (Exception ex) {
-            // Do not expose HTTP response bodies or messages that may contain credentials.
             String reason = ex instanceof IOException ? ex.getMessage() : "UNEXPECTED_RESPONSE_SHAPE";
             LOG.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; retaining previously valid prices",
                     stage, reason);
@@ -208,12 +207,18 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
     }
 
     /**
-     * Input: gross cent/kWh. Output: currency/MWh (1 cent/kWh = 10 EUR/MWh).
-     * Refuse conflicting locations/rates and missing quarter-hour slots.
+     * Parses the account-specific price forecast into a continuous sequence of
+     * quarter-hourly rates.
      *
-     * @param data Octopus GraphQL data object
-     * @return validated quarterly prices for OpenEMS
-     * @throws IOException on missing, ambiguous, or invalid prices
+     * <p>
+     * Prices are converted from gross ct/kWh to EUR/MWh. Invalid durations,
+     * missing intervals, and conflicting rates cause the entire forecast to be
+     * rejected.
+     *
+     * @param data the GraphQL response data
+     * @return the validated time-of-use price forecast
+     * @throws IOException if the response contains missing, ambiguous, or
+     *                     invalid price data
      */
     static TimeOfUsePrices parsePrices(JsonObject data) throws IOException {
         var values = new TreeMap<Instant, Double>();
@@ -238,7 +243,6 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
                             if (!Double.isFinite(gross)) {
                                 throw new IOException("Invalid price");
                             }
-                            // Octopus gross cent/kWh -> OpenEMS currency/MWh
                             var previous = values.putIfAbsent(start, gross * 10.0);
                             if (previous != null && Double.compare(previous, gross * 10.0) != 0) {
                                 throw new IOException("Conflicting price records");
