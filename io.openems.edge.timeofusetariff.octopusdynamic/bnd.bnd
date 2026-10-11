@@ -14,4 +14,6 @@ Bundle-Version: 1.0.0.${tstamp}
     io.openems.edge.timeofusetariff.api,
 
 -testpath: \
-    ${testpath}
+	${testpath},\
+	org.jetbrains.kotlin.osgi-bundle,\
+	io.openems.wrapper.kotlinx-coroutines-core-jvm,
