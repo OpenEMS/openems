@@ -5,22 +5,25 @@ import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
 /**
- * Represents a JSON-RPC Request to query Timeseries Energy data.
+ * Represents a JSON-RPC Request to query Timeseries Energy data per period.
  *
- * <pre>
+ * ```json
  * {
  *   "jsonrpc": "2.0",
- *   "id": UUID,
+ *   "id": "UUID",
  *   "method": "queryHistoricTimeseriesEnergyPerPeriod",
  *   "params": {
- *     "timezone": Number,
- *     "fromDate": YYYY-MM-DD,
- *     "toDate": YYYY-MM-DD,
- *     "channels": ChannelAddress[],
- *     "resolution": Number
+ *     "timezone": "Europe/Berlin",
+ *     "fromDate": "YYYY-MM-DD",
+ *     "toDate": "YYYY-MM-DD",
+ *     "channels": string[],
+ *     "resolution": {
+ *       "value": 15,
+ *       "unit": "Minutes"
+ *     }
  *   }
  * }
- * </pre>
+ * ```
  */
 export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
 
