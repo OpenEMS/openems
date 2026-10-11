@@ -14,6 +14,7 @@ This directory contains the Angular/Ionic frontend for OpenEMS/FEMS.
 ## Conventions
 
 - Follow `.editorconfig` and `eslint.config.mjs`.
+- Use Angular control-flow syntax (`@if`, `@for`, `@switch`) in templates; do not add new `*ngIf`, `*ngFor`, or `*ngSwitch` structural directives.
 - Reuse existing shared components, services, pipes, and utilities before adding new abstractions.
 - Keep theme-specific behavior and branding in the relevant theme directory instead of hardcoding it in generic application code.
 - Update `src/app/shared/i18n/` whenever user-facing text changes.
