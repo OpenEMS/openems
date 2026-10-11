@@ -2,6 +2,7 @@ package io.openems.edge.timeofusetariff.octopusdynamic;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -32,6 +33,14 @@ public class OctopusDynamicDeImplTest {
 
     private static io.openems.edge.timeofusetariff.api.TimeOfUsePrices parse(String json) throws IOException {
         return OctopusDynamicDeImpl.parsePrices(JsonParser.parseString(json).getAsJsonObject());
+    }
+
+    @Test
+    public void refreshCadenceUsesNormalIntervalAndFiveMinuteRetry() {
+        assertEquals(30L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 30));
+        assertEquals(15L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 5));
+        assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 30));
+        assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 15));
     }
 
     @Test
