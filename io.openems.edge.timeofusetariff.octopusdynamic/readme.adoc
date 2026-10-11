@@ -7,7 +7,7 @@ This OpenEMS Edge component retrieves the individual electricity prices of an Oc
 * Retrieves account-specific quarter-hourly price forecasts from the Octopus Germany Kraken API.
 * Converts gross prices from ct/kWh to EUR/MWh, the unit expected by OpenEMS.
 * Validates timestamps, quarter-hour intervals, missing periods, and conflicting price records.
-* Refreshes forecasts at a configurable interval (minimum 15 minutes).
+* Refreshes forecasts at a configurable interval (default: 30 minutes, minimum: 15 minutes). On failure, retries after 5 minutes.
 * Provides read-only tariff data; it does not control connected equipment.
 
 == Configuration
@@ -42,7 +42,7 @@ Octopus supplies gross unit rates in ct/kWh. The component converts them to Open
 
 Prices returned by the component are the rates provided by the account API. Additional charges must not be applied again without verifying whether they are already included in the account rate.
 
-If a refresh fails or returns inconsistent data, the component does not publish an unverified replacement forecast.
+If a refresh fails or returns inconsistent data, the component retains the last successfully validated forecast and retries after 5 minutes. Expired intervals are removed when OpenEMS reads the forecast; missing future periods are not filled with synthetic prices.
 
 == Scope
 
