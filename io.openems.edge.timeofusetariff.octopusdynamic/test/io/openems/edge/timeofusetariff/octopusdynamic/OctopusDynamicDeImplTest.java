@@ -19,171 +19,171 @@ import com.google.gson.JsonParser;
  */
 public class OctopusDynamicDeImplTest {
 
-    private static String forecast(String slots) {
-        return """
-                {"account":{"properties":[{"electricityMalos":[{"agreements":[{
-                  "unitRateForecast":[%s]
-                }]}]}]}}
-                """.formatted(slots);
-    }
+	private static String forecast(String slots) {
+		return """
+				{"account":{"properties":[{"electricityMalos":[{"agreements":[{
+				  "unitRateForecast":[%s]
+				}]}]}]}}
+				""".formatted(slots);
+	}
 
-    private static String slot(String from, String to, String price) {
-        return """
-                {"validFrom":"%s","validTo":"%s",
-                 "unitRateInformation":{"rates":[{"latestGrossUnitRateCentsPerKwh":%s}]}}
-                """.formatted(from, to, price);
-    }
+	private static String slot(String from, String to, String price) {
+		return """
+				{"validFrom":"%s","validTo":"%s",
+				 "unitRateInformation":{"rates":[{"latestGrossUnitRateCentsPerKwh":%s}]}}
+				""".formatted(from, to, price);
+	}
 
-    private static io.openems.edge.timeofusetariff.api.TimeOfUsePrices parse(String json) throws IOException {
-        return OctopusDynamicDeImpl.parsePrices(JsonParser.parseString(json).getAsJsonObject());
-    }
+	private static io.openems.edge.timeofusetariff.api.TimeOfUsePrices parse(String json) throws IOException {
+		return OctopusDynamicDeImpl.parsePrices(JsonParser.parseString(json).getAsJsonObject());
+	}
 
 
-    private static final class StubProvider extends OctopusDynamicDeImpl {
+	private static final class StubProvider extends OctopusDynamicDeImpl {
 
-        private final Queue<Object> responses = new ArrayDeque<>();
-        private int requests;
-        private String suppliedToken;
+		private final Queue<Object> responses = new ArrayDeque<>();
+		private int requests;
+		private String suppliedToken;
 
-        void respond(String json) {
-            this.responses.add(JsonParser.parseString(json).getAsJsonObject());
-        }
+		void respond(String json) {
+			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
+		}
 
-        void failWithIOException() {
-            this.responses.add(new IOException("Simulated connection failure"));
-        }
+		void failWithIOException() {
+			this.responses.add(new IOException("Simulated connection failure"));
+		}
 
-        @Override
-        JsonObject post(String query, JsonObject variables, String token) throws IOException {
-            this.requests++;
-            this.suppliedToken = token;
-            var next = this.responses.remove();
-            if (next instanceof IOException exception) {
-                throw exception;
-            }
-            return (JsonObject) next;
-        }
-    }
+		@Override
+		JsonObject post(String query, JsonObject variables, String token) throws IOException {
+			this.requests++;
+			this.suppliedToken = token;
+			var next = this.responses.remove();
+			if (next instanceof IOException exception) {
+				throw exception;
+			}
+			return (JsonObject) next;
+		}
+	}
 
-    private static String validFutureForecast() {
-        return forecast(slot("2099-01-01T12:00:00Z", "2099-01-01T12:15:00Z", "21.5"));
-    }
+	private static String validFutureForecast() {
+		return forecast(slot("2099-01-01T12:00:00Z", "2099-01-01T12:15:00Z", "21.5"));
+	}
 
-    @Test
-    public void authenticatesAndUsesTokenForAccountForecast() {
-        var provider = new StubProvider();
-        provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
-        provider.respond(validFutureForecast());
+	@Test
+	public void authenticatesAndUsesTokenForAccountForecast() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
 
-        assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
-        assertEquals(2, provider.requests);
-        assertEquals("mock-token", provider.suppliedToken);
-        assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
-    }
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(2, provider.requests);
+		assertEquals("mock-token", provider.suppliedToken);
+		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+	}
 
-    @Test
-    public void rejectsMissingCredentialsWithoutNetworkRequests() {
-        var provider = new StubProvider();
+	@Test
+	public void rejectsMissingCredentialsWithoutNetworkRequests() {
+		var provider = new StubProvider();
 
-        assertEquals(false, provider.refresh("A-TEST", "", "test-password"));
-        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", ""));
-        assertEquals(false, provider.refresh("", "octopus@example.test", "test-password"));
-        assertEquals(0, provider.requests);
-    }
+		assertEquals(false, provider.refresh("A-TEST", "", "test-password"));
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", ""));
+		assertEquals(false, provider.refresh("", "octopus@example.test", "test-password"));
+		assertEquals(0, provider.requests);
+	}
 
-    @Test
-    public void rejectsMissingAuthenticationToken() {
-        var provider = new StubProvider();
-        provider.respond("{\"obtainKrakenToken\":{}}");
+	@Test
+	public void rejectsMissingAuthenticationToken() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{}}");
 
-        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
-        assertEquals(1, provider.requests);
-    }
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(1, provider.requests);
+	}
 
-    @Test
-    public void retainsValidatedForecastWhenConnectionFails() {
-        var provider = new StubProvider();
-        provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
-        provider.respond(validFutureForecast());
-        assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+	@Test
+	public void retainsValidatedForecastWhenConnectionFails() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 
-        provider.failWithIOException();
-        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
-        assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
-    }
+		provider.failWithIOException();
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+	}
 
-    @Test
-    public void retriesAfterFailureAndReturnsToNormalRefreshInterval() {
-        class ScheduleProbe extends OctopusDynamicDeImpl {
-            private final Queue<Boolean> outcomes = new ArrayDeque<>();
-            private final Queue<Long> delays = new ArrayDeque<>();
+	@Test
+	public void retriesAfterFailureAndReturnsToNormalRefreshInterval() {
+		class ScheduleProbe extends OctopusDynamicDeImpl {
+			private final Queue<Boolean> outcomes = new ArrayDeque<>();
+			private final Queue<Long> delays = new ArrayDeque<>();
 
-            @Override
-            boolean refresh(String accountNumber, String email, String password) {
-                return this.outcomes.remove();
-            }
+			@Override
+			boolean refresh(String accountNumber, String email, String password) {
+				return this.outcomes.remove();
+			}
 
-            @Override
-            void scheduleNextRefresh(long delayMinutes) {
-                this.delays.add(delayMinutes);
-            }
-        }
+			@Override
+			void scheduleNextRefresh(long delayMinutes) {
+				this.delays.add(delayMinutes);
+			}
+		}
 
-        var provider = new ScheduleProbe();
-        provider.outcomes.add(false);
-        provider.outcomes.add(true);
-        provider.refreshAndSchedule();
-        provider.refreshAndSchedule();
+		var provider = new ScheduleProbe();
+		provider.outcomes.add(false);
+		provider.outcomes.add(true);
+		provider.refreshAndSchedule();
+		provider.refreshAndSchedule();
 
-        assertEquals(Long.valueOf(5L), provider.delays.remove());
-        assertEquals(Long.valueOf(30L), provider.delays.remove());
-    }
+		assertEquals(Long.valueOf(5L), provider.delays.remove());
+		assertEquals(Long.valueOf(30L), provider.delays.remove());
+	}
 
-    @Test
-    public void refreshCadenceUsesNormalIntervalAndFiveMinuteRetry() {
-        assertEquals(30L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 30));
-        assertEquals(15L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 5));
-        assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 30));
-        assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 15));
-    }
+	@Test
+	public void refreshCadenceUsesNormalIntervalAndFiveMinuteRetry() {
+		assertEquals(30L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 30));
+		assertEquals(15L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 5));
+		assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 30));
+		assertEquals(5L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(false, 15));
+	}
 
-    @Test
-    public void convertsGrossCentPerKwhToEurPerMwh() throws Exception {
-        var first = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
-        var second = slot("2026-10-11T10:15:00Z", "2026-10-11T10:30:00Z", "18.25");
-        assertArrayEquals(new Double[]{215.0, 182.5}, parse(forecast(first + "," + second)).asArray());
-    }
+	@Test
+	public void convertsGrossCentPerKwhToEurPerMwh() throws Exception {
+		var first = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
+		var second = slot("2026-10-11T10:15:00Z", "2026-10-11T10:30:00Z", "18.25");
+		assertArrayEquals(new Double[]{215.0, 182.5}, parse(forecast(first + "," + second)).asArray());
+	}
 
-    @Test
-    public void rejectsMissingQuarter() {
-        var first = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
-        var third = slot("2026-10-11T10:30:00Z", "2026-10-11T10:45:00Z", "18.25");
-        assertThrows(IOException.class, () -> parse(forecast(first + "," + third)));
-    }
+	@Test
+	public void rejectsMissingQuarter() {
+		var first = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
+		var third = slot("2026-10-11T10:30:00Z", "2026-10-11T10:45:00Z", "18.25");
+		assertThrows(IOException.class, () -> parse(forecast(first + "," + third)));
+	}
 
-    @Test
-    public void rejectsInvalidSlotDuration() {
-        var broken = slot("2026-10-11T10:00:00Z", "2026-10-11T11:00:00Z", "21.5");
-        assertThrows(IOException.class, () -> parse(forecast(broken)));
-    }
+	@Test
+	public void rejectsInvalidSlotDuration() {
+		var broken = slot("2026-10-11T10:00:00Z", "2026-10-11T11:00:00Z", "21.5");
+		assertThrows(IOException.class, () -> parse(forecast(broken)));
+	}
 
-    @Test
-    public void rejectsAmbiguousAgreements() {
-        var a = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
-        var b = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "27.0");
-        assertThrows(IOException.class, () -> parse(forecast(a + "," + b)));
-    }
+	@Test
+	public void rejectsAmbiguousAgreements() {
+		var a = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "21.5");
+		var b = slot("2026-10-11T10:00:00Z", "2026-10-11T10:15:00Z", "27.0");
+		assertThrows(IOException.class, () -> parse(forecast(a + "," + b)));
+	}
 
-    @Test
-    public void rejectsEmptyOrMalformedData() {
-        assertThrows(IOException.class, () -> parse(forecast("")));
-        assertThrows(IOException.class, () -> parse("{}"));
-    }
+	@Test
+	public void rejectsEmptyOrMalformedData() {
+		assertThrows(IOException.class, () -> parse(forecast("")));
+		assertThrows(IOException.class, () -> parse("{}"));
+	}
 
-    @Test
-    public void handlesUtcTimestampsAcrossDaylightSavingTime() throws Exception {
-        var a = slot("2026-10-25T00:45:00Z", "2026-10-25T01:00:00Z", "10");
-        var b = slot("2026-10-25T01:00:00Z", "2026-10-25T01:15:00Z", "11");
-        assertArrayEquals(new Double[]{100.0, 110.0}, parse(forecast(a + "," + b)).asArray());
-    }
+	@Test
+	public void handlesUtcTimestampsAcrossDaylightSavingTime() throws Exception {
+		var a = slot("2026-10-25T00:45:00Z", "2026-10-25T01:00:00Z", "10");
+		var b = slot("2026-10-25T01:00:00Z", "2026-10-25T01:15:00Z", "11");
+		assertArrayEquals(new Double[]{100.0, 110.0}, parse(forecast(a + "," + b)).asArray());
+	}
 }
