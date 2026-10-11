@@ -81,6 +81,8 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
     private final AtomicReference<TimeOfUsePrices> prices =
             new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
 
+    private volatile long refreshMinutes = 30;
+
     private volatile String accountNumber;
     private volatile String email;
     private volatile String password;
@@ -98,8 +100,8 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
         this.accountNumber = config.accountNumber();
         this.email = config.email();
         this.password = config.password();
-        long refresh = Math.max(15, config.refreshMinutes());
-        this.executor.scheduleWithFixedDelay(this::refresh, 0, refresh, TimeUnit.MINUTES);
+        this.refreshMinutes = Math.max(15, config.refreshMinutes());
+        this.executor.execute(this::refreshAndSchedule);
     }
 
     @Deactivate
@@ -114,7 +116,23 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
         return TimeOfUsePrices.from(Instant.now(), this.prices.get());
     }
 
-    private void refresh() {
+    private void refreshAndSchedule() {
+        boolean successful = false;
+        try {
+            successful = this.refresh();
+        } finally {
+            if (!this.executor.isShutdown()) {
+                this.executor.schedule(this::refreshAndSchedule,
+                        nextRefreshDelayMinutes(successful, this.refreshMinutes), TimeUnit.MINUTES);
+            }
+        }
+    }
+
+    static long nextRefreshDelayMinutes(boolean successful, long refreshMinutes) {
+        return successful ? Math.max(15, refreshMinutes) : 5;
+    }
+
+    private boolean refresh() {
         String stage = "configuration";
         try {
             var email = this.email;
@@ -142,12 +160,13 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
             var forecast = this.post(PRICE_QUERY, account, token);
             stage = "price-validation";
             this.prices.set(parsePrices(forecast));
+            return true;
         } catch (Exception ex) {
             // Do not expose HTTP response bodies or messages that may contain credentials.
             String reason = ex instanceof IOException ? ex.getMessage() : "UNEXPECTED_RESPONSE_SHAPE";
-            LOG.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; clearing stale prices",
+            LOG.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; retaining previously valid prices",
                     stage, reason);
-            this.prices.set(TimeOfUsePrices.EMPTY_PRICES);
+            return false;
         }
     }
 
