@@ -143,7 +143,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		try {
 			if (email == null || password == null || accountNumber == null
 					|| email.isBlank() || password.isBlank() || accountNumber.isBlank()) {
-				throw new IOException("Octopus credentials/account not configured");
+				throw new IOException("CONFIGURATION_INCOMPLETE");
 			}
 			var variables = new JsonObject();
 			variables.addProperty("email", email);
@@ -166,11 +166,36 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			this.prices.set(parsePrices(forecast));
 			return true;
 		} catch (Exception ex) {
-			String reason = ex instanceof IOException ? "REQUEST_FAILED" : "UNEXPECTED_RESPONSE_SHAPE";
+			String reason = categorizeFailure(stage, ex);
 			this.log.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; retaining previously valid prices",
 					stage, reason);
 			return false;
 		}
+	}
+
+
+	/**
+	 * Classifies provider failures without disclosing account credentials or
+	 * response contents in diagnostic messages.
+	 *
+	 * @param stage the operation that failed
+	 * @param exception the underlying exception
+	 * @return a non-sensitive diagnostic category
+	 */
+	static String categorizeFailure(String stage, Exception exception) {
+		if (!(exception instanceof IOException)) {
+			return "UNEXPECTED_RESPONSE";
+		}
+		return switch (exception.getMessage()) {
+		case "CONFIGURATION_INCOMPLETE" -> "CONFIGURATION_INCOMPLETE";
+		case "ACCOUNT_NOT_FOUND" -> "ACCOUNT_NOT_FOUND";
+		case "AUTH_TOKEN_MISSING", "AUTH_TOKEN_EMPTY" -> "AUTHENTICATION_REJECTED";
+		case "HTTP_STATUS_401", "HTTP_STATUS_403" ->
+			"authentication".equals(stage) ? "AUTHENTICATION_REJECTED" : "ACCOUNT_ACCESS_DENIED";
+		case "GRAPHQL_ERRORS" ->
+			"authentication".equals(stage) ? "AUTHENTICATION_REJECTED" : "PROVIDER_REJECTED_REQUEST";
+		default -> "REQUEST_FAILED";
+		};
 	}
 
 	JsonObject post(String query, JsonObject variables, String token) throws IOException {
@@ -225,6 +250,9 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	 *                     invalid price data
 	 */
 	static TimeOfUsePrices parsePrices(JsonObject data) throws IOException {
+		if (!data.has("account") || data.get("account").isJsonNull()) {
+			throw new IOException("ACCOUNT_NOT_FOUND");
+		}
 		var values = new TreeMap<Instant, Double>();
 		try {
 			for (var property : array(data.getAsJsonObject("account"), "properties")) {
