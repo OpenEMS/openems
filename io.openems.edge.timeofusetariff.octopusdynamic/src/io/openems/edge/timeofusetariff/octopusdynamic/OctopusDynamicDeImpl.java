@@ -34,14 +34,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 /**
- * Experimental Octopus Germany tariff provider.
+ * Octopus Energy Germany dynamic tariff provider.
  *
  * <p>
  * All prices are provider-gross final prices (cent/kWh -> EUR/MWh).
  * Existing supplier/network charges MUST NOT be added again.
  *
  * <p>
- * Credentials are read from process environment rather than OSGi properties.
+ * Credentials are provided via the OpenEMS component configuration.
  * Do NOT log GraphQL responses, tokens or credentials.
  */
 @Designate(ocd = Config.class, factory = true)
