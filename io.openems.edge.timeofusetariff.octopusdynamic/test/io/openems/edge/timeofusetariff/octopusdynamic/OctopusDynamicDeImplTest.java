@@ -49,7 +49,7 @@ public class OctopusDynamicDeImplTest {
 			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
 		}
 
-		void failWithIOException() {
+		void failWithIoException() {
 			this.responses.add(new IOException("Simulated connection failure"));
 		}
 
@@ -107,7 +107,7 @@ public class OctopusDynamicDeImplTest {
 		provider.respond(validFutureForecast());
 		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 
-		provider.failWithIOException();
+		provider.failWithIoException();
 		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
 	}
@@ -143,7 +143,7 @@ public class OctopusDynamicDeImplTest {
 	@Test
 	public void rejectsInvalidEmailOrPasswordResponse() {
 		var provider = new StubProvider();
-		provider.failWithIOException();
+		provider.failWithIoException();
 
 		assertEquals(false, provider.refresh("A-TEST", "invalid@example.test", "wrong-password"));
 		assertEquals(1, provider.requests);
@@ -167,7 +167,7 @@ public class OctopusDynamicDeImplTest {
 	public void rejectsNetworkFailureDuringPriceRequest() {
 		var provider = new StubProvider();
 		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
-		provider.failWithIOException();
+		provider.failWithIoException();
 
 		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 		assertEquals(2, provider.requests);
