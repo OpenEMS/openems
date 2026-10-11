@@ -2,8 +2,8 @@ package io.openems.edge.timeofusetariff.octopusdynamic;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.TreeMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -116,29 +116,30 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
         return TimeOfUsePrices.from(Instant.now(), this.prices.get());
     }
 
-    private void refreshAndSchedule() {
+    void refreshAndSchedule() {
         boolean successful = false;
         try {
-            successful = this.refresh();
+            successful = this.refresh(this.accountNumber, this.email, this.password);
         } finally {
             if (!this.executor.isShutdown()) {
-                this.executor.schedule(this::refreshAndSchedule,
-                        nextRefreshDelayMinutes(successful, this.refreshMinutes), TimeUnit.MINUTES);
+                this.scheduleNextRefresh(nextRefreshDelayMinutes(successful, this.refreshMinutes));
             }
         }
+    }
+
+    void scheduleNextRefresh(long delayMinutes) {
+        this.executor.schedule(this::refreshAndSchedule, delayMinutes, TimeUnit.MINUTES);
     }
 
     static long nextRefreshDelayMinutes(boolean successful, long refreshMinutes) {
         return successful ? Math.max(15, refreshMinutes) : 5;
     }
 
-    private boolean refresh() {
+    boolean refresh(String accountNumber, String email, String password) {
         String stage = "configuration";
         try {
-            var email = this.email;
-            var password = this.password;
-            if (email == null || password == null || this.accountNumber == null
-                    || email.isBlank() || password.isBlank() || this.accountNumber.isBlank()) {
+            if (email == null || password == null || accountNumber == null
+                    || email.isBlank() || password.isBlank() || accountNumber.isBlank()) {
                 throw new IOException("Octopus credentials/account not configured");
             }
             var variables = new JsonObject();
@@ -155,21 +156,21 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
                 throw new IOException("AUTH_TOKEN_EMPTY");
             }
             var account = new JsonObject();
-            account.addProperty("accountNumber", this.accountNumber);
+            account.addProperty("accountNumber", accountNumber);
             stage = "forecast";
             var forecast = this.post(PRICE_QUERY, account, token);
             stage = "price-validation";
             this.prices.set(parsePrices(forecast));
             return true;
         } catch (Exception ex) {
-            String reason = ex instanceof IOException ? ex.getMessage() : "UNEXPECTED_RESPONSE_SHAPE";
+            String reason = ex instanceof IOException ? "REQUEST_FAILED" : "UNEXPECTED_RESPONSE_SHAPE";
             LOG.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]; retaining previously valid prices",
                     stage, reason);
             return false;
         }
     }
 
-    private JsonObject post(String query, JsonObject variables, String token) throws IOException {
+    JsonObject post(String query, JsonObject variables, String token) throws IOException {
         var json = new JsonObject();
         json.addProperty("query", query);
         json.add("variables", variables);
