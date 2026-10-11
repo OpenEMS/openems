@@ -45,8 +45,7 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
             return;
         }
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
-        const meta = this.config?.getComponent("_meta");
-        const currency = this.config?.getPropertyFromComponent<string>(meta ?? null, "currency") ?? null;
+        const currency = this.config?.getPropertyFromComponentId<string>("_meta", "currency") ?? null;
         const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
