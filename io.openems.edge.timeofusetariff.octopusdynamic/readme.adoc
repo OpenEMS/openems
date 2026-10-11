@@ -1,11 +1,57 @@
 = Octopus Energy Germany Dynamic Tariff
 
-Experimental read-only provider for the personal Octopus Dynamic Germany tariff using the German Kraken GraphQL endpoint.
+This OpenEMS Edge component retrieves the individual electricity prices of an Octopus Energy Germany dynamic tariff and provides them through the standard `TimeOfUseTariff` interface.
 
-* Creates 15-minute tariff forecasts in OpenEMS standard currency/MWh (gross cent/kWh × 10).
-* Uses individual Octopus account credentials. Never commit credentials or real API responses.
-* Rejects incomplete or conflicting rates rather than providing unreliable price data.
-* Does not implement the separate German §14a Module 3 grid-charge calculation.
-* Requires validation of multiple supply points and account-specific gross price semantics before a public release.
+== Features
 
-The module supports the standard TimeOfUseTariff interface. See the source configuration interface for the credentials and refresh interval.
+* Retrieves account-specific quarter-hourly price forecasts from the Octopus Germany Kraken API.
+* Converts gross prices from ct/kWh to EUR/MWh, the unit expected by OpenEMS.
+* Validates timestamps, quarter-hour intervals, missing periods, and conflicting price records.
+* Refreshes forecasts at a configurable interval (minimum 15 minutes).
+* Provides read-only tariff data; it does not control connected equipment.
+
+== Configuration
+
+Add a component of type `TimeOfUseTariff.OctopusDynamicDE` in the OpenEMS Edge component configuration.
+
+[cols="1,3"]
+|===
+|Parameter |Description
+
+|`id`
+|Unique OpenEMS component ID, for example `timeofusetariff0`.
+
+|`accountNumber`
+|Octopus Energy Germany account number.
+
+|`email`
+|Email address associated with the Octopus account.
+
+|`password`
+|Password for the Octopus account.
+
+|`refreshMinutes`
+|Price refresh interval in minutes (default: 30, minimum: 15).
+|===
+
+Store configuration files and credentials securely. Do not include credentials or unredacted account responses in issue reports.
+
+== Price handling
+
+Octopus supplies gross unit rates in ct/kWh. The component converts them to OpenEMS currency/MWh using `1 ct/kWh = 10 EUR/MWh`.
+
+Prices returned by the component are the rates provided by the account API. Additional charges must not be applied again without verifying whether they are already included in the account rate.
+
+If a refresh fails or returns inconsistent data, the component does not publish an unverified replacement forecast.
+
+== Scope
+
+This component integrates the authenticated tariff data provided by Octopus Energy Germany. The separate calculation of German §14a EnWG Module 3 time-variable network charges is not part of this component.
+
+The account API may return several electricity supply points or agreements. Such data must be interpreted unambiguously before a forecast can be used for optimization.
+
+== Development and verification
+
+Offline Java tests cover price conversion, timestamp alignment, missing and conflicting intervals, malformed responses, and daylight-saving transitions. Additional checks for API integration and multi-supply-point behavior are tracked in the accompanying pull request.
+
+The component is licensed under EPL-2.0, consistent with OpenEMS Edge modules.
