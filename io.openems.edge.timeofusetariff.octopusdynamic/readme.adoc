@@ -1,0 +1,11 @@
+= Octopus Energy Germany Dynamic Tariff
+
+Experimental read-only provider for the personal Octopus Dynamic Germany tariff using the German Kraken GraphQL endpoint.
+
+* Creates 15-minute tariff forecasts in OpenEMS standard currency/MWh (gross cent/kWh × 10).
+* Uses individual Octopus account credentials. Never commit credentials or real API responses.
+* Rejects incomplete or conflicting rates rather than providing unreliable price data.
+* Does not implement the separate German §14a Module 3 grid-charge calculation.
+* Requires validation of multiple supply points and account-specific gross price semantics before a public release.
+
+The module supports the standard TimeOfUseTariff interface. See the source configuration interface for the credentials and refresh interval.
