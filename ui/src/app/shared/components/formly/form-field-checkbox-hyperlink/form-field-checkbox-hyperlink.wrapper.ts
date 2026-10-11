@@ -17,7 +17,7 @@ export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implem
             this.formControl.setValue(this.props.defaultValue);
         }
 
-        // Since its a custom wrapper, we are seperating label with checkbox.
+        // Since its a custom wrapper, we are separating label with checkbox.
         // mentioning required to true does not generate (*) to the label, so we are hard coding it.
         if (this.props.required) {
             this.secondLabel = this.props.description + "*";
