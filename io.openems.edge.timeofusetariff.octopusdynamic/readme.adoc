@@ -56,6 +56,6 @@ This integration targets Octopus Energy Germany. Other Octopus Energy markets ma
 
 == Development and verification
 
-Offline Java tests cover price conversion, timestamp alignment, missing and conflicting intervals, malformed responses, and daylight-saving transitions. Additional checks for API integration and multi-supply-point behavior are tracked in the accompanying pull request.
+Offline Java tests cover authentication and token handling, invalid credentials, simulated network failures, forecast retention after failed refreshes, retry scheduling, price conversion, timestamp alignment, missing and conflicting intervals, malformed responses, and daylight-saving transitions. Additional checks for API integration and multi-supply-point behavior are tracked in the accompanying pull request.
 
 The component is licensed under EPL-2.0, consistent with OpenEMS Edge modules.
