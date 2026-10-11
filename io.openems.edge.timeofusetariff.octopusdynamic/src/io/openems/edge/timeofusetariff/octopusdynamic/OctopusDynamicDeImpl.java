@@ -221,6 +221,9 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	/**
 	 * Human-readable diagnostics. Never include API payloads, exception messages,
 	 * passwords, tokens, account identifiers or email addresses.
+	 *
+	 * @param category a non-sensitive failure category
+	 * @return a safe, actionable diagnostic description
 	 */
 	static String describeFailure(String category) {
 		return switch (category) {
