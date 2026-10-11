@@ -174,6 +174,22 @@ public class OctopusDynamicDeImplTest {
 	}
 
 	@Test
+	public void classifiesAuthenticationAndAccountErrorsWithoutLoggingCredentials() {
+		assertEquals("AUTHENTICATION_REJECTED",
+				OctopusDynamicDeImpl.categorizeFailure("authentication", new IOException("HTTP_STATUS_401")));
+		assertEquals("AUTHENTICATION_REJECTED",
+				OctopusDynamicDeImpl.categorizeFailure("authentication", new IOException("GRAPHQL_ERRORS")));
+		assertEquals("ACCOUNT_ACCESS_DENIED",
+				OctopusDynamicDeImpl.categorizeFailure("forecast", new IOException("HTTP_STATUS_403")));
+		assertEquals("ACCOUNT_NOT_FOUND",
+				OctopusDynamicDeImpl.categorizeFailure("price-validation", new IOException("ACCOUNT_NOT_FOUND")));
+		assertEquals("REQUEST_FAILED",
+				OctopusDynamicDeImpl.categorizeFailure("authentication", new IOException("Sensitive provider response")));
+		assertEquals("REQUEST_FAILED",
+				OctopusDynamicDeImpl.categorizeFailure("authentication", new IOException()));
+	}
+
+	@Test
 	public void refreshCadenceUsesNormalIntervalAndFiveMinuteRetry() {
 		assertEquals(30L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 30));
 		assertEquals(15L, OctopusDynamicDeImpl.nextRefreshDelayMinutes(true, 5));
