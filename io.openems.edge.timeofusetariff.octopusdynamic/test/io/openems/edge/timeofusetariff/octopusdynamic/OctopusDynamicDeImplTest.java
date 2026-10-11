@@ -236,4 +236,14 @@ public class OctopusDynamicDeImplTest {
 		var b = slot("2026-10-25T01:00:00Z", "2026-10-25T01:15:00Z", "11");
 		assertArrayEquals(new Double[]{100.0, 110.0}, parse(forecast(a + "," + b)).asArray());
 	}
+	@Test
+	public void classifiesProviderConnectivityFailures() {
+		assertEquals("NETWORK_TIMEOUT", OctopusDynamicDeImpl.categorizeFailure("forecast",
+				new java.net.SocketTimeoutException()));
+		assertEquals("API_RATE_LIMITED", OctopusDynamicDeImpl.categorizeFailure("forecast",
+				new IOException("HTTP_STATUS_429")));
+		assertEquals("INVALID_PRICE_FORECAST", OctopusDynamicDeImpl.categorizeFailure("price-validation",
+				new IOException("Missing quarter-hour price")));
+	}
+
 }
