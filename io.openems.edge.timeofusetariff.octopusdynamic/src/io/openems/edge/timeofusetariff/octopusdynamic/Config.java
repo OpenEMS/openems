@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(name = "Time-of-Use Tariff Octopus Dynamic DE",
-        description = "Official Octopus Germany GraphQL personal dynamic electricity prices")
+        description = "Account-specific Octopus Energy Germany dynamic electricity prices")
 @interface Config {
     @AttributeDefinition(name = "Component-ID")
     String id() default "timeofusetariff0";
