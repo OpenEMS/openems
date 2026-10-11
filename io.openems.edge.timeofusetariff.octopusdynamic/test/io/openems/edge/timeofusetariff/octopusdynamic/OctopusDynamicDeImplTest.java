@@ -5,9 +5,12 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 import org.junit.Test;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
@@ -33,6 +36,107 @@ public class OctopusDynamicDeImplTest {
 
     private static io.openems.edge.timeofusetariff.api.TimeOfUsePrices parse(String json) throws IOException {
         return OctopusDynamicDeImpl.parsePrices(JsonParser.parseString(json).getAsJsonObject());
+    }
+
+
+    private static final class StubProvider extends OctopusDynamicDeImpl {
+
+        private final Queue<Object> responses = new ArrayDeque<>();
+        private int requests;
+        private String suppliedToken;
+
+        void respond(String json) {
+            this.responses.add(JsonParser.parseString(json).getAsJsonObject());
+        }
+
+        void failWithIOException() {
+            this.responses.add(new IOException("Simulated connection failure"));
+        }
+
+        @Override
+        JsonObject post(String query, JsonObject variables, String token) throws IOException {
+            this.requests++;
+            this.suppliedToken = token;
+            var next = this.responses.remove();
+            if (next instanceof IOException exception) {
+                throw exception;
+            }
+            return (JsonObject) next;
+        }
+    }
+
+    private static String validFutureForecast() {
+        return forecast(slot("2099-01-01T12:00:00Z", "2099-01-01T12:15:00Z", "21.5"));
+    }
+
+    @Test
+    public void authenticatesAndUsesTokenForAccountForecast() {
+        var provider = new StubProvider();
+        provider.respond("{\\"obtainKrakenToken\\":{\\"token\\":\\"mock-token\\"}}");
+        provider.respond(validFutureForecast());
+
+        assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+        assertEquals(2, provider.requests);
+        assertEquals("mock-token", provider.suppliedToken);
+        assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+    }
+
+    @Test
+    public void rejectsMissingCredentialsWithoutNetworkRequests() {
+        var provider = new StubProvider();
+
+        assertEquals(false, provider.refresh("A-TEST", "", "test-password"));
+        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", ""));
+        assertEquals(false, provider.refresh("", "octopus@example.test", "test-password"));
+        assertEquals(0, provider.requests);
+    }
+
+    @Test
+    public void rejectsMissingAuthenticationToken() {
+        var provider = new StubProvider();
+        provider.respond("{\\"obtainKrakenToken\\":{}}");
+
+        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+        assertEquals(1, provider.requests);
+    }
+
+    @Test
+    public void retainsValidatedForecastWhenConnectionFails() {
+        var provider = new StubProvider();
+        provider.respond("{\\"obtainKrakenToken\\":{\\"token\\":\\"mock-token\\"}}");
+        provider.respond(validFutureForecast());
+        assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+
+        provider.failWithIOException();
+        assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+        assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+    }
+
+    @Test
+    public void retriesAfterFailureAndReturnsToNormalRefreshInterval() {
+        class ScheduleProbe extends OctopusDynamicDeImpl {
+            private final Queue<Boolean> outcomes = new ArrayDeque<>();
+            private final Queue<Long> delays = new ArrayDeque<>();
+
+            @Override
+            boolean refresh(String accountNumber, String email, String password) {
+                return this.outcomes.remove();
+            }
+
+            @Override
+            void scheduleNextRefresh(long delayMinutes) {
+                this.delays.add(delayMinutes);
+            }
+        }
+
+        var provider = new ScheduleProbe();
+        provider.outcomes.add(false);
+        provider.outcomes.add(true);
+        provider.refreshAndSchedule();
+        provider.refreshAndSchedule();
+
+        assertEquals(Long.valueOf(5L), provider.delays.remove());
+        assertEquals(Long.valueOf(30L), provider.delays.remove());
     }
 
     @Test
