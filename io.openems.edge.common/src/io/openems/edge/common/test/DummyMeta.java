@@ -13,6 +13,7 @@ import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
+import io.openems.edge.common.meta.types.Environment;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
@@ -32,6 +33,7 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 			new GridBuyLimit.Hard(0), //
 			JSCalendar.Tasks.empty());
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
+	private Environment environment = Environment.STABLE;
 
 	public DummyMeta() {
 		super(Meta.SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, //
@@ -105,6 +107,11 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	@Override
 	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
 		return this.thirdPartyUsageAcceptance;
+	}
+
+	@Override
+	public Environment getEnvironment() {
+		return this.environment;
 	}
 
 	/**
@@ -270,6 +277,18 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
 		this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
+		return this.self();
+	}
+
+	/**
+	 * Sets the {@link Environment} for this {@link DummyMeta} instance and returns
+	 * the instance itself.
+	 *
+	 * @param environment the environment
+	 * @return myself
+	 */
+	public DummyMeta withEnvironment(Environment environment) {
+		this.environment = environment;
 		return this.self();
 	}
 }

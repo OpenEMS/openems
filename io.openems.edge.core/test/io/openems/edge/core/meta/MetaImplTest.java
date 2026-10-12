@@ -9,11 +9,13 @@ import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,9 +28,12 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.EnvironmentStatus;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 
 class MetaImplTest {
 
@@ -102,6 +107,10 @@ class MetaImplTest {
 								.build().toString()) //
 						.build());
 
+		assertEquals(Environment.STABLE, sut.getEnvironment());
+		assertEquals(EnvironmentStatus.STABLE.name(), //
+				cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?").getProperties().get("environmentStatus"));
+
 		final var ots = sut.getGridBuyLimit().soft() //
 				.getOneTasksBetween(clock.now(), clock.now().plusHours(48)).iterator();
 		{
@@ -161,6 +170,44 @@ class MetaImplTest {
 						.timeleap(clock, 1, ChronoUnit.HOURS) //
 						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 10000)) //
 				.deactivate();
+	}
+
+	@Test
+	void testEnvironmentStatusIsUpdatedWhenBetaComponentBindsAndUnbinds() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var clock = createDummyClock();
+		final var factory = ofBridgeImpl(//
+				DummyBridgeHttpFactory::dummyEndpointFetcher, //
+				() -> dummyBridgeHttpExecutor(clock, true));
+
+		final var sut = new MetaImpl();
+		final var test = new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setEnvironment(Environment.BETA) //
+						.build());
+
+		assertEquals(EnvironmentStatus.BETA_MANUAL.name(), //
+				cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?").getProperties().get("environmentStatus"));
+		assertEquals(Environment.BETA, sut.getEnvironment());
+
+		final var betaComponent = mock(EvseChargePoint.class);
+		sut.bindBetaComponent(betaComponent);
+		assertEquals(EnvironmentStatus.BETA_ENFORCED.name(), //
+				cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?").getProperties().get("environmentStatus"));
+
+		sut.unbindBetaComponent(betaComponent);
+		assertEquals(EnvironmentStatus.BETA_MANUAL.name(), //
+				cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?").getProperties().get("environmentStatus"));
+		assertEquals(Environment.BETA, sut.getEnvironment());
+
+		test.deactivate();
 	}
 
 	@Test

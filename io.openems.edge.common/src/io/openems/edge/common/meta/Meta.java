@@ -22,6 +22,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.CountryCode;
+import io.openems.edge.common.meta.types.Environment;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -337,4 +338,11 @@ public interface Meta extends ModbusSlave {
 	 * @return the third party usage acceptance status
 	 */
 	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
+
+	/**
+	 * Gets the environment this system is running on.
+	 *
+	 * @return the {@link Environment}
+	 */
+	Environment getEnvironment();
 }
