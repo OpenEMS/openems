@@ -5,6 +5,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { AngularDelegate, ModalController } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
+import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { energyJourneyRoutes } from "src/app/edge/settings/energy-journey/energy-journey-routing.module";
 import { settingsRoutes } from "src/app/edge/settings/settings-routing.module";
 import { PlatFormService } from "src/app/platform.service";
@@ -105,11 +106,12 @@ describe("NavigationService", () => {
 
     let service: jasmine.SpyObj<Service>;
     const edgeConfig: (components: TComponent[]) => EdgeConfig = (components: TComponent[] = []) =>
-    DummyConfig.from(...dummConfigComponents.concat(components));
+        DummyConfig.from(...dummConfigComponents.concat(components));
     let harness: RouterTestingHarness;
 
     beforeEach(async () => {
         service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {});
+        service.getCurrentEdge.and.returnValue(Promise.resolve(DummyConfig.dummyEdge({})));
         await TestBed.configureTestingModule({
             declarations: [],
             imports: [TranslateModule.forRoot(), PipeComponentsModule],
@@ -122,6 +124,7 @@ describe("NavigationService", () => {
                 RouteService,
                 Pagination,
                 ModalController,
+                LiveDataService,
                 provideRouter([...toProbeRoutes(routes)]),
             ],
         }).compileComponents();
@@ -175,7 +178,6 @@ describe("NavigationService", () => {
 
     describe("are all navigation tree routerLink existing in predefined routes", () => {
         it("all routes are existing", async () => {
-
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig([]));
             const navigationTree = await NavigationService.createNavigationTree(
@@ -212,6 +214,22 @@ describe("NavigationService", () => {
                 user,
                 platFormService,
             );
+
+            const updatedTrees = updatedNavigationTree?.getAbsoluteNavigations() ?? [];
+            const favoriteNode = updatedTrees.find(
+                (node) =>
+                    node.id !== NavigationId.FAVORITES &&
+                    node.routerLink.baseString.split("/").includes(NavigationId.FAVORITES),
+            );
+            expect(favoriteNode).toBeDefined();
+            expect(
+                updatedTrees.some(
+                    (node) =>
+                        node.id === favoriteNode?.id &&
+                        node.routerLink.baseString.split("/").includes("live") &&
+                        !node.routerLink.baseString.split("/").includes(NavigationId.FAVORITES),
+                ),
+            ).toBeTrue();
 
             await testRoutes(updatedNavigationTree, harness);
         });

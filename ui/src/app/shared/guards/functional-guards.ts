@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Location } from "@angular/common";
 import { effect, inject, Injector } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot, CanActivateFn, createUrlTreeFromSnapshot, RedirectCommand, Router, RouterStateSnapshot, } from "@angular/router";
 import { environment } from "src/environments";
 import { UserService } from "../service/user.service";
 import { Service } from "../shared";
@@ -85,4 +85,26 @@ export const hasEnvironmentBackend = (key: (typeof environment)["backend"]): Can
         }
         return true;
     };
+};
+
+export const redirectToParentOnReload = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+): boolean | RedirectCommand => {
+    const router = inject(Router);
+
+    if (router.navigated) {
+        return true;
+    }
+
+    const parentRoute = route.parent;
+    const hasParentLandingRoute = parentRoute?.routeConfig?.children?.some((child) => child.path === "");
+
+    if (!hasParentLandingRoute) {
+        return true;
+    }
+
+    return new RedirectCommand(createUrlTreeFromSnapshot(route, ["../"], state.root.queryParams, state.root.fragment), {
+        replaceUrl: true,
+    });
 };

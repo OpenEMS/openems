@@ -6,9 +6,7 @@ import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
 import { OverViewComponent } from "src/app/index/overview/overview.component";
-import { PlatFormService } from "src/app/platform.service";
 import { User } from "src/app/shared/jsonrpc/shared";
-import { Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { UserComponent } from "src/app/user/user.component";
 import { Edge } from "../../edge/edge";
@@ -20,9 +18,7 @@ export namespace SharedBottomNavigationBar {
         edge: Edge,
         config: EdgeConfig,
         translate: TranslateService,
-        service: Service,
         user: User,
-        platFormService: PlatFormService,
     ): NavigationTree[] {
         return [
             ...OverViewComponent.getNavigationTree(user, translate),
@@ -71,9 +67,7 @@ export namespace SharedBottomNavigationBar {
 
         const widgets = (config?.widgets?.list ?? []).filter((widget) => componentIds.has(widget.componentId));
 
-        return Widgets.getControllerNavigationTrees(edge, translate, config, widgets).map(
-            (el) => new NavigationTree(...el),
-        );
+        return Widgets.getControllerNavigationTrees(edge, translate, config, widgets).map((el) => new NavigationTree(...el));
     }
 
     export function getCockpitNavigationTree(

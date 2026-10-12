@@ -73,7 +73,7 @@ export class FavoriteButtonComponent {
         effect(() => {
             const tree = this.navigationService.navigationTree();
 
-            untracked(() => {
+            untracked(async () => {
                 this.routesForbidden.set([
                     ...(tree?.getChildren()?.map((child) => child.routerLink.baseString) ?? []),
                     ...(tree
@@ -88,10 +88,12 @@ export class FavoriteButtonComponent {
                     return;
                 }
 
+                const predefinedNodes = SharedFavorite.getPredefinedNodes(this.translate, config, currentEdge);
+
                 this.favoriteIds.set([
                     ...(currentEdge?.getFavoritesFromSettings()?.includes ?? []),
                     ...(ArrayUtils.removeMatching(
-                        SharedFavorite.getPredefinedNodes(this.translate, config, currentEdge),
+                        predefinedNodes,
                         currentEdge?.getFavoritesFromSettings()?.excludes ?? [],
                     ) ?? []),
                 ]);
@@ -219,6 +221,6 @@ export class FavoriteButtonComponent {
         // Finalize new tree
         navigationTree = navigationTree.setParentRecursively();
         navigationTree.reorderByShowOrder(navigationTree);
-        return NavigationTree.of(NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)));
+        return NavigationService.convertRelativeToAbsoluteLink(navigationTree);
     }
 }

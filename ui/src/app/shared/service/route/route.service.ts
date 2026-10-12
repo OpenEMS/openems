@@ -58,6 +58,27 @@ export class RouteService {
     }
 
     /**
+     * Gets the previous route/navigation from a given key by splitting array at key.
+     *
+     * @param arr The array
+     * @param key The key to find
+     * @returns The shortened array, split by given key
+     */
+    public getPrevRoute(arr: string[], key: string): string[] {
+        const keySegments = key.split("/").filter(Boolean);
+        if (keySegments.length === 0) {
+            return arr;
+        }
+
+        const startIndex = arr.findIndex((segment) => segment === keySegments[0]);
+        if (startIndex < 0) {
+            return arr;
+        }
+
+        return arr.slice(0, startIndex + keySegments.length);
+    }
+
+    /**
      * Gets the current url
      *
      * @returns The current url
