@@ -35,7 +35,7 @@ class OfflineEdgeAlertingTest {
 		private final Scheduler scheduler;
 
 		private final HashMap<String, Edge> edges;
-		private final  Map<String, List<OfflineEdgeAlertingSetting>> settings;
+		private final Map<String, List<OfflineEdgeAlertingSetting>> settings;
 
 		public TestEnvironment() {
 			final var instant = Instant.now();
@@ -73,8 +73,7 @@ class OfflineEdgeAlertingTest {
 			this.alerting.metadata = this.meta;
 		}
 
-		void createEdge(String id, boolean online, ZonedDateTime lastMessage,
-				SimpleAlertingSetting... settings) {
+		void createEdge(String id, boolean online, ZonedDateTime lastMessage, SimpleAlertingSetting... settings) {
 			var edge = new Edge(this.meta, id, null, null, null, lastMessage);
 			edge.setOnline(online);
 			this.edges.put(id, edge);
