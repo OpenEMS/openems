@@ -1,5 +1,5 @@
 
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.base;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
@@ -7,7 +7,6 @@ import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdate.Request;
 
 /**
  * Executes a System Update.
@@ -23,7 +22,7 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemUpdate.Request;
  * }
  * </pre>
  */
-public class ExecuteSystemUpdate implements EndpointRequestType<Request, EmptyObject> {
+public class ExecuteSystemUpdate implements EndpointRequestType<ExecuteSystemUpdate.Request, EmptyObject> {
 
 	@Override
 	public String getMethod() {

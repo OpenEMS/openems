@@ -1,4 +1,4 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.base;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
@@ -12,10 +12,9 @@ import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommand.Request;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommand.Response;
 
-public class ExecuteSystemCommand implements EndpointRequestType<Request, Response> {
+public class ExecuteSystemCommand
+		implements EndpointRequestType<ExecuteSystemCommand.Request, ExecuteSystemCommand.Response> {
 
 	@Override
 	public String getMethod() {
@@ -41,13 +40,13 @@ public class ExecuteSystemCommand implements EndpointRequestType<Request, Respon
 	) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link ExecuteSystemCommand.Request}.
+		 * Returns a {@link JsonSerializer} for a {@link Request}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<ExecuteSystemCommand.Request> serializer() {
-			return jsonObjectSerializer(ExecuteSystemCommand.Request.class, //
-					json -> new ExecuteSystemCommand.Request(//
+		public static JsonSerializer<Request> serializer() {
+			return jsonObjectSerializer(Request.class, //
+					json -> new Request(//
 							json.getString("command"), //
 							json.getOptionalBoolean("runInBackground") //
 									.orElse(false), //
@@ -64,24 +63,23 @@ public class ExecuteSystemCommand implements EndpointRequestType<Request, Respon
 		}
 
 		/**
-		 * Creates a {@link ExecuteSystemCommand.Request} which runs in the background
-		 * without authentication.
+		 * Creates a {@link Request} which runs in the background without
+		 * authentication.
 		 * 
-		 * @param command the command of the {@link ExecuteSystemCommand.Request}
-		 * @return the created {@link ExecuteSystemCommand.Request}
+		 * @param command the command of the {@link Request}
+		 * @return the created {@link Request}
 		 */
 		public static Request runInBackgroundWithoutAuthentication(String command) {
 			return withoutAuthentication(command, true, 5);
 		}
 
 		/**
-		 * Creates a {@link ExecuteSystemCommand.Request} without authentication.
+		 * Creates a {@link Request} without authentication.
 		 * 
-		 * @param command         the command of the
-		 *                        {@link ExecuteSystemCommand.Request}
+		 * @param command         the command of the {@link Request}
 		 * @param runInBackground if the command should run in background
 		 * @param timeoutSeconds  the command timeout
-		 * @return the created {@link ExecuteSystemCommand.Request}
+		 * @return the created {@link Request}
 		 */
 		public static Request withoutAuthentication(//
 				String command, //
@@ -96,13 +94,13 @@ public class ExecuteSystemCommand implements EndpointRequestType<Request, Respon
 	public record Response(String[] stdout, String[] stderr, int exitcode) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link ExecuteSystemCommand.Response}.
+		 * Returns a {@link JsonSerializer} for a {@link Response}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<ExecuteSystemCommand.Response> serializer() {
-			return jsonObjectSerializer(ExecuteSystemCommand.Response.class, //
-					json -> new ExecuteSystemCommand.Response(//
+		public static JsonSerializer<Response> serializer() {
+			return jsonObjectSerializer(Response.class, //
+					json -> new Response(//
 							json.getArray("stdout", String[]::new, JsonElementPath::getAsString), //
 							json.getArray("stderr", String[]::new, JsonElementPath::getAsString), //
 							json.getInt("exitcode")),

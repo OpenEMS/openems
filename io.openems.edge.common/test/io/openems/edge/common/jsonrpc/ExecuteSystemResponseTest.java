@@ -1,4 +1,4 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest.Type;
+import io.openems.edge.common.jsonrpc.request.ExecuteSystemRestartRequest;
+import io.openems.edge.common.jsonrpc.request.ExecuteSystemRestartRequest.Type;
 
 public class ExecuteSystemResponseTest {
 

@@ -1,11 +1,12 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.response;
 
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
+import io.openems.edge.common.jsonrpc.request.ExecuteSystemRestartRequest;
+import io.openems.edge.common.jsonrpc.response.ExecuteSystemCommandResponse.SystemCommandResponse;
 
 /**
  * JSON-RPC Response to {@link ExecuteSystemRestartRequest}.

@@ -1,5 +1,5 @@
 
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.base;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.emptyObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
@@ -15,15 +15,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.host.SystemUpdateHandler;
-import io.openems.edge.core.host.jsonrpc.GetSystemUpdateState.Response;
+import io.openems.edge.common.jsonrpc.response.ExecuteSystemCommandResponse;
 
 /**
  * Gets the System Update State.
@@ -38,7 +39,7 @@ import io.openems.edge.core.host.jsonrpc.GetSystemUpdateState.Response;
  * }
  * </pre>
  */
-public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Response> {
+public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, GetSystemUpdateState.Response> {
 
 	@Override
 	public String getMethod() {
@@ -58,13 +59,13 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 	public record Response(SystemUpdateState updateState) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetSystemUpdateState.Response}.
+		 * Returns a {@link JsonSerializer} for a {@link Response}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetSystemUpdateState.Response> serializer() {
-			return jsonSerializer(GetSystemUpdateState.Response.class, //
-					json -> new GetSystemUpdateState.Response(SystemUpdateState.serializer().deserializePath(json)), //
+		public static JsonSerializer<Response> serializer() {
+			return jsonSerializer(Response.class, //
+					json -> new Response(SystemUpdateState.serializer().deserializePath(json)), //
 					obj -> SystemUpdateState.serializer().serialize(obj.updateState()));
 		}
 
@@ -74,16 +75,6 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 				Updated updated, //
 				Unknown unknown //
 		) {
-
-			/**
-			 * Creates a SystemUpdateState which indicates a running state.
-			 * 
-			 * @param updateState the current state
-			 * @return the created {@link SystemUpdateState}
-			 */
-			public static SystemUpdateState isRunning(UpdateState updateState) {
-				return new SystemUpdateState(new SystemUpdateState.Running(updateState), null, null, null);
-			}
 
 			/**
 			 * Creates a SystemUpdateState which indicates that a update is available.
@@ -96,12 +87,11 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 					SemanticVersion currentVersion, //
 					SemanticVersion latestVersion //
 			) {
-				return new SystemUpdateState(null, new SystemUpdateState.Available(currentVersion, latestVersion), null,
-						null);
+				return new SystemUpdateState(null, new Available(currentVersion, latestVersion), null, null);
 			}
 
 			/**
-			 * Returns a {@link JsonSerializer} for a {@link GetSystemUpdateState.Response}.
+			 * Returns a {@link JsonSerializer} for a {@link Response}.
 			 * 
 			 * @return the created {@link JsonSerializer}
 			 */
@@ -139,13 +129,12 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			public record Unknown() {
 
 				/**
-				 * Returns a {@link JsonSerializer} for a
-				 * {@link GetSystemUpdateState.Response.SystemUpdateState.Unknown}.
+				 * Returns a {@link JsonSerializer} for a {@link Unknown}.
 				 * 
 				 * @return the created {@link JsonSerializer}
 				 */
-				public static JsonSerializer<SystemUpdateState.Unknown> serializer() {
-					return emptyObjectSerializer(SystemUpdateState.Unknown::new);
+				public static JsonSerializer<Unknown> serializer() {
+					return emptyObjectSerializer(Unknown::new);
 				}
 
 			}
@@ -153,14 +142,13 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			public record Updated(SemanticVersion version) {
 
 				/**
-				 * Returns a {@link JsonSerializer} for a
-				 * {@link GetSystemUpdateState.Response.SystemUpdateState.Updated}.
+				 * Returns a {@link JsonSerializer} for a {@link Updated}.
 				 * 
 				 * @return the created {@link JsonSerializer}
 				 */
-				public static JsonSerializer<SystemUpdateState.Updated> serializer() {
-					return jsonObjectSerializer(SystemUpdateState.Updated.class, //
-							json -> new GetSystemUpdateState.Response.SystemUpdateState.Updated(//
+				public static JsonSerializer<Updated> serializer() {
+					return jsonObjectSerializer(Updated.class, //
+							json -> new Updated(//
 									json.getSemanticVersion("version")), //
 							obj -> JsonUtils.buildJsonObject() //
 									.addProperty("version", obj.version().toString()) //
@@ -175,14 +163,13 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			) {
 
 				/**
-				 * Returns a {@link JsonSerializer} for a
-				 * {@link GetSystemUpdateState.Response.SystemUpdateState.Available}.
+				 * Returns a {@link JsonSerializer} for a {@link Available}.
 				 * 
 				 * @return the created {@link JsonSerializer}
 				 */
-				public static JsonSerializer<SystemUpdateState.Available> serializer() {
-					return jsonObjectSerializer(SystemUpdateState.Available.class, //
-							json -> new SystemUpdateState.Available(//
+				public static JsonSerializer<Available> serializer() {
+					return jsonObjectSerializer(Available.class, //
+							json -> new Available(//
 									json.getSemanticVersion("currentVersion"), //
 									json.getSemanticVersion("latestVersion")),
 							obj -> JsonUtils.buildJsonObject() //
@@ -196,15 +183,24 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			public record Running(UpdateState updateState) {
 
 				/**
-				 * Returns a {@link JsonSerializer} for a
-				 * {@link GetSystemUpdateState.Response.SystemUpdateState.Running}.
+				 * Returns a {@link JsonSerializer} for a {@link Running}.
 				 * 
 				 * @return the created {@link JsonSerializer}
 				 */
-				public static JsonSerializer<SystemUpdateState.Running> serializer() {
-					return jsonObjectSerializer(SystemUpdateState.Running.class, //
-							json -> new SystemUpdateState.Running(new UpdateState()),
-							obj -> obj.updateState.toJsonObject());
+				public static JsonSerializer<Running> serializer() {
+					return jsonObjectSerializer(Running.class, //
+							json -> new Running(new UpdateState(//
+									json.getInt("percentCompleted"), //
+									json.getJsonArray("logs").asList().stream() //
+											.map(JsonElement::getAsString) //
+											.toList() //
+							)), obj -> JsonUtils.buildJsonObject() //
+									.addProperty("percentCompleted", obj.updateState().getPercentCompleted().get()) //
+									.add("logs", obj.updateState().getLogs().stream() //
+											.map(JsonPrimitive::new) //
+											.collect(JsonUtils.toJsonArray())) //
+									.build() //
+					);
 				}
 
 			}
@@ -214,7 +210,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 	}
 
 	public static class UpdateState {
-		private final Logger log = LoggerFactory.getLogger(SystemUpdateHandler.class);
+		private final Logger log = LoggerFactory.getLogger(UpdateState.class);
 
 		private final AtomicBoolean isRunning = new AtomicBoolean(false);
 		private final AtomicInteger percentCompleted = new AtomicInteger(0);
@@ -225,6 +221,14 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			this.reset();
 		}
 
+		public UpdateState(int percentCompleted, List<String> logs) {
+			this.percentCompleted.set(percentCompleted);
+			synchronized (this.log) {
+				this.logs.clear();
+				this.logs.addAll(logs);
+			}
+		}
+
 		public void setRunning(boolean isRunning) {
 			this.isRunning.set(isRunning);
 		}
@@ -233,8 +237,16 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Re
 			return this.isRunning.get();
 		}
 
+		public AtomicInteger getPercentCompleted() {
+			return this.percentCompleted;
+		}
+
 		public void setPercentCompleted(int percentCompleted) {
 			this.percentCompleted.set(percentCompleted);
+		}
+
+		public List<String> getLogs() {
+			return this.logs;
 		}
 
 		public synchronized void setDebugMode(boolean debugMode) {

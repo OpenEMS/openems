@@ -1,11 +1,10 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.base;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestart.Request;
 
 /**
  * Represents a JSON-RPC Request to execute a system restart.
@@ -21,7 +20,8 @@ import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestart.Request;
  * }
  * </pre>
  */
-public class ExecuteSystemRestart implements EndpointRequestType<Request, ExecuteSystemCommand.Response> {
+public class ExecuteSystemRestart
+		implements EndpointRequestType<ExecuteSystemRestart.Request, ExecuteSystemCommand.Response> {
 
 	@Override
 	public String getMethod() {
@@ -54,13 +54,13 @@ public class ExecuteSystemRestart implements EndpointRequestType<Request, Execut
 		}
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link ExecuteSystemRestart.Request}.
+		 * Returns a {@link JsonSerializer} for a {@link Request}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<ExecuteSystemRestart.Request> serializer() {
-			return jsonObjectSerializer(ExecuteSystemRestart.Request.class, //
-					json -> new ExecuteSystemRestart.Request(//
+		public static JsonSerializer<Request> serializer() {
+			return jsonObjectSerializer(Request.class, //
+					json -> new Request(//
 							json.getEnum("type", Type.class)), //
 					obj -> JsonUtils.buildJsonObject() //
 							.addProperty("type", obj.type()) //

@@ -1,4 +1,4 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.request;
 
 import static io.openems.common.utils.EnumUtils.toEnum;
 import static io.openems.common.utils.JsonUtils.getAsString;

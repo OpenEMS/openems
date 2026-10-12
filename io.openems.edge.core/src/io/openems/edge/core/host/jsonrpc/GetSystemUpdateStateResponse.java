@@ -16,6 +16,8 @@ import com.google.gson.JsonObject;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.jsonrpc.request.GetSystemUpdateStateRequest;
+import io.openems.edge.common.jsonrpc.response.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.SystemUpdateHandler;
 
 /**

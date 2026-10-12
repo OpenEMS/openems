@@ -162,16 +162,6 @@ export class UserPermission {
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
         return Role.isAtLeast(user?.globalRole, Role.OWNER);
     }
-
-    /**
-     * Checks if user is allowed to see additional updates.
-     *
-     * @param edge The current {@link Edge}
-     * @returns True, if user has access to see additional updates
-     */
-    public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
-        return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
-    }
 }
 
 export enum Producttype {}

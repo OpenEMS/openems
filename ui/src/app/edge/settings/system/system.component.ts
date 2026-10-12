@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, ChangeDetectionStrategy } from "@angular/core";
+import { Component, effect, ChangeDetectionStrategy, signal, computed } from "@angular/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { filter, timer } from "rxjs";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -7,6 +7,7 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { UserService } from "src/app/shared/service/user.service";
 import { CancellationToken } from "src/app/shared/type/cancellation-token";
+import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChangelogComponent } from "../../../changelog/view/component/changelog.component";
 import { CommonUiModule } from "../../../shared/common-ui.module";
@@ -16,6 +17,7 @@ import { GetUpdateables, Updateable } from "./jsonrpc/getUpdateables";
 import { GetUpdateState, UpdateState } from "./jsonrpc/getUpdateState";
 import { MaintenanceComponent } from "./maintenance/maintenance";
 import { OeSystemUpdateComponent } from "./oe-system-update.component";
+import { UpdateableCardComponent } from "./updateable-card.component";
 
 @Component({
     selector: SystemComponent.SELECTOR,
@@ -30,6 +32,7 @@ import { OeSystemUpdateComponent } from "./oe-system-update.component";
         NgxSpinnerComponent,
         ComponentsBaseModule,
         LiveDataServiceProvider,
+        UpdateableCardComponent,
     ],
 })
 export class SystemComponent {
@@ -38,14 +41,18 @@ export class SystemComponent {
 
     protected readonly environment = environment;
     protected readonly spinnerId: string = SystemComponent.SELECTOR;
+    protected readonly Role = Role;
     protected showLog: boolean = false;
     protected readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the openems service is restarted after update
     protected edge: Edge;
     protected restartTime: number = this.ESTIMATED_REBOOT_TIME;
     protected canSeeSystemRestart: boolean = false;
 
-    protected canSeeAdditionalUpdates: boolean = false;
-    protected updateables: UpdateableState[] = [];
+    protected readonly updateables = signal<UpdateableState[]>([]);
+
+    protected readonly allowedUpdateables = computed(() => this.getAllowedUpdateables());
+
+    protected readonly updateablesForOnlyAdmins = computed(() => this.getUpdateablesForOnlyAdmins());
 
     constructor(
         protected utils: Utils,
@@ -63,12 +70,12 @@ export class SystemComponent {
             }
 
             this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
-            this.canSeeAdditionalUpdates = UserPermission.isAllowedToSeeAdditionalUpdates(this.edge);
-
-            if (this.canSeeAdditionalUpdates) {
-                this.updateables = await this.fetchUpdateables();
-                await this.initializeUpdateStateFetcher(cancellationToken);
+            try {
+                this.updateables.set(await this.fetchUpdateables());
+            } catch {
+                // Edge version does not support Updateables or the user is not permitted
             }
+            await this.initializeUpdateStateFetcher(cancellationToken);
         });
     }
 
@@ -82,8 +89,25 @@ export class SystemComponent {
                 }),
             )
             .then((_) => {
-                updateableState.updateState = { type: "running", percentCompleted: 0, logs: [] };
+                // Replace the entry immutably via the signal so the change is rendered immediately
+                this.updateables.update((list) =>
+                    list.map((u) =>
+                        u.updateable.id === updateableState.updateable.id
+                            ? { ...u, updateState: { type: "running", percentCompleted: 0, logs: [] } }
+                            : u,
+                    ),
+                );
             });
+    }
+
+    protected getAllowedUpdateables(): UpdateableState[] {
+        return this.getUpdateablesForAtLeastInstaller().filter((x) =>
+            Role.isAtLeast(this.edge.role, x.updateable.requiredMinRole ?? Role.ADMIN),
+        );
+    }
+
+    protected getUpdateablesForOnlyAdmins(): UpdateableState[] {
+        return this.updateables().filter((x) => Role.isAtLeast(x.updateable.requiredMinRole ?? Role.ADMIN, Role.ADMIN));
     }
 
     private async initializeUpdateStateFetcher(cancellationToken: CancellationToken): Promise<void> {
@@ -98,7 +122,9 @@ export class SystemComponent {
             .subscribe(async (_) => {
                 isUpdatePending = true;
                 try {
-                    const updateablesToFetch = this.updateables.filter((x) => this.doesUpdateableRequireStateUpdate(x));
+                    const updateablesToFetch = this.updateables().filter((x) =>
+                        this.doesUpdateableRequireStateUpdate(x),
+                    );
                     const promises = updateablesToFetch.map((x) => this.updateUpdateableState(x));
                     await Promise.allSettled(promises);
                 } catch (err) {
@@ -147,14 +173,24 @@ export class SystemComponent {
                 }),
             );
 
-            updateable.updateState = response.result.state;
+            this.updateables.update((list) =>
+                list.map((u) =>
+                    u.updateable.id === updateable.updateable.id ? { ...u, updateState: response.result.state } : u,
+                ),
+            );
         } catch (err) {
             console.error(`Failed to fetch update state for updateable ${updateable.updateable.id}`, err);
         }
     }
+
+    private getUpdateablesForAtLeastInstaller(): UpdateableState[] {
+        return this.updateables().filter((x) =>
+            Role.isAtMost(x.updateable.requiredMinRole ?? Role.ADMIN, Role.INSTALLER),
+        );
+    }
 }
 
-type UpdateableState = {
+export type UpdateableState = {
     updateable: Updateable;
     updateState?: UpdateState;
 };

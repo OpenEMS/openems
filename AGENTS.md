@@ -12,10 +12,11 @@ Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 
 ## Working Style
 
-- Prefer small, focused diffs and avoid unrelated reformatting.
+- Prefer small, focused diffs. Formatting changes to files you touch are not considered unrelated churn: run the project's formatter on every file you change (see `ui/AGENTS.md` for the UI), even if it reformats pre-existing lines in those files.
 - Prefer self-explanatory code with clear names and simple structure. Add comments only when they explain non-obvious intent, constraints, or tradeoffs. Comments should be only in English.
 - Preserve existing behavior unless a change is explicitly requested.
 - Follow nearby code and existing FEMS/OpenEMS utilities, modules, helper APIs, and configuration patterns before adding abstractions.
+- Use the existing Utils classes where possible (e.g. `io.openems.common.utils.*` like `JsonUtils`, `TextProvider`, `ReflectionUtils`, or `io.openems.edge.common.channel.ChannelUtils`) instead of hand-rolled helpers; this applies to production code and tests.
 - Run the narrowest relevant validation for the changed area.
 - Do not bump dependencies, wrappers, plugins, or introduce new frameworks unless explicitly requested.
 

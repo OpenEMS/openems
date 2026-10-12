@@ -1,4 +1,4 @@
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.response;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +8,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
+import io.openems.edge.common.jsonrpc.request.ExecuteSystemCommandRequest;
+import io.openems.edge.common.jsonrpc.request.ExecuteSystemCommandRequest.SystemCommand;
 
 /**
  * JSON-RPC Response to {@link ExecuteSystemCommandRequest}.

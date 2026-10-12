@@ -1,5 +1,5 @@
 
-package io.openems.edge.core.host.jsonrpc;
+package io.openems.edge.common.jsonrpc.request;
 
 import com.google.gson.JsonObject;
 
