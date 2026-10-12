@@ -59,7 +59,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, TimeOfUseTariff {
+		implements OpenemsComponent, TimeOfUseTariff, OctopusDynamicStatus {
 
 	private final Logger log = LoggerFactory.getLogger(OctopusDynamicDeImpl.class);
 	private static final String API_URL = "https://api.oeg-kraken.energy/v1/graphql/";
@@ -109,7 +109,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	private volatile String password;
 
 	public OctopusDynamicDeImpl() {
-		super(OpenemsComponent.ChannelId.values());
+		super(OpenemsComponent.ChannelId.values(), OctopusDynamicStatus.ChannelId.values());
 	}
 
 	@Activate
@@ -134,7 +134,9 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.executor.shutdownNow();
-		this.httpBridgeFactory.unget(this.httpBridge);
+		if (this.httpBridge != null) {
+			this.httpBridgeFactory.unget(this.httpBridge);
+		}
 		this.httpBridge = null;
 	}
 
@@ -231,6 +233,12 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			stage = "price-validation";
 			this.prices.set(parsePrices(forecast));
 			this.lastSuccessfulUpdate = Instant.now();
+			this._setLastSuccessfulUpdate(this.lastSuccessfulUpdate.getEpochSecond());
+			this._setNextRetry(this.lastSuccessfulUpdate.plusSeconds(this.refreshMinutes * 60).getEpochSecond());
+			this._setStatusAuthenticationFailed(false);
+			this._setStatusRateLimited(false);
+			this._setStatusConnectionFailed(false);
+			this._setStatusServerError(false);
 			this.lastErrorCategory = "";
 			this.consecutiveFailures = 0;
 			this.nextAllowedRequest = Instant.now().plusSeconds(this.refreshMinutes * 60
@@ -244,6 +252,11 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			long retryAfter = ex instanceof HttpFailure http ? http.retryAfterSeconds : 0;
 			long delay = retryDelaySeconds(status, this.consecutiveFailures, retryAfter);
 			this.nextAllowedRequest = Instant.now().plusSeconds(delay);
+			this._setNextRetry(this.nextAllowedRequest.getEpochSecond());
+			this._setStatusAuthenticationFailed("AUTHENTICATION_REJECTED".equals(reason));
+			this._setStatusRateLimited(status == 429);
+			this._setStatusConnectionFailed("NETWORK_TIMEOUT".equals(reason) || "NETWORK_UNREACHABLE".equals(reason));
+			this._setStatusServerError(status >= 500 && status < 600);
 			this.log.warn("Octopus refresh failed at stage [{}], category [{}]: {}. Retry in {} seconds; previous prices retained.",
 					stage, reason, describeFailure(reason), delay);
 			return false;
@@ -355,6 +368,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		try {
 			var response = this.httpBridge.request(builder.build()).get(25, TimeUnit.SECONDS);
 			this.lastHttpStatus = response.status().code();
+			this._setHttpStatusCode(this.lastHttpStatus);
 			if (response.status().code() < 200 || response.status().code() >= 300) {
 				var retryAfter = response.header().entrySet().stream()
 						.filter(e -> e.getKey().equalsIgnoreCase("Retry-After"))
