@@ -4,6 +4,16 @@
       <!-- SoH Status Banner Component -->
       <soh-status-banner></soh-status-banner>
 
+      @if (config) {
+        <ion-grid class="ion-no-padding">
+          <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-xl="10" class="ion-no-padding">
+              <oe-vpp-dashboard [edge]="edge" [config]="config"></oe-vpp-dashboard>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      }
+
       <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
           <ion-row class="ion-padding-top-half">

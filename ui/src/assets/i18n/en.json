@@ -1,4 +1,45 @@
 {
+    "VPP": {
+        "TITLE": "Visual VPP",
+        "SUBTITLE": "Site energy flow and live device telemetry",
+        "READ_ONLY": "Read only",
+        "ASSETS_TITLE": "Energy assets",
+        "ASSETS": {
+            "PV": "PV / inverter",
+            "BATTERY": "Battery",
+            "GRID": "Grid",
+            "EV": "EV charger"
+        },
+        "STATUS": {
+            "AVAILABLE": "Telemetry available",
+            "NOT_CONFIGURED": "Not configured",
+            "UNKNOWN": "Telemetry unavailable",
+            "STALE": "Telemetry is stale",
+            "OFFLINE": "Offline",
+            "ONLINE": "Online",
+            "CURRENT": "Current"
+        },
+        "DIRECTION": {
+            "IDLE": "Idle",
+            "DISCHARGING": "Discharging",
+            "CHARGING": "Charging",
+            "IMPORTING": "Importing",
+            "EXPORTING": "Exporting",
+            "GENERATING": "Generating",
+            "POWER_FLOW": "Power flow"
+        },
+        "SOC": "State of charge",
+        "SOC_UNKNOWN": "State of charge unavailable",
+        "INTEGRATIONS_TITLE": "Integration status",
+        "INTEGRATION": {
+            "OPENEMS_EDGE": "OpenEMS Edge",
+            "TELEMETRY": "Telemetry freshness",
+            "SOLPLANET": "Solplanet",
+            "NOT_CONFIGURED": "No component configured",
+            "DISABLED": "Component disabled",
+            "UNVERIFIED": "Configured; connection unverified"
+        }
+    },
     "ABOUT": {
         "BUILD": "This build",
         "CONTACT": "For questions or feedback please visit the <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community Forum</a>.",

@@ -1,4 +1,45 @@
 {
+  "VPP": {
+    "TITLE": "VPP visuel",
+    "SUBTITLE": "Flux énergétique et télémétrie en direct du site",
+    "READ_ONLY": "Lecture seule",
+    "ASSETS_TITLE": "Équipements énergétiques",
+    "ASSETS": {
+      "PV": "PV / onduleur",
+      "BATTERY": "Batterie",
+      "GRID": "Réseau",
+      "EV": "Borne de recharge"
+    },
+    "STATUS": {
+      "AVAILABLE": "Télémétrie disponible",
+      "NOT_CONFIGURED": "Non configuré",
+      "UNKNOWN": "Télémétrie indisponible",
+      "STALE": "Télémétrie obsolète",
+      "OFFLINE": "Hors ligne",
+      "ONLINE": "En ligne",
+      "CURRENT": "À jour"
+    },
+    "DIRECTION": {
+      "IDLE": "À l’arrêt",
+      "DISCHARGING": "Décharge",
+      "CHARGING": "Charge",
+      "IMPORTING": "Importation",
+      "EXPORTING": "Exportation",
+      "GENERATING": "Production",
+      "POWER_FLOW": "Flux d’énergie"
+    },
+    "SOC": "État de charge",
+    "SOC_UNKNOWN": "État de charge indisponible",
+    "INTEGRATIONS_TITLE": "État des intégrations",
+    "INTEGRATION": {
+      "OPENEMS_EDGE": "OpenEMS Edge",
+      "TELEMETRY": "Actualité de la télémétrie",
+      "SOLPLANET": "Solplanet",
+      "NOT_CONFIGURED": "Aucun composant configuré",
+      "DISABLED": "Composant désactivé",
+      "UNVERIFIED": "Configuré ; connexion non vérifiée"
+    }
+  },
   "ABOUT": {
     "BUILD": "This build",
     "CURRENT_DEVELOPMENTS": "Développement actuels",

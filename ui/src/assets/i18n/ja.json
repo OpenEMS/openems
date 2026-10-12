@@ -1,4 +1,45 @@
 {
+  "VPP": {
+    "TITLE": "ビジュアルVPP",
+    "SUBTITLE": "サイトのエネルギーフローとリアルタイムテレメトリー",
+    "READ_ONLY": "読み取り専用",
+    "ASSETS_TITLE": "エネルギー設備",
+    "ASSETS": {
+      "PV": "太陽光 / インバーター",
+      "BATTERY": "バッテリー",
+      "GRID": "電力系統",
+      "EV": "EV充電器"
+    },
+    "STATUS": {
+      "AVAILABLE": "テレメトリー利用可能",
+      "NOT_CONFIGURED": "未設定",
+      "UNKNOWN": "テレメトリー利用不可",
+      "STALE": "テレメトリーが古くなっています",
+      "OFFLINE": "オフライン",
+      "ONLINE": "オンライン",
+      "CURRENT": "最新"
+    },
+    "DIRECTION": {
+      "IDLE": "待機中",
+      "DISCHARGING": "放電中",
+      "CHARGING": "充電中",
+      "IMPORTING": "買電中",
+      "EXPORTING": "売電中",
+      "GENERATING": "発電中",
+      "POWER_FLOW": "電力フロー"
+    },
+    "SOC": "充電状態",
+    "SOC_UNKNOWN": "充電状態を利用できません",
+    "INTEGRATIONS_TITLE": "連携状態",
+    "INTEGRATION": {
+      "OPENEMS_EDGE": "OpenEMS Edge",
+      "TELEMETRY": "テレメトリーの鮮度",
+      "SOLPLANET": "Solplanet",
+      "NOT_CONFIGURED": "コンポーネント未設定",
+      "DISABLED": "コンポーネント無効",
+      "UNVERIFIED": "設定済み・接続未確認"
+    }
+  },
   "ABOUT": {
     "BUILD": "このビルド",
     "CURRENT_DEVELOPMENTS": "現在の開発",
