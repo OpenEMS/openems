@@ -67,7 +67,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
                 // Hide footer for history detail views
                 const segments = e.url.split("/");
-                this.isHistoryDetailView = segments.slice(0, -1).includes("history");
+                this.isHistoryDetailView = segments.slice(0, -1).includes("history") && !segments.includes("export");
             }),
         );
 
