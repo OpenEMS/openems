@@ -44,6 +44,7 @@
 	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.core.logger',\
 	bnd.identity;id='io.openems.core.referencetarget',\
+	bnd.identity;id='io.openems.edge.aircooling.blueeplus',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -256,6 +257,7 @@
 	io.openems.common.bridge.http;version=snapshot,\
 	io.openems.core.logger;version=snapshot;startlevel=18,\
 	io.openems.core.referencetarget;version=snapshot;startlevel=17,\
+	io.openems.edge.aircooling.blueeplus;version=snapshot,\
 	io.openems.edge.application;version=snapshot;startlevel=19,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
