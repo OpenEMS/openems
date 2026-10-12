@@ -95,6 +95,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 
 	private volatile long refreshMinutes = 30;
 	private volatile String cachedToken;
+	private volatile String tokenIdentity;
 	private volatile Instant tokenExpiry = Instant.EPOCH;
 	private volatile Instant nextAllowedRequest = Instant.EPOCH;
 	private volatile Instant lastSuccessfulUpdate = Instant.EPOCH;
@@ -122,6 +123,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		this.password = config.password();
 		this.refreshMinutes = Math.max(15, config.refreshMinutes());
 		this.cachedToken = null;
+		this.tokenIdentity = null;
 		this.tokenExpiry = Instant.EPOCH;
 		this.nextAllowedRequest = Instant.EPOCH;
 		this.httpBridge = this.httpBridgeFactory.get();
@@ -204,7 +206,8 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 				throw new IOException("CONFIGURATION_INCOMPLETE");
 			}
 			String token = this.cachedToken;
-			if (token == null || !Instant.now().isBefore(this.tokenExpiry)) {
+			if (!email.equals(this.tokenIdentity) || token == null || !Instant.now().isBefore(this.tokenExpiry)) {
+				this.cachedToken = null;
 				stage = "authentication";
 				token = this.authenticate(email, password);
 			}
@@ -258,6 +261,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			throw new IOException("AUTH_TOKEN_MISSING");
 		}
 		this.cachedToken = authResult.get("token").getAsString();
+		this.tokenIdentity = email;
 		this.tokenExpiry = Instant.now().plusSeconds(3540);
 		return this.cachedToken;
 	}
