@@ -37,6 +37,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 				() -> parent.timedataManager, //
 				parent.metadata::getEdge, //
 				parent.systemLogHandler::handleSystemLogNotification, //
+				parent.scheduleHandler::handleScheduleNotification, //
 				parent::logInfo, //
 				parent::logWarn);
 		this.onError = new OnError(//

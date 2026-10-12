@@ -7,9 +7,11 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,6 +23,10 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.google.common.collect.ImmutableList;
+
+import io.openems.common.jsonrpc.type.ScheduleUpdate;
+import io.openems.common.utils.BehaviorSubject;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,7 +38,9 @@ import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.optimizer.OptimizationState;
 import io.openems.edge.energy.optimizer.Optimizer;
+import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timeofusetariff.api.TariffManager;
@@ -70,6 +78,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	private Sum sum;
 
 	private final List<EnergySchedulable> schedulables = new CopyOnWriteArrayList<>();
+	private final BehaviorSubject<ScheduleUpdate> scheduleUpdates = new BehaviorSubject<>(//
+			new ScheduleUpdate(//
+					ScheduleUpdate.OptimizationStatus.INACTIVE, //
+					null, //
+					null, //
+					ImmutableList.of()));
 
 	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, policy = DYNAMIC, target = "(enabled=true)")
 	private void addSchedulable(EnergySchedulable schedulable) {
@@ -124,7 +138,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 							.build();
 				}, //
 				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
-				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER), //
+				this::onScheduleUpdate);
 	}
 
 	@Activate
@@ -142,7 +157,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.optimizer.deactivate();
+		this.deactivateOptimizer();
 		super.deactivate();
 	}
 
@@ -153,7 +168,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 		}
 
 		if (!config.enabled()) {
-			this.optimizer.deactivate();
+			this.deactivateOptimizer();
 			return;
 		}
 
@@ -170,15 +185,82 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public void subscribeSchedule(Consumer<ScheduleUpdate> consumer) {
+		this.scheduleUpdates.subscribe(consumer);
+		this.optimizer.notifyScheduleUpdate();
+	}
+
+	@Override
+	public void unsubscribeSchedule(Consumer<ScheduleUpdate> consumer) {
+		this.scheduleUpdates.unsubscribe(consumer);
+	}
+
+	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(new GetSchedule(), //
 				endpoint -> endpoint //
 						.setDescription("""
 								Gets the Schedule.
 								""".stripIndent()), //
-				call -> GetSchedule.Response.from(call.getRequest(), //
+				call -> new GetSchedule.Response(SchedulePeriodsFactory.create(//
+						call.getRequest().from(), //
 						this.componentManager.getClock(), //
 						this.timedata, this.predictorManager, this.tariffManager, //
-						this.optimizer.getLatestSimulationResult()));
+						this.optimizer.getLatestSimulationResult())));
+	}
+
+	private void onScheduleUpdate(//
+			OptimizationState optimizationState, //
+			SimulationResult simulationResult) {
+		if (!this.scheduleUpdates.hasSubscribers()) {
+			// Skip building the ScheduleUpdate if nobody is listening
+			return;
+		}
+
+		this.publishScheduleUpdate(optimizationState, simulationResult);
+	}
+
+	private void publishScheduleUpdate(//
+			OptimizationState optimizationState, //
+			SimulationResult simulationResult) {
+
+		final var periods = SchedulePeriodsFactory.create(//
+				ZonedDateTime.now(this.componentManager.getClock()), //
+				this.componentManager.getClock(), //
+				this.timedata, //
+				this.predictorManager, //
+				this.tariffManager, //
+				simulationResult);
+
+		this.scheduleUpdates.setValue(new ScheduleUpdate(//
+				toOptimizationStatus(optimizationState), //
+				optimizationState.startedAt(), //
+				optimizationState.reason(), //
+				periods));
+	}
+
+	private static ScheduleUpdate.OptimizationStatus toOptimizationStatus(//
+			OptimizationState state) {
+
+		return switch (state) {
+		case OptimizationState.ReoptimizingCurrent ignored //
+		-> ScheduleUpdate.OptimizationStatus.REOPTIMIZING_CURRENT;
+
+		case OptimizationState.OptimizingFuture ignored //
+		-> ScheduleUpdate.OptimizationStatus.OPTIMIZING_FUTURE;
+
+		case OptimizationState.Optimized ignored //
+		-> ScheduleUpdate.OptimizationStatus.OPTIMIZED;
+		};
+	}
+
+	private void deactivateOptimizer() {
+		this.optimizer.deactivate();
+
+		this.scheduleUpdates.updateValue(previous -> new ScheduleUpdate(//
+				ScheduleUpdate.OptimizationStatus.INACTIVE, //
+				null, //
+				null, //
+				previous.periods()));
 	}
 }

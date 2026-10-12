@@ -526,6 +526,23 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Instant} value to the {@link JsonObject} if it is not null.
+		 *
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Instant value) {
+			if (value != null) {
+				this.addProperty(property, DateTimeFormatter.ISO_INSTANT.format(value));
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link LocalDate} value to the {@link JsonObject} if it is not null.
 		 *
 		 * <p>

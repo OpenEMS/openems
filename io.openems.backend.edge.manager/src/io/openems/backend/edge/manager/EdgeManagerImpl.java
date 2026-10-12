@@ -50,9 +50,11 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.notification.ScheduleNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -72,6 +74,8 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	protected final SystemLogHandler systemLogHandler;
+
+	protected final ScheduleHandler scheduleHandler;
 
 	private final Logger log = LoggerFactory.getLogger(EdgeManagerImpl.class);
 
@@ -99,6 +103,9 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	public EdgeManagerImpl() {
 		super("Edge.Manager");
 		this.systemLogHandler = new SystemLogHandler(//
+				() -> this.uiWebsocket, //
+				this::send);
+		this.scheduleHandler = new ScheduleHandler(//
 				() -> this.uiWebsocket, //
 				this::send);
 	}
@@ -287,6 +294,23 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
 		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
+	}
+
+	@Override
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeScheduleRequest(String edgeId, User user, Role role,
+			UUID websocketId, SubscribeScheduleRequest request) {
+		return this.scheduleHandler.handleSubscribeScheduleRequest(edgeId, user, role, websocketId, request);
+	}
+
+	/**
+	 * Handles a {@link ScheduleNotification}, i.e. the replies to
+	 * {@link SubscribeScheduleRequest}.
+	 *
+	 * @param edgeId       the Edge-ID
+	 * @param notification the ScheduleNotification
+	 */
+	public void handleScheduleNotification(String edgeId, ScheduleNotification notification) {
+		this.scheduleHandler.handleScheduleNotification(edgeId, notification);
 	}
 
 	@Override

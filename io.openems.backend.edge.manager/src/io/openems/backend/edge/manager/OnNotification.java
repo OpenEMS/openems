@@ -30,6 +30,7 @@ import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.LogMessageNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
+import io.openems.common.jsonrpc.notification.ScheduleNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
@@ -45,6 +46,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	private final Supplier<TimedataManager> timedataManager;
 	private final Function<String, Optional<Edge>> getEdge;
 	private final BiConsumer<String, SystemLogNotification> handleSystemLogNotification;
+	private final BiConsumer<String, ScheduleNotification> handleScheduleNotification;
 	private final BiConsumer<Logger, String> logInfo;
 	private final BiConsumer<Logger, String> logWarn;
 
@@ -55,6 +57,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			Supplier<TimedataManager> timedataManager, //
 			Function<String, Optional<Edge>> getEdge, //
 			BiConsumer<String, SystemLogNotification> handleSystemLogNotification, //
+			BiConsumer<String, ScheduleNotification> handleScheduleNotification, //
 			BiConsumer<Logger, String> logInfo, //
 			BiConsumer<Logger, String> logWarn) {
 		this.name = name;
@@ -63,6 +66,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		this.timedataManager = timedataManager;
 		this.getEdge = getEdge;
 		this.handleSystemLogNotification = handleSystemLogNotification;
+		this.handleScheduleNotification = handleScheduleNotification;
 		this.logInfo = logInfo;
 		this.logWarn = logWarn;
 	}
@@ -154,6 +158,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			-> this.handleResendDataNotification(ResendDataNotification.from(notification), edgeId);
 		case SystemLogNotification.METHOD //
 			-> this.handleSystemLogNotification(SystemLogNotification.from(notification), edgeId);
+		case ScheduleNotification.METHOD //
+			-> this.handleScheduleNotification(ScheduleNotification.from(notification), edgeId);
 		case LogMessageNotification.METHOD //
 			-> this.handleLogMessageNotification(LogMessageNotification.from(notification), edgeId);
 		default //
@@ -261,6 +267,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	private void handleSystemLogNotification(SystemLogNotification message, String edgeId)
 			throws OpenemsNamedException {
 		this.handleSystemLogNotification.accept(edgeId, message);
+	}
+
+	/**
+	 * Handles a {@link ScheduleNotification}.
+	 *
+	 * @param message the {@link ScheduleNotification}
+	 * @param edgeId  the Edge-ID
+	 */
+	private void handleScheduleNotification(ScheduleNotification message, String edgeId) {
+		this.handleScheduleNotification.accept(edgeId, message);
 	}
 
 	/**

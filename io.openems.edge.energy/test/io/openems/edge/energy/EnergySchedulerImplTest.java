@@ -17,16 +17,21 @@ import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_Q
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jsonrpc.type.ScheduleUpdate;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
@@ -57,6 +62,33 @@ public class EnergySchedulerImplTest {
 	@Test
 	void test() throws Exception {
 		create(createDummyClock());
+	}
+
+	@Test
+	void testDeactivate_shouldPublishInactiveScheduleUpdate_whenDeactivated() throws Exception {
+		final var sut = create(createDummyClock());
+
+		final var updateCounter = new AtomicInteger();
+		final var latestUpdate = new AtomicReference<ScheduleUpdate>();
+
+		sut.subscribeSchedule(update -> {
+			updateCounter.incrementAndGet();
+			latestUpdate.set(update);
+		});
+
+		// BehaviorSubject immediately publishes its current value on subscribe
+		assertEquals(1, updateCounter.get());
+
+		sut.deactivate();
+
+		// Deactivation publishes another INACTIVE update
+		assertEquals(2, updateCounter.get());
+
+		final var actual = latestUpdate.get();
+
+		assertEquals(ScheduleUpdate.OptimizationStatus.INACTIVE, actual.status());
+		assertNull(actual.startedAt());
+		assertNull(actual.reason());
 	}
 
 	/**
