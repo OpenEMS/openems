@@ -19,6 +19,23 @@ import com.google.gson.JsonParser;
  */
 public class OctopusDynamicDeImplTest {
 
+	@Test
+	public void rateLimitHonorsRetryAfter() {
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(429, 1, 3600) >= 3600);
+	}
+
+	@Test
+	public void exponentialBackoffIncreases() {
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(503, 2, 0)
+				> OctopusDynamicDeImpl.retryDelaySeconds(503, 1, 0));
+	}
+
+	@Test
+	public void parsesRetryAfterHeader() {
+		assertEquals(120L, OctopusDynamicDeImpl.parseRetryAfter("120"));
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter("invalid"));
+	}
+
 	private static String forecast(String slots) {
 		return """
 				{"account":{"properties":[{"electricityMalos":[{"agreements":[{
@@ -112,33 +129,7 @@ public class OctopusDynamicDeImplTest {
 		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
 	}
 
-	@Test
-	public void retriesAfterFailureAndReturnsToNormalRefreshInterval() {
-		class ScheduleProbe extends OctopusDynamicDeImpl {
-			private final Queue<Boolean> outcomes = new ArrayDeque<>();
-			private final Queue<Long> delays = new ArrayDeque<>();
-
-			@Override
-			boolean refresh(String accountNumber, String email, String password) {
-				return this.outcomes.remove();
-			}
-
-			@Override
-			void scheduleNextRefresh(long delayMinutes) {
-				this.delays.add(delayMinutes);
-			}
-		}
-
-		var provider = new ScheduleProbe();
-		provider.outcomes.add(false);
-		provider.outcomes.add(true);
-		provider.refreshAndSchedule();
-		provider.refreshAndSchedule();
-
-		assertEquals(Long.valueOf(5L), provider.delays.remove());
-		assertEquals(Long.valueOf(30L), provider.delays.remove());
-	}
-
+	
 
 	@Test
 	public void rejectsInvalidEmailOrPasswordResponse() {
