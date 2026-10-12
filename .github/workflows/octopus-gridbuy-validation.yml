@@ -30,6 +30,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: openems-edge-octopus-gridbuy
-          path: io.openems.edge.application/generated/*.jar
+          path: io.openems.edge.application/generated/distributions/executable/EdgeApp.jar
           if-no-files-found: error
           retention-days: 7
