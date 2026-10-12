@@ -102,8 +102,8 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 				.setRequired(true)), //
 		MODBUS_UNIT_ID(MeterProps.modbusUnitId()//
 				.setRequired(true)//
-				.setDefaultValue(6) //
-				.setAutoGenerateField(false)),//
+				.setDefaultValue(6)//
+				.setAutoGenerateField(false)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //

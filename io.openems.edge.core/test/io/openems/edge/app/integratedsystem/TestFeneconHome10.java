@@ -1,17 +1,17 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,7 +34,7 @@ public class TestFeneconHome10 {
 
 	private SocomecMeter meterApp;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return List.of(//
@@ -169,7 +169,7 @@ public class TestFeneconHome10 {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void testEnableLimiter14a() throws Exception {
 		final var createSettings = fullSettings();
 		createSettings.addProperty(FeneconHome10.Property.HAS_ESS_LIMITER_14A.name(), false);

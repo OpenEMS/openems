@@ -1,23 +1,23 @@
 package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.ImmutableList;
 
@@ -35,7 +35,7 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SwitchEvcsEvseTest {
 
 	private OpenemsApp kebaApp;
@@ -47,7 +47,7 @@ public class SwitchEvcsEvseTest {
 	@Spy
 	private ComponentManager cmSpy;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.amtb = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -63,7 +63,7 @@ public class SwitchEvcsEvseTest {
 		final var schedulerTask = this.amtb.addSchedulerByCentralOrderAggregateTask(componentTask);
 
 		this.cmSpy = spy(this.amtb.componentManger);
-		doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
+		lenient().doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
 				any(User.class), //
 				any(UpdateComponentConfig.Request.class));
 
@@ -326,8 +326,8 @@ public class SwitchEvcsEvseTest {
 		var hardwareTypes = kebas.stream().map(t -> t.properties.get("HARDWARE_TYPE")).map(t -> t.getAsString())
 				.toList();
 
-		assertTrue("Expected one KEBA to be P30", hardwareTypes.contains("P30"));
-		assertTrue("Expected one KEBA to be P40", hardwareTypes.contains("P40"));
+		assertTrue(hardwareTypes.contains("P30"), "Expected one KEBA to be P30");
+		assertTrue(hardwareTypes.contains("P40"), "Expected one KEBA to be P40");
 		assertEquals(1, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 	}
 
