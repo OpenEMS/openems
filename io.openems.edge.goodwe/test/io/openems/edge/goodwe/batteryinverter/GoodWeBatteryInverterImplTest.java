@@ -54,9 +54,14 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
+
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl;
+import io.openems.edge.battery.fenecon.home.BatteryInverterPort;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
@@ -88,6 +93,7 @@ import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.GoodWePowerSetting;
+import io.openems.edge.goodwe.common.enums.BatteryPort;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
@@ -1513,11 +1519,42 @@ class GoodWeBatteryInverterImplTest {
 		assertEquals(0, result);
 	}
 
+	static final class DummyBatteryFeneconHomeImpl extends BatteryFeneconHomeImpl {
+
+		private String id;
+		private BatteryInverterPort inverterPort = BatteryInverterPort.PORT_1;
+
+		public DummyBatteryFeneconHomeImpl setId(String id) {
+			this.id = id;
+			return this;
+		}
+
+		public DummyBatteryFeneconHomeImpl setInverterPort(BatteryInverterPort inverterPort) {
+			this.inverterPort = inverterPort;
+			return this;
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public BatteryInverterPort getBatteryInverterPort() {
+			return this.inverterPort;
+		}
+
+	}
+
 	@Test
 	void testUpdatePowerCluster() throws Exception {
 
-		final var battery1 = new BatteryFeneconHomeImpl();
-		final var battery2 = new BatteryFeneconHomeImpl();
+		final var battery1 = new DummyBatteryFeneconHomeImpl() //
+				.setId("battery1") //
+				.setInverterPort(BatteryInverterPort.PORT_1);
+		final var battery2 = new DummyBatteryFeneconHomeImpl() //
+				.setId("battery2") //
+				.setInverterPort(BatteryInverterPort.PORT_2);
 
 		final var cluster = new GoodWeBatteryClusterFeneconHomeImpl();
 		new ComponentTest(cluster) //
@@ -1587,7 +1624,8 @@ class GoodWeBatteryInverterImplTest {
 		;
 
 		final AbstractGoodWeBatteryCluster cluster = mock();
-		when(cluster.getBatteries()).thenReturn(List.of(battery1, battery2));
+		when(cluster.getBatteries()).thenReturn(
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery1, battery2), List.of(battery1, battery2)));
 		when(cluster.getChargeMaxCurrent()).thenReturn(new Value<>(null, 100));
 		when(cluster.getDischargeMaxCurrent()).thenReturn(new Value<>(null, 100));
 		when(cluster.getVoltage()).thenReturn(new Value<>(null, 401));
@@ -2000,4 +2038,52 @@ class GoodWeBatteryInverterImplTest {
 
 		return Stream.concat(debugAndExcludingChannels, Stream.concat(singles, fromArrays)).toList();
 	}
+
+	@Test
+	void testMapBatteriesToPortFeneconHomeAnyOrder() {
+		final GoodWeBatteryClusterFeneconHomeImpl cluster = mock();
+
+		final BatteryFeneconHome battery1 = mock();
+		when(battery1.getBatteryInverterPort()).thenReturn(BatteryInverterPort.PORT_1);
+		final BatteryFeneconHome battery2 = mock();
+		when(battery2.getBatteryInverterPort()).thenReturn(BatteryInverterPort.PORT_2);
+
+		final var batteries = List.of(battery1, battery2);
+
+		for (var params : List.of(//
+				ImmutableSortedSet.<Battery>copyOf(Ordering.explicit(battery1, battery2), batteries), //
+				ImmutableSortedSet.<Battery>copyOf(Ordering.explicit(battery2, battery1), batteries) //
+		)) {
+			when(cluster.getBatteries()).thenReturn(params);
+
+			final var batteriesByPort = GoodWeBatteryInverterImpl.mapBatteriesToPort(cluster);
+
+			assertEquals(2, batteriesByPort.size());
+			assertEquals(battery1, batteriesByPort.get(BatteryPort.PORT_1));
+			assertEquals(battery2, batteriesByPort.get(BatteryPort.PORT_2));
+		}
+	}
+
+	@Test
+	void testMapBatteriesToPortAnyOrder() {
+		final GoodWeBatteryClusterFeneconHomeImpl cluster = mock();
+
+		final Battery battery1 = mock();
+		final Battery battery2 = mock();
+		final var batteries = List.of(battery1, battery2);
+
+		for (var params : List.of(//
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery1, battery2), batteries), //
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery2, battery1), batteries) //
+		)) {
+			when(cluster.getBatteries()).thenReturn(params);
+
+			final var batteriesByPort = GoodWeBatteryInverterImpl.mapBatteriesToPort(cluster);
+
+			assertEquals(2, batteriesByPort.size());
+			assertEquals(params.first(), batteriesByPort.get(BatteryPort.PORT_1));
+			assertEquals(params.last(), batteriesByPort.get(BatteryPort.PORT_2));
+		}
+	}
+
 }

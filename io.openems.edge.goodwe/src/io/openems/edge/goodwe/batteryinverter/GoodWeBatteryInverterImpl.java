@@ -139,10 +139,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private static final long POWER_SETTINGS_DEBOUNCE_MS = 250;
 	private static final TwoPartVersion MINIMAL_DSP_VERSION_FOR_V3_TASKS = new TwoPartVersion(//
 			1, 212);
+	private static final Logger LOG = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final AtomicReference<ScheduledFuture<?>> pendingPowerSettingsTask = new AtomicReference<>();
-	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final ScheduledExecutorService powerSettingExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -314,7 +314,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		} catch (OpenemsNamedException e) {
 			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
-			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+			this.logError(LOG, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
@@ -365,7 +365,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			if (properties.get("maximumGridFeedInLimit") != null
 					|| properties.get("gridFeedInLimitationType") != null) {
 				// Already migrated, do nothing
-				this.log.info(
+				LOG.info(
 						"Value is already migrated to Meta App, skipping migration. Set the value in the Meta Component instead.");
 				this.resetMaximumSellToGridPower();
 				return;
@@ -377,7 +377,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 			this.resetMaximumSellToGridPower();
 		} catch (IOException e) {
-			this.log.warn("Unable to update {} config", this.id(), e);
+			LOG.warn("Unable to update {} config", this.id(), e);
 		}
 	}
 
@@ -391,7 +391,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				properties.put("feedPowerPara", -1);
 				config.updateIfDifferent(properties);
 			} catch (IOException e) {
-				this.log.warn("Unable to reset maximumSellToGridPower in GoodWeBatteryInverter", e);
+				LOG.warn("Unable to reset maximumSellToGridPower in GoodWeBatteryInverter", e);
 			}
 		});
 	}
@@ -625,7 +625,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				|| bmsCapacity.isDefined() && !Objects.equals(bmsCapacity.get(), setCapacity)) {
 
 			// Update is required
-			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
+			this.logInfo(LOG, "Update for PV-Master BMS Registers is required." //
 					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
@@ -657,7 +657,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (doSetBmsVoltage(battery, bmsChargeMaxVoltage, setChargeMaxVoltage, bmsDischargeMinVoltage,
 				setDischargeMinVoltage)) {
 			// Update is required
-			this.logInfo(this.log, "Update for BMS Registers." //
+			this.logInfo(LOG, "Update for BMS Registers." //
 					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
@@ -847,7 +847,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				.anyMatch(b -> b.getDischargeMaxCurrent().orElse(0) < 0);
 		final var clusterInfo = new ClusterInfo(anyNegativeCharge, anyNegativeDischarge);
 
-		for (final var entry : this.mapBatteriesToPort(batteryCluster).entrySet()) {
+		for (final var entry : mapBatteriesToPort(batteryCluster).entrySet()) {
 			switch (entry.getKey()) {
 			case PORT_1 -> this.setBattery1Limits(entry.getValue(), clusterInfo);
 			case PORT_2 -> this.setBattery2Limits(entry.getValue(), clusterInfo);
@@ -863,11 +863,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this._setImpossibleFeneconHomeCombination(invalidCombination);
 	}
 
-	private Map<BatteryPort, Battery> mapBatteriesToPort(Battery battery) {
+	@VisibleForTesting
+	static Map<BatteryPort, Battery> mapBatteriesToPort(Battery battery) {
 		if (!(battery instanceof AbstractGoodWeBatteryCluster batteryCluster)) {
 			return Map.of(BatteryPort.PORT_1, battery);
 		}
 
+		final var isFeneconCluster = batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl;
 		final var batteriesByPort = new EnumMap<BatteryPort, Battery>(BatteryPort.class);
 
 		int index = 0;
@@ -875,14 +877,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			index++;
 
 			var batteryPort = BatteryPort.fromIndex(index);
-			if (batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl
-					&& battery instanceof BatteryFeneconHome homeBattery) {
+			if (isFeneconCluster && b instanceof BatteryFeneconHome homeBattery) {
 				batteryPort = BatteryPort.fromIndex(homeBattery.getBatteryInverterPort().port);
 			}
 
 			final var prev = batteriesByPort.put(batteryPort, b);
 			if (prev != null) {
-				this.log.error("Multiple Batteries on same port {}, battery {} and {}", batteryPort, prev, b);
+				LOG.error("Multiple Batteries on same port {}, battery {} and {}", batteryPort, prev, b);
 			}
 		}
 
@@ -973,7 +974,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// ApplyConfig
 		this.applyGoodWeConfigIfNotSet(this.config, ApplyEvent.ON_RUN);
 
-		final var batteryValues = mapValue(this.mapBatteriesToPort(battery),
+		final var batteryValues = mapValue(mapBatteriesToPort(battery),
 				b -> new BatteryValues(b.getSoc().get(), b.getCurrent().get()));
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels(batteryValues);
@@ -2832,7 +2833,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@VisibleForTesting
 	protected void addPowerSettingTasks() {
-		this.log.info("Update GoodWe power settings tasks");
+		LOG.info("Update GoodWe power settings tasks");
 
 		var protocol = this.getModbusProtocol();
 		removeTasks(//
