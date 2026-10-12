@@ -155,6 +155,9 @@
           "RELATION_ERROR": "De kostenlimiet moet groter zijn dan de ontladingslimiet",
           "SELL_TO_GRID_POWER_LIMIT": "Laad hierboven op"
         },
+        "ENERIX_CONTROL": {
+          "CHARGE_FROM_GRID": "Laden vanuit het net"
+        },
         "EVCS": {
           "ACTIVATE_CHARGING": "Activeer het laadstation",
           "ADMINISTRATION": {
@@ -167,7 +170,6 @@
           "CABLE_NOT_CONNECTED": "Kabel is niet aangesloten",
           "CAR_FULL": "Auto is vol",
           "CHARGE_LIMIT_REACHED": "Oplaadlimiet bereikt",
-          "CHARGE_MODE": "laadmodus",
           "CHARGE_TARGET": "Lading doel",
           "CHARGING": "Is aan het laden",
           "CHARGING_LIMIT": "Laadlimiet",
@@ -282,6 +284,7 @@
           "BELOW_SOC": "en onder staat van beschuldiging van",
           "GRID_BUY": "Vanaf netaankoop van",
           "GRID_SELL": "Van overtollige toevoer van",
+          "HEAT_PUMP": "Warmtepomp",
           "LOCK": "Slot",
           "MORE_THAN_HP_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van de warmtepomp",
           "NORMAL_OPERATION": "Normale operatie",
@@ -291,7 +294,16 @@
           "SWITCH_ON_COM_SHORT": "",
           "SWITCH_ON_REC": "Inschakeladvies",
           "SWITCH_ON_REC_SHORT": "",
-          "UNDEFINED": "Ongedefinieerd"
+          "UNDEFINED": "Ongedefinieerd",
+          "OPERATING_STATUS": "Bedrijfsstatus",
+          "AUTOMATIC_DESCRIPTION": "Stel hier de drempelwaarden in voor de PV-overschotmodus",
+          "BASE_MODE_DESCRIPTIONS": {
+            "SWITCH_ON_COM": "De warmtepomp wordt ingeschakeld wanneer de overschotinvoeding de ingevoerde waarde overschrijdt en de laadtoestand van het opslagsysteem boven de ingevoerde waarde ligt.",
+            "SWITCH_ON_REC": "Na activering verhoogt de warmtepomp zijn vermogen en gebruikt de beschikbare energie intensiever voor warmteopwekking.",
+            "NORMAL_OPERATION": "De warmtepomp werkt vraaggestuurd binnen het reguliere vermogensbereik.",
+            "AUTOMATIC": "Afhankelijk van de ingestelde drempelwaarden voor netinkoop en invoeding worden de afzonderlijke modi geschakeld. (De drempelwaarden kunnen onder Instellingen worden gewijzigd)",
+            "LOCK": "Deze bedrijfsstatus beperkt het stroomverbruik van de warmtepomp, afhankelijk van de instellingen van de warmtepomp, tot 0 kW of 4,2 kW."
+          }
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "Actief (Minimale looptijd)",
@@ -355,7 +367,7 @@
     "NETWORK": {
       "ADD_IP": "Statische IP-adressen toevoegen",
       "ADVANCED_MODE": "Geavanceerde modus",
-      "ERROR_READING_CONFIGURATION": "Fout bij lezen huidige netwerkconfiguratie:",
+      "ERROR_READING": "Fout bij lezen huidige netwerkconfiguratie:",
       "ERROR_UPDATING": "Fout bij updaten",
       "IP_ADDRESS": "IP-adres",
       "MANDATORY_FIELDS": "Gelieve de verplichte velden in te vullen",
@@ -378,6 +390,7 @@
     "AUTARCHY": "Autarkie",
     "AUTOMATIC": "Automatisch",
     "BACK": "Terug",
+    "BASE_MODE": "Basismodus",
     "CANCEL": "annuleren",
     "CAPACITY": "Hoedanigheid",
     "CHANGE_ACCEPTED": "Wijziging geaccepteerd",
@@ -395,11 +408,15 @@
     "DIRECT_CONSUMPTION": "Directe consumptie",
     "DISCHARGE": "Afvoer",
     "FAULT": "Fout",
+    "FORMLY": {
+      "LINK_TO_DOCS": "Link naar documentatie"
+    },
     "GRID": "Net",
     "GRID_BUY": "Netafname",
     "GRID_BUY_ADVANCED": "Netafname",
     "GRID_SELL": "Netteruglevering",
     "GRID_SELL_ADVANCED": "Netteruglevering",
+    "HEAT_PUMP": "Warmtepomp",
     "HISTORY": "Historie",
     "INACTIVE": "Inactief",
     "INFO": "Info",
@@ -456,6 +473,7 @@
       "MINUTE": "Minuut",
       "MINUTES": "Minuten"
     },
+    "TIME_SCHEDULE": "Tijdschema",
     "TOTAL": "totale verbruik",
     "TOTAL_STATE": "Algemene staat",
     "WARNING": "Waarschuwing",
@@ -479,6 +497,15 @@
     "LOGGED_IN_AS": "Geregistreerd als",
     "TO_ENERGYMONITOR": "Naar Energiemonitor...",
     "TYPE": "Type"
+  },
+  "JS_SCHEDULE": {
+    "ADD_EVENT": "Gebeurtenis toevoegen",
+    "ADD_TASK": "Taak toevoegen",
+    "EDIT_EVENT": "Gebeurtenis bewerken",
+    "EDIT_TASK": "Taak bewerken",
+    "NEXT_EVENTS": "Aankomende gebeurtenissen",
+    "MANUAL_EVENTS": "Handmatige gebeurtenissen",
+    "SMART_EVENTS": "Slimme gebeurtenissen"
   },
   "LOGIN": {
     "AUTHENTICATION_FAILED": "Authenticatie mislukt",

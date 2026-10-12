@@ -73,8 +73,12 @@ import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Contr
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
 import { ControllerIoHeatingRoomHomeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/new-navigation/new-navigation";
 import { ControllerIoHeatingRoomModeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/pages/mode/mode";
+import { ControllerIoHeatpumpBaseModeComponent } from "src/app/edge/live/Controller/Io/Heatpump/basemode/basemode";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
+import { ControllerIoHeatpumpScheduleComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/schedule.component";
+import { ControllerIoHeatpumpAddTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/add/add";
+import { ControllerIoHeatpumpEditTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/edit/edit";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
 import { ControllerModbusTcpApiDetailsComponent } from "src/app/edge/live/Controller/ModbusTcpApi/details/details";
 import { ControllerModbusTcpApiHistoryComponent } from "src/app/edge/live/Controller/ModbusTcpApi/history/new-navigation/new-navigation";
@@ -202,6 +206,22 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heatpump/:componentId",
             component: ControllerIoHeatpumpHomeComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/schedule",
+            component: ControllerIoHeatpumpScheduleComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/schedule/add-task",
+            component: ControllerIoHeatpumpAddTaskComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/schedule/edit-task",
+            component: ControllerIoHeatpumpEditTaskComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/baseMode",
+            component: ControllerIoHeatpumpBaseModeComponent,
         },
         {
             path: "controller/heatpump/:componentId/settings",

@@ -369,7 +369,6 @@
                     "STATUS": "Status",
                     "TOTAL_CHARGE": "Gesamte Beladung",
                     "TOTAL_CHARGING_POWER": "Gesamte Ladeleistung",
-                    "TOTAL_DISCHARGE": "Gesamte Entladung",
                     "UNCONTROLLABLE": "Diese Ladesäule kann nicht gesteuert werden.",
                     "UNKNOWN": "Unbekannt",
                     "UNPLUGGED": "Ausgesteckt",
@@ -607,7 +606,7 @@
                 "ADDRESS": "DHCP Adresse",
                 "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern."
             },
-            "ERROR_READING_CONFIGURATION": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
+            "ERROR_READING": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
             "ERROR_UPDATING": "Fehler beim Aktualisieren",
             "IP_ADDRESS": "IP-Adresse",
             "MANDATORY_FIELDS": "Bitte fülle die Pflichtfelder aus",
@@ -699,9 +698,6 @@
             "REQUIRED": "Ist erforderlich"
         },
         "FROM": "Von",
-        "GEOLOCATION": {
-            "CHECKBOX_LABEL": "Ich habe den Inhalt der vorliegenden <a href=''>DATENSCHUTZERKLÄRUNG</a> zur Kenntnis genommen und bestätige durch die Validierung der Standortdaten die Richtigkeit der Daten."
-        },
         "GRID": "Netz",
         "GRID_BUY": "Netzbezug",
         "GRID_BUY_ADVANCED": "Bezug",

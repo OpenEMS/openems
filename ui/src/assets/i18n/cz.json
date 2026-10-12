@@ -159,6 +159,9 @@
           "RELATION_ERROR": "Limit poplatku musí být vyšší než limit vybití",
           "SELL_TO_GRID_POWER_LIMIT": "Poplatek výše"
         },
+        "ENERIX_CONTROL": {
+          "CHARGE_FROM_GRID": "Nabíjení ze sítě"
+        },
         "EVCS": {
           "ACTIVATE_CHARGING": "Aktivujte nabíjecí stanici",
           "ADMINISTRATION": {
@@ -171,7 +174,6 @@
           "CABLE_NOT_CONNECTED": "Kabel není připojen",
           "CAR_FULL": "Auto je plné",
           "CHARGE_LIMIT_REACHED": "Bylo dosaženo limitu nabíjení",
-          "CHARGE_MODE": "režim načítání",
           "CHARGE_TARGET": "Cíl nabíjení",
           "CHARGING": "Se nabíjí",
           "CHARGING_LIMIT": "Omezení nabíjení",
@@ -286,6 +288,7 @@
           "BELOW_SOC": "a za stavu nabití",
           "GRID_BUY": "Z mřížkového nákupu",
           "GRID_SELL": "Z nadměrného napájení",
+          "HEAT_PUMP": "Tepelné čerpadlo",
           "LOCK": "Zámek",
           "MORE_THAN_HP_POWER": "Hodnota nesmí být nižší než maximální výkon tepelného čerpadla",
           "NORMAL_OPERATION": "Normální operace",
@@ -295,7 +298,16 @@
           "SWITCH_ON_COM_SHORT": "Příkaz",
           "SWITCH_ON_REC": "Doporučení k zapnutí",
           "SWITCH_ON_REC_SHORT": "Doporučení",
-          "UNDEFINED": "Nedefinováno"
+          "UNDEFINED": "Nedefinováno",
+          "OPERATING_STATUS": "Provozní stav",
+          "AUTOMATIC_DESCRIPTION": "Nastavte zde prahové hodnoty pro režim přebytku PV",
+          "BASE_MODE_DESCRIPTIONS": {
+            "SWITCH_ON_COM": "Tepelné čerpadlo se zapne, když přebytková výroba překročí zadanou hodnotu a stav nabití úložiště je nad zadanou hodnotou.",
+            "SWITCH_ON_REC": "Po aktivaci tepelné čerpadlo zvýší výkon a intenzivněji využívá dostupnou energii k výrobě tepla.",
+            "NORMAL_OPERATION": "Tepelné čerpadlo pracuje podle potřeby v rámci běžného výkonového rozsahu.",
+            "AUTOMATIC": "Podle nastavených prahových hodnot pro odběr ze sítě a dodávku do sítě se přepínají jednotlivé režimy. (Prahové hodnoty lze změnit v Nastavení)",
+            "LOCK": "Tento provozní stav omezuje příkon tepelného čerpadla podle nastavení tepelného čerpadla na 0 kW nebo 4,2 kW."
+          }
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "Aktivní (Minimální doba)",
@@ -359,7 +371,7 @@
     "NETWORK": {
       "ADD_IP": "Přidejte statické IP adresy",
       "ADVANCED_MODE": "Pokročilý mód",
-      "ERROR_READING_CONFIGURATION": "Chyba při čtení aktuální konfigurace sítě:",
+      "ERROR_READING": "Chyba při čtení aktuální konfigurace sítě:",
       "ERROR_UPDATING": "Při aktualizaci došlo k chybě",
       "IP_ADDRESS": "IP adresa",
       "MANDATORY_FIELDS": "Vyplňte prosím povinná pole",
@@ -383,6 +395,7 @@
     "AUTARCHY": "Soběstačnost",
     "AUTOMATIC": "Automaticky",
     "BACK": "Zpět",
+    "BASE_MODE": "Základní režim",
     "CANCEL": "zrušení",
     "CAPACITY": "Kapacita",
     "CHANGE_ACCEPTED": "Změna byla přijata",
@@ -401,11 +414,15 @@
     "DIRECT_CONSUMPTION": "Přímá spotřeba",
     "DISCHARGE": "Vypouštění",
     "FAULT": "Chyba",
+    "FORMLY": {
+      "LINK_TO_DOCS": "Odkaz na dokumentaci"
+    },
     "GRID": "Síť",
     "GRID_BUY": "Nákup ze sítě",
     "GRID_BUY_ADVANCED": "Nákup",
     "GRID_SELL": "Prodej do sítě",
     "GRID_SELL_ADVANCED": "Prodej",
+    "HEAT_PUMP": "Tepelné čerpadlo",
     "HISTORY": "Historie",
     "INACTIVE": "Neaktivní",
     "INFO": "Informace",
@@ -468,6 +485,7 @@
       "MINUTE": "Minuta",
       "MINUTES": "Minuty"
     },
+    "TIME_SCHEDULE": "Časový plán",
     "TOTAL": "celková spotřeba",
     "TOTAL_STATE": "Celkový stav",
     "WARNING": "Varování",
@@ -491,6 +509,15 @@
     "LOGGED_IN_AS": "Registrováno jako",
     "TO_ENERGYMONITOR": "Do Monitoringu energetických toků…",
     "TYPE": "Typ"
+  },
+  "JS_SCHEDULE": {
+    "ADD_EVENT": "Přidat událost",
+    "ADD_TASK": "Přidat úkol",
+    "EDIT_EVENT": "Upravit událost",
+    "EDIT_TASK": "Upravit úkol",
+    "NEXT_EVENTS": "Nadcházející události",
+    "MANUAL_EVENTS": "Ruční události",
+    "SMART_EVENTS": "Chytré události"
   },
   "LOGIN": {
     "AUTHENTICATION_FAILED": "Ověření se nezdařilo",

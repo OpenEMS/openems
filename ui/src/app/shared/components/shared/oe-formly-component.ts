@@ -471,11 +471,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.ValueLine
     | OeFormlyField.ButtonLine
-    | OeFormlyField.ToggleLine
     | OeFormlyField.ToggleLineWithValue<T>
-    | OeFormlyField.InputLine
-    | OeFormlyField.SelectLine
-    | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.Advanced.ElectricityMeter
     | OeFormlyField.Advanced.EssChargerLine
     | OeFormlyField.Advanced.AdvancedStatsLine

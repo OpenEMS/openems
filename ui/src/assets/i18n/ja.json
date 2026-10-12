@@ -21,7 +21,6 @@
           "MINUTE": "分",
           "MINUTES": "分"
         },
-        "OPTIONS": {},
         "SAVE": "保存",
         "TOAST": {
           "ERROR": "設定の読み込みエラー",
@@ -176,6 +175,9 @@
           "RELATION_ERROR": "充電制限は、排出制限よりも大きくなければなりません",
           "SELL_TO_GRID_POWER_LIMIT": "上記の請求"
         },
+        "ENERIX_CONTROL": {
+          "CHARGE_FROM_GRID": "系統からの充電"
+        },
         "EVCS": {
           "ACTIVATE_CHARGING": "充電ステーションをアクティブにします",
           "ADMINISTRATION": {
@@ -188,7 +190,6 @@
           "CABLE_NOT_CONNECTED": "ケーブルは接続されていません",
           "CAR_FULL": "車はいっぱいです",
           "CHARGE_LIMIT_REACHED": "充電制限が到達しました",
-          "CHARGE_MODE": "充電モード",
           "CHARGE_TARGET": "目標電力設定値",
           "CHARGING": "充電しています",
           "CHARGING_LIMIT": "充電制限",
@@ -306,6 +307,7 @@
           "BELOW_SOC": "およびの充電の下",
           "GRID_BUY": "グリッド購入から",
           "GRID_SELL": "の過剰な送りから",
+          "HEAT_PUMP": "ヒートポンプ",
           "LOCK": "ロック",
           "MORE_THAN_HP_POWER": "値は、ヒートポンプの最大出力よりも低くてはなりません",
           "NORMAL_OPERATION": "通常の動作",
@@ -315,7 +317,16 @@
           "SWITCH_ON_COM_SHORT": "指図",
           "SWITCH_ON_REC": "スイッチオンの推奨",
           "SWITCH_ON_REC_SHORT": "おすすめ",
-          "UNDEFINED": "未定義"
+          "UNDEFINED": "未定義",
+          "OPERATING_STATUS": "運転状態",
+          "AUTOMATIC_DESCRIPTION": "ここでPV余剰モードのしきい値を設定してください",
+          "BASE_MODE_DESCRIPTIONS": {
+            "SWITCH_ON_COM": "余剰電力の供給が設定値を超え、蓄電システムの充電状態が設定値を上回ると、ヒートポンプが起動します。",
+            "SWITCH_ON_REC": "有効にすると、ヒートポンプは出力を高め、利用可能なエネルギーを熱生成に一層集中的に使用します。",
+            "NORMAL_OPERATION": "ヒートポンプは通常の電力範囲内で需要に応じて運転します。",
+            "AUTOMATIC": "設定された系統購入および余剰売電のしきい値に応じて、各モードが切り替わります。（しきい値は「設定」で変更できます）",
+            "LOCK": "この運転状態では、ヒートポンプの設定に応じて、ヒートポンプの消費電力が0 kWまたは4.2 kWに制限されます。"
+          }
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
@@ -409,6 +420,7 @@
     "AUTARCHY": "再生可能エネルギー率",
     "AUTOMATIC": "自動",
     "BACK": "戻る",
+    "BASE_MODE": "基本モード",
     "CANCEL": "キャンセル",
     "CAPACITY": "容量",
     "CHANGE_ACCEPTED": "変更が承認されました",
@@ -437,11 +449,15 @@
     "DISCHARGE": "放電",
     "EDIT": "編集",
     "FAULT": "障害",
+    "FORMLY": {
+      "LINK_TO_DOCS": "ドキュメントへのリンク"
+    },
     "GRID": "グリッド",
     "GRID_BUY": "買電",
     "GRID_BUY_ADVANCED": "買電",
     "GRID_SELL": "売電",
     "GRID_SELL_ADVANCED": "売電",
+    "HEAT_PUMP": "ヒートポンプ",
     "HISTORY": "履歴",
     "INACTIVE": "非アクティブ",
     "INFO": "情報",
@@ -494,9 +510,13 @@
     "SOC": "SOC",
     "STATE": "状態",
     "STORAGE_SYSTEM": "蓄電池システム",
+    "SUFFIX": {
+      "HOUR": "時"
+    },
     "SUM_STATE": "システム状態",
     "SYSTEM_OUTAGE": "メンテナンス作業のため、オンラインモニタリングが一時的に利用できない状況です。後でもう一度お試しください。詳細については、以下を参照してください。",
     "SYSTEM_STATE": "システムの状態",
+    "TIME_SCHEDULE": "タイムスケジュール",
     "TOTAL": "合計",
     "TOTAL_STATE": "総状態",
     "VALUE": "値",
@@ -525,10 +545,18 @@
     "TO_ENERGYMONITOR": "Energymonitorに...",
     "TYPE": "タイプ"
   },
+  "JS_SCHEDULE": {
+    "ADD_EVENT": "イベントを追加",
+    "ADD_TASK": "タスクを追加",
+    "EDIT_EVENT": "イベントを編集",
+    "EDIT_TASK": "タスクを編集",
+    "NEXT_EVENTS": "次のイベント",
+    "MANUAL_EVENTS": "手動イベント",
+    "SMART_EVENTS": "スマートイベント"
+  },
   "LOGIN": {
     "AUTHENTICATION_FAILED": "認証に失敗しました",
     "PASSWORD_LABEL": "パスワード",
-    "PASSWORD_PLACEHOLDER": "パスワード",
     "PASSWORD_RESET": "パスワードのリセット",
     "PREAMBLE": "パスワードを入力するか、デフォルト値を提出してゲストとしてログインしてください。",
     "TITLE": "ログイン",
