@@ -10,8 +10,13 @@ import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { Icon } from "src/app/shared/type/widget";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 
 type IconWithRequiredName = Required<Pick<Icon, "name">> & Partial<Omit<Icon, "name">>;
 
@@ -47,11 +52,13 @@ const EVSE_DOC_LINKS = {
 } as const;
 
 function initializeNavigationInfoTranslations(translate: TranslateService): void {
-    void Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-        for (const { lang, translation, shouldMerge } of translations) {
-            translate.setTranslation(lang, translation, shouldMerge);
-        }
-    });
+    void Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+        (translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        },
+    );
 }
 
 function isEvseDocLink(factoryId: string | null): factoryId is keyof typeof EVSE_DOC_LINKS {

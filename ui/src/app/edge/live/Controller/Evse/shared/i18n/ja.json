@@ -1,0 +1,77 @@
+{
+    "EVSE_SINGLE": {
+        "SETTINGS": {
+            "ENERGY_LIMIT": "エネルギー制限"
+        },
+        "HOME": {
+            "MODE": {
+                "LABEL": "基本モード",
+                "ZERO": "オフ",
+                "MINIMUM": "最小",
+                "SURPLUS": "PV",
+                "FORCE": "急速"
+            },
+            "STATE_MACHINE": {
+                "LABEL": "状態",
+                "EV_NOT_CONNECTED": "EV未接続",
+                "EV_CONNECTED": "EV接続済み",
+                "CHARGING": "充電中",
+                "FINISHED_EV_STOP": "EVにより充電終了",
+                "FINISHED_ENERGY_SESSION_LIMIT": "エネルギー制限により充電終了",
+                "PHASE_SWITCH_TO_THREE_PHASE": "三相へ切替",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "単相へ切替",
+                "PHASE_SWITCH": "手動フェーズ切替"
+            },
+            "POWER": "電力",
+            "ENERGY_SINCE_START": "最後の充電開始からのエネルギー",
+            "VEHICLES": "App Center車両",
+            "ACTUAL_MODE": {
+                "LABEL": "現在のモード"
+            }
+        },
+        "SCHEDULE": {
+            "EDIT": "編集",
+            "ACCEPT": "適用",
+            "DELETE": "削除",
+            "EDIT_TASK": "タスクを編集",
+            "START": "開始",
+            "END": "終了",
+            "DURATION": "所要時間",
+            "MODE": "充電モード",
+            "FREQUENCY": "繰り返し",
+            "ADD": "追加",
+            "SMART_EVENT_TITLE": "{{kwh}} kWhのスマート充電",
+            "DAY": {
+                "MONDAY": "月曜日",
+                "TUESDAY": "火曜日",
+                "WEDNESDAY": "水曜日",
+                "THURSDAY": "木曜日",
+                "FRIDAY": "金曜日",
+                "SATURDAY": "土曜日",
+                "SUNDAY": "日曜日"
+            },
+            "FREQ": {
+                "DAILY": "毎日",
+                "WEEKLY": "毎週",
+                "MONTHLY": "毎月",
+                "YEARLY": "毎年"
+            },
+            "MODE_SELECTION_PLACEHOLDER": "選択",
+            "VALIDATION_ERROR_1": "開始時刻を指定してください",
+            "VALIDATION_ERROR_2": "終了時刻を指定してください",
+            "VALIDATION_ERROR_3": "充電モードを選択してください",
+            "VALIDATION_ERROR_4": "開始時刻はHH:mm形式で、15分刻み（00、15、30、45分）のみで指定してください",
+            "VALIDATION_ERROR_5": "終了時刻はHH:mm形式で、15分刻み（00、15、30、45分）のみで指定してください",
+            "VALIDATION_ERROR_6": "終了時刻は開始時刻より後でなければなりません",
+            "VALIDATION_ERROR_7": "開始時刻または所要時間が不足しています",
+            "VALIDATION_ERROR_8": "繰り返しを指定してください",
+            "VALIDATION_ERROR_9": "少なくとも1つのローテーションを設定してください",
+            "ADD_SUCCESS": "タスクが正常に追加されました",
+            "ADD_ERROR": "タスクを追加できませんでした",
+            "EDIT_SUCCESS": "タスクが正常に調整されました",
+            "EDIT_ERROR": "タスクを調整できませんでした",
+            "DELETE_SUCCESS": "タスクが正常に削除されました",
+            "DELETE_ERROR": "タスクを削除できませんでした"
+        }
+    }
+}

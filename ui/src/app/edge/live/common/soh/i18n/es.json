@@ -1,0 +1,23 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "SOH": {
+                "TITLE": "Determinación de la capacidad",
+                "TITLE_TIP": "visible solo para administradores",
+                "ENABLED_INFO": "El controlador ESS SoH Cycle está activado",
+                "INFO": "Mide la capacidad de la batería realizando un ciclo de prueba y calcula así el estado de salud (SoH). El proceso puede tardar varias horas, dependiendo del tipo y el tamaño de la batería. Se recomienda realizar el ciclo de prueba solo cuando la batería no está en uso.",
+                "STATE_MACHINE_LABEL": "Estado",
+                "CAPACITY_MEASURING": "Midiendo la capacidad",
+                "RESTART_WARNING": "Reiniciar el ciclo de SoH restablecerá las mediciones actuales e iniciará un ciclo nuevo. ¿Está seguro de que desea reiniciar?",
+                "ERROR": "Se ha producido un error durante el ciclo de SoH. Compruebe los registros del sistema para más detalles.",
+                "MEASURED_CAPACITY": "Capacidad medida",
+                "SOH_PERCENT": "SoH",
+                "RESTART_CONFIRMATION_TITLE": "Confirmar repetición"
+            },
+            "BUTTONS": {
+                "START": "Realizar",
+                "RESTART": "Realizar de nuevo"
+            }
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "SYSTEM_STATUS_MESSAGE": {
+        "OK": "すべて正常です",
+        "INFO": "すべて正常です",
+        "FAULT": "",
+        "WARNING": ""
+    }
+}

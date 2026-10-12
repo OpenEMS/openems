@@ -1,0 +1,6 @@
+{
+    "SHARED_MODULE": {
+        "PERSON_NAME_PROHIBITED_CHARACTERS": "'{{formControlValue}}' obsahuje alespoň jeden z těchto neplatných znaků: {{invalidCharacters}}.",
+        "CHECKBOX_REQUIRED_TO_BE_CHECKED": "Toto zaškrtávací políčko musí být zaškrtnuto."
+    }
+}

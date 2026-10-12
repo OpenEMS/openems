@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "SCHEDULE": {
+            "MODE": "Modo",
+            "MODE_SELECTION_PLACEHOLDER": "Seleccionar modo"
+        },
+        "MODE": {
+            "ACTIVE_MODE": "Modo",
+            "LABEL": "Modo básico",
+            "OFF": "Apagado",
+            "ON": "Encendido",
+            "SELECT_PROMPT": "¿Qué modo debe aplicarse al minero?"
+        }
+    }
+}

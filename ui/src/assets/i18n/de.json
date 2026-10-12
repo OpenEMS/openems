@@ -559,11 +559,6 @@
                     "TOTAL_AC": "Gesamt AC",
                     "TOTAL_DC": "Gesamt DC"
                 },
-                "SYSTEM": {
-                    "RPC_SUCCESS": "Befehl erfolgreich ausgeführt",
-                    "RPC_FAILED": "Befehl ausführen fehlgeschlagen",
-                    "OVERALL_SYSTEM": "Gesamtsystem"
-                },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
                     "CHART_TITLE": "Aktueller Fahrplan",
@@ -884,10 +879,8 @@
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
         "FAVORITES": "Favoriten",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Einstellungen",
         "EDGE_SYSTEM_SETTINGS": "Systemeinstellungen",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
@@ -895,7 +888,6 @@
             "HEATING_ROOM": "Heizung",
             "BRAIINS": "Bitcoin Miner"
         },
-        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
         "INDEX": "Übersicht",
         "LOGOUT": "Abmelden",
         "MENU": "Menü",
@@ -938,9 +930,12 @@
         "LOGGED_IN_AS": "Angemeldet als Benutzer '{{ value }}'."
     },
     "OFFLINE": {
-        "EDGE": {
-            "DESCRIPTION": "Im Falle eines Neustarts des {{edgeShortName}}-Gerät, warte bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde.",
-            "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich"
+        "GENERAL": {
+            "AVAILABILITY": "Der Online-Zugriff auf den Energiespeicher ist derzeit nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+            "EMS_OFFLINE": "{{edgeShortName}} ist offline",
+            "MORE_INFO": "Weitere Informationen",
+            "TIME_OUT": "Das angeforderte {{ edgeShortName }} ist bereits <b>seit {{timeSinceOffline}}</b> offline.",
+            "TRY": "Versuchen Sie, den Browser in 10 Minuten neu zu laden."
         }
     },
     "ORDER": {
@@ -962,6 +957,7 @@
             "REQUIRED_FIELDS": "Bitte alle Felder ausfüllen"
         },
         "FORM": {
+            "ACCEPT_GTC": "Ich bestätige die <a target=\"_blank\" href={{link}}>AGB</a>.*",
             "CITY": "Ort",
             "COMPANY": "Firma",
             "COMPANY_NAME": "Firmenname",
@@ -974,11 +970,13 @@
             "INSTALLER": {
                 "ACCEPT_PRIVACY_POLICY": ""
             },
+            "IS_ELECTRICIAN": "",
             "LASTNAME": "Nachname",
             "PASSWORD": "Passwort",
             "PHONE": "Telefonnummer",
             "PRIVATE": "Privat",
             "STREET": "Straße | Hausnummer",
+            "SUBSCRIBE_NEWSLETTER": "",
             "USER": {
                 "ACCEPT_PRIVACY_POLICY": ""
             },

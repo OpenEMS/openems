@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Vybraný režim"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "V režimu pouze pro čtení není k dispozici."
+        },
+        "SCHEDULE": {
+            "SCHEDULE": "Časový plán",
+            "MODE": "Režim topení",
+            "MODE_SELECTION_PLACEHOLDER": "Vybrat",
+            "MANUAL_EVENTS": "Manuální události",
+            "SMART_EVENTS": "Chytré události",
+            "SMART_EVENT": "Chytrá událost",
+            "SMART_EVENT_END": "Zítra 7:00",
+            "END_TEMPERATURE": "Cílová teplota"
+        },
+        "SETTINGS": {
+            "NO_SETTINGS_AVAILABLE": "Nejsou k dispozici žádná nastavení.",
+            "MODE": {
+                "FAST_HEAT": {
+                    "TITLE": "Rychlé topení",
+                    "DESCRIPTION": "Topení vybírá automaticky odpovídající topný stupeň.\nMaximální doba trvání výkonu je 10 hodin.\nPoté následuje hodinová pauza."
+                },
+                "SURPLUS": {
+                    "TITLE": "Přetok PV",
+                    "DESCRIPTION": "Umožňuje rovnoměrné vyhřívání různých zásobníků. Aktivace probíhá automaticky, perfektně přizpůsobená přebytkové a dostupné energii PV."
+                },
+                "OFF": {
+                    "TITLE": "Žádné topení"
+                }
+            }
+        }
+    }
+}

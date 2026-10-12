@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Añadido",
+        "DESCRIPTION_OWNER": "Marque el contenido con el corazón para poder encontrarlo fácilmente más tarde. Su selección aparecerá aquí.",
+        "DESCRIPTION_OTHERS": "El propietario del sistema puede marcar contenido como favorito mediante el icono del corazón. Así podrá encontrarlo fácilmente aquí más tarde.",
+        "INFO": "No pierda de vista lo importante",
+        "REMOVED_FAVORITE": "Eliminado"
+    }
+}

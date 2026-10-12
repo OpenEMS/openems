@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "PLEASE_CHOOSE": "Choisissez l'heure",
+        "ROTATION": "Rotation",
+        "REPEAT_EACH": "Répéter chaque",
+        "WEEK_DAY": "Jour de la semaine",
+        "NEXT_TASKS": "Prochaines tâches",
+        "EDIT": "Modifier",
+        "ACCEPT": "Accepter",
+        "DELETE": "Supprimer",
+        "START": "Début",
+        "END": "Fin",
+        "DURATION": "Durée",
+        "MODE": "Mode de charge",
+        "FREQUENCY": "Répéter",
+        "ADD": "Ajouter",
+        "FREQ": {
+            "DAILY": "Quotidien",
+            "WEEKLY": "Hebdomadaire",
+            "MONTHLY": "Mensuel",
+            "YEARLY": "Annuel"
+        },
+        "MODE_SELECTION_PLACEHOLDER": "Sélectionner",
+        "VALIDATION_ERROR_1": "Veuillez indiquer l'heure de début",
+        "VALIDATION_ERROR_2": "Veuillez indiquer l'heure de fin",
+        "VALIDATION_ERROR_3": "Veuillez sélectionner le mode de charge",
+        "VALIDATION_ERROR_4": "Veuillez indiquer l'heure de début au format HH:mm et uniquement par tranches d'un quart d'heure (00, 15, 30 ou 45 minutes)",
+        "VALIDATION_ERROR_5": "Veuillez indiquer l'heure de fin au format HH:mm et uniquement par tranches d'un quart d'heure (00, 15, 30 ou 45 minutes)",
+        "VALIDATION_ERROR_6": "L'heure de fin doit être postérieure à l'heure de début",
+        "VALIDATION_ERROR_7": "L'heure de début ou la durée est manquante",
+        "VALIDATION_ERROR_8": "Veuillez indiquer la récurrence",
+        "VALIDATION_ERROR_9": "Définissez au moins une récurrence",
+        "ADD_SUCCESS": "Tâche ajoutée avec succès à la planification",
+        "ADD_ERROR": "La tâche n'a pas pu être ajoutée",
+        "EDIT_SUCCESS": "Tâche ajustée avec succès",
+        "EDIT_ERROR": "La tâche n'a pas pu être modifiée",
+        "DELETE_SUCCESS": "Tâche supprimée avec succès",
+        "DELETE_ERROR": "La tâche n'a pas pu être supprimée"
+    }
+}

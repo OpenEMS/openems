@@ -60,8 +60,13 @@ import { HelpPopoverButtonComponent } from "./components/shared/view-component/h
 import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
@@ -412,10 +417,12 @@ export class SharedModule {
     ) {
         SharedModule.injector = injector;
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
     }
 }

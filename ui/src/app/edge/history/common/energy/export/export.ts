@@ -3,19 +3,24 @@ import { TranslateService } from "@ngx-translate/core";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { saveAs } from "file-saver-es";
 import { v4 as uuidv4 } from "uuid";
+
 import { NavigationCard } from "src/app/edge/live/navigation-info/navigation-info";
 import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
-
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
 import { QueryHistoricTimeseriesExportXlxsRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 
 export type NavigationCardWithAction = Omit<NavigationCard, "buttonHref" | "infoText" | "footer"> & {
     buttonCallback: () => void;
@@ -44,13 +49,15 @@ export class HistoryExcelExportComponent {
     private readonly platFormService = inject(PlatFormService);
 
     constructor() {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-            this.isInitialized.set(true);
-            this.setCards();
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+                this.isInitialized.set(true);
+                this.setCards();
+            },
+        );
 
         effect(() => {
             const isExportRunning = this.isExportRunning();

@@ -1,35 +1,104 @@
 {
     "ABOUT": {
         "BUILD": "Esta compilación",
+        "CONTACT": "Para preguntas o comentarios, visite el <a target=\"_blank\" href=\"https://community.openems.io/\">foro de la comunidad de OpenEMS</a>.",
         "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
+        "DESCRIPTION": "Este sistema de gestión de energía se basa en OpenEMS &ndash; el sistema de gestión de energía de código abierto. OpenEMS es una plataforma modular para la supervisión y el control de dispositivos de energía. El desarrollo está coordinado por la OpenEMS Association e.V.",
         "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
+        "ENERGY_MANAGEMENT": "Sistema de gestión de energía",
         "FAQ": "Preguntas frecuentes (FAQ)",
         "LANGUAGE": "Seleccionar idioma:",
+        "THEME": "Tema",
+        "NEW_UI": "Nuevo diseño",
         "OPEN_EMS": "Acerca de OpenEMS",
         "PATCHNOTES": "Cambios en la supervisión de esta compilación"
+    },
+    "APP": {
+        "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Esta función no está disponible temporalmente en la app; utilice la aplicación web en su lugar."
+    },
+    "CHANNELS": {
+        "ADD": "Añadir",
+        "ADD_CHANNEL": "Añadir canal",
+        "CHANNEL": "Canal",
+        "COMPONENT": "Componente",
+        "MORE_CHANNELS": "Añadir más canales",
+        "SAVE": "Guardar configuración",
+        "SAVE_DESCRIPTION": "Al guardar la configuración se sobrescribirá la existente de este {{edgeShortName}} y se aplicará al recargar la página.",
+        "SET_VALUE": "Valor ajustado",
+        "VALUE": "Valor"
     },
     "EDGE": {
         "CONFIG": {
             "ALERTING": {
                 "ACTIVATE": "Activar",
+                "DEACTIVATED": "Desactivado",
                 "DELAY": "Retraso",
+                "FAULT": "Notificaciones de fallos",
+                "OFFLINE": "Notificaciones de desconexión",
                 "TOAST": {
                     "ERROR": "Error al cargar la configuración",
                     "SUCCESS": "Ajustes adoptados"
-                }
+                },
+                "WARNING": "Notificaciones de advertencias"
             },
             "APP": {
+                "APP_DETAILS": "Detalles de la app",
                 "AVAILABLE": "Disponible",
                 "BUY_APP": "Comprar aplicación",
+                "CARDINALITY": "Cardinalidad",
+                "CATEGORY": "Categoría",
                 "CREATE_APP": "Instalar la aplicación",
                 "DELETE_APP": "Eliminar la aplicación",
+                "DELETE_CONFIRM": "desinstalar",
+                "DELETE_CONFIRM_DESCRIPTION": "Al desinstalar la app se eliminarán todos sus componentes y se borrarán todos los ajustes que haya realizado.",
+                "DELETE_CONFIRM_HEADLINE": "¿Está seguro de que desea desinstalar la app?",
                 "ERROR_COMPATIBLE": "Errores de compatibilidad",
                 "ERROR_INSTALLABLE": "Errores de instalación",
+                "FAIL_DELETE": "Error al eliminar la app '{{error}}'",
+                "FAIL_INSTALL": "Error al instalar la app '{{error}}'",
+                "FAIL_UPDATE": "Error al actualizar la app '{{error}}'",
                 "HEADER": "El App Manager se encuentra actualmente en una primera versión de prueba.",
                 "INCOMPATIBLE": "Incompatible",
                 "INSTALLED": "Instalado",
+                "KEY": {
+                    "ALREADY_REGISTERED_DIFFERENT_APP": "¡La clave ya se ha registrado para una app en este sistema! Si continúa, se eliminará el otro registro.",
+                    "ALREADY_REGISTERED_DIFFERENT_SYSTEM": "¡La clave ya se ha registrado en otro sistema! Si continúa, se eliminará el otro registro.",
+                    "ENTER_KEY": "Introduzca la clave de licencia que recibió junto con el pedido de la app",
+                    "FAILED_LOADING_REGISTER_KEY": "No se pudieron obtener las claves ya registradas",
+                    "FAILED_REGISTER_KEY": "Fallo al registrar la clave",
+                    "INVALID": "la clave de licencia no es válida",
+                    "INVALID_PATTERN": "La entrada no es válida",
+                    "KEY": "clave de licencia",
+                    "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Nota</span>: Al introducir la clave de licencia, tenga cuidado con posibles errores tipográficos: <ul><li>„l“ minúscula frente a „I“ mayúscula </li><li>cero „0“ frente a „O“ mayúscula</li></ul>Recomendamos siempre copiar la clave de licencia del albarán de entrega y pegarla en el campo anterior en lugar de escribirla manualmente.<br>",
+                    "MASTER_KEY_HINT": "<br><span class=\"warning\">Nota</span>: En segundo plano se utiliza la clave maestra. No se muestra ninguna clave. Si dispone de una clave de licencia, utilícela.<br>",
+                    "REGISTER_KEY": "registrar clave de licencia",
+                    "REGISTERED_KEY": "Claves de licencia registradas",
+                    "SUCCESS_REGISTER_KEY": "Clave registrada correctamente",
+                    "USE_KEY": "canjear clave de licencia",
+                    "USE_MASTER_KEY": "Usar clave maestra",
+                    "USE_REGISTERED_KEY": "¿Canjear una clave de licencia ya registrada?",
+                    "VALID": "la clave de licencia es válida",
+                    "VALIDATE_KEY": "validar clave de licencia"
+                },
                 "MODIFY_APP": "Modificar la aplicación",
+                "NAME": "Centro de apps",
+                "NAME_WITH_EDGE_NAME": "Centro de apps de {{ edgeShortName }}",
                 "NOT_AVAILABLE": "No disponible",
+                "OAUTH": {
+                    "BROWSER_ONLY": "El inicio de sesión en {{ oauthName }} se realiza a través del navegador web, no a través de la app de {{ edgeLongName }}.",
+                    "CONNECT": "Conectar con {{ oauthName }}",
+                    "LOG_IN": "Iniciar sesión en {{ oauthName }}",
+                    "LOG_OUT": "Cerrar sesión",
+                    "STATES_MISMATCH": "Hubo un problema al iniciar sesión. Inténtelo de nuevo.",
+                    "SWITCH_TO_BROWSER": "Cambiar al navegador",
+                    "UNABLE_TO_CONNECT_CODE": "No se pudo conectar el código. Inténtelo de nuevo. {{ error }}"
+                },
+                "SUCCESS_DELETE": "App eliminada correctamente",
+                "SUCCESS_INSTALL": "App instalada correctamente",
+                "SUCCESS_UPDATE": "App actualizada correctamente",
+                "TECHNICAL_NAME": "Nombre técnico",
+                "UNKNOWN_INSTALLATION_STEP": "Paso de instalación desconocido: {{ step }}",
+                "UNUSED_REGISTERED_KEY_AVAILABLE": "¡Todavía hay una app disponible para instalar! Puede instalarla pulsando el botón «canjear clave de licencia».",
                 "UPDATE_APP": "Actualizar la aplicación",
                 "UPDATE_AVAILABLE": "Hay un nuevo {{ edgeShortName }} ¡versión está disponible! Por favor, actualice el {{ edgeShortName }} para que todos los nuevos {{ edgeShortName }} Las aplicaciones se muestran en el App Center."
             },
@@ -47,21 +116,30 @@
                 "ADJUST_COMPONENTS": "Configurar componentes",
                 "ALERTING": "Alerta",
                 "BRIDGE": "Conexiones y dispositivos",
+                "COMMENT": "Comentario",
+                "CONFIGURATION": "Configuración",
                 "CONTROLLER": "Aplicaciones",
                 "DATA_STORAGE": "Almacenamiento de datos",
                 "EXECUTE_SIMULATOR": "Ejecutar simulaciones",
+                "EXPORT": "Exportar",
+                "EXPORT_CHANNELS": "Exportar canales",
+                "GENERAL_DATA": "Datos generales",
                 "LIVE_LOG": "Protocolos de sistema de vida",
                 "LOG": "Registro",
                 "MANUAL_CONTROL": "Control manual",
                 "NETWORK_CONFIGURATION": "configuración de la red",
+                "PRODUCT_TYPE": "Tipo de producto",
                 "RENAME_COMPONENTS": "Renombrar componentes",
+                "ROLE": "Rol",
                 "SCHEDULER": "Planificador de aplicaciones",
                 "SIMULATOR": "Simulador",
+                "SYSTEM": "Sistema",
                 "SYSTEM_EXECUTE": "Ejecutar comando del sistema",
                 "SYSTEM_PROFILE": "Perfil del Sistema"
             },
             "LOG": {
                 "AUTOMATIC_UPDATING": "Actualización automática",
+                "CONDENSED_OUTPUT": "Salida condensada",
                 "LEVEL": "Nivel",
                 "MESSAGE": "Mensaje",
                 "SOURCE": "Ésos",
@@ -78,6 +156,9 @@
                 "REFU_STOP": "Parada",
                 "SEND": "Enviar"
             },
+            "PROFILE": {
+                "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error al descargar el protocolo Modbus"
+            },
             "SCHEDULER": {
                 "ALWAYS": "Siempre",
                 "CLASS": "Clase:",
@@ -86,15 +167,23 @@
                 "NOT_IMPLEMENTED": "Formulario no implementado:"
             }
         },
+        "FOOTER": {
+            "REFRESHED_LAST": "actualizado hace {{period}}"
+        },
         "HISTORY": {
             "ACTIVE_DURATION": "duración activa",
+            "ACTIVE_DURATION_WITH_LEVEL": "Duración activa nivel {{level}}",
             "APR": "Abr",
             "AUG": "Ago",
             "BEGIN_DATE": "Seleccionar fecha de inicio",
+            "CURRENT": "Corriente",
+            "CURRENT_AND_VOLTAGE": "Corriente y tensión",
             "DAY": "Día",
             "DEC": "Dic",
             "END_DATE": "Seleccionar fecha de finalización",
             "EXPORT": "descargar como archivo de excel",
+            "EXPORT_LOADING": "Cargando informe; gracias por su paciencia",
+            "EXTERNAL_LIMITATION": "Limitación externa",
             "FEB": "Feb",
             "FRI": "Vie",
             "GO": "Nwo!",
@@ -113,6 +202,7 @@
             "OCT": "Oct",
             "OTHER_PERIOD": "Otro período",
             "PERIOD": "Período",
+            "PHASE_ACCURATE": "preciso por fases",
             "SAT": "Sáb",
             "SELECTED_DAY": "{{ value }}",
             "SELECTED_PERIOD": "Período seleccionado:",
@@ -120,11 +210,17 @@
             "SUN": "Dom",
             "THU": "Jue",
             "TODAY": "Hoy",
+            "TOMORROW": "Mañana",
+            "TOTAL": "Total",
+            "TRY_AGAIN": "inténtelo más tarde...",
             "TUE": "Mar",
+            "VOLTAGE": "Tensión",
             "WED": "Mié",
             "WEEK": "Semana",
             "YEAR": "Año",
-            "YESTERDAY": "Ayer"
+            "YESTERDAY": "Ayer",
+            "NO_LOCAL_DATA_INFO": "Los datos históricos no están disponibles actualmente en local",
+            "NO_LOCAL_DATA_NOTICE": "Visite https://github.com/OpenEMS/openems para obtener actualizaciones sobre este tema."
         },
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -134,6 +230,8 @@
             "ENERGYMONITOR": {
                 "ACTIVE_POWER": "Potencia de salida",
                 "CONSUMPTION_WARNING": "Consumo y productores desconocidos",
+                "ERROR_TEMPORARY": "Error al obtener los datos. Inténtelo de nuevo más tarde.",
+                "ERROR_TOO_LONG": "",
                 "GRID_METER": "Medidor de potencia",
                 "PRODUCTION_METER": "Contador de generación",
                 "REACTIVE_POWER": "Potencia reactiva",
@@ -142,10 +240,33 @@
                 "STORAGE_DISCHARGE": "Descarga de memoria",
                 "TITLE": "Monitor de energía"
             },
+            "RETROFITTING": {
+                "INFORMATION_FOR_INSTANT_START": "La batería se carga o descarga con la máxima potencia para alcanzar lo antes posible un estado de carga del {{targetSoc}} % para una ampliación. Esto puede provocar consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras ampliarse la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
+                "INFORMATION_FOR_PLANNED_EXPANSION": "Se espera que la batería se cargue/descargue a partir de las {{targetTime}} del {{targetDate}} para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista. En el proceso puede haber consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras la ampliación de la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
+                "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Se espera que la batería se cargue/descargue para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista.",
+                "INSTANT_START": "Inicio inmediato",
+                "ON_DATE_AT_TIME": "el {{date}} a las {{time}}",
+                "OPTIMAL": "Ampliación de capacidad",
+                "PLANNED_EXPANSION": "Ampliación prevista",
+                "IN_REFERENCE_CYCLE": "Ciclo de referencia activo: la batería se está preparando para la ampliación de capacidad.",
+                "PREPARING": "Preparando la ampliación de capacidad",
+                "REACHED_TARGET_SOC": "Listo para la ampliación de capacidad",
+                "REFERENCING_OF_STORAGE": {
+                    "CONTENT": "Antes de una ampliación de capacidad, la batería debe ser referenciada en los días previos a la ampliación. Esto significa que debe descargarse por completo (SOC: 0 %) y luego cargarse por completo (SOC: 100 %).",
+                    "HEADER": "Tenga en cuenta que la batería debe ser referenciada antes de ampliar la capacidad",
+                    "TO_INSTRUCTIONS": "Enlace a las instrucciones"
+                },
+                "SELECT_A_DATE": "Seleccione una fecha",
+                "TARGET_TIME_SPECIFIED": "La ampliación de capacidad se realizará el {{targetDate}} a las {{targetTime}}",
+                "UPDATE_TO_NEW_VERSION": "Para poder utilizar la función de ampliación de la batería es necesario actualizar a la versión más reciente."
+            },
+            "SYSTEMUPDATE": "Actualización del sistema",
             "WIDGETS": {
                 "AUTARCHY_INFO": "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
                 "CHANNELTRESHOLD": {
-                    "OUTPUT": "Salida"
+                    "ACTIVE_TIME_OVER_PERIOD": "Tiempo activo",
+                    "OUTPUT": "Salida",
+                    "TITLE": "Controlador de umbral de canal"
                 },
                 "CHP": {
                     "HIGH_THRESHOLD": "Umbral alto",
@@ -157,7 +278,21 @@
                     "SELL_TO_GRID_POWER_LIMIT": "Cargar arriba"
                 },
                 "ENERIX_CONTROL": {
-                    "CHARGE_FROM_GRID": "Carga desde la red"
+                    "CHARGE_CONSUMPTION": "<b>ATENCIÓN:</b> La carga activa de la batería desde la red más allá de la carga de mantenimiento técnicamente necesaria requiere el registro correspondiente del sistema de almacenamiento. En caso de duda, consúltelo con su instalador. Al pulsar el botón azul „Guardar“ confirma que se ha realizado esta comprobación.<br/><br/><b>Tenga en cuenta:</b> El requisito previo para la subvención según la Ley alemana de fuentes de energía renovables (EEG 2023) es que en la batería solo se almacene energía procedente de fuentes renovables y/o gas de mina. Al activar esta función, la batería se carga con energía de la red. Esta energía probablemente se genere, según el contrato de suministro eléctrico individual, a partir de fuentes fósiles y/o nucleares. Por ello no podemos garantizar que la batería se cargue exclusivamente con energía obtenida de fuentes renovables y/o gas de mina.",
+                    "CHARGE_FROM_GRID": "Carga desde la red",
+                    "CONNECTED": "Conectado",
+                    "DISCONNECTED": "Sin conexión",
+                    "NO_DISCHARGE": "Sin descarga",
+                    "NO_INPUT": "Sin comando",
+                    "NO_OVERWRITE": "Sin sobrescritura",
+                    "NOTE": "Tenga en cuenta:",
+                    "OVERWRITE": "Sobrescritura activa",
+                    "OVERWRITE_INFO": "Al activar esta función, los ajustes estándar para la carga y descarga del sistema de almacenamiento se sustituyen por especificaciones externas de enerix Franchise GmbH & Co. KG. Esto puede provocar desviaciones del comportamiento de funcionamiento habitual; por ejemplo, puede consumirse electricidad de la red aunque el sistema de almacenamiento esté suficientemente cargado.",
+                    "OVERWRITE_MODE": "Modo de sobrescritura",
+                    "READ_ONLY": "Solo lectura",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Permitir la descarga activa a la red",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATENCIÓN:</b> La descarga activa de la batería a la red más allá de los estados de operación requeridos por razones técnicas exige el registro formal del sistema de almacenamiento. En caso de duda, consulte a su instalador. Al hacer clic en el botón azul „Guardar“, confirma que se ha realizado esta evaluación.<br/><br/><b>Nota:</b> Al activar esta función se permite la inyección de energía del sistema de almacenamiento de batería a la red pública. Según el programa de subvenciones, el modelo de remuneración, el concepto de medición y los requisitos normativos aplicables, esto puede afectar a derechos existentes relacionados con subvenciones, remuneraciones o pruebas de origen.<br/><br/>En particular, puede ser necesario atribuir con claridad la electricidad inyectada y verificar su origen mediante medición. No podemos garantizar que el uso de esta función sea compatible con los requisitos de su modelo específico de subvención o remuneración.<br/><br/>Revise las implicaciones con su instalador, comercializador directo, operador de red o un asesor cualificado antes de activarla.",
+                    "CHARGE_FROM_GRID_ALLOWED": "Permitir la carga activa desde la red"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Activar la estación de carga.",
@@ -167,6 +302,8 @@
                         "RENAULT_ZOE": "¿Se carga principalmente un Renault Zoe en esta estación de carga?"
                     },
                     "AMOUNT_OF_CHARGING_STATIONS": "Cantidad de estaciones de carga",
+                    "AUTOMATIC_SWITCHING": "Conmutación automática de fases",
+                    "AUTOMATIC_SWITCHING_DESCRIPTION": "La conmutación automática de fases requiere que tanto el vehículo como el punto de carga sean técnicamente compatibles con esta función. El proceso de conmutación de fases puede tardar unos minutos, durante los cuales el vehículo no carga.",
                     "CABLE": "Cable",
                     "CABLE_NOT_CONNECTED": "El cable no esta conectado",
                     "CAR_FULL": "El carro esta lleno",
@@ -188,6 +325,8 @@
                     "ENERGY_SINCE_BEGINNING": "Energía desde el último inicio de carga",
                     "ENFORCE_CHARGING": "Forzar la carga",
                     "ERROR": "Error",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con FEMS y la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada. FENECON y KEBA ya están trabajando a toda marcha en una solución.",
+                    "LINK_TO_DOCUMENTATION": "Más información",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         "MAX_CHARGING": "Fuerza de carga maxima:",
@@ -195,6 +334,10 @@
                         "NAME": "Carga forzada",
                         "SHORT_NAME": "a mano"
                     },
+                    "FORCE_SINGLE_PHASE": "Monofásico",
+                    "FORCE_THREE_PHASE": "Trifásico",
+                    "HYSTERESIS": "Tiempo mínimo de conmutación de la estación de carga activo",
+                    "HYSTERESIS_INFO": "Para evitar interrupciones de carga debido a arranques/pausas demasiado frecuentes del proceso de carga, el modo de carga seleccionado actualmente continuará durante los próximos minutos.",
                     "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "No se pudo conectar a la estación de carga.",
@@ -218,15 +361,24 @@
                         "SHORT_NAME": "automáticamente"
                     },
                     "OVERVIEW_CHARGING_STATIONS": "Resumen de estaciones de carga",
+                    "PHASE_SWITCHING": "Conmutación de fases",
+                    "PHASE_SWITCHING_INFO": "¿Con cuántas fases se debe cargar el vehículo?",
                     "PRIORITIZATION": "Priorización",
                     "READY_FOR_CHARGING": "Listo para cargar",
                     "STARTING": "Comenzó",
                     "STATUS": "Status",
                     "TOTAL_CHARGE": "Carga total",
                     "TOTAL_CHARGING_POWER": "Potencia de carga total",
+                    "UNCONTROLLABLE": "Esta estación de carga no se puede controlar.",
                     "UNKNOWN": "Desconocido",
-                    "UNPLUGGED": "No conectado"
+                    "UNPLUGGED": "No conectado",
+                    "ZERO": "Sin carga",
+                    "MINIMUM": "Excedente fotovoltaico con carga garantizada",
+                    "SURPLUS": "Excedente fotovoltaico",
+                    "FORCE_CHARGE": "Carga rápida",
+                    "TASKS": "Tareas"
                 },
+                "FIX_DIGITAL_OUTPUT": "Controlador de salida digital",
                 "GRID_OPTIMIZED_CHARGE": {
                     "CHARGING_DELAYED": "Retraso en la carga",
                     "CONSIDER_GRID_FEED_IN_LIMIT": "Tenga en cuenta la alimentación máxima a la red",
@@ -243,10 +395,10 @@
                         "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "La inyección máxima a la red, por encima de la cual se incrementa la carga de las baterías (en la medida de lo posible), está por debajo de la inyección máxima a la red permitida para evitar una reducción prematura de la producción.",
                         "PRIORITY_DESCRIPTION": "La carga mínima de la batería tiene mayor prioridad que la carga máxima de la batería"
                     },
-                    "INFO_DISABLED_BY_TIME_OF_USE": "Nota: La carga optimizada de red está ahora integrada en la aplicación «Tarifa de electricidad dinámica». Los ajustes configurados aquí seguirán siendo efectivos.",
                     "LOW": "Bajo",
                     "MAXIMUM_CHARGE": "Carga máxima",
                     "MAXIMUM_GRID_FEED_IN": "Inyección de red máxima permitida",
+                    "MAXIMUM_GRIDSELL_WITH_CHARGE": "Vertido máximo a la red mediante la carga",
                     "MEDIUM": "Medio",
                     "MINIMUM_CHARGE": "Carga mínima",
                     "RISK_DESCRIPTION": {
@@ -262,7 +414,7 @@
                         },
                         "MEDIUM": {
                             "FUNCTION_DESCRIPTION": "Carga comparativamente uniforme de la tienda",
-                            "PV_CURTAIL": "",
+                            "PV_CURTAIL": "Alta probabilidad de que se evite la limitación de la instalación fotovoltaica",
                             "STORAGE_DESCRIPTION": "Alta probabilidad de que el almacenamiento esté completamente cargado"
                         }
                     },
@@ -277,9 +429,28 @@
                         "NO_LIMIT_POSSIBLE": "Sin limitación posible (restringido por controles con mayor prioridad)",
                         "NOT_DEFINED": "No definida",
                         "PASSED_END_TIME": "Se superó el tiempo de finalización de la carga limitada",
-                        "STORAGE_ALREADY_FULL": "Memoria ya llena"
+                        "STORAGE_ALREADY_FULL": "Memoria ya llena",
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "No es posible una carga limitada o retrasada porque no se permite el vertido a la red o solo se permite uno reducido."
                     },
-                    "STORAGE_CAPACITY": "capacidad de almacenamiento (sólo visible para el administrador)"
+                    "LIMITED_FUNCTIONALITY": "Funcionalidad limitada",
+                    "STORAGE_CAPACITY": "capacidad de almacenamiento (sólo visible para el administrador)",
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Nota: La carga optimizada de red está ahora integrada en la aplicación «Tarifa de electricidad dinámica». Los ajustes configurados aquí seguirán siendo efectivos.",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "¿Su instalación está afectada por la normativa EEG 2025?<br/><br/>Con la app EEG 2025, el vertido a la red se reduce automáticamente en la medida de lo posible cuando se producen precios negativos en el mercado eléctrico. Si aún hay energía excedentaria disponible, se sigue vertiendo a la red y no se pierde.",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "La app EEG 2025 está activa.<br/><br/>Cuando se producen precios negativos en el mercado eléctrico, el vertido a la red se reduce automáticamente en la medida de lo posible. Si aún hay energía excedentaria disponible, se sigue vertiendo a la red y no se pierde.",
+                    "EEG_2025_APP_LINK": "Ir a la app"
+                },
+                "HEAT": {
+                    "CHANGES_MY_PV_INFO": "Puede realizar cambios en los ajustes de su elemento calefactor AC-Thor en su app MyPV.",
+                    "CONTROL_NOT_ALLOWED": "Control no permitido",
+                    "ERROR": "Error",
+                    "HEATING": "Calentando",
+                    "HEATING_ENERGY": "Energía de calefacción",
+                    "HEATING_OUTPUT": "Potencia de calefacción",
+                    "NO_HEATING": "No calienta",
+                    "TARGET_TEMPERATURE_REACHED": "Temperatura objetivo alcanzada",
+                    "TEMPERATURE": "Temperatura actual",
+                    "TEMPERATURE_UNIT": "Temperatura en °C"
                 },
                 "HEAT_PUMP": {
                     "ABOVE_SOC": "y del estado de carga de",
@@ -310,15 +481,33 @@
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Activo (Plazo mínimo)",
                     "ACTIVE_LEVEL": "Fases level",
+                    "LEVEL_ONE": "Nivel 1",
+                    "LEVEL_TWO": "Nivel 2",
+                    "LEVEL_THREE": "Nivel 3",
+                    "ACTIVED_FORCED_LIMIT": "Activo (energía adicional)",
+                    "CALIBRATION": "Calibración",
+                    "CALIBRATION_DESCRIPTION": "El elemento calefactor se calibra para obtener la potencia de los niveles individuales del contador",
+                    "DONE": "Listo",
                     "ENDTIME": "Los días pasados",
+                    "SET_ENDTIME": "Establecer hora final",
                     "ENERGY": "Energía",
+                    "ENERGY_SINCE_BEGINNING": "Energía desde el comienzo",
+                    "GUARANTEE_MODE": "Modo de garantía",
+                    "GUARANTEE_HEATING": "Garantizar energía de calefacción mínima",
                     "GUARANTEE_MINIMUM_HEATING": "Garantizar la calefacción mínima",
+                    "MINIMUM_ENERGY": "Energía mínima",
+                    "MINIMUM_DURATION": "Duración mínima",
+                    "GUARANTEE_NONE": "Ninguno",
+                    "HEATING_POWER": "Potencia de calefacción",
                     "HEATINGELEMENT": "Elemento de calefacción",
+                    "MESSAGE_UNREACHABLE": "No se puede alcanzar el límite de energía a tiempo",
                     "MINIMAL_ENERGY_AMOUNT": "Cantidad mínima de energía",
+                    "MINIMAL_ENERGY_LIMIT": "Límite mínimo de energía",
                     "MINIMUM_RUN_TIME": "Plazo mínimo",
                     "PRIORITY": "Prioridad",
                     "TIME": "Tiempo",
-                    "TIME_COUNTDOWN": "Hora de empezar"
+                    "TIME_COUNTDOWN": "Hora de empezar",
+                    "UNREACHABLE": "Inalcanzable"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Los valores negativos corresponden a la carga de memoria",
                 "INFO_STORAGE_FOR_DISCHARGE": "Los valores positivos corresponden a la descarga de la memoria",
@@ -326,6 +515,7 @@
                     "ASYMMETRIC_INFO": "Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.",
                     "END_DATE": "Fecha final",
                     "END_TIME": "Hora de finalización",
+                    "HYSTERESIS_SO_C": "Umbral del estado de carga",
                     "MOST_STRESSED_PHASE": "Fase mayormente estresada",
                     "PEAKSHAVING": "Afeitado máximo",
                     "PEAKSHAVING_POWER": "Descarga sobre",
@@ -337,6 +527,9 @@
                     "START_TIME_CHARGE": "Hora de inicio de carga"
                 },
                 "PHASES_INFO": "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+                "SCHEDULE": {
+                    "CHART_TITLE_ADMIN": "Programación prevista (solo para administradores)"
+                },
                 "SELFCONSUMPTION_INFO": "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
                 "SINGLETHRESHOLD": {
                     "ABOVE": "Sobre",
@@ -353,26 +546,66 @@
                     "SWITCH_ON_ABOVE": "Encender a través de",
                     "SWITCH_ON_BELOW": "Encender debajo",
                     "SWITCHED_LOAD_POWER": "Carga conmutada",
-                    "THRESHOLD": "Thresholded"
+                    "THRESHOLD": "Thresholded",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Activar por encima del umbral",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Activar por debajo del umbral"
                 },
-                "TWO_WAY_INFO_GRID": "Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red"
+                "STORAGE": {
+                    "AMBIENT_TEMPERATURE": "Temperatura ambiente",
+                    "BATTERY_DC": "Batería - CC",
+                    "GRID_CHARGE": "Activar el mantenimiento de la reserva de emergencia desde la red",
+                    "GRID_CHARGE_WARNING": "El sistema de almacenamiento puede recargarse activamente desde la red para mantener la reserva de emergencia configurada y compensar así las pérdidas por consumo interno propio en caso de una ausencia prolongada de generación. <br/><br/>ATENCIÓN: La carga activa de la batería desde la red más allá de la carga de mantenimiento técnicamente necesaria requiere el registro correspondiente del sistema de almacenamiento. En caso de duda, consúltelo con su instalador. Al pulsar el botón azul „Guardar“ confirma que se ha realizado esta comprobación.<br/><br/>Tenga en cuenta: el requisito previo para la subvención según la ley alemana de expansión de las energías renovables (EEG) es que en la batería solo se almacene energía procedente de fuentes renovables y/o gas de mina. Al activar esta función, la batería se carga con energía de la red. Esta energía probablemente se genere, según el contrato de suministro eléctrico individual, a partir de fuentes fósiles y/o centrales nucleares. Por ello no podemos garantizar que la batería se cargue únicamente con energía de fuentes renovables y/o gas de mina.",
+                    "INVERTER": "Inversor",
+                    "TOTAL_AC": "Total CA",
+                    "TOTAL_DC": "Total CC"
+                },
+                "TIME_OF_USE_TARIFF": {
+                    "CHARGE_FROM_GRID_ACTIVATE": "Activar la carga desde la red",
+                    "CHART_TITLE": "Programación prevista",
+                    "CHART_WARNING_NOTE": "El gráfico muestra las tres últimas horas, así como el modo de funcionamiento previsto para el periodo en el que están disponibles los precios dinámicos de compra de red. Tenga en cuenta que la programación se recalcula continuamente y puede cambiar a lo largo del día.",
+                    "CONTROL_MODE_DESCRIPTION": {
+                        "CHARGE_CONSUMPTION": ""
+                    },
+                    "POWER_SOC_CHART_TITLE": "Previsiones",
+                    "PRICE": "Precio actual de compra de electricidad",
+                    "STATE": {
+                        "BALANCING": "Optimización del autoconsumo",
+                        "CHARGE_GRID": "Carga desde la red",
+                        "DELAY_DISCHARGE": "Retrasar la descarga",
+                        "PEAK_SHAVING": "Recorte de picos",
+                        "DELAY_CHARGE": "Retrasar la carga",
+                        "LIMIT_CHARGE": "Limitar la carga",
+                        "AVOID_GRID_SELL_LIMIT": "Evitar el límite de vertido",
+                        "DISCHARGE_CONSUMPTION": "Descarga al consumo",
+                        "DISCHARGE_GRID": "Descarga a la red"
+                    },
+                    "EEG_2025_HEADER": "Previsión EEG 2025",
+                    "EEG_2025_DESCRIPTION": "El gráfico muestra la futura inyección a la red prevista así como la remuneración por inyección prevista según la EEG 2025. Esta se tiene en cuenta al calcular el modo de funcionamiento óptimo. El sistema intenta mantener la inyección a la red lo más baja posible durante los periodos sin remuneración. Tenga en cuenta que la previsión se recalcula continuamente y puede cambiar a lo largo del día."
+                },
+                "TWO_WAY_INFO_GRID": "Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red",
+                "EVSE": {
+                    "SCHEDULE": {
+                        "SCHEDULE": "Programación",
+                        "ADD_TASK": "Añadir tarea"
+                    },
+                    "CHARGE_MODE": "Modo básico",
+                    "VEHICLE_ID_ERROR": "No se pudo encontrar el ID del vehículo. Compruebe la configuración. Se muestran todos los vehículos registrados.",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con FEMS y la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“. FENECON y KEBA ya están trabajando a toda marcha en una solución."
+                }
             }
-        },
-        "INSTALLATION": {
-            "ATTENTION_MESSAGE": "Tenga en cuenta que la selección no se puede deshacer después.",
-            "BACKWARD": "volver",
-            "CONFIRM_APP_SELECTION": "¿Está seguro de que desea seleccionar la siguiente aplicación?",
-            "CONFIRM_APP_SELECTION_LATER": "¿Están seguros de hacer la selección más tarde?",
-            "FORWARD": "adelante",
-            "PLEASE_SELECT_OPTION": "Por favor, elija una opción"
         },
         "NETWORK": {
             "ADD_IP": "Agregar direcciones IP estáticas",
             "ADVANCED_MODE": "Modo avanzado",
+            "DHCP": {
+                "ADDRESS": "Dirección DHCP",
+                "INFO": "La dirección IP mostrada se asignó dinámicamente mediante DHCP (Dynamic Host Configuration Protocol). No es permanente y puede cambiar al reiniciarse el dispositivo o el router."
+            },
             "ERROR_READING": "Error al leer la configuración de red actual:",
             "ERROR_UPDATING": "Error al actualizar",
             "IP_ADDRESS": "Dirección IP",
             "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
+            "SUBMIT": "Aplicar",
             "SUBNETMASK": "Máscara de subred",
             "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
             "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24"
@@ -384,11 +617,37 @@
                 "VOLTAGES": "Voltajes de celda"
             },
             "ENTIRE_SYSTEM": "Sistema entero"
+        },
+        "TITLE": "{{ edgeShortName }}"
+    },
+    "EVSE_SINGLE": {
+        "SETTINGS": {
+            "CHARGE_MODE": "En qué modo se debe cargar"
+        }
+    },
+    "FORMLY_FORM": {
+        "TARIFF_TABLE": {
+            "ADD_TIME_SLOT": "Añadir franja horaria",
+            "ADD_YEAR": "Añadir año {{ year }}",
+            "ERROR_MESSAGES": {
+                "INVALID_TIME_INPUT": "La hora „hasta“ no puede ser mayor o igual que la hora „desde“"
+            },
+            "GROSS_PREIS_TITLE": "Precio bruto para el año {{ year }}*",
+            "PRICE_ITEMS": "Partidas de precio",
+            "REMOVE_YEAR": "Eliminar año {{ year }}",
+            "TARIFFS": {
+                "HIGH": "Tarifa alta",
+                "LOW": "Tarifa baja",
+                "STANDARD": "Tarifa estándar"
+            },
+            "TITLE": "Costes accesorios de {{ year }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Activo",
         "ACTUAL_POWER": "e-car Carga",
+        "ALL": "Todos",
+        "APPLY": "Aplicar",
         "AUTARCHY": "Autosuficiencia",
         "AUTOMATIC": "Automático",
         "BACK": "Atrás",
@@ -403,29 +662,56 @@
         "COMPONENT_INACTIVE": "El componente está inactivo!",
         "CONNECTION_LOST": "Conexión perdida. Intentando reconectar.",
         "CONSUMPTION": "Consumo",
+        "COUNTRY": {
+            "AUSTRIA": "Austria",
+            "CZECH": "República Checa",
+            "GERMANY": "Alemania",
+            "GREECE": "Grecia",
+            "LITHUANIA": "Lituania",
+            "NETHERLANDS": "Países Bajos",
+            "SWEDEN": "Suecia",
+            "SWITZERLAND": "Suiza"
+        },
         "CUMULATIVE": "Valores Acumulativos",
+        "CURRENT_NAME": "nombre actual",
+        "CURRENT_STATUS": "Estado actual",
         "CURRENT_VALUE": "Valor actual",
+        "DARK": "Oscuro",
         "DATE_FORMAT": "dd.MM.yyyy",
+        "DETAILS": "Detalles",
         "DIGITAL_INPUTS": "Entradas digitales",
         "DIRECT_CONSUMPTION": "Consumo directo",
         "DISCHARGE": "Descargar",
+        "EDIT": "Editar",
+        "ENERGY_LIMIT": "Límite de energía",
         "FAULT": "Error",
+        "FOR": "para",
+        "FORECAST": "Previsión",
         "FORMLY": {
-            "LINK_TO_DOCS": "Enlace a la documentación"
+            "INITIALIZING_ERROR": "Error al inicializar el componente",
+            "LINK_TO_DOCS": "Enlace a la documentación",
+            "REQUIRED": "Es obligatorio"
         },
+        "FROM": "Desde",
         "GRID": "Red",
         "GRID_BUY": "Relación",
         "GRID_BUY_ADVANCED": "Relación",
+        "GRID_BUY_PRICE": "Precio de la electricidad",
         "GRID_SELL": "Fuente de alimentación",
         "GRID_SELL_ADVANCED": "Fuente de alimentación",
+        "GRID_SELL_PRICE": "Remuneración por vertido",
         "HEAT_PUMP": "Bomba de calor",
         "HISTORY": "Historia",
         "INACTIVE": "Inactivo",
         "INFO": "Informacion",
         "INPUT_NOT_VALID": "Entrada inválida",
+        "INSTALL": "Instalar",
         "INSUFFICIENT_RIGHTS": "Derechos insuficientes",
+        "LIGHT": "Claro",
         "LIVE": "Live",
         "LOAD": "la cantidad",
+        "MANAGED_CONSUMPTION": "Consumo gestionado",
+        "MANUAL": "Instrucciones",
         "MANUALLY": "a mano",
         "MEASURED_VALUE": "Valor Medido",
         "MODE": "Modo",
@@ -444,10 +730,13 @@
             "SEPTEMBER": "Septiembre"
         },
         "MORE": "Más...",
+        "NO": "No",
         "NO_VALUE": "Sin valor",
         "NUMBER_OF_COMPONENTS": "número de componentes",
         "OFF": "Apagado",
         "OFF_GRID": "No hay conexión de red",
+        "GENERATOR_SUPPLY": "Suministro del generador",
+        "GENERATOR_ON": "Generador activo",
         "OK": "ok",
         "ON": "Conmutada",
         "OPEN": "Abrir",
@@ -458,18 +747,38 @@
         "PHASES": "Fases",
         "POWER": "Rendimiento",
         "PRODUCTION": "Producción",
+        "RENAME": "Renombrar",
         "REPORT": "informe",
         "REPORT_VALUE": "Reportar datos corruptos",
+        "RESET": "Restablecer",
+        "RESTART": "Reiniciar",
         "SAVE": "Ahorrar",
         "SEARCH": "Búsqueda",
         "SELF_CONSUMPTION": "Autoconsumo",
         "SOC": "Cargo",
         "STATE": "Estado",
+        "STATE_MACHINE": {
+            "ERROR": "Error",
+            "GO_RUNNING": "Iniciando...",
+            "GO_STOPPED": "Deteniendo...",
+            "RUNNING": "Iniciado",
+            "STOPPED": "Detenido",
+            "UNDEFINED": "Desconocido"
+        },
+        "STATUS": "Estado",
         "STORAGE_SYSTEM": "Almacenamiento",
         "SUFFIX": {
             "HOUR": "h"
         },
+        "SUM_STATE": "Estado del sistema",
+        "SYSTEM": "sistema",
+        "SYSTEM_OUTAGE": "Debido a trabajos de mantenimiento, el monitoreo en línea no está disponible temporalmente. Inténtelo de nuevo más tarde. Para más información, consulte",
         "SYSTEM_STATE": "Estado del sistema",
+        "SYSTEM_THEME": "Sistema",
+        "THEME_SELECTION": {
+            "DESCRIPTION": "Nuestro monitoring ya está disponible en <b>modo oscuro</b>.<hr>¡Simplemente cambie y empiece!",
+            "TITLE": "¡Luces apagadas, confort activado!"
+        },
         "TIME": {
             "DAY": "Día",
             "DAYS": "Días",
@@ -479,8 +788,13 @@
             "MINUTES": "Minutos"
         },
         "TIME_SCHEDULE": "Programación horaria",
+        "TO": "Hasta",
         "TOTAL": "consumo total",
+        "TOTAL_CHARGE": "Carga total",
+        "TOTAL_DISCHARGE": "Descarga total",
         "TOTAL_STATE": "Condición general",
+        "VALUE": "valor",
+        "VISIBLE_FOR_ADMINS_ONLY": "Visible solo para Servicio y Administración",
         "WARNING": "Advertencia",
         "WEEK": {
             "FRIDAY": "Viernes",
@@ -490,18 +804,45 @@
             "THURSDAY": "Jueves",
             "TUESDAY": "Martes",
             "WEDNESDAY": "Miércoles"
-        }
+        },
+        "YES": "Sí",
+        "NAVIGATION_INFO": "Actualmente estamos rediseñando nuestro monitoring y la app, optimizando su navegación y funcionalidad.",
+        "NAVIGATION_DETAILS": "Este chip de ayuda le ofrece asistencia. Infórmese sobre los cambios, obtenga explicaciones e información, incluidas las funcionalidades ampliadas de su estación de carga KEBA P40.",
+        "LINK": "Encuentre más información en el siguiente enlace (en alemán):",
+        "LINK_TEXT": "Ver el changelog de la prueba beta",
+        "SURVEY": "Aquí puede compartir con nosotros su feedback sobre la prueba beta:",
+        "SURVEY_LINK": "Participar en la encuesta de la prueba beta",
+        "HELP": "Ayuda",
+        "CHARGE_ONCE": "Cargar una vez",
+        "DISCHARGE_ONCE": "Descargar una vez",
+        "TARGET_SOC": "Estado de carga objetivo"
+    },
+    "GRID_STATES": {
+        "CONSUMPTION_LIMITATION": "Limitación de carga desde la red",
+        "FEED_IN_DESCRIPITON": "Limitación de carga del sistema de almacenamiento ",
+        "FEED_IN_LIMITATION": "Limitación de vertido a la red",
+        "GRID_LIMITATION": "Limitación de red",
+        "NO_EXTERNAL_LIMITATION": "sin limitación",
+        "OFF_GRID": "Corte de suministro",
+        "RIPPLE_CONTROL_RECEIVER": "Receptor de control por ripple",
+        "SECTION_14A": "Limitación según el §14a EnWG"
     },
     "INDEX": {
+        "ADD_EDGE": "Añadir nuevo {{ edgeShortName }}",
         "ALL_CONNECTED": "Todas las conexiones establecidas.",
         "CONNECTION_FAILED": "Conexión a {{ value }} seperados.",
         "CONNECTION_IN_PROGRESS": "Establecimiento de la conexión...",
         "CONNECTION_SUCCESSFUL": "Conexión a {{ value }} hecho.",
         "DEVICE_OFFLINE": "El aparato no está conectado!",
+        "FIRST_SETUP_PROTOCOL": "Puesta en servicio inicial",
         "IS_OFFLINE": "OpenEMS está fuera de línea!",
         "LOGGED_IN_AS": "Conectado como",
+        "NO_EDGE_AVAILABLE": "Todavía no ha añadido ningún {{edgeShortName}}.",
+        "NO_EDGE_FOR_USER": "Lo sentimos, todavía no se ha asociado ningún {{ edgeShortName }} a su cuenta.",
+        "OFFLINE_SINCE": "Sin conexión desde",
         "TO_ENERGYMONITOR": "Al monitor de energía...",
-        "TYPE": "Tipo"
+        "TYPE": "Tipo",
+        "VISIBLE_HERE_AFTER_INSTALLATION": "Cuando su {{ edgeShortName }} haya sido puesto en servicio por un instalador, lo verá en este punto."
     },
     "JS_SCHEDULE": {
         "ADD_EVENT": "Añadir evento",
@@ -512,28 +853,74 @@
         "MANUAL_EVENTS": "Eventos manuales",
         "SMART_EVENTS": "Eventos inteligentes"
     },
+    "LIVE": {
+        "PULL_TO_REFRESH": "Desplace este banner hacia abajo para actualizar"
+    },
+    "LOADING_SCREEN": {
+        "LOADING": "Cargando",
+        "SERVER_NOT_ACCESSIBLE": "Servidor no accesible",
+        "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Acceder localmente",
+        "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "La vista en línea del sistema de almacenamiento no es posible en este momento. Los datos se guardan localmente y no se perderán.",
+        "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Intente recargar el navegador en 10 minutos."
+    },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Fallo de autentificación",
         "PASSWORD_LABEL": "Contraseña",
         "PASSWORD_RESET": "Restablecer contraseña",
         "PREAMBLE": "Por favor, introduzca su contraseña o confirme la entrada por defecto para conectarse como invitado.",
+        "REQUEST_TIMEOUT": "Su solicitud ha caducado. Inténtelo de nuevo más tarde.",
+        "SIGN_IN": "Iniciar sesión",
         "TITLE": "Login",
-        "USER": "Usuario"
+        "USER": "Usuario",
+        "EMPLOYEE_LOGIN": "Inicio de sesión de empleado"
     },
     "MENU": {
         "ACCESS_LEVEL": "Nivel de acceso",
         "CHANGELOG": "Changelog",
+        "COCKPIT": "Cockpit",
+        "FAVORITES": "Favoritos",
         "EDGE_SETTINGS": "Configuración",
+        "EDGE_SYSTEM_SETTINGS": "Ajustes del sistema",
         "GENERAL_SETTINGS": "Configuración general",
+        "GROUPS": {
+            "FIX_DIGITAL_OUTPUT": "Control manual de relés",
+            "CHANNEL_SINGLE_THRESHOLD": "Control por umbral",
+            "HEATING_ROOM": "Calefacción",
+            "BRAIINS": "Bitcoin Miner"
+        },
         "INDEX": "Visión general",
         "LOGOUT": "Desuscribirse",
         "MENU": "Menú",
         "NAME": "Nombre",
+        "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Otros usuarios",
         "OVERVIEW": "Todos los sistemas",
-        "SCHEDULE": "Programa",
+        "SYSTEMS": "Sistemas",
         "SETTINGS": "Ajustes",
-        "USER": "Usuario"
+        "USER": "Usuario",
+        "PROFILE": "Perfil",
+        "SCHEDULE": "Programa"
+    },
+    "MODBUS_TCP_API_READ_WRITE": {
+        "ACTIVE_POWER_LIMITATIONS": "Limitaciones de potencia activa",
+        "ACTUAL_VALUE": "Valor real",
+        "CUMULATED_ACTIVE_TIME": "Comandos externos considerados",
+        "CUMULATED_INACTIVE_TIME": "No hay comandos externos presentes",
+        "CURRENT_STATE": "Estado actual",
+        "DOWNLOAD_PROTOCOL": "Descargar protocolo",
+        "INFO_TEXT": "El valor real puede desviarse del valor especificado. Los valores negativos corresponden a la carga del almacenamiento - los positivos a la descarga. Encontrará una explicación detallada en las instrucciones.",
+        "LAST_COMMAND": "Última sobrescritura",
+        "LIMITATION": "Especificación",
+        "NO_OVERRIDDEN_CHANNELS": "Todavía no se ha sobrescrito ningún canal.",
+        "NOT_OVERRIDING": "No hay comandos externos presentes",
+        "OVERRIDING": "El comando externo se está considerando",
+        "REGISTER": "Registro",
+        "SET_ACTIVE_POWER_EQUALS": "Valor de consigna de potencia activa",
+        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Valor de consigna máximo de potencia de carga",
+        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Valor de consigna máximo de potencia de descarga",
+        "SET_REACTIVE_POWER_EQUALS": "Valor de consigna de potencia reactiva",
+        "SET_REACTIVE_POWER_GREATER_OR_EQUALS": "Valor de consigna mínimo de potencia reactiva",
+        "SET_REACTIVE_POWER_LESS_OR_EQUALS": "Valor de consigna máximo de potencia reactiva"
     },
     "NOTIFICATIONS": {
         "AUTHENTICATION_FAILED": "Sin conexión: error de autenticación.",
@@ -542,15 +929,39 @@
         "LOGGED_IN": "Registrado.",
         "LOGGED_IN_AS": "Conectado como usuario \"{{ value }}\"."
     },
+    "OFFLINE": {
+        "GENERAL": {
+            "AVAILABILITY": "El acceso en línea al sistema de almacenamiento de energía no está disponible actualmente.<br>Los datos se almacenan localmente y no se perderán.",
+            "EMS_OFFLINE": "{{edgeShortName}} está sin conexión",
+            "MORE_INFO": "Más información",
+            "TIME_OUT": "El {{ edgeShortName }} solicitado lleva <b>desde {{timeSinceOffline}}</b> sin conexión.",
+            "TRY": "Intente actualizar el navegador en 10 minutos."
+        }
+    },
+    "ORDER": {
+        "A_TO_Z": "Designación A - Z",
+        "ASCENDING": "Ascendente por n.º de {{edgeShortName}}",
+        "DESCENDING": "Descendente por n.º de {{edgeShortName}}",
+        "FAULT_TO_OK": "Estado del sistema Error - OK",
+        "OK_TO_FAULT": "Estado del sistema OK - Error",
+        "SORTING": "Ordenación",
+        "Z_TO_A": "Designación Z - A"
+    },
     "REGISTER": {
         "BUTTON": "Crear",
+        "CREATE_USER": "Crear cuenta",
+        "CREATING_USER": "Creando cuenta...",
         "ERRORS": {
+            "EMAIL_NOT_EQUAL": "Los correos electrónicos no coinciden",
             "PASSWORD_NOT_EQUAL": "Las contraseñas no son iguales",
             "REQUIRED_FIELDS": "Por favor, rellene todos los campos"
         },
         "FORM": {
+            "ACCEPT_GTC": "Confirmo los <a target=\"_blank\" href={{link}}>términos y condiciones</a>.*",
             "CITY": "Ciudad",
+            "COMPANY": "Empresa",
             "COMPANY_NAME": "Nombre de la empresa",
+            "CONFIRM_EMAIL": "confirmar correo electrónico",
             "CONFIRM_PASSWORD": "Confirmar contraseña",
             "CONTACT_DETAILS": "Datos de contacto",
             "COUNTRY": "País",
@@ -559,10 +970,13 @@
             "INSTALLER": {
                 "ACCEPT_PRIVACY_POLICY": ""
             },
+            "IS_ELECTRICIAN": "",
             "LASTNAME": "Apellido",
             "PASSWORD": "Contraseña",
             "PHONE": "Número de teléfono",
+            "PRIVATE": "Privado",
             "STREET": "Calle | número de casa",
+            "SUBSCRIBE_NEWSLETTER": "",
             "USER": {
                 "ACCEPT_PRIVACY_POLICY": ""
             },
@@ -572,6 +986,66 @@
             "INSTALLER": "Instalador",
             "USER": "Usuario"
         },
-        "SUCCESS": "Registro realizado con éxito"
+        "SUCCESS": "Registro realizado con éxito",
+        "TITLE": "Crear cuenta"
+    },
+    "ROLE": {
+        "ADMIN": "Administrador",
+        "GUEST": "Invitado",
+        "INSTALLER": "Instalador",
+        "OWNER": "Propietario"
+    },
+    "SETTINGS": {
+        "CATEGORY": {
+            "TITLE": {
+                "CLOUD_INTERFACES": "Interfaces de nube",
+                "DEDICATED_CONTROLLERS": "Controladores dedicados",
+                "DEVICE_INTERFACES": "Interfaces de dispositivos",
+                "EV_CHARGING_STATION": "Estación de carga de VE",
+                "EV_CHARGING_STATION_CONTROL": "Control de estación de carga de VE",
+                "EXTERNAL_INTERFACES": "Interfaces externas",
+                "IO_CONTROL": "Control de E/S",
+                "IOS": "E/S",
+                "METER": "Contador",
+                "OTHERS": "Más",
+                "SIMULATORS": "Simuladores",
+                "STANDARD_COMPONENTS": "Componentes estándar",
+                "STORAGE_SYSTEM_CONTROL": "Control de sistemas de almacenamiento",
+                "STORAGE_SYSTEMS": "Sistemas de almacenamiento",
+                "TEMPERATURE_SENSORS": "Sensores de temperatura"
+            }
+        },
+        "ENERGY_JOURNEY": {
+            "TO_THE_ANALYSIS": "Ver análisis",
+            "YOUR_ENERYJOURNEY": "OpenEMS Journey"
+        },
+        "POWER_ASSISTANT": {
+            "INFO": "El „Power Assistant“ muestra los respectivos controladores para todos los sistemas de almacenamiento (ess0, ess1, ...) y algunos puntos de datos relevantes para cada uno. El orden corresponde al orden en el planificador."
+        },
+        "SYSTEM_UPDATE": {
+            "CONFIRMATION_INFO": "¿Desea actualizar su {{edgeShortName}}?",
+            "CREATE_COMPONENT": "Crear componente",
+            "DELETE_COMPONENT": "Eliminar componente",
+            "EDGE_RESTARTING": "{{ edge }} se está reiniciando...",
+            "EMS_RESTARTING": "Reiniciar {{edgeShortName}}",
+            "INSTALLED_VERSION": "Versión instalada:",
+            "LATEST_VERISON": "El sistema está actualizado con el último software",
+            "NEW_VERSION": "Última versión:",
+            "NEW_VERSION_INSTALLING": "Instalar última versión",
+            "OFFLINE": "El {{ edgeShortName }} está sin conexión.",
+            "RESTART_CONFIRMATION": "¿Desea reiniciar {{system}}?",
+            "RESTART_FAILED": "Falló el reinicio de {{system}}.",
+            "RESTART_WARNING": "Mientras {{system}} se reinicia, la comunicación se interrumpe. Durante este tiempo no se registran datos ni se controlan componentes. Asegúrese de que todo el sistema esté en un estado seguro.",
+            "RESTARTED": "Reinicio de {{system}} correcto.",
+            "RESTARTING": "Reiniciando {{system}}. (Puede tardar hasta {{minutes}} minutos)",
+            "SUB_HEADER": "¿Desea ejecutar una actualización del sistema?",
+            "UPDATE_COMPONENT": "Actualizar componente",
+            "UPDATE_EXECUTE": "Ejecutar actualización del sistema",
+            "UPDATE_NOT_POSSIBLE": "¡El sistema no se puede actualizar!",
+            "UPDATE_PROGRESS": "Actualización en curso.",
+            "UPDATE_SEARCH": "Buscando actualizaciones...",
+            "UPDATE_TIME": "(Puede tardar hasta {{minutes}} minutos)",
+            "WARNING": "El software se reiniciará tras la actualización del sistema. Durante este tiempo no se registran datos ni se controlan componentes. Asegúrese de que todo el sistema esté en un estado seguro."
+        }
     }
 }

@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "MODE": {
+            "TITLE": "Mode de chauffage",
+            "MANUAL_LOW": "Bas",
+            "MANUAL_HIGH": "Élevé"
+        },
+        "HOME": {
+            "POWER_CONSUMPTION": "Consommation électrique",
+            "FLOOR_ACTUAL": "Température du sol (réelle)",
+            "FLOOR_TARGET": "Température du sol (cible)",
+            "AMBIENT_ACTUAL": "Température ambiante (réelle)",
+            "AMBIENT_TARGET": "Température ambiante (cible)",
+            "UPCOMING_EVENTS": "Événements à venir"
+        }
+    }
+}

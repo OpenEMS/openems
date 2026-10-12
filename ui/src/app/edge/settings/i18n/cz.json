@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "STATUS_INSTALLED": "Nainstalováno",
+                "STATUS_AVAILABLE": "K dispozici",
+                "STATUS_INCOMPATIBLE": "Nekompatibilní",
+                "STATUS_FILTER": "Dostupnost",
+                "CATEGORY_FILTER": "Kategorie aplikací"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "TITLE": "Umístění systému",
+            "SUCCESS_MESSAGE": "Umístění systému bylo úspěšně aktualizováno."
+        },
+        "SYSTEM_PROTOCOL": {
+            "LABEL": "Protokol systému",
+            "DOWNLOAD": "Stáhnout",
+            "TITLE": "Aktuální"
+        }
+    }
+}

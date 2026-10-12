@@ -4,8 +4,13 @@ import { Subject } from "rxjs";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
+import cz from "../i18n/cz.json";
 import de from "../i18n/de.json";
 import en from "../i18n/en.json";
+import es from "../i18n/es.json";
+import fr from "../i18n/fr.json";
+import ja from "../i18n/ja.json";
+import nl from "../i18n/nl.json";
 
 enum SohCycleStateMachine {
     IDLE = 1,
@@ -40,13 +45,12 @@ export interface SohCycleState {
     providedIn: "root",
 })
 export class SohDeterminationService implements OnDestroy {
-
     public anySohCycleRunningWithoutError = computed(() => {
-        return Array.from(this.sohStates().values()).some(state => state.isRunning && !state.hasError);
+        return Array.from(this.sohStates().values()).some((state) => state.isRunning && !state.hasError);
     });
 
     public anySohCycleRunningWithError = computed(() => {
-        return Array.from(this.sohStates().values()).some(state => state.isRunning && state.hasError);
+        return Array.from(this.sohStates().values()).some((state) => state.isRunning && state.hasError);
     });
 
     private readonly sohStates = signal<Map<string, SohCycleState>>(new Map());
@@ -62,29 +66,32 @@ export class SohDeterminationService implements OnDestroy {
     private readonly service = inject(Service);
 
     constructor() {
-        Language.normalizeAdditionalTranslationFiles({ de, en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
 
-        effect(() => {
-            const val = this.dataService.currentValue();
-            this.setSohStates(val);
-        }, { injector: this.injector });
+        effect(
+            () => {
+                const val = this.dataService.currentValue();
+                this.setSohStates(val);
+            },
+            { injector: this.injector },
+        );
     }
 
-    /**
-     * Initializes SoH cycle state tracking for the given edge and config
-     */
+    /** Initializes SoH cycle state tracking for the given edge and config */
     public initializeSohTracking(config: EdgeConfig | null, edge: Edge | null): void {
-
         if (config == null || edge == null) {
             return;
         }
 
-        const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? [])
-            .filter(component => component.isEnabled);
+        const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? []).filter(
+            (component) => component.isEnabled,
+        );
 
         if (essSohCycleCtrl.length === 0) {
             return;
@@ -108,8 +115,9 @@ export class SohDeterminationService implements OnDestroy {
 
     public async setSohStates(currentData: CurrentData) {
         const config = await this.service.getConfig();
-        const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? [])
-            .filter(component => component.isEnabled);
+        const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? []).filter(
+            (component) => component.isEnabled,
+        );
         const newStates = new Map<string, SohCycleState>();
 
         for (const controller of essSohCycleCtrl) {
@@ -133,12 +141,7 @@ export class SohDeterminationService implements OnDestroy {
     }
 
     public getIsSohCycleRunningSignal(essId: string): Signal<boolean> {
-        return this.getOrCreateSignal(
-            essId,
-            this.runningSignals,
-            false,
-            (state) => state?.isRunning ?? false,
-        );
+        return this.getOrCreateSignal(essId, this.runningSignals, false, (state) => state?.isRunning ?? false);
     }
 
     public getIsSohCycleRunningWithoutErrorSignal(essId: string): Signal<boolean> {
@@ -160,17 +163,12 @@ export class SohDeterminationService implements OnDestroy {
     }
 
     public getIsSohCycleCapacityMeasuredSignal(essId: string): Signal<boolean> {
-        return this.getOrCreateSignal(
-            essId,
-            this.capacityMeasuredSignals,
-            false,
-            (state) => {
-                if (!state) {
-                    return false;
-                }
-                return state.isMeasured || (state.measuredCapacity ?? 0) > 0;
-            },
-        );
+        return this.getOrCreateSignal(essId, this.capacityMeasuredSignals, false, (state) => {
+            if (!state) {
+                return false;
+            }
+            return state.isMeasured || (state.measuredCapacity ?? 0) > 0;
+        });
     }
 
     public getStateMachineName(value: number | null | undefined): string {
@@ -189,9 +187,7 @@ export class SohDeterminationService implements OnDestroy {
         this.stopOnDestroy.complete();
     }
 
-    /**
-     * Generic helper to create or retrieve a cached signal derived from SoH state
-     */
+    /** Generic helper to create or retrieve a cached signal derived from SoH state */
     private getOrCreateSignal<T>(
         essId: string,
         cache: Map<string, Signal<T>>,
@@ -209,5 +205,4 @@ export class SohDeterminationService implements OnDestroy {
         }
         return signal;
     }
-
 }
