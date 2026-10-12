@@ -52,6 +52,7 @@ import io.openems.edge.common.jsonapi.JSCalendarApi;
 import io.openems.edge.common.jsonapi.JSCalendarApi.UpdateJsCalendarRecord;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.GridBuyLimit;
+import io.openems.edge.common.meta.GridSellLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
@@ -227,17 +228,14 @@ public class MetaImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Gets the {@link #getGridConnectionPointFuseLimit()} as three-phase in [W].
-	 * 
-	 * <p>
-	 * NOTE: this currently uses static values for voltage (400 V) and cos(φ) (1)
-	 * internally.
-	 * 
-	 * @return the value
+	 * Converts the fuse current to power using a three-phase grid with 400 V and
+	 * cos(phi) = 1.
+	 *
+	 * @return the fuse limit in [W]
 	 */
 	private int getGridConnectionPointFuseLimitInWatt() {
 		final var voltage = 400.0; // [V]
-		final var cosPhi = 1; // cos(φ)
+		final var cosPhi = 1;
 		final var current = this.getGridConnectionPointFuseLimit(); // [A]
 		return Double.valueOf(Math.sqrt(3) * voltage * current * cosPhi).intValue();
 	}
@@ -272,23 +270,34 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 	@Override
 	public int getGridSellHardLimit() {
-		final var powerFromMaximumGridFeedInLimit = switch (this.config.gridFeedInLimitationType()) {
+		return this.getGridSellLimit().hard().power();
+	}
+
+	@Override
+	public Optional<Integer> getConfiguredMaximumGridFeedInLimit() {
+		return switch (this.config.gridFeedInLimitationType()) {
 		case DYNAMIC_LIMITATION -> this.config.maximumGridFeedInLimit() >= 0 //
-				? this.config.maximumGridFeedInLimit() //
-				: null;
-		case NO_LIMITATION -> null;
+				? Optional.of(this.config.maximumGridFeedInLimit()) //
+				: Optional.empty();
+		case NO_LIMITATION -> Optional.empty();
 		};
-		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
-		return minInt(powerFromFuseLimit, powerFromMaximumGridFeedInLimit);
 	}
 
 	@Override
 	public int getGridSellHardLimitWithBuffer() {
-		final int gridSellHardLimit = this.getGridSellHardLimit();
+		return this.getGridSellLimit().hard().powerWithBuffer();
+	}
+
+	@Override
+	public GridSellLimit getGridSellLimit() {
+		final int gridSellHardLimit = minInt(this.getGridConnectionPointFuseLimitInWatt(),
+				this.getConfiguredMaximumGridFeedInLimit().orElse(null));
 
 		// Reduce limit by 5% with a minimum buffer of 150 W
 		final float buffer = max(gridSellHardLimit * 0.05F, 150);
-		return Math.round(gridSellHardLimit - buffer);
+		return new GridSellLimit(new GridSellLimit.Hard(//
+				gridSellHardLimit, //
+				Math.round(gridSellHardLimit - buffer)));
 	}
 
 	@Override

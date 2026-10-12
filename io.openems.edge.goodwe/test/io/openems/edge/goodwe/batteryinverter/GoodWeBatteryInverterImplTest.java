@@ -52,7 +52,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -72,6 +76,7 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.DummySum;
@@ -81,6 +86,9 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.test.DummyRippleControlReceiver;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.test.DummyPower;
@@ -1517,6 +1525,347 @@ class GoodWeBatteryInverterImplTest {
 				new GoodWeBatteryInverterImpl.ClusterInfo(true, false), 100);
 
 		assertEquals(0, result);
+	}
+
+	@Nested
+	class FeedInLimitationTests {
+
+		@ParameterizedTest(name = "configuredLimit={0}")
+		@CsvSource({ //
+				"0", //
+				"10_000", //
+				"33_000", //
+				"40_000", //
+				"60_000" //
+		})
+		void testHome30UsesConfiguredExtendedFeedPowerRegardlessOfFuseLimit(int configuredLimit)
+				throws Exception {
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(32) //
+					.withGridSellHardLimit(Math.min(22_170, configuredLimit)) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+					.withConfiguredMaximumGridFeedInLimit(configuredLimit);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(MAX_APPARENT_POWER, 29_900) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, configuredLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
+		void testCommercialInvertersUseExtendedFeedPowerForHighLimit(GoodWeType goodWeType) throws Exception {
+			// FENECON_50K/FENECON_100K go through the restored legacy limit
+			// calculation (like every non-Home30 type), but always write the value
+			// into the 32-bit EXTENDED_FEED_POWER_PARA_SET register - FEED_POWER_PARA_SET
+			// (16-bit) is intentionally never written for these types.
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(110) //
+					.withGridSellHardLimit(70_000) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+					.withConfiguredMaximumGridFeedInLimit(70_000);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
+							.input(MAX_APPARENT_POWER, 80_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// gridSellHardLimit(70_000) < maxApparentPower(80_000) -> enabled
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 70_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
+		void testCommercialInvertersDisableFeedInLimitWhenBelowMaxApparentPower(GoodWeType goodWeType)
+				throws Exception {
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(90) //
+					.withGridSellHardLimit(62_353) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
+							.input(MAX_APPARENT_POWER, 50_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// gridSellHardLimit (fuse: 90 A = 62_353 W) >= maxApparentPower(50_000)
+							// -> no limitation needed, value falls back to maxApparentPower
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 50_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "NO_LIMITATION,40000", "DYNAMIC_LIMITATION,-1", "DYNAMIC_LIMITATION,-1000" })
+		void testHome30FallsBackToHardLimitForInvalidOrInactiveConfiguredLimit(GridFeedInLimitationType limitationType,
+				int configuredLimit) throws Exception {
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(32) //
+					.withGridSellHardLimit(22_170) //
+					.withGridFeedInLimitationType(limitationType) //
+					.withConfiguredMaximumGridFeedInLimit(configuredLimit);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(MAX_APPARENT_POWER, 25_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 22_170) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest(name = "limitationType={0}")
+		@EnumSource(value = GridFeedInLimitationType.class, //
+				names = { "NO_LIMITATION", "DYNAMIC_LIMITATION", "UNDEFINED" })
+		void testFuseLimitAppliesBelowMaxApparentPower(GridFeedInLimitationType limitationType)
+				throws Exception {
+			// No configured limit: resulting hard limit comes from fuse calculation,
+			// regardless of limitation type.
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(14) //
+					.withGridSellHardLimit(9_699) //
+					.withGridFeedInLimitationType(limitationType);
+
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.input(MAX_APPARENT_POWER, 15_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 9_699));
+		}
+
+		@ParameterizedTest(name = "limitationType={0}")
+		@EnumSource(value = GridFeedInLimitationType.class, //
+				names = { "NO_LIMITATION", "DYNAMIC_LIMITATION", "UNDEFINED" })
+		void testHome30UsesFuseBasedGridSellHardLimitBelowMaxApparentPower(GridFeedInLimitationType limitationType)
+				throws Exception {
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(43) //
+					.withGridSellHardLimit(29_791) //
+					.withGridFeedInLimitationType(limitationType);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 29_791) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testNoLimitationUsesFuseLimitAboveMaxApparentPower() throws Exception {
+			var meta = new DummyMeta() //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
+					.withGridSellHardLimit(41_569) //
+					.withGridConnectionPointFuseLimit(60); //
+
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.input(MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// Fuse limit (41_569 W) is above maxApparentPower(30_000) -> restored
+							// legacy behavior disables the limitation and falls back to
+							// maxApparentPower, keeping the value within the signed 16-bit register.
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 30_000));
+		}
+
+		@Test
+		void testUndefinedMaxApparentPowerSkipsLegacyWrite() throws Exception {
+			var meta = new DummyMeta() //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION); //
+
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// Without a defined maxApparentPower the legacy handler must not write
+							// anything - there is no safe fallback value for the signed 16-bit
+							// register.
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testLegacyFeedPowerParaSetIsClampedAndWarnsWhenExceedingSignedWordMaximum() throws Exception {
+			var meta = new DummyMeta() //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
+					.withGridSellHardLimit(138_564) //
+					.withGridConnectionPointFuseLimit(200); // fuse-based limit: 138_564 W
+
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							// gridSellHardLimit (138_564) >= maxApparentPower(40_000) -> disabled,
+							// value falls back to maxApparentPower, which exceeds the signed
+							// 16-bit register maximum (32_767) and must be clamped.
+							.input(MAX_APPARENT_POWER, 40_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 32_767) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, true));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "40000,9000", "5000,5000", "0,0" })
+		void testRippleControlReceiverRestrictionAppliesMinimumLimit(int configuredLimit, int expectedLimit)
+				throws Exception {
+			var meta = new DummyMeta() //
+					.withGridSellHardLimit(Math.min(22_170, configuredLimit)) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+					.withConfiguredMaximumGridFeedInLimit(configuredLimit);
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.THIRTY_PERCENT);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// RCR: 30_000 x 30% = 9_000 W
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, expectedLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testRippleControlReceiverWithoutRestrictionUsesFuseLimit() throws Exception {
+			var meta = new DummyMeta() //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
+					.withGridSellHardLimit(41_569) //
+					.withGridConnectionPointFuseLimit(60);
+
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 41569) // P = sqrt(3) * 400 * 60 * 1 = 41.569
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testRippleControlReceiverSkipsWriteUntilMaxApparentPowerIsAvailable() throws Exception {
+			var meta = new DummyMeta() //
+					.withGridConnectionPointFuseLimit(60) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+					.withConfiguredMaximumGridFeedInLimit(40_000);
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.THIRTY_PERCENT);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null)) //
+					.next(new TestCase() //
+							.input(MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 9_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "40000", "0" })
+		void testHome30WithoutActiveRcrDoesNotRequireMaxApparentPower(int configuredLimit) throws Exception {
+			var meta = new DummyMeta() //
+					.withGridSellHardLimit(Math.min(22_170, configuredLimit)) //
+					.withGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+					.withConfiguredMaximumGridFeedInLimit(configuredLimit);
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, configuredLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		/**
+		 * Builds and activates a {@link GoodWeBatteryInverterImpl} together with its
+		 * {@link ComponentTest} for the handleGridFeed() tests.
+		 *
+		 * @param ess  the {@link GoodWeBatteryInverterImpl} to activate
+		 * @param meta the {@link DummyMeta} to inject
+		 * @param rcr  the {@link ControllerEssRippleControlReceiver} to inject, or
+		 *             {@code null} to leave the reference unset
+		 * @return the activated {@link ComponentTest}
+		 * @throws Exception on error
+		 */
+		private static ComponentTest activateForFeedInLimitationTest(GoodWeBatteryInverterImpl ess, DummyMeta meta,
+				ControllerEssRippleControlReceiver rcr) throws Exception {
+			var test = new ComponentTest(ess) //
+					.addReference("meta", meta) //
+					.addReference("power", new DummyPower()) //
+					.addReference("cm", new DummyConfigurationAdmin()) //
+					.addReference("componentManager", new DummyComponentManager()) //
+					.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+					.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+					.addReference("sum", new DummySum());
+			if (rcr != null) {
+				test.addReference("rcr", rcr);
+			}
+			return test.activate(MyConfig.create() //
+					.setId("batteryInverter0") //
+					.setModbusId("modbus0") //
+					.setModbusUnitId(DEFAULT_UNIT_ID) //
+					.setSafetyCountry(SafetyCountry.GERMANY) //
+					.setMpptForShadowEnable(EnableDisable.ENABLE) //
+					.setBackupEnable(EnableDisable.ENABLE) //
+					.setFeedPowerEnable(EnableDisable.DISABLE) //
+					.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+					.setControlMode(ControlMode.SMART) //
+					.setStartStop(StartStopConfig.START) //
+					.build());
+		}
 	}
 
 	static final class DummyBatteryFeneconHomeImpl extends BatteryFeneconHomeImpl {

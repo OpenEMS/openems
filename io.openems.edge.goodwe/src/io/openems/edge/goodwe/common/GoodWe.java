@@ -1471,6 +1471,8 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
+		FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM(Doc.of(Level.WARNING)//
+				.translationKey(GoodWe.class, "GoodWe.FeedPowerLimit.ExceedsSupportedMaximum")), //
 		EXTENDED_FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		EXTENDED_FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//
