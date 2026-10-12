@@ -1,5 +1,6 @@
 import { environment } from "src/environments";
 import { Service } from "../../service/service";
+import { Language } from "../../type/language";
 
 /** Manages links to documentation pages */
 export class DocsUtils {
@@ -25,5 +26,18 @@ export class DocsUtils {
         }
 
         return url.replace("{language}", lang);
+    }
+
+    /**
+     * Replaces the {language} placeholder in a docs url with the docs language of the current UI language.
+     *
+     * Use this where no {@link Service} is available, otherwise prefer {@link DocsUtils.replaceDocsLanguage} with
+     * {@link Service#getDocsLang}.
+     *
+     * @param url The url containing a {language} placeholder
+     * @returns The url with the placeholder replaced, or an empty string if url is not set
+     */
+    public static replaceWithCurrentDocsLanguage(url: string | null | undefined): string {
+        return DocsUtils.replaceDocsLanguage(url, Language.getDocsLang(Language.getCurrentLanguage().key)) ?? "";
     }
 }

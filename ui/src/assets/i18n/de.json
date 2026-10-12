@@ -849,6 +849,15 @@
         "TYPE": "Typ",
         "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem das {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, kannst du es an dieser Stelle sehen."
     },
+    "JS_SCHEDULE": {
+        "ADD_EVENT": "Event hinzufügen",
+        "ADD_TASK": "Aufgabe hinzufügen",
+        "EDIT_EVENT": "Event bearbeiten",
+        "EDIT_TASK": "Aufgabe bearbeiten",
+        "NEXT_EVENTS": "Nächste Events",
+        "MANUAL_EVENTS": "Manuelle Events",
+        "SMART_EVENTS": "Smart Events"
+    },
     "LIVE": {
         "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
     },
