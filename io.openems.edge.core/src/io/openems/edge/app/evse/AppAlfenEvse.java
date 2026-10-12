@@ -258,11 +258,4 @@ public class AppAlfenEvse extends AbstractOpenemsAppWithProps<AppAlfenEvse, Prop
 		return List.of(EMobilityArchitectureType.EVSE);
 	}
 
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
-				.build();
-	}
 }
