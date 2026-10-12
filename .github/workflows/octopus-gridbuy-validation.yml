@@ -3,7 +3,7 @@ name: Octopus GridBuy validation
 on:
   push:
     branches:
-      - feature/octopus-gridbuy-httpbridge-review
+      - feature/octopus-dynamic-gridbuy
   workflow_dispatch:
 
 jobs:
