@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,6 +35,8 @@ import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManag
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 @ExtendWith(MockitoExtension.class)
 public class SwitchEvcsEvseTest {
@@ -238,6 +241,53 @@ public class SwitchEvcsEvseTest {
 				switchResponse.apps().stream().filter(t -> t.appId.equals(this.hardyApp.getAppId())).toList().size());
 		assertEquals(1, switchResponse.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 		assertEquals(1, switchResponse.apps().stream().filter(t -> t.appId.equals("App.Evcs.Keba")).toList().size());
+	}
+
+	@Test
+	public void testUpdatingKebaVehicleKeepsNewVehicleProtectedFromDelete() throws Exception {
+		var vehicleAppInstance1 = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, //
+				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "0000-0000-0000", "EV1",
+						JsonUtils.buildJsonObject().build()));
+		var vehicleAppInstance2 = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, //
+				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "0000-0000-0000", "EV2",
+						JsonUtils.buildJsonObject().build()));
+
+		var kebaInstance = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new Request(this.kebaApp.getAppId(), null, "testApp", JsonUtils.buildJsonObject()//
+						.addProperty("ARCHITECTURE_TYPE", "EVSE") //
+						.addProperty("HARDWARE_TYPE", "P40") //
+						.addProperty("IP", "192.168.25.11") //
+						.addProperty("PHASE_ROTATION", "L1_L2_L3") //
+						.addProperty("ELECTRIC_VEHICLE_ID", vehicleAppInstance1.instance().instanceId.toString())
+						.addProperty("MODBUS_UNIT_ID", 255) //
+						.addProperty("READ_ONLY", false) //
+						.build()));
+
+		this.amtb.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+				new UpdateAppInstance.Request(kebaInstance.instance().instanceId, "testApp", JsonUtils.buildJsonObject()//
+						.addProperty("ARCHITECTURE_TYPE", "EVSE") //
+						.addProperty("HARDWARE_TYPE", "P40") //
+						.addProperty("IP", "192.168.25.11") //
+						.addProperty("PHASE_ROTATION", "L1_L2_L3") //
+						.addProperty("ELECTRIC_VEHICLE_ID", vehicleAppInstance2.instance().instanceId.toString())
+						.addProperty("MODBUS_UNIT_ID", 255) //
+						.addProperty("READ_ONLY", false) //
+						.build()));
+
+		var updatedKeba = this.amtb.sut.getInstantiatedApps().stream()//
+				.filter(i -> i.appId.equals(this.kebaApp.getAppId()))//
+				.findFirst()//
+				.orElseThrow();
+		assertEquals(vehicleAppInstance2.instance().instanceId.toString(),
+				updatedKeba.properties.get("ELECTRIC_VEHICLE_ID").getAsString());
+
+		assertThrows(OpenemsNamedException.class,
+				() -> this.amtb.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
+						new DeleteAppInstance.Request(vehicleAppInstance2.instance().instanceId)),
+				"Expected the newly referenced vehicle to stay protected by the EVSE dependency.");
+
+		assertTrue(updatedKeba.dependencies.stream()
+				.anyMatch(d -> d.instanceId.equals(vehicleAppInstance2.instance().instanceId)));
 	}
 
 	@Test
