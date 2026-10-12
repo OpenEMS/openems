@@ -1,3 +1,4 @@
+import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
@@ -288,6 +289,7 @@ export interface Environment {
         };
     };
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null;
+    readonly ENVIRONMENT_PROVIDERS: EnvironmentProviders[];
 }
 
 /*
