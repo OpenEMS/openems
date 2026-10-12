@@ -5,11 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
     ${buildpath},\
-    com.squareup.okhttp3,\
-    com.squareup.okio,\
     com.google.code.gson:gson;version='2.14.0',\
     com.google.guava,\
     io.openems.common,\
+    io.openems.common.bridge.http,\
     io.openems.edge.common,\
     io.openems.edge.timeofusetariff.api,
 
