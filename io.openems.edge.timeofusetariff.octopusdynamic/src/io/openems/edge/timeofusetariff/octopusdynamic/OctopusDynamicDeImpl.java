@@ -235,6 +235,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			}
 			stage = "price-validation";
 			this.prices.set(parsePrices(forecast));
+			this._setForecastValidUntil(this.prices.get().getLastTime().plusSeconds(900).getEpochSecond());
 			this.lastSuccessfulUpdate = Instant.now();
 			this._setLastSuccessfulUpdate(this.lastSuccessfulUpdate.getEpochSecond());
 			
