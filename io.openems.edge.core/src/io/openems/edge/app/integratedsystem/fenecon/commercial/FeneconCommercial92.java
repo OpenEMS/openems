@@ -191,10 +191,10 @@ public class FeneconCommercial92
 			if (isOldGridMeterAppUsedByCommercialApp(this.appManagerUtil, this.getAppId())) {
 				dependencies.add(//
 						FeneconCommercialComponents.gridMeterWithOldDependency(bundle, gridMeterId,
-								modbusToGridMeterId));
+								modbusToGridMeterId, t));
 			} else {
 				dependencies.add(//
-						FeneconCommercialComponents.gridMeter(bundle));
+						FeneconCommercialComponents.gridMeter(bundle, t));
 			}
 
 			if (hasEssLimiter14a) {

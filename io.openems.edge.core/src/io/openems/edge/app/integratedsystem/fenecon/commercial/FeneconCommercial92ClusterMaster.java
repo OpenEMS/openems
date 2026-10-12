@@ -225,10 +225,10 @@ public class FeneconCommercial92ClusterMaster
 			if (isOldGridMeterAppUsedByCommercialApp(this.appManagerUtil, this.getAppId())) {
 				dependencies.add(//
 						FeneconCommercialComponents.gridMeterWithOldDependency(bundle, gridMeterId,
-								modbusToGridMeterAndExternalId));
+								modbusToGridMeterAndExternalId, t));
 			} else {
 				dependencies.add(//
-						FeneconCommercialComponents.gridMeter(bundle));
+						FeneconCommercialComponents.gridMeter(bundle, t));
 			}
 
 			if (hasEssLimiter14a) {
