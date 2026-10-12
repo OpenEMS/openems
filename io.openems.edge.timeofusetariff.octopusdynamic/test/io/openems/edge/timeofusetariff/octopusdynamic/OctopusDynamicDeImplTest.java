@@ -71,6 +71,48 @@ public class OctopusDynamicDeImplTest {
 		assertEquals(4, provider.requests);
 	}
 
+	@Test
+	public void diagnosticChannelsResetAfterSuccessfulRetry() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.failWithHttpStatus(429);
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, provider.rateLimited);
+		assertEquals(true, provider.nextRetry > 0);
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(false, provider.rateLimited);
+		assertEquals(false, provider.authenticationFailed);
+		assertEquals(false, provider.serverError);
+		assertEquals(false, provider.connectionFailed);
+		assertEquals(java.time.Instant.parse("2099-01-01T12:15:00Z").getEpochSecond(),
+				provider.forecastValidUntil);
+	}
+
+	@Test
+	public void diagnosticChannelsDistinguishAuthAndServerFailures() {
+		var auth = new StubProvider();
+		auth.failWithHttpStatus(401);
+		assertEquals(false, auth.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, auth.authenticationFailed);
+		assertEquals(false, auth.serverError);
+
+		var server = new StubProvider();
+		server.failWithHttpStatus(503);
+		assertEquals(false, server.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, server.serverError);
+		assertEquals(false, server.authenticationFailed);
+	}
+
+	@Test
+	public void retryAfterAndBackoffBoundaryCases() {
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter(null));
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter("-10"));
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(429, 1, 7200) >= 7200);
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(503, 10, 0) <= 2520);
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(401, 1, 0) >= 43200);
+	}
+
 	private static String forecast(String slots) {
 		return """
 				{"account":{"properties":[{"electricityMalos":[{"agreements":[{
@@ -96,6 +138,25 @@ public class OctopusDynamicDeImplTest {
 		private final Queue<Object> responses = new ArrayDeque<>();
 		private int requests;
 		private String suppliedToken;
+		private boolean authenticationFailed;
+		private boolean rateLimited;
+		private boolean connectionFailed;
+		private boolean serverError;
+		private long forecastValidUntil;
+		private long nextRetry;
+
+		@Override
+		public void _setStatusAuthenticationFailed(boolean value) { this.authenticationFailed = value; }
+		@Override
+		public void _setStatusRateLimited(boolean value) { this.rateLimited = value; }
+		@Override
+		public void _setStatusConnectionFailed(boolean value) { this.connectionFailed = value; }
+		@Override
+		public void _setStatusServerError(boolean value) { this.serverError = value; }
+		@Override
+		public void _setForecastValidUntil(long value) { this.forecastValidUntil = value; }
+		@Override
+		public void _setNextRetry(long value) { this.nextRetry = value; }
 
 		void respond(String json) {
 			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
