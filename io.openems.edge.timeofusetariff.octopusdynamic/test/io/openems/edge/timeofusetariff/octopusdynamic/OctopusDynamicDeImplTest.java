@@ -141,13 +141,23 @@ public class OctopusDynamicDeImplTest {
 	}
 
 	@Test
+	public void cachesTokenBetweenSuccessfulForecastRequests() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(3, provider.requests);
+	}
+
+	@Test
 	public void rejectsUnknownAccountWithoutOverwritingValidPrices() {
 		var provider = new StubProvider();
 		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
 		provider.respond(validFutureForecast());
 		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 
-		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
 		provider.respond("{\"account\":null}");
 
 		assertEquals(false, provider.refresh("A-UNKNOWN", "octopus@example.test", "test-password"));
