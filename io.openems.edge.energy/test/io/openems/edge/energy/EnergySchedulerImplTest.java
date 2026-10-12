@@ -13,7 +13,6 @@ import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.LogVerbosity.TRACE;
-import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
@@ -102,7 +101,6 @@ public class EnergySchedulerImplTest {
 										.build()))) //
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("timeOfUseTariff", timeOfUseTariff) //
 				.addReference("tariffManager", tariffManager) //
 				.addReference("scheduler", new DummyScheduler("scheduler0")) //
 				.addReference("addSchedulable", dummyEssEmergencyCapacityReserve("ctrlEmergencyCapacityReserve0", 20)) //
@@ -139,7 +137,6 @@ public class EnergySchedulerImplTest {
 						.setId("_energy") //
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
-						.setVersion(V2_ENERGY_SCHEDULABLE) //
 						.setEnvironment(PRODUCTION) //
 						.build()) //
 				.next(new TestCase());

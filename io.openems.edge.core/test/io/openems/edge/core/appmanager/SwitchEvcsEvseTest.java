@@ -6,17 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -426,15 +423,6 @@ public class SwitchEvcsEvseTest {
 
 		var response = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
 
-		// Assert update version of EnergyScheduler
-		var captor = ArgumentCaptor.forClass(UpdateComponentConfig.Request.class);
-		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
-		var capturedRequest = captor.getValue();
-		boolean hasV1Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.name().equals("version")
-						&& p.value().getAsString().equals(io.openems.edge.energy.api.Version.V1_ESS_ONLY.name()));
-		assertTrue(hasV1Version);
-
 		assertEquals(2, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Keba")).toList().size());
 		assertEquals(1, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 	}
@@ -466,15 +454,6 @@ public class SwitchEvcsEvseTest {
 		assertTrue(responseCanHandle.canSwitch());
 
 		var response = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
-
-		// Assert update version of EnergyScheduler
-		var captor = ArgumentCaptor.forClass(UpdateComponentConfig.Request.class);
-		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
-		var capturedRequest = captor.getValue();
-		boolean hasV2Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.name().equals("version") && p.value().getAsString()
-						.equals(io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE.name()));
-		assertTrue(hasV2Version);
 
 		assertEquals(2, response.apps().stream().filter(t -> t.appId.equals("App.Evse.ElectricVehicle.Generic"))
 				.toList().size());

@@ -307,6 +307,8 @@ export class EdgeAppValidationCheckCountryError extends Error {
 /**
  * Reported when the validation failed because the App requires "Energy Scheduler V2"
  * to be present (see OpenemsError.EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2).
+ *
+ * @deprecated Not existing on Edge after 2026.11.0.
  */
 export class EdgeAppValidationCheckEnergySchedulerV2Error extends Error {
     public static readonly id: number = 2130;
@@ -316,6 +318,8 @@ export class EdgeAppValidationCheckEnergySchedulerV2Error extends Error {
  * Reported when the validation failed because the App requires that
  * "Energy Scheduler V2" is not present (inverted check)
  * (see OpenemsError.EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2_INVERTED).
+ *
+ * @deprecated Not existing on Edge after 2026.11.0.
  */
 export class EdgeAppValidationCheckEnergySchedulerV2InvertedError extends Error {
     public static readonly id: number = 2131;

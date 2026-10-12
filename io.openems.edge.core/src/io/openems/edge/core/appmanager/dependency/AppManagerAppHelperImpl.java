@@ -61,7 +61,6 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggrega
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -87,8 +86,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
 		@Reference
 		private StaticIpAggregateTask staticIpAggregateTask;
-		@Reference
-		private EnergySchedulerVersionAggregateTask energySchedulerVersionAggregateTask;
 	}
 
 	@Reference
