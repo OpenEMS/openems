@@ -220,6 +220,7 @@
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.sungrow',\
 	bnd.identity;id='io.openems.edge.system.fenecon',\
+	bnd.identity;id='io.openems.edge.temperature.jumo',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
@@ -446,6 +447,7 @@
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.sungrow;version=snapshot,\
 	io.openems.edge.system.fenecon;version=snapshot,\
+	io.openems.edge.temperature.jumo;version=snapshot,\
 	io.openems.edge.tesla.powerwall2;version=snapshot,\
 	io.openems.edge.thermometer.api;version=snapshot,\
 	io.openems.edge.timedata.api;version=snapshot,\

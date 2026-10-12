@@ -1,0 +1,43 @@
+= Jumo HydroTrans S20
+
+Integrates the Jumo HydroTrans S20 transmitter for measuring humidity, temperature, and CO2 via Modbus.
+
+== Overview
+
+Provides integration with the Jumo HydroTrans S20 environmental sensor via Modbus RTU/TCP.
+It reads various climate parameters such as relative humidity, temperature, CO2 concentration, dew point, and related physical values.
+Typically used in building automation, environmental monitoring, and HVAC control systems.
+
+== Supported Devices
+
+.Jumo HydroTrans S20
+* **Type**: Environmental sensor / transmitter (Humidity, Temperature, CO2)
+* **Communication**: Modbus RTU/TCP
+* **Typical Use**: Indoor climate and environmental monitoring
+* **Documentation**: https://www.jumo.net[Jumo Official Website icon:external-link[]]
+
+== Components
+
+=== <<_jumo_hydro_trans_s20,Jumo Hydro Trans S20>>
+
+*Name*: Jumo Hydro Trans S20
+
+*Factory-PID*: `Jumo.Hydro.Trans.S20`
+
+.Implemented Natures/Interfaces
+* JumoHydroTransS20
+* OpenemsComponent
+* ModbusComponent
+
+*Description*: Implements the Jumo HydroTrans S20 sensor component to continuously read climate data and diagnostic error status over Modbus registers.
+
+.*Configuration*:
+* `id` (String): Unique ID of this Component (default: "temp0")
+* `alias` (String): Human-readable name of this Component (default: "")
+* `enabled` (Boolean): Enable/disable this Component (default: true)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device
+
+[[_jumo_hydro_trans_s20]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.temperature.jumo[Source Code icon:github[]]
