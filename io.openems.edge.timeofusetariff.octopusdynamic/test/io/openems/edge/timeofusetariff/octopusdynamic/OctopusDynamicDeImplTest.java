@@ -36,6 +36,41 @@ public class OctopusDynamicDeImplTest {
 		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter("invalid"));
 	}
 
+	@Test
+	public void reauthenticatesOnceAfterUnauthorizedForecast() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"first-token\"}}");
+		provider.failWithHttpStatus(401);
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"renewed-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(4, provider.requests);
+		assertEquals("renewed-token", provider.suppliedToken);
+	}
+
+	@Test
+	public void retainsPricesAfterRateLimit() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		provider.failWithHttpStatus(429);
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+	}
+
+	@Test
+	public void invalidatesCachedTokenOnPasswordChange() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"old-token\"}}");
+		provider.respond(validFutureForecast());
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"new-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "old-password"));
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "new-password"));
+		assertEquals(4, provider.requests);
+	}
+
 	private static String forecast(String slots) {
 		return """
 				{"account":{"properties":[{"electricityMalos":[{"agreements":[{
@@ -64,6 +99,10 @@ public class OctopusDynamicDeImplTest {
 
 		void respond(String json) {
 			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
+		}
+
+		void failWithHttpStatus(int status) {
+			this.responses.add(new OctopusDynamicDeImpl.HttpFailure(status, 0));
 		}
 
 		void failWithIoException() {
