@@ -18,6 +18,7 @@ public interface OctopusDynamicStatus extends OpenemsComponent {
         STATUS_CONNECTION_FAILED(Doc.of(Level.WARNING)),
         STATUS_SERVER_ERROR(Doc.of(Level.WARNING)),
         LAST_SUCCESSFUL_UPDATE(Doc.of(OpenemsType.LONG)),
+        FORECAST_VALID_UNTIL(Doc.of(OpenemsType.LONG)),
         NEXT_RETRY(Doc.of(OpenemsType.LONG));
 
         private final Doc doc;
@@ -54,6 +55,10 @@ public interface OctopusDynamicStatus extends OpenemsComponent {
 
     default void _setLastSuccessfulUpdate(long value) {
         this.channel(ChannelId.LAST_SUCCESSFUL_UPDATE).setNextValue(value);
+    }
+
+    default void _setForecastValidUntil(long value) {
+        this.channel(ChannelId.FORECAST_VALID_UNTIL).setNextValue(value);
     }
 
     default void _setNextRetry(long value) {
