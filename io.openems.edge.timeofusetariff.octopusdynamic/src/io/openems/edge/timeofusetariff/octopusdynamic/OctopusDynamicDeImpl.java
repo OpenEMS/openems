@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.time.Instant;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Executors;
@@ -16,6 +22,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +32,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 /**
  * Provides account-specific dynamic electricity tariffs from Octopus Energy
@@ -49,7 +54,7 @@ import okhttp3.RequestBody;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "TimeOfUseTariff.OctopusDynamicDE", //
+		name = "Tariff.Octopus.Dynamic.GridBuy", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -77,8 +82,9 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		}
 		""";
 
-	private final OkHttpClient client = new OkHttpClient.Builder()
-			.callTimeout(20, TimeUnit.SECONDS).build();
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+	private BridgeHttp httpBridge;
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
 		var t = new Thread(r, "octopus-dynamic-de");
 		t.setDaemon(true);
@@ -88,6 +94,14 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
 
 	private volatile long refreshMinutes = 30;
+	private volatile String cachedToken;
+	private volatile Instant tokenExpiry = Instant.EPOCH;
+	private volatile Instant nextAllowedRequest = Instant.EPOCH;
+	private volatile Instant lastSuccessfulUpdate = Instant.EPOCH;
+	private volatile int lastHttpStatus;
+	private volatile String lastErrorCategory = "";
+	private volatile int consecutiveFailures;
+	private final AtomicBoolean refreshInProgress = new AtomicBoolean();
 
 	private volatile String accountNumber;
 	private volatile String email;
@@ -107,6 +121,10 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		this.email = config.email();
 		this.password = config.password();
 		this.refreshMinutes = Math.max(15, config.refreshMinutes());
+		this.cachedToken = null;
+		this.tokenExpiry = Instant.EPOCH;
+		this.nextAllowedRequest = Instant.EPOCH;
+		this.httpBridge = this.httpBridgeFactory.get();
 		this.executor.execute(this::refreshAndSchedule);
 	}
 
@@ -114,6 +132,8 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.executor.shutdownNow();
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 	}
 
 	@Override
@@ -121,13 +141,21 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		return TimeOfUsePrices.from(Instant.now(), this.prices.get());
 	}
 
+
 	void refreshAndSchedule() {
-		boolean successful = false;
+		if (!this.refreshInProgress.compareAndSet(false, true)) {
+			return;
+		}
 		try {
-			successful = this.refresh(this.accountNumber, this.email, this.password);
+			if (!Instant.now().isBefore(this.nextAllowedRequest)) {
+				this.refresh(this.accountNumber, this.email, this.password);
+			}
 		} finally {
+			this.refreshInProgress.set(false);
 			if (!this.executor.isShutdown()) {
-				this.scheduleNextRefresh(nextRefreshDelayMinutes(successful, this.refreshMinutes));
+				this.executor.schedule(this::refreshAndSchedule,
+						Math.max(1, Duration.between(Instant.now(), this.nextAllowedRequest).toSeconds()),
+						TimeUnit.SECONDS);
 			}
 		}
 	}
@@ -140,6 +168,34 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		return successful ? Math.max(15, refreshMinutes) : 5;
 	}
 
+	static long retryDelaySeconds(int status, int failures, long retryAfterSeconds) {
+		long jitter = ThreadLocalRandom.current().nextLong(121);
+		if (status == 429) {
+			return retryAfterSeconds > 0 ? Math.max(retryAfterSeconds, Math.min(86400, retryAfterSeconds + jitter))
+					: Math.min(43200, 300L * (1L << Math.min(7, Math.max(0, failures - 1)))) + jitter;
+		}
+		if (status == 400 || status == 401 || status == 403) {
+			return 43200;
+		}
+		return Math.min(2400, 300L * (1L << Math.min(3, Math.max(0, failures - 1)))) + jitter;
+	}
+
+	static long parseRetryAfter(String value) {
+		if (value == null || value.isBlank()) {
+			return 0;
+		}
+		try {
+			return Math.max(0, Long.parseLong(value.trim()));
+		} catch (NumberFormatException ignored) {
+			try {
+				return Math.max(0, Duration.between(Instant.now(),
+						ZonedDateTime.parse(value.trim(), DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()).toSeconds());
+			} catch (RuntimeException invalid) {
+				return 0;
+			}
+		}
+	}
+
 	boolean refresh(String accountNumber, String email, String password) {
 		String stage = "configuration";
 		try {
@@ -147,35 +203,75 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 					|| email.isBlank() || password.isBlank() || accountNumber.isBlank()) {
 				throw new IOException("CONFIGURATION_INCOMPLETE");
 			}
-			var variables = new JsonObject();
-			variables.addProperty("email", email);
-			variables.addProperty("password", password);
-			stage = "authentication";
-			var auth = this.post(TOKEN_MUTATION, variables, null);
-			var authResult = auth.getAsJsonObject("obtainKrakenToken");
-			if (authResult == null || !authResult.has("token") || authResult.get("token").isJsonNull()) {
-				throw new IOException("AUTH_TOKEN_MISSING");
-			}
-			var token = authResult.get("token").getAsString();
-			if (token.isBlank()) {
-				throw new IOException("AUTH_TOKEN_EMPTY");
+			String token = this.cachedToken;
+			if (token == null || !Instant.now().isBefore(this.tokenExpiry)) {
+				stage = "authentication";
+				token = this.authenticate(email, password);
 			}
 			var account = new JsonObject();
 			account.addProperty("accountNumber", accountNumber);
 			stage = "forecast";
-			var forecast = this.post(PRICE_QUERY, account, token);
+			JsonObject forecast;
+			try {
+				forecast = this.post(PRICE_QUERY, account, token);
+			} catch (HttpFailure ex) {
+				if (ex.status != 401) {
+					throw ex;
+				}
+				this.cachedToken = null;
+				this.tokenExpiry = Instant.EPOCH;
+				stage = "authentication";
+				token = this.authenticate(email, password);
+				stage = "forecast";
+				forecast = this.post(PRICE_QUERY, account, token);
+			}
 			stage = "price-validation";
 			this.prices.set(parsePrices(forecast));
+			this.lastSuccessfulUpdate = Instant.now();
+			this.lastErrorCategory = "";
+			this.consecutiveFailures = 0;
+			this.nextAllowedRequest = Instant.now().plusSeconds(this.refreshMinutes * 60
+					+ ThreadLocalRandom.current().nextLong(121));
 			return true;
 		} catch (Exception ex) {
 			String reason = categorizeFailure(stage, ex);
-			this.log.warn("Octopus Dynamic DE refresh failed at stage [{}], category [{}]: {}. "
-					+ "Previously valid prices retained; retry scheduled in 5 minutes.",
-					stage, reason, describeFailure(reason));
+			this.lastErrorCategory = reason;
+			this.consecutiveFailures++;
+			int status = ex instanceof HttpFailure http ? http.status : 0;
+			long retryAfter = ex instanceof HttpFailure http ? http.retryAfterSeconds : 0;
+			long delay = retryDelaySeconds(status, this.consecutiveFailures, retryAfter);
+			this.nextAllowedRequest = Instant.now().plusSeconds(delay);
+			this.log.warn("Octopus refresh failed at stage [{}], category [{}]: {}. Retry in {} seconds; previous prices retained.",
+					stage, reason, describeFailure(reason), delay);
 			return false;
 		}
 	}
 
+	private String authenticate(String email, String password) throws IOException {
+		var variables = new JsonObject();
+		variables.addProperty("email", email);
+		variables.addProperty("password", password);
+		var auth = this.post(TOKEN_MUTATION, variables, null);
+		var authResult = auth.getAsJsonObject("obtainKrakenToken");
+		if (authResult == null || !authResult.has("token") || authResult.get("token").isJsonNull()
+				|| authResult.get("token").getAsString().isBlank()) {
+			throw new IOException("AUTH_TOKEN_MISSING");
+		}
+		this.cachedToken = authResult.get("token").getAsString();
+		this.tokenExpiry = Instant.now().plusSeconds(3540);
+		return this.cachedToken;
+	}
+
+	static class HttpFailure extends IOException {
+		private static final long serialVersionUID = 1L;
+		final int status;
+		final long retryAfterSeconds;
+		HttpFailure(int status, long retryAfterSeconds) {
+			super("HTTP_STATUS_" + status);
+			this.status = status;
+			this.retryAfterSeconds = retryAfterSeconds;
+		}
+	}
 
 	/**
 	 * Classifies provider failures without disclosing account credentials or
@@ -241,34 +337,48 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		};
 	}
 
+
 	JsonObject post(String query, JsonObject variables, String token) throws IOException {
 		var json = new JsonObject();
 		json.addProperty("query", query);
 		json.add("variables", variables);
-		var builder = new Request.Builder().url(API_URL)
-				.post(RequestBody.create(json.toString(),
-						MediaType.parse("application/json; charset=utf-8")));
+		var builder = BridgeHttp.create(API_URL).setBodyJson(json)
+				.setConnectTimeout(10000).setReadTimeout(20000);
 		if (token != null) {
-			builder.header("Authorization", token);
+			builder.setHeader("Authorization", token);
 		}
-		try (var response = this.client.newCall(builder.build()).execute()) {
-			if (!response.isSuccessful() || response.body() == null) {
-				throw new IOException("HTTP_STATUS_" + response.code());
+		JsonObject payload;
+		try {
+			var response = this.httpBridge.request(builder.build()).get(25, TimeUnit.SECONDS);
+			this.lastHttpStatus = response.status().code();
+			if (response.status().code() < 200 || response.status().code() >= 300) {
+				var retryAfter = response.header().entrySet().stream()
+						.filter(e -> e.getKey().equalsIgnoreCase("Retry-After"))
+						.filter(e -> e.getValue() != null)
+						.flatMap(e -> e.getValue().stream()).findFirst().orElse(null);
+				throw new HttpFailure(response.status().code(), parseRetryAfter(retryAfter));
 			}
-			JsonObject payload;
-			try {
-				payload = JsonParser.parseString(response.body().string()).getAsJsonObject();
-			} catch (RuntimeException ex) {
+			if (response.data() == null) {
 				throw new IOException("RESPONSE_NOT_JSON");
 			}
-			if (payload.has("errors") && payload.getAsJsonArray("errors").size() > 0) {
-				throw new IOException("GRAPHQL_ERRORS");
+			try {
+				payload = JsonParser.parseString(response.data()).getAsJsonObject();
+			} catch (RuntimeException ex) {
+				throw new IOException("RESPONSE_NOT_JSON", ex);
 			}
-			if (!payload.has("data") || payload.get("data").isJsonNull()) {
-				throw new IOException("GRAPHQL_DATA_MISSING");
-			}
-			return payload.getAsJsonObject("data");
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			throw new IOException("REQUEST_INTERRUPTED", ex);
+		} catch (ExecutionException | java.util.concurrent.TimeoutException ex) {
+			throw new IOException("REQUEST_FAILED", ex);
 		}
+		if (payload.has("errors") && payload.getAsJsonArray("errors").size() > 0) {
+			throw new IOException("GRAPHQL_ERRORS");
+		}
+		if (!payload.has("data") || payload.get("data").isJsonNull()) {
+			throw new IOException("GRAPHQL_DATA_MISSING");
+		}
+		return payload.getAsJsonObject("data");
 	}
 
 	private static JsonArray array(JsonObject obj, String key) {
