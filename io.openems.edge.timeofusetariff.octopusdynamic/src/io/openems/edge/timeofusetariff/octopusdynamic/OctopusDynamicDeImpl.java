@@ -96,6 +96,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 	private volatile long refreshMinutes = 30;
 	private volatile String cachedToken;
 	private volatile String tokenIdentity;
+	private volatile String tokenPassword;
 	private volatile Instant tokenExpiry = Instant.EPOCH;
 	private volatile Instant nextAllowedRequest = Instant.EPOCH;
 	private volatile Instant lastSuccessfulUpdate = Instant.EPOCH;
@@ -124,6 +125,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		this.refreshMinutes = Math.max(15, config.refreshMinutes());
 		this.cachedToken = null;
 		this.tokenIdentity = null;
+		this.tokenPassword = null;
 		this.tokenExpiry = Instant.EPOCH;
 		this.nextAllowedRequest = Instant.EPOCH;
 		this.httpBridge = this.httpBridgeFactory.get();
@@ -208,7 +210,8 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 				throw new IOException("CONFIGURATION_INCOMPLETE");
 			}
 			String token = this.cachedToken;
-			if (!email.equals(this.tokenIdentity) || token == null || !Instant.now().isBefore(this.tokenExpiry)) {
+			if (!email.equals(this.tokenIdentity) || !password.equals(this.tokenPassword)
+					|| token == null || !Instant.now().isBefore(this.tokenExpiry)) {
 				this.cachedToken = null;
 				stage = "authentication";
 				token = this.authenticate(email, password);
@@ -234,7 +237,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			this.prices.set(parsePrices(forecast));
 			this.lastSuccessfulUpdate = Instant.now();
 			this._setLastSuccessfulUpdate(this.lastSuccessfulUpdate.getEpochSecond());
-			this._setNextRetry(this.lastSuccessfulUpdate.plusSeconds(this.refreshMinutes * 60).getEpochSecond());
+			
 			this._setStatusAuthenticationFailed(false);
 			this._setStatusRateLimited(false);
 			this._setStatusConnectionFailed(false);
@@ -243,6 +246,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 			this.consecutiveFailures = 0;
 			this.nextAllowedRequest = Instant.now().plusSeconds(this.refreshMinutes * 60
 					+ ThreadLocalRandom.current().nextLong(121));
+			this._setNextRetry(this.nextAllowedRequest.getEpochSecond());
 			return true;
 		} catch (Exception ex) {
 			String reason = categorizeFailure(stage, ex);
@@ -275,6 +279,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		}
 		this.cachedToken = authResult.get("token").getAsString();
 		this.tokenIdentity = email;
+		this.tokenPassword = password;
 		this.tokenExpiry = Instant.now().plusSeconds(3540);
 		return this.cachedToken;
 	}
