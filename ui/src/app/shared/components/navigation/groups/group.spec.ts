@@ -30,6 +30,8 @@ describe("ControllerGroupListComponent", () => {
         service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "currentEdge"], {
             currentEdge: signal(DummyConfig.dummyEdge({})),
         });
+        // DataService awaits this in its constructor
+        service.getCurrentEdge.and.returnValue(Promise.resolve(DummyConfig.dummyEdge({})));
 
         router = jasmine.createSpyObj<Router>("Router", ["navigate"]);
 

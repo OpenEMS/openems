@@ -279,6 +279,7 @@
                 },
                 "ENERIX_CONTROL": {
                     "CHARGE_CONSUMPTION": "<b>ATTENTION:</b> Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/><b>Be aware:</b> Precondition for the German Renewable Energy Sources Act (EEG 2023) grant is that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function the battery is charged with energy from the grid. This energy is, depending on the individual power-supply contract, probably generated from fossil and/or nuclear power sources. Thus we cannot guarantee that the battery is exclusively charged with energy gained from renewable sources and/or pit gas.",
+                    "CHARGE_FROM_GRID": "Charge from grid",
                     "CONNECTED": "Connected",
                     "DISCONNECTED": "Disconnected",
                     "NO_DISCHARGE": "No discharge",
@@ -307,7 +308,6 @@
                     "CABLE_NOT_CONNECTED": "Cable is not connected",
                     "CAR_FULL": "Car is full",
                     "CHARGE_LIMIT_REACHED": "Charge limit reached",
-                    "CHARGE_MODE": "Charge Mode",
                     "CHARGE_TARGET": "Charge target",
                     "CHARGING": "Is charging",
                     "CHARGING_LIMIT": "Charging limit",
@@ -699,13 +699,12 @@
         "DISCHARGE": "Discharge",
         "EDIT": "Edit",
         "ENERGY_LIMIT": "Energy limit",
-        "FAILED": "failed",
         "FAULT": "Fault",
         "FOR": "for",
         "FORECAST": "Forecast",
         "FORMLY": {
             "INITIALIZING_ERROR": "Error initializing component",
-            "LINK_TO_DOCS": "link to docs",
+            "LINK_TO_DOCS": "Link to docs",
             "REQUIRED": "Is required"
         },
         "FROM": "From",
@@ -783,6 +782,9 @@
         },
         "STATUS": "Status",
         "STORAGE_SYSTEM": "Storage System",
+        "SUFFIX": {
+            "HOUR": ""
+        },
         "SUM_STATE": "System state",
         "SYSTEM": "system",
         "SYSTEM_OUTAGE": "Due to maintenance work the online monitoring is temporarily unavailable. Please try again later. For more information see",
@@ -818,7 +820,6 @@
             "TUESDAY": "Tuesday",
             "WEDNESDAY": "Wednesday"
         },
-        "WILL_BE_EXECUTED": "will be executed",
         "YES": "Yes",
         "NAVIGATION_INFO": "We are currently redesigning our monitoring and app, optimizing their navigation and functionality.",
         "NAVIGATION_DETAILS": "This Help-Chip provides you with assistance. Read more about changes, get explanations and info, including the extended functionalities of your KEBA P40 charging station.",
@@ -882,7 +883,6 @@
         "DEMO_ACCESS": "Demo Access",
         "ENERGY_JOURNEY_SLOGAN": "You are part of the energy journey",
         "PASSWORD_LABEL": "Password",
-        "PASSWORD_PLACEHOLDER": "Password",
         "PASSWORD_RESET": "Reset Password",
         "PREAMBLE": "Please enter your password or submit the default value to login as a guest.",
         "REQUEST_TIMEOUT": "Your request has timed out. Please try again later.",
@@ -918,7 +918,8 @@
         "SYSTEMS": "Systems",
         "SETTINGS": "Settings",
         "USER": "User",
-        "PROFILE": "Profile"
+        "PROFILE": "Profile",
+        "SCHEDULE": "Schedule"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Active power limitations",
@@ -934,7 +935,6 @@
         "NOT_OVERRIDING": "No external commands present",
         "OVERRIDING": "External command is being considered",
         "REGISTER": "Register",
-        "ERROR": "Error",
         "SET_ACTIVE_POWER_EQUALS": "Active Power setpoint",
         "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Maximum charging power setpoint",
         "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum discharge power setpoint",

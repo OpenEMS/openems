@@ -159,6 +159,9 @@
           "RELATION_ERROR": "La limite de charge doit être supérieure à la limite de décharge",
           "SELL_TO_GRID_POWER_LIMIT": "Charge ci-dessus"
         },
+        "ENERIX_CONTROL": {
+          "CHARGE_FROM_GRID": "Charge depuis le réseau"
+        },
         "EVCS": {
           "ACTIVATE_CHARGING": "Activer la sation de recharge",
           "AMOUNT_OF_CHARGING_STATIONS": "Quantité de stations de rehcarge",
@@ -166,7 +169,6 @@
           "CABLE_NOT_CONNECTED": "Le câble n'est pas connecté",
           "CAR_FULL": "CLa voiture est remplie",
           "CHARGE_LIMIT_REACHED": "Limite de charge atteinte",
-          "CHARGE_MODE": "Charge Mode",
           "CHARGE_TARGET": "Charge target",
           "CHARGING": "En charge",
           "CHARGING_LIMIT": "Limite de recharge",
@@ -238,6 +240,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "L'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l'alimentation maximale autorisée du réseau afin d'éviter une réduction prématurée de la production.",
             "PRIORITY_DESCRIPTION": "La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie."
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Remarque : La charge optimisée pour le réseau est désormais intégrée dans l'application « Tarif dynamique d'électricité ». Les paramètres configurés ici restent effectifs.",
           "LOW": "Faible",
           "MAXIMUM_CHARGE": "Charge maximale",
           "MAXIMUM_GRID_FEED_IN": "Alimentation réseau maximale autorisée",
@@ -280,6 +283,7 @@
           "BELOW_SOC": "et en charge de",
           "GRID_BUY": "De l achat du réseau de",
           "GRID_SELL": "Par excès d alimentatio de",
+          "HEAT_PUMP": "Pompe à chaleur",
           "LOCK": "Fermer à clé",
           "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
           "NORMAL_OPERATION": "Fonctionnement normal",
@@ -289,7 +293,16 @@
           "SWITCH_ON_COM_SHORT": "Commenade",
           "SWITCH_ON_REC": "Recommandation de mise en marche",
           "SWITCH_ON_REC_SHORT": "Recommandation",
-          "UNDEFINED": "Indéfinie"
+          "UNDEFINED": "Indéfinie",
+          "OPERATING_STATUS": "État de fonctionnement",
+          "AUTOMATIC_DESCRIPTION": "Définissez ici les seuils du mode excédent PV",
+          "BASE_MODE_DESCRIPTIONS": {
+            "SWITCH_ON_COM": "La pompe à chaleur s'allume lorsque l'injection d'excédent dépasse la valeur saisie et que l'état de charge du système de stockage est supérieur à la valeur saisie.",
+            "SWITCH_ON_REC": "Une fois activée, la pompe à chaleur augmente sa puissance et utilise plus intensivement l'énergie disponible pour la production de chaleur.",
+            "NORMAL_OPERATION": "La pompe à chaleur fonctionne à la demande dans la plage de puissance normale.",
+            "AUTOMATIC": "Selon les seuils définis pour l'achat réseau et l'injection, les différents modes sont commutés. (Les seuils peuvent être modifiés dans Paramètres)",
+            "LOCK": "Cet état de fonctionnement limite la consommation électrique de la pompe à chaleur, selon ses réglages, à 0 kW ou 4,2 kW."
+          }
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "Actif (Minimum runtime)",
@@ -353,7 +366,7 @@
     "NETWORK": {
       "ADD_IP": "Ajouter des adresses IP statiques",
       "ADVANCED_MODE": "Mode avancé",
-      "ERROR_READING_CONFIGURATION": "Erreur lors de la lecture de la configuration réseau actuelle:",
+      "ERROR_READING": "Erreur lors de la lecture de la configuration réseau actuelle:",
       "ERROR_UPDATING": "Erreur lors de la mise à jour",
       "IP_ADDRESS": "Adresse IP",
       "MANDATORY_FIELDS": "Merci de remplir les champs obligatoires",
@@ -377,6 +390,7 @@
     "AUTARCHY": "Autarcie",
     "AUTOMATIC": "Automatiquement",
     "BACK": "Retour",
+    "BASE_MODE": "Mode de base",
     "CANCEL": "cancel",
     "CAPACITY": "Capacité",
     "CHANGE_ACCEPTED": "Changement accepté",
@@ -393,11 +407,15 @@
     "DIGITAL_INPUTS": "Entrées numériques",
     "DISCHARGE": "Décharge",
     "FAULT": "Fault",
+    "FORMLY": {
+      "LINK_TO_DOCS": "Lien vers la documentation"
+    },
     "GRID": "Réseau",
     "GRID_BUY": "Acheté sur le réseau",
     "GRID_BUY_ADVANCED": "Achete",
     "GRID_SELL": "Vendu sur le réseau",
     "GRID_SELL_ADVANCED": "Vends",
+    "HEAT_PUMP": "Pompe à chaleur",
     "HISTORY": "Historique",
     "INACTIVE": "Désactivé",
     "INFO": "Info",
@@ -459,6 +477,7 @@
       "MINUTE": "Minute",
       "MINUTES": "Minutes"
     },
+    "TIME_SCHEDULE": "Programmation horaire",
     "TOTAL": "Total",
     "TOTAL_STATE": "Total state",
     "WARNING": "Warning",
@@ -483,6 +502,15 @@
     "TO_ENERGYMONITOR": "Vers le moniteur d'énergie...",
     "TYPE": "Type"
   },
+  "JS_SCHEDULE": {
+    "ADD_EVENT": "Ajouter un événement",
+    "ADD_TASK": "Ajouter une tâche",
+    "EDIT_EVENT": "Modifier l'événement",
+    "EDIT_TASK": "Modifier la tâche",
+    "NEXT_EVENTS": "Événements suivants",
+    "MANUAL_EVENTS": "Événements manuels",
+    "SMART_EVENTS": "Événements intelligents"
+  },
   "LOGIN": {
     "AUTHENTICATION_FAILED": "Échec de l'authentification",
     "PASSWORD_LABEL": "mot de passe",
@@ -503,6 +531,7 @@
     "OTHER_USER": "Autres utilisateurs",
     "OVERVIEW": "Tous les systèmes",
     "PROFILE": "Utilisateur",
+    "SCHEDULE": "Planning",
     "SETTINGS": "Réglages"
   },
   "NOTIFICATIONS": {

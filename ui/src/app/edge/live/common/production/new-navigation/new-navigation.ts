@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2, } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -34,7 +34,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         service: Service,
         user: User | null,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
         productionMeterComponents: EdgeConfig.Component[],
         chargerComponents: EdgeConfig.Component[],
     ): Promise<OeFormlyView> {

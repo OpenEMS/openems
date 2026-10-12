@@ -1,5 +1,4 @@
-import { Location } from "@angular/common";
-import { Directive, effect, inject, signal, untracked, WritableSignal } from "@angular/core";
+import { Directive, effect, inject, Injector, signal, untracked, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { GestureController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -32,15 +31,17 @@ export class NavigationService {
     private readonly platFormService = inject(PlatFormService);
     private isInitialized = signal<boolean>(false);
     private readonly gestureCtrl = inject(GestureController);
+    private readonly translateService: TranslateService;
+    private readonly injector = inject(Injector);
 
     constructor(
         private service: Service,
         private userService: UserService,
         private routeService: RouteService,
         private router: Router,
-        private location: Location,
         translate: TranslateService,
     ) {
+        this.translateService = translate;
         this.setGestures();
 
         effect(() => {
@@ -149,13 +150,7 @@ export class NavigationService {
                 return;
             }
 
-            const _node: NavigationTree | null = NavigationTree.of(structuredClone(node));
-
-            if (_node == null) {
-                return;
-            }
-
-            node.routerLink.baseString = buildAbsoluteLink(_node).routerLink.baseString;
+            node.routerLink.baseString = buildAbsoluteLink(node).routerLink.baseString;
 
             if (node.children) {
                 for (const child of node.children) {
@@ -177,29 +172,22 @@ export class NavigationService {
      * @param translate The translate service
      * @returns A navigationTree
      */
-    public static async createNavigationTree(
+    public static createNavigationTree(
         translate: TranslateService,
         edge: Edge,
         service: Service,
         user: User | null,
-        platFormService: PlatFormService,
-    ): Promise<NavigationTree | null> {
+    ): NavigationTree | null {
         if (edge == null || user == null) {
-            return Promise.resolve(null);
+            return null;
         }
 
-        let navigationTree: NavigationTree | null = await edge.createNavigationTree(
-            translate,
-            edge,
-            service,
-            user,
-            platFormService,
-        );
+        let navigationTree: NavigationTree | null = edge.createNavigationTree(translate, edge, service, user);
+
         navigationTree = navigationTree.setParentRecursively();
         navigationTree.reorderByShowOrder(navigationTree);
-        navigationTree = NavigationTree.of(
-            NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)),
-        );
+
+        navigationTree = NavigationTree.of(NavigationService.convertRelativeToAbsoluteLink(navigationTree));
 
         if (navigationTree == null) {
             return null;
@@ -303,14 +291,19 @@ export class NavigationService {
      * @param currentUrl The current url
      */
     public async updateNavigationNodes(currentUrl: string | null, edge: Edge, translate: TranslateService) {
-        const navigationTree = await NavigationService.createNavigationTree(
+        const navigationTree = NavigationService.createNavigationTree(
             translate,
             edge,
             this.service,
             untracked(() => this.userService.currentUser()),
-            this.platFormService,
         );
 
+        if (navigationTree == null) {
+            this.navigationTree.set(null);
+            return;
+        }
+
+        this.executeNavigationCallbacks(navigationTree);
         this.navigationTree.set(navigationTree);
         this.initNavigation(
             currentUrl,
@@ -347,7 +340,7 @@ export class NavigationService {
                 arr: newSegments,
             })
         ) {
-            const prevRoute = this.getPrevRoute(currentSegments, link.routerLink.baseString);
+            const prevRoute = this.routeService.getPrevRoute(currentSegments, link.routerLink.baseString);
             await this.router.navigate(prevRoute);
             return;
         }
@@ -432,13 +425,10 @@ export class NavigationService {
      * @param currentUrl The current url
      * @returns A navigation tree if currentUrl segments are found in nodes
      */
-    public findActiveNavigationTreeNode(
-        nodes: NavigationTree | null,
-        currentUrl: string | null,
-    ): NavigationTree | null {
+    public findActiveNavigationTreeNode(node: NavigationTree | null, currentUrl: string | null): NavigationTree | null {
         const cleanedCurrentUrl = currentUrl?.split("?")?.[0] ?? null;
 
-        const _nodes = NavigationTree.of(structuredClone(nodes));
+        const _nodes = NavigationTree.of(node);
         const flattenedNavigationTree: NavigationTree | null = _nodes;
         const currentNavigationNode = NavigationService.getNavigationIds(
             flattenedNavigationTree as NavigationTree,
@@ -449,6 +439,35 @@ export class NavigationService {
             return null;
         }
         return currentNavigationNode;
+    }
+
+    private notifyNavigationTreeChanged(): void {
+        this.navigationTree.update((currentTree) => (currentTree == null ? null : NavigationTree.of(currentTree)));
+    }
+
+    private executeNavigationCallbacks(tree: NavigationTree): void {
+        this.executeCallbacksInSubtree(tree);
+    }
+
+    /**
+     * Executes callbacks for the given node and all of its descendants. Refreshes the navigation tree when an
+     * asynchronous callback resolves.
+     *
+     * @param node The root node of the subtree to process.
+     */
+    private executeCallbacksInSubtree(node: NavigationTree | null): void {
+        if (node == null) {
+            return;
+        }
+
+        const callbackResult = node.callback?.(this.injector);
+        if (callbackResult != null) {
+            callbackResult.then(() => this.notifyNavigationTreeChanged());
+        }
+
+        for (const child of node.children ?? []) {
+            this.executeCallbacksInSubtree(child);
+        }
     }
 
     /**
@@ -493,22 +512,6 @@ export class NavigationService {
         } else {
             this.position.set("disabled");
         }
-    }
-
-    /**
-     * Gets the previous route/navigation from a given key by splitting array at key.
-     *
-     * @param arr The array
-     * @param key The key to find
-     * @returns The shortened array, split by given key
-     */
-    private getPrevRoute(arr: string[], key: string): string[] {
-        const keySegments = key.split("/");
-        const startIndex: number | null = arr.findIndex((el) => el == key.split("/")[0]) ?? null;
-        if (startIndex == null) {
-            return arr;
-        }
-        return arr.slice(0, startIndex + keySegments.length);
     }
 
     /** Sets the gestures for the navigation service. */

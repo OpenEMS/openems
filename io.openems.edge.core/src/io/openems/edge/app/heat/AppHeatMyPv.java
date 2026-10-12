@@ -43,7 +43,6 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.energy.api.Version;
 
 /**
  * Describes an App for a writable my-PV heating element.
@@ -181,7 +180,6 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.build();
 		};
 	}

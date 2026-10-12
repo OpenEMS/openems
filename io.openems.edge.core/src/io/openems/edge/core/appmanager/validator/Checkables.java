@@ -204,16 +204,6 @@ public final class Checkables {
 						.build());
 	}
 
-	/**
-	 * Creates a {@link CheckableConfig} which checks if the system uses Energy
-	 * Scheduler V2.
-	 *
-	 * @return the {@link CheckableConfig}
-	 */
-	public static CheckableConfig checkEnergySchedulerV2() {
-		return empty(CheckEnergySchedulerV2.COMPONENT_NAME);
-	}
-
 	private static CheckableConfig empty(String checkableName) {
 		return new CheckableConfig(checkableName, Collections.emptyMap());
 	}

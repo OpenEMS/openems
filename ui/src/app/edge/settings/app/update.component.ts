@@ -379,8 +379,15 @@ export class UpdateAppComponent implements OnInit {
                     state: { appInstanceChange: true },
                     relativeTo: this.route,
                 };
+                const appId = this.routeService.getQueryParam<string>("appId");
 
-                this.router.navigate(["../"], navigationExtras);
+                this.router.navigate(["../"], {
+                    ...navigationExtras,
+                    queryParams: {
+                        name: this.appName,
+                        appId: appId,
+                    },
+                });
             })
             .catch(
                 InstallAppComponent.errorToast(this.service, (error) =>

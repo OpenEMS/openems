@@ -1,4 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
+import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
@@ -23,12 +24,11 @@ export namespace SharedFavorite {
         }
         // Convert to absolute links for comparison with favorites
 
+        const predefinedNodes = SharedFavorite.getPredefinedNodes(translate, edge?.getConfigSignal()(), edge);
+
         const favorites: string[] = [
             ...(edge?.getFavoritesFromSettings()?.includes ?? []),
-            ...(ArrayUtils.removeMatching(
-                SharedFavorite.getPredefinedNodes(translate, edge?.getConfigSignal()(), edge),
-                edge?.getFavoritesFromSettings()?.excludes ?? [],
-            ) ?? []),
+            ...(ArrayUtils.removeMatching(predefinedNodes, edge?.getFavoritesFromSettings()?.excludes ?? []) ?? []),
         ];
 
         // Build absolute links
@@ -53,12 +53,15 @@ export namespace SharedFavorite {
         const absoluteFavoriteNodes = Array.from(favoriteNodes).map((node) => {
             node.parent = absoluteNavigationTrees.find((tree) => tree.id === NavigationId.FAVORITES) ?? null;
             node = node.setParentRecursively();
-            node.routerLink.baseString = StringUtils.replaceSegmentOrElse(
-                node.routerLink.baseString,
-                2,
-                NavigationId.FAVORITES,
-                node.routerLink.baseString,
-            );
+            node.routerLink = {
+                ...node.routerLink,
+                baseString: StringUtils.replaceSegmentOrElse(
+                    node.routerLink.baseString,
+                    2,
+                    NavigationId.FAVORITES,
+                    node.routerLink.baseString,
+                ),
+            };
 
             if (node == null) {
                 throw new Error("Route not found in navigation tree");
@@ -71,8 +74,11 @@ export namespace SharedFavorite {
     }
 
     export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig, edge: Edge): string[] {
+        const consumptionChildren = SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate);
+
         return [
-            ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate)
+            EnergyJourneyShared.historyNavigationTree(translate).id,
+            ...consumptionChildren
                 .filter((el) => StringUtils.isNotInArr(el.id, edge?.getFavoritesFromSettings()?.excludes ?? []))
                 .map((el) => el.id),
         ];

@@ -21,7 +21,7 @@
             "MODE": {
                 "FAST_HEAT": {
                     "TITLE": "Schnell heizen",
-                    "DESCRIPTION": "Der Askoma-Heizstab versucht, mit der maximal möglichen Heizstufe auf die maximal eingestellte Temperatur zu heizen.\nDie maximale Leistungsdauer beträgt 10 h.\nNach dieser Zeit macht der Heizstab eine Stunde Pause."
+                    "DESCRIPTION": "Der Heizstab versucht, mit der maximal möglichen Heizstufe auf die maximal eingestellte Temperatur zu heizen.\nDie maximale Leistungsdauer beträgt 10 h.\nNach dieser Zeit macht der Heizstab eine Stunde Pause."
                 },
                 "SURPLUS": {
                     "TITLE": "PV-Überschuss",

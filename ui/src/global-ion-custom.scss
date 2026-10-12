@@ -116,6 +116,10 @@
     text-align: left;
 }
 
+.ion-text-transform-no {
+    text-transform: none;
+}
+
 .ion-text-font-style-italic {
     font-style: italic !important;
 }
@@ -237,10 +241,29 @@
 .ion-margin-right {
     margin-right: var(--ion-margin);
 }
+.ion-margin-top-triple {
+    margin-top: calc(var(--ion-margin) * 3);
+}
 
 .ion-no-margin-right {
     margin-right: 0;
 }
 .ion-no-margin-left {
     margin-left: 0;
+}
+
+.ion-position-sticky {
+    position: sticky;
+    top: 0;
+}
+
+.ion-background-color {
+    background-color: var(--ion-background-color) !important;
+}
+
+.ion-no-margin-bottom {
+    margin-bottom: 0 !important;
+}
+.ion-no-margin-top {
+    margin-top: 0 !important;
 }

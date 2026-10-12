@@ -187,7 +187,6 @@ export class OAuthService {
 
             const currentUrl = this.routeService.currentUrl();
             const isAuthenticatedNavi = (currentUrl?.split("/")?.length ?? 0) > 2;
-
             if (isAuthenticatedNavi && currentUrl != null) {
                 this.router.navigateByUrl(currentUrl);
                 res();

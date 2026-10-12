@@ -1,6 +1,6 @@
 package io.openems.edge.goodwe.battery.cluster;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
@@ -44,7 +44,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * 
 	 * @param batteries the List of {@link Battery}
 	 */
-	public void activate(List<Battery> batteries) {
+	public void activate(Collection<Battery> batteries) {
 		this.addOnDeactivateListener(ChannelUtils.<Battery, Integer, Integer>subscribeOnSetNextValue(batteries,
 				Battery.ChannelId.SOC, Battery.ChannelId.CAPACITY, batteryValueMap -> {
 					final var soc = calculateSoc(batteries, batteryValueMap);
@@ -79,7 +79,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	@VisibleForTesting
 	static Integer calculateSoc(//
-			List<Battery> batteries, //
+			Collection<Battery> batteries, //
 			Map<Battery, Tuple2<Value<Integer>, Value<Integer>>> batteryValues //
 	) {
 		if (batteries.size() != batteryValues.size()) {
@@ -116,7 +116,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * @param batteries  the List of {@link Battery}
 	 * @param channelId  the Battery.ChannelId
 	 */
-	protected <T> void calculate(BinaryOperator<T> aggregator, List<Battery> batteries,
+	protected <T> void calculate(BinaryOperator<T> aggregator, Collection<Battery> batteries,
 			io.openems.edge.common.channel.ChannelId channelId) {
 		final Consumer<Value<T>> callback = (value) -> {
 

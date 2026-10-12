@@ -18,6 +18,7 @@ import io.openems.backend.common.metadata.User;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -46,6 +47,13 @@ public class DummyEdgeManager implements EdgeManager {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(//
 			String edgeId, User user, Role role, UUID websocketId, SubscribeSystemLogRequest request //
+	) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeScheduleRequest(//
+			String edgeId, User user, Role role, UUID websocketId, SubscribeScheduleRequest request //
 	) {
 		throw new UnsupportedOperationException();
 	}

@@ -72,7 +72,7 @@ describe("ControllerHeatSettingsComponent", () => {
                     value: PropertyMode.FAST_HEAT,
                     name: "Fast heat",
                     description:
-                        "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
+                        "The heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
                     icon: { color: "success", name: "oe-consumption", size: "medium" },
                 },
                 {

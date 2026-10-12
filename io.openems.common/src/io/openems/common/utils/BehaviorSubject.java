@@ -43,6 +43,15 @@ public class BehaviorSubject<T> {
 	}
 
 	/**
+	 * Checks whether any consumer is currently subscribed.
+	 *
+	 * @return true if there is at least one subscriber
+	 */
+	public boolean hasSubscribers() {
+		return !this.consumers.isEmpty();
+	}
+
+	/**
 	 * Returns the last value.
 	 *
 	 * @return Value

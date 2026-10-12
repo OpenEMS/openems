@@ -14,6 +14,7 @@ import io.openems.backend.common.metadata.User;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -54,6 +55,19 @@ public interface EdgeManager {
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
 			Role role, UUID websocketId, SubscribeSystemLogRequest request);
+
+	/**
+	 * Handles a {@link SubscribeScheduleRequest}.
+	 *
+	 * @param edgeId      the Edge-ID
+	 * @param user        the {@link User}
+	 * @param role        the role of the user on this edge
+	 * @param websocketId the id of the UI websocket connection
+	 * @param request     the {@link SubscribeScheduleRequest}
+	 * @return a reply
+	 */
+	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeScheduleRequest(String edgeId, User user, Role role,
+			UUID websocketId, SubscribeScheduleRequest request);
 
 	/**
 	 * Gets the latest values for the given ChannelAddresses.

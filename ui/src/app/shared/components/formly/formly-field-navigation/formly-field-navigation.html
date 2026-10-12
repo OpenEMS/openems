@@ -37,7 +37,7 @@
               @for (entry of f.props.options; track entry) {
                 @let line = entry.line;
 
-                <oe-formly-wrapper [class]="line.padding ?? ''">
+                <oe-formly-wrapper [class]="line.componentWrapperCssClass ?? ''">
                   @switch (line.type) {
                     @case ("advanced-electricity-meter-line") {
                       <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
@@ -165,10 +165,6 @@
                     <!-- OeFormlyField.ComponentLine -->
                     @case ("component-line") {
                       <ng-container *ngComponentOutlet="line.component; inputs: line.inputs"></ng-container>
-                    }
-
-                    @case ("name-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
                     }
 
                     @case ("stats-line") {

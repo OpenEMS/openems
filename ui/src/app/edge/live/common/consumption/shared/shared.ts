@@ -35,6 +35,8 @@ export namespace SharedConsumption {
         const sum: EdgeConfig.Component = config.getComponent("_sum");
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
+        const consumptionChildren = SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate);
+
         return new NavigationTree(
             "consumption",
             { baseString: "common/consumption" },
@@ -42,7 +44,7 @@ export namespace SharedConsumption {
             translate.instant("GENERAL.CONSUMPTION"),
             "icon",
             [
-                ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate),
+                ...consumptionChildren,
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning", "consumption"),
                 getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
             ],

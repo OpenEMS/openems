@@ -49,7 +49,6 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
         this.navigationService = SharedModule.injector.get<NavigationService>(NavigationService);
         this.dataService = inject(DataService);
-        const websocket = inject(Websocket);
 
         this.service.getCurrentEdge().then(async (edge) => {
             // Subscribe on channels only once
@@ -77,7 +76,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                     });
                     this.view.set(view);
                     this.form.set(this.getFormGroup());
-                    this.setFields(view, this.form(), websocket);
+                    this.setFields(view, this.form(), this.service.websocket);
                 });
         });
 
@@ -472,11 +471,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.ValueLine
     | OeFormlyField.ButtonLine
-    | OeFormlyField.ToggleLine
     | OeFormlyField.ToggleLineWithValue<T>
-    | OeFormlyField.InputLine
-    | OeFormlyField.SelectLine
-    | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.Advanced.ElectricityMeter
     | OeFormlyField.Advanced.EssChargerLine
     | OeFormlyField.Advanced.AdvancedStatsLine
@@ -490,7 +485,8 @@ export type OeFormlyField<T = any> = (
         | "ion-padding-bottom"
         | "ion-padding-left"
         | "ion-padding-right"
-        | "ion-text-font-style-italic";
+        | "ion-text-font-style-italic"
+        | "ion-padding-top-triple";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -533,6 +529,9 @@ export namespace OeFormlyField {
         type: "component-line";
         component: Type<T>;
         inputs?: Record<string, unknown>;
+
+        /** Will be applied on the wrapper component */
+        componentWrapperCssClass?: string;
     };
 
     export type Item = {

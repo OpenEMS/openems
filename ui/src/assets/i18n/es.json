@@ -156,6 +156,9 @@
           "RELATION_ERROR": "El límite de carga debe ser mayor que el límite de descarga",
           "SELL_TO_GRID_POWER_LIMIT": "Cargar arriba"
         },
+        "ENERIX_CONTROL": {
+          "CHARGE_FROM_GRID": "Carga desde la red"
+        },
         "EVCS": {
           "ACTIVATE_CHARGING": "Activar la estación de carga.",
           "ADMINISTRATION": {
@@ -168,7 +171,6 @@
           "CABLE_NOT_CONNECTED": "El cable no esta conectado",
           "CAR_FULL": "El carro esta lleno",
           "CHARGE_LIMIT_REACHED": "Límite de carga alcanzado",
-          "CHARGE_MODE": "Modo de carga",
           "CHARGE_TARGET": "Objetivo de carga",
           "CHARGING": "Inicio de Carga",
           "CHARGING_LIMIT": "Límite de carga",
@@ -241,6 +243,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "La inyección máxima a la red, por encima de la cual se incrementa la carga de las baterías (en la medida de lo posible), está por debajo de la inyección máxima a la red permitida para evitar una reducción prematura de la producción.",
             "PRIORITY_DESCRIPTION": "La carga mínima de la batería tiene mayor prioridad que la carga máxima de la batería"
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Nota: La carga optimizada de red está ahora integrada en la aplicación «Tarifa de electricidad dinámica». Los ajustes configurados aquí seguirán siendo efectivos.",
           "LOW": "Bajo",
           "MAXIMUM_CHARGE": "Carga máxima",
           "MAXIMUM_GRID_FEED_IN": "Inyección de red máxima permitida",
@@ -283,6 +286,7 @@
           "BELOW_SOC": "y bajo el estado de cargo de",
           "GRID_BUY": "De la compra de la red de",
           "GRID_SELL": "Por exceso de alimentación de",
+          "HEAT_PUMP": "Bomba de calor",
           "LOCK": "Bloquear",
           "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima de la bomba de calor",
           "NORMAL_OPERATION": "Operación normal",
@@ -292,7 +296,16 @@
           "SWITCH_ON_COM_SHORT": "Mando",
           "SWITCH_ON_REC": "Recomendación de encendido",
           "SWITCH_ON_REC_SHORT": "Recomendación",
-          "UNDEFINED": "Indefinido"
+          "UNDEFINED": "Indefinido",
+          "OPERATING_STATUS": "Estado de funcionamiento",
+          "AUTOMATIC_DESCRIPTION": "Configura aquí los umbrales para el modo de excedente PV",
+          "BASE_MODE_DESCRIPTIONS": {
+            "SWITCH_ON_COM": "La bomba de calor se enciende cuando la inyección de excedente supera el valor introducido y el estado de carga del sistema de almacenamiento está por encima del valor introducido.",
+            "SWITCH_ON_REC": "Al activarse, la bomba de calor aumenta su potencia y aprovecha con mayor intensidad la energía disponible para la generación de calor.",
+            "NORMAL_OPERATION": "La bomba de calor funciona de acuerdo con la demanda dentro del rango de potencia normal.",
+            "AUTOMATIC": "Según los umbrales configurados para la compra de red y la inyección, se conmutan los distintos modos. (Los umbrales se pueden cambiar en Ajustes)",
+            "LOCK": "Este estado de funcionamiento limita el consumo de energía de la bomba de calor, según su configuración, a 0 kW o 4,2 kW."
+          }
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "Activo (Plazo mínimo)",
@@ -356,7 +369,7 @@
     "NETWORK": {
       "ADD_IP": "Agregar direcciones IP estáticas",
       "ADVANCED_MODE": "Modo avanzado",
-      "ERROR_READING_CONFIGURATION": "Error al leer la configuración de red actual:",
+      "ERROR_READING": "Error al leer la configuración de red actual:",
       "ERROR_UPDATING": "Error al actualizar",
       "IP_ADDRESS": "Dirección IP",
       "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
@@ -379,6 +392,7 @@
     "AUTARCHY": "Autosuficiencia",
     "AUTOMATIC": "Automático",
     "BACK": "Atrás",
+    "BASE_MODE": "Modo básico",
     "CANCEL": "cancelar",
     "CAPACITY": "Capacidad",
     "CHANGE_ACCEPTED": "Cambio aceptado",
@@ -396,11 +410,15 @@
     "DIRECT_CONSUMPTION": "Consumo directo",
     "DISCHARGE": "Descargar",
     "FAULT": "Error",
+    "FORMLY": {
+      "LINK_TO_DOCS": "Enlace a la documentación"
+    },
     "GRID": "Red",
     "GRID_BUY": "Relación",
     "GRID_BUY_ADVANCED": "Relación",
     "GRID_SELL": "Fuente de alimentación",
     "GRID_SELL_ADVANCED": "Fuente de alimentación",
+    "HEAT_PUMP": "Bomba de calor",
     "HISTORY": "Historia",
     "INACTIVE": "Inactivo",
     "INFO": "Informacion",
@@ -460,6 +478,7 @@
       "MINUTE": "Minuto",
       "MINUTES": "Minutos"
     },
+    "TIME_SCHEDULE": "Programación horaria",
     "TOTAL": "consumo total",
     "TOTAL_STATE": "Condición general",
     "WARNING": "Advertencia",
@@ -484,6 +503,15 @@
     "TO_ENERGYMONITOR": "Al monitor de energía...",
     "TYPE": "Tipo"
   },
+  "JS_SCHEDULE": {
+    "ADD_EVENT": "Añadir evento",
+    "ADD_TASK": "Añadir tarea",
+    "EDIT_EVENT": "Editar evento",
+    "EDIT_TASK": "Editar tarea",
+    "NEXT_EVENTS": "Próximos eventos",
+    "MANUAL_EVENTS": "Eventos manuales",
+    "SMART_EVENTS": "Eventos inteligentes"
+  },
   "LOGIN": {
     "AUTHENTICATION_FAILED": "Fallo de autentificación",
     "PASSWORD_LABEL": "Contraseña",
@@ -503,6 +531,7 @@
     "NAME": "Nombre",
     "OTHER_USER": "Otros usuarios",
     "OVERVIEW": "Todos los sistemas",
+    "SCHEDULE": "Programa",
     "SETTINGS": "Ajustes",
     "USER": "Usuario"
   },

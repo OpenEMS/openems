@@ -1,3 +1,4 @@
+import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
@@ -42,6 +43,7 @@ export interface Environment {
             readonly OFFGRID: string;
             readonly PRODUCTION: string;
             readonly STORAGE: string;
+            readonly SCHEDULE: string;
 
             readonly WEATHER: {
                 readonly CLEAR_DAY: string;
@@ -216,14 +218,8 @@ export interface Environment {
             readonly SYSTEM: {
                 readonly HOME: {
                     readonly HOME_10: string;
-                    readonly HOME_20_30: {
-                        readonly DE: string;
-                        readonly EN: string;
-                    };
-                    readonly HOME_GEN_2: {
-                        readonly DE: string;
-                        readonly EN: string;
-                    };
+                    readonly HOME_20_30: string;
+                    readonly HOME_GEN_2: string;
                 };
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string;
@@ -231,7 +227,6 @@ export interface Environment {
                     readonly COMMERCIAL_50_GEN_3: string;
                     readonly COMMERCIAL_92: string;
                     readonly COMMERCIAL_92_CLUSTER: string;
-                    readonly COMMERCIAL_92_OVERVIEW: string;
                     readonly COMMERCIAL_100: string;
                 };
                 readonly INDUSTRIAL?: {
@@ -240,11 +235,10 @@ export interface Environment {
                 };
             };
 
-            readonly RUNDSTEUER: {
-                readonly HOME: string;
+            readonly RIPPLE_CONTROL: {
+                readonly HOME_10_GEN_1: string;
                 readonly HOME_GEN_2: string;
                 readonly HOME_20_30: string;
-                readonly HOME_6_10_15: string;
                 readonly COMMERCIAL_50_GEN_3: string;
             };
 
@@ -288,6 +282,7 @@ export interface Environment {
         };
     };
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null;
+    readonly ENVIRONMENT_PROVIDERS: EnvironmentProviders[];
 }
 
 /*

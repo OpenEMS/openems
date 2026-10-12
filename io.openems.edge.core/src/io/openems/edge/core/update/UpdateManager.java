@@ -72,7 +72,7 @@ public class UpdateManager implements ComponentJsonApi {
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(new GetUpdateables(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 		}, call -> {
 			final var user = call.get(EdgeKeys.USER_KEY);
 
@@ -85,14 +85,14 @@ public class UpdateManager implements ComponentJsonApi {
 						}
 
 						return new GetUpdateables.Response.UpdateableMetadata(t.getKey(), metaInfo.name(),
-								metaInfo.description());
+								metaInfo.description(), metaInfo.requiredMinRole());
 					}) //
 					.filter(Objects::nonNull) //
 					.toList());
 		});
 
 		builder.handleRequest(new ExecuteUpdate(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 		}, call -> {
 			final var updateable = this.updateables.get(call.getRequest().id());
 
@@ -113,7 +113,7 @@ public class UpdateManager implements ComponentJsonApi {
 		});
 
 		builder.handleRequest(new GetUpdateState(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
 		}, call -> {
 			final var updateable = this.updateables.get(call.getRequest().id());
 
