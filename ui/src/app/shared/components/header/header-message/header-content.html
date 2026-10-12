@@ -2,7 +2,14 @@
   @if (message !== null) {
     <ion-row class="ion-padding-half" style="width: 100vw">
       <ion-col size-sm="12" size-md="6" class="ion-align-content-center">
-        <img [src]="image.url" [style]="'height: 2.5vh; justify-self: start'" />
+        @if (canUserSeeAllSystemsNavigation()) {
+          <ion-button size="small" fill="none" (click)="router.navigate(['/overview'])">
+            <ion-icon slot="start" name="chevron-back-outline"> </ion-icon>
+            <ion-label class="ion-text-transform-no">{{ "MENU.OVERVIEW" | translate }}</ion-label>
+          </ion-button>
+        } @else {
+          <img [src]="image.url" [style]="'height: 2.5vh; justify-self: start'" />
+        }
       </ion-col>
     </ion-row>
   }
@@ -10,10 +17,10 @@
     <ion-col size-md="12" class="ion-align-content-center">
       <ion-grid class="ion-no-padding-left-right">
         <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message !== null">
-          @let showBackNavigation = navigationService.position() === "bottom" && parentNodeLink() !== null;
+          @let showBackNavigation = navigationService.position() === "bottom" && parentNode() !== null;
           @if (showBackNavigation) {
             <ion-col size="1">
-              <ion-button fill="none" (click)="navigationService.navigateAbsolute(parentNodeLink())" class="custom-menu-button">
+              <ion-button fill="none" (click)="navigationService.navigateAbsolute(parentNode())" class="custom-menu-button">
                 <ion-icon [ngStyle]="{ color: 'var(--ion-menu-color)' }" name="arrow-back-outline"></ion-icon>
               </ion-button>
             </ion-col>

@@ -37,7 +37,7 @@
               @for (entry of f.props.options; track entry) {
                 @let line = entry.line;
 
-                <oe-formly-wrapper [class]="line.padding ?? ''">
+                <oe-formly-wrapper [class]="[line.padding ?? '', line.componentWrapperCssClass ?? ''].join(' ').trim()">
                   @switch (line.type) {
                     @case ("advanced-electricity-meter-line") {
                       <oe-electricity-meter [component]="line.component"></oe-electricity-meter>

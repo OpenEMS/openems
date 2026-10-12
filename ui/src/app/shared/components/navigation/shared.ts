@@ -10,6 +10,7 @@ import { EdgeConfig } from "../edge/edgeconfig";
 import { Name } from "../shared/name";
 
 export enum NavigationId {
+    SCHEDULE = "schedule",
     LIVE = "live",
     HISTORY = "history",
     FORECAST = "forecast",

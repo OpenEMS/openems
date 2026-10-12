@@ -1,4 +1,4 @@
-import { alertCircleOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
+import { analyticsOutline, alertCircleOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -21,6 +21,7 @@ export const OemMeta: BaseMeta = {
             OFFGRID: "assets/img/icon/offgrid.svg",
             PRODUCTION: "assets/img/icon/production.svg",
             STORAGE: "assets/img/icon/storage.svg",
+            SCHEDULE: analyticsOutline,
             WEATHER: {
                 CLEAR_DAY: "assets/img/icon/clear_day.svg",
                 CLEAR_NIGHT: "assets/img/icon/clear_night.svg",

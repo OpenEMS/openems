@@ -901,7 +901,8 @@
         "SYSTEMS": "Systeme",
         "SETTINGS": "Einstellungen",
         "USER": "Benutzer",
-        "PROFILE": "Profil"
+        "PROFILE": "Profil",
+        "SCHEDULE": "Fahrplan"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",

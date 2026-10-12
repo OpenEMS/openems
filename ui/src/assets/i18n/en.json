@@ -918,7 +918,8 @@
         "SYSTEMS": "Systems",
         "SETTINGS": "Settings",
         "USER": "User",
-        "PROFILE": "Profile"
+        "PROFILE": "Profile",
+        "SCHEDULE": "Schedule"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Active power limitations",

@@ -100,23 +100,24 @@ describe("NavigationService", () => {
         DummyConfig.Component.CONTROLLER_CHP_SOC("ctrlChpSoc1"),
     ];
 
-    let platFormService: PlatFormService;
     let translateService: TranslateService;
     const user = new User("", "test.user", "admin", Language.DE.key, true, {});
 
-    let service: jasmine.SpyObj<Service>;
+    let service: Service;
+    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getIsSmartphoneResolution"], {
+        getIsSmartphoneResolution: () => false,
+    });
     const edgeConfig: (components: TComponent[]) => EdgeConfig = (components: TComponent[] = []) =>
         DummyConfig.from(...dummConfigComponents.concat(components));
     let harness: RouterTestingHarness;
 
     beforeEach(async () => {
         service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {});
-        service.getCurrentEdge.and.returnValue(Promise.resolve(DummyConfig.dummyEdge({})));
         await TestBed.configureTestingModule({
             declarations: [],
             imports: [TranslateModule.forRoot(), PipeComponentsModule],
             providers: [
-                { provide: Service, useValue: service },
+                { provide: Service, useValue: serviceSpyObject },
                 { provide: AngularDelegate, useValue: {} },
                 { provide: Websocket, useValue: DummyWebsocket },
                 TranslateService,
@@ -128,22 +129,16 @@ describe("NavigationService", () => {
                 provideRouter([...toProbeRoutes(routes)]),
             ],
         }).compileComponents();
-        platFormService = TestBed.inject(PlatFormService);
         translateService = TestBed.inject(TranslateService);
         harness = await RouterTestingHarness.create();
+        service = TestBed.inject(Service);
     });
 
     describe("+areIdsUnique", () => {
         it("all NavigationTree['id']s are unique", async () => {
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig([]));
-            const navigationTree = await NavigationService.createNavigationTree(
-                translateService,
-                edge,
-                service,
-                user,
-                platFormService,
-            );
+            const navigationTree = await NavigationService.createNavigationTree(translateService, edge, service, user);
 
             /**
              * Exclude Favorites, this unit test was created exactly for this purpose, to only have unique ids, that can
@@ -158,13 +153,7 @@ describe("NavigationService", () => {
         it("all NavigationTree['id']s are unique with duplicate component ids", async () => {
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig(dummConfigComponents));
-            const navigationTree = await NavigationService.createNavigationTree(
-                translateService,
-                edge,
-                service,
-                user,
-                platFormService,
-            );
+            const navigationTree = await NavigationService.createNavigationTree(translateService, edge, service, user);
             /**
              * Exclude Favorites, this unit test was created exactly for this purpose, to only have unique ids, that can
              * be reused for the favorites
@@ -180,13 +169,7 @@ describe("NavigationService", () => {
         it("all routes are existing", async () => {
             const edge = DummyConfig.dummyEdge({});
             edge["_config"] = signal(edgeConfig([]));
-            const navigationTree = await NavigationService.createNavigationTree(
-                translateService,
-                edge,
-                service,
-                user,
-                platFormService,
-            );
+            const navigationTree = await NavigationService.createNavigationTree(translateService, edge, service, user);
 
             await testRoutes(navigationTree, harness);
         });
@@ -201,7 +184,6 @@ describe("NavigationService", () => {
                 edge,
                 service,
                 user,
-                platFormService,
             );
 
             const allTrees = baseNavigationTree?.getAbsoluteNavigations() ?? [];
@@ -212,7 +194,6 @@ describe("NavigationService", () => {
                 edge,
                 service,
                 user,
-                platFormService,
             );
 
             const updatedTrees = updatedNavigationTree?.getAbsoluteNavigations() ?? [];

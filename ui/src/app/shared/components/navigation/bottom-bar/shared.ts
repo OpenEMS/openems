@@ -7,8 +7,10 @@ import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
 import { OverViewComponent } from "src/app/index/overview/overview.component";
 import { User } from "src/app/shared/jsonrpc/shared";
+import { Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { UserComponent } from "src/app/user/user.component";
+import { EnergySchedulerV2 } from "../../edge/config-components/energy/energy";
 import { Edge } from "../../edge/edge";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { NavigationId, NavigationTree } from "../shared";
@@ -18,11 +20,13 @@ export namespace SharedBottomNavigationBar {
         edge: Edge,
         config: EdgeConfig,
         translate: TranslateService,
+        service: Service,
         user: User,
     ): NavigationTree[] {
         return [
-            ...OverViewComponent.getNavigationTree(user, translate),
+            OverViewComponent.getNavigationTree(user, translate, service),
             getCockpitNavigationTree(edge, config, translate),
+            getScheduleNavigationTree(translate, edge, config),
             getFavoritesNavigationTree(translate),
             EnergyJourneyShared.getNavigationTree(edge, config, translate),
             getProfileNavigationTree(user, translate),
@@ -67,7 +71,9 @@ export namespace SharedBottomNavigationBar {
 
         const widgets = (config?.widgets?.list ?? []).filter((widget) => componentIds.has(widget.componentId));
 
-        return Widgets.getControllerNavigationTrees(edge, translate, config, widgets).map((el) => new NavigationTree(...el));
+        return Widgets.getControllerNavigationTrees(edge, translate, config, widgets).map(
+            (el) => new NavigationTree(...el),
+        );
     }
 
     export function getCockpitNavigationTree(
@@ -122,6 +128,27 @@ export namespace SharedBottomNavigationBar {
             ],
             null,
             { isCommonWidget: true, hideFavorite: true },
+        );
+    }
+
+    export function getScheduleNavigationTree(
+        translate: TranslateService,
+        edge: Edge,
+        config: EdgeConfig,
+    ): NavigationTree | null {
+        const energyScheduler = new EnergySchedulerV2(config);
+        if (!energyScheduler.isEnergySchedulerV2() || !EnergySchedulerV2.hasRequiredEdgeVersion(edge)) {
+            return null;
+        }
+
+        return new NavigationTree(
+            NavigationId.SCHEDULE,
+            { baseString: "schedule" },
+            { name: "oe-schedule" },
+            translate.instant("MENU.SCHEDULE"),
+            "icon",
+            [],
+            null,
         );
     }
 }

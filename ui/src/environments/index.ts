@@ -43,6 +43,7 @@ export interface Environment {
             readonly OFFGRID: string;
             readonly PRODUCTION: string;
             readonly STORAGE: string;
+            readonly SCHEDULE: string;
 
             readonly WEATHER: {
                 readonly CLEAR_DAY: string;

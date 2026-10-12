@@ -5,7 +5,6 @@ import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
 import { SumState } from "src/app/index/shared/sumState";
-import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 import { UnimplementedInEdgeError } from "../../errors/errors";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
@@ -575,18 +574,13 @@ export class Edge {
      * @param translate The translate
      * @returns The new navigation tree
      */
-    public createNavigationTree(
-        translate: TranslateService,
-        edge: Edge,
-        service: Service,
-        user: User,
-        platFormService: PlatFormService,
-    ): NavigationTree {
+    public createNavigationTree(translate: TranslateService, edge: Edge, service: Service, user: User): NavigationTree {
         const config = this.getConfigSignal()();
         const sharedBottomNavigationBarTree = SharedBottomNavigationBar.getNavigationTree(
             edge,
             config,
             translate,
+            service,
             user,
         );
         const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (
