@@ -20,3 +20,14 @@ jobs:
         run: ./gradlew :io.openems.edge.timeofusetariff.octopusdynamic:compileJava --stacktrace --console=plain
       - name: Run Octopus unit tests
         run: ./gradlew :io.openems.edge.timeofusetariff.octopusdynamic:test --stacktrace --console=plain
+      - name: Build deployable Edge application
+        run: ./gradlew :io.openems.edge.application:export --stacktrace --console=plain
+      - name: Inspect exported application
+        run: find io.openems.edge.application -type f -name '*.jar' -printf '%p %s bytes\n'
+      - name: Upload Edge application artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openems-edge-octopus-gridbuy
+          path: io.openems.edge.application/generated/*.jar
+          if-no-files-found: error
+          retention-days: 7
