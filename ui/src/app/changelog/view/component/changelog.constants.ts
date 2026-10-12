@@ -5,29 +5,35 @@ export class Changelog {
     public static readonly UI_VERSION = "2026.11.0-SNAPSHOT";
 
     public static product(...products: Product[]) {
-        return products.map(product => Changelog.link(product.name, product.url)).join(", ") + ". ";
+        return products.map((product) => Changelog.link(product.name, product.url)).join(", ") + ". ";
     }
 
     public static app(app: App, ...names: string[]) {
-        return Changelog.link(app.name, app.url)
-            + (names.length === 0 ? "" : " (" + names.join(", ") + ")")
-            + ": ";
+        return Changelog.link(app.name, app.url) + (names.length === 0 ? "" : " (" + names.join(", ") + ")") + ": ";
     }
 
     public static openems(version: string) {
-        return "Update auf OpenEMS Version " + version + ". Mehr Details auf " + Changelog.link("Github", "https://github.com/OpenEMS/openems/releases/tag/" + version);
+        return (
+            "Update auf OpenEMS Version " +
+            version +
+            ". Mehr Details auf " +
+            Changelog.link("Github", "https://github.com/OpenEMS/openems/releases/tag/" + version)
+        );
     }
 
     public static openemsComponent(openemsComponent: OpenemsComponent, change: string) {
-        return { roleIsAtLeast: Role.ADMIN, change: Changelog.link(openemsComponent.name, openemsComponent.url) + ": " + change };
+        return {
+            roleIsAtLeast: Role.ADMIN,
+            change: Changelog.link(openemsComponent.name, openemsComponent.url) + ": " + change,
+        };
     }
 
     public static library(...libraries: Library[]) {
-        return "Aktualisierung externer Programmbibliotheken: " + libraries.map(library => library.name).join(", ");
+        return "Aktualisierung externer Programmbibliotheken: " + libraries.map((library) => library.name).join(", ");
     }
 
     public static link(title: string, url: string) {
-        return "<a class='ion-link' target=\"_blank\" href=\"" + url + "\">" + title + "</a>";
+        return '<a class=\'ion-link\' target="_blank" href="' + url + '">' + title + "</a>";
     }
 }
 
@@ -37,30 +43,45 @@ export class Product {
     public static readonly OPENEMS_BACKEND = new Product("OpenEMS Edge", "https://github.com/OpenEMS/openems");
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: string) {
-    }
+    private constructor(
+        public readonly name: string,
+        public readonly url: string,
+    ) {}
 }
 
 export class App {
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: string) {
-    }
+    private constructor(
+        public readonly name: string,
+        public readonly url: string,
+    ) {}
 }
 
 export class OpenemsComponent {
-    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent("PQ-Plus Zähler", "https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus");
-    public static readonly SDM630_ZAEHLER = new OpenemsComponent("SDM 630 Zähler", "https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630");
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent(
+        "PQ-Plus Zähler",
+        "https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus",
+    );
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent(
+        "SDM 630 Zähler",
+        "https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630",
+    );
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: string) {
-    }
+    private constructor(
+        public readonly name: string,
+        public readonly url: string,
+    ) {}
 }
 
 export class Library {
     // Java
     public static readonly APACHE_FELIX_FILEINSTALL = new Library("Apache Felix File Install", "org.apache.felix..fileinstall");
     public static readonly APACHE_FELIX_FRAMEWORK = new Library("Apache Felix Framework", "org.apache.felix.framework");
-    public static readonly APACHE_FELIX_HTTP_JETTY = new Library("Apache Felix HTTP Jetty", "org.apache.felix.http.jetty");
+    public static readonly APACHE_FELIX_HTTP_JETTY = new Library(
+        "Apache Felix HTTP Jetty",
+        "org.apache.felix.http.jetty",
+    );
     public static readonly APACHE_FELIX_INVENTORY = new Library("Apache Felix Inventory", "org.apache.felix.inventory");
     public static readonly APACHE_FELIX_METATYPE = new Library("Apache Felix MetaType", "org.apache.felix.metatype");
     public static readonly APACHE_FELIX_SCR = new Library("Apache Felix SCR", "org.apache.felix.scr");
@@ -103,6 +124,8 @@ export class Library {
     public static readonly UUID = new Library("UUID", "uuid");
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly url: string) {
-    }
+    private constructor(
+        public readonly name: string,
+        public readonly url: string,
+    ) {}
 }
