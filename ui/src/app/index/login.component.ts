@@ -1,4 +1,4 @@
-import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnDestroy, } from "@angular/core";
+import { AfterContentChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
 import { DeviceInfo } from "ngx-device-detector";
@@ -10,6 +10,7 @@ import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
+import { UserService } from "../shared/service/user.service";
 import { Edge, Service, Websocket } from "../shared/shared";
 import { States } from "../shared/states/states";
 
@@ -44,8 +45,15 @@ export class LoginComponent implements AfterContentChecked, OnDestroy {
         private router: Router,
         private route: ActivatedRoute,
         private cdref: ChangeDetectorRef,
+        private userService: UserService,
     ) {
         this.operatingSystem = this.platFormService.getDevice().getDeviceInfo().os;
+        effect(() => {
+            const user = this.userService.currentUser();
+            if (user != null) {
+                this.router.navigate(["/overview"]);
+            }
+        });
     }
 
     public static getCurrentTheme(user: User): UserTheme {

@@ -150,9 +150,6 @@ export class RouteService {
             this.router.navigate([initialUrl.toString()]);
             return;
         }
-
-        // Fallback
-        this.router.navigate(["/overview"]);
     }
 
     public getCurrentUrlRouteSegments(): string[] {

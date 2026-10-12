@@ -192,7 +192,11 @@ export const history: (/** Determines if titles in headers can be set */ customH
 
 export const routes: Routes = [
     // TODO should be removed in the future
-    { path: "", redirectTo: oauthRedirectFunction("login"), pathMatch: "full" },
+    {
+        path: "",
+        redirectTo: oauthRedirectFunction("login"),
+        pathMatch: "full",
+    },
     { path: OAuthCallBackComponent.ID, component: OAuthCallBackComponent },
     {
         path: "login",
