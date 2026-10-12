@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.ripplecontrolreceiver;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.powerproduction.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
