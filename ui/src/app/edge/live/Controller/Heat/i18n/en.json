@@ -21,7 +21,7 @@
             "MODE": {
                 "FAST_HEAT": {
                     "TITLE": "Fast heat",
-                    "DESCRIPTION": "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause."
+                    "DESCRIPTION": "The heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause."
                 },
                 "SURPLUS": {
                     "TITLE": "PV surplus",
