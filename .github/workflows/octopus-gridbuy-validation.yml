@@ -20,6 +20,8 @@ jobs:
         run: ./gradlew :io.openems.edge.timeofusetariff.octopusdynamic:compileJava --stacktrace --console=plain
       - name: Run Octopus unit tests
         run: ./gradlew :io.openems.edge.timeofusetariff.octopusdynamic:test --stacktrace --console=plain
+      - name: Build all Edge bundles required by the application
+        run: ./gradlew build -x test --console=plain
       - name: Build deployable Edge application
         run: ./gradlew :io.openems.edge.application:export --stacktrace --console=plain
       - name: Inspect exported application
