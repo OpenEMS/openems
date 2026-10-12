@@ -6,7 +6,7 @@ import { Edge } from "../../edge";
 import { EdgeConfig } from "../../edgeconfig";
 import { GetSchedule } from "./getSchedule";
 
-export class EnergySchedulerV2 extends EdgeConfig.Component {
+export class EnergyScheduler extends EdgeConfig.Component {
     public static readonly nowToHistoryInHours: number = 4;
 
     private _schedule: GetSchedule.Response = GetSchedule.Response.empty;
@@ -50,9 +50,9 @@ export class EnergySchedulerV2 extends EdgeConfig.Component {
     public async updateSchedule(
         edge: Edge,
         websocket: Websocket,
-        fromDate: Date = subHours(new Date(), EnergySchedulerV2.nowToHistoryInHours),
+        fromDate: Date = subHours(new Date(), EnergyScheduler.nowToHistoryInHours),
     ): Promise<void> {
-        if (!this.isEnergySchedulerV2() || !EnergySchedulerV2.hasRequiredEdgeVersion(edge)) {
+        if (this.isEnergySchedulerV1() || !EnergyScheduler.hasRequiredEdgeVersion(edge)) {
             this._schedule = GetSchedule.Response.empty;
             return;
         }
@@ -63,7 +63,7 @@ export class EnergySchedulerV2 extends EdgeConfig.Component {
         channel: keyof GetSchedule.Response["result"]["data"][number]["_sum"],
     ): number | null {
         const schedule = this._schedule.summarizeData24hForChannel(channel);
-        const tomorrowIndex = EnergySchedulerV2.getTomorrowIndex(schedule);
+        const tomorrowIndex = EnergyScheduler.getTomorrowIndex(schedule);
 
         if (tomorrowIndex === null) {
             return null;
@@ -83,7 +83,7 @@ export class EnergySchedulerV2 extends EdgeConfig.Component {
         converter: (value: number | null) => number | null,
     ): number | null {
         const schedule = this._schedule.summarizeData24hForChannel(channel);
-        const tomorrowIndex = EnergySchedulerV2.getTomorrowIndex(schedule);
+        const tomorrowIndex = EnergyScheduler.getTomorrowIndex(schedule);
 
         if (tomorrowIndex === null) {
             return null;
@@ -99,10 +99,10 @@ export class EnergySchedulerV2 extends EdgeConfig.Component {
         return futureEnergyToday;
     }
 
-    public isEnergySchedulerV2(): boolean {
+    public isEnergySchedulerV1(): boolean {
         if (this.config === null) {
             return false;
         }
-        return this.getPropertyFromComponent("version") === "V2_ENERGY_SCHEDULABLE";
+        return this.config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V1_ESS_ONLY";
     }
 }

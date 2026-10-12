@@ -10,7 +10,7 @@ import { User } from "src/app/shared/jsonrpc/shared";
 import { Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { UserComponent } from "src/app/user/user.component";
-import { EnergySchedulerV2 } from "../../edge/config-components/energy/energy";
+import { EnergyScheduler } from "../../edge/config-components/energy/energy";
 import { Edge } from "../../edge/edge";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { NavigationId, NavigationTree } from "../shared";
@@ -136,8 +136,8 @@ export namespace SharedBottomNavigationBar {
         edge: Edge,
         config: EdgeConfig,
     ): NavigationTree | null {
-        const energyScheduler = new EnergySchedulerV2(config);
-        if (!energyScheduler.isEnergySchedulerV2() || !EnergySchedulerV2.hasRequiredEdgeVersion(edge)) {
+        const energyScheduler = new EnergyScheduler(config);
+        if (energyScheduler.isEnergySchedulerV1() || !EnergyScheduler.hasRequiredEdgeVersion(edge)) {
             return null;
         }
 

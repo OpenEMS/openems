@@ -246,6 +246,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "Maximální příkon sítě, při jehož překročení se nabíjení baterií (pokud je to možné) zvýší, je nižší než maximální povolený příkon sítě, aby se zabránilo předčasnému omezení výroby.",
             "PRIORITY_DESCRIPTION": "Minimální nabití baterie má vyšší prioritu než maximální nabití baterie."
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Poznámka: Mřížkově optimalizované nabíjení je nyní integrováno do aplikace „Dynamický tarif elektřiny“. Zde provedená nastavení zůstávají nadále účinná.",
           "LOW": "Nízký",
           "MAXIMUM_CHARGE": "Maximální zatížení",
           "MAXIMUM_GRID_FEED_IN": "Maximální povolený přívod mřížky",

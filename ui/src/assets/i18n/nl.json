@@ -242,6 +242,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "De maximale netvoeding waarboven het opladen van de batterijen (voor zover mogelijk) wordt verhoogd, ligt onder de maximaal toegestane netvoeding om voortijdige productiebeperking te voorkomen.",
             "PRIORITY_DESCRIPTION": "De minimale acculading heeft een hogere prioriteit dan de maximale acculading"
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Let op: Laden geoptimaliseerd voor het elektriciteitsnet is nu geïntegreerd in de app 'Dynamisch elektriciteitstarief'. De hier geconfigureerde instellingen blijven van kracht.",
           "LOW": "Laag",
           "MAXIMUM_CHARGE": "Maximale lading",
           "MAXIMUM_GRID_FEED_IN": "Maximaal toegestane teruglevering",

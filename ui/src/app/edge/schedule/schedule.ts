@@ -5,7 +5,7 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ScheduleChartComponent } from "src/app/shared/components/chart/schedule-chart/schedule-chart";
 import { TimeLineChartComponent } from "src/app/shared/components/chart/timeline-chart/timeline-chart";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
@@ -31,7 +31,7 @@ export class ScheduleComponent extends AbstractFormlyComponent {
     protected override async generateView(
         viewContext: Readonly<{ edge: Edge; config: EdgeConfig; translate: TranslateService }>,
     ): Promise<OeFormlyView> {
-        const energyScheduler = new EnergySchedulerV2(viewContext.config);
+        const energyScheduler = new EnergyScheduler(viewContext.config);
         await energyScheduler.updateSchedule(
             viewContext.edge,
             this.service.websocket,

@@ -243,6 +243,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "La inyección máxima a la red, por encima de la cual se incrementa la carga de las baterías (en la medida de lo posible), está por debajo de la inyección máxima a la red permitida para evitar una reducción prematura de la producción.",
             "PRIORITY_DESCRIPTION": "La carga mínima de la batería tiene mayor prioridad que la carga máxima de la batería"
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Nota: La carga optimizada de red está ahora integrada en la aplicación «Tarifa de electricidad dinámica». Los ajustes configurados aquí seguirán siendo efectivos.",
           "LOW": "Bajo",
           "MAXIMUM_CHARGE": "Carga máxima",
           "MAXIMUM_GRID_FEED_IN": "Inyección de red máxima permitida",

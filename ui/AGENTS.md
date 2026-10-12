@@ -16,7 +16,8 @@ This directory contains the Angular/Ionic frontend for OpenEMS/FEMS.
 - Follow `.editorconfig` and `eslint.config.mjs`.
 - Use Angular control-flow syntax (`@if`, `@for`, `@switch`) in templates; do not add new `*ngIf`, `*ngFor`, or `*ngSwitch` structural directives.
 - Format every file you change with Prettier (`npx prettier --write <file>`); changed files must be Prettier-clean (`npx prettier --check <file>`), even if that reformats pre-existing lines in the file.
-- Newly introduced code must comply with strict mode; do not add or widen `// @ts-strict-ignore` scopes to make new code compile.
+- New TypeScript and template code must be written so it compiles cleanly under Angular's `strictTemplates` template type checking and under the `typescript-strict-plugin` strict mode. `strictTemplates` is currently disabled globally in `tsconfig.json` for legacy files — do not rely on that; do not add or widen `// @ts-strict-ignore` scopes to make new code compile.
+- Keep member scope as small as possible: default to `private`. Members referenced only from the component's own template stay `private` — Angular templates can access private members, so do not widen visibility for the template's sake. Enforce this for existing members in files you touch.
 - Avoid redundant code; prefer shared utility functions over duplicated inline logic.
 - Never use `delete` to remove object properties; rebuild the object instead (e.g. `Object.fromEntries(Object.entries(obj).filter(...))`).
 - Reuse existing shared components, services, pipes, and utilities before adding new abstractions.

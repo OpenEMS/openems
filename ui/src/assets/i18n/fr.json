@@ -240,6 +240,7 @@
             "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "L'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l'alimentation maximale autorisée du réseau afin d'éviter une réduction prématurée de la production.",
             "PRIORITY_DESCRIPTION": "La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie."
           },
+          "INFO_DISABLED_BY_TIME_OF_USE": "Remarque : La charge optimisée pour le réseau est désormais intégrée dans l'application « Tarif dynamique d'électricité ». Les paramètres configurés ici restent effectifs.",
           "LOW": "Faible",
           "MAXIMUM_CHARGE": "Charge maximale",
           "MAXIMUM_GRID_FEED_IN": "Alimentation réseau maximale autorisée",

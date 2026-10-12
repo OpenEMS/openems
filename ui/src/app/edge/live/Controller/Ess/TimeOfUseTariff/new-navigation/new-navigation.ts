@@ -202,7 +202,7 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
         }
 
         if (
-            SharedGridOptimizedCharge.isEnergySchedulerV2Enabled(config) == false ||
+            SharedGridOptimizedCharge.isEnergySchedulerV1Enabled(config) == true ||
             SharedGridOptimizedCharge.isEeg2025Installed(config) == false
         ) {
             return false;
