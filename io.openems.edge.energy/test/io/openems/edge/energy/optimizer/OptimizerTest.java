@@ -289,7 +289,7 @@ class OptimizerTest {
 	}
 
 	@Test
-	void testRunOptimization_shouldRestartAtNextPeriod_whenNoOptimizableEshExists() {
+	void testRunOptimization_shouldRunSimulator_whenNoOptimizableEshExists() {
 		final var dummyGoc = DummyGlobalOptimizationContext.fromHandlers();
 		final var simulator = spy(new Simulator(dummyGoc));
 
@@ -306,15 +306,10 @@ class OptimizerTest {
 
 		sut.runOptimization(this.token);
 
-		final var expectedDelay = DateUtils.durationUntilNextQuarter(this.clock);
+		verify(sut, never()) //
+				.restartOptimization(anyString(), any(Duration.class), anyBoolean());
 
-		verify(sut, times(1)) //
-				.restartOptimization(//
-						anyString(), //
-						eq(expectedDelay), //
-						eq(true));
-
-		verify(simulator, never()) //
+		verify(simulator, times(1)) //
 				.runOptimization(//
 						any(), //
 						any(), //
