@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -218,6 +219,37 @@ public class SimulatorTest {
 				}
 			}
 		}
+	}
+
+	@Test
+	void testRunOptimization_shouldSimulateQuarterlySchedule_whenNoOptimizableEshExists() {
+		final var goc = DummyGlobalOptimizationContext.fromHandlers(ESH0);
+		final var simulator = new Simulator(goc);
+		final var result = new AtomicReference<OptimizationResult>();
+		final var resultCount = new AtomicInteger();
+
+		simulator.runOptimization(//
+				() -> EMPTY_SIMULATION_RESULT, //
+				() -> false, //
+				null, //
+				null, //
+				optimizationResult -> {
+					result.set(optimizationResult);
+					resultCount.incrementAndGet();
+				});
+
+		final var optimizationResult = result.get();
+		assertNotNull(optimizationResult);
+		assertEquals(1, resultCount.get());
+		assertEquals(OptimizationResult.Type.FINAL, optimizationResult.type());
+		assertEquals(1, optimizationResult.simulationResult().simulationsCounter());
+		assertEquals(0, optimizationResult.simulationResult().generationsCounter());
+		assertTrue(optimizationResult.simulationResult().eshsWithOnlyOneMode().contains(ESH0));
+		assertEquals(//
+				Periods.copyOfQuarterly(goc.periods()).size(), //
+				optimizationResult.simulationResult().periods().size());
+		assertTrue(optimizationResult.simulationResult().periods().values().stream() //
+				.allMatch(period -> period.period() instanceof Period.Quarter));
 	}
 
 	@Test

@@ -649,9 +649,8 @@ export class Edge {
      */
     private replaceSubscription(id: string, channels: ChannelAddress[]): boolean {
         const unionBefore = this.getSubscribedChannelIds();
-        this.subscribedChannels[id] = channels;
+        this.subscribedChannels[id] = Array.of(...new Set([...(this.subscribedChannels[id] ?? []), ...channels]));
         const unionAfter = this.getSubscribedChannelIds();
-
         return (
             unionBefore.size !== unionAfter.size || Array.from(unionBefore).some((channel) => !unionAfter.has(channel))
         );
