@@ -27,9 +27,9 @@ describe("Edge channel subscriptions", () => {
     });
 
     /**
-     * Tests for the deprecated id-based {@link Edge.unsubscribeChannels}, which removes a whole
-     * subscription: the entry must be removed and the reduced channel set re-sent, unless other
-     * subscriptions still cover all removed channels.
+     * Tests for the deprecated id-based {@link Edge.unsubscribeChannels}, which removes a whole subscription: the entry
+     * must be removed and the reduced channel set re-sent, unless other subscriptions still cover all removed
+     * channels.
      */
     describe("unsubscribeChannels", () => {
         it("removes the entry and resends the reduced channel set", async () => {
@@ -74,9 +74,9 @@ describe("Edge channel subscriptions", () => {
     });
 
     /**
-     * Tests for {@link Edge.subscribeChannels} and {@link Edge.subscribeChannelsWithState}: a request must
-     * be sent whenever the union of all subscriptions changes, i.e. when channels are added to or removed
-     * from the union - even if the new entry covers all previously subscribed channels.
+     * Tests for {@link Edge.subscribeChannels} and {@link Edge.subscribeChannelsWithState}: a request must be sent
+     * whenever the union of all subscriptions changes, i.e. when channels are added to or removed from the union - even
+     * if the new entry covers all previously subscribed channels.
      */
     describe("subscribeChannels", () => {
         it("sends the request when a subscription adds channels to the union", async () => {
@@ -95,6 +95,61 @@ describe("Edge channel subscriptions", () => {
             edge.subscribeChannels(websocket, "b", [new ChannelAddress("c0", "X")]);
 
             expect((await flush()).length).toBe(1);
+        });
+
+        it("keeps previously subscribed channels when the same id subscribes more channels", async () => {
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X")]);
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c1", "Y")]);
+
+            // Both calls coalesce into one debounced request, which must contain both channels
+            expect(await flush()).toEqual([["c0/X", "c1/Y"]]);
+        });
+
+        it("skips the request when the same channels are subscribed again", async () => {
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X")]);
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X")]);
+
+            expect((await flush()).length).toBe(1);
+        });
+    });
+
+    /**
+     * Tests for {@link Edge.unsubscribeFromChannels}, which subtracts channels from one subscription: only the passed
+     * channels are removed; the subscription entry is removed entirely once its last channel is gone.
+     */
+    describe("unsubscribeFromChannels", () => {
+        it("removes only the passed channels and resends the reduced channel set", async () => {
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X"), new ChannelAddress("c1", "Y")]);
+            expect(await flush()).toEqual([["c0/X", "c1/Y"]]);
+
+            edge.unsubscribeFromChannels("a", websocket, [new ChannelAddress("c0", "X")]);
+
+            expect(await flush()).toEqual([["c0/X", "c1/Y"], ["c1/Y"]]);
+            expect((edge as unknown as { subscribedChannels: object }).subscribedChannels).toEqual({
+                a: [new ChannelAddress("c1", "Y")],
+            });
+        });
+
+        it("removes the entry when its last channel is unsubscribed", async () => {
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X")]);
+            await flush();
+
+            edge.unsubscribeFromChannels("a", websocket, [new ChannelAddress("c0", "X")]);
+
+            expect(await flush()).toEqual([["c0/X"], []]);
+            expect((edge as unknown as { subscribedChannels: object }).subscribedChannels).toEqual({});
+        });
+
+        it("is a safe no-op for unknown ids", async () => {
+            edge.subscribeChannels(websocket, "a", [new ChannelAddress("c0", "X")]);
+            await flush();
+
+            edge.unsubscribeFromChannels("unknown", websocket, [new ChannelAddress("c0", "X")]);
+
+            expect((await flush()).length).toBe(1);
+            expect((edge as unknown as { subscribedChannels: object }).subscribedChannels).toEqual({
+                a: [new ChannelAddress("c0", "X")],
+            });
         });
     });
 
