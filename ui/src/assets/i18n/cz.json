@@ -68,10 +68,10 @@
                 "TIMESTAMP": "Časové razítko"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Manuální příkaz ",
                 "MANUALPQ_POWER_SPECIFICATION": "Specifikace výkonu",
                 "MANUALPQ_RESET": "Resetovat",
                 "MANUALPQ_SUBMIT": "Zadání",
+                "MANUAL_COMMAND": "Manuální příkaz ",
                 "REFU_INVERTER": "REFU Střídač",
                 "REFU_START": "Začít",
                 "REFU_START_STOP": "Start/Stop střídače",
@@ -108,8 +108,8 @@
             "MAY": "Kvě",
             "MON": "Pon",
             "MONTH": "Měsíc",
-            "NO_DATA": "data nejsou k dispozici",
             "NOV": "Lis",
+            "NO_DATA": "data nejsou k dispozici",
             "OCT": "Říj",
             "OTHER_PERIOD": "Další období",
             "PERIOD": "Období",
@@ -199,14 +199,14 @@
                         "SHORT_NAME": "Ruční"
                     },
                     "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
+                    "NOT_AUTHORIZED": "Neautorizovaný",
+                    "NOT_CHARGING": "Nenabíjí se",
+                    "NOT_READY_FOR_CHARGING": "Není připraven k nabíjení",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Nelze jej připojit k nabíjecí stanici.",
                         "HELP1": "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
                         "HELP1_1": "Při opětovném zapnutí se objeví IP nabíjecí stanice"
                     },
-                    "NOT_AUTHORIZED": "Neautorizovaný",
-                    "NOT_CHARGING": "Nenabíjí se",
-                    "NOT_READY_FOR_CHARGING": "Není připraven k nabíjení",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "Car",
@@ -276,39 +276,13 @@
                         "CHARGE_LIMIT_ACTIVE": "Aktivní limit načítání",
                         "END_TIME_NOT_CALCULATED": "Čas ukončení se nepočítá",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "Je vyloučeno omezení přívodu mřížky",
+                        "NOT_DEFINED": "Není definovaný",
                         "NO_LIMIT_ACTIVE": "Není aktivní žádný limit načítání",
                         "NO_LIMIT_POSSIBLE": "Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)",
-                        "NOT_DEFINED": "Není definovaný",
                         "PASSED_END_TIME": "Překročen časový limit",
                         "STORAGE_ALREADY_FULL": "Paměť je již plná"
                     },
                     "STORAGE_CAPACITY": "skladovací kapacita (viditelné pouze pro správce)"
-                },
-                "HEAT_PUMP": {
-                    "ABOVE_SOC": "a od státu nabití",
-                    "BELOW_SOC": "a za stavu nabití",
-                    "GRID_BUY": "Z mřížkového nákupu",
-                    "GRID_SELL": "Z nadměrného napájení",
-                    "HEAT_PUMP": "Tepelné čerpadlo",
-                    "LOCK": "Zámek",
-                    "MORE_THAN_HP_POWER": "Hodnota nesmí být nižší než maximální výkon tepelného čerpadla",
-                    "NORMAL_OPERATION": "Normální operace",
-                    "NORMAL_OPERATION_SHORT": "Normální",
-                    "RELATION_ERROR": "Překročení hodnoty povelu k zapnutí musí být větší než doporučená hodnota pro zapnutí",
-                    "SWITCH_ON_COM": "Příkaz k zapnutí",
-                    "SWITCH_ON_COM_SHORT": "Příkaz",
-                    "SWITCH_ON_REC": "Doporučení k zapnutí",
-                    "SWITCH_ON_REC_SHORT": "Doporučení",
-                    "UNDEFINED": "Nedefinováno",
-                    "OPERATING_STATUS": "Provozní stav",
-                    "AUTOMATIC_DESCRIPTION": "Nastavte zde prahové hodnoty pro režim přebytku PV",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "Tepelné čerpadlo se zapne, když přebytková výroba překročí zadanou hodnotu a stav nabití úložiště je nad zadanou hodnotou.",
-                        "SWITCH_ON_REC": "Po aktivaci tepelné čerpadlo zvýší výkon a intenzivněji využívá dostupnou energii k výrobě tepla.",
-                        "NORMAL_OPERATION": "Tepelné čerpadlo pracuje podle potřeby v rámci běžného výkonového rozsahu.",
-                        "AUTOMATIC": "Podle nastavených prahových hodnot pro odběr ze sítě a dodávku do sítě se přepínají jednotlivé režimy. (Prahové hodnoty lze změnit v Nastavení)",
-                        "LOCK": "Tento provozní stav omezuje příkon tepelného čerpadla podle nastavení tepelného čerpadla na 0 kW nebo 4,2 kW."
-                    }
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktivní (Minimální doba)",
@@ -322,6 +296,32 @@
                     "PRIORITY": "Priorita",
                     "TIME": "čas",
                     "TIME_COUNTDOWN": "Čas začít"
+                },
+                "HEAT_PUMP": {
+                    "ABOVE_SOC": "a od státu nabití",
+                    "AUTOMATIC_DESCRIPTION": "Nastavte zde prahové hodnoty pro režim přebytku PV",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Podle nastavených prahových hodnot pro odběr ze sítě a dodávku do sítě se přepínají jednotlivé režimy. (Prahové hodnoty lze změnit v Nastavení)",
+                        "LOCK": "Tento provozní stav omezuje příkon tepelného čerpadla podle nastavení tepelného čerpadla na 0 kW nebo 4,2 kW.",
+                        "NORMAL_OPERATION": "Tepelné čerpadlo pracuje podle potřeby v rámci běžného výkonového rozsahu.",
+                        "SWITCH_ON_COM": "Tepelné čerpadlo se zapne, když přebytková výroba překročí zadanou hodnotu a stav nabití úložiště je nad zadanou hodnotou.",
+                        "SWITCH_ON_REC": "Po aktivaci tepelné čerpadlo zvýší výkon a intenzivněji využívá dostupnou energii k výrobě tepla."
+                    },
+                    "BELOW_SOC": "a za stavu nabití",
+                    "GRID_BUY": "Z mřížkového nákupu",
+                    "GRID_SELL": "Z nadměrného napájení",
+                    "HEAT_PUMP": "Tepelné čerpadlo",
+                    "LOCK": "Zámek",
+                    "MORE_THAN_HP_POWER": "Hodnota nesmí být nižší než maximální výkon tepelného čerpadla",
+                    "NORMAL_OPERATION": "Normální operace",
+                    "NORMAL_OPERATION_SHORT": "Normální",
+                    "OPERATING_STATUS": "Provozní stav",
+                    "RELATION_ERROR": "Překročení hodnoty povelu k zapnutí musí být větší než doporučená hodnota pro zapnutí",
+                    "SWITCH_ON_COM": "Příkaz k zapnutí",
+                    "SWITCH_ON_COM_SHORT": "Příkaz",
+                    "SWITCH_ON_REC": "Doporučení k zapnutí",
+                    "SWITCH_ON_REC_SHORT": "Doporučení",
+                    "UNDEFINED": "Nedefinováno"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Záporné hodnoty odpovídají zatížení paměti",
                 "INFO_STORAGE_FOR_DISCHARGE": "Kladné hodnoty odpovídají vybití paměti",
@@ -351,11 +351,11 @@
                     "MORE_THAN_HP_POWER": "Hodnota nesmí být nižší než maximální výkon ovládaného zařízení",
                     "OTHER": "Ostatní",
                     "RELATION_ERROR": "Prahová hodnota musí být větší než spínané zatížení",
+                    "SWITCHED_LOAD_POWER": "Spínané zatížení",
                     "SWITCH_OFF_ABOVE": "Vypněte pomocí",
                     "SWITCH_OFF_BELOW": "Vypněte pod",
                     "SWITCH_ON_ABOVE": "Zapněte přes",
                     "SWITCH_ON_BELOW": "Zapněte pod",
-                    "SWITCHED_LOAD_POWER": "Spínané zatížení",
                     "THRESHOLD": "Prahována"
                 },
                 "TWO_WAY_INFO_GRID": "Záporné hodnoty odpovídají dodávkám ze sítě, Kladné hodnoty odpovídají napájení ze sítě"
@@ -516,8 +516,8 @@
         "ADD_TASK": "Přidat úkol",
         "EDIT_EVENT": "Upravit událost",
         "EDIT_TASK": "Upravit úkol",
-        "NEXT_EVENTS": "Nadcházející události",
         "MANUAL_EVENTS": "Ruční události",
+        "NEXT_EVENTS": "Nadcházející události",
         "SMART_EVENTS": "Chytré události"
     },
     "LOGIN": {

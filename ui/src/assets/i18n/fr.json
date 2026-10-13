@@ -66,10 +66,10 @@
                 "TIMESTAMP": "Timestamp"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Commande Manuelle",
                 "MANUALPQ_POWER_SPECIFICATION": "Spécification de puissance",
                 "MANUALPQ_RESET": "Reset",
                 "MANUALPQ_SUBMIT": "Soumettre",
+                "MANUAL_COMMAND": "Commande Manuelle",
                 "REFU_INVERTER": "REFU Inverter",
                 "REFU_START": "Start",
                 "REFU_START_STOP": "Start/Stop inverter",
@@ -106,8 +106,8 @@
             "MAY": "Mai",
             "MON": "Lun",
             "MONTH": "Mois",
-            "NO_DATA": "Pas de données disponible",
             "NOV": "Nov",
+            "NO_DATA": "Pas de données disponible",
             "OCT": "Oct",
             "OTHER_PERIOD": "Autre période",
             "PERIOD": "Période",
@@ -194,14 +194,14 @@
                         "SHORT_NAME": "Mannuellement"
                     },
                     "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
+                    "NOT_AUTHORIZED": "Pas Authorisé",
+                    "NOT_CHARGING": "Pas en charge",
+                    "NOT_READY_FOR_CHARGING": "Pas prêt pour la recharge",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Pas de connection à la station de recharge.",
                         "HELP1": "Vérifiez si la station de recharge est allimée et qu'elle peut être atteinte via le réseau.",
                         "HELP1_1": "L'IP de la station de recharge apparait lorsqu'elle s'allume de nouveau"
                     },
-                    "NOT_AUTHORIZED": "Pas Authorisé",
-                    "NOT_CHARGING": "Pas en charge",
-                    "NOT_READY_FOR_CHARGING": "Pas prêt pour la recharge",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "Voiture",
@@ -270,39 +270,13 @@
                         "CHARGE_LIMIT_ACTIVE": "Limite de chargement active",
                         "END_TIME_NOT_CALCULATED": "Heure de fin non calculée",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "La limitation Grid-Feed-in est évitée",
+                        "NOT_DEFINED": "Non défini",
                         "NO_LIMIT_ACTIVE": "Aucune limite de chargement active",
                         "NO_LIMIT_POSSIBLE": "Aucune limitation possible (limitée par des contrôles de priorité plus élevée)",
-                        "NOT_DEFINED": "Non défini",
                         "PASSED_END_TIME": "Heure de fin du chargement limité dépassée",
                         "STORAGE_ALREADY_FULL": "Mémoire déjà pleine"
                     },
                     "STORAGE_CAPACITY": "capacité de stockage (visible seulement pour admin)"
-                },
-                "HEAT_PUMP": {
-                    "ABOVE_SOC": "et de l'état de charge de",
-                    "BELOW_SOC": "et en charge de",
-                    "GRID_BUY": "De l achat du réseau de",
-                    "GRID_SELL": "Par excès d alimentatio de",
-                    "HEAT_PUMP": "Pompe à chaleur",
-                    "LOCK": "Fermer à clé",
-                    "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
-                    "NORMAL_OPERATION": "Fonctionnement normal",
-                    "NORMAL_OPERATION_SHORT": "Normal",
-                    "RELATION_ERROR": "La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche",
-                    "SWITCH_ON_COM": "Commande de mise en marche",
-                    "SWITCH_ON_COM_SHORT": "Commenade",
-                    "SWITCH_ON_REC": "Recommandation de mise en marche",
-                    "SWITCH_ON_REC_SHORT": "Recommandation",
-                    "UNDEFINED": "Indéfinie",
-                    "OPERATING_STATUS": "État de fonctionnement",
-                    "AUTOMATIC_DESCRIPTION": "Définissez ici les seuils du mode excédent PV",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "La pompe à chaleur s'allume lorsque l'injection d'excédent dépasse la valeur saisie et que l'état de charge du système de stockage est supérieur à la valeur saisie.",
-                        "SWITCH_ON_REC": "Une fois activée, la pompe à chaleur augmente sa puissance et utilise plus intensivement l'énergie disponible pour la production de chaleur.",
-                        "NORMAL_OPERATION": "La pompe à chaleur fonctionne à la demande dans la plage de puissance normale.",
-                        "AUTOMATIC": "Selon les seuils définis pour l'achat réseau et l'injection, les différents modes sont commutés. (Les seuils peuvent être modifiés dans Paramètres)",
-                        "LOCK": "Cet état de fonctionnement limite la consommation électrique de la pompe à chaleur, selon ses réglages, à 0 kW ou 4,2 kW."
-                    }
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Actif (Minimum runtime)",
@@ -316,6 +290,32 @@
                     "PRIORITY": "Priority",
                     "TIME": "Time",
                     "TIME_COUNTDOWN": "time until start"
+                },
+                "HEAT_PUMP": {
+                    "ABOVE_SOC": "et de l'état de charge de",
+                    "AUTOMATIC_DESCRIPTION": "Définissez ici les seuils du mode excédent PV",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Selon les seuils définis pour l'achat réseau et l'injection, les différents modes sont commutés. (Les seuils peuvent être modifiés dans Paramètres)",
+                        "LOCK": "Cet état de fonctionnement limite la consommation électrique de la pompe à chaleur, selon ses réglages, à 0 kW ou 4,2 kW.",
+                        "NORMAL_OPERATION": "La pompe à chaleur fonctionne à la demande dans la plage de puissance normale.",
+                        "SWITCH_ON_COM": "La pompe à chaleur s'allume lorsque l'injection d'excédent dépasse la valeur saisie et que l'état de charge du système de stockage est supérieur à la valeur saisie.",
+                        "SWITCH_ON_REC": "Une fois activée, la pompe à chaleur augmente sa puissance et utilise plus intensivement l'énergie disponible pour la production de chaleur."
+                    },
+                    "BELOW_SOC": "et en charge de",
+                    "GRID_BUY": "De l achat du réseau de",
+                    "GRID_SELL": "Par excès d alimentatio de",
+                    "HEAT_PUMP": "Pompe à chaleur",
+                    "LOCK": "Fermer à clé",
+                    "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
+                    "NORMAL_OPERATION": "Fonctionnement normal",
+                    "NORMAL_OPERATION_SHORT": "Normal",
+                    "OPERATING_STATUS": "État de fonctionnement",
+                    "RELATION_ERROR": "La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche",
+                    "SWITCH_ON_COM": "Commande de mise en marche",
+                    "SWITCH_ON_COM_SHORT": "Commenade",
+                    "SWITCH_ON_REC": "Recommandation de mise en marche",
+                    "SWITCH_ON_REC_SHORT": "Recommandation",
+                    "UNDEFINED": "Indéfinie"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Les valeurs négatives correspondent au chargement de la mémoire",
                 "INFO_STORAGE_FOR_DISCHARGE": "Les valeurs positives correspondent à une décharge de la mémoire",
@@ -345,11 +345,11 @@
                     "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de l appareil contrôlé",
                     "OTHER": "Other",
                     "RELATION_ERROR": "Threshold must be greater than the switched load power",
+                    "SWITCHED_LOAD_POWER": "Switched load power",
                     "SWITCH_OFF_ABOVE": "Switch off above",
                     "SWITCH_OFF_BELOW": "Switch off below",
                     "SWITCH_ON_ABOVE": "Switch on above",
                     "SWITCH_ON_BELOW": "Switch on below",
-                    "SWITCHED_LOAD_POWER": "Switched load power",
                     "THRESHOLD": "Threshold"
                 },
                 "TWO_WAY_INFO_GRID": "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur"
@@ -507,8 +507,8 @@
         "ADD_TASK": "Ajouter une tâche",
         "EDIT_EVENT": "Modifier l'événement",
         "EDIT_TASK": "Modifier la tâche",
-        "NEXT_EVENTS": "Événements suivants",
         "MANUAL_EVENTS": "Événements manuels",
+        "NEXT_EVENTS": "Événements suivants",
         "SMART_EVENTS": "Événements intelligents"
     },
     "LOGIN": {
