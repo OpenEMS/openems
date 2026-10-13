@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, effect, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ViewWillLeave } from "@ionic/angular";

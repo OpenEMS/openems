@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -36,7 +35,7 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
         phaseColors: string[],
         chartType: "line" | "bar",
     ): HistoryUtils.ChartData {
-        const consumptionMeter: EdgeConfig.Component = config.getComponentSafely(component.properties["meter.id"]);
+        const consumptionMeter: EdgeConfig.Component | null = config.getComponentSafely(component.properties["meter.id"]);
 
         const input: HistoryUtils.InputChannel[] = [
             { name: component.id, powerChannel: new ChannelAddress(component.id, "Level") },

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 
@@ -23,7 +22,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     standalone: false,
 })
 export class HistoryDataErrorComponent {
-    protected type: ErrorType;
+    protected type: ErrorType = null;
 
     @Input()
     set response(response: JsonrpcResponseError | null) {

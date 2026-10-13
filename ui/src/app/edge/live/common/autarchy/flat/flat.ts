@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -12,7 +11,7 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    public percentageValue: number;
+    public percentageValue: number | null = null;
     protected modalComponent: Modal | null = null;
 
     protected getModalComponent(): Modal {

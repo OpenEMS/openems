@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -10,7 +9,7 @@ import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    protected selfconsumptionValue: number | null;
+    protected selfconsumptionValue: number | null = null;
 
     protected override onCurrentData(currentData: CurrentData) {
         this.selfconsumptionValue = Utils.calculateSelfConsumption(

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents, CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
@@ -21,10 +20,10 @@ export class IndexComponent implements OnInit {
     private static readonly SELECTOR = "indexComponentInstall";
 
     public components: CategorizedComponents[] | null = null;
-    public list: MyCategorizedFactories[];
+    public list: MyCategorizedFactories[] = [];
     public showAllFactories = false;
 
-    private edge: Edge;
+    private edge!: Edge;
 
     constructor(
         private translate: TranslateService,
