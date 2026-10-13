@@ -68,10 +68,10 @@
                 "TIMESTAMP": "Hora"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Comando manual",
                 "MANUALPQ_POWER_SPECIFICATION": "Especificaciones de rendimiento",
                 "MANUALPQ_RESET": "Restablecer",
                 "MANUALPQ_SUBMIT": "Tomar",
+                "MANUAL_COMMAND": "Comando manual",
                 "REFU_INVERTER": "REFU Inversor",
                 "REFU_START": "Empezar",
                 "REFU_START_STOP": "Iniciar/detener inversor",
@@ -108,8 +108,8 @@
             "MAY": "May",
             "MON": "Lun",
             "MONTH": "Mes",
-            "NO_DATA": "sin datos disponibles",
             "NOV": "Nov",
+            "NO_DATA": "sin datos disponibles",
             "OCT": "Oct",
             "OTHER_PERIOD": "Otro período",
             "PERIOD": "Período",
@@ -196,14 +196,14 @@
                         "SHORT_NAME": "a mano"
                     },
                     "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
+                    "NOT_AUTHORIZED": "No autorizado",
+                    "NOT_CHARGING": "No cobrar",
+                    "NOT_READY_FOR_CHARGING": "No está liesto para la carga",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "No se pudo conectar a la estación de carga.",
                         "HELP1": "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
                         "HELP1_1": "La IP de la estación de carga aparece cuando se enciende nuevamente"
                     },
-                    "NOT_AUTHORIZED": "No autorizado",
-                    "NOT_CHARGING": "No cobrar",
-                    "NOT_READY_FOR_CHARGING": "No está liesto para la carga",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "Coche",
@@ -273,39 +273,13 @@
                         "CHARGE_LIMIT_ACTIVE": "Límite de carga activo",
                         "END_TIME_NOT_CALCULATED": "Hora de finalización no calculada",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "Se evita la limitación de la alimentación a la red",
+                        "NOT_DEFINED": "No definida",
                         "NO_LIMIT_ACTIVE": "Sin límite de carga activo",
                         "NO_LIMIT_POSSIBLE": "Sin limitación posible (restringido por controles con mayor prioridad)",
-                        "NOT_DEFINED": "No definida",
                         "PASSED_END_TIME": "Se superó el tiempo de finalización de la carga limitada",
                         "STORAGE_ALREADY_FULL": "Memoria ya llena"
                     },
                     "STORAGE_CAPACITY": "capacidad de almacenamiento (sólo visible para el administrador)"
-                },
-                "HEAT_PUMP": {
-                    "ABOVE_SOC": "y del estado de carga de",
-                    "BELOW_SOC": "y bajo el estado de cargo de",
-                    "GRID_BUY": "De la compra de la red de",
-                    "GRID_SELL": "Por exceso de alimentación de",
-                    "HEAT_PUMP": "Bomba de calor",
-                    "LOCK": "Bloquear",
-                    "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima de la bomba de calor",
-                    "NORMAL_OPERATION": "Operación normal",
-                    "NORMAL_OPERATION_SHORT": "Normal",
-                    "RELATION_ERROR": "El valor de exceso del comando de encendido debe ser mayor que el valor recomendado de encendido",
-                    "SWITCH_ON_COM": "Mando de encendido",
-                    "SWITCH_ON_COM_SHORT": "Mando",
-                    "SWITCH_ON_REC": "Recomendación de encendido",
-                    "SWITCH_ON_REC_SHORT": "Recomendación",
-                    "UNDEFINED": "Indefinido",
-                    "OPERATING_STATUS": "Estado de funcionamiento",
-                    "AUTOMATIC_DESCRIPTION": "Configura aquí los umbrales para el modo de excedente PV",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "La bomba de calor se enciende cuando la inyección de excedente supera el valor introducido y el estado de carga del sistema de almacenamiento está por encima del valor introducido.",
-                        "SWITCH_ON_REC": "Al activarse, la bomba de calor aumenta su potencia y aprovecha con mayor intensidad la energía disponible para la generación de calor.",
-                        "NORMAL_OPERATION": "La bomba de calor funciona de acuerdo con la demanda dentro del rango de potencia normal.",
-                        "AUTOMATIC": "Según los umbrales configurados para la compra de red y la inyección, se conmutan los distintos modos. (Los umbrales se pueden cambiar en Ajustes)",
-                        "LOCK": "Este estado de funcionamiento limita el consumo de energía de la bomba de calor, según su configuración, a 0 kW o 4,2 kW."
-                    }
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Activo (Plazo mínimo)",
@@ -319,6 +293,32 @@
                     "PRIORITY": "Prioridad",
                     "TIME": "Tiempo",
                     "TIME_COUNTDOWN": "Hora de empezar"
+                },
+                "HEAT_PUMP": {
+                    "ABOVE_SOC": "y del estado de carga de",
+                    "AUTOMATIC_DESCRIPTION": "Configura aquí los umbrales para el modo de excedente PV",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Según los umbrales configurados para la compra de red y la inyección, se conmutan los distintos modos. (Los umbrales se pueden cambiar en Ajustes)",
+                        "LOCK": "Este estado de funcionamiento limita el consumo de energía de la bomba de calor, según su configuración, a 0 kW o 4,2 kW.",
+                        "NORMAL_OPERATION": "La bomba de calor funciona de acuerdo con la demanda dentro del rango de potencia normal.",
+                        "SWITCH_ON_COM": "La bomba de calor se enciende cuando la inyección de excedente supera el valor introducido y el estado de carga del sistema de almacenamiento está por encima del valor introducido.",
+                        "SWITCH_ON_REC": "Al activarse, la bomba de calor aumenta su potencia y aprovecha con mayor intensidad la energía disponible para la generación de calor."
+                    },
+                    "BELOW_SOC": "y bajo el estado de cargo de",
+                    "GRID_BUY": "De la compra de la red de",
+                    "GRID_SELL": "Por exceso de alimentación de",
+                    "HEAT_PUMP": "Bomba de calor",
+                    "LOCK": "Bloquear",
+                    "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima de la bomba de calor",
+                    "NORMAL_OPERATION": "Operación normal",
+                    "NORMAL_OPERATION_SHORT": "Normal",
+                    "OPERATING_STATUS": "Estado de funcionamiento",
+                    "RELATION_ERROR": "El valor de exceso del comando de encendido debe ser mayor que el valor recomendado de encendido",
+                    "SWITCH_ON_COM": "Mando de encendido",
+                    "SWITCH_ON_COM_SHORT": "Mando",
+                    "SWITCH_ON_REC": "Recomendación de encendido",
+                    "SWITCH_ON_REC_SHORT": "Recomendación",
+                    "UNDEFINED": "Indefinido"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Los valores negativos corresponden a la carga de memoria",
                 "INFO_STORAGE_FOR_DISCHARGE": "Los valores positivos corresponden a la descarga de la memoria",
@@ -348,11 +348,11 @@
                     "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima del dispositivo controlado",
                     "OTHER": "Otro",
                     "RELATION_ERROR": "El umbral debe ser mayor que la carga conmutada",
+                    "SWITCHED_LOAD_POWER": "Carga conmutada",
                     "SWITCH_OFF_ABOVE": "Apagar a través de",
                     "SWITCH_OFF_BELOW": "Apagar bajo",
                     "SWITCH_ON_ABOVE": "Encender a través de",
                     "SWITCH_ON_BELOW": "Encender debajo",
-                    "SWITCHED_LOAD_POWER": "Carga conmutada",
                     "THRESHOLD": "Thresholded"
                 },
                 "TWO_WAY_INFO_GRID": "Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red"
@@ -508,8 +508,8 @@
         "ADD_TASK": "Añadir tarea",
         "EDIT_EVENT": "Editar evento",
         "EDIT_TASK": "Editar tarea",
-        "NEXT_EVENTS": "Próximos eventos",
         "MANUAL_EVENTS": "Eventos manuales",
+        "NEXT_EVENTS": "Próximos eventos",
         "SMART_EVENTS": "Eventos inteligentes"
     },
     "LOGIN": {

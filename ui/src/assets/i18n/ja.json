@@ -81,10 +81,10 @@
                 "TIMESTAMP": "タイムスタンプ"
             },
             "MORE": {
-                "MANUAL_COMMAND": "手動コマンド",
                 "MANUALPQ_POWER_SPECIFICATION": "電力仕様",
                 "MANUALPQ_RESET": "リセット",
                 "MANUALPQ_SUBMIT": "送信",
+                "MANUAL_COMMAND": "手動コマンド",
                 "REFU_INVERTER": "インバーターをリフルします",
                 "REFU_START": "始める",
                 "REFU_START_STOP": "インバーターを開始/停止します",
@@ -121,8 +121,8 @@
             "MAY": "5月",
             "MON": "月",
             "MONTH": "月",
-            "NO_DATA": "データなし",
             "NOV": "11月",
+            "NO_DATA": "データなし",
             "OCT": "10月",
             "OTHER_PERIOD": "他の日付",
             "PERIOD": "期間",
@@ -216,14 +216,14 @@
                     },
                     "LOCK": "ロック済み",
                     "MAX_ENERGY_RESTRICTION": "充電量制限機能",
+                    "NOT_AUTHORIZED": "許可されていません",
+                    "NOT_CHARGING": "停止中",
+                    "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "充電ステーションへの接続はありません。",
                         "HELP1": "充電ステーションがオンになっているかどうかを確認し、ネットワークを介して到達できるかどうかを確認してください。",
                         "HELP1_1": "充電ステーションのIPは、再びオンになっているときに表示されます"
                     },
-                    "NOT_AUTHORIZED": "許可されていません",
-                    "NOT_CHARGING": "停止中",
-                    "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "車",
@@ -295,39 +295,13 @@
                         "CHARGE_LIMIT_ACTIVE": "充電制限アクティブ",
                         "END_TIME_NOT_CALCULATED": "計算されていない終了時間",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "グリッドフィードインの制限は回避されます",
+                        "NOT_DEFINED": "定義されていません",
                         "NO_LIMIT_ACTIVE": "充電制限はアクティブではありません",
                         "NO_LIMIT_POSSIBLE": "不可能な制限はありません（優先度が高いコントロールによって制限されています）",
-                        "NOT_DEFINED": "定義されていません",
                         "PASSED_END_TIME": "限られた充電の終了時間を超えました",
                         "STORAGE_ALREADY_FULL": "すでに満員の蓄電池"
                     },
                     "STORAGE_CAPACITY": "storagecapacity（管理者のみ見える）"
-                },
-                "HEAT_PUMP": {
-                    "ABOVE_SOC": "そして、充電の状態を超えています",
-                    "BELOW_SOC": "およびの充電の下",
-                    "GRID_BUY": "グリッド購入から",
-                    "GRID_SELL": "の過剰な送りから",
-                    "HEAT_PUMP": "ヒートポンプ",
-                    "LOCK": "ロック",
-                    "MORE_THAN_HP_POWER": "値は、ヒートポンプの最大出力よりも低くてはなりません",
-                    "NORMAL_OPERATION": "通常の動作",
-                    "NORMAL_OPERATION_SHORT": "普通",
-                    "RELATION_ERROR": "スイッチオンコマンド過剰値は、スイッチオン推奨値よりも大きくなければなりません",
-                    "SWITCH_ON_COM": "スイッチオンコマンド",
-                    "SWITCH_ON_COM_SHORT": "指図",
-                    "SWITCH_ON_REC": "スイッチオンの推奨",
-                    "SWITCH_ON_REC_SHORT": "おすすめ",
-                    "UNDEFINED": "未定義",
-                    "OPERATING_STATUS": "運転状態",
-                    "AUTOMATIC_DESCRIPTION": "ここでPV余剰モードのしきい値を設定してください",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "余剰電力の供給が設定値を超え、蓄電システムの充電状態が設定値を上回ると、ヒートポンプが起動します。",
-                        "SWITCH_ON_REC": "有効にすると、ヒートポンプは出力を高め、利用可能なエネルギーを熱生成に一層集中的に使用します。",
-                        "NORMAL_OPERATION": "ヒートポンプは通常の電力範囲内で需要に応じて運転します。",
-                        "AUTOMATIC": "設定された系統購入および余剰売電のしきい値に応じて、各モードが切り替わります。（しきい値は「設定」で変更できます）",
-                        "LOCK": "この運転状態では、ヒートポンプの設定に応じて、ヒートポンプの消費電力が0 kWまたは4.2 kWに制限されます。"
-                    }
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
@@ -341,6 +315,32 @@
                     "PRIORITY": "優先順位",
                     "TIME": "時間",
                     "TIME_COUNTDOWN": "開始までの時間"
+                },
+                "HEAT_PUMP": {
+                    "ABOVE_SOC": "そして、充電の状態を超えています",
+                    "AUTOMATIC_DESCRIPTION": "ここでPV余剰モードのしきい値を設定してください",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "設定された系統購入および余剰売電のしきい値に応じて、各モードが切り替わります。（しきい値は「設定」で変更できます）",
+                        "LOCK": "この運転状態では、ヒートポンプの設定に応じて、ヒートポンプの消費電力が0 kWまたは4.2 kWに制限されます。",
+                        "NORMAL_OPERATION": "ヒートポンプは通常の電力範囲内で需要に応じて運転します。",
+                        "SWITCH_ON_COM": "余剰電力の供給が設定値を超え、蓄電システムの充電状態が設定値を上回ると、ヒートポンプが起動します。",
+                        "SWITCH_ON_REC": "有効にすると、ヒートポンプは出力を高め、利用可能なエネルギーを熱生成に一層集中的に使用します。"
+                    },
+                    "BELOW_SOC": "およびの充電の下",
+                    "GRID_BUY": "グリッド購入から",
+                    "GRID_SELL": "の過剰な送りから",
+                    "HEAT_PUMP": "ヒートポンプ",
+                    "LOCK": "ロック",
+                    "MORE_THAN_HP_POWER": "値は、ヒートポンプの最大出力よりも低くてはなりません",
+                    "NORMAL_OPERATION": "通常の動作",
+                    "NORMAL_OPERATION_SHORT": "普通",
+                    "OPERATING_STATUS": "運転状態",
+                    "RELATION_ERROR": "スイッチオンコマンド過剰値は、スイッチオン推奨値よりも大きくなければなりません",
+                    "SWITCH_ON_COM": "スイッチオンコマンド",
+                    "SWITCH_ON_COM_SHORT": "指図",
+                    "SWITCH_ON_REC": "スイッチオンの推奨",
+                    "SWITCH_ON_REC_SHORT": "おすすめ",
+                    "UNDEFINED": "未定義"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "負の値は蓄電池充電に対応します",
                 "INFO_STORAGE_FOR_DISCHARGE": "正の値は蓄電池放電に対応します",
@@ -370,11 +370,11 @@
                     "MORE_THAN_HP_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
                     "OTHER": "他の",
                     "RELATION_ERROR": "しきい値は、スイッチされた負荷電力よりも大きくなければなりません",
+                    "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
                     "SWITCH_OFF_ABOVE": "上記のスイッチをオフにします",
                     "SWITCH_OFF_BELOW": "下のスイッチをオフにします",
                     "SWITCH_ON_ABOVE": "上記のスイッチを入れます",
                     "SWITCH_ON_BELOW": "以下を切り替えます",
-                    "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
                     "THRESHOLD": "しきい値"
                 },
                 "TIME_OF_USE_TARIFF": {
@@ -551,8 +551,8 @@
         "ADD_TASK": "タスクを追加",
         "EDIT_EVENT": "イベントを編集",
         "EDIT_TASK": "タスクを編集",
-        "NEXT_EVENTS": "次のイベント",
         "MANUAL_EVENTS": "手動イベント",
+        "NEXT_EVENTS": "次のイベント",
         "SMART_EVENTS": "スマートイベント"
     },
     "LOGIN": {
