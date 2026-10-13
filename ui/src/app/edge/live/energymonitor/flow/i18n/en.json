@@ -1,0 +1,17 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Autarchy today",
+                "CONSUMPTION_TODAY": "Consumption today",
+                "COST_TODAY": "Grid cost today",
+                "COST_TODAY_HINT": "Sum per quarter hour: metered grid buy × grid price of that quarter hour",
+                "EMPTY_AT": "lasts until ~{{value}}",
+                "FULL_AT": "full ~{{value}}",
+                "GRID_BUY_TODAY": "Grid buy today",
+                "GRID_SELL_TODAY": "Grid sell today",
+                "PRODUCTION_TODAY": "Production today"
+            }
+        }
+    }
+}

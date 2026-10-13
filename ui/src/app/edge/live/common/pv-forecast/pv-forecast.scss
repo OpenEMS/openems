@@ -1,0 +1,59 @@
+.pv-forecast {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--ion-text-color, #000) 12%, transparent);
+    font-size: 13px;
+    color: var(--ion-text-color);
+
+    .title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--ion-text-color-shade, #8a8a8a);
+
+        ion-icon {
+            font-size: 16px;
+            color: var(--oe-energyflow-production, #f59e0b);
+        }
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        line-height: 1.7;
+
+        &.sub {
+            font-size: 12px;
+            color: var(--ion-text-color-shade, #8a8a8a);
+        }
+    }
+
+    .value {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.accent {
+            color: var(--oe-energyflow-production, #f59e0b);
+        }
+
+        &.muted {
+            font-weight: 400;
+            color: var(--ion-text-color-shade, #8a8a8a);
+        }
+
+        ion-icon {
+            font-size: 16px;
+        }
+    }
+
+    .sub .value {
+        font-weight: 400;
+    }
+}
