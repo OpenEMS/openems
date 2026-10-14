@@ -219,10 +219,12 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	private void handleImported(JsonElement json) {
 		var energyTotal = Math.round(json.getAsFloat());
 
-		// Set energy channels directly from OpenWB readings
-		// EVCS only consumes energy, so production is always 0
-		this._setActiveProductionEnergy(0L);
-		this._setActiveConsumptionEnergy(energyTotal);
+		// Set energy channels directly from OpenWB readings.
+		// By OpenEMS convention an EVCS reports its charged energy on
+		// ActiveProductionEnergy (see CoreEventHandlerImpl, the Managed-OCPP EVCS
+		// base and the UI's EvcsComponent); ActiveConsumptionEnergy stays 0.
+		this._setActiveConsumptionEnergy(0L);
+		this._setActiveProductionEnergy(energyTotal);
 
 		// Initialize energyStartSession if charging but not yet initialized.
 		// This handles the case when component is activated while already charging.
