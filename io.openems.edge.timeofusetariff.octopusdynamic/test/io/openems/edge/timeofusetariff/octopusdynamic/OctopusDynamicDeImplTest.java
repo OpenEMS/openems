@@ -19,6 +19,100 @@ import com.google.gson.JsonParser;
  */
 public class OctopusDynamicDeImplTest {
 
+	@Test
+	public void rateLimitHonorsRetryAfter() {
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(429, 1, 3600) >= 3600);
+	}
+
+	@Test
+	public void exponentialBackoffIncreases() {
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(503, 2, 0)
+				> OctopusDynamicDeImpl.retryDelaySeconds(503, 1, 0));
+	}
+
+	@Test
+	public void parsesRetryAfterHeader() {
+		assertEquals(120L, OctopusDynamicDeImpl.parseRetryAfter("120"));
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter("invalid"));
+	}
+
+	@Test
+	public void reauthenticatesOnceAfterUnauthorizedForecast() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"first-token\"}}");
+		provider.failWithHttpStatus(401);
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"renewed-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(4, provider.requests);
+		assertEquals("renewed-token", provider.suppliedToken);
+	}
+
+	@Test
+	public void retainsPricesAfterRateLimit() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		provider.failWithHttpStatus(429);
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
+	}
+
+	@Test
+	public void invalidatesCachedTokenOnPasswordChange() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"old-token\"}}");
+		provider.respond(validFutureForecast());
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"new-token\"}}");
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "old-password"));
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "new-password"));
+		assertEquals(4, provider.requests);
+	}
+
+	@Test
+	public void diagnosticChannelsResetAfterSuccessfulRetry() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.failWithHttpStatus(429);
+		assertEquals(false, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, provider.rateLimited);
+		assertEquals(true, provider.nextRetry > 0);
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(false, provider.rateLimited);
+		assertEquals(false, provider.authenticationFailed);
+		assertEquals(false, provider.serverError);
+		assertEquals(false, provider.connectionFailed);
+		assertEquals(java.time.Instant.parse("2099-01-01T12:15:00Z").getEpochSecond(),
+				provider.forecastValidUntil);
+	}
+
+	@Test
+	public void diagnosticChannelsDistinguishAuthAndServerFailures() {
+		var auth = new StubProvider();
+		auth.failWithHttpStatus(401);
+		assertEquals(false, auth.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, auth.authenticationFailed);
+		assertEquals(false, auth.serverError);
+
+		var server = new StubProvider();
+		server.failWithHttpStatus(503);
+		assertEquals(false, server.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, server.serverError);
+		assertEquals(false, server.authenticationFailed);
+	}
+
+	@Test
+	public void retryAfterAndBackoffBoundaryCases() {
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter(null));
+		assertEquals(0L, OctopusDynamicDeImpl.parseRetryAfter("-10"));
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(429, 1, 7200) >= 7200);
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(503, 10, 0) <= 2520);
+		assertEquals(true, OctopusDynamicDeImpl.retryDelaySeconds(401, 1, 0) >= 43200);
+	}
+
 	private static String forecast(String slots) {
 		return """
 				{"account":{"properties":[{"electricityMalos":[{"agreements":[{
@@ -44,9 +138,49 @@ public class OctopusDynamicDeImplTest {
 		private final Queue<Object> responses = new ArrayDeque<>();
 		private int requests;
 		private String suppliedToken;
+		private boolean authenticationFailed;
+		private boolean rateLimited;
+		private boolean connectionFailed;
+		private boolean serverError;
+		private long forecastValidUntil;
+		private long nextRetry;
+
+		@Override
+		public void _setStatusAuthenticationFailed(boolean value) {
+			this.authenticationFailed = value;
+		}
+
+		@Override
+		public void _setStatusRateLimited(boolean value) {
+			this.rateLimited = value;
+		}
+
+		@Override
+		public void _setStatusConnectionFailed(boolean value) {
+			this.connectionFailed = value;
+		}
+
+		@Override
+		public void _setStatusServerError(boolean value) {
+			this.serverError = value;
+		}
+
+		@Override
+		public void _setForecastValidUntil(long value) {
+			this.forecastValidUntil = value;
+		}
+
+		@Override
+		public void _setNextRetry(long value) {
+			this.nextRetry = value;
+		}
 
 		void respond(String json) {
 			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
+		}
+
+		void failWithHttpStatus(int status) {
+			this.responses.add(new OctopusDynamicDeImpl.HttpFailure(status, 0));
 		}
 
 		void failWithIoException() {
@@ -112,33 +246,7 @@ public class OctopusDynamicDeImplTest {
 		assertArrayEquals(new Double[]{215.0}, provider.getPrices().asArray());
 	}
 
-	@Test
-	public void retriesAfterFailureAndReturnsToNormalRefreshInterval() {
-		class ScheduleProbe extends OctopusDynamicDeImpl {
-			private final Queue<Boolean> outcomes = new ArrayDeque<>();
-			private final Queue<Long> delays = new ArrayDeque<>();
-
-			@Override
-			boolean refresh(String accountNumber, String email, String password) {
-				return this.outcomes.remove();
-			}
-
-			@Override
-			void scheduleNextRefresh(long delayMinutes) {
-				this.delays.add(delayMinutes);
-			}
-		}
-
-		var provider = new ScheduleProbe();
-		provider.outcomes.add(false);
-		provider.outcomes.add(true);
-		provider.refreshAndSchedule();
-		provider.refreshAndSchedule();
-
-		assertEquals(Long.valueOf(5L), provider.delays.remove());
-		assertEquals(Long.valueOf(30L), provider.delays.remove());
-	}
-
+	
 
 	@Test
 	public void rejectsInvalidEmailOrPasswordResponse() {
@@ -150,13 +258,23 @@ public class OctopusDynamicDeImplTest {
 	}
 
 	@Test
+	public void cachesTokenBetweenSuccessfulForecastRequests() {
+		var provider = new StubProvider();
+		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
+		provider.respond(validFutureForecast());
+		provider.respond(validFutureForecast());
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
+		assertEquals(3, provider.requests);
+	}
+
+	@Test
 	public void rejectsUnknownAccountWithoutOverwritingValidPrices() {
 		var provider = new StubProvider();
 		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
 		provider.respond(validFutureForecast());
 		assertEquals(true, provider.refresh("A-TEST", "octopus@example.test", "test-password"));
 
-		provider.respond("{\"obtainKrakenToken\":{\"token\":\"mock-token\"}}");
 		provider.respond("{\"account\":null}");
 
 		assertEquals(false, provider.refresh("A-UNKNOWN", "octopus@example.test", "test-password"));
