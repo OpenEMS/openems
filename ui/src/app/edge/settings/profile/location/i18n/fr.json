@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "Emplacement",
+        "SYSTEM_LOCATION": "Emplacement du système",
+        "VALIDATED": "Validé",
+        "NOT_VALIDATED": "Veuillez valider l'emplacement de votre système.",
+        "TO_VALIDATION": "Aller à la validation",
+        "EDIT": "Modifier",
+        "EDIT_CARD_TITLE": "Validation de l'emplacement de votre système",
+        "EDIT_CARD_SUBTITLE": "Les données de localisation sont validées à des fins de service et de garantie.",
+        "EDIT_CARD_INFO": "Seules la longitude et la latitude sont enregistrées pour la validation de l'emplacement de votre système.",
+        "LONGITUDE": "Longitude",
+        "LATITUDE": "Latitude",
+        "ADRESS_IS_VALIDATED": "Emplacement déjà validé",
+        "SUCCESSFULL_VALIDATION": "Validation réussie !"
+    }
+}

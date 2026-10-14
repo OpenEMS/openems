@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, model, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, model } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -13,8 +13,13 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { TSignalValue } from "src/app/shared/type/utility";
+import cz from "../../../i18n/cz.json";
 import de from "../../../i18n/de.json";
 import en from "../../../i18n/en.json";
+import es from "../../../i18n/es.json";
+import fr from "../../../i18n/fr.json";
+import ja from "../../../i18n/ja.json";
+import nl from "../../../i18n/nl.json";
 import { SharedSchedulerJsCalendar } from "../../../shared-scheduler-js-calendar";
 
 @Component({
@@ -47,11 +52,13 @@ export class SchedulerJsCalendarEditTaskComponent extends JsCalendarEditTaskComp
         public override ref: ChangeDetectorRef,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
     }
 
     public ionViewWillEnter() {

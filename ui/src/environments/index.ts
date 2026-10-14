@@ -204,6 +204,8 @@ export interface Environment {
             };
         };
         readonly DATA_PROTECTION: string | null;
+        /** Gets the link to the General Terms and Conditions (GTC) for the given language. */
+        GTC: (language: string) => string | null;
         readonly FORGET_PASSWORD: string;
         readonly EVCS: string | null;
 

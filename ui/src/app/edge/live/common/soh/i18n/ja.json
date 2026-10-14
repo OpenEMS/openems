@@ -1,0 +1,23 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "SOH": {
+                "TITLE": "容量の測定",
+                "TITLE_TIP": "管理者のみに表示",
+                "ENABLED_INFO": "ESS SoHサイクルコントローラーが有効です",
+                "INFO": "テストサイクルを実行して電池容量を測定し、健全状態（SoH）を算出します。処理には、電池の種類と大きさに応じて数時間かかる場合があります。テストサイクルは、電池が使用されていないときにのみ実行することをおすすめします。",
+                "STATE_MACHINE_LABEL": "状態",
+                "CAPACITY_MEASURING": "容量測定中",
+                "RESTART_WARNING": "SoHサイクルを再起動すると、現在の測定値がリセットされ、新しいサイクルが開始されます。再起動してもよろしいですか？",
+                "ERROR": "SoHサイクル中にエラーが発生しました。詳細についてはシステムログを確認してください。",
+                "MEASURED_CAPACITY": "測定容量",
+                "SOH_PERCENT": "SoH",
+                "RESTART_CONFIRMATION_TITLE": "再実行の確認"
+            },
+            "BUTTONS": {
+                "START": "実行",
+                "RESTART": "再実行"
+            }
+        }
+    }
+}

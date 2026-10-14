@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "MODE": {
+            "TITLE": "Verwarmingsmodus",
+            "MANUAL_LOW": "Laag",
+            "MANUAL_HIGH": "Hoog"
+        },
+        "HOME": {
+            "POWER_CONSUMPTION": "Stroomverbruik",
+            "FLOOR_ACTUAL": "Vloertemperatuur (actueel)",
+            "FLOOR_TARGET": "Vloertemperatuur (doel)",
+            "AMBIENT_ACTUAL": "Omgevingstemperatuur (actueel)",
+            "AMBIENT_TARGET": "Omgevingstemperatuur (doel)",
+            "UPCOMING_EVENTS": "Aankomende afspraken"
+        }
+    }
+}

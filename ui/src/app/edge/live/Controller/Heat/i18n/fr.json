@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Mode sélectionné"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "Non disponible en mode lecture seule."
+        },
+        "SCHEDULE": {
+            "SCHEDULE": "Planification",
+            "MODE": "Mode de chauffage",
+            "MODE_SELECTION_PLACEHOLDER": "Sélectionner",
+            "MANUAL_EVENTS": "Événements manuels",
+            "SMART_EVENTS": "Événements intelligents",
+            "SMART_EVENT": "Événement intelligent",
+            "SMART_EVENT_END": "Demain 7h00",
+            "END_TEMPERATURE": "Température finale"
+        },
+        "SETTINGS": {
+            "NO_SETTINGS_AVAILABLE": "Aucun paramètre disponible.",
+            "MODE": {
+                "FAST_HEAT": {
+                    "TITLE": "Chauffage rapide",
+                    "DESCRIPTION": "La résistance chauffante sélectionne automatiquement le niveau de chauffage équivalent.\nLa durée maximale de fonctionnement est de 10 heures.\nEnsuite, elle fait une pause d'une heure."
+                },
+                "SURPLUS": {
+                    "TITLE": "Surplus photovoltaïque",
+                    "DESCRIPTION": "Permet un chauffage homogène de différents ballons. L'activation se fait automatiquement, parfaitement adaptée à votre énergie photovoltaïque excédentaire et disponible."
+                },
+                "OFF": {
+                    "TITLE": "Pas de chauffage"
+                }
+            }
+        }
+    }
+}

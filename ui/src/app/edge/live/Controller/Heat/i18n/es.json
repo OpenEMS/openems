@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Modo seleccionado"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "No disponible en modo de solo lectura."
+        },
+        "SCHEDULE": {
+            "SCHEDULE": "Programación",
+            "MODE": "Modo de calefacción",
+            "MODE_SELECTION_PLACEHOLDER": "Seleccionar",
+            "MANUAL_EVENTS": "Eventos manuales",
+            "SMART_EVENTS": "Eventos inteligentes",
+            "SMART_EVENT": "Evento inteligente",
+            "SMART_EVENT_END": "Mañana 7:00",
+            "END_TEMPERATURE": "Temperatura final"
+        },
+        "SETTINGS": {
+            "NO_SETTINGS_AVAILABLE": "No hay ajustes disponibles.",
+            "MODE": {
+                "FAST_HEAT": {
+                    "TITLE": "Calentamiento rápido",
+                    "DESCRIPTION": "La resistencia calefactora selecciona automáticamente el nivel de calefacción equivalente.\nLa duración máxima de potencia es de 10 horas.\nDespués hace una pausa de 1 hora."
+                },
+                "SURPLUS": {
+                    "TITLE": "Excedente fotovoltaico",
+                    "DESCRIPTION": "Permite un calentamiento uniforme de diferentes acumuladores. La activación ocurre automáticamente, perfectamente adaptada a su energía fotovoltaica excedente y disponible."
+                },
+                "OFF": {
+                    "TITLE": "Sin calefacción"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "Locatie",
+        "SYSTEM_LOCATION": "Systeemlocatie",
+        "VALIDATED": "Gevalideerd",
+        "NOT_VALIDATED": "Valideer de locatie van uw systeem.",
+        "TO_VALIDATION": "Ga naar validatie",
+        "EDIT": "Bewerken",
+        "EDIT_CARD_TITLE": "Validatie van de locatie van uw systeem",
+        "EDIT_CARD_SUBTITLE": "De locatiegegevens worden gevalideerd voor service- en garantiedoeleinden.",
+        "EDIT_CARD_INFO": "Voor de locatievalidatie van uw systeem worden alleen de lengte- en breedtegraad opgeslagen.",
+        "LONGITUDE": "Lengtegraad",
+        "LATITUDE": "Breedtegraad",
+        "ADRESS_IS_VALIDATED": "Locatie al gevalideerd",
+        "SUCCESSFULL_VALIDATION": "Validatie geslaagd!"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "設置場所",
+        "SYSTEM_LOCATION": "蓄電システムの設置場所",
+        "VALIDATED": "検証済み",
+        "NOT_VALIDATED": "お使いのシステムの設置場所を検証してください。",
+        "TO_VALIDATION": "検証へ移動",
+        "EDIT": "編集",
+        "EDIT_CARD_TITLE": "お使いのシステムの設置場所の検証",
+        "EDIT_CARD_SUBTITLE": "設置場所データは、サービスおよび保証の目的で検証されます。",
+        "EDIT_CARD_INFO": "システムの設置場所の検証のため、経度と緯度のみが保存されます。",
+        "LONGITUDE": "経度",
+        "LATITUDE": "緯度",
+        "ADRESS_IS_VALIDATED": "設置場所はすでに検証済みです",
+        "SUCCESSFULL_VALIDATION": "検証に成功しました！"
+    }
+}

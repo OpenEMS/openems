@@ -1,13 +1,19 @@
-import { Component, model, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { SelectCustomEvent } from "@ionic/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
+
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Language } from "src/app/shared/type/language";
+import cz from "../../i18n/cz.json";
 import de from "../../i18n/de.json";
 import en from "../../i18n/en.json";
+import es from "../../i18n/es.json";
+import fr from "../../i18n/fr.json";
+import ja from "../../i18n/ja.json";
+import nl from "../../i18n/nl.json";
 import { JsCalendar } from "../../js-calendar-task";
 
 @Component({
@@ -23,11 +29,13 @@ export class TaskFormWeeklyComponent {
     protected readonly spinnerId: string = uuidv4();
 
     constructor(private translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
     }
 
     public static readonly WEEK_DAYS = (translate: TranslateService) =>

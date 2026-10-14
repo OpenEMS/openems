@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "SCHEDULE": {
+            "MODE": "モード",
+            "MODE_SELECTION_PLACEHOLDER": "モードを選択"
+        },
+        "MODE": {
+            "ACTIVE_MODE": "モード",
+            "LABEL": "基本モード",
+            "OFF": "オフ",
+            "ON": "オン",
+            "SELECT_PROMPT": "マイナーにどのモードを適用しますか？"
+        }
+    }
+}

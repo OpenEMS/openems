@@ -1,0 +1,9 @@
+{
+    "ALERTING": {
+        "DELAY": "Retardo",
+        "CHECKBOX_HELP": "Cuando ocurra el evento, recibirá un correo electrónico transcurrido el tiempo de retardo configurado.",
+        "FAULT": "Fallo",
+        "ONLINE_STATUS": "Estado en línea",
+        "OTHER_USERS": "Otros usuarios"
+    }
+}

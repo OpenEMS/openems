@@ -1,0 +1,9 @@
+{
+    "ALERTING": {
+        "DELAY": "Vertraging",
+        "CHECKBOX_HELP": "Wanneer de gebeurtenis optreedt, ontvangt u een e-mail na de ingestelde vertragingstijd.",
+        "FAULT": "Fout",
+        "ONLINE_STATUS": "Onlinestatus",
+        "OTHER_USERS": "Andere gebruikers"
+    }
+}
