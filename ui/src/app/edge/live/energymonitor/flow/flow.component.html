@@ -1,0 +1,146 @@
+@if (isInitialized) {
+  <div class="energyflow" [class.compact]="compact">
+    <svg class="energyflow-svg" [attr.viewBox]="viewBox" role="img" [attr.aria-label]="'EDGE.INDEX.ENERGYMONITOR.TITLE' | translate">
+      <!-- idle connections -->
+      @for (path of idlePaths; track $index) {
+        <path [attr.d]="path" class="idle"></path>
+      }
+
+      <!-- active flows -->
+      @for (flow of flows; track flow.pathId) {
+        <path [attr.id]="flow.pathId" [attr.d]="flow.path" class="flow" [attr.stroke]="flow.color" [attr.stroke-width]="flow.strokeWidth"></path>
+      }
+      @for (consumer of compact ? [] : consumers; track $index) {
+        @if (consumer.flow; as flow) {
+          <path [attr.id]="flow.pathId" [attr.d]="flow.path" [class.flow]="flow.dots.length > 0" [class.idle]="flow.dots.length === 0" [attr.stroke]="flow.dots.length > 0 ? flow.color : null" [attr.stroke-width]="flow.dots.length > 0 ? flow.strokeWidth : null"></path>
+        }
+      }
+
+      <!-- moving dots -->
+      @for (flow of flows; track flow.pathId) {
+        @for (begin of flow.dots; track $index) {
+          <circle class="dot" [attr.r]="flow.strokeWidth / 2.6 + 0.6">
+            <animateMotion [attr.dur]="flow.duration" [attr.begin]="begin" repeatCount="indefinite" calcMode="linear" [attr.keyPoints]="flow.reverse ? '1;0' : '0;1'" keyTimes="0;1">
+              <mpath [attr.href]="'#' + flow.pathId"></mpath>
+            </animateMotion>
+          </circle>
+        }
+      }
+      @for (consumer of compact ? [] : consumers; track $index) {
+        @for (begin of consumer.flow?.dots ?? []; track $index) {
+          <circle class="dot" [attr.r]="consumer.flow.strokeWidth / 2.6 + 0.6">
+            <animateMotion [attr.dur]="consumer.flow.duration" [attr.begin]="begin" repeatCount="indefinite" calcMode="linear" keyPoints="0;1" keyTimes="0;1">
+              <mpath [attr.href]="'#' + consumer.flow.pathId"></mpath>
+            </animateMotion>
+          </circle>
+        }
+      }
+
+      <!-- production -->
+      <circle [attr.cx]="NODES.production.x" [attr.cy]="NODES.production.y" [attr.r]="RADIUS" class="node" stroke="var(--ef-production)"></circle>
+      <svg [attr.x]="NODES.production.x - 12" [attr.y]="NODES.production.y - 36" width="24" height="24" viewBox="0 0 512 512" fill="currentColor" style="color: var(--ef-production)" [innerHTML]="icon('sunny-outline')"></svg>
+      <text [attr.x]="NODES.production.x" [attr.y]="NODES.production.y + 8" class="node-value" text-anchor="middle">{{ formatPower(production) }}</text>
+      <text [attr.x]="NODES.production.x" [attr.y]="NODES.production.y + 24" class="node-label" text-anchor="middle">{{ "GENERAL.PRODUCTION" | translate }}</text>
+
+      <!-- grid -->
+      <circle [attr.cx]="NODES.grid.x" [attr.cy]="NODES.grid.y" [attr.r]="RADIUS" class="node" stroke="var(--ef-grid)"></circle>
+      <svg [attr.x]="NODES.grid.x - 12" [attr.y]="NODES.grid.y - 40" width="24" height="24" viewBox="0 0 512 512" fill="currentColor" style="color: var(--ef-grid)" [innerHTML]="icon('flash-outline')"></svg>
+      <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 4" class="node-value" text-anchor="middle">{{ formatPower(gridSell > 0 ? gridSell : gridBuy) }}</text>
+      <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 20" class="node-label" text-anchor="middle">{{ (gridSell > 0 ? "GENERAL.GRID_SELL_ADVANCED" : "GENERAL.GRID_BUY_ADVANCED") | translate }}</text>
+      @if (gridPrice !== null) {
+        <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 34" class="node-label" text-anchor="middle">{{ gridPrice }}</text>
+      }
+
+      <!-- consumption -->
+      <circle [attr.cx]="NODES.consumption.x" [attr.cy]="NODES.consumption.y" [attr.r]="RADIUS" class="node" stroke="var(--ef-consumption)"></circle>
+      <svg [attr.x]="NODES.consumption.x - 12" [attr.y]="NODES.consumption.y - 36" width="24" height="24" viewBox="0 0 512 512" fill="currentColor" style="color: var(--ef-consumption)" [innerHTML]="icon('home-outline')"></svg>
+      <text [attr.x]="NODES.consumption.x" [attr.y]="NODES.consumption.y + 8" class="node-value" text-anchor="middle">{{ formatPower(consumption) }}</text>
+      <text [attr.x]="NODES.consumption.x" [attr.y]="NODES.consumption.y + 24" class="node-label" text-anchor="middle">{{ "GENERAL.CONSUMPTION" | translate }}</text>
+
+      <!-- storage with state-of-charge ring -->
+      @if (hasStorage) {
+        <circle [attr.cx]="NODES.storage.x" [attr.cy]="NODES.storage.y" [attr.r]="RADIUS" class="node soc-track"></circle>
+        <circle [attr.cx]="NODES.storage.x" [attr.cy]="NODES.storage.y" [attr.r]="RADIUS" class="soc" [attr.stroke-dasharray]="socDash" [attr.transform]="'rotate(-90 ' + NODES.storage.x + ' ' + NODES.storage.y + ')'"></circle>
+        <svg [attr.x]="NODES.storage.x - 12" [attr.y]="NODES.storage.y - 36" width="24" height="24" viewBox="0 0 512 512" fill="currentColor" style="color: var(--ef-storage)" [innerHTML]="icon(storageCharge > 0 ? 'battery-charging-outline' : 'battery-half-outline')"></svg>
+        <text [attr.x]="NODES.storage.x" [attr.y]="NODES.storage.y + 8" class="node-value" text-anchor="middle">{{ formatPower(storageCharge > 0 ? storageCharge : storageDischarge) }}</text>
+        <text [attr.x]="NODES.storage.x" [attr.y]="NODES.storage.y + 24" class="node-label" text-anchor="middle">{{ soc }}&nbsp;%</text>
+        @if (storageEstimate !== null) {
+          <text [attr.x]="NODES.storage.x" [attr.y]="NODES.storage.y + RADIUS + 20" class="node-note" text-anchor="middle">{{ storageEstimate }}</text>
+        }
+      }
+
+      <!-- consumers (wide layout) -->
+      @for (consumer of compact ? [] : consumers; track $index) {
+        @let active = consumer.active;
+        <circle [attr.cx]="consumer.x" [attr.cy]="consumer.y" [attr.r]="consumer.r" class="consumer" [class.inactive]="!active"></circle>
+        <svg [attr.x]="consumer.x - 8" [attr.y]="consumer.y - consumer.r * 0.69" width="16" height="16" viewBox="0 0 512 512" fill="currentColor" [style.color]="active ? 'var(--ef-consumption)' : 'var(--ion-text-color-shade)'" [innerHTML]="icon(consumer.icon)"></svg>
+        <text [attr.x]="consumer.x" [attr.y]="consumer.y + consumer.r * 0.42" class="consumer-value" [class.inactive]="!active" text-anchor="middle">{{ active ? formatPower(consumer.power) : ("GENERAL.OFF" | translate) }}</text>
+        <text [attr.x]="consumer.x" [attr.y]="consumer.y + consumer.r + 14" class="consumer-label" [class.small]="consumer.r < 26" text-anchor="middle">{{ consumer.name }}</text>
+      }
+    </svg>
+
+    <!-- consumers (compact layout) -->
+    @if (compact && consumers.length > 0) {
+      <div class="consumer-list">
+        @for (consumer of consumers; track $index) {
+          @let active = consumer.active;
+          <div class="consumer-item" [class.inactive]="!active">
+            <ion-icon [name]="consumer.icon" [style.color]="active ? 'var(--ef-consumption)' : 'var(--ion-text-color-shade)'"></ion-icon>
+            <span class="name">{{ consumer.name }}</span>
+            <span class="power">{{ active ? formatPower(consumer.power) : ("GENERAL.OFF" | translate) }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- daily summary -->
+    @if (today !== null) {
+      <div class="today">
+        <div class="kpi">
+          <ion-icon name="sunny-outline" style="color: var(--ef-production)"></ion-icon>
+          <div>
+            <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.PRODUCTION_TODAY" | translate }}</div>
+            <div class="value">{{ formatEnergy(today.production) }}</div>
+          </div>
+        </div>
+        <div class="kpi">
+          <ion-icon name="home-outline" style="color: var(--ef-consumption)"></ion-icon>
+          <div>
+            <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.CONSUMPTION_TODAY" | translate }}</div>
+            <div class="value">{{ formatEnergy(today.consumption) }}</div>
+          </div>
+        </div>
+        <div class="kpi">
+          <ion-icon name="arrow-down-outline" style="color: var(--ef-grid)"></ion-icon>
+          <div>
+            <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.GRID_BUY_TODAY" | translate }}</div>
+            <div class="value">{{ formatEnergy(today.gridBuy) }}</div>
+          </div>
+        </div>
+        <div class="kpi">
+          <ion-icon name="arrow-up-outline" style="color: var(--ef-grid)"></ion-icon>
+          <div>
+            <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.GRID_SELL_TODAY" | translate }}</div>
+            <div class="value">{{ formatEnergy(today.gridSell) }}</div>
+          </div>
+        </div>
+        <div class="kpi">
+          <ion-icon name="leaf-outline" style="color: var(--ion-color-primary)"></ion-icon>
+          <div>
+            <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.AUTARCHY_TODAY" | translate }}</div>
+            <div class="value accent">{{ today.autarchy | number: "1.0-0" }}&nbsp;%</div>
+          </div>
+        </div>
+        @if (todayCost !== null) {
+          <div class="kpi" [title]="'EDGE.INDEX.ENERGYFLOW.COST_TODAY_HINT' | translate">
+            <ion-icon name="wallet-outline" style="color: var(--ef-grid)"></ion-icon>
+            <div>
+              <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.COST_TODAY" | translate }}</div>
+              <div class="value">{{ todayCost }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

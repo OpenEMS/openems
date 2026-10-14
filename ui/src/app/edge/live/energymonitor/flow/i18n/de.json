@@ -1,0 +1,17 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Autarkie heute",
+                "CONSUMPTION_TODAY": "Verbrauch heute",
+                "COST_TODAY": "Stromkosten heute",
+                "COST_TODAY_HINT": "Summe je Viertelstunde: gemessener Netzbezug × Strompreis dieser Viertelstunde",
+                "EMPTY_AT": "reicht bis ~{{value}}",
+                "FULL_AT": "voll ~{{value}}",
+                "GRID_BUY_TODAY": "Netzbezug heute",
+                "GRID_SELL_TODAY": "Einspeisung heute",
+                "PRODUCTION_TODAY": "Erzeugung heute"
+            }
+        }
+    }
+}

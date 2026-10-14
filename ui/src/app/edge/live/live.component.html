@@ -7,17 +7,17 @@
       <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
           <ion-row class="ion-padding-top-half">
-            <ion-col size-xl="2" size-lg="1">
-              <mini-weather componentId="weather0"></mini-weather>
-            </ion-col>
             <!--
-            On extra-large (xl): 2 - [5] - 1 - [4]
-            On large (lg): 1 - [6] - [5]
-            On medium (md): [7] - [5]
-            On small and below: [12] / [12]
+            On large and up (lg+): [2 weather] - [8 energy flow] - 2, energy flow centered
+            Below: weather on top, energy flow full width
             -->
-            <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding ion-justify-content-center">
-              <energymonitor tabindex="0"></energymonitor>
+            <ion-col size-lg="2" size="12">
+              <div style="display: inline-block; margin: 8px; padding: 0 16px 12px; border-radius: 12px; background: var(--oe-energyflow-surface, color-mix(in srgb, var(--ion-text-color, #000) 5%, transparent))">
+                <mini-weather componentId="weather0"></mini-weather>
+              </div>
+            </ion-col>
+            <ion-col size-lg="8" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding ion-justify-content-center">
+              <oe-energyflow tabindex="0"></oe-energyflow>
             </ion-col>
           </ion-row>
         } @else {

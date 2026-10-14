@@ -85,7 +85,13 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
         if (this.chartDiv.nativeElement.offsetParent) {
             size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
         }
-        if (size > window.innerHeight) {
+        // Fit into the visible area below the chart's top edge (header, margin) and above the footer
+        const top = Math.max(0, this.chartDiv.nativeElement.getBoundingClientRect().top);
+        const footerSpace = 60;
+        const maxSize = window.innerHeight - top - footerSpace;
+        if (size > maxSize && maxSize >= 250) {
+            size = maxSize;
+        } else if (size > window.innerHeight) {
             size = window.innerHeight;
         }
         this.height = this.width = size;
