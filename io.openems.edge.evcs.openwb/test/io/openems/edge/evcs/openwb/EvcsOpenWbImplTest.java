@@ -89,7 +89,8 @@ public class EvcsOpenWbImplTest {
 							// Simulate energy imported
 							mqttBridge.simulateMessage("openWB/internal_chargepoint/0/get/imported", "12345678");
 						}) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 12345678L)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 12345678L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L)) //
 				.deactivate();
 	}
 
