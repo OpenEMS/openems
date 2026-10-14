@@ -289,6 +289,7 @@ public class OctopusDynamicDeImpl extends AbstractOpenemsComponent
 		private static final long serialVersionUID = 1L;
 		final int status;
 		final long retryAfterSeconds;
+
 		HttpFailure(int status, long retryAfterSeconds) {
 			super("HTTP_STATUS_" + status);
 			this.status = status;
