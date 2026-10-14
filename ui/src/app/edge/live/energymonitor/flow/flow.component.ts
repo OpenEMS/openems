@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, ElementRef, inject, NgZone, OnDestroy } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { startOfToday } from "date-fns";
+import { addHours, isSameDay, startOfToday } from "date-fns";
 import { batteryChargingOutline, batteryHalfOutline, carOutline, ellipsisHorizontal, flameOutline, flashOutline, homeOutline, shieldCheckmarkOutline, snowOutline, speedometerOutline, sunnyOutline, } from "ionicons/icons";
 import { v4 as uuidv4 } from "uuid";
 
@@ -97,6 +97,10 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     };
     /** Flows below this power (W) are drawn as idle */
     private static readonly MIN_POWER = 30;
+    /** Predicted state of charge (%) that counts as full */
+    private static readonly FULL_SOC = 99;
+    /** The lowest predicted state of charge (%) counts as empty only if it is at most this value */
+    private static readonly EMPTY_SOC = 10;
     private static readonly CONSUMER_X = 625;
     /** Rows in the consumer column; with more consumers, those of one category share a row */
     private static readonly MAX_CONSUMER_ROWS = 6;
@@ -149,6 +153,8 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     private todayTimer: ReturnType<typeof setInterval> | null = null;
     private resizeObserver: ResizeObserver | null = null;
     private lastCurrentData: CurrentData | null = null;
+    /** Predicted state of charge from the energy schedule, future quarter hours only */
+    private socForecast: { time: Date; soc: number }[] = [];
     private host = inject(ElementRef);
     private sanitizer = inject(DomSanitizer);
     private iconCache = new Map<string, SafeHtml>();
@@ -276,7 +282,6 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             new ChannelAddress("_sum", "GridBuyPrice"),
             new ChannelAddress("_sum", "ConsumptionActivePower"),
             new ChannelAddress("_sum", "EssSoc"),
-            new ChannelAddress("_sum", "EssCapacity"),
             new ChannelAddress("_sum", "EssActivePower"),
             new ChannelAddress("_sum", "EssDischargePower"),
         ];
@@ -322,7 +327,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             this.soc != null
                 ? `${((this.SOC_CIRCUMFERENCE * Math.min(100, Math.max(0, this.soc))) / 100).toFixed(1)} 999`
                 : "0 999";
-        this.storageEstimate = this.calculateStorageEstimate(c["_sum/EssCapacity"]);
+        this.storageEstimate = this.calculateStorageEstimate();
 
         const price: number | null = c["_sum/GridBuyPrice"] ?? null;
         this.gridPrice =
@@ -520,29 +525,36 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         };
     }
 
-    /** Estimated time until the storage is full (charging) or empty (discharging) */
-    private calculateStorageEstimate(capacity: number | null): string | null {
-        if (capacity == null || capacity <= 0 || this.soc == null) {
+    /**
+     * Time when the storage will be full (charging) or empty (discharging), taken from the predicted state of charge of
+     * the energy schedule. Hidden without prediction or if the prediction does not reach full/empty.
+     */
+    private calculateStorageEstimate(): string | null {
+        if (this.soc == null || this.socForecast.length === 0) {
             return null;
         }
-        let hours: number | null = null;
+        let at: Date | null = null;
         let key: string | null = null;
         if (this.storageCharge >= 100 && this.soc < 100) {
-            hours = (capacity * (100 - this.soc)) / 100 / this.storageCharge;
+            at = this.socForecast.find((e) => e.soc >= EnergyflowComponent.FULL_SOC)?.time ?? null;
             key = "EDGE.INDEX.ENERGYFLOW.FULL_AT";
         } else if (this.storageDischarge >= 100 && this.soc > 0) {
-            hours = (capacity * this.soc) / 100 / this.storageDischarge;
+            // the lowest predicted state of charge counts as empty (minimum SoC / reserve), if it is low enough
+            const min = Math.min(...this.socForecast.map((e) => e.soc));
+            if (min < this.soc && min <= EnergyflowComponent.EMPTY_SOC) {
+                at = this.socForecast.find((e) => e.soc <= min)?.time ?? null;
+            }
             key = "EDGE.INDEX.ENERGYFLOW.EMPTY_AT";
         }
-        if (hours == null || hours < 0.05 || hours > 48) {
+        if (at == null) {
             return null;
         }
-        const at = new Date(Date.now() + hours * 3600 * 1000);
-        const time = at.toLocaleTimeString(Language.getCurrentLanguage().i18nLocaleKey, {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-        return this.translate.instant(key, { value: time });
+        const locale = Language.getCurrentLanguage().i18nLocaleKey;
+        const time = at.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+        const value = isSameDay(at, new Date())
+            ? time
+            : at.toLocaleDateString(locale, { weekday: "short" }) + " " + time;
+        return this.translate.instant(key, { value: value });
     }
 
     /**
@@ -551,7 +563,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
      * with the grid buy price of that quarter hour and summed up. Works with dynamic tariffs. Hidden if no prices are
      * available.
      */
-    private updateTodayCost(gridBuyToday: number | null): Promise<void> {
+    private updateTodayCost(gridBuyToday: number | null, schedule: GetSchedule.Response | null): Promise<void> {
         if (this.edge == null || gridBuyToday == null) {
             this.todayCost = null;
             return Promise.resolve();
@@ -565,11 +577,9 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             { value: 15, unit: ChronoUnit.Type.MINUTES },
         );
 
-        return Promise.all([
-            this.edge.sendRequest<QueryHistoricTimeseriesDataResponse>(this.websocket, request),
-            GetSchedule.getSchedule(this.edge, this.websocket, new Date(from)).catch(() => null),
-        ])
-            .then(([data, schedule]) => {
+        return this.edge
+            .sendRequest<QueryHistoricTimeseriesDataResponse>(this.websocket, request)
+            .then((data) => {
                 // fallback prices from the energy schedule, by start of quarter hour
                 const schedulePrices = new Map<number, number>();
                 for (const e of schedule?.data ?? []) {
@@ -619,10 +629,15 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         }
     }
 
-    /** Energy values of the current day */
+    /** Energy values of the current day, grid cost and predicted state of charge */
     private updateToday(): Promise<void> {
         const now = new Date();
-        return this.service
+        // a 'from' other than midnight returns two full days (today and tomorrow), midnight only one
+        const schedule: Promise<GetSchedule.Response | null> =
+            this.edge == null
+                ? Promise.resolve(null)
+                : GetSchedule.getSchedule(this.edge, this.websocket, addHours(startOfToday(), 12)).catch(() => null);
+        const gridBuy: Promise<number | null | undefined> = this.service
             .queryEnergy(new Date(now), new Date(now), [
                 new ChannelAddress("_sum", "ProductionActiveEnergy"),
                 new ChannelAddress("_sum", "GridBuyActiveEnergy"),
@@ -632,18 +647,28 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             .then((response) => {
                 const d = response.result.data;
                 const consumption = d["_sum/ConsumptionActiveEnergy"];
-                const gridBuy = d["_sum/GridBuyActiveEnergy"];
+                const buy = d["_sum/GridBuyActiveEnergy"];
                 this.today = {
                     production: d["_sum/ProductionActiveEnergy"] ?? null,
                     consumption: consumption ?? null,
-                    gridBuy: gridBuy ?? null,
+                    gridBuy: buy ?? null,
                     gridSell: d["_sum/GridSellActiveEnergy"] ?? null,
-                    autarchy: Utils.calculateAutarchy(gridBuy, consumption),
+                    autarchy: Utils.calculateAutarchy(buy, consumption),
                 };
-                return this.updateTodayCost(gridBuy ?? null);
+                return buy ?? null;
             })
             .catch(() => {
                 // keep the last values; the daily summary is optional
+                return undefined;
             });
+
+        return Promise.all([gridBuy, schedule]).then(([buy, schedule]) => {
+            this.socForecast = (schedule?.data ?? [])
+                .filter((e) => e.timestamp > now && e._sum.EssSoc != null)
+                .map((e) => ({ time: e.timestamp, soc: e._sum.EssSoc }));
+            if (buy !== undefined) {
+                return this.updateTodayCost(buy, schedule);
+            }
+        });
     }
 }

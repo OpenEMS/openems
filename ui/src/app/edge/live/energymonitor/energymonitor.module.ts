@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { PvForecastComponent } from "../common/pv-forecast/pv-forecast";
 import { SharedModule } from "./../../../shared/shared.module";
 import { EnergymonitorChartComponent } from "./chart/chart.component";
 import { ConsumptionSectionComponent } from "./chart/section/consumption.component";
@@ -12,7 +11,7 @@ import { EnergymonitorComponent } from "./energymonitor.component";
 import { EnergyflowComponent } from "./flow/flow.component";
 
 @NgModule({
-    imports: [BrowserAnimationsModule, BrowserModule, PvForecastComponent, SharedModule],
+    imports: [BrowserAnimationsModule, BrowserModule, SharedModule],
     declarations: [
         ConsumptionSectionComponent,
         EnergymonitorChartComponent,
@@ -22,6 +21,6 @@ import { EnergyflowComponent } from "./flow/flow.component";
         ProductionSectionComponent,
         StorageSectionComponent,
     ],
-    exports: [EnergyflowComponent, EnergymonitorComponent, PvForecastComponent],
+    exports: [EnergyflowComponent, EnergymonitorComponent],
 })
 export class EnergymonitorModule {}

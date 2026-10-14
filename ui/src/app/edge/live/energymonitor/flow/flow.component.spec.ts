@@ -4,6 +4,7 @@ import { GetSchedule } from "src/app/shared/components/edge/config-components/en
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { ChannelAddress, Currency, CurrentData, EdgeConfig } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { EnergyflowComponent } from "./flow.component";
 
 /**
@@ -47,6 +48,7 @@ describe("EnergyflowComponent", () => {
             todayTimer: null,
             resizeObserver: null,
             lastCurrentData: null,
+            socForecast: [],
             iconCache: new Map(),
             sanitizer: { bypassSecurityTrustHtml: (value: string) => value },
             translate: {
@@ -56,6 +58,16 @@ describe("EnergyflowComponent", () => {
             ...overrides,
         });
         return component;
+    }
+
+    /**
+     * Predicted state of charge in quarter hours from now on.
+     *
+     * @param socs The predicted values
+     * @returns The forecast
+     */
+    function forecast(...socs: number[]): { time: Date; soc: number }[] {
+        return socs.map((soc, i) => ({ time: new Date(Date.now() + (i + 1) * 15 * 60 * 1000), soc: soc }));
     }
 
     function data(values: Record<string, number | null>): CurrentData {
@@ -107,7 +119,7 @@ describe("EnergyflowComponent", () => {
 
     describe("#onCurrentData()", () => {
         it("splits production into house, storage and grid", () => {
-            const component = createComponent();
+            const component = createComponent({ socForecast: forecast(70, 85, 99, 100) });
             component.onCurrentData(
                 data({
                     "_sum/ProductionActivePower": 7900,
@@ -115,7 +127,6 @@ describe("EnergyflowComponent", () => {
                     "_sum/EssDischargePower": -3100,
                     "_sum/ConsumptionActivePower": 2700,
                     "_sum/EssSoc": 64,
-                    "_sum/EssCapacity": 10000,
                 }),
             );
 
@@ -131,7 +142,7 @@ describe("EnergyflowComponent", () => {
         });
 
         it("supplies the house from storage and grid at night", () => {
-            const component = createComponent();
+            const component = createComponent({ socForecast: forecast(35, 20, 5, 5, 5) });
             component.onCurrentData(
                 data({
                     "_sum/ProductionActivePower": 0,
@@ -139,7 +150,6 @@ describe("EnergyflowComponent", () => {
                     "_sum/EssActivePower": 1500,
                     "_sum/ConsumptionActivePower": 2000,
                     "_sum/EssSoc": 40,
-                    "_sum/EssCapacity": 10000,
                 }),
             );
 
@@ -177,12 +187,11 @@ describe("EnergyflowComponent", () => {
                     "_sum/EssDischargePower": -2000,
                     "_sum/ConsumptionActivePower": 0,
                     "_sum/EssSoc": 20,
-                    "_sum/EssCapacity": 1,
                 }),
             );
 
             expect(flowPowers(component)).toEqual({ "grid-storage": 2000 });
-            // estimate below 3 minutes is hidden
+            // no prediction available
             expect(component.storageEstimate).toBeNull();
         });
 
@@ -213,6 +222,66 @@ describe("EnergyflowComponent", () => {
             component.onCurrentData(data({ "_sum/GridBuyPrice": 260 }));
 
             expect(component.gridPrice).toBeNull();
+        });
+    });
+
+    describe("#calculateStorageEstimate()", () => {
+        function time(at: Date): string {
+            return at.toLocaleTimeString(Language.getCurrentLanguage().i18nLocaleKey, {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        }
+
+        it("uses the first predicted time the storage is full", () => {
+            const socForecast = forecast(60, 99, 100);
+            const component = createComponent({ soc: 50, storageCharge: 2000, socForecast: socForecast });
+
+            expect(component.calculateStorageEstimate()).toBe(
+                "EDGE.INDEX.ENERGYFLOW.FULL_AT " + time(socForecast[1].time),
+            );
+        });
+
+        it("uses the first predicted time the storage reaches its minimum", () => {
+            const socForecast = forecast(30, 8, 8);
+            const component = createComponent({ soc: 50, storageDischarge: 2000, socForecast: socForecast });
+
+            expect(component.calculateStorageEstimate()).toBe(
+                "EDGE.INDEX.ENERGYFLOW.EMPTY_AT " + time(socForecast[1].time),
+            );
+        });
+
+        it("hides the estimate if the prediction does not reach full", () => {
+            const component = createComponent({ soc: 50, storageCharge: 2000, socForecast: forecast(60, 70, 80) });
+
+            expect(component.calculateStorageEstimate()).toBeNull();
+        });
+
+        it("hides the estimate if the predicted minimum is not low enough", () => {
+            const component = createComponent({ soc: 50, storageDischarge: 2000, socForecast: forecast(40, 30, 30) });
+
+            expect(component.calculateStorageEstimate()).toBeNull();
+        });
+
+        it("adds the weekday if the estimate is not today", () => {
+            const tomorrow = new Date(Date.now() + 26 * 3600 * 1000);
+            const component = createComponent({
+                soc: 50,
+                storageCharge: 2000,
+                socForecast: [{ time: tomorrow, soc: 100 }],
+            });
+            const weekday = tomorrow.toLocaleDateString(Language.getCurrentLanguage().i18nLocaleKey, {
+                weekday: "short",
+            });
+
+            expect(component.calculateStorageEstimate()).toBe(
+                "EDGE.INDEX.ENERGYFLOW.FULL_AT " + weekday + " " + time(tomorrow),
+            );
+        });
+
+        it("hides the estimate when the storage is idle or without prediction", () => {
+            expect(createComponent({ soc: 50, socForecast: forecast(100) }).calculateStorageEstimate()).toBeNull();
+            expect(createComponent({ soc: 50, storageCharge: 2000 }).calculateStorageEstimate()).toBeNull();
         });
     });
 
@@ -367,29 +436,23 @@ describe("EnergyflowComponent", () => {
             return component;
         }
 
-        beforeEach(() => {
-            spyOn(GetSchedule, "getSchedule").and.returnValue(Promise.resolve(null));
-        });
-
         it("distributes the metered energy by grid buy power and prices each quarter hour", async () => {
             const component = createCostComponent(edgeWith([1000, 0, 3000], [200, null, 300]));
-            await component.updateTodayCost(1000);
+            await component.updateTodayCost(1000, null);
 
             // 250 Wh x 200 /MWh + 750 Wh x 300 /MWh
             expect(component.todayCost).toBe("0.275");
         });
 
         it("uses schedule prices when historic prices are missing", async () => {
-            (GetSchedule.getSchedule as jasmine.Spy).and.returnValue(
-                Promise.resolve({
-                    data: [
-                        { timestamp: new Date(start), _sum: { GridBuyPrice: 400 } },
-                        { timestamp: new Date(start), _sum: {} },
-                    ],
-                }),
-            );
+            const schedule = {
+                data: [
+                    { timestamp: new Date(start), _sum: { GridBuyPrice: 400 } },
+                    { timestamp: new Date(start), _sum: {} },
+                ],
+            };
             const component = createCostComponent(edgeWith([1000, 1000, 0], [null, null, null]));
-            await component.updateTodayCost(2000);
+            await component.updateTodayCost(2000, schedule);
 
             // first quarter hour from the schedule, second with the last known price
             expect(component.todayCost).toBe("0.800");
@@ -397,37 +460,37 @@ describe("EnergyflowComponent", () => {
 
         it("hides the cost without any price", async () => {
             const component = createCostComponent(edgeWith([1000, 0, 0], [null, null, null]));
-            await component.updateTodayCost(1000);
+            await component.updateTodayCost(1000, null);
 
             expect(component.todayCost).toBeNull();
         });
 
         it("shows zero cost without grid buy", async () => {
             const component = createCostComponent(edgeWith([0, -500, null], [200, 200, 200]));
-            await component.updateTodayCost(0);
+            await component.updateTodayCost(0, null);
 
             expect(component.todayCost).toBe("0.000");
         });
 
         it("hides the cost when energy was bought but no power was recorded", async () => {
             const component = createCostComponent(edgeWith([0, 0, 0], [200, 200, 200]));
-            await component.updateTodayCost(500);
+            await component.updateTodayCost(500, null);
 
             expect(component.todayCost).toBeNull();
         });
 
         it("hides the cost without edge, energy or on errors", async () => {
             const component = createCostComponent(null);
-            await component.updateTodayCost(1000);
+            await component.updateTodayCost(1000, null);
             expect(component.todayCost).toBeNull();
 
             const failing = createCostComponent({ sendRequest: () => Promise.reject(new Error("offline")) });
             failing.todayCost = "1.000";
-            await failing.updateTodayCost(1000);
+            await failing.updateTodayCost(1000, null);
             expect(failing.todayCost).toBeNull();
 
             const noEnergy = createCostComponent(edgeWith([1000, 0, 0], [200, 200, 200]));
-            await noEnergy.updateTodayCost(null);
+            await noEnergy.updateTodayCost(null, null);
             expect(noEnergy.todayCost).toBeNull();
         });
     });
@@ -440,8 +503,19 @@ describe("EnergyflowComponent", () => {
     });
 
     describe("#updateToday()", () => {
-        it("sets the daily values and calculates the cost", async () => {
+        it("sets the daily values, the predicted state of charge and calculates the cost", async () => {
+            const now = Date.now();
+            const schedule = {
+                data: [
+                    { timestamp: new Date(now - 60 * 60 * 1000), _sum: { EssSoc: 30 } },
+                    { timestamp: new Date(now + 60 * 60 * 1000), _sum: { EssSoc: 40 } },
+                    { timestamp: new Date(now + 2 * 60 * 60 * 1000), _sum: {} },
+                ],
+            };
+            const getSchedule = spyOn(GetSchedule, "getSchedule").and.returnValue(Promise.resolve(schedule as any));
             const component = createComponent({
+                edge: {},
+                websocket: {},
                 service: {
                     queryEnergy: () =>
                         Promise.resolve({
@@ -466,7 +540,10 @@ describe("EnergyflowComponent", () => {
                 gridSell: 13800,
                 autarchy: 80,
             });
-            expect(cost).toHaveBeenCalledWith(3000);
+            expect(cost).toHaveBeenCalledWith(3000, schedule);
+            expect(component.socForecast).toEqual([{ time: schedule.data[1].timestamp, soc: 40 }]);
+            // a 'from' other than midnight returns today and tomorrow
+            expect((getSchedule.calls.mostRecent().args[2] as Date).getHours()).toBe(12);
         });
 
         it("keeps the last values on errors", async () => {
@@ -475,9 +552,11 @@ describe("EnergyflowComponent", () => {
                 today: today,
                 service: { queryEnergy: () => Promise.reject(new Error("offline")) },
             });
+            const cost = spyOn(component, "updateTodayCost");
             await component.updateToday();
 
             expect(component.today).toBe(today);
+            expect(cost).not.toHaveBeenCalled();
         });
     });
 
