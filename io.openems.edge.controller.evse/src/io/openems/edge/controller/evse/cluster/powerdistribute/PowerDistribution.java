@@ -64,6 +64,9 @@ public class PowerDistribution {
 	 */
 	public void applyRamp(PowerDistributionRamp ramp) {
 		for (var entry : this.entries.getActiveEntries()) {
+			if (entry.mode == Mode.EXTERNAL) {
+				continue;
+			}
 			entry.setPointInWatt = ramp.getRampedSetPoint(entry);
 		}
 	}
@@ -92,7 +95,7 @@ public class PowerDistribution {
 		for (var e : this.entries.getActiveEntries()) {
 			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM -> e.applySetPoint.min();
-			case FORCE -> e.applySetPoint.max();
+			case EXTERNAL, FORCE -> e.applySetPoint.max();
 			case SURPLUS, ZERO -> 0;
 			};
 		}

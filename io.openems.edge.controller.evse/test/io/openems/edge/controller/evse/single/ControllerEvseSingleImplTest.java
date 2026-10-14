@@ -57,6 +57,23 @@ class ControllerEvseSingleImplTest {
 		assertEquals(0, params.history().streamAll().count());
 		assertEquals(PhaseSwitching.DISABLE, params.phaseSwitching());
 		assertFalse(params.history().getAppearsToBeFullyCharged());
+		assertNull(params.externalMinChargePower());
+		assertNull(params.externalMaxChargePower());
+		assertNull(params.externalStaticChargePower());
+	}
+
+	@Test
+	void testParamsExposeExternalWriteChannels() throws Exception {
+		var sut = generateSingleSut(FunctionUtils::doNothing);
+		sut.chargePoint().getSetExternalMinChargePowerChannel().setNextWriteValue(6_000);
+		sut.chargePoint().getSetExternalMaxChargePowerChannel().setNextWriteValue(10_000);
+		sut.chargePoint().getSetExternalStaticChargePowerChannel().setNextWriteValue(8_000);
+
+		var params = sut.ctrlSingle().getParams();
+
+		assertEquals(6_000, params.externalMinChargePower());
+		assertEquals(10_000, params.externalMaxChargePower());
+		assertEquals(8_000, params.externalStaticChargePower());
 	}
 
 	@Test

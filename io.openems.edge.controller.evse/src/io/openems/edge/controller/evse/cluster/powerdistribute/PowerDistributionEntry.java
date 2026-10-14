@@ -39,7 +39,7 @@ public class PowerDistributionEntry {
 	 */
 	public boolean hasSurplus() {
 		return switch (this.mode) {
-		case FORCE, MINIMUM, ZERO -> false;
+		case EXTERNAL, FORCE, MINIMUM, ZERO -> false;
 		case SURPLUS -> true;
 		};
 	}
@@ -51,7 +51,7 @@ public class PowerDistributionEntry {
 	 */
 	public boolean hasSurplusOrMinimum() {
 		return switch (this.mode) {
-		case FORCE, ZERO -> false;
+		case EXTERNAL, FORCE, ZERO -> false;
 		case SURPLUS, MINIMUM -> true;
 		};
 	}

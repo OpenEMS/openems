@@ -52,10 +52,39 @@ The cluster controller workflow is:
 
 1. Collect all `Evse.Controller.Single` controllers.
 2. Build a scheduler that maps controller IDs to `Evse.Controller.Single.getParams()`.
-3. In `run()`, call `RunUtils.calculate(...)` with distribution strategy, sum meter, controller list, and active energy schedule mode.
-4. For each entry in the calculation result, call `e.ctrl.apply(e.mode, e.actions.build())`.
+3. In `run()`, call `EvsePowerDistributionManager.runAndApply(...)` with distribution strategy, sum meter, controller list, and active energy schedule mode.
+4. For each calculation result, call the matching single controller's `apply(...)` method with the calculated mode and actions.
 
 This design keeps the cluster controller focused on optimization and distribution, while each `Evse.Controller.Single` remains responsible for actual charge point interaction and local state transitions.
+
+== External Control Mode
+
+`Evse.Controller.Single` can be configured with `Mode.EXTERNAL` to let an external system provide the setpoint while OpenEMS still remains the single integration layer towards the charge point.
+
+This is intended for systems like evcc:
+
+[source]
+----
+evcc -> OpenEMS EVSE write channels -> Evse.Controller.Single -> EvseChargePoint -> wallbox
+----
+
+In external mode the controller reads the following write channels from the bound `EvseChargePoint`:
+
+- `SetExternalMinChargePower` — requested minimum charge power in [W]
+- `SetExternalMaxChargePower` — requested maximum charge power in [W]
+- `SetExternalStaticChargePower` — requested fixed charge power in [W]
+
+If no external charge power is written, the controller applies a zero setpoint. Otherwise the requested external range or static setpoint is limited to the charge point and electric vehicle abilities and forwarded as regular `ChargePointActions`.
+
+The existing OpenEMS write APIs can be used, e.g.:
+
+[source]
+----
+POST /rest/channel/evseChargePoint0/SetExternalMaxChargePower
+POST /rest/channel/evseChargePoint0/SetExternalStaticChargePower
+----
+
+Phase switching is not controlled by this first external mode implementation. It remains managed by the existing `Phase-Switching` configuration of `Evse.Controller.Single`.
 
 == Phase-Switching Support Detection
 
@@ -73,7 +102,7 @@ If either capability is missing, the combined ability is null and no phase-switc
 
 Phase-switching is started by the cluster controller deciding a target phase mode and by `Evse.Controller.Single` honoring that action.
 
-- `RunUtils.handlePhaseSwitch(...)` in the cluster controller checks the single controller's `params.phaseSwitching()` configuration.
+- The cluster power distribution checks the single controller's `params.phaseSwitching()` configuration.
 - If phase switching is enabled and the combined ability supports the requested direction, it sets `actions.setPhaseSwitch(...)` to either `TO_SINGLE_PHASE` or `TO_THREE_PHASE`.
 - `Evse.Controller.Single.apply(...)` then sees `input.phaseSwitch()` and forces the single controller state machine into `PHASE_SWITCH_TO_SINGLE_PHASE` or `PHASE_SWITCH_TO_THREE_PHASE`.
 
