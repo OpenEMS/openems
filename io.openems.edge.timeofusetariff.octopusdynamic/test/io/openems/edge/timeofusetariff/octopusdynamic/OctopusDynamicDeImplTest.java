@@ -146,17 +146,29 @@ public class OctopusDynamicDeImplTest {
 		private long nextRetry;
 
 		@Override
-		public void _setStatusAuthenticationFailed(boolean value) { this.authenticationFailed = value; }
+		public void _setStatusAuthenticationFailed(boolean value) {
+			this.authenticationFailed = value;
+		}
 		@Override
-		public void _setStatusRateLimited(boolean value) { this.rateLimited = value; }
+		public void _setStatusRateLimited(boolean value) {
+			this.rateLimited = value;
+		}
 		@Override
-		public void _setStatusConnectionFailed(boolean value) { this.connectionFailed = value; }
+		public void _setStatusConnectionFailed(boolean value) {
+			this.connectionFailed = value;
+		}
 		@Override
-		public void _setStatusServerError(boolean value) { this.serverError = value; }
+		public void _setStatusServerError(boolean value) {
+			this.serverError = value;
+		}
 		@Override
-		public void _setForecastValidUntil(long value) { this.forecastValidUntil = value; }
+		public void _setForecastValidUntil(long value) {
+			this.forecastValidUntil = value;
+		}
 		@Override
-		public void _setNextRetry(long value) { this.nextRetry = value; }
+		public void _setNextRetry(long value) {
+			this.nextRetry = value;
+		}
 
 		void respond(String json) {
 			this.responses.add(JsonParser.parseString(json).getAsJsonObject());
