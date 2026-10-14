@@ -115,8 +115,7 @@ public class AppTariffManualEeg2025GridSell
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create()//
 				.setCompatibleCheckableConfigs(//
-						Checkables.checkCountry(Set.of(CountryCode.DE)), //
-						Checkables.checkEnergySchedulerV2());
+						Checkables.checkCountry(Set.of(CountryCode.DE)));
 	}
 
 	@Override

@@ -3,11 +3,11 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,7 +205,7 @@ public class ComponentAggregateTaskImplTest {
 
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
-		assertTrue(String.join(", ", errors), errors.isEmpty());
+		assertTrue(errors.isEmpty(), String.join(", ", errors));
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class ComponentAggregateTaskImplTest {
 
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
-		assertFalse("No errors while validating configuration", errors.isEmpty());
+		assertFalse(errors.isEmpty(), "No errors while validating configuration");
 	}
 
 	@Test

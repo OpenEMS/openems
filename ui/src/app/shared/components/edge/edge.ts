@@ -5,7 +5,6 @@ import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
 import { SumState } from "src/app/index/shared/sumState";
-import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 import { UnimplementedInEdgeError } from "../../errors/errors";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
@@ -33,7 +32,6 @@ import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getProper
 import { User } from "../../jsonrpc/shared";
 import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
-import { ArrayUtils } from "../../utils/array/array.utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { SharedBottomNavigationBar } from "../navigation/bottom-bar/shared";
 import { NavigationId, NavigationTree } from "../navigation/shared";
@@ -81,7 +79,7 @@ export class Edge {
         public isOnline: boolean,
         public readonly lastmessage: Date,
         public readonly sumState: SumState,
-        public readonly firstSetupProtocol: Date,
+        public readonly firstSetupProtocol: Date | null,
         public settings: EdgeSettingsConfig,
     ) {}
 
@@ -215,20 +213,7 @@ export class Edge {
      * @param channels The subscribed Channel-Addresses
      */
     public subscribeChannelsWithState(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
-        const previousChannels = Object.values(this.subscribedChannels)
-            .flat()
-            .map((channel) => channel.toString());
-        this.subscribedChannels[id] = channels;
-
-        const channelsToSubscribe = channels.map((channel) => channel.toString());
-
-        if (
-            previousChannels.length > 0 &&
-            ArrayUtils.containsAll({
-                strings: channelsToSubscribe,
-                arr: previousChannels,
-            })
-        ) {
+        if (!this.replaceSubscription(id, channels)) {
             return;
         }
 
@@ -243,20 +228,7 @@ export class Edge {
      * @param channels The subscribed Channel-Addresses
      */
     public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
-        const previousChannels = Object.values(this.subscribedChannels)
-            .flat()
-            .map((channel) => channel.toString());
-        this.subscribedChannels[id] = channels;
-
-        const channelsToSubscribe = channels.map((channel) => channel.toString());
-
-        if (
-            previousChannels.length > 0 &&
-            ArrayUtils.containsAll({
-                strings: channelsToSubscribe,
-                arr: previousChannels,
-            })
-        ) {
+        if (!this.replaceSubscription(id, channels)) {
             return;
         }
 
@@ -284,21 +256,20 @@ export class Edge {
      */
     public unsubscribeChannels(websocket: Websocket, id: string): void {
         const subscribedChannelsById = this.subscribedChannels[id];
-        delete this.subscribedChannels[id];
+        if (subscribedChannelsById == null) {
+            return;
+        }
 
-        const previousChannels = Object.values(this.subscribedChannels)
-            .flat()
-            .map((channel) => channel.toString());
-        const unsubscribeChannels = Object.values(subscribedChannelsById ?? {})
-            .flat()
-            .map((channel) => channel.toString());
+        this.removeChannelSubscription(id);
 
-        if (
-            ArrayUtils.containsAll({
-                arr: previousChannels,
-                strings: unsubscribeChannels,
-            })
-        ) {
+        const remainingChannels = new Set(
+            Object.values(this.subscribedChannels)
+                .flat()
+                .map((channel) => channel.toString()),
+        );
+
+        // Skip the request if other subscriptions still cover all removed channels
+        if (subscribedChannelsById.every((channel) => remainingChannels.has(channel.toString()))) {
             return;
         }
 
@@ -323,45 +294,23 @@ export class Edge {
      * @todo Should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
      */
     public unsubscribeFromChannels(subscribeId: string, websocket: Websocket, channels: ChannelAddress[]) {
-        const subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
-            const areChannelsEqual = ArrayUtils.equalsCheck(
-                channels.map((channel) => channel.toString()),
-                subscribedChannels.map((channel) => channel.toString()),
-            );
-            const channelsUsedByOtherSubscriptions = Object.entries(this.subscribedChannels)
-                .filter(([otherId, _]) => otherId !== id)
-                .some(([_, otherSubscribedChannels]) => {
-                    return channels.some((channel) =>
-                        otherSubscribedChannels.some((osc) => osc.toString() === channel.toString()),
-                    );
-                });
+        const subscribedChannelIds = new Set(channels.map((channel) => channel.toString()));
+        const currentSubscription = this.subscribedChannels[subscribeId];
 
-            if (areChannelsEqual && channelsUsedByOtherSubscriptions == false) {
-                // removes matching channels from subscribedChannels
-                return arr;
-            }
-
-            arr[id] = subscribedChannels;
-            return arr;
-        }, {});
-
-        const previousChannels = Object.values(this.subscribedChannels).map((channel) => channel.toString());
-        const newChannels = Object.entries(subscribedChannels)
-            .filter(([otherId, _]) => otherId !== subscribeId)
-            .map(([_, channel]) => channel.toString());
-
-        if (
-            ArrayUtils.containsAll({
-                strings: newChannels,
-                arr: previousChannels,
-            }) &&
-            previousChannels.length === newChannels.length
-        ) {
-            // no change in channels, do not send subscribe request
+        if (currentSubscription == null) {
             return;
         }
 
-        this.subscribedChannels = subscribedChannels;
+        const remainingChannels = currentSubscription.filter(
+            (channel) => !subscribedChannelIds.has(channel.toString()),
+        );
+
+        if (remainingChannels.length === 0) {
+            this.removeChannelSubscription(subscribeId);
+        } else {
+            this.subscribedChannels[subscribeId] = remainingChannels;
+        }
+
         this.sendSubscribeChannels(websocket);
     }
 
@@ -625,14 +574,15 @@ export class Edge {
      * @param translate The translate
      * @returns The new navigation tree
      */
-    public async createNavigationTree(
-        translate: TranslateService,
-        edge: Edge,
-        service: Service,
-        user: User,
-        platFormService: PlatFormService,
-    ): Promise<NavigationTree> {
+    public createNavigationTree(translate: TranslateService, edge: Edge, service: Service, user: User): NavigationTree {
         const config = this.getConfigSignal()();
+        const sharedBottomNavigationBarTree = SharedBottomNavigationBar.getNavigationTree(
+            edge,
+            config,
+            translate,
+            service,
+            user,
+        );
         const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (
             translate,
         ) => [
@@ -641,8 +591,9 @@ export class Edge {
             { name: "home-outline" },
             "root",
             "icon",
-            SharedBottomNavigationBar.getNavigationTree(edge, config, translate, service, user, platFormService),
+            sharedBottomNavigationBarTree,
             null,
+            { hideFavorite: true },
         ];
 
         const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree(
@@ -679,6 +630,39 @@ export class Edge {
             includes: Array.isArray(favorites?.includes) ? favorites.includes : [],
             excludes: Array.isArray(favorites?.excludes) ? favorites.excludes : [],
         };
+    }
+
+    /** Removes the channel subscription entry for the given subscription id. */
+    private removeChannelSubscription(subscriptionId: string): void {
+        this.subscribedChannels = Object.fromEntries(
+            Object.entries(this.subscribedChannels).filter(([id]) => id !== subscriptionId),
+        );
+    }
+
+    /**
+     * Replaces the channel subscription of the given subscription id and returns whether the union of all subscriptions
+     * changed.
+     *
+     * @param id A unique ID for this subscription (e.g. the component selector)
+     * @param channels The subscribed Channel-Addresses
+     * @returns True if the union of all subscriptions changed, i.e. the new state must be sent to the server
+     */
+    private replaceSubscription(id: string, channels: ChannelAddress[]): boolean {
+        const unionBefore = this.getSubscribedChannelIds();
+        this.subscribedChannels[id] = Array.of(...new Set([...(this.subscribedChannels[id] ?? []), ...channels]));
+        const unionAfter = this.getSubscribedChannelIds();
+        return (
+            unionBefore.size !== unionAfter.size || Array.from(unionBefore).some((channel) => !unionAfter.has(channel))
+        );
+    }
+
+    /** Gets the ids of all channels across all current subscriptions. */
+    private getSubscribedChannelIds(): Set<string> {
+        return new Set(
+            Object.values(this.subscribedChannels)
+                .flat()
+                .map((channel) => channel.toString()),
+        );
     }
 
     /** Refresh the config. */

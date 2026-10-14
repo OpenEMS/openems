@@ -17,7 +17,11 @@ class BatteryFeneconHomeHardwareTypeTest {
 		assertEquals("519110002567",
 				BatteryFeneconHomeHardwareType.BATTERY_64.serialNrPrefixModule.apply(LocalDate.of(2025, 5, 31)));
 		assertEquals("519110002567",
-				BatteryFeneconHomeHardwareType.BATTERY_64.serialNrPrefixModule.apply(LocalDate.of(2025, 6, 1)));
+				BatteryFeneconHomeHardwareType.BATTERY_64.serialNrPrefixModule.apply(LocalDate.of(2026, 6, 11)));
+		assertEquals("519111002959",
+				BatteryFeneconHomeHardwareType.BATTERY_64.serialNrPrefixModule.apply(LocalDate.of(2026, 6, 12)));
+		assertEquals("519111002959",
+				BatteryFeneconHomeHardwareType.BATTERY_64.serialNrPrefixModule.apply(LocalDate.of(2026, 10, 5)));
 	}
 
 }

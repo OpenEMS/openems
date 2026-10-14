@@ -1,6 +1,7 @@
 package io.openems.edge.common.test;
 
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
@@ -10,9 +11,12 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.GridBuyLimit;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.GridSellLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
+import io.openems.edge.common.meta.types.Environment;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
@@ -20,7 +24,7 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 
 	private final OpenemsEdgeOem oem = new DummyOpenemsEdgeOem();
 
-	private int gridConnectionPointFuseLimit; // [A]
+	private int gridConnectionPointFuseLimit = 32; // [A]
 	private SubdivisionCode subdivisionCode;
 	private String placeName;
 	private String postcode;
@@ -32,6 +36,8 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 			new GridBuyLimit.Hard(0), //
 			JSCalendar.Tasks.empty());
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
+	private Environment environment = Environment.STABLE;
+	private Optional<Integer> configuredMaximumGridFeedInLimit = Optional.empty();
 
 	public DummyMeta() {
 		super(Meta.SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, //
@@ -90,9 +96,16 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	@Override
+	public GridSellLimit getGridSellLimit() {
+		return new GridSellLimit(new GridSellLimit.Hard(//
+				this.gridSellHardLimit, //
+				this.gridSellHardLimitWithBuffer));
+	}
+
+	@Override
 	public int getEssDischargeToGridLimit() {
 		if (this.getIsEssDischargeToGridAllowed()) {
-			return this.gridSellHardLimit;
+			return this.getGridSellHardLimit();
 		}
 		return 0;
 	}
@@ -103,14 +116,14 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	@Override
-	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
-		return this.thirdPartyUsageAcceptance;
+	public Environment getEnvironment() {
+		return this.environment;
 	}
 
 	/**
-	 * Set the Grid-Connection-Point Fuse limit.
+	 * Set the Grid-Connection-Point Fuse limit in [A].
 	 *
-	 * @param value the value
+	 * @param value the value in Ampere
 	 * @return myself
 	 */
 	public DummyMeta withGridConnectionPointFuseLimit(int value) {
@@ -212,6 +225,13 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 		return this.self();
 	}
 
+	@Override
+	public Optional<Integer> getConfiguredMaximumGridFeedInLimit() {
+		return this.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION //
+				? this.configuredMaximumGridFeedInLimit.filter(limit -> limit >= 0) //
+				: Optional.empty();
+	}
+
 	/**
 	 * Sets the Grid-Sell Hard-Limit with safety buffer for this {@link DummyMeta}
 	 * instance and returns the instance itself.
@@ -270,6 +290,47 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
 		this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
+		return this.self();
+	}
+
+	/**
+	 * Sets the {@link Environment} for this {@link DummyMeta} instance and returns
+	 * the instance itself.
+	 *
+	 * @param environment the environment
+	 * @return myself
+	 */
+	public DummyMeta withEnvironment(Environment environment) {
+		this.environment = environment;
+		return this.self();
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
+		return this.thirdPartyUsageAcceptance;
+	}
+
+	/**
+	 * Set {@link Meta.ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 *
+	 * @param gridFeedInLimitationType grid feed in limitation type
+	 * @return myself
+	 */
+	public DummyMeta withGridFeedInLimitationType(GridFeedInLimitationType gridFeedInLimitationType) {
+		TestUtils.withValue(this, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, gridFeedInLimitationType);
+		return this.self();
+	}
+
+	/**
+	 * Sets the directly configured dynamic Grid-Feed-In limit for a sum of all
+	 * three phases for this {@link DummyMeta} instance and returns the instance
+	 * itself.
+	 *
+	 * @param configuredMaximumGridFeedInLimit the value in [W]
+	 * @return myself
+	 */
+	public DummyMeta withConfiguredMaximumGridFeedInLimit(int configuredMaximumGridFeedInLimit) {
+		this.configuredMaximumGridFeedInLimit = Optional.of(configuredMaximumGridFeedInLimit);
 		return this.self();
 	}
 }

@@ -4,10 +4,11 @@
 module.exports = function (config) {
     config.set({
         basePath: "",
-        browserDisconnectTimeout: 30000, // default 2000
-        browserNoActivityTimeout: 60000, // default 30000
+        browserDisconnectTimeout: 45000, // default 2000
+        browserNoActivityTimeout: 90000, // default 30000
         browserDisconnectTolerance: 2, // default 0
-        processKillTimeout: 5000, // default 2000
+        processKillTimeout: 7000, // default 2000
+        captureTimeout: 120000, // default 60000
         frameworks: ["jasmine", "@angular-devkit/build-angular"],
         preprocessor: {
             "src/**/*.ts": ["coverage"],

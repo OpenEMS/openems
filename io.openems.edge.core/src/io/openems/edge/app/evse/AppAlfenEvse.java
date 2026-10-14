@@ -59,7 +59,6 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
-import io.openems.edge.energy.api.Version;
 
 @Component(name = AppAlfenEvse.APP_EVSE_ALFEN)
 public class AppAlfenEvse extends AbstractOpenemsAppWithProps<AppAlfenEvse, Property, Parameter.BundleParameter>
@@ -206,7 +205,6 @@ public class AppAlfenEvse extends AbstractOpenemsAppWithProps<AppAlfenEvse, Prop
 			var appConfig = AppConfiguration.create();
 			dependencies.addAll(AppEvseCluster.dependency());
 			appConfig.addTask(Tasks.cluster(ctrlSingleId));
-			appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 			appConfig.addDependencies(dependencies);
 			appConfig.addTask(Tasks.componentFromComponentConfig(components));
 
@@ -260,11 +258,4 @@ public class AppAlfenEvse extends AbstractOpenemsAppWithProps<AppAlfenEvse, Prop
 		return List.of(EMobilityArchitectureType.EVSE);
 	}
 
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
-				.build();
-	}
 }

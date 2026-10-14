@@ -87,7 +87,10 @@
       <ion-searchbar mode="md" style="--background: var(--ion-color-searchbar-background); color: var(--ion-color-searchbar-text); flex: 1" (ionInput)="onValueChanged($event)" [debounce]="1000"> </ion-searchbar>
     </ion-row>
 
-    <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
+    @if (environment.backend === "OpenEMS Backend") {
+      <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
+    }
+
     <ion-row>
       <ion-col size="12" [attr.size-xl]="canEnterKey ? 6 : 12">
         @if (isUpdateAvailable) {
@@ -151,39 +154,48 @@
     }
 
     <ion-row>
-      <ion-col size="12">
+      <ion-col size="12" class="ion-no-padding">
         @for (appList of appLists(); track appList) {
-          <div>
-            @if (!isEmpty(appList) && appList.shouldBeShown()) {
-              <ion-row style="position: -webkit-sticky; position: sticky; top: 0px; z-index: 100">
+          @if (!isEmpty(appList) && appList.shouldBeShown()) {
+            <ion-row style="position: -webkit-sticky; position: sticky; top: 0; z-index: 100">
+              <ion-col size="12" class="ion-no-padding ion-no-margin-bottom">
+                <ion-card class="ion-no-padding-top ion-no-margin-bottom">
+                  <ion-item lines="full" color="primary">
+                    <ion-label style="text-align: center"> {{ appList.name | translate }} </ion-label>
+                  </ion-item>
+                </ion-card>
+              </ion-col>
+              @if (appList.additionalInfo?.()) {
                 <ion-col size="12">
-                  <ion-card>
-                    <ion-item lines="full" color="primary">
-                      <ion-label style="text-align: center"> {{ appList.name | translate }} </ion-label>
+                  <ion-card class="ion-no-padding ion-no-margin-top">
+                    <ion-item lines="none" color="warning">
+                      <ion-icon size="large" slot="start" name="oe-warning"></ion-icon>
+                      <ion-text class="ion-text-wrap" style="text-align: center" [innerHtml]="appList.additionalInfo()"> </ion-text>
                     </ion-item>
                   </ion-card>
                 </ion-col>
-              </ion-row>
-              @for (appCatList of appList.appCategories; track appCatList) {
-                <ion-row>
-                  <ion-col size="12" size-xl="2" style="padding-top: 18px">
-                    <ion-card>
-                      <ion-item lines="full" color="light">
-                        <ion-label style="text-align: center; white-space: initial">{{ appCatList.category.readableName }}</ion-label>
-                      </ion-item>
-                    </ion-card>
-                  </ion-col>
-                  <ion-col>
-                    <ion-grid>
-                      <ion-row>
-                        <template [ngTemplateOutlet]="appsList" [ngTemplateOutletContext]="{ appCatList: appCatList }"></template>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                </ion-row>
               }
+            </ion-row>
+
+            @for (appCatList of appList.appCategories; track appCatList) {
+              <ion-row>
+                <ion-col size="12" size-xl="2" style="padding-top: 18px">
+                  <ion-card>
+                    <ion-item lines="full" color="light">
+                      <ion-label style="text-align: center; white-space: initial">{{ appCatList.category.readableName }}</ion-label>
+                    </ion-item>
+                  </ion-card>
+                </ion-col>
+                <ion-col>
+                  <ion-grid>
+                    <ion-row>
+                      <template [ngTemplateOutlet]="appsList" [ngTemplateOutletContext]="{ appCatList: appCatList }"></template>
+                    </ion-row>
+                  </ion-grid>
+                </ion-col>
+              </ion-row>
             }
-          </div>
+          }
         }
       </ion-col>
     </ion-row>

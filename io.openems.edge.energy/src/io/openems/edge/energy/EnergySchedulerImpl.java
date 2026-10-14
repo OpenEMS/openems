@@ -1,7 +1,6 @@
 package io.openems.edge.energy;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -11,8 +10,8 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -24,32 +23,27 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import com.google.common.collect.ImmutableList;
+
+import io.openems.common.jsonrpc.type.ScheduleUpdate;
+import io.openems.common.utils.BehaviorSubject;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
-import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.optimizer.OptimizationState;
 import io.openems.edge.energy.optimizer.Optimizer;
-import io.openems.edge.energy.v1.jsonrpc.GetScheduleResponse;
-import io.openems.edge.energy.v1.optimizer.GlobalContextV1;
-import io.openems.edge.energy.v1.optimizer.OptimizerV1;
-import io.openems.edge.energy.v1.optimizer.UtilsV1;
+import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timeofusetariff.api.TariffManager;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -57,12 +51,9 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL //
 )
-@SuppressWarnings("deprecation")
 public class EnergySchedulerImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, EnergyScheduler, ComponentJsonApi {
 
-	/** The hard working Optimizer. */
-	private final OptimizerV1 optimizerV1;
 	private final Optimizer optimizer;
 
 	@Reference
@@ -77,10 +68,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
-	private TimeOfUseTariff timeOfUseTariff;
-
 	@Reference
 	private TariffManager tariffManager;
 
@@ -91,6 +78,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	private Sum sum;
 
 	private final List<EnergySchedulable> schedulables = new CopyOnWriteArrayList<>();
+	private final BehaviorSubject<ScheduleUpdate> scheduleUpdates = new BehaviorSubject<>(//
+			new ScheduleUpdate(//
+					ScheduleUpdate.OptimizationStatus.INACTIVE, //
+					null, //
+					null, //
+					ImmutableList.of()));
 
 	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, policy = DYNAMIC, target = "(enabled=true)")
 	private void addSchedulable(EnergySchedulable schedulable) {
@@ -117,10 +110,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
-	private volatile TimeOfUseTariffController timeOfUseTariffController;
-
 	private Config config;
 
 	public EnergySchedulerImpl() {
@@ -128,24 +117,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				EnergyScheduler.ChannelId.values() //
 		);
-
-		this.optimizerV1 = new OptimizerV1(//
-				() -> this.config.logVerbosity(), //
-				() -> {
-					if (this.timeOfUseTariff == null) {
-						throw new OpenemsException("TimeOfUseTariff is not available");
-					}
-					if (this.timeOfUseTariffController == null) {
-						throw new OpenemsException("TimeOfUseTariffController is not available");
-					}
-					return GlobalContextV1.create() //
-							.setClock(this.componentManager.getClock()) //
-							.setEnergyScheduleHandler(this.timeOfUseTariffController.getEnergyScheduleHandlerV1()) //
-							.setSum(this.sum) //
-							.setPredictorManager(this.predictorManager) //
-							.setTimeOfUseTariff(this.timeOfUseTariff) //
-							.build();
-				});
 
 		this.optimizer = new Optimizer(//
 				() -> this.config.logVerbosity(), //
@@ -167,7 +138,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 							.build();
 				}, //
 				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
-				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER), //
+				this::onScheduleUpdate);
 	}
 
 	@Activate
@@ -185,8 +157,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.optimizerV1.deactivate();
-		this.optimizer.deactivate();
+		this.deactivateOptimizer();
 		super.deactivate();
 	}
 
@@ -197,49 +168,31 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 		}
 
 		if (!config.enabled()) {
-			this.optimizerV1.deactivate();
-			this.optimizer.deactivate();
+			this.deactivateOptimizer();
 			return;
 		}
 
-		switch (this.config.version()) {
-		case V1_ESS_ONLY -> {
-			this.optimizer.deactivate();
-			this.optimizerV1.activate(this.id());
-		}
-		case V2_ENERGY_SCHEDULABLE -> {
-			this.optimizerV1.deactivate();
-			if (this.optimizer.isActivated()) {
-				this.optimizer.restartOptimization(reason, false);
-			} else {
-				this.optimizer.activate(); // Starts optimization immediately
-			}
-		}
+		if (this.optimizer.isActivated()) {
+			this.optimizer.restartOptimization(reason, false);
+		} else {
+			this.optimizer.activate(); // Starts optimization immediately
 		}
 	}
 
 	@Override
 	public String debugLog() {
-		if (this.config != null && this.config.version() == Version.V2_ENERGY_SCHEDULABLE) {
-			return this.optimizer.debugLog();
-		}
-		return null;
+		return this.optimizer.debugLog();
 	}
 
 	@Override
-	public GetScheduleResponse handleGetScheduleRequestV1(Call<JsonrpcRequest, JsonrpcResponse> call, String id) {
-		if (this.optimizerV1 != null) {
-			return UtilsV1.handleGetScheduleRequest(this.optimizerV1, call.getRequest().getId(), this.timedata,
-					this.timeOfUseTariff, id, ZonedDateTime.now(this.componentManager.getClock()));
-		}
-		throw new IllegalArgumentException("This should have been Version V1");
+	public void subscribeSchedule(Consumer<ScheduleUpdate> consumer) {
+		this.scheduleUpdates.subscribe(consumer);
+		this.optimizer.notifyScheduleUpdate();
 	}
 
 	@Override
-	public Version getImplementationVersion() {
-		return Optional.ofNullable(this.config) //
-				.map(c -> c.version()) //
-				.orElse(null);
+	public void unsubscribeSchedule(Consumer<ScheduleUpdate> consumer) {
+		this.scheduleUpdates.unsubscribe(consumer);
 	}
 
 	@Override
@@ -249,11 +202,65 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 						.setDescription("""
 								Gets the Schedule.
 								""".stripIndent()), //
-				call -> GetSchedule.Response.from(call.getRequest(), //
+				call -> new GetSchedule.Response(SchedulePeriodsFactory.create(//
+						call.getRequest().from(), //
 						this.componentManager.getClock(), //
 						this.timedata, this.predictorManager, this.tariffManager, //
-						this.optimizer != null //
-								? this.optimizer.getLatestSimulationResult() //
-								: EMPTY_SIMULATION_RESULT /* no handling for OptimizerV1 */));
+						this.optimizer.getLatestSimulationResult())));
+	}
+
+	private void onScheduleUpdate(//
+			OptimizationState optimizationState, //
+			SimulationResult simulationResult) {
+		if (!this.scheduleUpdates.hasSubscribers()) {
+			// Skip building the ScheduleUpdate if nobody is listening
+			return;
+		}
+
+		this.publishScheduleUpdate(optimizationState, simulationResult);
+	}
+
+	private void publishScheduleUpdate(//
+			OptimizationState optimizationState, //
+			SimulationResult simulationResult) {
+
+		final var periods = SchedulePeriodsFactory.create(//
+				ZonedDateTime.now(this.componentManager.getClock()), //
+				this.componentManager.getClock(), //
+				this.timedata, //
+				this.predictorManager, //
+				this.tariffManager, //
+				simulationResult);
+
+		this.scheduleUpdates.setValue(new ScheduleUpdate(//
+				toOptimizationStatus(optimizationState), //
+				optimizationState.startedAt(), //
+				optimizationState.reason(), //
+				periods));
+	}
+
+	private static ScheduleUpdate.OptimizationStatus toOptimizationStatus(//
+			OptimizationState state) {
+
+		return switch (state) {
+		case OptimizationState.ReoptimizingCurrent ignored //
+		-> ScheduleUpdate.OptimizationStatus.REOPTIMIZING_CURRENT;
+
+		case OptimizationState.OptimizingFuture ignored //
+		-> ScheduleUpdate.OptimizationStatus.OPTIMIZING_FUTURE;
+
+		case OptimizationState.Optimized ignored //
+		-> ScheduleUpdate.OptimizationStatus.OPTIMIZED;
+		};
+	}
+
+	private void deactivateOptimizer() {
+		this.optimizer.deactivate();
+
+		this.scheduleUpdates.updateValue(previous -> new ScheduleUpdate(//
+				ScheduleUpdate.OptimizationStatus.INACTIVE, //
+				null, //
+				null, //
+				previous.periods()));
 	}
 }

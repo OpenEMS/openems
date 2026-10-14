@@ -61,7 +61,6 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggrega
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -87,8 +86,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
 		@Reference
 		private StaticIpAggregateTask staticIpAggregateTask;
-		@Reference
-		private EnergySchedulerVersionAggregateTask energySchedulerVersionAggregateTask;
 	}
 
 	@Reference
@@ -526,6 +523,19 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					var allInstances = this.getAllInstances();
 					// add already existing dependencies only if not existing
 					for (var dependency : Optional.ofNullable(oldAppConfig.instance.dependencies).orElse(emptyList())) {
+						// a dependency can not be updated, so if a dependency needs to be updated it is
+						// first removed here so it can be readded later with the updated instance id as
+						// a new dependency.
+						var dependencyDeclaration = dc.config.dependencies().stream() //
+								.filter(t -> t.key.equals(dependency.key)).findFirst() //
+								.orElse(null);
+						if (dependencyDeclaration != null) {
+							var specificConfig = this.determineDependencyConfig(dependencyDeclaration.appConfigs);
+							if (specificConfig != null && specificConfig.specificInstanceId != null
+									&& !specificConfig.specificInstanceId.equals(dependency.instanceId)) {
+								continue;
+							}
+						}
 						// check if dependency is not already added
 						if (dependencies.stream().anyMatch(d -> d.key.equals(dependency.key))) {
 							continue;
@@ -785,8 +795,12 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private DependencyDeclaration.AppDependencyConfig getAppDependencyConfig(OpenemsAppInstance instance,
 			List<DependencyDeclaration.AppDependencyConfig> appDependencyConfigs) {
 		for (var config : appDependencyConfigs) {
-			if ((config.appId != null && config.appId.equals(instance.appId))
-					|| (config.specificInstanceId != null && config.specificInstanceId.equals(instance.instanceId))) {
+			if (config.specificInstanceId != null && config.specificInstanceId.equals(instance.instanceId)) {
+				return config;
+			}
+		}
+		for (var config : appDependencyConfigs) {
+			if (config.appId != null && config.appId.equals(instance.appId)) {
 				return config;
 			}
 		}
@@ -1363,11 +1377,18 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		}
 		ExistingDependencyConfig oldAppConfig = null;
 		if (dc.isDependency()) {
-			oldAppConfig = oldInstances.remove(new AppIdKey(dc.parent.getAppId(), dc.sub.key));
+			final var oldAppConfigKey = new AppIdKey(dc.parent.getAppId(), dc.sub.key);
+			oldAppConfig = oldInstances.remove(oldAppConfigKey);
 
 			// if not found check if there is a old instance with the given app id
 			if (oldAppConfig == null) {
 				oldAppConfig = oldInstances.remove(new AppIdKey(dc.parent.getAppId(), dc.sub.key, dc.app.getAppId()));
+			}
+
+			if (oldAppConfig != null && dc.appDependencyConfig.specificInstanceId != null
+					&& !dc.appDependencyConfig.specificInstanceId.equals(oldAppConfig.instance.instanceId)) {
+				oldInstances.put(oldAppConfigKey, oldAppConfig);
+				oldAppConfig = null;
 			}
 
 			if (oldAppConfig != null) {

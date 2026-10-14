@@ -2,8 +2,8 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -73,8 +73,9 @@ public class TestScheduler {
 			assertTrue(orderIds.length == 0);
 			return;
 		}
-		assertArrayEquals(message + ": was [" + Stream.of(ids).map(Object::toString).collect(joining(", "))
-				+ "] expected [" + String.join(", ", orderIds) + "]", orderIds, ids);
+		assertArrayEquals(orderIds, ids,
+				message + ": was [" + Stream.of(ids).map(Object::toString).collect(joining(", ")) + "] expected ["
+						+ String.join(", ", orderIds) + "]");
 	}
 
 	public void setSchedulerIds(User user, List<String> ids)

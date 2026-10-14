@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -25,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -32,6 +35,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -42,7 +46,7 @@ import io.openems.edge.energy.api.test.DummyGlobalOptimizationContext;
 import io.openems.edge.energy.optimizer.Optimizer.CancellationToken;
 
 @ExtendWith(MockitoExtension.class)
-public class OptimizerTest {
+class OptimizerTest {
 
 	@Mock
 	private ExecutorService worker;
@@ -53,253 +57,458 @@ public class OptimizerTest {
 	@Mock
 	private CancellationToken token;
 
+	@Mock
+	private BiConsumer<OptimizationState, SimulationResult> onScheduleUpdate;
+
 	private Simulator simulator;
 	private DummyChannel dummyChannel1;
 	private DummyChannel dummyChannel2;
 	private Clock clock;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		this.simulator = spy(new Simulator(SimulatorTest.GOC));
 		this.dummyChannel1 = DummyChannel.of("DummyChannel1");
 		this.dummyChannel2 = DummyChannel.of("DummyChannel2");
-		this.clock = Clock.fixed(Instant.parse("2026-01-13T10:05:30Z"), ZoneId.of("UTC"));
+		this.clock = Clock.fixed(//
+				Instant.parse("2026-01-13T10:05:30Z"), //
+				ZoneId.of("UTC"));
 	}
 
 	@Test
-	public void testActivate() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testActivate_shouldStartOptimizationOnce_whenActivatedMultipleTimes() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
-				this.dummyChannel2));
+				this.dummyChannel2, //
+				this.onScheduleUpdate));
 
-		doNothing().when(sut)//
+		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
 
-		// Execution
 		sut.activate();
 		sut.activate();
 
-		// Assertions
 		assertTrue(sut.isActivated());
-		verify(sut, times(1))//
+
+		verify(sut, times(1)) //
 				.restartOptimization("Optimizer activated", true);
 	}
 
 	@Test
-	public void testDeactivate() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testDeactivate_shouldCancelCurrentToken_whenOptimizerIsActive() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
-				this.dummyChannel2));
+				this.dummyChannel2, //
+				this.onScheduleUpdate));
 
-		doNothing().when(sut)//
+		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
 
-		// Execution / Assertions
 		sut.activate();
 		assertTrue(sut.isActivated());
 
 		sut.getCurrentToken().set(this.token);
 
 		sut.deactivate();
+
 		assertFalse(sut.isActivated());
 		verify(this.token).cancel();
 		assertNull(sut.getCurrentToken().get());
 	}
 
 	@Test
-	public void testRestartOptimization() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testIsCurrentPeriodFixed_shouldHandleNullState() {
+		final var now = Instant.now();
+		assertFalse(OptimizationStates.isCurrentPeriodFixed(null));
+		assertFalse(OptimizationStates.isCurrentPeriodFixed(//
+				new OptimizationState.ReoptimizingCurrent(now, "Test")));
+		assertTrue(OptimizationStates.isCurrentPeriodFixed(//
+				new OptimizationState.OptimizingFuture(now, "Test")));
+		assertTrue(OptimizationStates.isCurrentPeriodFixed(//
+				new OptimizationState.Optimized(now, "Test")));
+	}
+
+	@Test
+	void testNotifyScheduleUpdate_shouldPublishCurrentState_whenOptimizationIsActive() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> this.simulator));
 
-		doNothing().doCallRealMethod().when(sut)//
+		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
+
+		sut.activate();
+
+		// No optimization active yet -> nothing to publish
+		sut.notifyScheduleUpdate();
+		verify(this.onScheduleUpdate, times(0)) //
+				.accept(any(), any(SimulationResult.class));
+
+		sut.startOptimization("Test", true);
+		verify(this.onScheduleUpdate, times(1)) //
+				.accept(argThat(state -> state instanceof OptimizationState.ReoptimizingCurrent), //
+						any(SimulationResult.class));
+
+		// Publishes the current state on demand
+		sut.notifyScheduleUpdate();
+		verify(this.onScheduleUpdate, times(2)) //
+				.accept(argThat(state -> state instanceof OptimizationState.ReoptimizingCurrent), //
+						any(SimulationResult.class));
+
+		// No optimization active anymore -> nothing to publish
+		sut.deactivate();
+		sut.notifyScheduleUpdate();
+		verify(this.onScheduleUpdate, times(2)) //
+				.accept(any(), any(SimulationResult.class));
+	}
+
+	@Test
+	void testRestartOptimization_shouldCancelCurrentRunAndScheduleRestart_whenRestartIsRequested() {
+		final var sut = spy(new Optimizer(//
+				() -> LogVerbosity.NONE, //
+				() -> SimulatorTest.GOC, //
+				this.dummyChannel1, //
+				this.dummyChannel2, //
+				this.onScheduleUpdate, //
+				this.clock, //
+				() -> this.worker, //
+				() -> this.scheduler, //
+				goc -> this.simulator));
+
+		doNothing().doCallRealMethod().when(sut) //
+				.restartOptimization(anyString(), anyBoolean());
+
 		sut.activate();
 
 		sut.getCurrentToken().set(this.token);
 
-		var scheduledFuture = mock(ScheduledFuture.class);
+		final var scheduledFuture = mock(ScheduledFuture.class);
 		sut.setScheduledFuture(scheduledFuture);
 		when(scheduledFuture.isDone()).thenReturn(false);
 
-		var delay = Duration.ofSeconds(60);
+		final var delay = Duration.ofSeconds(60);
 
-		// Execution
-		sut.restartOptimization("", delay, true);
+		sut.restartOptimization("Test", delay, true);
 
-		// Assertions
 		verify(this.token).cancel();
-		verify(scheduledFuture).cancel(eq(false));
-		var expectedAdjustedDelay = Utils.calculateAdjustedDelay(this.clock, delay);
-		verify(this.scheduler)//
-				.schedule(any(Runnable.class), eq(expectedAdjustedDelay.toMillis()), eq(TimeUnit.MILLISECONDS));
+		verify(scheduledFuture).cancel(false);
+
+		final var expectedAdjustedDelay = Utils.calculateAdjustedDelay(//
+				this.clock, //
+				delay);
+
+		verify(this.scheduler) //
+				.schedule(//
+						any(Runnable.class), //
+						eq(expectedAdjustedDelay.toMillis()), //
+						eq(TimeUnit.MILLISECONDS));
 	}
 
 	@Test
-	public void testStartOptimization() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testStartOptimization_shouldCreateTokenAndNotifyScheduleUpdate_whenOptimizationStarts() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> this.simulator));
 
-		doNothing().when(sut)//
+		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
+
 		sut.activate();
 
 		assertNull(sut.getCurrentToken().get());
 
-		// Execution
-		sut.startOptimization(true);
+		sut.startOptimization("Test", true);
 
-		// Assertions
-		var token = sut.getCurrentToken().get();
+		final var token = sut.getCurrentToken().get();
+
 		assertNotNull(token);
 		assertFalse(token.isCancelled());
 
-		verify(this.worker).submit(any(Runnable.class));
-		var expectedDelay = DateUtils.durationUntilNextQuarter(this.clock).minus(Optimizer.BUFFER_STOP);
-		verify(this.scheduler).schedule(any(Runnable.class), eq(expectedDelay.toMillis()), eq(TimeUnit.MILLISECONDS));
+		verify(this.onScheduleUpdate, times(1)) //
+				.accept(any(OptimizationState.class), any(SimulationResult.class));
+
+		verify(this.worker) //
+				.submit(any(Runnable.class));
+
+		final var expectedDelay = DateUtils.durationUntilNextQuarter(this.clock) //
+				.minus(Optimizer.BUFFER_STOP);
+
+		verify(this.scheduler) //
+				.schedule(//
+						any(Runnable.class), //
+						eq(expectedDelay.toMillis()), //
+						eq(TimeUnit.MILLISECONDS));
 	}
 
 	@Test
-	public void testRunOptimization_ShouldRestart_WhenNoGoc() throws Exception {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testRunOptimization_shouldRestart_whenGlobalOptimizationContextIsMissing() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> null, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> this.simulator));
 
-		// Execution
-		sut.runOptimization(true, this.token);
+		sut.runOptimization(this.token);
 
-		// Assertions
-		verify(sut, times(1))//
-				.restartOptimization(anyString(), eq(Optimizer.BUFFER_ON_ERROR), eq(true));
-		verify(this.simulator, never())//
-				.runOptimization(any(), anyBoolean(), any(), any(), any());
+		verify(sut, times(1)) //
+				.restartOptimization(//
+						anyString(), //
+						eq(Optimizer.BUFFER_ON_ERROR), //
+						eq(true));
+
+		verify(this.simulator, never()) //
+				.runOptimization(//
+						any(), //
+						any(), //
+						any(), //
+						any(), //
+						any());
 	}
 
 	@Test
-	public void testRunOptimization_ShouldRestart_WhenNoOptimizableEshs() throws Exception {
-		// Setup / Mocks
-		var dummyGoc = DummyGlobalOptimizationContext.fromHandlers();
-		var simulator = spy(new Simulator(dummyGoc));
-		var sut = spy(new Optimizer(//
+	void testRunOptimization_shouldRunSimulator_whenNoOptimizableEshExists() {
+		final var dummyGoc = DummyGlobalOptimizationContext.fromHandlers();
+		final var simulator = spy(new Simulator(dummyGoc));
+
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> dummyGoc, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> simulator));
 
-		// Execution
-		sut.runOptimization(true, this.token);
+		sut.runOptimization(this.token);
 
-		// Assertions
-		var expectedDelay = DateUtils.durationUntilNextQuarter(this.clock);
-		verify(sut, times(1))//
-				.restartOptimization(anyString(), eq(expectedDelay), eq(true));
-		verify(simulator, never())//
-				.runOptimization(any(), anyBoolean(), any(), any(), any());
+		verify(sut, never()) //
+				.restartOptimization(anyString(), any(Duration.class), anyBoolean());
+
+		verify(simulator, times(1)) //
+				.runOptimization(//
+						any(), //
+						any(), //
+						any(), //
+						any(), //
+						any());
 	}
 
 	@Test
-	public void testRunOptimization_ShouldRestart_WhenSimulatorIsNull() throws Exception {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testRunOptimization_shouldRestart_whenSimulatorIsNull() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> null));
 
-		// Execution
-		sut.runOptimization(true, this.token);
+		sut.runOptimization(this.token);
 
-		// Assertions
-		verify(sut, times(1))//
-				.restartOptimization(anyString(), eq(Optimizer.BUFFER_ON_ERROR), eq(true));
+		verify(sut, times(1)) //
+				.restartOptimization(//
+						anyString(), //
+						eq(Optimizer.BUFFER_ON_ERROR), //
+						eq(true));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testRunOptimization_ShouldRunOptimization() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testRunOptimization_shouldRunSimulator_whenContextAndSimulatorAreAvailable() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> this.simulator));
 
-		doNothing().when(this.simulator)//
-				.runOptimization(any(), anyBoolean(), any(), any(), any());
+		doNothing().when(sut) //
+				.restartOptimization(anyString(), anyBoolean());
 
-		// Execution
-		sut.runOptimization(true, this.token);
+		sut.activate();
 
-		// Assertions
-		verify(this.simulator, times(1))//
+		doNothing().when(this.simulator) //
 				.runOptimization(//
 						any(Supplier.class), //
-						eq(true), //
+						any(BooleanSupplier.class), //
+						any(), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		sut.startOptimization("Test", true);
+
+		final var token = sut.getCurrentToken().get();
+
+		sut.runOptimization(token);
+
+		verify(this.simulator, times(1)) //
+				.runOptimization(//
+						any(Supplier.class), //
+						any(BooleanSupplier.class), //
 						eq(null), //
 						any(Function.class), //
 						any(Consumer.class));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testRunOptimization_ShouldRestart_WhenErrorDuringOptimization() {
-		// Setup / Mocks
-		var sut = spy(new Optimizer(//
+	void testRunOptimization_shouldNotFixCurrentPeriod_whenCurrentPeriodIsReoptimized() {
+		final var sut = spy(new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> SimulatorTest.GOC, //
 				this.dummyChannel1, //
 				this.dummyChannel2, //
+				this.onScheduleUpdate, //
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
 				goc -> this.simulator));
 
-		doThrow(new RuntimeException()).when(this.simulator)//
-				.runOptimization(any(), anyBoolean(), any(), any(), any());
+		doNothing().when(sut) //
+				.restartOptimization(anyString(), anyBoolean());
 
-		// Execution
-		sut.runOptimization(true, this.token);
+		sut.activate();
 
-		// Assertions
-		verify(sut).restartOptimization(anyString(), eq(Duration.ofSeconds(30)), eq(true));
+		doNothing().when(this.simulator) //
+				.runOptimization(//
+						any(Supplier.class), //
+						any(BooleanSupplier.class), //
+						any(), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		sut.startOptimization("Test", true);
+
+		final var token = sut.getCurrentToken().get();
+		final var fixedSupplierCaptor = ArgumentCaptor.forClass(BooleanSupplier.class);
+
+		sut.runOptimization(token);
+
+		verify(this.simulator) //
+				.runOptimization(//
+						any(Supplier.class), //
+						fixedSupplierCaptor.capture(), //
+						eq(null), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		assertFalse(fixedSupplierCaptor.getValue().getAsBoolean());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void testRunOptimization_shouldFixCurrentPeriod_whenOnlyFutureIsOptimized() {
+		final var sut = spy(new Optimizer(//
+				() -> LogVerbosity.NONE, //
+				() -> SimulatorTest.GOC, //
+				this.dummyChannel1, //
+				this.dummyChannel2, //
+				this.onScheduleUpdate, //
+				this.clock, //
+				() -> this.worker, //
+				() -> this.scheduler, //
+				goc -> this.simulator));
+
+		doNothing().when(sut) //
+				.restartOptimization(anyString(), anyBoolean());
+
+		sut.activate();
+
+		doNothing().when(this.simulator) //
+				.runOptimization(//
+						any(Supplier.class), //
+						any(BooleanSupplier.class), //
+						any(), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		sut.startOptimization("Test", false);
+
+		final var token = sut.getCurrentToken().get();
+		final var fixedSupplierCaptor = ArgumentCaptor.forClass(BooleanSupplier.class);
+
+		sut.runOptimization(token);
+
+		verify(this.simulator) //
+				.runOptimization(//
+						any(Supplier.class), //
+						fixedSupplierCaptor.capture(), //
+						eq(null), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		assertTrue(fixedSupplierCaptor.getValue().getAsBoolean());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void testRunOptimization_shouldRestartWithCurrentPeriodOptimization_whenErrorOccursDuringReoptimization() {
+		final var sut = spy(new Optimizer(//
+				() -> LogVerbosity.NONE, //
+				() -> SimulatorTest.GOC, //
+				this.dummyChannel1, //
+				this.dummyChannel2, //
+				this.onScheduleUpdate, //
+				this.clock, //
+				() -> this.worker, //
+				() -> this.scheduler, //
+				goc -> this.simulator));
+
+		doNothing().when(sut) //
+				.restartOptimization(anyString(), anyBoolean());
+
+		sut.activate();
+
+		doThrow(new RuntimeException()).when(this.simulator) //
+				.runOptimization(//
+						any(Supplier.class), //
+						any(BooleanSupplier.class), //
+						any(), //
+						any(Function.class), //
+						any(Consumer.class));
+
+		sut.startOptimization("Test", true);
+
+		final var token = sut.getCurrentToken().get();
+
+		sut.runOptimization(token);
+
+		verify(sut) //
+				.restartOptimization(//
+						anyString(), //
+						eq(Optimizer.BUFFER_ON_ERROR), //
+						eq(true));
 	}
 }

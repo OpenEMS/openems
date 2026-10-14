@@ -474,12 +474,12 @@ export namespace SharedGridOptimizedCharge {
         });
     }
 
-    export function isEnergySchedulerV2Enabled(config: EdgeConfig): boolean {
-        return config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V2_ENERGY_SCHEDULABLE";
+    export function isEnergySchedulerV1Enabled(config: EdgeConfig): boolean {
+        return config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V1_ESS_ONLY";
     }
 
     export function isDisabledByTimeOfUse(config: EdgeConfig, component: EdgeConfig.Component): boolean {
-        if (isEnergySchedulerV2Enabled(config) == false) {
+        if (isEnergySchedulerV1Enabled(config) === true) {
             return false;
         }
 
@@ -500,7 +500,7 @@ export namespace SharedGridOptimizedCharge {
     }
 
     export function isEeg2025Supported(config: EdgeConfig): boolean {
-        if (isEnergySchedulerV2Enabled(config) == false) {
+        if (isEnergySchedulerV1Enabled(config) === true) {
             return false;
         }
 

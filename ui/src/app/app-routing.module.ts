@@ -32,6 +32,7 @@ import { ControllerPeakShavingAsymmetricOverviewComponent as AsymmetricPeakshavi
 import { ControllerPeakShavingSymmetricOverviewComponent as SymmetricPeakshavingChartOverviewComponent } from "./edge/live/Controller/peak-shaving/symmetric/history/overview/overview";
 import { ControllerPeakShavingTimeslotOverviewComponent as TimeslotPeakshavingChartOverviewComponent } from "./edge/live/Controller/peak-shaving/Symmetric_TimeSlot/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
+import { ScheduleComponent } from "./edge/schedule/schedule";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
@@ -192,7 +193,11 @@ export const history: (/** Determines if titles in headers can be set */ customH
 
 export const routes: Routes = [
     // TODO should be removed in the future
-    { path: "", redirectTo: oauthRedirectFunction("login"), pathMatch: "full" },
+    {
+        path: "",
+        redirectTo: oauthRedirectFunction("login"),
+        pathMatch: "full",
+    },
     { path: OAuthCallBackComponent.ID, component: OAuthCallBackComponent },
     {
         path: "login",
@@ -287,7 +292,7 @@ export const routes: Routes = [
             },
             {
                 path: "schedule",
-                children: [{ path: "", component: EmptyPageComponent, pathMatch: "full" }],
+                children: [{ path: "", component: ScheduleComponent, pathMatch: "full" }],
             },
         ],
     },

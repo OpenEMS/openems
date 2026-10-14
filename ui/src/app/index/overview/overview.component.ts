@@ -80,22 +80,28 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         });
     }
 
-    static getNavigationTree(user: User, translate: TranslateService): NavigationTree[] {
-        if (!user?.hasMultipleEdges) {
-            return [];
+    /**
+     * Returns the navigation tree for the overview component.
+     *
+     * @param user The current user
+     * @param translate The translation service
+     * @param service The platform service
+     * @returns The navigation tree or null if device has smartphone resolution or the user does not have multiple edges
+     */
+    public static getNavigationTree(user: User, translate: TranslateService, service: Service): NavigationTree | null {
+        if (!user?.hasMultipleEdges || service.getIsSmartphoneResolution()) {
+            return null;
         }
-        return [
-            new NavigationTree(
-                "overview",
-                { baseString: "overview" },
-                { name: "apps-outline" },
-                { desktop: translate.instant("MENU.OVERVIEW"), mobile: translate.instant("MENU.SYSTEMS") },
-                "icon",
-                [],
-                null,
-                { customLink: "/overview", hideFavorite: true },
-            ),
-        ];
+        return new NavigationTree(
+            "overview",
+            { baseString: "overview" },
+            { name: "apps-outline" },
+            { desktop: translate.instant("MENU.OVERVIEW"), mobile: translate.instant("MENU.SYSTEMS") },
+            "icon",
+            [],
+            null,
+            { customLink: "/overview", hideFavorite: true },
+        );
     }
 
     ionViewWillEnter() {

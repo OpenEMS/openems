@@ -18,7 +18,6 @@ import static java.time.Duration.ofSeconds;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -48,6 +47,7 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
 import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
+import io.openems.edge.energy.optimizer.OptimizationResult;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
@@ -88,20 +88,19 @@ public final class AppUtils {
 	private static void simulate(GlobalOptimizationContext goc, long executionLimitSeconds, PlotSettings plotSettings)
 			throws IOException {
 		var simulator = new Simulator(goc);
-		simulator.setEarliestCallbackDelay(Duration.ZERO);
 
-		var simulationResult = new AtomicReference<SimulationResult>();
+		var optimizationResult = new AtomicReference<OptimizationResult>();
 		simulator.runOptimization(//
 				() -> EMPTY_SIMULATION_RESULT, //
-				false /* optimizeCurrentPeriod */, //
+				() -> false /* optimizeCurrentPeriod */, //
 				null, //
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))), //
-				simulationResult::set);
+				optimizationResult::set);
 
-		final var sr = simulationResult.get();
-		logSimulationResult(simulator, sr);
-		PlotUtils.plotSimulationResult(goc, sr);
+		final var or = optimizationResult.get();
+		logSimulationResult(simulator, or.simulationResult());
+		PlotUtils.plotSimulationResult(goc, or.simulationResult());
 	}
 
 	/**

@@ -6,11 +6,11 @@ import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { EnergyJourneyShared } from "src/app/edge/settings/energy-journey/shared/shared";
 import { OverViewComponent } from "src/app/index/overview/overview.component";
-import { PlatFormService } from "src/app/platform.service";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { UserComponent } from "src/app/user/user.component";
+import { EnergyScheduler } from "../../edge/config-components/energy/energy";
 import { Edge } from "../../edge/edge";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { NavigationId, NavigationTree } from "../shared";
@@ -22,11 +22,11 @@ export namespace SharedBottomNavigationBar {
         translate: TranslateService,
         service: Service,
         user: User,
-        platFormService: PlatFormService,
     ): NavigationTree[] {
         return [
-            ...OverViewComponent.getNavigationTree(user, translate),
+            OverViewComponent.getNavigationTree(user, translate, service),
             getCockpitNavigationTree(edge, config, translate),
+            getScheduleNavigationTree(translate, edge, config),
             getFavoritesNavigationTree(translate),
             EnergyJourneyShared.getNavigationTree(edge, config, translate),
             getProfileNavigationTree(user, translate),
@@ -128,6 +128,27 @@ export namespace SharedBottomNavigationBar {
             ],
             null,
             { isCommonWidget: true, hideFavorite: true },
+        );
+    }
+
+    export function getScheduleNavigationTree(
+        translate: TranslateService,
+        edge: Edge,
+        config: EdgeConfig,
+    ): NavigationTree | null {
+        const energyScheduler = new EnergyScheduler(config);
+        if (energyScheduler.isEnergySchedulerV1() || !EnergyScheduler.hasRequiredEdgeVersion(edge)) {
+            return null;
+        }
+
+        return new NavigationTree(
+            NavigationId.SCHEDULE,
+            { baseString: "schedule" },
+            { name: "oe-schedule" },
+            translate.instant("MENU.SCHEDULE"),
+            "icon",
+            [],
+            null,
         );
     }
 }

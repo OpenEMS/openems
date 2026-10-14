@@ -125,7 +125,7 @@ export class PickDatePopoverComponent implements OnInit {
         const firstSetupProtocol = this.edge?.firstSetupProtocol;
         // Restrict user to pick date before ibn-date
         this.myDpOptions.disableUntil =
-            firstSetupProtocol !== undefined
+            firstSetupProtocol != null
                 ? {
                       day: NumberUtils.subtractSafely(getDate(firstSetupProtocol), 1) ?? 1,
                       month: NumberUtils.addSafely(getMonth(firstSetupProtocol), 1) ?? 1,
@@ -178,9 +178,13 @@ export class PickDatePopoverComponent implements OnInit {
                 break;
             }
             case DefaultTypes.PeriodString.TOTAL: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol, endOfYear(this.TODAY)));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+                const firstSetupProtocol = this.edge?.firstSetupProtocol;
+                // 'total' is only offered for edges with ibn-date; ignore it if the edge has none
+                if (firstSetupProtocol != null) {
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(firstSetupProtocol, endOfYear(this.TODAY)));
+                    this.service.periodString = period;
+                    this.popoverCtrl.dismiss();
+                }
                 break;
             }
             default:

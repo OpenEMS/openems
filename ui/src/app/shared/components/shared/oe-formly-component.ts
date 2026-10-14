@@ -12,6 +12,7 @@ import { MultiLengthArray, TIntRange } from "../../type/utility";
 import { Icon } from "../../type/widget";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
+import { NumberUtils } from "../../utils/number/number-utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
@@ -49,7 +50,6 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
         this.navigationService = SharedModule.injector.get<NavigationService>(NavigationService);
         this.dataService = inject(DataService);
-        const websocket = inject(Websocket);
 
         this.service.getCurrentEdge().then(async (edge) => {
             // Subscribe on channels only once
@@ -77,7 +77,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                     });
                     this.view.set(view);
                     this.form.set(this.getFormGroup());
-                    this.setFields(view, this.form(), websocket);
+                    this.setFields(view, this.form(), this.service.websocket);
                 });
         });
 
@@ -275,20 +275,39 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
+     * Sets the form controls value to a boolean from a given channel.
+     *
+     * @param fg The formGroup
+     * @param formControlName The form control name
+     * @param currentData The current data
+     * @param channel The channel value to retrieve
+     */
+    protected setFormControlSafelyWithBooleanChannel(
+        fg: FormGroup,
+        formControlName: string,
+        currentData: CurrentData,
+        channel: ChannelAddress | null,
+    ): void {
+        this.setFormControlSafelyWithChannel(fg, formControlName, currentData, channel, (value) =>
+            NumberUtils.numberToBooleanOrElse(value, false),
+        );
+    }
+
+    /**
      * Sets the formControls value to a given channel value
      *
      * @param fg The formGroup
      * @param formControlName The control name to change
      * @param currentData The current data
      * @param channel The channel to use
-     * @returns The new formGroup
      */
     protected setFormControlSafelyWithChannel<T>(
         fg: FormGroup,
         formControlName: string,
         currentData: CurrentData,
         channel: ChannelAddress | null,
-    ) {
+        converter: (value: any) => T | null = (value) => value,
+    ): void {
         if (channel === null) {
             return;
         }
@@ -299,8 +318,10 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
             return;
         }
 
+        const convertedChannelValue: T | null = converter(channelValue);
+
         const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
-        const currFormControlValue: T | null = channelValue;
+        const currFormControlValue: T | null = convertedChannelValue;
 
         if (currFormControlValue != null && prevFormControlValue !== currFormControlValue) {
             control.setValue(currFormControlValue);
@@ -310,15 +331,13 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
-     * Sets the formControls value to a given channel value
+     * Sets the formControls value to a given value
      *
      * @param fg The formGroup
      * @param formControlName The control name to change
-     * @param currentData The current data
-     * @param channel The channel to use
-     * @returns The new formGroup
+     * @param value The value to set
      */
-    protected setFormControlSafelyWithValue<T>(fg: FormGroup, formControlName: string, value: T | null) {
+    protected setFormControlSafelyWithValue<T>(fg: FormGroup, formControlName: string, value: T | null): void {
         const control = fg.controls[formControlName];
         if (control == null) {
             return;
@@ -472,11 +491,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.ValueLine
     | OeFormlyField.ButtonLine
-    | OeFormlyField.ToggleLine
     | OeFormlyField.ToggleLineWithValue<T>
-    | OeFormlyField.InputLine
-    | OeFormlyField.SelectLine
-    | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.Advanced.ElectricityMeter
     | OeFormlyField.Advanced.EssChargerLine
     | OeFormlyField.Advanced.AdvancedStatsLine
@@ -490,7 +505,8 @@ export type OeFormlyField<T = any> = (
         | "ion-padding-bottom"
         | "ion-padding-left"
         | "ion-padding-right"
-        | "ion-text-font-style-italic";
+        | "ion-text-font-style-italic"
+        | "ion-padding-top-triple";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -533,6 +549,9 @@ export namespace OeFormlyField {
         type: "component-line";
         component: Type<T>;
         inputs?: Record<string, unknown>;
+
+        /** Will be applied on the wrapper component */
+        componentWrapperCssClass?: string;
     };
 
     export type Item = {

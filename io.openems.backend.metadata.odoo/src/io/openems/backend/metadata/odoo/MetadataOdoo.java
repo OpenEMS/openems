@@ -398,7 +398,28 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			role = OdooUserRole.OWNER;
 		}
 
-		this.odooHandler.registerUser(jsonObject, role, oem);
+		try {
+			this.odooHandler.registerUser(jsonObject, role, oem);
+		} catch (OpenemsNamedException e) {
+			// TODO remove this workaround when Odoo is fixed
+			if (!(e.getMessage().contains("Unable to write to Odoo") && e.getMessage().contains("res.partner"))) {
+				throw e;
+			}
+			// Hide password before logging (see JsonrpcUtils.simplifyJsonrpcMessage)
+			final var logJson = jsonObject.deepCopy();
+			if (logJson.has("password")) {
+				logJson.addProperty("password", "HIDDEN");
+			}
+			this.log.error("[ODOO_INTERNAL_ERROR] Unable to register user: {}. Retrying... {}", e.getMessage(),
+					logJson, e);
+			try {
+				Thread.sleep(5_000);
+			} catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+				throw new RuntimeException(ex);
+			}
+			this.odooHandler.registerUser(jsonObject, role, oem);
+		}
 	}
 
 	@Override
