@@ -149,22 +149,27 @@ public class OctopusDynamicDeImplTest {
 		public void _setStatusAuthenticationFailed(boolean value) {
 			this.authenticationFailed = value;
 		}
+
 		@Override
 		public void _setStatusRateLimited(boolean value) {
 			this.rateLimited = value;
 		}
+
 		@Override
 		public void _setStatusConnectionFailed(boolean value) {
 			this.connectionFailed = value;
 		}
+
 		@Override
 		public void _setStatusServerError(boolean value) {
 			this.serverError = value;
 		}
+
 		@Override
 		public void _setForecastValidUntil(long value) {
 			this.forecastValidUntil = value;
 		}
+
 		@Override
 		public void _setNextRetry(long value) {
 			this.nextRetry = value;
