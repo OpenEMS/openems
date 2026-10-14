@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "No data available",
             "NO_LOCAL_DATA_INFO": "Historical data is currently unavailable locally",
-            "NO_LOCAL_DATA_NOTICE": "Please use the FENECON Online-Monitoring on <a class=\"ion-link\" href=\"http://www.fenecon.de\" target=\"_blank\">www.fenecon.de</a>.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Oct",
             "OTHER_PERIOD": "Other period",
             "PERIOD": "Period",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "3-phase",
                     "HYSTERESIS": "Minimum switching time of the charging station active",
                     "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes.",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Note: When using this mode, an error may currently occur in combination with the KEBA P40. We therefore recommend not using this mode for the time being and choosing the „Automatic“ mode with „Guarantee minimum charge“ enabled instead.",
                     "LINK_TO_DOCUMENTATION": "Mehr Informationen",
                     "MAX_ENERGY_RESTRICTION": "Limit maximum energy per charge",
                     "MINIMUM": "PV Surplus with guaranteed charge",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Base mode",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Note: An error may occur when using this mode in combination with the KEBA P40. We therefore recommend not using this mode for now and using the „PV surplus with guaranteed charge“ or „Fast charging“ mode temporarily instead.",
                     "SCHEDULE": {
                         "ADD_TASK": "Add task",
                         "SCHEDULE": "Schedule"
@@ -567,21 +567,6 @@
                     "INVERTER": "Inverter",
                     "TOTAL_AC": "Total AC",
                     "TOTAL_DC": "Total DC"
-                },
-                "SYSTEM": {
-                    "INDUSTRIAL": {
-                        "BMS_HARD_RESET": "BMS hard reset",
-                        "CLEAR_COOLING_UNIT_ERRORS_HEADER": "Cooling unit reset:",
-                        "CLEAR_COOLING_UNIT_ERRORS_TEXT": "necessary for cooling unit errors",
-                        "MAINTENANCE_WINDOW": "Maintenance window",
-                        "NOTE": "Starts or stops the entire system, including battery inverter and batteries",
-                        "RESET": "RESET",
-                        "SYSTEM_ERROR_ACKNOWLEDGE_HEADER": "System error acknowledge:",
-                        "SYSTEM_ERROR_ACKNOWLEDGE_TEXT": "includes system components, batteries, inverters, ESS"
-                    },
-                    "OVERALL_SYSTEM": "Overall system",
-                    "RPC_FAILED": "Command execution failed",
-                    "RPC_SUCCESS": "Command execution successfully"
                 },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
@@ -880,9 +865,7 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Authentication Failed",
-        "DEMO_ACCESS": "Demo Access",
         "EMPLOYEE_LOGIN": "Employee Login",
-        "ENERGY_JOURNEY_SLOGAN": "You are part of the energy journey",
         "PASSWORD_LABEL": "Password",
         "PASSWORD_RESET": "Reset Password",
         "PREAMBLE": "Please enter your password or submit the default value to login as a guest.",
@@ -895,11 +878,9 @@
         "ACCESS_LEVEL": "Access Level",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Settings",
         "EDGE_SYSTEM_SETTINGS": "System Settings",
         "FAVORITES": "Favorites",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
@@ -987,17 +968,17 @@
             "EMAIL": "E-Mail",
             "FIRSTNAME": "First name",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "By creating an installer account, I declare that I have read and agree to the <a target=\"_blank\" href={{link}}>privacy policy</a> and terms of use.*"
             },
-            "IS_ELECTRICIAN": "",
+            "IS_ELECTRICIAN": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
             "LASTNAME": "Last name",
             "PASSWORD": "Password",
             "PHONE": "Phone number",
             "PRIVATE": "Private",
             "STREET": "Street",
-            "SUBSCRIBE_NEWSLETTER": "",
+            "SUBSCRIBE_NEWSLETTER": "Here you can subscribe to the newsletter.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "By creating an account, I declare that I have read and agree to the <a target=\"_blank\" href={{link}}>privacy policy</a> and terms of use.*"
             },
             "ZIP": "Postal code"
         },

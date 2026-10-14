@@ -4,7 +4,7 @@
         "CONTACT": "Para preguntas o comentarios, visite el <a target=\"_blank\" href=\"https://community.openems.io/\">foro de la comunidad de OpenEMS</a>.",
         "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
         "DESCRIPTION": "Este sistema de gestión de energía se basa en OpenEMS &ndash; el sistema de gestión de energía de código abierto. OpenEMS es una plataforma modular para la supervisión y el control de dispositivos de energía. El desarrollo está coordinado por la OpenEMS Association e.V.",
-        "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
+        "DEVELOPED": "Esta interfaz de usuario se desarrolla como software de código abierto.",
         "ENERGY_MANAGEMENT": "Sistema de gestión de energía",
         "FAQ": "Preguntas frecuentes (FAQ)",
         "LANGUAGE": "Seleccionar idioma:",
@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "sin datos disponibles",
             "NO_LOCAL_DATA_INFO": "Los datos históricos no están disponibles actualmente en local",
-            "NO_LOCAL_DATA_NOTICE": "Visite https://github.com/OpenEMS/openems para obtener actualizaciones sobre este tema.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Oct",
             "OTHER_PERIOD": "Otro período",
             "PERIOD": "Período",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "Trifásico",
                     "HYSTERESIS": "Tiempo mínimo de conmutación de la estación de carga activo",
                     "HYSTERESIS_INFO": "Para evitar interrupciones de carga debido a arranques/pausas demasiado frecuentes del proceso de carga, el modo de carga seleccionado actualmente continuará durante los próximos minutos.",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con FEMS y la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada. FENECON y KEBA ya están trabajando a toda marcha en una solución.",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada.",
                     "LINK_TO_DOCUMENTATION": "Más información",
                     "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
                     "MINIMUM": "Excedente fotovoltaico con carga garantizada",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Modo básico",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con FEMS y la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“. FENECON y KEBA ya están trabajando a toda marcha en una solución.",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“.",
                     "SCHEDULE": {
                         "ADD_TASK": "Añadir tarea",
                         "SCHEDULE": "Programación"
@@ -554,7 +554,9 @@
                     "SWITCH_OFF_ABOVE": "Apagar a través de",
                     "SWITCH_OFF_BELOW": "Apagar bajo",
                     "SWITCH_ON_ABOVE": "Encender a través de",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Conectar por encima del umbral",
                     "SWITCH_ON_BELOW": "Encender debajo",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Conectar por debajo del umbral",
                     "THRESHOLD": "Thresholded"
                 },
                 "STORAGE": {
@@ -966,17 +968,17 @@
             "EMAIL": "Correo electrónico",
             "FIRSTNAME": "Nombre",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Al crear una cuenta de instalador, declaro que he leído y acepto la <a target=\"_blank\" href={{link}}>política de privacidad</a> y las condiciones de uso.*"
             },
-            "IS_ELECTRICIAN": "",
+            "IS_ELECTRICIAN": "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
             "LASTNAME": "Apellido",
             "PASSWORD": "Contraseña",
             "PHONE": "Número de teléfono",
             "PRIVATE": "Privado",
             "STREET": "Calle | número de casa",
-            "SUBSCRIBE_NEWSLETTER": "",
+            "SUBSCRIBE_NEWSLETTER": "Aquí puede suscribirse al boletín de noticias.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Al crear una cuenta, declaro que he leído y acepto la <a target=\"_blank\" href={{link}}>política de privacidad</a> y las condiciones de uso.*"
             },
             "ZIP": "Código postal"
         },

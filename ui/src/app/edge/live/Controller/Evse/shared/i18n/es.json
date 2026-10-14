@@ -1,77 +1,73 @@
 {
     "EVSE_SINGLE": {
-        "SETTINGS": {
-            "ENERGY_LIMIT": "Límite de energía"
-        },
         "HOME": {
-            "MODE": {
-                "LABEL": "Modo básico",
-                "ZERO": "Apagado",
-                "MINIMUM": "Mínimo",
-                "SURPLUS": "PV",
-                "FORCE": "Rápido"
-            },
-            "STATE_MACHINE": {
-                "LABEL": "Estado",
-                "EV_NOT_CONNECTED": "VE no conectado",
-                "EV_CONNECTED": "VE conectado",
-                "CHARGING": "Cargando",
-                "FINISHED_EV_STOP": "Carga finalizada por el VE",
-                "FINISHED_ENERGY_SESSION_LIMIT": "Carga finalizada por el límite de energía",
-                "PHASE_SWITCH_TO_THREE_PHASE": "Cambio a trifásico",
-                "PHASE_SWITCH_TO_SINGLE_PHASE": "Cambio a monofásico",
-                "PHASE_SWITCH": "Cambio de fases manual"
-            },
-            "POWER": "Potencia",
-            "ENERGY_SINCE_START": "Energía desde el último inicio de carga",
-            "VEHICLES": "Vehículos del App Center",
             "ACTUAL_MODE": {
                 "LABEL": "Modo actual"
-            }
+            },
+            "ENERGY_SINCE_START": "Energía desde el último inicio de carga",
+            "MODE": {
+                "FORCE": "Rápido",
+                "LABEL": "Modo básico",
+                "MINIMUM": "Mínimo",
+                "SURPLUS": "PV",
+                "ZERO": "Apagado"
+            },
+            "POWER": "Potencia",
+            "STATE_MACHINE": {
+                "CHARGING": "Cargando",
+                "EV_CONNECTED": "VE conectado",
+                "EV_NOT_CONNECTED": "VE no conectado",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Carga finalizada por el límite de energía",
+                "FINISHED_EV_STOP": "Carga finalizada por el VE",
+                "LABEL": "Estado",
+                "PHASE_SWITCH": "Cambio de fases manual",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Cambio a monofásico",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Cambio a trifásico"
+            },
+            "VEHICLES": "Vehículos del App Center"
         },
         "SCHEDULE": {
-            "EDIT": "Editar",
             "ACCEPT": "Aceptar",
-            "DELETE": "Eliminar",
-            "EDIT_TASK": "Editar tarea",
-            "START": "Inicio",
-            "END": "Fin",
-            "DURATION": "Duración",
-            "MODE": "Modo de carga",
-            "FREQUENCY": "Repetir",
             "ADD": "Añadir",
-            "SMART_EVENT_TITLE": "Carga inteligente de {{kwh}} kWh",
+            "ADD_ERROR": "No se pudo añadir la tarea",
+            "ADD_SUCCESS": "Tarea añadida correctamente",
             "DAY": {
-                "MONDAY": "Lunes",
-                "TUESDAY": "Martes",
-                "WEDNESDAY": "Miércoles",
-                "THURSDAY": "Jueves",
                 "FRIDAY": "Viernes",
+                "MONDAY": "Lunes",
                 "SATURDAY": "Sábado",
-                "SUNDAY": "Domingo"
+                "SUNDAY": "Domingo",
+                "THURSDAY": "Jueves",
+                "TUESDAY": "Martes",
+                "WEDNESDAY": "Miércoles"
             },
+            "DELETE": "Eliminar",
+            "DELETE_ERROR": "No se pudo eliminar la tarea",
+            "DELETE_SUCCESS": "Tarea eliminada correctamente",
+            "DURATION": "Duración",
+            "EDIT": "Editar",
+            "EDIT_ERROR": "No se pudo personalizar la tarea",
+            "EDIT_SUCCESS": "Tarea ajustada correctamente",
+            "END": "Fin",
             "FREQ": {
                 "DAILY": "Diaria",
-                "WEEKLY": "Semanal",
                 "MONTHLY": "Mensual",
+                "WEEKLY": "Semanal",
                 "YEARLY": "Anual"
             },
+            "FREQUENCY": "Repetir",
+            "MODE": "Modo de carga",
             "MODE_SELECTION_PLACEHOLDER": "Seleccionar",
+            "SMART_EVENT_TITLE": "Carga inteligente de {{kwh}} kWh",
+            "START": "Inicio",
             "VALIDATION_ERROR_1": "Especifique la hora de inicio",
             "VALIDATION_ERROR_2": "Especifique la hora de fin",
             "VALIDATION_ERROR_3": "Seleccione el modo de carga",
             "VALIDATION_ERROR_4": "Especifique la hora de inicio en formato HH:mm y solo en cuartos de hora (00, 15, 30 o 45 minutos)",
             "VALIDATION_ERROR_5": "Especifique la hora de fin en formato HH:mm y solo en cuartos de hora (00, 15, 30 o 45 minutos)",
-            "VALIDATION_ERROR_6": "La hora de fin debe ser posterior a la hora de inicio",
-            "VALIDATION_ERROR_7": "Falta la hora de inicio o la duración",
-            "VALIDATION_ERROR_8": "Especifique la repetición",
-            "VALIDATION_ERROR_9": "Establezca al menos una rotación",
-            "ADD_SUCCESS": "Tarea añadida correctamente",
-            "ADD_ERROR": "No se pudo añadir la tarea",
-            "EDIT_SUCCESS": "Tarea ajustada correctamente",
-            "EDIT_ERROR": "No se pudo personalizar la tarea",
-            "DELETE_SUCCESS": "Tarea eliminada correctamente",
-            "DELETE_ERROR": "No se pudo eliminar la tarea"
+            "VALIDATION_ERROR_6": "La hora de fin debe ser posterior a la hora de inicio"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Límite de energía"
         }
     }
 }

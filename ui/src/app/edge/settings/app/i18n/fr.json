@@ -1,5 +1,5 @@
 {
     "APP_CENTER": {
-        "LOCAL_MONITORING": "Vous êtes actuellement dans le monitoring local. Pour installer de nouvelles applications, veuillez utiliser le <a href='https://portal.fenecon.de/' target='_blank'>monitoring en ligne</a>."
+        "LOCAL_MONITORING": "Vous êtes actuellement dans le monitoring local. Pour installer de nouvelles applications, veuillez utiliser le monitoring en ligne."
     }
 }

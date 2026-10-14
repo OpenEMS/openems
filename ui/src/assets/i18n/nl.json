@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "geen gegevens beschikbaar",
             "NO_LOCAL_DATA_INFO": "Historische gegevens zijn momenteel lokaal niet beschikbaar",
-            "NO_LOCAL_DATA_NOTICE": "Bezoek https://github.com/OpenEMS/openems voor updates over dit onderwerp.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Okt",
             "OTHER_PERIOD": "Andere periode",
             "PERIOD": "Periode",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "3-fase",
                     "HYSTERESIS": "Minimale omschakeltijd van het laadstation actief",
                     "HYSTERESIS_INFO": "Om laadonderbrekingen als gevolg van te vaak starten/pauzeren van het laadproces te voorkomen, wordt de huidige laadmodus nog enkele minuten voortgezet.",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren. FENECON en KEBA werken al met man en macht aan een oplossing.",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren.",
                     "LINK_TO_DOCUMENTATION": "Meer informatie",
                     "MAX_ENERGY_RESTRICTION": "Beperk de maximale energie per lading",
                     "MINIMUM": "PV-overschot met gegarandeerde lading",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Basismodus",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken. FENECON en KEBA werken al met man en macht aan een oplossing.",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er een fout optreden in combinatie met de KEBA P40. Wij adviseren deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken.",
                     "SCHEDULE": {
                         "ADD_TASK": "Taak toevoegen",
                         "SCHEDULE": "Tijdschema"
@@ -554,7 +554,9 @@
                     "SWITCH_OFF_ABOVE": "Uitschakelen via",
                     "SWITCH_OFF_BELOW": "Schakel uit onder",
                     "SWITCH_ON_ABOVE": "Inschakelen via",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Inschakelen boven drempelwaarde",
                     "SWITCH_ON_BELOW": "Inschakelen onder",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Inschakelen onder drempelwaarde",
                     "THRESHOLD": "Thresholded"
                 },
                 "STORAGE": {
@@ -966,17 +968,17 @@
             "EMAIL": "E-Mail - adres",
             "FIRSTNAME": "Voornaam",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Door een installateursaccount aan te maken, verklaar ik dat ik het <a target=\"_blank\" href={{link}}>privacybeleid</a> en de gebruiksvoorwaarden heb gelezen en daarmee akkoord ga.*"
             },
-            "IS_ELECTRICIAN": "",
+            "IS_ELECTRICIAN": "Ik bevestig dat mijn bedrijf is ingeschreven in het installateursregister en dat ik daarmee bevoegd ben om een opslagsysteem aan te sluiten en in bedrijf te stellen.*",
             "LASTNAME": "Achternaam",
             "PASSWORD": "Wachtwoord",
             "PHONE": "Telefoonnummer",
             "PRIVATE": "Particulier",
             "STREET": "Straat | huisnummer",
-            "SUBSCRIBE_NEWSLETTER": "",
+            "SUBSCRIBE_NEWSLETTER": "Hier kunt u zich abonneren op de nieuwsbrief.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Door een account aan te maken, verklaar ik dat ik het <a target=\"_blank\" href={{link}}>privacybeleid</a> en de gebruiksvoorwaarden heb gelezen en daarmee akkoord ga.*"
             },
             "ZIP": "Postcode"
         },

@@ -146,8 +146,8 @@ export const OemMeta: BaseMeta = {
                 },
             },
         },
-        DATA_PROTECTION: null,
-        GTC: (language: string): string | null => {
+        DATA_PROTECTION: "https://openems.io/",
+        GTC: (): string | null => {
             return "https://openems.io/";
         },
         REDIRECT: {

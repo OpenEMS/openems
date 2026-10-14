@@ -200,7 +200,7 @@
             "NOV": "Lis",
             "NO_DATA": "data nejsou k dispozici",
             "NO_LOCAL_DATA_INFO": "Historická data nejsou v současné době lokálně k dispozici",
-            "NO_LOCAL_DATA_NOTICE": "Prosím navštivte https://github.com/OpenEMS/openems pro aktualizace k tomuto tématu.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Říj",
             "OTHER_PERIOD": "Další období",
             "PERIOD": "Období",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "3fázové",
                     "HYSTERESIS": "Minimální doba přepnutí nabíjecí stanice aktivní",
                     "HYSTERESIS_INFO": "Aby se zabránilo přerušení nabíjení v důsledku příliš častého spouštění/pozastavování nabíjení, bude aktuálně zvolený režim nabíjení po dalších několik minut pokračovat.",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s FEMS a KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“. FENECON a KEBA už intenzivně pracují na řešení.",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“.",
                     "LINK_TO_DOCUMENTATION": "Více informací",
                     "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
                     "MINIMUM": "Přetok PV se zaručeným nabíjením",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Základní režim",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s FEMS a KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“. FENECON a KEBA už intenzivně pracují na řešení.",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“.",
                     "SCHEDULE": {
                         "ADD_TASK": "Přidat úlohu",
                         "SCHEDULE": "Časový plán"
@@ -968,17 +968,17 @@
             "EMAIL": "E-Mailem",
             "FIRSTNAME": "jméno",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Vytvořením instalátorského účtu prohlašuji, že jsem si přečetl(a) <a target=\"_blank\" href={{link}}>zásady ochrany osobních údajů</a> a podmínky použití a souhlasím s nimi.*"
             },
-            "IS_ELECTRICIAN": "",
+            "IS_ELECTRICIAN": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
             "LASTNAME": " Příjmení",
             "PASSWORD": "Heslo",
             "PHONE": "Telefonní číslo",
             "PRIVATE": "Soukromé",
             "STREET": "Ulice",
-            "SUBSCRIBE_NEWSLETTER": "",
+            "SUBSCRIBE_NEWSLETTER": "Zde se můžete přihlásit k odběru newsletteru.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu prohlašuji, že jsem si přečetl(a) <a target=\"_blank\" href={{link}}>zásady ochrany osobních údajů</a> a podmínky použití a souhlasím s nimi.*"
             },
             "ZIP": "Ulice"
         },

@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "Pas de données disponible",
             "NO_LOCAL_DATA_INFO": "Les données historiques ne sont actuellement pas disponibles localement",
-            "NO_LOCAL_DATA_NOTICE": "Veuillez consulter https://github.com/OpenEMS/openems pour des mises à jour sur ce sujet.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Oct",
             "OTHER_PERIOD": "Autre période",
             "PERIOD": "Période",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "Triphasé",
                     "HYSTERESIS": "Temps minimal de commutation de la borne de recharge actif",
                     "HYSTERESIS_INFO": "Pour éviter les interruptions de charge dues à des démarrages/pauses trop fréquents du processus de charge, le mode de charge actuellement sélectionné se poursuivra pendant les prochaines minutes.",
-                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée. FENECON et KEBA travaillent déjà à toute vitesse sur une solution.",
+                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée.",
                     "LINK_TO_DOCUMENTATION": "Plus d'informations",
                     "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
                     "MINIMUM": "Surplus photovoltaïque avec charge garantie",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Mode de base",
-                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ». FENECON et KEBA travaillent déjà à toute vitesse sur une solution.",
+                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ».",
                     "SCHEDULE": {
                         "ADD_TASK": "Ajouter une tâche",
                         "SCHEDULE": "Planification"
@@ -554,7 +554,9 @@
                     "SWITCH_OFF_ABOVE": "Switch off above",
                     "SWITCH_OFF_BELOW": "Switch off below",
                     "SWITCH_ON_ABOVE": "Switch on above",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Activer au-dessus du seuil",
                     "SWITCH_ON_BELOW": "Switch on below",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Activer en dessous du seuil",
                     "THRESHOLD": "Threshold"
                 },
                 "STORAGE": {
@@ -966,17 +968,17 @@
             "EMAIL": "Courrier électronique.",
             "FIRSTNAME": "Prénom",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "En créant un compte installateur, je déclare avoir lu et accepté la <a target=\"_blank\" href={{link}}>politique de confidentialité</a> et les conditions d’utilisation.*"
             },
-            "IS_ELECTRICIAN": "",
+            "IS_ELECTRICIAN": "Je confirme que mon entreprise est inscrite dans le registre des installateurs et que je suis donc autorisé à raccorder et à mettre en service un système de stockage.",
             "LASTNAME": "Nom de famille",
             "PASSWORD": "Mot de passe.",
             "PHONE": "Numéro de téléphone",
             "PRIVATE": "Privé",
             "STREET": "Rue | Numéro de maison",
-            "SUBSCRIBE_NEWSLETTER": "",
+            "SUBSCRIBE_NEWSLETTER": "Ici, vous pouvez vous abonner à la lettre d’information.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "En créant un compte, je déclare avoir lu et accepté la <a target=\"_blank\" href={{link}}>politique de confidentialité</a> et les conditions d'utilisation.*"
             },
             "ZIP": "Code postal"
         },

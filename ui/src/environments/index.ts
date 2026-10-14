@@ -204,12 +204,7 @@ export interface Environment {
             };
         };
         readonly DATA_PROTECTION: string | null;
-        /**
-         * Gets the link to the General Terms and Conditions (GTC; German: "AGB") for the given language.
-         *
-         * @param language The language key, e.g. from TranslateService.getCurrentLang
-         * @returns The url of the GTC page or null if not provided
-         */
+        /** Gets the link to the General Terms and Conditions (GTC) for the given language. */
         GTC: (language: string) => string | null;
         readonly FORGET_PASSWORD: string;
         readonly EVCS: string | null;
