@@ -268,6 +268,18 @@ public class Simulator {
 			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor, //
 			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor, //
 			Consumer<OptimizationResult> onResult) {
+		if (this.goc.eshsWithDifferentModes().isEmpty()) {
+			this.simulationsCounter.incrementAndGet();
+			onResult.accept(new OptimizationResult(//
+					SimulationResult.fromQuarters(//
+							this.goc, //
+							new int[this.goc.periods().size()], //
+							this.getTotalNumberOfSimulations(), //
+							this.getTotalNumberOfGenerations()), //
+					OptimizationResult.Type.FINAL));
+			return;
+		}
+
 		final var codec = EshCodec.of(//
 				this.goc, //
 				this.modeCombinations, //

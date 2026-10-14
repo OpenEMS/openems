@@ -2,22 +2,22 @@
     "EDGE": {
         "CONFIG": {
             "APP": {
-                "STATUS_INSTALLED": "Installed",
+                "CATEGORY_FILTER": "App-Categories",
                 "STATUS_AVAILABLE": "Available",
-                "STATUS_INCOMPATIBLE": "Incompatible",
                 "STATUS_FILTER": "Availability",
-                "CATEGORY_FILTER": "App-Categories"
+                "STATUS_INCOMPATIBLE": "Incompatible",
+                "STATUS_INSTALLED": "Installed"
             }
         }
     },
     "PROFILE": {
         "SYSTEM_LOCATION_VALIDATOR": {
-            "TITLE": "System Location",
-            "SUCCESS_MESSAGE": "System location updated successfully."
+            "SUCCESS_MESSAGE": "System location updated successfully.",
+            "TITLE": "System Location"
         },
         "SYSTEM_PROTOCOL": {
-            "LABEL": "System protocol",
             "DOWNLOAD": "Download",
+            "LABEL": "System protocol",
             "TITLE": "Currently"
         }
     }

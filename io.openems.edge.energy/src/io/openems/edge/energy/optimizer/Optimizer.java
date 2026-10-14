@@ -314,14 +314,6 @@ public class Optimizer {
 			return null;
 		}
 
-		if (goc.eshsWithDifferentModes().isEmpty()) {
-			this.restartOptimization(//
-					"No optimizable EnergyScheduleHandlers, waiting until next period", //
-					DateUtils.durationUntilNextQuarter(this.clock), //
-					true);
-			return null;
-		}
-
 		var simulator = this.simulatorFactory.apply(goc);
 		if (simulator == null) {
 			this.restartOptimization(//

@@ -236,7 +236,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (emergencyReserveCtrl != null) {
-                this.setFormControlSafelyWithChannel(
+                this.setFormControlSafelyWithBooleanChannel(
                     this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent),
                     currentData,
@@ -260,7 +260,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (prepareBatteryExtensionCtrl != null) {
-                this.setFormControlSafelyWithChannel(
+                this.setFormControlSafelyWithBooleanChannel(
                     this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
                     currentData,
@@ -298,7 +298,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                         CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER,
                     ),
                 );
-                this.setFormControlSafelyWithChannel(
+                this.setFormControlSafelyWithBooleanChannel(
                     this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_SPECIFIED(
                         essComponent,
@@ -324,7 +324,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
 
             const meta = new MetaComponent(config);
             if (meta != null) {
-                this.setFormControlSafelyWithChannel(
+                this.setFormControlSafelyWithBooleanChannel(
                     this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent),
                     currentData,
@@ -521,11 +521,11 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     buttons: [
                         {
                             name: translate.instant("EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION"),
-                            value: 1,
+                            value: true,
                         },
                         {
                             name: translate.instant("EDGE.INDEX.RETROFITTING.INSTANT_START"),
-                            value: 0,
+                            value: false,
                         },
                     ],
                     controlName:

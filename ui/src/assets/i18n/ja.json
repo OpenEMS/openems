@@ -8,10 +8,10 @@
         "ENERGY_MANAGEMENT": "エネルギーマネジメントシステム",
         "FAQ": "よくある質問（FAQ）",
         "LANGUAGE": "言語を選択する：",
-        "THEME": "テーマ",
         "NEW_UI": "新しいデザイン",
         "OPEN_EMS": "Openemsの詳細",
-        "PATCHNOTES": "このビルドの監視の変更"
+        "PATCHNOTES": "このビルドの監視の変更",
+        "THEME": "テーマ"
     },
     "APP": {
         "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "この機能は現在アプリで一時的に利用できません。Webアプリをご利用ください。"
@@ -71,8 +71,8 @@
                     "KEY": "ライセンスキー",
                     "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">注意</span>: ライセンスキーを入力する際は、入力ミスにご注意ください: <ul><li>小文字の「l」と大文字の「I」</li><li>数字の「0」と大文字の「O」</li></ul>ライセンスキーは手入力せず、納品書からコピーして上のフィールドに貼り付けることをおすすめします。<br>",
                     "MASTER_KEY_HINT": "<br><span class=\"warning\">注意</span>: バックグラウンドではマスターキーが使用されます。キーは表示されません。ライセンスキーをお持ちの場合は、そちらをご利用ください。<br>",
-                    "REGISTER_KEY": "ライセンスキーを登録",
                     "REGISTERED_KEY": "登録済みライセンスキー",
+                    "REGISTER_KEY": "ライセンスキーを登録",
                     "SUCCESS_REGISTER_KEY": "キーの登録に成功しました",
                     "USE_KEY": "ライセンスキーを引き換える",
                     "USE_MASTER_KEY": "マスターキーを使用",
@@ -146,10 +146,10 @@
                 "TIMESTAMP": "タイムスタンプ"
             },
             "MORE": {
-                "MANUAL_COMMAND": "手動コマンド",
                 "MANUALPQ_POWER_SPECIFICATION": "電力仕様",
                 "MANUALPQ_RESET": "リセット",
                 "MANUALPQ_SUBMIT": "送信",
+                "MANUAL_COMMAND": "手動コマンド",
                 "REFU_INVERTER": "インバーターをリフルします",
                 "REFU_START": "始める",
                 "REFU_START_STOP": "インバーターを開始/停止します",
@@ -197,8 +197,10 @@
             "MAY": "5月",
             "MON": "月",
             "MONTH": "月",
-            "NO_DATA": "データなし",
             "NOV": "11月",
+            "NO_DATA": "データなし",
+            "NO_LOCAL_DATA_INFO": "履歴データは現在ローカルで利用できません",
+            "NO_LOCAL_DATA_NOTICE": "このトピックに関する最新情報は、https://github.com/OpenEMS/openems をご覧ください。",
             "OCT": "10月",
             "OTHER_PERIOD": "他の日付",
             "PERIOD": "期間",
@@ -218,9 +220,7 @@
             "WED": "水",
             "WEEK": "週",
             "YEAR": "年",
-            "YESTERDAY": "昨日",
-            "NO_LOCAL_DATA_INFO": "履歴データは現在ローカルで利用できません",
-            "NO_LOCAL_DATA_NOTICE": "このトピックに関する最新情報は、https://github.com/OpenEMS/openems をご覧ください。"
+            "YESTERDAY": "昨日"
         },
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -245,10 +245,10 @@
                 "INFORMATION_FOR_PLANNED_EXPANSION": "計画された拡張のために、電池は{{targetDate}}の{{targetTime}}以降に充電/放電され、{{targetSoc}} %の電荷状態に到達すると見込まれています。この過程で、系統からの受電や系統への送電が発生する場合があります。この電荷状態は{{targetTimeBuffer}}分間維持され、その後または容量拡張後に、蓄電システムは通常の運転状態に戻ります。",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "計画された拡張のために、電池は{{targetSoc}} %の電荷状態に到達するように充電/放電されると見込まれています。",
                 "INSTANT_START": "即時開始",
+                "IN_REFERENCE_CYCLE": "基準サイクル実行中 - 容量拡張に向けて電池を準備しています。",
                 "ON_DATE_AT_TIME": "{{date}}の{{time}}",
                 "OPTIMAL": "容量拡張",
                 "PLANNED_EXPANSION": "計画された拡張",
-                "IN_REFERENCE_CYCLE": "基準サイクル実行中 - 容量拡張に向けて電池を準備しています。",
                 "PREPARING": "容量拡張を準備中",
                 "REACHED_TARGET_SOC": "容量拡張の準備が完了",
                 "REFERENCING_OF_STORAGE": {
@@ -280,19 +280,19 @@
                 "ENERIX_CONTROL": {
                     "CHARGE_CONSUMPTION": "<b>注意：</b> 技術的に必要な維持充電を超えて電池を系統から積極的に充電するには、蓄電システムの適切な届出が必要です。不明な点がある場合は、設置業者にご確認ください。青い「保存」ボタンを押すことで、この確認が行われたことを承諾します。<br/><br/><b>ご注意：</b> ドイツの再生可能エネルギー源法（EEG 2023）の助成金を受ける前提条件として、電池には再生可能エネルギー源および/または坑内ガスに由来する電力のみを蓄えることが求められます。この機能を有効にすると、電池は系統電力で充電されます。この電力は、個々の電力供給契約に応じて、化石燃料および/または原子力由来である可能性が高いと考えられます。したがって、電池が再生可能エネルギー源および/または坑内ガス由来の電力のみで充電されることは保証できません。",
                     "CHARGE_FROM_GRID": "系統からの充電",
+                    "CHARGE_FROM_GRID_ALLOWED": "系統からの積極的な充電を許可",
                     "CONNECTED": "接続済み",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "系統への積極的な放電を許可",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>注意：</b> 技術上必要とされる運転状態を超えて電池を系統へ積極的に放電するには、蓄電システムの正式な届出が必要です。不明な点がある場合は、設置業者にご相談ください。青い「保存」ボタンをクリックすることで、この確認が行われたことを承諾します。<br/><br/><b>注記：</b> この機能を有効にすると、電池蓄電システムからのエネルギーを公共の系統に送電できるようになります。助成プログラム、報酬モデル、計量方式および適用される規制要件によっては、助成金、報酬または原産地証明に関連する既存の権利に影響を与える可能性があります。<br/><br/>特に、送電した電力を明確に帰属させ、計量によってその原産地を検証する必要が生じる場合があります。この機能の使用が、お客様固有の助成金モデルまたは報酬モデルの要件と互換性があることは保証できません。<br/><br/>有効化する前に、設置業者、直接販売事業者、系統運用者または有資格のアドバイザーと影響についてご確認ください。",
                     "DISCONNECTED": "未接続",
+                    "NOTE": "ご注意：",
                     "NO_DISCHARGE": "放電なし",
                     "NO_INPUT": "コマンドなし",
                     "NO_OVERWRITE": "上書きなし",
-                    "NOTE": "ご注意：",
                     "OVERWRITE": "上書きアクティブ",
                     "OVERWRITE_INFO": "この機能を有効にすると、蓄電システムの充電・放電に関する標準設定が、enerix Franchise GmbH & Co. KGによる外部の指定に置き換えられます。これにより、通常の動作とは異なる挙動が生じる可能性があります。例えば、蓄電システムが十分に充電されているにもかかわらず、系統から電力を取り込むことがあります。",
                     "OVERWRITE_MODE": "上書きモード",
-                    "READ_ONLY": "読み取り専用",
-                    "DISCHARGE_TO_GRID_ACTIVATE": "系統への積極的な放電を許可",
-                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>注意：</b> 技術上必要とされる運転状態を超えて電池を系統へ積極的に放電するには、蓄電システムの正式な届出が必要です。不明な点がある場合は、設置業者にご相談ください。青い「保存」ボタンをクリックすることで、この確認が行われたことを承諾します。<br/><br/><b>注記：</b> この機能を有効にすると、電池蓄電システムからのエネルギーを公共の系統に送電できるようになります。助成プログラム、報酬モデル、計量方式および適用される規制要件によっては、助成金、報酬または原産地証明に関連する既存の権利に影響を与える可能性があります。<br/><br/>特に、送電した電力を明確に帰属させ、計量によってその原産地を検証する必要が生じる場合があります。この機能の使用が、お客様固有の助成金モデルまたは報酬モデルの要件と互換性があることは保証できません。<br/><br/>有効化する前に、設置業者、直接販売事業者、系統運用者または有資格のアドバイザーと影響についてご確認ください。",
-                    "CHARGE_FROM_GRID_ALLOWED": "系統からの積極的な充電を許可"
+                    "READ_ONLY": "読み取り専用"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "充電ステーションをアクティブにします",
@@ -325,8 +325,7 @@
                     "ENERGY_SINCE_BEGINNING": "今回の充電量",
                     "ENFORCE_CHARGING": "充電を実施します",
                     "ERROR": "エラー",
-                    "KEBA_WARNING": "注意：現時点では、このモードをFEMSおよびKEBA P40との組み合わせで使用すると、エラーが発生する可能性があります。そのため、このモードを一時的に使用せず、代わりに「最小充電の保証」を有効にした「自動」モードを選択することをおすすめします。FENECONとKEBAはすでに全力で解決に取り組んでいます。",
-                    "LINK_TO_DOCUMENTATION": "詳細情報",
+                    "FORCE_CHARGE": "急速充電",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "このモードでは、充電ステーションがグリッドパワーにアクセスする必要がある場合でも、車の積み込みが強制されます。つまり、車が充電されることが常に保証されます。",
                         "MAX_CHARGING": "目標電力設定値",
@@ -338,15 +337,18 @@
                     "FORCE_THREE_PHASE": "三相",
                     "HYSTERESIS": "充電器の最小切替時間が有効",
                     "HYSTERESIS_INFO": "充電プロセスの頻繁な開始/一時停止による充電中断を防ぐため、現在選択されている充電モードは今後数分間継続されます。",
+                    "KEBA_WARNING": "注意：現時点では、このモードをFEMSおよびKEBA P40との組み合わせで使用すると、エラーが発生する可能性があります。そのため、このモードを一時的に使用せず、代わりに「最小充電の保証」を有効にした「自動」モードを選択することをおすすめします。FENECONとKEBAはすでに全力で解決に取り組んでいます。",
+                    "LINK_TO_DOCUMENTATION": "詳細情報",
                     "MAX_ENERGY_RESTRICTION": "充電量制限機能",
+                    "MINIMUM": "保証充電付きPV余剰",
+                    "NOT_AUTHORIZED": "許可されていません",
+                    "NOT_CHARGING": "停止中",
+                    "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "充電ステーションへの接続はありません。",
                         "HELP1": "充電ステーションがオンになっているかどうかを確認し、ネットワークを介して到達できるかどうかを確認してください。",
                         "HELP1_1": "充電ステーションのIPは、再びオンになっているときに表示されます"
                     },
-                    "NOT_AUTHORIZED": "許可されていません",
-                    "NOT_CHARGING": "停止中",
-                    "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "車",
@@ -367,21 +369,32 @@
                     "READY_FOR_CHARGING": "充電の準備ができました",
                     "STARTING": "起動",
                     "STATUS": "ステータス",
+                    "SURPLUS": "PV余剰",
+                    "TASKS": "タスク",
                     "TOTAL_CHARGE": "総充電",
                     "TOTAL_CHARGING_POWER": "合計充電パワー",
                     "UNCONTROLLABLE": "この充電ステーションは制御できません。",
                     "UNKNOWN": "確認中",
                     "UNPLUGGED": "プラグを外します",
-                    "ZERO": "充電なし",
-                    "MINIMUM": "保証充電付きPV余剰",
-                    "SURPLUS": "PV余剰",
-                    "FORCE_CHARGE": "急速充電",
-                    "TASKS": "タスク"
+                    "ZERO": "充電なし"
+                },
+                "EVSE": {
+                    "CHARGE_MODE": "基本モード",
+                    "KEBA_WARNING": "注意：このモードをFEMSおよびKEBA P40との組み合わせで使用すると、エラーが発生する可能性があります。現時点ではこのモードの使用をお控えいただき、代わりに一時的に「保証充電付きPV余剰」または「急速充電」モードをご利用ください。FENECONとKEBAはすでに全力で解決に取り組んでいます。",
+                    "SCHEDULE": {
+                        "ADD_TASK": "タスクを追加",
+                        "SCHEDULE": "スケジュール"
+                    },
+                    "VEHICLE_ID_ERROR": "車両IDが見つかりませんでした。設定を確認してください。登録済みのすべての車両が表示されます。"
                 },
                 "FIX_DIGITAL_OUTPUT": "デジタル出力コントローラー",
                 "GRID_OPTIMIZED_CHARGE": {
                     "CHARGING_DELAYED": "充電が遅れました",
                     "CONSIDER_GRID_FEED_IN_LIMIT": "最大グリッドフィードインを検討してください",
+                    "EEG_2025_APP_LINK": "アプリへ",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "EEG 2025アプリは有効です。<br/><br/>電力市場価格がマイナスの間、送電は可能な限り自動的に削減されます。それでも余剰エネルギーがある場合は、引き続き系統に送電され、失われることはありません。",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "お客様のシステムはEEG 2025規制の対象ですか？<br/><br/>EEG 2025アプリを使用すると、電力市場価格がマイナスのとき、送電が可能な限り自動的に削減されます。それでも余剰エネルギーがある場合は、引き続き系統に送電され、失われることはありません。",
                     "END_TIME": "終了時間",
                     "END_TIME_DESCRIPTION": "充電は、数時間最大量では行われませんが、長期間にわたって着実に行われます。",
                     "END_TIME_DETAILED_DESCRIPTION": "充電は数時間で最大量で行われませんが、最大{{maxChargingPowerW}}から{{endTime}}時の最大で着実に行われます。",
@@ -395,10 +408,12 @@
                         "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "最大のグリッドフィードインは、それを超えると（可能な限り）バッテリーの充電が増加します（可能な限り）、早期の生産削減を防ぐために、最大許可されたグリッドフィードインを下回っています。",
                         "PRIORITY_DESCRIPTION": "最小充電は、最大充電よりも優先度が高い"
                     },
+                    "INFO_DISABLED_BY_TIME_OF_USE": "注：グリッド最適化充電は現在、「時間帯別電気料金」アプリに統合されています。ここで設定した内容は引き続き有効です。",
+                    "LIMITED_FUNCTIONALITY": "機能制限",
                     "LOW": "低い",
                     "MAXIMUM_CHARGE": "最大充電",
-                    "MAXIMUM_GRID_FEED_IN": "最大許容グリッドフィードイン",
                     "MAXIMUM_GRIDSELL_WITH_CHARGE": "充電による最大系統送電",
+                    "MAXIMUM_GRID_FEED_IN": "最大許容グリッドフィードイン",
                     "MEDIUM": "中くらい",
                     "MINIMUM_CHARGE": "最小料金",
                     "RISK_DESCRIPTION": {
@@ -421,24 +436,18 @@
                     "RISK_PROPENSITY": "リスク傾向",
                     "SETTING_ONLY_VISABLE_FOR_INSTALLER": "この設定は、インストーラーにのみ表示されます",
                     "STATE": {
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "系統への送電が許可されていないか、ごく少量しか許可されていないため、制限充電または遅延充電はできません。",
                         "AVOID_LOW_CHARGING": "低い充電は避けました",
                         "CHARGE_LIMIT_ACTIVE": "充電制限アクティブ",
                         "END_TIME_NOT_CALCULATED": "計算されていない終了時間",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "グリッドフィードインの制限は回避されます",
+                        "NOT_DEFINED": "定義されていません",
                         "NO_LIMIT_ACTIVE": "充電制限はアクティブではありません",
                         "NO_LIMIT_POSSIBLE": "不可能な制限はありません（優先度が高いコントロールによって制限されています）",
-                        "NOT_DEFINED": "定義されていません",
                         "PASSED_END_TIME": "限られた充電の終了時間を超えました",
-                        "STORAGE_ALREADY_FULL": "すでに満員の蓄電池",
-                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "系統への送電が許可されていないか、ごく少量しか許可されていないため、制限充電または遅延充電はできません。"
+                        "STORAGE_ALREADY_FULL": "すでに満員の蓄電池"
                     },
-                    "LIMITED_FUNCTIONALITY": "機能制限",
-                    "STORAGE_CAPACITY": "storagecapacity（管理者のみ見える）",
-                    "INFO_DISABLED_BY_TIME_OF_USE": "注：グリッド最適化充電は現在、「時間帯別電気料金」アプリに統合されています。ここで設定した内容は引き続き有効です。",
-                    "EEG_2025_APP_NAME": "EEG 2025",
-                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "お客様のシステムはEEG 2025規制の対象ですか？<br/><br/>EEG 2025アプリを使用すると、電力市場価格がマイナスのとき、送電が可能な限り自動的に削減されます。それでも余剰エネルギーがある場合は、引き続き系統に送電され、失われることはありません。",
-                    "EEG_2025_DESCRIPTION_INSTALLED": "EEG 2025アプリは有効です。<br/><br/>電力市場価格がマイナスの間、送電は可能な限り自動的に削減されます。それでも余剰エネルギーがある場合は、引き続き系統に送電され、失われることはありません。",
-                    "EEG_2025_APP_LINK": "アプリへ"
+                    "STORAGE_CAPACITY": "storagecapacity（管理者のみ見える）"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "AC-Thor加熱素子の設定の変更は、MyPVアプリで行うことができます。",
@@ -452,8 +461,47 @@
                     "TEMPERATURE": "現在の温度",
                     "TEMPERATURE_UNIT": "温度（°C）"
                 },
+                "HEATINGELEMENT": {
+                    "ACTIVED_FORCED_LIMIT": "アクティブ（追加エネルギー）",
+                    "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
+                    "ACTIVE_LEVEL": "アクティブレベル",
+                    "CALIBRATION": "キャリブレーション",
+                    "CALIBRATION_DESCRIPTION": "計器の各レベルの電力を取得するために、加熱素子がキャリブレーションされます",
+                    "DONE": "完了",
+                    "ENDTIME": "終了時間",
+                    "ENERGY": "エネルギー",
+                    "ENERGY_SINCE_BEGINNING": "開始からのエネルギー",
+                    "GUARANTEE_HEATING": "最小暖房エネルギーを保証",
+                    "GUARANTEE_MINIMUM_HEATING": "最小加熱を保証します",
+                    "GUARANTEE_MODE": "保証モード",
+                    "GUARANTEE_NONE": "なし",
+                    "HEATINGELEMENT": "加熱要素",
+                    "HEATING_POWER": "暖房電力",
+                    "LEVEL_ONE": "レベル1",
+                    "LEVEL_THREE": "レベル3",
+                    "LEVEL_TWO": "レベル2",
+                    "MESSAGE_UNREACHABLE": "エネルギー制限に時間内に到達できません",
+                    "MINIMAL_ENERGY_AMOUNT": "最小料金",
+                    "MINIMAL_ENERGY_LIMIT": "最小エネルギー制限",
+                    "MINIMUM_DURATION": "最小持続時間",
+                    "MINIMUM_ENERGY": "最小エネルギー",
+                    "MINIMUM_RUN_TIME": "最小ランタイム",
+                    "PRIORITY": "優先順位",
+                    "SET_ENDTIME": "終了時刻を設定",
+                    "TIME": "時間",
+                    "TIME_COUNTDOWN": "開始までの時間",
+                    "UNREACHABLE": "到達不能"
+                },
                 "HEAT_PUMP": {
                     "ABOVE_SOC": "そして、充電の状態を超えています",
+                    "AUTOMATIC_DESCRIPTION": "ここでPV余剰モードのしきい値を設定してください",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "設定された系統購入および余剰売電のしきい値に応じて、各モードが切り替わります。（しきい値は「設定」で変更できます）",
+                        "LOCK": "この運転状態では、ヒートポンプの設定に応じて、ヒートポンプの消費電力が0 kWまたは4.2 kWに制限されます。",
+                        "NORMAL_OPERATION": "ヒートポンプは通常の電力範囲内で需要に応じて運転します。",
+                        "SWITCH_ON_COM": "余剰電力の供給が設定値を超え、蓄電システムの充電状態が設定値を上回ると、ヒートポンプが起動します。",
+                        "SWITCH_ON_REC": "有効にすると、ヒートポンプは出力を高め、利用可能なエネルギーを熱生成に一層集中的に使用します。"
+                    },
                     "BELOW_SOC": "およびの充電の下",
                     "GRID_BUY": "グリッド購入から",
                     "GRID_SELL": "の過剰な送りから",
@@ -462,52 +510,13 @@
                     "MORE_THAN_HP_POWER": "値は、ヒートポンプの最大出力よりも低くてはなりません",
                     "NORMAL_OPERATION": "通常の動作",
                     "NORMAL_OPERATION_SHORT": "普通",
+                    "OPERATING_STATUS": "運転状態",
                     "RELATION_ERROR": "スイッチオンコマンド過剰値は、スイッチオン推奨値よりも大きくなければなりません",
                     "SWITCH_ON_COM": "スイッチオンコマンド",
                     "SWITCH_ON_COM_SHORT": "指図",
                     "SWITCH_ON_REC": "スイッチオンの推奨",
                     "SWITCH_ON_REC_SHORT": "おすすめ",
-                    "UNDEFINED": "未定義",
-                    "OPERATING_STATUS": "運転状態",
-                    "AUTOMATIC_DESCRIPTION": "ここでPV余剰モードのしきい値を設定してください",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "余剰電力の供給が設定値を超え、蓄電システムの充電状態が設定値を上回ると、ヒートポンプが起動します。",
-                        "SWITCH_ON_REC": "有効にすると、ヒートポンプは出力を高め、利用可能なエネルギーを熱生成に一層集中的に使用します。",
-                        "NORMAL_OPERATION": "ヒートポンプは通常の電力範囲内で需要に応じて運転します。",
-                        "AUTOMATIC": "設定された系統購入および余剰売電のしきい値に応じて、各モードが切り替わります。（しきい値は「設定」で変更できます）",
-                        "LOCK": "この運転状態では、ヒートポンプの設定に応じて、ヒートポンプの消費電力が0 kWまたは4.2 kWに制限されます。"
-                    }
-                },
-                "HEATINGELEMENT": {
-                    "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
-                    "ACTIVE_LEVEL": "アクティブレベル",
-                    "LEVEL_ONE": "レベル1",
-                    "LEVEL_TWO": "レベル2",
-                    "LEVEL_THREE": "レベル3",
-                    "ACTIVED_FORCED_LIMIT": "アクティブ（追加エネルギー）",
-                    "CALIBRATION": "キャリブレーション",
-                    "CALIBRATION_DESCRIPTION": "計器の各レベルの電力を取得するために、加熱素子がキャリブレーションされます",
-                    "DONE": "完了",
-                    "ENDTIME": "終了時間",
-                    "SET_ENDTIME": "終了時刻を設定",
-                    "ENERGY": "エネルギー",
-                    "ENERGY_SINCE_BEGINNING": "開始からのエネルギー",
-                    "GUARANTEE_MODE": "保証モード",
-                    "GUARANTEE_HEATING": "最小暖房エネルギーを保証",
-                    "GUARANTEE_MINIMUM_HEATING": "最小加熱を保証します",
-                    "MINIMUM_ENERGY": "最小エネルギー",
-                    "MINIMUM_DURATION": "最小持続時間",
-                    "GUARANTEE_NONE": "なし",
-                    "HEATING_POWER": "暖房電力",
-                    "HEATINGELEMENT": "加熱要素",
-                    "MESSAGE_UNREACHABLE": "エネルギー制限に時間内に到達できません",
-                    "MINIMAL_ENERGY_AMOUNT": "最小料金",
-                    "MINIMAL_ENERGY_LIMIT": "最小エネルギー制限",
-                    "MINIMUM_RUN_TIME": "最小ランタイム",
-                    "PRIORITY": "優先順位",
-                    "TIME": "時間",
-                    "TIME_COUNTDOWN": "開始までの時間",
-                    "UNREACHABLE": "到達不能"
+                    "UNDEFINED": "未定義"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "負の値は蓄電池充電に対応します",
                 "INFO_STORAGE_FOR_DISCHARGE": "正の値は蓄電池放電に対応します",
@@ -541,23 +550,12 @@
                     "MORE_THAN_HP_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
                     "OTHER": "他の",
                     "RELATION_ERROR": "しきい値は、スイッチされた負荷電力よりも大きくなければなりません",
+                    "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
                     "SWITCH_OFF_ABOVE": "上記のスイッチをオフにします",
                     "SWITCH_OFF_BELOW": "下のスイッチをオフにします",
                     "SWITCH_ON_ABOVE": "上記のスイッチを入れます",
                     "SWITCH_ON_BELOW": "以下を切り替えます",
-                    "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
-                    "THRESHOLD": "しきい値",
-                    "SWITCH_ON_ABOVE_THRESHOLD": "しきい値を超えたらオン",
-                    "SWITCH_ON_BELOW_THRESHOLD": "しきい値を下回ったらオン"
-                },
-                "STORAGE": {
-                    "AMBIENT_TEMPERATURE": "周囲温度",
-                    "BATTERY_DC": "電池 - DC",
-                    "GRID_CHARGE": "系統からの非常用電源予備の保守を有効化",
-                    "GRID_CHARGE_WARNING": "蓄電システムは、設定された非常用電源予備を維持するために、発電が長期間ない場合に内部自家消費による損失を補うべく、系統から積極的に再充電することができます。<br/><br/>注意：技術的に必要な維持充電を超えて電池を系統から積極的に充電するには、蓄電システムの適切な届出が必要です。不明な点がある場合は、設置業者にご確認ください。青い「保存」ボタンを押すことで、この確認が行われたことを承諾します。<br/><br/>ご注意：ドイツの再生可能エネルギー拡張法（EEG）の助成金を受ける前提条件として、電池には再生可能エネルギー源および/または坑内ガスに由来する電力のみを蓄えることが求められます。この機能を有効にすると、電池は系統電力で充電されます。この電力は、個々の電力供給契約に応じて、化石燃料および/または原子力発電所由来である可能性が高いと考えられます。したがって、電池が再生可能エネルギー源および/または坑内ガス由来の電力のみで充電されることは保証できません。",
-                    "INVERTER": "インバーター",
-                    "TOTAL_AC": "合計 AC",
-                    "TOTAL_DC": "合計 DC"
+                    "THRESHOLD": "しきい値"
                 },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "系統からの充電を有効化",
@@ -566,32 +564,23 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
+                    "EEG_2025_DESCRIPTION": "グラフは、将来的に予想される系統送電量と、EEG 2025に基づく予想送電報酬を示しています。これは最適な運転モードの計算に考慮されます。システムは、報酬が支払われない期間中の系統送電を可能な限り低く保とうとします。予測は継続的に再計算されるため、一日の中で変わる可能性があることにご注意ください。",
+                    "EEG_2025_HEADER": "EEG 2025予測",
                     "POWER_SOC_CHART_TITLE": "予測",
                     "PRICE": "現在の価格",
                     "STATE": {
+                        "AVOID_GRID_SELL_LIMIT": "送電制限を回避",
                         "BALANCING": "自己消費の最適化",
                         "CHARGE_GRID": "ネットワークから解放された負荷",
-                        "DELAY_DISCHARGE": "遅延退院",
-                        "PEAK_SHAVING": "ピークシェービング",
                         "DELAY_CHARGE": "充電を遅延",
-                        "LIMIT_CHARGE": "充電を制限",
-                        "AVOID_GRID_SELL_LIMIT": "送電制限を回避",
+                        "DELAY_DISCHARGE": "遅延退院",
                         "DISCHARGE_CONSUMPTION": "消費への放電",
-                        "DISCHARGE_GRID": "系統への放電"
-                    },
-                    "EEG_2025_HEADER": "EEG 2025予測",
-                    "EEG_2025_DESCRIPTION": "グラフは、将来的に予想される系統送電量と、EEG 2025に基づく予想送電報酬を示しています。これは最適な運転モードの計算に考慮されます。システムは、報酬が支払われない期間中の系統送電を可能な限り低く保とうとします。予測は継続的に再計算されるため、一日の中で変わる可能性があることにご注意ください。"
+                        "DISCHARGE_GRID": "系統への放電",
+                        "LIMIT_CHARGE": "充電を制限",
+                        "PEAK_SHAVING": "ピークシェービング"
+                    }
                 },
-                "TWO_WAY_INFO_GRID": "負の値はグリッドフィードインに対応し、正の値はメインサプライに対応します",
-                "EVSE": {
-                    "SCHEDULE": {
-                        "SCHEDULE": "スケジュール",
-                        "ADD_TASK": "タスクを追加"
-                    },
-                    "CHARGE_MODE": "基本モード",
-                    "VEHICLE_ID_ERROR": "車両IDが見つかりませんでした。設定を確認してください。登録済みのすべての車両が表示されます。",
-                    "KEBA_WARNING": "注意：このモードをFEMSおよびKEBA P40との組み合わせで使用すると、エラーが発生する可能性があります。現時点ではこのモードの使用をお控えいただき、代わりに一時的に「保証充電付きPV余剰」または「急速充電」モードをご利用ください。FENECONとKEBAはすでに全力で解決に取り組んでいます。"
-                }
+                "TWO_WAY_INFO_GRID": "負の値はグリッドフィードインに対応し、正の値はメインサプライに対応します"
             }
         },
         "NETWORK": {
@@ -658,6 +647,7 @@
         "CHANGE_FAILED": "変更が失敗しました",
         "CHARGE": "充電",
         "CHARGE_DISCHARGE": "充電・放電パワー",
+        "CHARGE_ONCE": "一度だけ充電",
         "COMPONENT_COUNT": "部品数",
         "COMPONENT_INACTIVE": "無効化中",
         "CONNECTION_LOST": "接続が切断されました。再接続を試みます。",
@@ -682,6 +672,7 @@
         "DIGITAL_INPUTS": "デジタル入力",
         "DIRECT_CONSUMPTION": "直接消費",
         "DISCHARGE": "放電",
+        "DISCHARGE_ONCE": "一度だけ放電",
         "EDIT": "編集",
         "ENERGY_LIMIT": "エネルギー制限",
         "FAULT": "障害",
@@ -693,6 +684,8 @@
             "REQUIRED": "必須です"
         },
         "FROM": "開始",
+        "GENERATOR_ON": "発電機が稼働中",
+        "GENERATOR_SUPPLY": "発電機供給",
         "GRID": "グリッド",
         "GRID_BUY": "買電",
         "GRID_BUY_ADVANCED": "買電",
@@ -701,6 +694,7 @@
         "GRID_SELL_ADVANCED": "売電",
         "GRID_SELL_PRICE": "売電報酬",
         "HEAT_PUMP": "ヒートポンプ",
+        "HELP": "ヘルプ",
         "HISTORY": "履歴",
         "INACTIVE": "非アクティブ",
         "INFO": "情報",
@@ -708,6 +702,8 @@
         "INSTALL": "インストール",
         "INSUFFICIENT_RIGHTS": "権限不足",
         "LIGHT": "ライト",
+        "LINK": "詳細は以下のリンクをご覧ください（ドイツ語）：",
+        "LINK_TEXT": "ベータテストの変更履歴を表示",
         "LIVE": "ライブ",
         "LOAD": "負荷",
         "MANAGED_CONSUMPTION": "管理消費",
@@ -730,13 +726,13 @@
             "SEPTEMBER": "9月"
         },
         "MORE": "もっと...",
+        "NAVIGATION_DETAILS": "このヘルプチップがサポートを提供します。変更内容、説明、情報のほか、お使いのKEBA P40充電器の拡張機能についてもご確認いただけます。",
+        "NAVIGATION_INFO": "現在、モニタリングとアプリを再設計しており、ナビゲーションと機能を最適化しています。",
         "NO": "いいえ",
         "NO_VALUE": "値がありません",
         "NUMBER_OF_COMPONENTS": "部品数",
         "OFF": "オフ",
         "OFF_GRID": "グリッド接続なし！",
-        "GENERATOR_SUPPLY": "発電機供給",
-        "GENERATOR_ON": "発電機が稼働中",
         "OK": "ok",
         "ON": "手動",
         "OPEN": "開く",
@@ -771,10 +767,13 @@
             "HOUR": "時"
         },
         "SUM_STATE": "システム状態",
+        "SURVEY": "ベータテストに関するフィードバックはこちらからお寄せください：",
+        "SURVEY_LINK": "ベータテストのアンケートに参加する",
         "SYSTEM": "システム",
         "SYSTEM_OUTAGE": "メンテナンス作業のため、オンラインモニタリングが一時的に利用できない状況です。後でもう一度お試しください。詳細については、以下を参照してください。",
         "SYSTEM_STATE": "システムの状態",
         "SYSTEM_THEME": "システム",
+        "TARGET_SOC": "目標電荷状態",
         "THEME_SELECTION": {
             "DESCRIPTION": "モニタリングが<b>ダークモード</b>に対応しました。<hr>切り替えるだけで始められます！",
             "TITLE": "ライトを消して、快適に！"
@@ -805,17 +804,7 @@
             "TUESDAY": "火曜日",
             "WEDNESDAY": "水曜日"
         },
-        "YES": "はい",
-        "NAVIGATION_INFO": "現在、モニタリングとアプリを再設計しており、ナビゲーションと機能を最適化しています。",
-        "NAVIGATION_DETAILS": "このヘルプチップがサポートを提供します。変更内容、説明、情報のほか、お使いのKEBA P40充電器の拡張機能についてもご確認いただけます。",
-        "LINK": "詳細は以下のリンクをご覧ください（ドイツ語）：",
-        "LINK_TEXT": "ベータテストの変更履歴を表示",
-        "SURVEY": "ベータテストに関するフィードバックはこちらからお寄せください：",
-        "SURVEY_LINK": "ベータテストのアンケートに参加する",
-        "HELP": "ヘルプ",
-        "CHARGE_ONCE": "一度だけ充電",
-        "DISCHARGE_ONCE": "一度だけ放電",
-        "TARGET_SOC": "目標電荷状態"
+        "YES": "はい"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "系統からの充電制限",
@@ -849,8 +838,8 @@
         "ADD_TASK": "タスクを追加",
         "EDIT_EVENT": "イベントを編集",
         "EDIT_TASK": "タスクを編集",
-        "NEXT_EVENTS": "次のイベント",
         "MANUAL_EVENTS": "手動イベント",
+        "NEXT_EVENTS": "次のイベント",
         "SMART_EVENTS": "スマートイベント"
     },
     "LIVE": {
@@ -865,28 +854,28 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "認証に失敗しました",
+        "EMPLOYEE_LOGIN": "従業員ログイン",
         "PASSWORD_LABEL": "パスワード",
         "PASSWORD_RESET": "パスワードのリセット",
         "PREAMBLE": "パスワードを入力するか、デフォルト値を提出してゲストとしてログインしてください。",
         "REQUEST_TIMEOUT": "リクエストがタイムアウトしました。後ほどもう一度お試しください。",
         "SIGN_IN": "サインイン",
         "TITLE": "ログイン",
-        "USER": "ユーザー",
-        "EMPLOYEE_LOGIN": "従業員ログイン"
+        "USER": "ユーザー"
     },
     "MENU": {
         "ACCESS_LEVEL": "アクセスレベル",
         "CHANGELOG": "Changelog",
         "COCKPIT": "コックピット",
-        "FAVORITES": "お気に入り",
         "EDGE_SETTINGS": "OpenEMS設定",
         "EDGE_SYSTEM_SETTINGS": "システム設定",
+        "FAVORITES": "お気に入り",
         "GENERAL_SETTINGS": "一般設定",
         "GROUPS": {
-            "FIX_DIGITAL_OUTPUT": "手動リレー制御",
+            "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "しきい値制御",
-            "HEATING_ROOM": "暖房",
-            "BRAIINS": "Bitcoin Miner"
+            "FIX_DIGITAL_OUTPUT": "手動リレー制御",
+            "HEATING_ROOM": "暖房"
         },
         "INDEX": "索引",
         "LOGOUT": "サインアウト",
@@ -895,11 +884,11 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "他のユーザー",
         "OVERVIEW": "すべてのシステム",
-        "SYSTEMS": "システム",
-        "SETTINGS": "設定",
-        "USER": "ユーザー",
         "PROFILE": "プロフィール",
-        "SCHEDULE": "スケジュール"
+        "SCHEDULE": "スケジュール",
+        "SETTINGS": "設定",
+        "SYSTEMS": "システム",
+        "USER": "ユーザー"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "有効電力の制限値",
@@ -911,8 +900,8 @@
         "INFO_TEXT": "実際値は設定値と異なる場合があります。負の値は蓄電池の充電、正の値は放電に対応します。詳しい説明は取扱説明書をご覧ください。",
         "LAST_COMMAND": "最後の上書き",
         "LIMITATION": "設定値",
-        "NO_OVERRIDDEN_CHANNELS": "まだチャンネルは上書きされていません。",
         "NOT_OVERRIDING": "外部コマンドはありません",
+        "NO_OVERRIDDEN_CHANNELS": "まだチャンネルは上書きされていません。",
         "OVERRIDING": "外部コマンドを考慮中",
         "REGISTER": "レジスタ",
         "SET_ACTIVE_POWER_EQUALS": "有効電力設定値",
@@ -939,8 +928,8 @@
         }
     },
     "ORDER": {
-        "A_TO_Z": "名称 A - Z",
         "ASCENDING": "{{edgeShortName}}番号の昇順",
+        "A_TO_Z": "名称 A - Z",
         "DESCENDING": "{{edgeShortName}}番号の降順",
         "FAULT_TO_OK": "システムステータス 故障 - OK",
         "OK_TO_FAULT": "システムステータス OK - 故障",
@@ -1004,14 +993,14 @@
                 "EV_CHARGING_STATION": "EV充電器",
                 "EV_CHARGING_STATION_CONTROL": "EV充電器の制御",
                 "EXTERNAL_INTERFACES": "外部インターフェース",
-                "IO_CONTROL": "I/O制御",
                 "IOS": "I/O",
+                "IO_CONTROL": "I/O制御",
                 "METER": "計器",
                 "OTHERS": "その他",
                 "SIMULATORS": "シミュレーター",
                 "STANDARD_COMPONENTS": "標準コンポーネント",
-                "STORAGE_SYSTEM_CONTROL": "蓄電システムの制御",
                 "STORAGE_SYSTEMS": "蓄電システム",
+                "STORAGE_SYSTEM_CONTROL": "蓄電システムの制御",
                 "TEMPERATURE_SENSORS": "温度センサー"
             }
         },
@@ -1033,11 +1022,11 @@
             "NEW_VERSION": "最新バージョン：",
             "NEW_VERSION_INSTALLING": "最新バージョンをインストールします",
             "OFFLINE": "{{ edgeShortName }}はオフラインです。",
+            "RESTARTED": "{{system}}の再起動に成功しました。",
+            "RESTARTING": "{{system}}を再起動しています。（最大{{minutes}}分かかることがあります）",
             "RESTART_CONFIRMATION": "{{system}}を再起動しますか？",
             "RESTART_FAILED": "{{system}}の再起動に失敗しました。",
             "RESTART_WARNING": "{{system}}の再起動中は通信が中断されます。この間、データの記録やコンポーネントの制御は行われません。システム全体が安全な状態にあることを確認してください。",
-            "RESTARTED": "{{system}}の再起動に成功しました。",
-            "RESTARTING": "{{system}}を再起動しています。（最大{{minutes}}分かかることがあります）",
             "SUB_HEADER": "システムアップデートを実行しますか？",
             "UPDATE_COMPONENT": "コンポーネントを更新",
             "UPDATE_EXECUTE": "システムアップデートを実行",

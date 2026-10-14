@@ -8,10 +8,10 @@
         "ENERGY_MANAGEMENT": "Energiemanagementsysteem",
         "FAQ": "Veel Gestelde Vragen (FAQ)",
         "LANGUAGE": "Selecteer taal:",
-        "THEME": "Thema",
         "NEW_UI": "Nieuw ontwerp",
         "OPEN_EMS": "Meer over OpenEMS",
-        "PATCHNOTES": "Veranderingen in de monitoring voor deze build"
+        "PATCHNOTES": "Veranderingen in de monitoring voor deze build",
+        "THEME": "Thema"
     },
     "APP": {
         "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Deze functie is tijdelijk niet beschikbaar in de app; gebruik in plaats daarvan de webapp."
@@ -71,8 +71,8 @@
                     "KEY": "licentiesleutel",
                     "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Let op</span>: Let bij het invoeren van de licentiesleutel op mogelijke typfouten: <ul><li>kleine „l“ versus hoofdletter „I“ </li><li>nul „0“ versus hoofdletter „O“</li></ul>Wij raden aan de licentiesleutel altijd te kopiëren van de pakbon en in het bovenstaande veld te plakken in plaats van handmatig in te voeren.<br>",
                     "MASTER_KEY_HINT": "<br><span class=\"warning\">Let op</span>: Op de achtergrond wordt de mastersleutel gebruikt. Er wordt geen sleutel getoond. Gebruik een licentiesleutel indien beschikbaar.<br>",
-                    "REGISTER_KEY": "licentiesleutel registreren",
                     "REGISTERED_KEY": "Geregistreerde licentiesleutels",
+                    "REGISTER_KEY": "licentiesleutel registreren",
                     "SUCCESS_REGISTER_KEY": "Sleutel succesvol geregistreerd",
                     "USE_KEY": "licentiesleutel verzilveren",
                     "USE_MASTER_KEY": "Mastersleutel gebruiken",
@@ -146,10 +146,10 @@
                 "TIMESTAMP": "Tijdspit"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Handmatig commando",
                 "MANUALPQ_POWER_SPECIFICATION": "Gespecificeerd vermogen",
                 "MANUALPQ_RESET": "Reset",
                 "MANUALPQ_SUBMIT": "Toepassen",
+                "MANUAL_COMMAND": "Handmatig commando",
                 "REFU_INVERTER": "REFU inverter",
                 "REFU_START": "Start",
                 "REFU_START_STOP": "Inverter starten/ stoppen",
@@ -197,8 +197,10 @@
             "MAY": "Mei",
             "MON": "Maa",
             "MONTH": "Maand",
-            "NO_DATA": "geen gegevens beschikbaar",
             "NOV": "Nov",
+            "NO_DATA": "geen gegevens beschikbaar",
+            "NO_LOCAL_DATA_INFO": "Historische gegevens zijn momenteel lokaal niet beschikbaar",
+            "NO_LOCAL_DATA_NOTICE": "Bezoek https://github.com/OpenEMS/openems voor updates over dit onderwerp.",
             "OCT": "Okt",
             "OTHER_PERIOD": "Andere periode",
             "PERIOD": "Periode",
@@ -218,9 +220,7 @@
             "WED": "Woe",
             "WEEK": "Woche",
             "YEAR": "Jaar",
-            "YESTERDAY": "Gisteren",
-            "NO_LOCAL_DATA_INFO": "Historische gegevens zijn momenteel lokaal niet beschikbaar",
-            "NO_LOCAL_DATA_NOTICE": "Bezoek https://github.com/OpenEMS/openems voor updates over dit onderwerp."
+            "YESTERDAY": "Gisteren"
         },
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -245,10 +245,10 @@
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Verwacht wordt dat de accu vanaf {{targetTime}} op {{targetDate}} wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken. Hierbij kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na de capaciteitsuitbreiding, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Verwacht wordt dat de accu wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken.",
                 "INSTANT_START": "Direct starten",
+                "IN_REFERENCE_CYCLE": "Referentiecyclus actief - de accu wordt voorbereid op de capaciteitsuitbreiding.",
                 "ON_DATE_AT_TIME": "op {{date}} om {{time}}",
                 "OPTIMAL": "Capaciteitsuitbreiding",
                 "PLANNED_EXPANSION": "Geplande uitbreiding",
-                "IN_REFERENCE_CYCLE": "Referentiecyclus actief - de accu wordt voorbereid op de capaciteitsuitbreiding.",
                 "PREPARING": "Capaciteitsuitbreiding wordt voorbereid",
                 "REACHED_TARGET_SOC": "Gereed voor capaciteitsuitbreiding",
                 "REFERENCING_OF_STORAGE": {
@@ -280,19 +280,19 @@
                 "ENERIX_CONTROL": {
                     "CHARGE_CONSUMPTION": "<b>LETTEN:</b> Het actief laden van de accu vanuit het net, verder dan de technisch noodzakelijke onderhoudslading, vereist een passende registratie van het opslagsysteem. Raadpleeg bij twijfel uw installateur. Door op de blauwe knop „Opslaan“ te drukken, bevestigt u dat deze verificatie is uitgevoerd.<br/><br/><b>Wees u bewust:</b> Voorwaarde voor het ontvangen van een subsidie op grond van de Duitse wet op hernieuwbare energie (EEG 2023) is dat er uitsluitend energie uit hernieuwbare bronnen en/of mijngas in de accu wordt opgeslagen. Door deze functie te activeren wordt de accu geladen met energie uit het net. Deze energie is, afhankelijk van het individuele stroomleveringscontract, waarschijnlijk opgewekt uit fossiele en/of kernenergiebronnen. Daarom kunnen wij niet garanderen dat de accu uitsluitend wordt geladen met energie uit hernieuwbare bronnen en/of mijngas.",
                     "CHARGE_FROM_GRID": "Laden vanuit het net",
+                    "CHARGE_FROM_GRID_ALLOWED": "Actief laden vanuit het net toestaan",
                     "CONNECTED": "Verbonden",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Actief lossen naar het net toestaan",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>LETTEN:</b> Het actief lossen van de accu naar het net, verder dan de om technische redenen vereiste bedrijfsstaten, vereist een formele registratie van het opslagsysteem. Raadpleeg bij twijfel uw installateur. Door op de blauwe knop „Opslaan“ te klikken, bevestigt u dat deze beoordeling heeft plaatsgevonden.<br/><br/><b>Let op:</b> Door deze functie te activeren wordt het invoeden van energie uit het accuopslagsysteem in het openbare net mogelijk. Afhankelijk van het subsidieregeling-, vergunnings-, meetconcept- en toepasselijke regelgevingsmodel kan dit gevolgen hebben voor bestaande rechten met betrekking tot subsidies, vergoedingen of herkomstsbewijzen.<br/><br/>Met name kan het nodig zijn om de ingevoede elektriciteit eenduidig toe te wijzen en de herkomst ervan door middeling aan te tonen. Wij kunnen niet garanderen dat het gebruik van deze functie verenigbaar is met de vereisten van uw specifieke subsidie- of vergunningsmodel.<br/><br/>Bespreek de gevolgen vóór activering met uw installateur, directe verkoper, netbeheerder of een gekwalificeerde adviseur.",
                     "DISCONNECTED": "Geen verbinding",
+                    "NOTE": "Let op:",
                     "NO_DISCHARGE": "Geen lossen",
                     "NO_INPUT": "Geen opdracht",
                     "NO_OVERWRITE": "Geen overschrijving",
-                    "NOTE": "Let op:",
                     "OVERWRITE": "Actieve overschrijving",
                     "OVERWRITE_INFO": "Bij het activeren van deze functie worden de standaardinstellingen voor het laden en lossen van het opslagsysteem vervangen door externe specificaties van enerix Franchise GmbH & Co. KG. Dit kan leiden tot afwijkingen van het gebruikelijke gedrag - zo kan er bijvoorbeeld stroom uit het net worden gehaald, ook al is het opslagsysteem voldoende geladen.",
                     "OVERWRITE_MODE": "Overschrijvingsmodus",
-                    "READ_ONLY": "Alleen lezen",
-                    "DISCHARGE_TO_GRID_ACTIVATE": "Actief lossen naar het net toestaan",
-                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>LETTEN:</b> Het actief lossen van de accu naar het net, verder dan de om technische redenen vereiste bedrijfsstaten, vereist een formele registratie van het opslagsysteem. Raadpleeg bij twijfel uw installateur. Door op de blauwe knop „Opslaan“ te klikken, bevestigt u dat deze beoordeling heeft plaatsgevonden.<br/><br/><b>Let op:</b> Door deze functie te activeren wordt het invoeden van energie uit het accuopslagsysteem in het openbare net mogelijk. Afhankelijk van het subsidieregeling-, vergunnings-, meetconcept- en toepasselijke regelgevingsmodel kan dit gevolgen hebben voor bestaande rechten met betrekking tot subsidies, vergoedingen of herkomstsbewijzen.<br/><br/>Met name kan het nodig zijn om de ingevoede elektriciteit eenduidig toe te wijzen en de herkomst ervan door middeling aan te tonen. Wij kunnen niet garanderen dat het gebruik van deze functie verenigbaar is met de vereisten van uw specifieke subsidie- of vergunningsmodel.<br/><br/>Bespreek de gevolgen vóór activering met uw installateur, directe verkoper, netbeheerder of een gekwalificeerde adviseur.",
-                    "CHARGE_FROM_GRID_ALLOWED": "Actief laden vanuit het net toestaan"
+                    "READ_ONLY": "Alleen lezen"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Activeer het laadstation",
@@ -325,8 +325,7 @@
                     "ENERGY_SINCE_BEGINNING": "Energie sinds de laatste lading start",
                     "ENFORCE_CHARGING": "Handhaaf het laden",
                     "ERROR": "Fout",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren. FENECON en KEBA werken al met man en macht aan een oplossing.",
-                    "LINK_TO_DOCUMENTATION": "Meer informatie",
+                    "FORCE_CHARGE": "Snel laden",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "In deze modus wordt het laden van de auto afgedwongen, d.w.z. het is altijd gegarandeerd dat de auto wordt opgeladen, zelfs als het laadstation toegang moet hebben tot netstroom.",
                         "MAX_CHARGING": "Maximale laadstroom",
@@ -338,15 +337,18 @@
                     "FORCE_THREE_PHASE": "3-fase",
                     "HYSTERESIS": "Minimale omschakeltijd van het laadstation actief",
                     "HYSTERESIS_INFO": "Om laadonderbrekingen als gevolg van te vaak starten/pauzeren van het laadproces te voorkomen, wordt de huidige laadmodus nog enkele minuten voortgezet.",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren. FENECON en KEBA werken al met man en macht aan een oplossing.",
+                    "LINK_TO_DOCUMENTATION": "Meer informatie",
                     "MAX_ENERGY_RESTRICTION": "Beperk de maximale energie per lading",
+                    "MINIMUM": "PV-overschot met gegarandeerde lading",
+                    "NOT_AUTHORIZED": "Geen bevoegdheid",
+                    "NOT_CHARGING": "Niet opladen",
+                    "NOT_READY_FOR_CHARGING": "Niet klaar voor opladen",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Hij kon niet op het laadstation worden aangesloten.",
                         "HELP1": "Controleer of het laadstation is ingeschakeld en via het netwerk kan worden bereikt",
                         "HELP1_1": "Het IP-adres van het laadstation verschijnt bij het opnieuw inschakelen"
                     },
-                    "NOT_AUTHORIZED": "Geen bevoegdheid",
-                    "NOT_CHARGING": "Niet opladen",
-                    "NOT_READY_FOR_CHARGING": "Niet klaar voor opladen",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "Auto",
@@ -367,21 +369,32 @@
                     "READY_FOR_CHARGING": "Klaar om op te laden",
                     "STARTING": "Beginnend",
                     "STATUS": "Staat",
+                    "SURPLUS": "PV-overschot",
+                    "TASKS": "Taken",
                     "TOTAL_CHARGE": "Totale lading",
                     "TOTAL_CHARGING_POWER": "Totaal laadvermogen",
                     "UNCONTROLLABLE": "Dit laadstation kan niet worden bestuurd.",
                     "UNKNOWN": "Onbekend",
                     "UNPLUGGED": "Unplugged",
-                    "ZERO": "Geen lading",
-                    "MINIMUM": "PV-overschot met gegarandeerde lading",
-                    "SURPLUS": "PV-overschot",
-                    "FORCE_CHARGE": "Snel laden",
-                    "TASKS": "Taken"
+                    "ZERO": "Geen lading"
+                },
+                "EVSE": {
+                    "CHARGE_MODE": "Basismodus",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken. FENECON en KEBA werken al met man en macht aan een oplossing.",
+                    "SCHEDULE": {
+                        "ADD_TASK": "Taak toevoegen",
+                        "SCHEDULE": "Tijdschema"
+                    },
+                    "VEHICLE_ID_ERROR": "Het voertuig-ID kon niet worden gevonden. Controleer de configuratie. Alle geregistreerde voertuigen worden weergegeven."
                 },
                 "FIX_DIGITAL_OUTPUT": "Digitale uitgangsregelaar",
                 "GRID_OPTIMIZED_CHARGE": {
                     "CHARGING_DELAYED": "Opladen vertraagd",
                     "CONSIDER_GRID_FEED_IN_LIMIT": "Houd rekening met de maximale teruglevering van het net",
+                    "EEG_2025_APP_LINK": "Naar de app",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "De EEG-2025-app is actief.<br/><br/>Bij negatieve marktprijzen wordt de netvoeding automatisch zoveel mogelijk beperkt. Als er nog overschotenergie beschikbaar is, wordt deze alsnog ingevoed en gaat deze niet verloren.",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Wordt uw installatie geraakt door de EEG-2025-regeling?<br/><br/>Met de EEG-2025-app wordt de netvoeding bij negatieve marktprijzen automatisch zoveel mogelijk beperkt. Als er nog overschotenergie beschikbaar is, wordt deze alsnog ingevoed en gaat deze niet verloren.",
                     "END_TIME": "Eindtijd",
                     "END_TIME_DESCRIPTION": "Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.",
                     "END_TIME_DETAILED_DESCRIPTION": "Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{ maxChargingPowerW }} tot {{ endTime }}.",
@@ -395,10 +408,12 @@
                         "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "De maximale netvoeding waarboven het opladen van de batterijen (voor zover mogelijk) wordt verhoogd, ligt onder de maximaal toegestane netvoeding om voortijdige productiebeperking te voorkomen.",
                         "PRIORITY_DESCRIPTION": "De minimale acculading heeft een hogere prioriteit dan de maximale acculading"
                     },
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Let op: Laden geoptimaliseerd voor het elektriciteitsnet is nu geïntegreerd in de app 'Dynamisch elektriciteitstarief'. De hier geconfigureerde instellingen blijven van kracht.",
+                    "LIMITED_FUNCTIONALITY": "Beperkte functionaliteit",
                     "LOW": "Laag",
                     "MAXIMUM_CHARGE": "Maximale lading",
-                    "MAXIMUM_GRID_FEED_IN": "Maximaal toegestane teruglevering",
                     "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale netvoeding door middel van acculading",
+                    "MAXIMUM_GRID_FEED_IN": "Maximaal toegestane teruglevering",
                     "MEDIUM": "Medium",
                     "MINIMUM_CHARGE": "Minimale lading",
                     "RISK_DESCRIPTION": {
@@ -421,24 +436,18 @@
                     "RISK_PROPENSITY": "Risicobereidheid",
                     "SETTING_ONLY_VISABLE_FOR_INSTALLER": "Deze instelling is alleen zichtbaar voor de installateur",
                     "STATE": {
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Beperkt of vertraagd laden is niet mogelijk omdat er geen of slechts een geringe netvoeding is toegestaan.",
                         "AVOID_LOW_CHARGING": "Laag opladen vermeden",
                         "CHARGE_LIMIT_ACTIVE": "Laadlimiet actief",
                         "END_TIME_NOT_CALCULATED": "Eindtijd niet berekend",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "Grid-Feed-in beperking wordt vermeden",
+                        "NOT_DEFINED": "Niet gedefinieerd",
                         "NO_LIMIT_ACTIVE": "Geen laadlimiet actief",
                         "NO_LIMIT_POSSIBLE": "Geen beperking mogelijk (beperkt door controles met hogere prioriteit)",
-                        "NOT_DEFINED": "Niet gedefinieerd",
                         "PASSED_END_TIME": "Eindtijd van beperkt laden overschreden",
-                        "STORAGE_ALREADY_FULL": "Geheugen al vol",
-                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Beperkt of vertraagd laden is niet mogelijk omdat er geen of slechts een geringe netvoeding is toegestaan."
+                        "STORAGE_ALREADY_FULL": "Geheugen al vol"
                     },
-                    "LIMITED_FUNCTIONALITY": "Beperkte functionaliteit",
-                    "STORAGE_CAPACITY": "opslagcapaciteit (alleen zichtbaar voor admin)",
-                    "INFO_DISABLED_BY_TIME_OF_USE": "Let op: Laden geoptimaliseerd voor het elektriciteitsnet is nu geïntegreerd in de app 'Dynamisch elektriciteitstarief'. De hier geconfigureerde instellingen blijven van kracht.",
-                    "EEG_2025_APP_NAME": "EEG 2025",
-                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Wordt uw installatie geraakt door de EEG-2025-regeling?<br/><br/>Met de EEG-2025-app wordt de netvoeding bij negatieve marktprijzen automatisch zoveel mogelijk beperkt. Als er nog overschotenergie beschikbaar is, wordt deze alsnog ingevoed en gaat deze niet verloren.",
-                    "EEG_2025_DESCRIPTION_INSTALLED": "De EEG-2025-app is actief.<br/><br/>Bij negatieve marktprijzen wordt de netvoeding automatisch zoveel mogelijk beperkt. Als er nog overschotenergie beschikbaar is, wordt deze alsnog ingevoed en gaat deze niet verloren.",
-                    "EEG_2025_APP_LINK": "Naar de app"
+                    "STORAGE_CAPACITY": "opslagcapaciteit (alleen zichtbaar voor admin)"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Wijzigingen in de instellingen van uw AC-Thor verwarmingselement kunt u doen in de MyPV-app.",
@@ -452,8 +461,47 @@
                     "TEMPERATURE": "Huidige temperatuur",
                     "TEMPERATURE_UNIT": "Temperatuur in °C"
                 },
+                "HEATINGELEMENT": {
+                    "ACTIVED_FORCED_LIMIT": "Actief (extra energie)",
+                    "ACTIVE_FORCED": "Actief (Minimale looptijd)",
+                    "ACTIVE_LEVEL": "Actieve level",
+                    "CALIBRATION": "Kalibratie",
+                    "CALIBRATION_DESCRIPTION": "Het verwarmingselement wordt gekalibreerd om het vermogen van de afzonderlijke niveaus van de meter te bepalen",
+                    "DONE": "Klaar",
+                    "ENDTIME": "Einde tijd",
+                    "ENERGY": "Energie",
+                    "ENERGY_SINCE_BEGINNING": "Energie sinds het begin",
+                    "GUARANTEE_HEATING": "Minimale verwarmingsenergie garanderen",
+                    "GUARANTEE_MINIMUM_HEATING": "Minimale verwarming garanderen",
+                    "GUARANTEE_MODE": "Garantiemodus",
+                    "GUARANTEE_NONE": "Geen modus",
+                    "HEATINGELEMENT": "Verwarmingselement",
+                    "HEATING_POWER": "Verwarmingsvermogen",
+                    "LEVEL_ONE": "Niveau 1",
+                    "LEVEL_THREE": "Niveau 3",
+                    "LEVEL_TWO": "Niveau 2",
+                    "MESSAGE_UNREACHABLE": "De energielimiet kan niet op tijd worden gehaald",
+                    "MINIMAL_ENERGY_AMOUNT": "Minimale hoeveelheid energie",
+                    "MINIMAL_ENERGY_LIMIT": "Minimale energielimiet",
+                    "MINIMUM_DURATION": "Minimale duur",
+                    "MINIMUM_ENERGY": "Minimale energie",
+                    "MINIMUM_RUN_TIME": "Minimale looptijd",
+                    "PRIORITY": "Prioriteit",
+                    "SET_ENDTIME": "Eindtijd instellen",
+                    "TIME": "Tijd",
+                    "TIME_COUNTDOWN": "Tijd om te beginnen",
+                    "UNREACHABLE": "Niet bereikbaar"
+                },
                 "HEAT_PUMP": {
                     "ABOVE_SOC": "en van staat van last van",
+                    "AUTOMATIC_DESCRIPTION": "Stel hier de drempelwaarden in voor de PV-overschotmodus",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Afhankelijk van de ingestelde drempelwaarden voor netinkoop en invoeding worden de afzonderlijke modi geschakeld. (De drempelwaarden kunnen onder Instellingen worden gewijzigd)",
+                        "LOCK": "Deze bedrijfsstatus beperkt het stroomverbruik van de warmtepomp, afhankelijk van de instellingen van de warmtepomp, tot 0 kW of 4,2 kW.",
+                        "NORMAL_OPERATION": "De warmtepomp werkt vraaggestuurd binnen het reguliere vermogensbereik.",
+                        "SWITCH_ON_COM": "De warmtepomp wordt ingeschakeld wanneer de overschotinvoeding de ingevoerde waarde overschrijdt en de laadtoestand van het opslagsysteem boven de ingevoerde waarde ligt.",
+                        "SWITCH_ON_REC": "Na activering verhoogt de warmtepomp zijn vermogen en gebruikt de beschikbare energie intensiever voor warmteopwekking."
+                    },
                     "BELOW_SOC": "en onder staat van beschuldiging van",
                     "GRID_BUY": "Vanaf netaankoop van",
                     "GRID_SELL": "Van overtollige toevoer van",
@@ -461,53 +509,14 @@
                     "LOCK": "Slot",
                     "MORE_THAN_HP_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van de warmtepomp",
                     "NORMAL_OPERATION": "Normale operatie",
-                    "NORMAL_OPERATION_SHORT": "Normaal",
+                    "NORMAL_OPERATION_SHORT": "",
+                    "OPERATING_STATUS": "Bedrijfsstatus",
                     "RELATION_ERROR": "Overwaarde inschakelcommando moet groter zijn dan aanbevolen inschakelwaarde",
                     "SWITCH_ON_COM": "Inschakelcommando",
-                    "SWITCH_ON_COM_SHORT": "Opdracht",
+                    "SWITCH_ON_COM_SHORT": "",
                     "SWITCH_ON_REC": "Inschakeladvies",
-                    "SWITCH_ON_REC_SHORT": "Aanbeveling",
-                    "UNDEFINED": "Ongedefinieerd",
-                    "OPERATING_STATUS": "Bedrijfsstatus",
-                    "AUTOMATIC_DESCRIPTION": "Stel hier de drempelwaarden in voor de PV-overschotmodus",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "De warmtepomp wordt ingeschakeld wanneer de overschotinvoeding de ingevoerde waarde overschrijdt en de laadtoestand van het opslagsysteem boven de ingevoerde waarde ligt.",
-                        "SWITCH_ON_REC": "Na activering verhoogt de warmtepomp zijn vermogen en gebruikt de beschikbare energie intensiever voor warmteopwekking.",
-                        "NORMAL_OPERATION": "De warmtepomp werkt vraaggestuurd binnen het reguliere vermogensbereik.",
-                        "AUTOMATIC": "Afhankelijk van de ingestelde drempelwaarden voor netinkoop en invoeding worden de afzonderlijke modi geschakeld. (De drempelwaarden kunnen onder Instellingen worden gewijzigd)",
-                        "LOCK": "Deze bedrijfsstatus beperkt het stroomverbruik van de warmtepomp, afhankelijk van de instellingen van de warmtepomp, tot 0 kW of 4,2 kW."
-                    }
-                },
-                "HEATINGELEMENT": {
-                    "ACTIVE_FORCED": "Actief (Minimale looptijd)",
-                    "ACTIVE_LEVEL": "Actieve level",
-                    "LEVEL_ONE": "Niveau 1",
-                    "LEVEL_TWO": "Niveau 2",
-                    "LEVEL_THREE": "Niveau 3",
-                    "ACTIVED_FORCED_LIMIT": "Actief (extra energie)",
-                    "CALIBRATION": "Kalibratie",
-                    "CALIBRATION_DESCRIPTION": "Het verwarmingselement wordt gekalibreerd om het vermogen van de afzonderlijke niveaus van de meter te bepalen",
-                    "DONE": "Klaar",
-                    "ENDTIME": "Einde tijd",
-                    "SET_ENDTIME": "Eindtijd instellen",
-                    "ENERGY": "Energie",
-                    "ENERGY_SINCE_BEGINNING": "Energie sinds het begin",
-                    "GUARANTEE_MODE": "Garantiemodus",
-                    "GUARANTEE_HEATING": "Minimale verwarmingsenergie garanderen",
-                    "GUARANTEE_MINIMUM_HEATING": "Minimale verwarming garanderen",
-                    "MINIMUM_ENERGY": "Minimale energie",
-                    "MINIMUM_DURATION": "Minimale duur",
-                    "GUARANTEE_NONE": "Geen modus",
-                    "HEATING_POWER": "Verwarmingsvermogen",
-                    "HEATINGELEMENT": "Verwarmingselement",
-                    "MESSAGE_UNREACHABLE": "De energielimiet kan niet op tijd worden gehaald",
-                    "MINIMAL_ENERGY_AMOUNT": "Minimale hoeveelheid energie",
-                    "MINIMAL_ENERGY_LIMIT": "Minimale energielimiet",
-                    "MINIMUM_RUN_TIME": "Minimale looptijd",
-                    "PRIORITY": "Prioriteit",
-                    "TIME": "Tijd",
-                    "TIME_COUNTDOWN": "Tijd om te beginnen",
-                    "UNREACHABLE": "Niet bereikbaar"
+                    "SWITCH_ON_REC_SHORT": "",
+                    "UNDEFINED": "Ongedefinieerd"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Negatieve waarden komen overeen met het laden van geheugen",
                 "INFO_STORAGE_FOR_DISCHARGE": "Positieve waarden komen overeen met geheugenontlading",
@@ -541,14 +550,12 @@
                     "MORE_THAN_HP_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat",
                     "OTHER": "Anders",
                     "RELATION_ERROR": "Drempel moet groter zijn dan de geschakelde belasting",
+                    "SWITCHED_LOAD_POWER": "Geschakelde belasting",
                     "SWITCH_OFF_ABOVE": "Uitschakelen via",
                     "SWITCH_OFF_BELOW": "Schakel uit onder",
                     "SWITCH_ON_ABOVE": "Inschakelen via",
                     "SWITCH_ON_BELOW": "Inschakelen onder",
-                    "SWITCHED_LOAD_POWER": "Geschakelde belasting",
-                    "THRESHOLD": "Thresholded",
-                    "SWITCH_ON_ABOVE_THRESHOLD": "Inschakelen boven drempelwaarde",
-                    "SWITCH_ON_BELOW_THRESHOLD": "Inschakelen onder drempelwaarde"
+                    "THRESHOLD": "Thresholded"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Omgevingstemperatuur",
@@ -566,32 +573,23 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
+                    "EEG_2025_DESCRIPTION": "De grafiek toont de verwachte toekomstige netvoeding en de verwachte invoedingsvergoeding volgens de EEG 2025. Deze wordt meegenomen in de berekening van de optimale bedrijfsvoering. Het systeem probeert de netvoeding in periodes zonder vergoeding zo laag mogelijk te houden. Houd er rekening mee dat de prognose doorlopend opnieuw wordt berekend en zich in de loop van de dag kan wijzigen.",
+                    "EEG_2025_HEADER": "EEG 2025 prognose",
                     "POWER_SOC_CHART_TITLE": "Prognoses",
                     "PRICE": "Actuele afkoopprijs van elektriciteit",
                     "STATE": {
+                        "AVOID_GRID_SELL_LIMIT": "Voedingslimiet vermijden",
                         "BALANCING": "Optimalisatie van eigen verbruik",
                         "CHARGE_GRID": "Laden vanuit het net",
-                        "DELAY_DISCHARGE": "Lossen vertragen",
-                        "PEAK_SHAVING": "Piekbelasting afsnijden",
                         "DELAY_CHARGE": "Laden vertragen",
-                        "LIMIT_CHARGE": "Laden beperken",
-                        "AVOID_GRID_SELL_LIMIT": "Voedingslimiet vermijden",
+                        "DELAY_DISCHARGE": "Lossen vertragen",
                         "DISCHARGE_CONSUMPTION": "Lossen naar verbruik",
-                        "DISCHARGE_GRID": "Lossen naar het net"
-                    },
-                    "EEG_2025_HEADER": "EEG 2025 prognose",
-                    "EEG_2025_DESCRIPTION": "De grafiek toont de verwachte toekomstige netvoeding en de verwachte invoedingsvergoeding volgens de EEG 2025. Deze wordt meegenomen in de berekening van de optimale bedrijfsvoering. Het systeem probeert de netvoeding in periodes zonder vergoeding zo laag mogelijk te houden. Houd er rekening mee dat de prognose doorlopend opnieuw wordt berekend en zich in de loop van de dag kan wijzigen."
+                        "DISCHARGE_GRID": "Lossen naar het net",
+                        "LIMIT_CHARGE": "Laden beperken",
+                        "PEAK_SHAVING": "Piekbelasting afsnijden"
+                    }
                 },
-                "TWO_WAY_INFO_GRID": "Negatieve waarden komen overeen met netinvoeding, Positieve waarden komen overeen met netvoeding",
-                "EVSE": {
-                    "SCHEDULE": {
-                        "SCHEDULE": "Tijdschema",
-                        "ADD_TASK": "Taak toevoegen"
-                    },
-                    "CHARGE_MODE": "Basismodus",
-                    "VEHICLE_ID_ERROR": "Het voertuig-ID kon niet worden gevonden. Controleer de configuratie. Alle geregistreerde voertuigen worden weergegeven.",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met FEMS en de KEBA P40. Wij adviseren daarom deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken. FENECON en KEBA werken al met man en macht aan een oplossing."
-                }
+                "TWO_WAY_INFO_GRID": "Negatieve waarden komen overeen met netinvoeding, Positieve waarden komen overeen met netvoeding"
             }
         },
         "NETWORK": {
@@ -658,6 +656,7 @@
         "CHANGE_FAILED": "Wijziging mislukt",
         "CHARGE": "Laden",
         "CHARGE_DISCHARGE": "Debet/ontlaad",
+        "CHARGE_ONCE": "Eenmalig laden",
         "COMPONENT_COUNT": "Aantal componenten",
         "COMPONENT_INACTIVE": "Component is inactief!",
         "CONNECTION_LOST": "Verbinding verbroken. Probeer opnieuw verbinding te maken.",
@@ -682,6 +681,7 @@
         "DIGITAL_INPUTS": "Digitale Ingangen",
         "DIRECT_CONSUMPTION": "Directe consumptie",
         "DISCHARGE": "Afvoer",
+        "DISCHARGE_ONCE": "Eenmalig lossen",
         "EDIT": "Bewerken",
         "ENERGY_LIMIT": "Energielimiet",
         "FAULT": "Fout",
@@ -693,6 +693,8 @@
             "REQUIRED": "Is vereist"
         },
         "FROM": "Van",
+        "GENERATOR_ON": "Generator actief",
+        "GENERATOR_SUPPLY": "Generatorvoorziening",
         "GRID": "Net",
         "GRID_BUY": "Netafname",
         "GRID_BUY_ADVANCED": "Netafname",
@@ -701,6 +703,7 @@
         "GRID_SELL_ADVANCED": "Netteruglevering",
         "GRID_SELL_PRICE": "Invoedingsvergoeding",
         "HEAT_PUMP": "Warmtepomp",
+        "HELP": "Help",
         "HISTORY": "Historie",
         "INACTIVE": "Inactief",
         "INFO": "Info",
@@ -708,6 +711,8 @@
         "INSTALL": "Installeren",
         "INSUFFICIENT_RIGHTS": "Onvoldoende rechten",
         "LIGHT": "Licht",
+        "LINK": "Meer informatie vindt u via de volgende link (in het Duits):",
+        "LINK_TEXT": "Bekijk het changelog van de bètatest",
         "LIVE": "Live",
         "LOAD": "Laden",
         "MANAGED_CONSUMPTION": "Gestuurd verbruik",
@@ -730,13 +735,13 @@
             "SEPTEMBER": "September"
         },
         "MORE": "Meer…",
+        "NAVIGATION_DETAILS": "Deze hulpchip biedt u ondersteuning. Lees meer over wijzigingen, uitleg en informatie, inclusief de uitgebreide functionaliteiten van uw KEBA P40 laadstation.",
+        "NAVIGATION_INFO": "Wij zijn momenteel bezig ons monitoring en de app opnieuw te ontwerpen, met geoptimaliseerde navigatie en functionaliteit.",
         "NO": "Nee",
         "NO_VALUE": "Geen waarde",
         "NUMBER_OF_COMPONENTS": "aantal componenten",
         "OFF": "Van",
         "OFF_GRID": "Geen Netaansluiting!",
-        "GENERATOR_SUPPLY": "Generatorvoorziening",
-        "GENERATOR_ON": "Generator actief",
         "OK": "ok",
         "ON": "Naar",
         "OPEN": "Openen",
@@ -771,10 +776,13 @@
             "HOUR": "uur"
         },
         "SUM_STATE": "Systeemstatus",
+        "SURVEY": "Hier kunt u uw feedback over de bètatest met ons delen:",
+        "SURVEY_LINK": "Deelnemen aan de bètatest-enquête",
         "SYSTEM": "systeem",
         "SYSTEM_OUTAGE": "Door onderhoudswerkzaamheden is online monitoring tijdelijk niet beschikbaar. Probeer het later opnieuw. Meer informatie vindt u op",
         "SYSTEM_STATE": "Systeemstatus",
         "SYSTEM_THEME": "Systeem",
+        "TARGET_SOC": "Doellaadtoestand",
         "THEME_SELECTION": {
             "DESCRIPTION": "Ons monitoring is nu beschikbaar in <b>dark mode</b>.<hr>Schakel gewoon om en begin!",
             "TITLE": "Licht uit, comfort aan!"
@@ -805,17 +813,7 @@
             "TUESDAY": "Dinsdag",
             "WEDNESDAY": "Woensdag"
         },
-        "YES": "Ja",
-        "NAVIGATION_INFO": "Wij zijn momenteel bezig ons monitoring en de app opnieuw te ontwerpen, met geoptimaliseerde navigatie en functionaliteit.",
-        "NAVIGATION_DETAILS": "Deze hulpchip biedt u ondersteuning. Lees meer over wijzigingen, uitleg en informatie, inclusief de uitgebreide functionaliteiten van uw KEBA P40 laadstation.",
-        "LINK": "Meer informatie vindt u via de volgende link (in het Duits):",
-        "LINK_TEXT": "Bekijk het changelog van de bètatest",
-        "SURVEY": "Hier kunt u uw feedback over de bètatest met ons delen:",
-        "SURVEY_LINK": "Deelnemen aan de bètatest-enquête",
-        "HELP": "Help",
-        "CHARGE_ONCE": "Eenmalig laden",
-        "DISCHARGE_ONCE": "Eenmalig lossen",
-        "TARGET_SOC": "Doellaadtoestand"
+        "YES": "Ja"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Beperking van laden vanuit het net",
@@ -849,8 +847,8 @@
         "ADD_TASK": "Taak toevoegen",
         "EDIT_EVENT": "Gebeurtenis bewerken",
         "EDIT_TASK": "Taak bewerken",
-        "NEXT_EVENTS": "Aankomende gebeurtenissen",
         "MANUAL_EVENTS": "Handmatige gebeurtenissen",
+        "NEXT_EVENTS": "Aankomende gebeurtenissen",
         "SMART_EVENTS": "Slimme gebeurtenissen"
     },
     "LIVE": {
@@ -865,28 +863,28 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Authenticatie mislukt",
+        "EMPLOYEE_LOGIN": "Medewerkerslogin",
         "PASSWORD_LABEL": "Wachtwoord",
         "PASSWORD_RESET": "Wachtwoord opnieuw instellen",
         "PREAMBLE": "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
         "REQUEST_TIMEOUT": "Uw verzoek is verlopen. Probeer het later opnieuw.",
         "SIGN_IN": "Aanmelden",
         "TITLE": "Login",
-        "USER": "Gebruiker",
-        "EMPLOYEE_LOGIN": "Medewerkerslogin"
+        "USER": "Gebruiker"
     },
     "MENU": {
         "ACCESS_LEVEL": "Toegangsniveau",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "FAVORITES": "Favorieten",
         "EDGE_SETTINGS": "instellingen",
         "EDGE_SYSTEM_SETTINGS": "Systeeminstellingen",
+        "FAVORITES": "Favorieten",
         "GENERAL_SETTINGS": "Algemene instellingen",
         "GROUPS": {
-            "FIX_DIGITAL_OUTPUT": "Handmatige relaisbesturing",
+            "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Drempelregeling",
-            "HEATING_ROOM": "Verwarming",
-            "BRAIINS": "Bitcoin Miner"
+            "FIX_DIGITAL_OUTPUT": "Handmatige relaisbesturing",
+            "HEATING_ROOM": "Verwarming"
         },
         "INDEX": "Overzicht",
         "LOGOUT": "Uitloggen",
@@ -895,11 +893,11 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Andere gebruikers",
         "OVERVIEW": "Alle systemen",
-        "SYSTEMS": "Systemen",
-        "SETTINGS": "Instellingen",
-        "USER": "Gebruiker",
         "PROFILE": "Profiel",
-        "SCHEDULE": "Planning"
+        "SCHEDULE": "Planning",
+        "SETTINGS": "Instellingen",
+        "SYSTEMS": "Systemen",
+        "USER": "Gebruiker"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Begrenzingen actief vermogen",
@@ -911,8 +909,8 @@
         "INFO_TEXT": "De werkelijke waarde kan afwijken van de ingestelde waarde. Negatieve waarden komen overeen met laden van de opslag - positieve met lossen van de opslag. Een gedetailleerde uitleg vindt u in de handleiding.",
         "LAST_COMMAND": "Laatste overschrijving",
         "LIMITATION": "Specificatie",
-        "NO_OVERRIDDEN_CHANNELS": "Er zijn nog geen kanalen overschreven.",
         "NOT_OVERRIDING": "Geen externe opdrachten aanwezig",
+        "NO_OVERRIDDEN_CHANNELS": "Er zijn nog geen kanalen overschreven.",
         "OVERRIDING": "Externe opdracht wordt in aanmerking genomen",
         "REGISTER": "Register",
         "SET_ACTIVE_POWER_EQUALS": "Instelling actief vermogen",
@@ -939,8 +937,8 @@
         }
     },
     "ORDER": {
-        "A_TO_Z": "Aanduiding A - Z",
         "ASCENDING": "Oplopend op {{edgeShortName}} nr.",
+        "A_TO_Z": "Aanduiding A - Z",
         "DESCENDING": "Aflopend op {{edgeShortName}} nr.",
         "FAULT_TO_OK": "Systeemstatus Fout - OK",
         "OK_TO_FAULT": "Systeemstatus OK - Fout",
@@ -1004,14 +1002,14 @@
                 "EV_CHARGING_STATION": "EV-laadstation",
                 "EV_CHARGING_STATION_CONTROL": "Besturing EV-laadstation",
                 "EXTERNAL_INTERFACES": "Externe interfaces",
-                "IO_CONTROL": "I/O-besturing",
                 "IOS": "I/O",
+                "IO_CONTROL": "I/O-besturing",
                 "METER": "Meter",
                 "OTHERS": "Meer",
                 "SIMULATORS": "Simulatoren",
                 "STANDARD_COMPONENTS": "Standaardcomponenten",
-                "STORAGE_SYSTEM_CONTROL": "Besturing opslagsystemen",
                 "STORAGE_SYSTEMS": "Opslagsystemen",
+                "STORAGE_SYSTEM_CONTROL": "Besturing opslagsystemen",
                 "TEMPERATURE_SENSORS": "Temperatuursensoren"
             }
         },
@@ -1033,11 +1031,11 @@
             "NEW_VERSION": "Nieuwste versie:",
             "NEW_VERSION_INSTALLING": "Nieuwste versie installeren",
             "OFFLINE": "De {{ edgeShortName }} is offline.",
+            "RESTARTED": "Herstarten van {{system}} is geslaagd.",
+            "RESTARTING": "{{system}} wordt opnieuw opgestart. (Dit kan tot {{minutes}} minuten duren)",
             "RESTART_CONFIRMATION": "Wilt u {{system}} herstarten?",
             "RESTART_FAILED": "Herstarten van {{system}} is mislukt.",
             "RESTART_WARNING": "Tijdens het herstarten van {{system}} wordt de communicatie onderbroken. Gedurende deze tijd worden geen gegevens vastgelegd en geen componenten bestuurd. Zorg ervoor dat het volledige systeem zich in een veilige staat bevindt.",
-            "RESTARTED": "Herstarten van {{system}} is geslaagd.",
-            "RESTARTING": "{{system}} wordt opnieuw opgestart. (Dit kan tot {{minutes}} minuten duren)",
             "SUB_HEADER": "Wilt u een systeemupdate uitvoeren?",
             "UPDATE_COMPONENT": "Component bijwerken",
             "UPDATE_EXECUTE": "Systeemupdate uitvoeren",

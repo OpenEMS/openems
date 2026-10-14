@@ -8,10 +8,10 @@
         "ENERGY_MANAGEMENT": "Système de gestion de l'énergie",
         "FAQ": "Questions fréquemment posées (FAQ)",
         "LANGUAGE": "Sélectionnez la langue:",
-        "THEME": "Thème",
         "NEW_UI": "Nouveau design",
         "OPEN_EMS": "Plus au sujet d'OpenEMS",
-        "PATCHNOTES": "Modifications du monitoring pour cette version"
+        "PATCHNOTES": "Modifications du monitoring pour cette version",
+        "THEME": "Thème"
     },
     "APP": {
         "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Cette fonction est temporairement indisponible dans l'application ; veuillez utiliser l'application web."
@@ -71,8 +71,8 @@
                     "KEY": "clé de licence",
                     "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Remarque</span> : Lors de la saisie de la clé de licence, attention aux fautes de frappe possibles : <ul><li>petit « l » ou grand « I » </li><li>zéro « 0 » ou grand « O »</li></ul>Nous recommandons toujours de copier la clé de licence depuis le bon de livraison et de la coller dans le champ ci-dessus plutôt que de la saisir manuellement.<br>",
                     "MASTER_KEY_HINT": "<br><span class=\"warning\">Remarque</span> : La clé maître est utilisée en arrière-plan. Aucune clé n'est affichée. Si une clé de licence est disponible, veuillez l'utiliser.<br>",
-                    "REGISTER_KEY": "enregistrer la clé de licence",
                     "REGISTERED_KEY": "Clés de licence enregistrées",
+                    "REGISTER_KEY": "enregistrer la clé de licence",
                     "SUCCESS_REGISTER_KEY": "Clé enregistrée avec succès",
                     "USE_KEY": "utiliser la clé de licence",
                     "USE_MASTER_KEY": "Utiliser la clé maître",
@@ -146,10 +146,10 @@
                 "TIMESTAMP": "Timestamp"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Commande Manuelle",
                 "MANUALPQ_POWER_SPECIFICATION": "Spécification de puissance",
                 "MANUALPQ_RESET": "Reset",
                 "MANUALPQ_SUBMIT": "Soumettre",
+                "MANUAL_COMMAND": "Commande Manuelle",
                 "REFU_INVERTER": "REFU Inverter",
                 "REFU_START": "Start",
                 "REFU_START_STOP": "Start/Stop inverter",
@@ -197,8 +197,10 @@
             "MAY": "Mai",
             "MON": "Lun",
             "MONTH": "Mois",
-            "NO_DATA": "Pas de données disponible",
             "NOV": "Nov",
+            "NO_DATA": "Pas de données disponible",
+            "NO_LOCAL_DATA_INFO": "Les données historiques ne sont actuellement pas disponibles localement",
+            "NO_LOCAL_DATA_NOTICE": "Veuillez consulter https://github.com/OpenEMS/openems pour des mises à jour sur ce sujet.",
             "OCT": "Oct",
             "OTHER_PERIOD": "Autre période",
             "PERIOD": "Période",
@@ -218,9 +220,7 @@
             "WED": "Mer",
             "WEEK": "Semaine",
             "YEAR": "Année",
-            "YESTERDAY": "Hier",
-            "NO_LOCAL_DATA_INFO": "Les données historiques ne sont actuellement pas disponibles localement",
-            "NO_LOCAL_DATA_NOTICE": "Veuillez consulter https://github.com/OpenEMS/openems pour des mises à jour sur ce sujet."
+            "YESTERDAY": "Hier"
         },
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -245,10 +245,10 @@
                 "INFORMATION_FOR_PLANNED_EXPANSION": "La batterie devrait être chargée/déchargée à partir de {{targetTime}} le {{targetDate}} afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "La batterie devrait être chargée/déchargée afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue.",
                 "INSTANT_START": "Démarrage immédiat",
+                "IN_REFERENCE_CYCLE": "Cycle de référence actif - la batterie est préparée pour l'extension de capacité.",
                 "ON_DATE_AT_TIME": "le {{date}} à {{time}}",
                 "OPTIMAL": "Extension de capacité",
                 "PLANNED_EXPANSION": "Extension prévue",
-                "IN_REFERENCE_CYCLE": "Cycle de référence actif - la batterie est préparée pour l'extension de capacité.",
                 "PREPARING": "Préparation de l'extension de capacité",
                 "REACHED_TARGET_SOC": "Prêt pour l'extension de capacité",
                 "REFERENCING_OF_STORAGE": {
@@ -280,19 +280,19 @@
                 "ENERIX_CONTROL": {
                     "CHARGE_CONSUMPTION": "<b>ATTENTION :</b> La charge active de la batterie depuis le réseau au-delà de la charge d'entretien techniquement nécessaire nécessite un enregistrement approprié du système de stockage. En cas de doute, veuillez vérifier auprès de votre installateur. En appuyant sur le bouton bleu « Enregistrer », vous confirmez que cette vérification a été effectuée.<br/><br/><b>Sachez-le :</b> La condition préalable au bénéfice de la subvention selon la loi allemande sur les énergies renouvelables (EEG 2023) est que seule l'énergie issue de sources renouvelables et/ou de gaz de mine soit stockée dans la batterie. En activant cette fonction, la batterie est chargée avec de l'énergie du réseau. Selon le contrat d'approvisionnement individuel, cette énergie est probablement produite à partir de sources fossiles et/ou nucléaires. Nous ne pouvons donc pas garantir que la batterie soit exclusivement chargée avec de l'énergie issue de sources renouvelables et/ou de gaz de mine.",
                     "CHARGE_FROM_GRID": "Charge depuis le réseau",
+                    "CHARGE_FROM_GRID_ALLOWED": "Autoriser la charge active depuis le réseau",
                     "CONNECTED": "Connecté",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Autoriser la décharge active vers le réseau",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATTENTION :</b> La décharge active de la batterie vers le réseau au-delà des états de fonctionnement requis pour des raisons techniques nécessite l'enregistrement formel du système de stockage. En cas de doute, veuillez consulter votre installateur. En cliquant sur le bouton bleu « Enregistrer », vous confirmez que cette évaluation a été effectuée.<br/><br/><b>Remarque :</b> L'activation de cette fonction permet l'injection d'énergie du système de stockage par batterie dans le réseau public. Selon le programme de subvention, le modèle de rémunération, le concept de comptage et les exigences réglementaires applicables, cela peut affecter des droits existants liés aux subventions, rémunérations ou preuves d'origine.<br/><br/>En particulier, il peut être nécessaire d'attribuer clairement l'électricité injectée et de vérifier son origine par des mesures. Nous ne pouvons pas garantir que l'utilisation de cette fonction soit compatible avec les exigences de votre modèle spécifique de subvention ou de rémunération.<br/><br/>Veuillez examiner les implications avec votre installateur, votre commercialisateur direct, votre gestionnaire de réseau ou un conseiller qualifié avant l'activation.",
                     "DISCONNECTED": "Non connecté",
+                    "NOTE": "Veuillez noter :",
                     "NO_DISCHARGE": "Pas de décharge",
                     "NO_INPUT": "Aucune commande",
                     "NO_OVERWRITE": "Pas de forçage",
-                    "NOTE": "Veuillez noter :",
                     "OVERWRITE": "Forçage actif",
                     "OVERWRITE_INFO": "Lors de l'activation de cette fonction, les paramètres standard de charge et de décharge du système de stockage sont remplacés par des spécifications externes d'enerix Franchise GmbH & Co. KG. Cela peut entraîner des écarts par rapport au comportement de fonctionnement habituel - par exemple, de l'électricité peut être prélevée sur le réseau même si le système de stockage est suffisamment chargé.",
                     "OVERWRITE_MODE": "Mode de forçage",
-                    "READ_ONLY": "Lecture seule",
-                    "DISCHARGE_TO_GRID_ACTIVATE": "Autoriser la décharge active vers le réseau",
-                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATTENTION :</b> La décharge active de la batterie vers le réseau au-delà des états de fonctionnement requis pour des raisons techniques nécessite l'enregistrement formel du système de stockage. En cas de doute, veuillez consulter votre installateur. En cliquant sur le bouton bleu « Enregistrer », vous confirmez que cette évaluation a été effectuée.<br/><br/><b>Remarque :</b> L'activation de cette fonction permet l'injection d'énergie du système de stockage par batterie dans le réseau public. Selon le programme de subvention, le modèle de rémunération, le concept de comptage et les exigences réglementaires applicables, cela peut affecter des droits existants liés aux subventions, rémunérations ou preuves d'origine.<br/><br/>En particulier, il peut être nécessaire d'attribuer clairement l'électricité injectée et de vérifier son origine par des mesures. Nous ne pouvons pas garantir que l'utilisation de cette fonction soit compatible avec les exigences de votre modèle spécifique de subvention ou de rémunération.<br/><br/>Veuillez examiner les implications avec votre installateur, votre commercialisateur direct, votre gestionnaire de réseau ou un conseiller qualifié avant l'activation.",
-                    "CHARGE_FROM_GRID_ALLOWED": "Autoriser la charge active depuis le réseau"
+                    "READ_ONLY": "Lecture seule"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Activer la sation de recharge",
@@ -325,8 +325,7 @@
                     "ENERGY_SINCE_BEGINNING": "Energie depuis le début de la dernière recharge",
                     "ENFORCE_CHARGING": "Appliquer la charge",
                     "ERROR": "Erreur",
-                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée. FENECON et KEBA travaillent déjà à toute vitesse sur une solution.",
-                    "LINK_TO_DOCUMENTATION": "Plus d'informations",
+                    "FORCE_CHARGE": "Charge rapide",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "Dans ce mode, la recharge de la voiture est forcée, i.e. il est toujours garanti que la voiture sera chargée, même si la station de recharge à besoin de la puissance du réseau.",
                         "MAX_CHARGING": "Puissance de recharge maximum",
@@ -338,15 +337,18 @@
                     "FORCE_THREE_PHASE": "Triphasé",
                     "HYSTERESIS": "Temps minimal de commutation de la borne de recharge actif",
                     "HYSTERESIS_INFO": "Pour éviter les interruptions de charge dues à des démarrages/pauses trop fréquents du processus de charge, le mode de charge actuellement sélectionné se poursuivra pendant les prochaines minutes.",
+                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée. FENECON et KEBA travaillent déjà à toute vitesse sur une solution.",
+                    "LINK_TO_DOCUMENTATION": "Plus d'informations",
                     "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
+                    "MINIMUM": "Surplus photovoltaïque avec charge garantie",
+                    "NOT_AUTHORIZED": "Pas Authorisé",
+                    "NOT_CHARGING": "Pas en charge",
+                    "NOT_READY_FOR_CHARGING": "Pas prêt pour la recharge",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Pas de connection à la station de recharge.",
                         "HELP1": "Vérifiez si la station de recharge est allimée et qu'elle peut être atteinte via le réseau.",
                         "HELP1_1": "L'IP de la station de recharge apparait lorsqu'elle s'allume de nouveau"
                     },
-                    "NOT_AUTHORIZED": "Pas Authorisé",
-                    "NOT_CHARGING": "Pas en charge",
-                    "NOT_READY_FOR_CHARGING": "Pas prêt pour la recharge",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "Voiture",
@@ -367,21 +369,32 @@
                     "READY_FOR_CHARGING": "Prêt pour la recharge",
                     "STARTING": "Démarrage",
                     "STATUS": "Status",
+                    "SURPLUS": "Surplus photovoltaïque",
+                    "TASKS": "Tâches",
                     "TOTAL_CHARGE": "Recharge totale",
                     "TOTAL_CHARGING_POWER": "Puissance de recharge totale",
                     "UNCONTROLLABLE": "Cette borne de recharge ne peut pas être contrôlée.",
                     "UNKNOWN": "Inconnu",
                     "UNPLUGGED": "Débranché",
-                    "ZERO": "Pas de charge",
-                    "MINIMUM": "Surplus photovoltaïque avec charge garantie",
-                    "SURPLUS": "Surplus photovoltaïque",
-                    "FORCE_CHARGE": "Charge rapide",
-                    "TASKS": "Tâches"
+                    "ZERO": "Pas de charge"
+                },
+                "EVSE": {
+                    "CHARGE_MODE": "Mode de base",
+                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ». FENECON et KEBA travaillent déjà à toute vitesse sur une solution.",
+                    "SCHEDULE": {
+                        "ADD_TASK": "Ajouter une tâche",
+                        "SCHEDULE": "Planification"
+                    },
+                    "VEHICLE_ID_ERROR": "L'ID du véhicule n'a pas pu être trouvé. Veuillez vérifier la configuration. Tous les véhicules enregistrés sont affichés."
                 },
                 "FIX_DIGITAL_OUTPUT": "Contrôleur de sortie numérique",
                 "GRID_OPTIMIZED_CHARGE": {
                     "CHARGING_DELAYED": "Chargement retardé",
                     "CONSIDER_GRID_FEED_IN_LIMIT": "Tenir compte de l'injection maximale du réseau",
+                    "EEG_2025_APP_LINK": "Vers l'app",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "L'app EEG 2025 est active.<br/><br/>Lorsque les prix du marché de l'électricité sont négatifs, l'injection dans le réseau est automatiquement réduite autant que possible. Si de l'énergie excédentaire reste disponible, elle continue d'être injectée dans le réseau et n'est pas perdue.",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Votre installation est-elle concernée par la réglementation EEG 2025 ?<br/><br/>Avec l'app EEG 2025, l'injection dans le réseau est automatiquement réduite autant que possible lorsque les prix du marché de l'électricité sont négatifs. Si de l'énergie excédentaire reste disponible, elle continue d'être injectée dans le réseau et n'est pas perdue.",
                     "END_TIME": "Heure de fin",
                     "END_TIME_DESCRIPTION": "La charge n'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.",
                     "END_TIME_DETAILED_DESCRIPTION": "Le chargement n'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{ maxChargingPowerW }} à {{ endTime }}.",
@@ -395,10 +408,12 @@
                         "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "L'alimentation maximale du réseau, au-delà de laquelle la charge des batteries est augmentée (dans la mesure du possible), est inférieure à l'alimentation maximale autorisée du réseau afin d'éviter une réduction prématurée de la production.",
                         "PRIORITY_DESCRIPTION": "La charge minimale de la batterie a une priorité plus élevée que la charge maximale de la batterie."
                     },
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Remarque : La charge optimisée pour le réseau est désormais intégrée dans l'application « Tarif dynamique d'électricité ». Les paramètres configurés ici restent effectifs.",
+                    "LIMITED_FUNCTIONALITY": "Fonctionnalité limitée",
                     "LOW": "Faible",
                     "MAXIMUM_CHARGE": "Charge maximale",
-                    "MAXIMUM_GRID_FEED_IN": "Alimentation réseau maximale autorisée",
                     "MAXIMUM_GRIDSELL_WITH_CHARGE": "Injection maximale dans le réseau par la charge",
+                    "MAXIMUM_GRID_FEED_IN": "Alimentation réseau maximale autorisée",
                     "MEDIUM": "Moyen",
                     "MINIMUM_CHARGE": "Charge minimale",
                     "RISK_DESCRIPTION": {
@@ -421,24 +436,18 @@
                     "RISK_PROPENSITY": "Propension au risque",
                     "SETTING_ONLY_VISABLE_FOR_INSTALLER": "Ce paramètre n'est visible que par l'installateur",
                     "STATE": {
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Une charge limitée ou différée n'est pas possible car aucune injection dans le réseau n'est autorisée, ou seulement une faible injection.",
                         "AVOID_LOW_CHARGING": "Faible charge évitée",
                         "CHARGE_LIMIT_ACTIVE": "Limite de chargement active",
                         "END_TIME_NOT_CALCULATED": "Heure de fin non calculée",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "La limitation Grid-Feed-in est évitée",
+                        "NOT_DEFINED": "Non défini",
                         "NO_LIMIT_ACTIVE": "Aucune limite de chargement active",
                         "NO_LIMIT_POSSIBLE": "Aucune limitation possible (limitée par des contrôles de priorité plus élevée)",
-                        "NOT_DEFINED": "Non défini",
                         "PASSED_END_TIME": "Heure de fin du chargement limité dépassée",
-                        "STORAGE_ALREADY_FULL": "Mémoire déjà pleine",
-                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Une charge limitée ou différée n'est pas possible car aucune injection dans le réseau n'est autorisée, ou seulement une faible injection."
+                        "STORAGE_ALREADY_FULL": "Mémoire déjà pleine"
                     },
-                    "LIMITED_FUNCTIONALITY": "Fonctionnalité limitée",
-                    "STORAGE_CAPACITY": "capacité de stockage (visible seulement pour admin)",
-                    "INFO_DISABLED_BY_TIME_OF_USE": "Remarque : La charge optimisée pour le réseau est désormais intégrée dans l'application « Tarif dynamique d'électricité ». Les paramètres configurés ici restent effectifs.",
-                    "EEG_2025_APP_NAME": "EEG 2025",
-                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Votre installation est-elle concernée par la réglementation EEG 2025 ?<br/><br/>Avec l'app EEG 2025, l'injection dans le réseau est automatiquement réduite autant que possible lorsque les prix du marché de l'électricité sont négatifs. Si de l'énergie excédentaire reste disponible, elle continue d'être injectée dans le réseau et n'est pas perdue.",
-                    "EEG_2025_DESCRIPTION_INSTALLED": "L'app EEG 2025 est active.<br/><br/>Lorsque les prix du marché de l'électricité sont négatifs, l'injection dans le réseau est automatiquement réduite autant que possible. Si de l'énergie excédentaire reste disponible, elle continue d'être injectée dans le réseau et n'est pas perdue.",
-                    "EEG_2025_APP_LINK": "Vers l'app"
+                    "STORAGE_CAPACITY": "capacité de stockage (visible seulement pour admin)"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Vous pouvez modifier les paramètres de votre élément chauffant AC-Thor dans votre app MyPV.",
@@ -452,8 +461,47 @@
                     "TEMPERATURE": "Température actuelle",
                     "TEMPERATURE_UNIT": "Température en °C"
                 },
+                "HEATINGELEMENT": {
+                    "ACTIVED_FORCED_LIMIT": "Actif (énergie supplémentaire)",
+                    "ACTIVE_FORCED": "Actif (Minimum runtime)",
+                    "ACTIVE_LEVEL": "Active level",
+                    "CALIBRATION": "Calibrage",
+                    "CALIBRATION_DESCRIPTION": "L'élément chauffant est calibré pour obtenir la puissance des différents niveaux du compteur",
+                    "DONE": "Terminé",
+                    "ENDTIME": "Endtime",
+                    "ENERGY": "Energy",
+                    "ENERGY_SINCE_BEGINNING": "Énergie depuis le début",
+                    "GUARANTEE_HEATING": "Garantir une énergie de chauffage minimale",
+                    "GUARANTEE_MINIMUM_HEATING": "Garantir un chauffage minimum",
+                    "GUARANTEE_MODE": "Mode de garantie",
+                    "GUARANTEE_NONE": "Aucun",
+                    "HEATINGELEMENT": "Heating element",
+                    "HEATING_POWER": "Puissance de chauffage",
+                    "LEVEL_ONE": "Niveau 1",
+                    "LEVEL_THREE": "Niveau 3",
+                    "LEVEL_TWO": "Niveau 2",
+                    "MESSAGE_UNREACHABLE": "La limite d'énergie ne peut pas être atteinte à temps",
+                    "MINIMAL_ENERGY_AMOUNT": "Minimal charge amount",
+                    "MINIMAL_ENERGY_LIMIT": "Limite d'énergie minimale",
+                    "MINIMUM_DURATION": "Durée minimale",
+                    "MINIMUM_ENERGY": "Énergie minimale",
+                    "MINIMUM_RUN_TIME": "Minimum runtime",
+                    "PRIORITY": "Priority",
+                    "SET_ENDTIME": "Définir l'heure de fin",
+                    "TIME": "Time",
+                    "TIME_COUNTDOWN": "time until start",
+                    "UNREACHABLE": "Injoignable"
+                },
                 "HEAT_PUMP": {
                     "ABOVE_SOC": "et de l'état de charge de",
+                    "AUTOMATIC_DESCRIPTION": "Définissez ici les seuils du mode excédent PV",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Selon les seuils définis pour l'achat réseau et l'injection, les différents modes sont commutés. (Les seuils peuvent être modifiés dans Paramètres)",
+                        "LOCK": "Cet état de fonctionnement limite la consommation électrique de la pompe à chaleur, selon ses réglages, à 0 kW ou 4,2 kW.",
+                        "NORMAL_OPERATION": "La pompe à chaleur fonctionne à la demande dans la plage de puissance normale.",
+                        "SWITCH_ON_COM": "La pompe à chaleur s'allume lorsque l'injection d'excédent dépasse la valeur saisie et que l'état de charge du système de stockage est supérieur à la valeur saisie.",
+                        "SWITCH_ON_REC": "Une fois activée, la pompe à chaleur augmente sa puissance et utilise plus intensivement l'énergie disponible pour la production de chaleur."
+                    },
                     "BELOW_SOC": "et en charge de",
                     "GRID_BUY": "De l achat du réseau de",
                     "GRID_SELL": "Par excès d alimentatio de",
@@ -462,52 +510,13 @@
                     "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de la pompe à chaleur",
                     "NORMAL_OPERATION": "Fonctionnement normal",
                     "NORMAL_OPERATION_SHORT": "Normal",
+                    "OPERATING_STATUS": "État de fonctionnement",
                     "RELATION_ERROR": "La valeur excédentaire de la commande de mise en marche doit être supérieure à la valeur recommandée de mise en marche",
                     "SWITCH_ON_COM": "Commande de mise en marche",
                     "SWITCH_ON_COM_SHORT": "Commenade",
                     "SWITCH_ON_REC": "Recommandation de mise en marche",
                     "SWITCH_ON_REC_SHORT": "Recommandation",
-                    "UNDEFINED": "Indéfinie",
-                    "OPERATING_STATUS": "État de fonctionnement",
-                    "AUTOMATIC_DESCRIPTION": "Définissez ici les seuils du mode excédent PV",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "La pompe à chaleur s'allume lorsque l'injection d'excédent dépasse la valeur saisie et que l'état de charge du système de stockage est supérieur à la valeur saisie.",
-                        "SWITCH_ON_REC": "Une fois activée, la pompe à chaleur augmente sa puissance et utilise plus intensivement l'énergie disponible pour la production de chaleur.",
-                        "NORMAL_OPERATION": "La pompe à chaleur fonctionne à la demande dans la plage de puissance normale.",
-                        "AUTOMATIC": "Selon les seuils définis pour l'achat réseau et l'injection, les différents modes sont commutés. (Les seuils peuvent être modifiés dans Paramètres)",
-                        "LOCK": "Cet état de fonctionnement limite la consommation électrique de la pompe à chaleur, selon ses réglages, à 0 kW ou 4,2 kW."
-                    }
-                },
-                "HEATINGELEMENT": {
-                    "ACTIVE_FORCED": "Actif (Minimum runtime)",
-                    "ACTIVE_LEVEL": "Active level",
-                    "LEVEL_ONE": "Niveau 1",
-                    "LEVEL_TWO": "Niveau 2",
-                    "LEVEL_THREE": "Niveau 3",
-                    "ACTIVED_FORCED_LIMIT": "Actif (énergie supplémentaire)",
-                    "CALIBRATION": "Calibrage",
-                    "CALIBRATION_DESCRIPTION": "L'élément chauffant est calibré pour obtenir la puissance des différents niveaux du compteur",
-                    "DONE": "Terminé",
-                    "ENDTIME": "Endtime",
-                    "SET_ENDTIME": "Définir l'heure de fin",
-                    "ENERGY": "Energy",
-                    "ENERGY_SINCE_BEGINNING": "Énergie depuis le début",
-                    "GUARANTEE_MODE": "Mode de garantie",
-                    "GUARANTEE_HEATING": "Garantir une énergie de chauffage minimale",
-                    "GUARANTEE_MINIMUM_HEATING": "Garantir un chauffage minimum",
-                    "MINIMUM_ENERGY": "Énergie minimale",
-                    "MINIMUM_DURATION": "Durée minimale",
-                    "GUARANTEE_NONE": "Aucun",
-                    "HEATING_POWER": "Puissance de chauffage",
-                    "HEATINGELEMENT": "Heating element",
-                    "MESSAGE_UNREACHABLE": "La limite d'énergie ne peut pas être atteinte à temps",
-                    "MINIMAL_ENERGY_AMOUNT": "Minimal charge amount",
-                    "MINIMAL_ENERGY_LIMIT": "Limite d'énergie minimale",
-                    "MINIMUM_RUN_TIME": "Minimum runtime",
-                    "PRIORITY": "Priority",
-                    "TIME": "Time",
-                    "TIME_COUNTDOWN": "time until start",
-                    "UNREACHABLE": "Injoignable"
+                    "UNDEFINED": "Indéfinie"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Les valeurs négatives correspondent au chargement de la mémoire",
                 "INFO_STORAGE_FOR_DISCHARGE": "Les valeurs positives correspondent à une décharge de la mémoire",
@@ -541,14 +550,12 @@
                     "MORE_THAN_HP_POWER": "La valeur ne doit pas être inférieure à la puissance maximale de l appareil contrôlé",
                     "OTHER": "Other",
                     "RELATION_ERROR": "Threshold must be greater than the switched load power",
+                    "SWITCHED_LOAD_POWER": "Switched load power",
                     "SWITCH_OFF_ABOVE": "Switch off above",
                     "SWITCH_OFF_BELOW": "Switch off below",
                     "SWITCH_ON_ABOVE": "Switch on above",
                     "SWITCH_ON_BELOW": "Switch on below",
-                    "SWITCHED_LOAD_POWER": "Switched load power",
-                    "THRESHOLD": "Threshold",
-                    "SWITCH_ON_ABOVE_THRESHOLD": "Activer au-dessus du seuil",
-                    "SWITCH_ON_BELOW_THRESHOLD": "Activer en dessous du seuil"
+                    "THRESHOLD": "Threshold"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Température ambiante",
@@ -566,32 +573,23 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
+                    "EEG_2025_DESCRIPTION": "Le graphique montre l'injection réseau future attendue ainsi que la rémunération d'injection prévue selon l'EEG 2025. Celle-ci est prise en compte dans le calcul du mode de fonctionnement optimal. Le système s'efforce de maintenir l'injection réseau aussi basse que possible pendant les périodes sans rémunération. Veuillez noter que la prévision est recalculée en continu et peut donc changer au cours de la journée.",
+                    "EEG_2025_HEADER": "Prévision EEG 2025",
                     "POWER_SOC_CHART_TITLE": "Prévisions",
                     "PRICE": "Prix d'achat actuel de l'électricité",
                     "STATE": {
+                        "AVOID_GRID_SELL_LIMIT": "Éviter la limite d'injection",
                         "BALANCING": "Optimisation de l'autoconsommation",
                         "CHARGE_GRID": "Charge depuis le réseau",
-                        "DELAY_DISCHARGE": "Différer la décharge",
-                        "PEAK_SHAVING": "Écrêtage des pointes",
                         "DELAY_CHARGE": "Différer la charge",
-                        "LIMIT_CHARGE": "Limiter la charge",
-                        "AVOID_GRID_SELL_LIMIT": "Éviter la limite d'injection",
+                        "DELAY_DISCHARGE": "Différer la décharge",
                         "DISCHARGE_CONSUMPTION": "Décharge vers la consommation",
-                        "DISCHARGE_GRID": "Décharge vers le réseau"
-                    },
-                    "EEG_2025_HEADER": "Prévision EEG 2025",
-                    "EEG_2025_DESCRIPTION": "Le graphique montre l'injection réseau future attendue ainsi que la rémunération d'injection prévue selon l'EEG 2025. Celle-ci est prise en compte dans le calcul du mode de fonctionnement optimal. Le système s'efforce de maintenir l'injection réseau aussi basse que possible pendant les périodes sans rémunération. Veuillez noter que la prévision est recalculée en continu et peut donc changer au cours de la journée."
+                        "DISCHARGE_GRID": "Décharge vers le réseau",
+                        "LIMIT_CHARGE": "Limiter la charge",
+                        "PEAK_SHAVING": "Écrêtage des pointes"
+                    }
                 },
-                "TWO_WAY_INFO_GRID": "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur",
-                "EVSE": {
-                    "SCHEDULE": {
-                        "SCHEDULE": "Planification",
-                        "ADD_TASK": "Ajouter une tâche"
-                    },
-                    "CHARGE_MODE": "Mode de base",
-                    "VEHICLE_ID_ERROR": "L'ID du véhicule n'a pas pu être trouvé. Veuillez vérifier la configuration. Tous les véhicules enregistrés sont affichés.",
-                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec FEMS et la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ». FENECON et KEBA travaillent déjà à toute vitesse sur une solution."
-                }
+                "TWO_WAY_INFO_GRID": "Les valeurs négatives correspondent à l'alimentation du réseau, Les valeurs positives correspondent à l'alimentation secteur"
             }
         },
         "NETWORK": {
@@ -658,6 +656,7 @@
         "CHANGE_FAILED": "Changement échoué",
         "CHARGE": "Charge",
         "CHARGE_DISCHARGE": "Puissance de Charge/Décharge",
+        "CHARGE_ONCE": "Charge unique",
         "COMPONENT_COUNT": "Nombre de composants",
         "COMPONENT_INACTIVE": "Component is not active!",
         "CONNECTION_LOST": "Connection lost. Trying to reconnect.",
@@ -682,6 +681,7 @@
         "DIGITAL_INPUTS": "Entrées numériques",
         "DIRECT_CONSUMPTION": "Consommation directe",
         "DISCHARGE": "Décharge",
+        "DISCHARGE_ONCE": "Décharge unique",
         "EDIT": "Modifier",
         "ENERGY_LIMIT": "Limite d'énergie",
         "FAULT": "Fault",
@@ -693,6 +693,8 @@
             "REQUIRED": "Est requis"
         },
         "FROM": "De",
+        "GENERATOR_ON": "Générateur actif",
+        "GENERATOR_SUPPLY": "Alimentation par générateur",
         "GRID": "Réseau",
         "GRID_BUY": "Acheté sur le réseau",
         "GRID_BUY_ADVANCED": "Achete",
@@ -701,6 +703,7 @@
         "GRID_SELL_ADVANCED": "Vends",
         "GRID_SELL_PRICE": "Rémunération de l'injection",
         "HEAT_PUMP": "Pompe à chaleur",
+        "HELP": "Aide",
         "HISTORY": "Historique",
         "INACTIVE": "Désactivé",
         "INFO": "Info",
@@ -708,6 +711,8 @@
         "INSTALL": "Installer",
         "INSUFFICIENT_RIGHTS": "Droits insuffisants",
         "LIGHT": "Clair",
+        "LINK": "Plus de détails via le lien suivant (en allemand) :",
+        "LINK_TEXT": "Consulter le journal des modifications de la version bêta",
         "LIVE": "Direct",
         "LOAD": "Charge",
         "MANAGED_CONSUMPTION": "Consommation pilotée",
@@ -730,13 +735,13 @@
             "SEPTEMBER": "September"
         },
         "MORE": "Plus...",
+        "NAVIGATION_DETAILS": "Cette pastille d'aide vous apporte son assistance. En savoir plus sur les modifications, obtenir des explications et des informations, y compris les fonctionnalités étendues de votre borne de recharge KEBA P40.",
+        "NAVIGATION_INFO": "Nous sommes en train de repenser notre monitoring et notre app, en optimisant leur navigation et leurs fonctionnalités.",
         "NO": "Non",
         "NO_VALUE": "Aucune valeurs",
         "NUMBER_OF_COMPONENTS": "nombre de composants",
         "OFF": "Off",
         "OFF_GRID": "Pas de connection au réseau!",
-        "GENERATOR_SUPPLY": "Alimentation par générateur",
-        "GENERATOR_ON": "Générateur actif",
         "OK": "ok",
         "ON": "On",
         "OPEN": "Ouvrir",
@@ -771,10 +776,13 @@
             "HOUR": "h"
         },
         "SUM_STATE": "État du système",
+        "SURVEY": "Vous pouvez nous partager ici votre retour sur la version bêta :",
+        "SURVEY_LINK": "Participer à l'enquête sur la version bêta",
         "SYSTEM": "système",
         "SYSTEM_OUTAGE": "En raison de travaux de maintenance, le monitoring en ligne est temporairement indisponible. Veuillez réessayer plus tard. Pour plus d'informations, voir",
         "SYSTEM_STATE": "État du système",
         "SYSTEM_THEME": "Système",
+        "TARGET_SOC": "État de charge cible",
         "THEME_SELECTION": {
             "DESCRIPTION": "Notre monitoring est désormais disponible en <b>mode sombre</b>.<hr>Changez simplement et c'est parti !",
             "TITLE": "Lumières éteintes, confort activé !"
@@ -805,17 +813,7 @@
             "TUESDAY": "Mardi",
             "WEDNESDAY": "Mercredi"
         },
-        "YES": "Oui",
-        "NAVIGATION_INFO": "Nous sommes en train de repenser notre monitoring et notre app, en optimisant leur navigation et leurs fonctionnalités.",
-        "NAVIGATION_DETAILS": "Cette pastille d'aide vous apporte son assistance. En savoir plus sur les modifications, obtenir des explications et des informations, y compris les fonctionnalités étendues de votre borne de recharge KEBA P40.",
-        "LINK": "Plus de détails via le lien suivant (en allemand) :",
-        "LINK_TEXT": "Consulter le journal des modifications de la version bêta",
-        "SURVEY": "Vous pouvez nous partager ici votre retour sur la version bêta :",
-        "SURVEY_LINK": "Participer à l'enquête sur la version bêta",
-        "HELP": "Aide",
-        "CHARGE_ONCE": "Charge unique",
-        "DISCHARGE_ONCE": "Décharge unique",
-        "TARGET_SOC": "État de charge cible"
+        "YES": "Oui"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Limitation de charge depuis le réseau",
@@ -849,8 +847,8 @@
         "ADD_TASK": "Ajouter une tâche",
         "EDIT_EVENT": "Modifier l'événement",
         "EDIT_TASK": "Modifier la tâche",
-        "NEXT_EVENTS": "Événements suivants",
         "MANUAL_EVENTS": "Événements manuels",
+        "NEXT_EVENTS": "Événements suivants",
         "SMART_EVENTS": "Événements intelligents"
     },
     "LIVE": {
@@ -865,28 +863,28 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Échec de l'authentification",
+        "EMPLOYEE_LOGIN": "Connexion employé",
         "PASSWORD_LABEL": "mot de passe",
         "PASSWORD_RESET": "Réinitialiser le mot de passe",
         "PREAMBLE": "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
         "REQUEST_TIMEOUT": "Votre demande a expiré. Veuillez réessayer plus tard.",
         "SIGN_IN": "Se connecter",
         "TITLE": "Login",
-        "USER": "Utilisateur",
-        "EMPLOYEE_LOGIN": "Connexion employé"
+        "USER": "Utilisateur"
     },
     "MENU": {
         "ACCESS_LEVEL": "Niveau d'accès",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "FAVORITES": "Favoris",
         "EDGE_SETTINGS": "Réglages",
         "EDGE_SYSTEM_SETTINGS": "Paramètres système",
+        "FAVORITES": "Favoris",
         "GENERAL_SETTINGS": "Réglages généraux",
         "GROUPS": {
-            "FIX_DIGITAL_OUTPUT": "Commande manuelle des relais",
+            "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Commande par seuil",
-            "HEATING_ROOM": "Chauffage",
-            "BRAIINS": "Bitcoin Miner"
+            "FIX_DIGITAL_OUTPUT": "Commande manuelle des relais",
+            "HEATING_ROOM": "Chauffage"
         },
         "INDEX": "Index",
         "LOGOUT": "Déconnexion",
@@ -895,11 +893,11 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Autres utilisateurs",
         "OVERVIEW": "Tous les systèmes",
-        "SYSTEMS": "Systèmes",
-        "SETTINGS": "Réglages",
-        "USER": "Utilisateur",
         "PROFILE": "Utilisateur",
-        "SCHEDULE": "Planning"
+        "SCHEDULE": "Planning",
+        "SETTINGS": "Réglages",
+        "SYSTEMS": "Systèmes",
+        "USER": "Utilisateur"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Limitations de puissance active",
@@ -911,8 +909,8 @@
         "INFO_TEXT": "La valeur réelle peut différer de la consigne. Les valeurs négatives correspondent à la charge du stockage - les positives à la décharge du stockage. Une explication détaillée se trouve dans la notice.",
         "LAST_COMMAND": "Dernier forçage",
         "LIMITATION": "Consigne",
-        "NO_OVERRIDDEN_CHANNELS": "Aucun canal n'a encore été forcé.",
         "NOT_OVERRIDING": "Aucune commande externe présente",
+        "NO_OVERRIDDEN_CHANNELS": "Aucun canal n'a encore été forcé.",
         "OVERRIDING": "La commande externe est prise en compte",
         "REGISTER": "Registre",
         "SET_ACTIVE_POWER_EQUALS": "Consigne de puissance active",
@@ -939,8 +937,8 @@
         }
     },
     "ORDER": {
-        "A_TO_Z": "Désignation A - Z",
         "ASCENDING": "Croissant par n° de {{edgeShortName}}",
+        "A_TO_Z": "Désignation A - Z",
         "DESCENDING": "Décroissant par n° de {{edgeShortName}}",
         "FAULT_TO_OK": "État du système Défaut - OK",
         "OK_TO_FAULT": "État du système OK - Défaut",
@@ -1004,14 +1002,14 @@
                 "EV_CHARGING_STATION": "Borne de recharge VE",
                 "EV_CHARGING_STATION_CONTROL": "Commande de borne de recharge VE",
                 "EXTERNAL_INTERFACES": "Interfaces externes",
-                "IO_CONTROL": "Commande E/S",
                 "IOS": "E/S",
+                "IO_CONTROL": "Commande E/S",
                 "METER": "Compteur",
                 "OTHERS": "Autres",
                 "SIMULATORS": "Simulateurs",
                 "STANDARD_COMPONENTS": "Composants standard",
-                "STORAGE_SYSTEM_CONTROL": "Commande des systèmes de stockage",
                 "STORAGE_SYSTEMS": "Systèmes de stockage",
+                "STORAGE_SYSTEM_CONTROL": "Commande des systèmes de stockage",
                 "TEMPERATURE_SENSORS": "Capteurs de température"
             }
         },
@@ -1033,11 +1031,11 @@
             "NEW_VERSION": "Dernière version :",
             "NEW_VERSION_INSTALLING": "Installer la dernière version",
             "OFFLINE": "Le {{ edgeShortName }} est hors ligne.",
+            "RESTARTED": "Redémarrage de {{system}} réussi.",
+            "RESTARTING": "Redémarrage de {{system}}. (Cela peut prendre jusqu'à {{minutes}} minutes)",
             "RESTART_CONFIRMATION": "Souhaitez-vous redémarrer {{system}} ?",
             "RESTART_FAILED": "Échec du redémarrage de {{system}}.",
             "RESTART_WARNING": "La communication est interrompue pendant que {{system}} redémarre. Pendant ce temps, aucune donnée n'est enregistrée et aucun composant n'est piloté. Veuillez vous assurer que l'ensemble du système est dans un état sûr.",
-            "RESTARTED": "Redémarrage de {{system}} réussi.",
-            "RESTARTING": "Redémarrage de {{system}}. (Cela peut prendre jusqu'à {{minutes}} minutes)",
             "SUB_HEADER": "Souhaitez-vous effectuer une mise à jour du système ?",
             "UPDATE_COMPONENT": "Mettre à jour le composant",
             "UPDATE_EXECUTE": "Exécuter la mise à jour du système",

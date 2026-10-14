@@ -61,24 +61,24 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * Describes an app for a Janitza grid meter.
  *
  * <pre>
- {
- "appId":"App.GridMeter.Janitza",
- "alias":"Janitza Netzzähler",
- "instanceId": UUID,
- "image": base64,
- "properties":{
- "METER_ID": "meter0",
- "MODBUS_ID": "modbus0",
- "MODEL": "Meter.Janitza.UMG96RME",
- "INTEGRATION_TYPE": "TCP",
- "IP": "10.4.0.12",
- "PORT": 502,
- "MODBUS_UNIT_ID": 6
- },
- "appDescriptor": {
- "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
- }
- }
+ * {
+ *   "appId":"App.GridMeter.Janitza",
+ *   "alias":"Janitza Netzzähler",
+ *   "instanceId": UUID,
+ *   "image": base64,
+ *   "properties":{
+ *     "METER_ID": "meter0",
+ *     "MODBUS_ID": "modbus0",
+ *     "MODEL": "Meter.Janitza.UMG96RME",
+ *     "INTEGRATION_TYPE": "TCP",
+ *     "IP": "10.4.0.12",
+ *     "PORT": 502,
+ *     "MODBUS_UNIT_ID": 5
+ *   },
+ *   "appDescriptor": {
+ *     "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
+ *   }
+ * }
  * </pre>
  */
 @Component(name = "App.GridMeter.Janitza")
@@ -102,7 +102,7 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 				.setRequired(true)), //
 		MODBUS_UNIT_ID(MeterProps.modbusUnitId()//
 				.setRequired(true)//
-				.setDefaultValue(6)//
+				.setDefaultValue(5)//
 				.setAutoGenerateField(false)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
