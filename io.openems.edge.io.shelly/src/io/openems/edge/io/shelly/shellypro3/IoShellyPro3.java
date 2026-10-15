@@ -91,7 +91,7 @@ public interface IoShellyPro3 extends DigitalOutput, OpenemsComponent, EventHand
 		 * <li>Type: State
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.WARNING)); //
 
 		private final Doc doc;
 
