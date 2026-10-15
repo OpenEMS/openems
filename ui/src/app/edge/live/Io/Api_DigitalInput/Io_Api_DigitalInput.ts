@@ -28,13 +28,13 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
     }
 
     protected override afterIsInitialized(): void {
-        this.modalComponent = this.getModalComponent();
-
         this.service.getConfig().then((config) => {
             this.ioComponents = config
                 .getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput")
                 .filter((component) => component.isEnabled);
             this.ioComponentCount = this.ioComponents.length;
+
+            this.modalComponent = this.getModalComponent();
         });
     }
 }
