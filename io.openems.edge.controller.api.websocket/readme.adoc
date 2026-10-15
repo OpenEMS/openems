@@ -82,6 +82,12 @@ Implements:
 | `port` | WebSocket server port | Integer | `8085`
 | `apiTimeout` | Timeout for channel writes from UI (seconds) | Integer | `60`
 | `debugMode` | Enable verbose debug logging | Boolean | `false`
+| `externalAuthEnabled` | Enable trusted external authentication headers | Boolean | `false`
+| `externalAuthTrustedProxyCidrs` | IPv4 CIDR ranges that may provide external authentication headers | String[] | (empty)
+| `externalAuthUserIdHeader` | Header containing the externally authenticated user id | String | `X-OpenEMS-User`
+| `externalAuthUserNameHeader` | Header containing the externally authenticated display name | String | `X-OpenEMS-Name`
+| `externalAuthRoleHeader` | Header containing the OpenEMS role | String | `X-OpenEMS-Role`
+| `externalAuthDefaultRole` | Fallback role if no role header is present | String | `guest`
 |===
 
 == Configuration Example
@@ -144,6 +150,38 @@ Authorization: Basic base64(username:password)
 ----
 
 Connection is rejected if credentials are invalid.
+
+=== Trusted External Authentication
+
+Trusted external authentication is disabled by default.
+If enabled, the WebSocket controller can authenticate a connection from headers that were added by a trusted reverse proxy.
+This allows deployments where an identity provider or reverse proxy performs the actual login and OpenEMS Edge only consumes the resulting user attributes.
+
+The direct peer address must match `externalAuthTrustedProxyCidrs`; otherwise all external authentication headers are ignored.
+This prevents clients from authenticating themselves by sending the same headers directly to Edge.
+
+.Example reverse-proxy headers
+[source]
+----
+X-OpenEMS-User: alice
+X-OpenEMS-Name: Alice Example
+X-OpenEMS-Role: installer
+----
+
+.Example JSON-RPC authentication
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "method": "authenticateWithExternalAuth",
+  "params": {}
+}
+----
+
+The supported roles are `admin`, `installer`, `owner` and `guest`.
+Unknown roles fall back to `guest`.
+Local password and token authentication remain unchanged and can be used as fallback.
 
 == Message Protocol
 
