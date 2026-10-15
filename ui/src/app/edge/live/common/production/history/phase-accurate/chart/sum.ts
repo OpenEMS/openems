@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -43,7 +42,7 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
             });
 
             converter = (data: HistoryUtils.ChannelData, phase: string) =>
-                data[component.id + "ActualPower"]?.reduce((arr, el, index) => {
+                data[component.id + "ActualPower"]?.reduce<(number | null)[]>((arr, el, index) => {
                     arr.push(
                         Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]),
                     );
