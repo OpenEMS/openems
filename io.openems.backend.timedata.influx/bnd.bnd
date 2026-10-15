@@ -10,6 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.shared.influxdb,\
 	io.openems.wrapper.influxdb-client-core,\
 	io.openems.wrapper.influxdb-client-java,\
+	io.openems.wrapper.influxdb-client-utils,\
 
 -testpath: \
 	${testpath}
