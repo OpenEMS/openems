@@ -87,8 +87,56 @@ public class ApplyPowerHandlerTest {
 
 	@Test
 	public void batteryControlHasNoFeedForwardWhenIdle() throws Exception {
-		// below MIN_TARGET_W the inverter is treated as idle: no bias, no losses
-		assertEquals(-2, this.applyBatteryControl(20));
+		// below MIN_TARGET_W the inverter is treated as idle: no bias, no losses.
+		// 20 W is inside the band reg 44106 ignores, so the band guard writes the
+		// smallest effective discharge instead (see
+		// smallCommandsNeverLandInTheIneffectiveBandOfReg44106).
+		assertEquals(-5, this.applyBatteryControl(20));
+	}
+
+	@Test
+	public void smallCommandsNeverLandInTheIneffectiveBandOfReg44106() throws Exception {
+		// A register value near zero is ignored by the inverter, which then falls
+		// back to its own regulation: measured 2026-10-03, 11 of 11 excursions
+		// began with reg 44106 between -2 and +2, the battery swung by 700-1000 W
+		// and the AC output collapsed below zero for 3-6 s every 22-27 s. A target
+		// that lands in the band is pushed out of it - keeping its direction.
+		this.charger.withActualPower(500);
+		// 510 W AC against 500 W PV wants 10 W of discharge (idle, no feed-forward)
+		// -> minimum effective discharge 50 W -> register -5
+		assertEquals(-5, this.applyBatteryControl(510));
+		// the other direction likewise: 10 W of charge -> -50 W -> register +5
+		assertEquals(5, this.applyBatteryControl(490));
+		// A battery target of exactly 0 takes the direction of the last command
+		// outside the band; none so far, so the default applies: discharge, so a
+		// quiet night covers a few watts of house load instead of charging.
+		assertEquals(-5, this.applyBatteryControl(500));
+		// A command well outside the band is untouched: 600 W AC against 500 W PV
+		// is a battery target of 100 W, above MIN_TARGET_W, so the full
+		// feed-forward applies: 100 + 190 + (30 + 3 % * 600) = 338 W -> -34
+		assertEquals(-34, this.applyBatteryControl(600));
+	}
+
+	@Test
+	public void theIneffectiveBandIsLeftOnlyWhereTheBatteryLimitsAllowIt() throws Exception {
+		// The band guard must not push the command past a battery limit. With
+		// discharging blocked (empty battery) a tiny discharge wish may only
+		// leave the band towards charging, never towards discharge.
+		this.ess.withBatteryLimits(-2100, 0);
+		assertEquals(5, this.applyBatteryControl(20)); // -50 W charge, not +50 W
+		// With both directions blocked there is nothing better than the clamp
+		// (the start-up case while the BMS limits are still 0).
+		this.ess.withBatteryLimits(0, 0);
+		assertEquals(0, this.applyBatteryControl(20));
+	}
+
+	@Test
+	public void acOutputControlIsNotTouchedByTheBandGuard() throws Exception {
+		// The band was measured in battery control, where reg 44106 carries a
+		// battery set-point. In AC output control the same register is the grid
+		// port set-point, and forcing it off zero would be a permanent 50 W
+		// deviation at the grid.
+		assertEquals(0, this.applyAcOutputControl(0));
 	}
 
 	@Test
@@ -202,6 +250,6 @@ public class ApplyPowerHandlerTest {
 	public void keepsWritingInWarningState() throws Exception {
 		// a warning (derating, fan, ...) is informational - the inverter runs on
 		this.ess.withWorkState(WorkState.WARNING);
-		assertEquals(-2, this.applyBatteryControl(20));
+		assertEquals(-5, this.applyBatteryControl(20));
 	}
 }

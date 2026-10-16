@@ -31,6 +31,18 @@ public class ApplyPowerHandler {
 	static final int LOSS_BASE_W = 30;
 	static final double LOSS_FACTOR = 0.03; // of |battery| + PV
 	private static final int MIN_TARGET_W = 50; // below this the inverter is treated as idle
+	// Reg 44106 is ineffective near zero: the inverter then ignores the remote
+	// set-point and falls back to its own regulation, pushing the PV surplus into
+	// the battery. Measured 2026-10-03: 11 of 11 excursions began with the
+	// register between -2 and +2 (i.e. -20..+20 W); the battery then swung by
+	// 700-1000 W and the AC output collapsed from 700 W to below zero for 3-6 s,
+	// repeating every 22-27 s. Outside the band the inverter follows closely
+	// (limit -446 W -> -496 W at the battery). 50 W is 2.5x the observed band.
+	private static final int MIN_EFFECTIVE_SETPOINT_W = 50;
+	// Which way to leave the band when neither command nor target says: discharge,
+	// so a quiet night covers a few watts of house load instead of charging from
+	// the grid.
+	private int lastEffectiveDirection = 1;
 
 	// === Setpoint trim ===
 	// A slow integral correction on the AC-side battery contribution
@@ -238,6 +250,13 @@ public class ApplyPowerHandler {
 
 		// Set-point = target + feed-forward + trim, clamped to the limits
 		int setPoint = Math.max(lowerLimit, Math.min(upperLimit, target + feedForward + (int) Math.round(trim)));
+		// A command near zero is ignored by the inverter, so it never leaves this
+		// method: the log line and reg 44106 have to see what was really commanded.
+		// In AC output control the register carries the grid port set-point, where
+		// a forced offset would be a permanent deviation.
+		if (batteryControl) {
+			setPoint = this.avoidIneffectiveBand(setPoint, target, lowerLimit, upperLimit);
+		}
 
 		this.writeExternalControlFlags();
 		// Reg 44106 (1 = 10 W): with 44105 = 2 (battery control) a negative value is
@@ -265,6 +284,39 @@ public class ApplyPowerHandler {
 	}
 
 	// ========================= Helper =========================
+
+	/**
+	 * Moves a command out of the band around zero in which reg 44106 is
+	 * ineffective, keeping the direction we want. Values outside the band pass
+	 * through unchanged and set the direction for a later ambiguous cycle. The
+	 * battery limits win: leaving the band must not exceed them.
+	 *
+	 * @param commanded  the command in W, positive = battery discharge
+	 * @param target     the wanted battery power in W, used when the command is 0
+	 * @param lowerLimit the charge limit in W (negative or 0)
+	 * @param upperLimit the discharge limit in W (positive or 0)
+	 * @return the command in W, outside the ineffective band where the limits allow
+	 */
+	private int avoidIneffectiveBand(int commanded, int target, int lowerLimit, int upperLimit) {
+		if (Math.abs(commanded) >= MIN_EFFECTIVE_SETPOINT_W) {
+			this.lastEffectiveDirection = Integer.signum(commanded);
+			return commanded;
+		}
+		int direction = commanded != 0 ? Integer.signum(commanded)
+				: target != 0 ? Integer.signum(target)
+						: this.lastEffectiveDirection;
+		int wanted = direction * MIN_EFFECTIVE_SETPOINT_W;
+		if (wanted >= lowerLimit && wanted <= upperLimit) {
+			return wanted;
+		}
+		// The wanted direction is blocked by a limit, so try the other one; if both
+		// are blocked the limits themselves are inside the band and there is
+		// nothing better than the clamped command.
+		if (-wanted >= lowerLimit && -wanted <= upperLimit) {
+			return -wanted;
+		}
+		return commanded;
+	}
 
 	/**
 	 * Writes the remote dispatch settings that select external (EMS) control.

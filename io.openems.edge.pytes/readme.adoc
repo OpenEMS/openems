@@ -67,9 +67,16 @@ Effects::
   output cap (reg 43052) work as described below; the battery set-point stays in force
   below the cap.
 * Accuracy at the grid point ±50–100 W (bias/loss model plus trim), set-point reached after
-  ~10 s. At a set-point of 0 the inverter idles at ~30 W charging (its bias); the trim is
-  intentionally off below 50 W so it does not chase that. Backup-port loads need no special
-  handling: the total AC is what is controlled.
+  ~10 s. The trim is intentionally off below 50 W so it does not chase the inverter's own
+  bias. Backup-port loads need no special handling: the total AC is what is controlled.
+* Reg 44106 is never written with a value near zero. Below about 25 W the inverter ignores
+  the remote set-point and falls back to its own regulation, pushing the PV surplus into
+  the battery: measured 2026-10-03, 11 of 11 excursions began with the register between -2
+  and +2, the battery then swung by 700-1000 W and the AC output collapsed from 700 W to
+  below zero for 3-6 s, repeating every 22-27 s. Commands inside that band are moved to
+  50 W in the direction the controller wants, as far as the battery limits allow. This
+  trades a known 50 W deviation for an unknown one of up to 1000 W; outside the band the
+  inverter follows closely (limit -446 W, battery -496 W).
 
 Use it when the intent is battery-related: self-consumption with a limiter, "do not charge
 above x %", PV pass-through, robust operation on days with broken clouds. This is the
