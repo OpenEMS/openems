@@ -220,7 +220,7 @@ public class PlcNextEssImplTest {
 						.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
 						.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
-				.next(new TestCase("Check requested data dropped in asynchronously") //
+				.next(new TestCase("Check requested data has been set to channels") //
 						.onAfterProcessImage(assertChannelValue(//
 								this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
 						.onAfterProcessImage(assertChannelValue(//
@@ -303,7 +303,7 @@ public class PlcNextEssImplTest {
 						.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
 						.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
-				.next(new TestCase("Check requested data dropped in asynchronously")
+				.next(new TestCase("Check requested data has been set to channels")
 						.onAfterProcessImage(assertChannelValue(//
 								this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
 						.onAfterProcessImage(assertChannelValue(//
@@ -387,7 +387,7 @@ public class PlcNextEssImplTest {
 						.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
 						.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)))
-				.next(new TestCase("Check requested data dropped in asynchronously")
+				.next(new TestCase("Check requested data has been set to channels")
 						.onAfterProcessImage(assertChannelValue(//
 								this.componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
 						.onAfterProcessImage(assertChannelValue(//
