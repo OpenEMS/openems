@@ -173,7 +173,7 @@ public class PlcNextPvInverterImplTest {
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
-		var expectedEnergyImportValue = 440000;
+		var expectedEnergyImportValue = 440000L;
 		var varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path", this.myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
@@ -225,7 +225,7 @@ public class PlcNextPvInverterImplTest {
 						.input(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, setActivePowerEqualsValue)
 						.onBeforeWriteCallbacks(assertIntegerWriteChannelValue(this.componentUnderTest,
 								ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, setActivePowerEqualsValue)))
-				.next(new TestCase("Check requested data dropped in asynchronously")
+				.next(new TestCase("Check requested data has been set to channels")
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L1, expectedPhases2Neutral1Value)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
@@ -235,7 +235,7 @@ public class PlcNextPvInverterImplTest {
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)))
+								ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, expectedEnergyImportValue)))
 
 				.deactivate();
 	}

@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
@@ -129,7 +128,6 @@ public class PlcNextMeterImplTest {
 	}
 
 	@Test
-	@Disabled
 	public void testRunModuleSuccessfully() throws Exception {
 		// prep
 		var variables = new JsonArray();
@@ -158,7 +156,7 @@ public class PlcNextMeterImplTest {
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
-		var expectedEnergyImportValue = 440000;
+		var expectedEnergyImportValue = 440000L;
 		var varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path", this.myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
@@ -178,8 +176,8 @@ public class PlcNextMeterImplTest {
 		// test + check
 		this.test.activate(this.myConfig)
 
-				.next(new TestCase("Trigger value consumption and do one wait cycle")) //
-				.next(new TestCase("Check requested data dropped in asynchronously")
+				.next(new TestCase("Trigger value consumption")) //
+				.next(new TestCase("Check requested data has been set to channels")
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L1, expectedPhases2Neutral1Value)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
@@ -189,7 +187,7 @@ public class PlcNextMeterImplTest {
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)))
+								ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, expectedEnergyImportValue)))
 
 				.deactivate();
 	}
