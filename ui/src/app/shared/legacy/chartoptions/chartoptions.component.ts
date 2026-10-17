@@ -24,7 +24,7 @@ export class ChartOptionsComponent {
     ) {}
 
     async presentPopover(ev: any) {
-        const componentProps: { showPhases?: boolean; showTotal?: boolean } = {};
+        const componentProps: Partial<Pick<ChartOptionsPopoverComponent, "showPhases" | "showTotal">> = {};
         if (this.showPhases !== null) {
             componentProps["showPhases"] = this.showPhases;
         }

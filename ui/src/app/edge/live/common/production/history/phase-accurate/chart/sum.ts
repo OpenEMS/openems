@@ -44,7 +44,7 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
             converter = (data: HistoryUtils.ChannelData, phase: string) =>
                 data[component.id + "ActualPower"]?.reduce<(number | null)[]>((arr, el, index) => {
                     arr.push(
-                        Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]),
+                        Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase]?.[index] ?? null),
                     );
                     return arr;
                 }, []);
