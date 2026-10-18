@@ -64,6 +64,26 @@ public class SaxPowerImplTest {
 	}
 
 	@Test
+	public void writeRegister() throws Exception {
+		var sut = new SaxPowerImpl();
+		new ComponentTest(sut)
+				.addReference("setModbus", new DummyModbusBridge("modbus0"))
+				.activate(MyConfig.create() //
+						.setId("ess0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(100) //
+						.setTimeout(60)
+						.build()) //
+				.next(new TestCase()
+						.input(SaxPower.ChannelId.CONTROL_MODE, 0)
+						.input(SaxPower.ChannelId.TIMEOUT, 300));
+
+		sut.applyPower(1000, 0);
+
+		sut.deactivate();
+	}
+
+	@Test
 	public void testDebugLog() throws Exception {
 		var sut = new SaxPowerImpl();
 		new ComponentTest(sut) //
