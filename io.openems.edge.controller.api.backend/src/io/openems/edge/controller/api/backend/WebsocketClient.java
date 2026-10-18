@@ -17,9 +17,11 @@ import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.CommonHttpHeader;
 import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.OnNotification;
 import io.openems.common.websocket.WebsocketUtils;
 import io.openems.common.websocket.WsData;
 import io.openems.edge.common.channel.ChannelUtils;
+import io.openems.edge.controller.api.backend.api.BackendEvent;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
@@ -28,7 +30,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	private final ControllerApiBackendImpl parent;
 	private final OnOpen onOpen;
-	private final OnNotification onNotification;
+	private final io.openems.common.websocket.OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
@@ -38,7 +40,6 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 				ClientReconnectorWorker.DEFAULT_CONFIG.withEventHandler(e -> onReconnectEvent(parent, e)));
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
-		this.onNotification = new OnNotification(parent);
 		this.onError = new OnError(parent);
 		this.onClose = (ws, code, reason, remote) -> {
 			final var serverUriStr = serverUri.toString();
@@ -53,6 +54,9 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			}
 
 			this.parent.getUnableToSendChannel().setNextValue(true);
+		};
+		this.onNotification = (websocket, notification) -> {
+			parent.getEventHandler().emit(new BackendEvent.Notification(notification));
 		};
 	}
 

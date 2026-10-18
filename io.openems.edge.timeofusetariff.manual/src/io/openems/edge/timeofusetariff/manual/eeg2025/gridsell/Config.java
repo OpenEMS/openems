@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
 		name = "Tariff Manual EEG 2025 Grid-Sell", //
-		description = "Implementation of a grid-sell tariff according to EEG 2025, with a fixed grid-sell price that is set to zero if the day-ahead market price is negative.")
+		description = "Implementation of a grid-sell tariff according to EEG 2025, with a fixed grid-sell price that is set to zero if the day-ahead market price is negative. Should be used together with a Tariff.SpotTariff provider.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -21,8 +21,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Fixed Grid-Sell Price in [Cent/kWh]", description = "Fixed price for electricity sold to the grid")
 	double fixedGridSellPrice() default 0.0;
 
-	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD, required = false)
+	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform. Deprecated.", type = AttributeType.PASSWORD, required = false)
 	String securityToken() default "";
+
+	@AttributeDefinition(name = "Service Ranking", description = "Service ranking; higher values are preferred.")
+	int service_ranking() default 20;
 
 	String webconsole_configurationFactory_nameHint() default "Tariff Manual EEG 2025 Grid-Sell [{id}]";
 }

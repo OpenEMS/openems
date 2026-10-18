@@ -7,6 +7,7 @@ import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.channel.PersistencePriority;
+import io.openems.edge.controller.api.backend.api.BackendFeature;
 
 @ObjectClassDefinition(//
 		name = "Controller Api Backend", //
@@ -51,6 +52,12 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
+
+	@AttributeDefinition(name = "Use default features", description = "Enables all default features (DATA_PROVIDER & UPLOAD_CHANNEL_DATA). If you want to use only a subset of the default features, set this to false and select the features you want to use in the 'Supported features' field.")
+	boolean useDefaultFeatures() default true;
+
+	@AttributeDefinition(name = "Supported features", description = "Supported features by this backend connection. A few of the features could also be enabled by enabling useDefaultFeatures.")
+	BackendFeature[] supportedFeatures() default {};
 
 	String webconsole_configurationFactory_nameHint() default "Controller Api Backend [{id}]";
 }

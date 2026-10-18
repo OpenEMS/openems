@@ -552,6 +552,16 @@
 		</dependency>
 		<dependency>
 			<!--
+			Java Hamcrest
+			Changelog: https://github.com/hamcrest/JavaHamcrest/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<!--
 			Java mDNS Library
 			Changelog: https://github.com/jmdns/jmdns/releases
 			-->

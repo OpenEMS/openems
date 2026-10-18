@@ -134,6 +134,31 @@ public record UrlBuilder(//
 	}
 
 	/**
+	 * Creates a copy of the current {@link UrlBuilder} with the path append.
+	 *
+	 * @param path the path to append
+	 * @return the copy of the {@link UrlBuilder} with the path appended
+	 */
+	public UrlBuilder withAddedPath(String path) {
+		var pathToAdd = (this.path == null || !this.path.endsWith("/")) && !path.startsWith("/") ? "/" + path : path;
+		var newPath = this.path != null ? this.path + pathToAdd : pathToAdd;
+		return new UrlBuilder(this.scheme, this.host, this.port, newPath, this.queryParams, this.fragment);
+	}
+
+	/**
+	 * Creates a copy of the current {@link UrlBuilder} with the path part replaced.
+	 * Can be used to apply data to a placeholder.
+	 *
+	 * @param partToReplace the part to replace
+	 * @param replacement   the replacement string
+	 * @return the copy of the {@link UrlBuilder} with the path part replaced
+	 */
+	public UrlBuilder withPathReplace(String partToReplace, String replacement) {
+		var newPath = this.path.replace(partToReplace, replacement);
+		return new UrlBuilder(this.scheme, this.host, this.port, newPath, this.queryParams, this.fragment);
+	}
+
+	/**
 	 * Creates a copy of the current {@link UrlBuilder} with the new query parameter
 	 * added.
 	 * 
