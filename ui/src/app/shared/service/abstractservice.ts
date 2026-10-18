@@ -25,7 +25,7 @@ export abstract class AbstractService extends ErrorHandler {
     abstract getDocsLang(): string;
 
     /**
-   * Shows a nofication using toastr
+   * Shows a notification using toastr
    */
     abstract notify(notification: DefaultTypes.Notification): void;
 

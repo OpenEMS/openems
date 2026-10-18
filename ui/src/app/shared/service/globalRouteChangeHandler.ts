@@ -25,7 +25,7 @@ export class GlobalRouteChangeHandler {
             filter(event => event instanceof RoutesRecognized),
             map(event => {
                 let data: Data | null = null;
-                let route: ActivatedRouteSnapshot | null = event["state"].root;
+                let route: ActivatedRouteSnapshot | null = event.state.root;
 
                 while (route) {
                     data = (route.data && Object.keys(route.data).length > 0) ? route.data : data;
