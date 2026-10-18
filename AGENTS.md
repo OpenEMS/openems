@@ -19,6 +19,7 @@ Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 - Use the existing Utils classes where possible (e.g. `io.openems.common.utils.*` like `JsonUtils`, `TextProvider`, `ReflectionUtils`, or `io.openems.edge.common.channel.ChannelUtils`) instead of hand-rolled helpers; this applies to production code and tests.
 - Run the narrowest relevant validation for the changed area.
 - Do not bump dependencies, wrappers, plugins, or introduce new frameworks unless explicitly requested.
+- Never create a Git commit without asking the user first. Leave changes uncommitted for review; commit only after the user explicitly confirms (or asks you to commit).
 
 ## Java / Edge / Backend
 

@@ -51,6 +51,7 @@ import io.openems.edge.common.jsonapi.Key;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.backend.api.BackendEvent;
+import io.openems.edge.controller.api.backend.api.BackendFeature;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
@@ -185,6 +186,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected synchronized void deactivate() {
 		super.deactivate();
+
 		this.resendHistoricDataWorkerFactory.unget(this.resendHistoricDataWorker);
 		this.resendHistoricDataWorker = null;
 		this.sendChannelValuesWorker.deactivate();
@@ -293,4 +295,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		return this.backendEventsEmitter;
 	}
 
+	@Override
+	public BackendFeature[] getSupportedFeatures() {
+		return this.config.supportedFeatures();
+	}
 }

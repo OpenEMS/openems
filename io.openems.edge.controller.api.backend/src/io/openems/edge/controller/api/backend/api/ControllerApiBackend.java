@@ -103,4 +103,10 @@ public interface ControllerApiBackend extends Controller, OpenemsComponent, org.
 	 */
 	Subscribable<BackendEvent> getEventHandler();
 
+	/**
+	 * Returns an array with all supported features from this backend.
+	 * 
+	 * @return Array with features this backend supports.
+	 */
+	public BackendFeature[] getSupportedFeatures();
 }

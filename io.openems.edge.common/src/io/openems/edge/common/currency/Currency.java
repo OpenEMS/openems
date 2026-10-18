@@ -41,6 +41,18 @@ public enum Currency implements OptionsEnum {
 	}
 
 	/**
+	 * Returns the corresponding Java currency.
+	 *
+	 * @return the Java currency, or {@code null} for {@link #UNDEFINED}
+	 */
+	public java.util.Currency getJavaCurrency() {
+		if (this.isUndefined()) {
+			return null;
+		}
+		return java.util.Currency.getInstance(this.getName());
+	}
+
+	/**
 	 * Converts the {@link CurrencyConfig} to the {@link Currency}.
 	 * 
 	 * @param config currencyConfig to be transformed

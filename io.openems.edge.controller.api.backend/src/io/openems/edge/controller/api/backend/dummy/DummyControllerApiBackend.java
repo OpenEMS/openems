@@ -15,6 +15,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.backend.api.BackendEvent;
+import io.openems.edge.controller.api.backend.api.BackendFeature;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 
 public class DummyControllerApiBackend extends AbstractDummyOpenemsComponent<DummyControllerApiBackend>
@@ -59,6 +60,11 @@ public class DummyControllerApiBackend extends AbstractDummyOpenemsComponent<Dum
 	@Override
 	public Subscribable<BackendEvent> getEventHandler() {
 		return this.eventEmitter;
+	}
+
+	@Override
+	public BackendFeature[] getSupportedFeatures() {
+		return new BackendFeature[0];
 	}
 
 	@Override

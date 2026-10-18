@@ -38,7 +38,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeCache;
 import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.edge.subscription.SubscriptionManager;
@@ -63,6 +62,7 @@ import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
@@ -342,11 +342,16 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 
 	private void handleSyncableRepositoryChange(SyncableRepository.ChangeEvent event) {
 		this.syncableRepositoryExecutor.submit("sendUpdates", () -> {
+			var server = this.server;
+			if (server == null) {
+				return;
+			}
+
 			getComponentLogger(this).info("Send syncable repository update to all edge managers ...");
 			try {
 				var allEntries = this.syncableRepository.getAllStaticEntries();
 
-				for (var connection : this.server.getConnections()) {
+				for (var connection : server.getConnections()) {
 					if (connection.getAttachment() == null || !(connection.getAttachment() instanceof WsData wsData)) {
 						continue;
 					}

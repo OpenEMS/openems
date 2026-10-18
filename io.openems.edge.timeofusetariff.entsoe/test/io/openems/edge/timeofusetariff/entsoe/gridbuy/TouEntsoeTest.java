@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.edge.common.currency.Currency.EUR;
+import static io.openems.edge.common.currency.Currency.UNDEFINED;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseToSchedule;
 import static java.time.LocalTime.MIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +36,7 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.common.bridge.http.time.periodic.DummyPeriodicExecutorFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.services.currency.DummyCurrencyExchange;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.EntsoeBiddingZone;
 import io.openems.edge.common.component.ClockProvider;
@@ -126,6 +128,7 @@ public class TouEntsoeTest {
 		new ComponentTest(entsoe) //
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("currencyExchange", new DummyCurrencyExchange()) //
 				.addReference("entsoeMarketPriceProviderPool", pool) //
 				.activate(MyConfig.create() //
 						.setId("tou0") //
@@ -170,6 +173,48 @@ public class TouEntsoeTest {
 		var resource = TouEntsoeTest.class.getResource("entsoe-response.xml");
 		assertNotNull(resource);
 		return Resources.toString(resource, StandardCharsets.UTF_8);
+	}
+
+	@Test
+	public void testUndefinedCurrencyFallsBackToRateOne() throws Exception {
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
+		final var clock = new TimeLeapClock(Instant.parse("2026-02-01T23:00:00Z"));
+		final var entsoe = new TouEntsoeImpl();
+		var dummyMeta = new DummyMeta() //
+				.withCurrency(UNDEFINED);
+
+		var pool = this.createPool(httpTestBundle.factory());
+
+		new ComponentTest(entsoe) //
+				.addReference("meta", dummyMeta) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("currencyExchange", new DummyCurrencyExchange()) //
+				.addReference("entsoeMarketPriceProviderPool", pool) //
+				.activate(MyConfig.create() //
+						.setId("tou0") //
+						.setSecurityToken("Unit-Test") //
+						.setBiddingZone(EntsoeBiddingZone.GERMANY) //
+						.setAncillaryCosts(buildJsonObject() //
+								.addProperty("dso", "BAYERNWERK") //
+								.build() //
+								.toString()) //
+						.setCalculateExpression("") //
+						.build())
+
+				.next(new TestCase("Successful response with undefined currency") //
+						.onBeforeProcessImage(() -> {
+							var testResponse = this.getTestEntsoeResponse();
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(testResponse));
+							httpTestBundle.runTasksImmediately();
+						}) //
+						.onAfterProcessImage(() -> {
+							// Prices are set with exchange rate 1.0 even if the global currency is not configured
+							assertNotEquals(TimeOfUsePrices.EMPTY_PRICES, entsoe.getPrices());
+						}) //
+						.output(TouEntsoe.ChannelId.HTTP_STATUS_CODE, 200) //
+						.output(TouEntsoe.ChannelId.UNABLE_TO_UPDATE_PRICES, false) //
+				) //
+		;
 	}
 
 	@Test
@@ -400,6 +445,7 @@ public class TouEntsoeTest {
 				.addReference("meta", dummyMeta) //
 				.addReference("entsoeMarketPriceProviderPool", pool) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("currencyExchange", new DummyCurrencyExchange()) //
 				.activate(MyConfig.create() //
 						.setId("tou0") //
 						.setSecurityToken("TEST") //

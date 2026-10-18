@@ -8,6 +8,7 @@ import com.google.gson.JsonNull;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
+import io.openems.common.jsonrpc.syncable.types.SyncableExchangeRateData;
 
 public sealed interface SyncableKey<VALUE> {
 	/**
@@ -23,6 +24,19 @@ public sealed interface SyncableKey<VALUE> {
 	 * @return the provider type
 	 */
 	SyncableProviderType getProviderType();
+
+	record CurrencyExchangeRates() implements SyncableKey<SyncableExchangeRateData> {
+
+		@Override
+		public JsonSerializer<SyncableExchangeRateData> getValueSerializer() {
+			return SyncableExchangeRateData.serializer();
+		}
+
+		@Override
+		public SyncableProviderType getProviderType() {
+			return SyncableProviderType.BACKEND_EDGE_SERVER;
+		}
+	}
 
 	record CurrentTimeInUnixTimestamp() implements SyncableKey<Long> {
 		@Override
@@ -67,6 +81,8 @@ public sealed interface SyncableKey<VALUE> {
 	 */
 	static JsonSerializer<SyncableKey<?>> keySerializer() {
 		final var polymorphicSerializer = PolymorphicSerializer.<SyncableKey<?>>create()
+				.add(CurrencyExchangeRates.class, emptyObjectSerializer(CurrencyExchangeRates::new),
+						CurrencyExchangeRates.class.getSimpleName()) //
 				.add(CurrentTimeInUnixTimestamp.class, emptyObjectSerializer(CurrentTimeInUnixTimestamp::new),
 						CurrentTimeInUnixTimestamp.class.getSimpleName()) //
 				.add(TimeDataTransferAllowed.class, emptyObjectSerializer(TimeDataTransferAllowed::new),

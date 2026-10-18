@@ -1,6 +1,7 @@
 package io.openems.backend.metadata.file;
 
 import com.google.gson.JsonObject;
+
 import io.openems.backend.common.metadata.Edge;
 
 public class MyEdge extends Edge {

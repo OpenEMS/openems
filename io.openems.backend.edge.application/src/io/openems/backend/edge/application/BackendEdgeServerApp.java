@@ -78,7 +78,7 @@ public class BackendEdgeServerApp {
 	}
 
 	/**
-	 * Sends the given request to the specified edge id. When the fems is not
+	 * Sends the given request to the specified edge id. When the edge is not
 	 * available, a JSONRPC_SEND_FAILED OpenemsError is thrown.
 	 * 
 	 * @param edgeId  Edge id to send the request to.

@@ -2,10 +2,10 @@ package io.openems.edge.timeofusetariff.entsoe.gridbuy;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.timeofusetariff.api.TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
-import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 
 import java.time.Instant;
+import java.util.Currency;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.services.currency.CurrencyExchange;
 import io.openems.common.types.MarketPriceData;
 import io.openems.common.utils.TimeRangeValues;
 import io.openems.edge.common.channel.value.Value;
@@ -59,14 +60,19 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Reference
 	private ComponentManager componentManager;
 
+	@Reference
+	private CurrencyExchange currencyExchange;
+
 	private TouManualHelper helper = TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 	private EntsoeMarketPriceProvider priceProvider;
 	private PriceCalculatorXY priceCalculator;
+	private MarketPriceData lastPriceData;
 
 	private final Consumer<MarketPriceUpdateEvent> onUpdateEvent = this::onUpdateEvent;
 	private final Consumer<MarketPriceData> onNewPrices = this::setPrices;
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> this
 			.reloadPricesDueToCurrencyChange();
+	private final Consumer<Void> onExchangeRatesChange = v -> this.reloadPricesDueToCurrencyChange();
 
 	public TouEntsoeImpl() {
 		super(//
@@ -76,9 +82,10 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	}
 
 	private void reloadPricesDueToCurrencyChange() {
-		if (this.priceProvider != null) {
-			this.logInfo(this.log, "Triggering price update due to currency change ...");
-			this.setPrices(this.priceProvider.getMarketPrices().getValue());
+		var lastData = this.lastPriceData;
+		if (lastData != null) {
+			this.logInfo(this.log, "Triggering price update due to currency or exchange rates change ...");
+			this.setPrices(lastData);
 		}
 	}
 
@@ -105,6 +112,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
 
+		this.currencyExchange.onExchangeRatesChanged().subscribe(this.onExchangeRatesChange);
+
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
 	}
@@ -128,6 +137,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		super.deactivate();
 
 		this.meta.getCurrencyChannel().removeOnChangeCallback(this.onCurrencyChange);
+		this.currencyExchange.onExchangeRatesChanged().unsubscribe(this.onExchangeRatesChange);
 
 		if (this.priceProvider != null) {
 			this.priceProvider.getMarketPrices().unsubscribe(this.onNewPrices);
@@ -159,13 +169,22 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	}
 
 	protected void setPrices(MarketPriceData marketPriceData) {
+		this.lastPriceData = marketPriceData;
+
 		if (marketPriceData == null) {
 			this.prices.set(null);
 			return;
 		}
 
-		final var globalCurrency = this.meta.getCurrency();
-		final double exchangeRate = getExchangeRateOrElse(marketPriceData.getCurrency(), globalCurrency, 1.);
+		final var globalCurrency = this.meta.getCurrency().getJavaCurrency();
+		final double exchangeRate;
+		if (globalCurrency == null) {
+			this.logWarn(this.log, "Global currency is not configured. Using exchange rate 1.0.");
+			exchangeRate = 1.0;
+		} else {
+			exchangeRate = this.currencyExchange
+					.getExchangeRate(Currency.getInstance(marketPriceData.getCurrency()), globalCurrency).orElse(1.0);
+		}
 		final var gridFees = this.helper.getPrices();
 
 		final var processedPrices = GridBuyUtils.processPrices(this.componentManager.getClock(), this.priceCalculator,

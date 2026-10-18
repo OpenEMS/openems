@@ -32,7 +32,7 @@ import io.openems.edge.controller.api.backend.api.BackendEvent;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import io.openems.edge.controller.api.backend.api.NoBackendAvailableException;
 
-@Component(service = SyncableRepository.class)
+@Component(immediate = true)
 public class BackendSyncableRepository implements SyncableRepository {
 	private static final int DELAYS_IN_SECONDS_BEFORE_UNSUBSCRIBE = 30;
 
@@ -61,7 +61,8 @@ public class BackendSyncableRepository implements SyncableRepository {
 
 	@Activate
 	protected synchronized void activate() {
-		this.executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("BackendSyncableRepository").build());
+		this.executor = Executors
+				.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("BackendSyncableRepository").build());
 	}
 
 	@Deactivate
