@@ -16,7 +16,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.openems.common.websocket.CommonHttpHeader;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import io.openems.common.event.EventEmitter;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -40,6 +40,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
+import io.openems.common.websocket.CommonHttpHeader;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,6 +50,7 @@ import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.Key;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.api.backend.api.BackendEvent;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
@@ -82,6 +84,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	protected ComponentManager componentManager;
 	@Reference
 	protected Cycle cycle;
+
+	protected EventEmitter<BackendEvent> backendEventsEmitter = new EventEmitter<>();
 
 	@Reference
 	private ResendHistoricDataWorkerFactory resendHistoricDataWorkerFactory;
@@ -282,6 +286,11 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	@Override
 	public String debugLog() {
 		return this.websocket.debugLog();
+	}
+
+	@Override
+	public EventEmitter<BackendEvent> getEventHandler() {
+		return this.backendEventsEmitter;
 	}
 
 }

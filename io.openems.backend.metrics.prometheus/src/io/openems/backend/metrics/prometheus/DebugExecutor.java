@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,11 +30,11 @@ public class DebugExecutor implements ExecutorService {
 	private static final String UNDEFINED_TASK_ID = "UNDEFINED";
 
 	private final String id;
-	private final ThreadPoolExecutor executor;
+	private final ExecutorService executor;
 	private final ConcurrentHashMap<String, AtomicInteger> activeTasks = new ConcurrentHashMap<>(100);
 	private final ConcurrentHashMap<String, AtomicInteger> taskCounter = new ConcurrentHashMap<>(100);
 
-	public DebugExecutor(String id, ThreadPoolExecutor executor) {
+	public DebugExecutor(String id, ExecutorService executor) {
 		super();
 		this.id = id;
 		this.executor = executor;

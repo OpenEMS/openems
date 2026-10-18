@@ -27,7 +27,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
  * Objects of this class are used to store additional data with websocket
  * connections of WebSocketClient and WebSocketServer.
  */
-public class WsData {
+public class WsData implements WsConnection {
 
 	private final Logger log = LoggerFactory.getLogger(WsData.class);
 
@@ -70,12 +70,7 @@ public class WsData {
 		return this.websocket;
 	}
 
-	/**
-	 * Sends a JSON-RPC request to a Websocket and registers a callback.
-	 *
-	 * @param request the JSON-RPC Request
-	 * @return a promise for a successful JSON-RPC Response
-	 */
+	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) {
 		this.debugLog(this.log, () -> "REQUEST " + request.toString());
 		var future = new CompletableFuture<JsonrpcResponseSuccess>();
@@ -89,12 +84,7 @@ public class WsData {
 		return future;
 	}
 
-	/**
-	 * Sends a JSON-RPC Notification to a WebSocket.
-	 *
-	 * @param notification the JSON-RPC Notification
-	 * @return true if sending was successful; false otherwise
-	 */
+	@Override
 	public boolean send(JsonrpcNotification notification) {
 		this.debugLog(this.log, () -> "NOTIFICATION " + toShortString(notification.toString(), 100));
 		return this.sendMessage(notification);

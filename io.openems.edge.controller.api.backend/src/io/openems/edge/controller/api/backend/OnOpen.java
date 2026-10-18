@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.edge.controller.api.backend.api.BackendEvent;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -31,6 +32,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		// Trigger resending data
 		this.parent.resendHistoricDataWorker.triggerNextRun();
+
+		this.parent.getEventHandler().emit(new BackendEvent.BackendConnectionEstablishedEvent());
 
 		return null; // No error
 	}

@@ -19,9 +19,9 @@ public class RootRequestHandler implements JsonApi {
 	private final MultipleJsonApiBinder binder = new MultipleJsonApiBinder();
 
 	/**
-	 * Binds a {@link JsonApi2}.
+	 * Binds a {@link JsonApi}.
 	 * 
-	 * @param jsonApi the {@link JsonApi2} to bind
+	 * @param jsonApi the {@link JsonApi} to bind
 	 */
 	@Reference(//
 			target = "(entry=" + ENTRY_POINT + ")", //
@@ -34,9 +34,9 @@ public class RootRequestHandler implements JsonApi {
 	}
 
 	/**
-	 * Unbinds a {@link JsonApi2}.
+	 * Unbinds a {@link JsonApi}.
 	 * 
-	 * @param jsonApi the {@link JsonApi2} to unbind
+	 * @param jsonApi the {@link JsonApi} to unbind
 	 */
 	public void unbindJsonApi(JsonApi jsonApi) {
 		this.binder.unbindJsonApi(jsonApi);
