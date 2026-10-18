@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Edge Time-of-Use Tariff Octopus Dynamic Germany
+Bundle-Description: Direct Octopus Dynamic DE GraphQL day-ahead tariff source
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+    ${buildpath},\
+    com.google.code.gson:gson;version='2.14.0',\
+    com.google.guava,\
+    io.openems.common,\
+    io.openems.common.bridge.http,\
+    io.openems.edge.common,\
+    io.openems.edge.timeofusetariff.api,
+
+-testpath: \
+	${testpath},\
+	org.jetbrains.kotlin.osgi-bundle,\
+	io.openems.wrapper.kotlinx-coroutines-core-jvm,
