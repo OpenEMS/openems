@@ -22,14 +22,16 @@ public class SaxPowerImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
-						.setTimeout(120) //
+						.setTimeout(60) //
 						.build())
 				.next(new TestCase() //
-						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600));
+						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600)
+						.input(SaxPower.ChannelId.TIMEOUT, 60)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 1));
 
 		sut.applyPower(0, 0);
 
-		assertEquals(Integer.valueOf(120), sut.getTimeoutChannel().getNextWriteValue().get());
+		assertEquals(Integer.valueOf(60), sut.getTimeoutChannel().getNextWriteValue().get());
 		assertEquals(Integer.valueOf(1), sut.getControlModeChannel().getNextWriteValue().get());
 		sut.deactivate();
 	}
@@ -45,7 +47,9 @@ public class SaxPowerImplTest {
 						.setModbusUnitId(100) //
 						.build()) //
 				.next(new TestCase() //
-						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600));
+						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600)
+						.input(SaxPower.ChannelId.TIMEOUT, 60)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 1));
 
 		sut.applyPower(1000, 0);
 		assertEquals(Integer.valueOf(2173), sut.getTargetPowerChannel().getNextWriteValue().get());
