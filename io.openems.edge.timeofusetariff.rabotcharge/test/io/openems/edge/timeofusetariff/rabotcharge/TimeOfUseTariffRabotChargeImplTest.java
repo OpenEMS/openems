@@ -199,8 +199,8 @@ public class TimeOfUseTariffRabotChargeImplTest {
 			if (url.contains("/connect/token")) {
 				return HttpResponse.ok(JsonUtils.buildJsonObject()//
 						.addProperty("access_token", "mock_partner_token_xyz") //
-						.addProperty("refresh_token", "dummy_refresh_token_value") // Required for OpenEMS standard
-																					// parsing
+						// Required for OpenEMS standard parsing
+						.addProperty("refresh_token", "dummy_refresh_token_value") //
 						.addProperty("expires_in", 3600) //
 						.build().toString());
 			}
