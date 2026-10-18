@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "PLEASE_CHOOSE": "Elija la hora",
+        "ROTATION": "Rotación",
+        "REPEAT_EACH": "Repetir cada",
+        "WEEK_DAY": "Día de la semana",
+        "NEXT_TASKS": "Próximas tareas",
+        "EDIT": "Editar",
+        "ACCEPT": "Aceptar",
+        "DELETE": "Eliminar",
+        "START": "Inicio",
+        "END": "Fin",
+        "DURATION": "Duración",
+        "MODE": "Modo de carga",
+        "FREQUENCY": "Repetir",
+        "ADD": "Añadir",
+        "FREQ": {
+            "DAILY": "Diaria",
+            "WEEKLY": "Semanal",
+            "MONTHLY": "Mensual",
+            "YEARLY": "Anual"
+        },
+        "MODE_SELECTION_PLACEHOLDER": "Seleccionar",
+        "VALIDATION_ERROR_1": "Especifique la hora de inicio",
+        "VALIDATION_ERROR_2": "Especifique la hora de fin",
+        "VALIDATION_ERROR_3": "Seleccione el modo de carga",
+        "VALIDATION_ERROR_4": "Especifique la hora de inicio en formato HH:mm y solo en cuartos de hora (00, 15, 30 o 45 minutos)",
+        "VALIDATION_ERROR_5": "Especifique la hora de fin en formato HH:mm y solo en cuartos de hora (00, 15, 30 o 45 minutos)",
+        "VALIDATION_ERROR_6": "La hora de fin debe ser posterior a la hora de inicio",
+        "VALIDATION_ERROR_7": "Falta la hora de inicio o la duración",
+        "VALIDATION_ERROR_8": "Especifique la recurrencia",
+        "VALIDATION_ERROR_9": "Establezca al menos una recurrencia",
+        "ADD_SUCCESS": "Tarea añadida correctamente a la programación",
+        "ADD_ERROR": "No se pudo añadir la tarea",
+        "EDIT_SUCCESS": "Tarea ajustada correctamente",
+        "EDIT_ERROR": "No se pudo personalizar la tarea",
+        "DELETE_SUCCESS": "Tarea eliminada correctamente",
+        "DELETE_ERROR": "No se pudo eliminar la tarea"
+    }
+}

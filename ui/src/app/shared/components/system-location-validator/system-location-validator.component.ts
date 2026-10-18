@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
@@ -12,8 +12,13 @@ import { ObjectUtils } from "../../utils/object/object-utils";
 import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { Edge } from "../edge/edge";
 import { FormlyUtils } from "../formly/formly-utils";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 import { GeoCodeJsonRpc } from "./json-rpc/geo-code-json-rpc";
 
 export type ComponentData = {
@@ -220,7 +225,7 @@ export class SystemLocationValidatorComponent implements OnInit {
 
     private async initTranslationsAndFields() {
         const [error, translations] = await PromiseUtils.Functions.handle(
-            Language.normalizeAdditionalTranslationFiles({ de: de, en: en }),
+            Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }),
         );
 
         if (error) {

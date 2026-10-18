@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "No data available",
             "NO_LOCAL_DATA_INFO": "Historical data is currently unavailable locally",
-            "NO_LOCAL_DATA_NOTICE": "Please use the FENECON Online-Monitoring on <a class=\"ion-link\" href=\"http://www.fenecon.de\" target=\"_blank\">www.fenecon.de</a>.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Oct",
             "OTHER_PERIOD": "Other period",
             "PERIOD": "Period",
@@ -231,7 +231,7 @@
                 "ACTIVE_POWER": "Active power",
                 "CONSUMPTION_WARNING": "Consumption & unknown producers",
                 "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
-                "ERROR_TOO_LONG": "The display of the data is partly not possible due to reconstruction work on our servers. Your data for this period is not lost. Alternatively, it is still possible to view the historical data via <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>local monitoring</a>. We ask for your understanding.",
+                "ERROR_TOO_LONG": "",
                 "GRID_METER": "Grid meter",
                 "PRODUCTION_METER": "Production meter",
                 "REACTIVE_POWER": "Reactive power",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "3-phase",
                     "HYSTERESIS": "Minimum switching time of the charging station active",
                     "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes.",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Note: When using this mode, an error may currently occur in combination with the KEBA P40. We therefore recommend not using this mode for the time being and choosing the „Automatic“ mode with „Guarantee minimum charge“ enabled instead.",
                     "LINK_TO_DOCUMENTATION": "Mehr Informationen",
                     "MAX_ENERGY_RESTRICTION": "Limit maximum energy per charge",
                     "MINIMUM": "PV Surplus with guaranteed charge",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Base mode",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Note: An error may occur when using this mode in combination with the KEBA P40. We therefore recommend not using this mode for now and using the „PV surplus with guaranteed charge“ or „Fast charging“ mode temporarily instead.",
                     "SCHEDULE": {
                         "ADD_TASK": "Add task",
                         "SCHEDULE": "Schedule"
@@ -568,27 +568,12 @@
                     "TOTAL_AC": "Total AC",
                     "TOTAL_DC": "Total DC"
                 },
-                "SYSTEM": {
-                    "INDUSTRIAL": {
-                        "BMS_HARD_RESET": "BMS hard reset",
-                        "CLEAR_COOLING_UNIT_ERRORS_HEADER": "Cooling unit reset:",
-                        "CLEAR_COOLING_UNIT_ERRORS_TEXT": "necessary for cooling unit errors",
-                        "MAINTENANCE_WINDOW": "Maintenance window",
-                        "NOTE": "Starts or stops the entire system, including battery inverter and batteries",
-                        "RESET": "RESET",
-                        "SYSTEM_ERROR_ACKNOWLEDGE_HEADER": "System error acknowledge:",
-                        "SYSTEM_ERROR_ACKNOWLEDGE_TEXT": "includes system components, batteries, inverters, ESS"
-                    },
-                    "OVERALL_SYSTEM": "Overall system",
-                    "RPC_FAILED": "Command execution failed",
-                    "RPC_SUCCESS": "Command execution successfully"
-                },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
                     "CHART_TITLE": "Planned Schedule",
                     "CHART_WARNING_NOTE": "The graphic shows the past three hours as well as the future planned operating mode for the period for which the dynamic grid purchase prices are available. Please note that the planned schedule is subject to continuous recalculation and may change throughout the day.",
                     "CONTROL_MODE_DESCRIPTION": {
-                        "CHARGE_CONSUMPTION": "By actively charging the battery from grid in periods of low electricity prices, buying energy in periods with high price can be avoided.<br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: Precondition for the German Renewable Energy Sources Act (EEG 2023) grant is that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function the battery is charged with energy from the grid. This energy is, depending on the individual power-supply contract, probably generated from fossil and/or nuclear power sources. Thus we cannot guarantee that the battery is exclusively charged with energy gained from renewable sources and/or pit gas."
+                        "CHARGE_CONSUMPTION": ""
                     },
                     "EEG_2025_DESCRIPTION": "The graph shows the expected future grid feed-in and the projected feed-in tariff under the EEG 2025. This is taken into account when calculating the optimal operating mode. The system attempts to keep grid feed-in as low as possible during periods when no tariff is paid. Please note that the forecast is continuously recalculated and may therefore change throughout the day.",
                     "EEG_2025_HEADER": "EEG 2025 Forecast",
@@ -853,11 +838,11 @@
         "IS_OFFLINE": "OpenEMS is offline!",
         "LOGGED_IN_AS": "Logged in as",
         "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
-        "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
+        "NO_EDGE_FOR_USER": "Sorry, no {{ edgeShortName }} has been associated with your account yet.",
         "OFFLINE_SINCE": "Offline since",
         "TO_ENERGYMONITOR": "To Energymonitor...",
         "TYPE": "Type",
-        "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point."
+        "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{ edgeShortName }} has been commissioned by an installer, you will see it at this point."
     },
     "JS_SCHEDULE": {
         "ADD_EVENT": "Add Event",
@@ -880,9 +865,7 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Authentication Failed",
-        "DEMO_ACCESS": "Demo Access",
         "EMPLOYEE_LOGIN": "Employee Login",
-        "ENERGY_JOURNEY_SLOGAN": "You are part of the energy journey",
         "PASSWORD_LABEL": "Password",
         "PASSWORD_RESET": "Reset Password",
         "PREAMBLE": "Please enter your password or submit the default value to login as a guest.",
@@ -895,11 +878,9 @@
         "ACCESS_LEVEL": "Access Level",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Settings",
         "EDGE_SYSTEM_SETTINGS": "System Settings",
         "FAVORITES": "Favorites",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
@@ -907,7 +888,6 @@
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
             "HEATING_ROOM": "Heating"
         },
-        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
         "INDEX": "Index",
         "LOGOUT": "Sign Out",
         "MENU": "Menu",
@@ -950,64 +930,12 @@
         "LOGGED_IN_AS": "Logged in as '{{ value }}'."
     },
     "OFFLINE": {
-        "DEFAULT": {
-            "STEP_CONTACT_INSTALLER": {
-                "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact your <b>electrician/installer</b>.",
-                "HEADER": "Contact Installer"
-            },
-            "STEP_EMS_RESTART": {
-                "HEADER": "Restart {{edgeShortName}} and check LAN connection"
-            },
-            "STEP_FIREWALL": {
-                "DESCRIPTION": "Firewall settings can limit the internet connection to the {{edgeShortName}}. This happens especially when putting the system into service for the first time. Please use the <a href={{link}} target=\"_blank\">instructions</a> to check the ports and services that are active on {{edgeShortName}}.",
-                "HEADER": "Check port forwarding/firewall settings"
-            },
-            "STEP_SERVICE": {
-                "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact our service department:<br>By e-mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> or via phone: +49 9903 6280-0 (Mon. through Thurs.: 08:00 to 12:00 h | 13:00 to 17:00 h | Fri.: 08:00 to 12:00 h | 13:00 to 17:00 h)",
-                "HEADER": "Contact FENECON Service"
-            },
-            "STEP_TEST_WIFI_CONNECTION": {
-                "DESCRIPTION": "<p><b>a)</b> Disconnect the LAN cable from the Home-{{edgeShortName}} box ('LAN' interface) and connect it to a laptop/PC (make sure to disable the Wi-Fi adapter). If the laptop/PC successfully establishes an internet connection, proceed to step 3, otherwise proceed to b.</p><p><b>b)</b> If the laptop/PC does not connect to the internet, connect the device directly to the router via a LAN cable to ensure that the router is functioning correctly (without additional cable length and without other network devices in between).</p><p>→ If the router is functioning, the LAN cable, a Wi-Fi repeater, or a powerline adapter may not be forwarding the signal correctly. You can find more information in the product-specific instructions from the respective manufacturer.</p>",
-                "HEADER": "Check router connection with laptop"
-            }
-        },
-        "EDGE": {
-            "DESCRIPTION": "If the {{edgeShortName}} has been restarted, please wait a moment until the restart has been completed.",
-            "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Local access currently not possible"
-        },
         "GENERAL": {
             "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
             "EMS_OFFLINE": "{{edgeShortName}} is offline",
             "MORE_INFO": "More Info",
-            "STEP_TEST_WIFI_CONNECTION": {
-                "CHILD_1": {
-                    "DESCRIPTION": "Connect your computer directly to the router via LAN cable. Make sure there are no additional cables or network devices (like WiFi amplifiers or switches) connected in between to ensure that your router works correctly. If again no internet connection could be established, please follow the product-specific instructions by the respective manufacturer of your network device(s) to obtain further information.",
-                    "HEADER": "-> Still no internet connection"
-                },
-                "CHILD_2": {
-                    "DESCRIPTION": "Continue to step 3) Check port forwarding/firewall settings.",
-                    "HEADER": "-> Internet set up via laptop"
-                },
-                "DESCRIPTION": "In the next step, test the router function by unplugging the LAN plug on the connection box of the {{edgeShortName}} Box and connecting it to a laptop or desktop PC. Please note: Turn off WiFi on this device.",
-                "HEADER": "Check internet connection"
-            },
-            "SUB_HEADER": "Your system has been <b>offline for more than 10 minutes?</b> The following can be checked on-site:",
-            "TIME_OUT": "The requested FEMS has been offline <b>for {{timeSinceOffline}}</b>.",
+            "TIME_OUT": "The requested {{ edgeShortName }} has been offline <b>for {{timeSinceOffline}}</b>.",
             "TRY": "Try refreshing the browser in 10 minutes."
-        },
-        "HOME_10": {
-            "STEP_EMS_RESTART": {
-                "DESCRIPTION": "On the top box of the storage tower, there is a cold device plug (colored in black and blue). Unplug it and wait 15 seconds. Plug the cold device plug back in and wait <b>5 to 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible.",
-                "HEADER": "{{edgeShortName}} Restart"
-            }
-        },
-        "HOME_20_30": {
-            "STEP_EMS_RESTART": {
-                "DESCRIPTION": "Restart the {{edgeShortName}} by pressing and holding the button on the top box of the storage tower at the front for 10 seconds. Now wait <b>5 - 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly inserted in the {{edgeShortName}} connection box. Now refresh the browser window of the Online Monitoring: if this action was successful, the error message should now be cancelled and the usual view of the {{edgeLongName}} Energy management system Online Monitoring should be visible."
-            }
-        },
-        "STEP_EMS_RESTART": {
-            "DESCRIPTION": "On the top of the battery storage tower, there is a push button located on the front. Press and hold it for 10 seconds. Now, please wait for 5 to 10 minutes (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible."
         }
     },
     "ORDER": {
@@ -1019,10 +947,6 @@
         "SORTING": "Sorting",
         "Z_TO_A": "Designation Z - A"
     },
-    "PAGE_HEADERS": {
-        "ENERGY_JOURNEY": "Analyse Battery extension",
-        "WRAP_UP_2025": "Your Wrap up 2025"
-    },
     "REGISTER": {
         "BUTTON": "Create",
         "CREATE_USER": "Create account",
@@ -1033,7 +957,7 @@
             "REQUIRED_FIELDS": "Please fill in all fields"
         },
         "FORM": {
-            "ACCEPT_AGB": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
+            "ACCEPT_GTC": "I confirm the <a target=\"_blank\" href={{link}}>GTC</a>.*",
             "CITY": "City",
             "COMPANY": "Company",
             "COMPANY_NAME": "Company name",
@@ -1044,7 +968,7 @@
             "EMAIL": "E-Mail",
             "FIRSTNAME": "First name",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href={{link}}>Privacy Policy</a> and Terms of Use.*"
+                "ACCEPT_PRIVACY_POLICY": "By creating an installer account, I declare that I have read and agree to the <a target=\"_blank\" href={{link}}>privacy policy</a> and terms of use.*"
             },
             "IS_ELECTRICIAN": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
             "LASTNAME": "Last name",
@@ -1052,9 +976,9 @@
             "PHONE": "Phone number",
             "PRIVATE": "Private",
             "STREET": "Street",
-            "SUBSCRIBE_NEWSLETTER": "Here you can subscribe to the <a href='https://erp.fenecon.de/fenmail' target='_blank'>FENECON newsletter</a>, which is published several times a year.",
+            "SUBSCRIBE_NEWSLETTER": "Here you can subscribe to the newsletter.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href={{link}}>Privacy Policy</a> and Terms of Use.*"
+                "ACCEPT_PRIVACY_POLICY": "By creating an account, I declare that I have read and agree to the <a target=\"_blank\" href={{link}}>privacy policy</a> and terms of use.*"
             },
             "ZIP": "Postal code"
         },

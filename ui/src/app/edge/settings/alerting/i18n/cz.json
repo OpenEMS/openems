@@ -1,0 +1,9 @@
+{
+    "ALERTING": {
+        "DELAY": "Zpoždění",
+        "CHECKBOX_HELP": "Při výskytu události obdržíte e-mail po nastavené době zpoždění.",
+        "FAULT": "Porucha",
+        "ONLINE_STATUS": "Stav online",
+        "OTHER_USERS": "Další uživatelé"
+    }
+}

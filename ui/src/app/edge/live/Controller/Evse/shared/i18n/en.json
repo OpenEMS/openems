@@ -47,7 +47,6 @@
             "EDIT": "Edit",
             "EDIT_ERROR": "Task could not be customized",
             "EDIT_SUCCESS": "Task successfully adjusted",
-            "EDIT_TASK": "Edit task",
             "END": "End",
             "FREQ": {
                 "DAILY": "Daily",
@@ -65,10 +64,7 @@
             "VALIDATION_ERROR_3": "Please select charging mode",
             "VALIDATION_ERROR_4": "Please specify the start time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
             "VALIDATION_ERROR_5": "Please specify the end time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
-            "VALIDATION_ERROR_6": "End time must be after start time",
-            "VALIDATION_ERROR_7": "Start time or duration is missing",
-            "VALIDATION_ERROR_8": "Please specify repetition",
-            "VALIDATION_ERROR_9": "Set at least one rotation"
+            "VALIDATION_ERROR_6": "End time must be after start time"
         },
         "SETTINGS": {
             "ENERGY_LIMIT": "Energy limit"

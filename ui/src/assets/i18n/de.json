@@ -200,7 +200,7 @@
             "NOV": "Nov",
             "NO_DATA": "keine Daten verfügbar",
             "NO_LOCAL_DATA_INFO": "Historische Daten sind derzeit lokal nicht verfügbar",
-            "NO_LOCAL_DATA_NOTICE": "Bitte besuchen Sie https://github.com/OpenEMS/openems für Updates zu diesem Thema.",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Okt",
             "OTHER_PERIOD": "Anderer Zeitraum",
             "PERIOD": "Zeitraum",
@@ -337,7 +337,7 @@
                     "FORCE_THREE_PHASE": "3-phasig",
                     "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
                     "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt.",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen.",
                     "LINK_TO_DOCUMENTATION": "Mehr Informationen",
                     "MAX_ENERGY_RESTRICTION": "Maximale Energie pro Ladevorgang begrenzen",
                     "MINIMUM": "PV-Überschuss mit garantierter Beladung",
@@ -380,7 +380,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Grundmodus",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit FEMS und der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. FENECON und KEBA arbeiten bereits mit Hochdruck an einer Lösung.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen.",
                     "SCHEDULE": {
                         "ADD_TASK": "Aufgabe hinzufügen",
                         "SCHEDULE": "Zeitplan"
@@ -567,11 +567,6 @@
                     "INVERTER": "Wechselrichter",
                     "TOTAL_AC": "Gesamt AC",
                     "TOTAL_DC": "Gesamt DC"
-                },
-                "SYSTEM": {
-                    "OVERALL_SYSTEM": "Gesamtsystem",
-                    "RPC_FAILED": "Befehl ausführen fehlgeschlagen",
-                    "RPC_SUCCESS": "Befehl erfolgreich ausgeführt"
                 },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
@@ -883,11 +878,9 @@
         "ACCESS_LEVEL": "Zugriffslevel",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Einstellungen",
         "EDGE_SYSTEM_SETTINGS": "Systemeinstellungen",
         "FAVORITES": "Favoriten",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
@@ -895,7 +888,6 @@
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
             "HEATING_ROOM": "Heizung"
         },
-        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
         "INDEX": "Übersicht",
         "LOGOUT": "Abmelden",
         "MENU": "Menü",
@@ -938,9 +930,12 @@
         "LOGGED_IN_AS": "Angemeldet als Benutzer '{{ value }}'."
     },
     "OFFLINE": {
-        "EDGE": {
-            "DESCRIPTION": "Im Falle eines Neustarts des {{edgeShortName}}-Gerät, warte bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde.",
-            "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich"
+        "GENERAL": {
+            "AVAILABILITY": "Der Online-Zugriff auf den Energiespeicher ist derzeit nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+            "EMS_OFFLINE": "{{edgeShortName}} ist offline",
+            "MORE_INFO": "Weitere Informationen",
+            "TIME_OUT": "Das angeforderte {{ edgeShortName }} ist bereits <b>seit {{timeSinceOffline}}</b> offline.",
+            "TRY": "Versuchen Sie, den Browser in 10 Minuten neu zu laden."
         }
     },
     "ORDER": {
@@ -962,6 +957,7 @@
             "REQUIRED_FIELDS": "Bitte alle Felder ausfüllen"
         },
         "FORM": {
+            "ACCEPT_GTC": "Ich bestätige die <a target=\"_blank\" href={{link}}>AGB</a>.*",
             "CITY": "Ort",
             "COMPANY": "Firma",
             "COMPANY_NAME": "Firmenname",
@@ -972,15 +968,17 @@
             "EMAIL": "E-Mail Adresse",
             "FIRSTNAME": "Vorname",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Mit der Erstellung eines Installateur-Kontos erkläre ich, dass ich die <a target=\"_blank\" href={{link}}>Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen habe und ihnen zustimme.*"
             },
+            "IS_ELECTRICIAN": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
             "LASTNAME": "Nachname",
             "PASSWORD": "Passwort",
             "PHONE": "Telefonnummer",
             "PRIVATE": "Privat",
             "STREET": "Straße | Hausnummer",
+            "SUBSCRIBE_NEWSLETTER": "Hier kannst du den Newsletter abonnieren.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Mit der Erstellung eines Kontos erkläre ich, dass ich die <a target=\"_blank\" href={{link}}>Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen habe und ihnen zustimme.*"
             },
             "ZIP": "PLZ"
         },

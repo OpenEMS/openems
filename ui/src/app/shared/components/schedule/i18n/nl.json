@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "PLEASE_CHOOSE": "Kies tijd",
+        "ROTATION": "Roteerpatroon",
+        "REPEAT_EACH": "Herhaal elke",
+        "WEEK_DAY": "Weekdag",
+        "NEXT_TASKS": "Volgende taken",
+        "EDIT": "Bewerken",
+        "ACCEPT": "Accepteren",
+        "DELETE": "Verwijderen",
+        "START": "Start",
+        "END": "Einde",
+        "DURATION": "Duur",
+        "MODE": "Laadmodus",
+        "FREQUENCY": "Herhalen",
+        "ADD": "Toevoegen",
+        "FREQ": {
+            "DAILY": "Dagelijks",
+            "WEEKLY": "Wekelijks",
+            "MONTHLY": "Maandelijks",
+            "YEARLY": "Jaarlijks"
+        },
+        "MODE_SELECTION_PLACEHOLDER": "Selecteren",
+        "VALIDATION_ERROR_1": "Specificeer de starttijd",
+        "VALIDATION_ERROR_2": "Specificeer de eindtijd",
+        "VALIDATION_ERROR_3": "Selecteer de laadmodus",
+        "VALIDATION_ERROR_4": "Specificeer de starttijd in HH:mm-formaat en alleen in kwartieren (00, 15, 30 of 45 minuten)",
+        "VALIDATION_ERROR_5": "Specificeer de eindtijd in HH:mm-formaat en alleen in kwartieren (00, 15, 30 of 45 minuten)",
+        "VALIDATION_ERROR_6": "De eindtijd moet na de starttijd liggen",
+        "VALIDATION_ERROR_7": "Starttijd of duur ontbreekt",
+        "VALIDATION_ERROR_8": "Specificeer de herhaling",
+        "VALIDATION_ERROR_9": "Stel ten minste één herhaling in",
+        "ADD_SUCCESS": "Taak succesvol toegevoegd aan het tijdschema",
+        "ADD_ERROR": "Taak kon niet worden toegevoegd",
+        "EDIT_SUCCESS": "Taak succesvol aangepast",
+        "EDIT_ERROR": "Taak kon niet worden aangepast",
+        "DELETE_SUCCESS": "Taak succesvol verwijderd",
+        "DELETE_ERROR": "Taak kon niet worden verwijderd"
+    }
+}
