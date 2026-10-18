@@ -9,6 +9,8 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 import io.openems.common.jsonrpc.syncable.types.SyncableExchangeRateData;
+import io.openems.common.types.BiddingZone;
+import io.openems.common.types.TariffData;
 
 public sealed interface SyncableKey<VALUE> {
 	/**
@@ -35,6 +37,29 @@ public sealed interface SyncableKey<VALUE> {
 		@Override
 		public SyncableProviderType getProviderType() {
 			return SyncableProviderType.BACKEND_EDGE_SERVER;
+		}
+	}
+
+	record SpotTariff(BiddingZone biddingZone) implements SyncableKey<TariffData> {
+
+		@Override
+		public JsonSerializer<TariffData> getValueSerializer() {
+			return TariffData.serializer();
+		}
+
+		@Override
+		public SyncableProviderType getProviderType() {
+			return SyncableProviderType.BACKEND_EDGE_SERVER;
+		}
+
+		static JsonSerializer<SpotTariff> keySerializer() {
+			return JsonSerializerUtil.jsonSerializer(//
+					json -> new SpotTariff(json.getAsJsonObjectPath().getEnum("biddingZone", BiddingZone.class)), //
+					obj -> {
+						return buildJsonObject() //
+								.addProperty("biddingZone", obj.biddingZone()) //
+								.build();
+					});
 		}
 	}
 
@@ -83,6 +108,7 @@ public sealed interface SyncableKey<VALUE> {
 		final var polymorphicSerializer = PolymorphicSerializer.<SyncableKey<?>>create()
 				.add(CurrencyExchangeRates.class, emptyObjectSerializer(CurrencyExchangeRates::new),
 						CurrencyExchangeRates.class.getSimpleName()) //
+				.add(SpotTariff.class, SpotTariff.keySerializer(), SpotTariff.class.getSimpleName()) //
 				.add(CurrentTimeInUnixTimestamp.class, emptyObjectSerializer(CurrentTimeInUnixTimestamp::new),
 						CurrentTimeInUnixTimestamp.class.getSimpleName()) //
 				.add(TimeDataTransferAllowed.class, emptyObjectSerializer(TimeDataTransferAllowed::new),

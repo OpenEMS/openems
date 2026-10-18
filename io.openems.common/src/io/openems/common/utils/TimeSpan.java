@@ -2,6 +2,8 @@ package io.openems.common.utils;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,6 +17,30 @@ public class TimeSpan {
 	 */
 	public static TimeSpan between(Instant startInclusive, Instant endExclusive) {
 		return new TimeSpan(startInclusive, endExclusive);
+	}
+
+	/**
+	 * Creates a new timespan with the earliest start date and the latest end date
+	 * of the passed timespans.
+	 *
+	 * @param timeSpans List of timespans, must not be empty.
+	 * @return A new {@link TimeSpan} object.
+	 */
+	public static TimeSpan rangeByTimeSpans(List<TimeSpan> timeSpans) {
+		if (timeSpans.isEmpty()) {
+			throw new IllegalArgumentException("TimeSpan list is empty");
+		}
+
+		final var start = timeSpans.stream() //
+				.map(TimeSpan::getStartInclusive) //
+				.min(Comparator.naturalOrder()) //
+				.get();
+		final var end = timeSpans.stream() //
+				.map(TimeSpan::getEndExclusive) //
+				.max(Comparator.naturalOrder()) //
+				.get();
+
+		return between(start, end);
 	}
 
 	private final Instant startInclusive;
@@ -107,5 +133,15 @@ public class TimeSpan {
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.startInclusive, this.endExclusive);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("Time[") //
+				.append(this.startInclusive) //
+				.append(" - ") //
+				.append(this.endExclusive) //
+				.append("]") //
+				.toString();
 	}
 }

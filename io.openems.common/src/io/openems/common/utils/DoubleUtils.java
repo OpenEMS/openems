@@ -62,6 +62,16 @@ public class DoubleUtils {
 		return valueOpt.getAsDouble();
 	}
 
+	/**
+	 * Rounds a monetary value to two decimal places.
+	 *
+	 * @param value the value to round
+	 * @return the rounded value with two decimal places
+	 */
+	public static double roundPrice(double value) {
+		return Math.round(value * 100.0) / 100.0;
+	}
+
 	@FunctionalInterface
 	public static interface DoubleToDoubleFunction {
 		/**

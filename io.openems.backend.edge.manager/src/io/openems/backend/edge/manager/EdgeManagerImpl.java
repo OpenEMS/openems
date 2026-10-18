@@ -33,6 +33,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -62,9 +63,11 @@ import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.syncable.SyncableEntry;
 import io.openems.common.logger.DebugLoggable;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -117,6 +120,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 
 	private WebsocketServer server = null;
 	private Config config;
+	private ImmutableList<SyncableEntry<?>> previousSentEntries;
 
 	public EdgeManagerImpl() {
 		super("Edge.Manager");
@@ -347,9 +351,18 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 				return;
 			}
 
-			getComponentLogger(this).info("Send syncable repository update to all edge managers ...");
 			try {
 				var allEntries = this.syncableRepository.getAllStaticEntries();
+				var changes = SyncableEntry.compareAndGetChanges(this.previousSentEntries, allEntries);
+				this.previousSentEntries = allEntries;
+				if (changes.isEmpty()) {
+					return;
+				}
+
+				var changesAsStr = changes.stream() //
+						.map(c -> StringUtils.toShortString(c.newEntry().toString(), 300)) //
+						.collect(joining(", "));
+				getComponentLogger(this).info("Send syncable repository update: {}", changesAsStr);
 
 				for (var connection : server.getConnections()) {
 					if (connection.getAttachment() == null || !(connection.getAttachment() instanceof WsData wsData)) {

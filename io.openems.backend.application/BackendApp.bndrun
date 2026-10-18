@@ -58,6 +58,8 @@
 	bnd.identity;id='io.openems.backend.metrics.prometheus',\
 	bnd.identity;id='io.openems.backend.oauthregistry',\
 	bnd.identity;id='io.openems.backend.simulator',\
+	bnd.identity;id='io.openems.backend.tariff',\
+	bnd.identity;id='io.openems.backend.tariff.provider',\
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
@@ -92,12 +94,17 @@
 	io.openems.backend.metrics.prometheus;version=snapshot,\
 	io.openems.backend.oauthregistry;version=snapshot,\
 	io.openems.backend.simulator;version=snapshot,\
+	io.openems.backend.tariff;version=snapshot,\
+	io.openems.backend.tariff.provider;version=snapshot,\
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
+	io.openems.common.tariff.api;version=snapshot,\
+	io.openems.common.tariff.entsoe;version=snapshot,\
+	io.openems.common.tariff.smard;version=snapshot,\
 	io.openems.core.logger;version=snapshot;startlevel=16,\
 	io.openems.core.referencetarget;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\

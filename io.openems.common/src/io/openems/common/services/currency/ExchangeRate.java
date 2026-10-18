@@ -6,6 +6,7 @@ import java.util.Currency;
 import java.util.Objects;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.utils.DoubleUtils;
 import io.openems.common.utils.JsonUtils;
 
 public class ExchangeRate {
@@ -40,7 +41,7 @@ public class ExchangeRate {
 	 * @return Target price.
 	 */
 	public double convertSourcePriceToTarget(double sourcePrice) {
-		return sourcePrice * this.rate;
+		return DoubleUtils.roundPrice(sourcePrice * this.rate);
 	}
 
 	/**
@@ -50,7 +51,7 @@ public class ExchangeRate {
 	 * @return Source price.
 	 */
 	public double convertTargetPriceToSource(double targetPrice) {
-		return targetPrice / this.rate;
+		return DoubleUtils.roundPrice(targetPrice / this.rate);
 	}
 
 	@Override

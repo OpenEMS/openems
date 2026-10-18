@@ -8,16 +8,22 @@ import io.openems.common.types.OptionsEnum;
  * constant name corresponds exactly to the 3-letter ISO 4217 code.
  */
 public enum Currency implements OptionsEnum {
-	UNDEFINED(-1), //
-	EUR(0), //
-	SEK(1), //
-	CHF(2), //
+	UNDEFINED(-1, null), //
+	EUR(0, findJavaCurrency("EUR")), //
+	SEK(1, findJavaCurrency("SEK")), //
+	CHF(2, findJavaCurrency("CHF")), //
 	;
 
-	private final int value;
+	private static java.util.Currency findJavaCurrency(String currencyCode) {
+		return java.util.Currency.getInstance(currencyCode);
+	}
 
-	private Currency(int value) {
+	private final int value;
+	private final java.util.Currency javaCurrency;
+
+	private Currency(int value, java.util.Currency javaCurrency) {
 		this.value = value;
+		this.javaCurrency = javaCurrency;
 	}
 
 	@Override
@@ -46,10 +52,7 @@ public enum Currency implements OptionsEnum {
 	 * @return the Java currency, or {@code null} for {@link #UNDEFINED}
 	 */
 	public java.util.Currency getJavaCurrency() {
-		if (this.isUndefined()) {
-			return null;
-		}
-		return java.util.Currency.getInstance(this.getName());
+		return this.javaCurrency;
 	}
 
 	/**

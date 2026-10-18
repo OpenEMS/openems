@@ -8,7 +8,7 @@ import java.util.Comparator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.types.EntsoeBiddingZone;
+import io.openems.common.types.BiddingZone;
 
 class SyncableKeyTest {
 	@Test
@@ -47,8 +47,8 @@ class SyncableKeyTest {
 			return 0.0F;
 		} else if (type == Boolean.class) {
 			return false;
-		} else if (type == EntsoeBiddingZone.class) {
-			return EntsoeBiddingZone.GERMANY;
+		} else if (type == BiddingZone.class) {
+			return BiddingZone.GERMANY;
 		} else {
 			throw new IllegalStateException("No dummy value available for type " + type.getSimpleName());
 		}

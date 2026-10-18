@@ -1,5 +1,7 @@
 package io.openems.edge.timeofusetariff.api;
 
+import io.openems.common.types.BiddingZone;
+
 public interface TariffManager {
 
 	/**
@@ -13,7 +15,7 @@ public interface TariffManager {
 	 * @return the grid-buy prices, or {@link TimeOfUsePrices#EMPTY_PRICES} if no
 	 *         prices are available
 	 */
-	public TimeOfUsePrices getGridBuyDayAheadPrices();
+	TimeOfUsePrices getGridBuyDayAheadPrices();
 
 	/**
 	 * Returns the day-ahead electricity prices for selling to the grid, for each
@@ -26,5 +28,24 @@ public interface TariffManager {
 	 * @return the grid-sell prices, or {@link TimeOfUsePrices#EMPTY_PRICES} if no
 	 *         prices are available
 	 */
-	public TimeOfUsePrices getGridSellDayAheadPrices();
+	TimeOfUsePrices getGridSellDayAheadPrices();
+
+	/**
+	 * Returns a tracked Spot-Tariff service for the given bidding zone.
+	 *
+	 * <p>
+	 * Callers must release the returned tracker via
+	 * {@link #ungetSpotTariff(SpotTariffTracker)} when it is no longer needed.
+	 *
+	 * @param biddingZone the bidding zone
+	 * @return the Spot-Tariff tracker for the bidding zone
+	 */
+	SpotTariffTracker getSpotTariff(BiddingZone biddingZone);
+
+	/**
+	 * Releases a previously acquired Spot-Tariff tracker.
+	 *
+	 * @param spotTariffTracker the tracker to release
+	 */
+	void ungetSpotTariff(SpotTariffTracker spotTariffTracker);
 }

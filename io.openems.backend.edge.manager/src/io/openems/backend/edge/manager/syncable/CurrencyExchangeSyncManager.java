@@ -27,11 +27,11 @@ public class CurrencyExchangeSyncManager {
 	@Reference
 	private SyncableRepository syncableRepository;
 
-	private final Consumer<Void> onExchangeRatesChangeFunc = v -> this.writePricesIntoSyncable();
+	private final Consumer<Void> onExchangeRatesChangeFunc = v -> this.writeRatesIntoSyncable();
 
 	@Activate
 	protected void activate() {
-		this.writePricesIntoSyncable();
+		this.writeRatesIntoSyncable();
 		this.currencyExchange.onExchangeRatesChanged().subscribe(this.onExchangeRatesChangeFunc);
 	}
 
@@ -40,7 +40,7 @@ public class CurrencyExchangeSyncManager {
 		this.currencyExchange.onExchangeRatesChanged().unsubscribe(this.onExchangeRatesChangeFunc);
 	}
 
-	private void writePricesIntoSyncable() {
+	private void writeRatesIntoSyncable() {
 		var exchangeRates = this.currencyExchange.getAllExchangeRates().toArray(ExchangeRate[]::new);
 		var syncableData = new SyncableExchangeRateData(exchangeRates);
 		this.syncableRepository.setStaticEntry(

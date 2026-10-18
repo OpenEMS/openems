@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import io.openems.common.utils.DoubleUtils;
+
 class CurrencyExchangeTest {
 	private static DummyCurrencyExchange exchange;
 
@@ -27,8 +29,10 @@ class CurrencyExchangeTest {
 		assertEquals(1.1408D, exchange.getExchangeRate(eur, usd).getAsDouble(), 0.0001);
 		assertEquals(0.876577D, exchange.getExchangeRate(usd, eur).getAsDouble(), 0.0001);
 
-		assertEquals(12.0 * 1.1408D, exchange.convertPrice(12.0D, eur, usd).getAsDouble(), 0.0001);
-		assertEquals(12.0 / 1.1408D, exchange.convertPrice(12.0, usd, eur).getAsDouble(), 0.0001);
+		assertEquals(DoubleUtils.roundPrice(12.0 * 1.1408D), exchange.convertPrice(12.0D, eur, usd).getAsDouble(),
+				0.0001);
+		assertEquals(DoubleUtils.roundPrice(12.0 / 1.1408D), exchange.convertPrice(12.0, usd, eur).getAsDouble(),
+				0.0001);
 
 		assertTrue(exchange.convertPrice(12.0, eur, rub).isEmpty());
 		assertTrue(exchange.getExchangeRate(eur, rub).isEmpty());

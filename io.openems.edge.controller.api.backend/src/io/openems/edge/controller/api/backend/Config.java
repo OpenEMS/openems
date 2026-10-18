@@ -53,7 +53,7 @@ import io.openems.edge.controller.api.backend.api.BackendFeature;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
-	@AttributeDefinition(name = "Use default features", description = "Enables all default features (DATA_PROVIDER). If you want to use only a subset of the default features, set this to false and select the features you want to use in the 'Supported features' field.")
+	@AttributeDefinition(name = "Use default features", description = "Enables all default features (DATA_PROVIDER & UPLOAD_CHANNEL_DATA). If you want to use only a subset of the default features, set this to false and select the features you want to use in the 'Supported features' field.")
 	boolean useDefaultFeatures() default true;
 
 	@AttributeDefinition(name = "Supported features", description = "Supported features by this backend connection. A few of the features could also be enabled by enabling useDefaultFeatures.")

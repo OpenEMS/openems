@@ -8,7 +8,11 @@ public class DummySyncableSubscription<T> implements SyncableSubscription<T> {
 	private final BehaviorSubject<SyncableEntry<T>> entrySubject;
 
 	public DummySyncableSubscription(SyncableEntry<T> entry) {
-		this.entrySubject = new BehaviorSubject<>(entry);
+		this(new BehaviorSubject<>(entry));
+	}
+
+	public DummySyncableSubscription(BehaviorSubject<SyncableEntry<T>> entrySubject) {
+		this.entrySubject = entrySubject;
 	}
 
 	@Override

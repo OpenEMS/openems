@@ -2,11 +2,13 @@ package io.openems.common.utils;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import org.slf4j.Logger;
@@ -85,9 +87,25 @@ public class BehaviorSubject<T> {
 	 *         {@link TimeoutException}
 	 */
 	public CompletableFuture<T> waitForNonNullValue(Duration maxWait) {
+		return this.waitUntil(Objects::nonNull, maxWait);
+	}
+
+	/**
+	 * Returns an {@link CompletableFuture} that returns when the check function
+	 * returns true for the value present in this BehaviorSubject. The future throws
+	 * an error if maxWait time is reached.
+	 *
+	 * @param check   This check needs to be true for the future to complete. The
+	 *                check is called with the current value of the BehaviorSubject.
+	 * @param maxWait Max duration to wait before a {@link TimeoutException} is
+	 *                thrown in the future.
+	 * @return {@link CompletableFuture} with either the non-null value or a
+	 *         {@link TimeoutException}
+	 */
+	public CompletableFuture<T> waitUntil(Predicate<T> check, Duration maxWait) {
 		CompletableFuture<T> future = new CompletableFuture<>();
 		Consumer<T> subscribeFunction = (T val) -> {
-			if (val != null) {
+			if (check.test(val)) {
 				future.complete(val);
 			}
 		};
