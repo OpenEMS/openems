@@ -17,8 +17,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.debugcycle.MetricsConsumer;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Component(//
@@ -28,14 +28,14 @@ import io.openems.common.utils.ThreadPoolUtils;
 public class DebugCycleExecutor implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(DebugCycleExecutor.class);
-	
+
 	@Reference(//
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY //
 	)
 	private volatile List<MetricsConsumer> debugCycleConsumer;
-	
+
 	@Reference(//
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			policy = ReferencePolicy.DYNAMIC, //
@@ -66,7 +66,7 @@ public class DebugCycleExecutor implements Runnable {
 		if (this.debugCycleConsumer.isEmpty()) {
 			return;
 		}
-		
+
 		for (var debugCycle : this.debugCycledObjects) {
 			// handle console logs
 			try {
@@ -80,12 +80,12 @@ public class DebugCycleExecutor implements Runnable {
 
 			// handle database metrics
 			final var metrics = debugCycle.debugMetrics();
-			if (metrics == null || metrics.isEmpty())  {
+			if (metrics == null || metrics.isEmpty()) {
 				continue;
 			}
-			
+
 			for (var consumer : this.debugCycleConsumer) {
-				try {				
+				try {
 					consumer.consumeMetrics(now, metrics);
 				} catch (Throwable e) {
 					this.log.warn("An Exception occurred while getting debugMetrics from {}", debugCycle, e);

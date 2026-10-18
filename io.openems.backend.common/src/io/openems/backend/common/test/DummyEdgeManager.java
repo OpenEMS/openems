@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.edge.EdgeCache;
+import io.openems.backend.common.edge.EdgeClient;
 import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -74,6 +75,11 @@ public class DummyEdgeManager implements EdgeManager {
 
 	@Override
 	public EdgeCache getEdgeCacheForEdgeId(String edgeId) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public EdgeClient getEdgeClientForEdgeId(String edgeId) {
 		throw new UnsupportedOperationException();
 	}
 }

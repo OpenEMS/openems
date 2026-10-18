@@ -26,7 +26,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	/**
 	 * Authenticated Edges with EdgeCache of remote connections.
 	 */
-	private final ConcurrentMap<String, EdgeCache> edges = Maps.newConcurrentMap();
+	private final ConcurrentMap<String, BackendEdgeClient> edges = Maps.newConcurrentMap();
 
 	private String id;
 
@@ -100,7 +100,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public void updateEdgeStatus(String edgeId, boolean isOnline) {
 		if (isOnline) {
-			this.edges.computeIfAbsent(edgeId, ignore -> new EdgeCache());
+			this.edges.computeIfAbsent(edgeId, ignore -> new BackendEdgeClient(edgeId, this));
 		} else {
 			this.edges.remove(edgeId);
 		}
@@ -132,28 +132,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
-	 * Gets the {@link EdgeCache} for the given Edge-ID.
-	 * 
+	 * Gets the {@link BackendEdgeClient} for the given Edge-ID.
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the {@link EdgeCache} or null
 	 */
-	public EdgeCache getEdgeCache(String edgeId) {
+	public BackendEdgeClient getEdgeClient(String edgeId) {
 		return this.edges.get(edgeId);
-	}
-
-	/**
-	 * Asserts that the {@link EdgeCache} is available.
-	 * 
-	 * @param edgeId the Edge-ID
-	 * @return the {@link EdgeCache}
-	 * @throws OpenemsException on error
-	 */
-	public EdgeCache assertEdgeCache(String edgeId) throws OpenemsException {
-		final var edgeCache = this.getEdgeCache(edgeId);
-		if (edgeCache == null) {
-			throw new OpenemsException("[" + edgeId + "] No EdgeCache available");
-		}
-		return edgeCache;
 	}
 
 	/**
