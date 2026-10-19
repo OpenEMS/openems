@@ -86,10 +86,12 @@ public class EvcsOpenWbImplTest {
 						.output(Evcs.ChannelId.STATUS, Status.CHARGING)) //
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> {
-							// Simulate energy imported
+							// Simulate energy imported. The absolute OpenWB counter is NOT written to
+							// ActiveConsumptionEnergy anymore (that channel is integrated from power);
+							// it only seeds the session start, so EnergySession is 0 at this point.
 							mqttBridge.simulateMessage("openWB/internal_chargepoint/0/get/imported", "12345678");
 						}) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 12345678L)) //
+						.output(Evcs.ChannelId.ENERGY_SESSION, 0)) //
 				.deactivate();
 	}
 

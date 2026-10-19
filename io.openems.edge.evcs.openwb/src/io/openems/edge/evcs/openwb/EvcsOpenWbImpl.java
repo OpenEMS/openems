@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.openwb;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -12,6 +13,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +41,18 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.OpenWB", //
 		immediate = true, //
 		configurationPolicy = REQUIRE)
-public class EvcsOpenWbImpl extends AbstractOpenemsComponent
-		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, ModbusSlave, MqttComponent {
+@EventTopics({ //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
+public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpenWb, ElectricityMeter, OpenemsComponent,
+		Evcs, TimedataProvider, ModbusSlave, MqttComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsOpenWbImpl.class);
 
@@ -55,10 +63,24 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 
 	private volatile BridgeMqtt mqttBridge;
 
+	/**
+	 * Calculates {@link ElectricityMeter.ChannelId#ACTIVE_CONSUMPTION_ENERGY} by
+	 * integrating the locally measured {@code ActivePower}. The base value is
+	 * restored from Timedata on start, so the energy counter continues where it
+	 * left off instead of importing the absolute OpenWB meter reading (which would
+	 * otherwise appear as a one-time consumption spike in the history on first
+	 * start).
+	 */
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
 	private Config config;
 	private String topicPrefix;
 	private MqttSubscription subscription;
 	private Integer energyStartSession = null;
+	// Last absolute energy counter [Wh] from the OpenWB 'imported' topic; used only
+	// for session-energy calculation, no longer for ActiveConsumptionEnergy.
+	private Integer lastImportedEnergy = null;
 
 	// State tracking for status calculation
 	private Boolean lastPlugState = null;
@@ -217,20 +239,24 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleImported(JsonElement json) {
+		// Absolute energy counter [Wh] of the OpenWB charge point.
 		var energyTotal = Math.round(json.getAsFloat());
+		this.lastImportedEnergy = energyTotal;
 
-		// Set energy channels directly from OpenWB readings
-		// EVCS only consumes energy, so production is always 0
+		// ActiveConsumptionEnergy is NOT set from this absolute counter anymore: it is
+		// integrated from ActivePower in handleEvent() (see calculateConsumptionEnergy)
+		// so the history does not record the device's pre-existing total as a one-time
+		// consumption spike. EVCS only consumes energy, so production stays 0.
 		this._setActiveProductionEnergy(0L);
-		this._setActiveConsumptionEnergy(energyTotal);
 
 		// Initialize energyStartSession if charging but not yet initialized.
 		// This handles the case when component is activated while already charging.
 		if (this.energyStartSession == null && this.lastChargeState != null && this.lastChargeState) {
 			this.energyStartSession = (int) energyTotal;
 		}
-		
-		// Calculate session energy
+
+		// Calculate session energy from the absolute device counter (its delta since
+		// session start is accurate and independent of the integrated channel).
 		if (this.energyStartSession != null) {
 			var energySession = (int) Math.max(0, energyTotal - this.energyStartSession);
 			this._setEnergySession(energySession);
@@ -291,9 +317,10 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	 * Starts a new charging session by recording the current energy total.
 	 */
 	private void startNewSession() {
-		var consumptionEnergy = this.getActiveConsumptionEnergy().get();
-		if (consumptionEnergy != null) {
-			this.energyStartSession = consumptionEnergy.intValue();
+		// Base the session on the absolute OpenWB counter, not on the integrated
+		// ActiveConsumptionEnergy channel.
+		if (this.lastImportedEnergy != null) {
+			this.energyStartSession = this.lastImportedEnergy;
 		}
 	}
 
@@ -305,6 +332,17 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	 */
 	private void _setMqttCommunicationFailed(boolean value) {
 		this.channel(MqttComponent.ChannelId.MQTT_COMMUNICATION_FAILED).setNextValue(value);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> //
+			this.calculateConsumptionEnergy.update(this.getActivePower().get());
+		}
 	}
 
 	@Override
