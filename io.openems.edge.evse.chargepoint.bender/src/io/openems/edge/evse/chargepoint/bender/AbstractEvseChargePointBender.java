@@ -13,7 +13,7 @@ import org.osgi.service.event.Event;
 
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -88,11 +88,11 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(216)), //
 						new DummyRegisterElement(218, 221),
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(222),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								ElementToChannelConverters.SCALE_FACTOR_3), //
 						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(224),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								ElementToChannelConverters.SCALE_FACTOR_3), //
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(226),
-								ElementToChannelConverter.SCALE_FACTOR_3)));
+								ElementToChannelConverters.SCALE_FACTOR_3)));
 	}
 
 	/**

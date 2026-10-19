@@ -24,7 +24,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -154,13 +154,13 @@ public class EvcsGoeModbusImpl extends AbstractOpenemsModbusComponent implements
 						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(110)),
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(112)),
 						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(114), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(116), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(118), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(120), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))); //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_1))); //
 	}
 
 	@Override

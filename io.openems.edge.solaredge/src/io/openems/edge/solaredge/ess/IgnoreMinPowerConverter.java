@@ -1,6 +1,7 @@
 package io.openems.edge.solaredge.ess;
 
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 
 /**
  * Even if there is no real power from PV and no Charge/Discharge Power, the
@@ -23,7 +24,7 @@ public class IgnoreMinPowerConverter extends ElementToChannelConverter {
 	 * @return the {@link ElementToChannelConverter}
 	 */
 	public static ElementToChannelConverter from(SolarEdgeEssImpl parent, ElementToChannelConverter converter) {
-		if (converter == DIRECT_1_TO_1) {
+		if (converter == ElementToChannelConverters.DIRECT_1_TO_1) {
 			return new IgnoreMinPowerConverter(parent);
 		}
 		return ElementToChannelConverter.chain(new IgnoreMinPowerConverter(parent), converter);
