@@ -21,6 +21,12 @@ export interface Environment {
     readonly production: boolean;
     debugMode: boolean;
 
+    /**
+     * Energy monitor in the live view of the new navigation: "ring" (default) or "flow" (node based energy flow with
+     * consumers and daily values).
+     */
+    readonly energyMonitor?: "ring" | "flow";
+
     readonly docsUrlPrefix: string;
     readonly api: {
         readonly SYSTEM_OUTAGE: string | null;

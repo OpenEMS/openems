@@ -1,0 +1,15 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Autarkie vandaag",
+                "CONSUMPTION_TODAY": "Verbruik vandaag",
+                "EMPTY_AT": "voldoende tot ~{{value}}",
+                "FULL_AT": "vol ~{{value}}",
+                "GRID_BUY_TODAY": "Netafname vandaag",
+                "GRID_SELL_TODAY": "Netteruglevering vandaag",
+                "PRODUCTION_TODAY": "Opwekking vandaag"
+            }
+        }
+    }
+}

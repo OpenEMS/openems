@@ -1,0 +1,15 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Autosuficiencia hoy",
+                "CONSUMPTION_TODAY": "Consumo hoy",
+                "EMPTY_AT": "dura hasta ~{{value}}",
+                "FULL_AT": "lleno ~{{value}}",
+                "GRID_BUY_TODAY": "Compra de red hoy",
+                "GRID_SELL_TODAY": "Venta a red hoy",
+                "PRODUCTION_TODAY": "Producción hoy"
+            }
+        }
+    }
+}
