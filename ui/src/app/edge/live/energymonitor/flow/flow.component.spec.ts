@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
-import { ChannelAddress, Currency, CurrentData, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { EnergyflowComponent } from "./flow.component";
 
@@ -40,11 +40,8 @@ describe("EnergyflowComponent", () => {
             idlePaths: [],
             consumers: [],
             today: null,
-            todayCost: null,
             evcss: [],
             meters: [],
-            currencyLabel: null,
-            currencyCode: "EUR",
             todayTimer: null,
             resizeObserver: null,
             lastCurrentData: null,
@@ -208,20 +205,6 @@ describe("EnergyflowComponent", () => {
             expect(component.socDash).toBe("0 999");
             expect(Object.keys(flowPowers(component))).toEqual(["production-consumption"]);
             expect(component.idlePaths.length).toBe(2);
-        });
-
-        it("shows the grid buy price when the currency is known", () => {
-            const component = createComponent({ currencyLabel: Currency.getCurrencyLabelByCurrency("EUR") });
-            component.onCurrentData(data({ "_sum/GridBuyPrice": 260 }));
-
-            expect(component.gridPrice).toContain("26");
-        });
-
-        it("hides the grid buy price without currency", () => {
-            const component = createComponent();
-            component.onCurrentData(data({ "_sum/GridBuyPrice": 260 }));
-
-            expect(component.gridPrice).toBeNull();
         });
     });
 
@@ -413,97 +396,8 @@ describe("EnergyflowComponent", () => {
         });
     });
 
-    describe("#updateTodayCost()", () => {
-        const QUARTER = 15 * 60 * 1000;
-        const start = new Date(2026, 9, 13, 10, 0).getTime();
-        const timestamps = [0, 1, 2].map((i) => new Date(start + i * QUARTER).toISOString());
-
-        function edgeWith(gridPower: (number | null)[], prices: (number | null)[]) {
-            return {
-                sendRequest: () =>
-                    Promise.resolve({
-                        result: {
-                            timestamps: timestamps,
-                            data: { "_sum/GridActivePower": gridPower, "_sum/GridBuyPrice": prices },
-                        },
-                    }),
-            };
-        }
-
-        function createCostComponent(edge: any): any {
-            const component = createComponent({ edge: edge, websocket: {} });
-            spyOn(component, "formatCurrency").and.callFake((value: number) => value.toFixed(3));
-            return component;
-        }
-
-        it("distributes the metered energy by grid buy power and prices each quarter hour", async () => {
-            const component = createCostComponent(edgeWith([1000, 0, 3000], [200, null, 300]));
-            await component.updateTodayCost(1000, null);
-
-            // 250 Wh x 200 /MWh + 750 Wh x 300 /MWh
-            expect(component.todayCost).toBe("0.275");
-        });
-
-        it("uses schedule prices when historic prices are missing", async () => {
-            const schedule = {
-                data: [
-                    { timestamp: new Date(start), _sum: { GridBuyPrice: 400 } },
-                    { timestamp: new Date(start), _sum: {} },
-                ],
-            };
-            const component = createCostComponent(edgeWith([1000, 1000, 0], [null, null, null]));
-            await component.updateTodayCost(2000, schedule);
-
-            // first quarter hour from the schedule, second with the last known price
-            expect(component.todayCost).toBe("0.800");
-        });
-
-        it("hides the cost without any price", async () => {
-            const component = createCostComponent(edgeWith([1000, 0, 0], [null, null, null]));
-            await component.updateTodayCost(1000, null);
-
-            expect(component.todayCost).toBeNull();
-        });
-
-        it("shows zero cost without grid buy", async () => {
-            const component = createCostComponent(edgeWith([0, -500, null], [200, 200, 200]));
-            await component.updateTodayCost(0, null);
-
-            expect(component.todayCost).toBe("0.000");
-        });
-
-        it("hides the cost when energy was bought but no power was recorded", async () => {
-            const component = createCostComponent(edgeWith([0, 0, 0], [200, 200, 200]));
-            await component.updateTodayCost(500, null);
-
-            expect(component.todayCost).toBeNull();
-        });
-
-        it("hides the cost without edge, energy or on errors", async () => {
-            const component = createCostComponent(null);
-            await component.updateTodayCost(1000, null);
-            expect(component.todayCost).toBeNull();
-
-            const failing = createCostComponent({ sendRequest: () => Promise.reject(new Error("offline")) });
-            failing.todayCost = "1.000";
-            await failing.updateTodayCost(1000, null);
-            expect(failing.todayCost).toBeNull();
-
-            const noEnergy = createCostComponent(edgeWith([1000, 0, 0], [200, 200, 200]));
-            await noEnergy.updateTodayCost(null, null);
-            expect(noEnergy.todayCost).toBeNull();
-        });
-    });
-
-    describe("#formatCurrency()", () => {
-        it("formats with the currency code and falls back for invalid codes", () => {
-            expect(createComponent({ currencyCode: "EUR" }).formatCurrency(1.5)).toContain("€");
-            expect(createComponent({ currencyCode: "invalid" }).formatCurrency(1.5)).toBe("1.50");
-        });
-    });
-
     describe("#updateToday()", () => {
-        it("sets the daily values, the predicted state of charge and calculates the cost", async () => {
+        it("sets the daily values and the predicted state of charge", async () => {
             const now = Date.now();
             const schedule = {
                 data: [
@@ -530,7 +424,6 @@ describe("EnergyflowComponent", () => {
                         }),
                 },
             });
-            const cost = spyOn(component, "updateTodayCost").and.returnValue(Promise.resolve());
             await component.updateToday();
 
             expect(component.today).toEqual({
@@ -540,7 +433,6 @@ describe("EnergyflowComponent", () => {
                 gridSell: 13800,
                 autarchy: 80,
             });
-            expect(cost).toHaveBeenCalledWith(3000, schedule);
             expect(component.socForecast).toEqual([{ time: schedule.data[1].timestamp, soc: 40 }]);
             // a 'from' other than midnight returns today and tomorrow
             expect((getSchedule.calls.mostRecent().args[2] as Date).getHours()).toBe(12);
@@ -552,11 +444,9 @@ describe("EnergyflowComponent", () => {
                 today: today,
                 service: { queryEnergy: () => Promise.reject(new Error("offline")) },
             });
-            const cost = spyOn(component, "updateTodayCost");
             await component.updateToday();
 
             expect(component.today).toBe(today);
-            expect(cost).not.toHaveBeenCalled();
         });
     });
 
@@ -589,7 +479,6 @@ describe("EnergyflowComponent", () => {
             component.afterIsInitialized();
             await new Promise((resolve) => setTimeout(resolve, 100));
 
-            expect(component.currencyCode).toBe("EUR");
             expect(component.translate.setTranslation).toHaveBeenCalled();
             expect(component.todayTimer).not.toBeNull();
             expect(component.compact).toBeTrue();

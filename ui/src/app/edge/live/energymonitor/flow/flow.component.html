@@ -47,9 +47,6 @@
       <svg [attr.x]="NODES.grid.x - 12" [attr.y]="NODES.grid.y - 40" width="24" height="24" viewBox="0 0 512 512" fill="currentColor" style="color: var(--ef-grid)" [innerHTML]="icon('flash-outline')"></svg>
       <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 4" class="node-value" text-anchor="middle">{{ formatPower(gridSell > 0 ? gridSell : gridBuy) }}</text>
       <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 20" class="node-label" text-anchor="middle">{{ (gridSell > 0 ? "GENERAL.GRID_SELL_ADVANCED" : "GENERAL.GRID_BUY_ADVANCED") | translate }}</text>
-      @if (gridPrice !== null) {
-        <text [attr.x]="NODES.grid.x" [attr.y]="NODES.grid.y + 34" class="node-label" text-anchor="middle">{{ gridPrice }}</text>
-      }
 
       <!-- consumption -->
       <circle [attr.cx]="NODES.consumption.x" [attr.cy]="NODES.consumption.y" [attr.r]="RADIUS" class="node" stroke="var(--ef-consumption)"></circle>
@@ -131,15 +128,6 @@
             <div class="value accent">{{ today.autarchy | number: "1.0-0" }}&nbsp;%</div>
           </div>
         </div>
-        @if (todayCost !== null) {
-          <div class="kpi" [title]="'EDGE.INDEX.ENERGYFLOW.COST_TODAY_HINT' | translate">
-            <ion-icon name="wallet-outline" style="color: var(--ef-grid)"></ion-icon>
-            <div>
-              <div class="label">{{ "EDGE.INDEX.ENERGYFLOW.COST_TODAY" | translate }}</div>
-              <div class="value">{{ todayCost }}</div>
-            </div>
-          </div>
-        }
       </div>
     }
   </div>

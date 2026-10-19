@@ -5,18 +5,20 @@ import { addHours, isSameDay, startOfToday } from "date-fns";
 import { batteryChargingOutline, batteryHalfOutline, carOutline, ellipsisHorizontal, flameOutline, flashOutline, homeOutline, shieldCheckmarkOutline, snowOutline, speedometerOutline, sunnyOutline, } from "ionicons/icons";
 import { v4 as uuidv4 } from "uuid";
 
-import { ChronoUnit } from "src/app/edge/history/shared";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
-import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Currency, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { LiveDataService } from "../../livedataservice";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 
 type NodeId = "production" | "grid" | "storage" | "consumption";
 
@@ -126,7 +128,6 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     protected soc: number | null = null;
     protected socDash: string = "0 999";
     protected storageEstimate: string | null = null;
-    protected gridPrice: string | null = null;
     protected hasStorage: boolean = false;
 
     protected flows: Flow[] = [];
@@ -140,16 +141,12 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         gridSell: number | null;
         autarchy: number | null;
     } | null = null;
-    /** Grid cost of today: sum over all quarter hours of grid buy energy x price of that quarter hour */
-    protected todayCost: string | null = null;
 
     protected readonly formatPower = Utils.CONVERT_WATT_TO_KILOWATT;
     protected readonly formatEnergy = EnergyflowComponent.formatEnergyValue;
 
     private evcss: EvcsComponent[] = [];
     private meters: EdgeConfig.Component[] = [];
-    private currencyLabel: Currency.Label | null = null;
-    private currencyCode: string = "EUR";
     private todayTimer: ReturnType<typeof setInterval> | null = null;
     private resizeObserver: ResizeObserver | null = null;
     private lastCurrentData: CurrentData | null = null;
@@ -244,16 +241,13 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     }
 
     protected override afterIsInitialized(): void {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
-
-        const meta = this.config?.getComponent("_meta");
-        const currency: string = meta ? this.config.getPropertyFromComponent<string>(meta, "currency") : null;
-        this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
-        this.currencyCode = currency ?? "EUR";
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
 
         this.updateToday();
         this.todayTimer = setInterval(() => this.updateToday(), 5 * 60 * 1000);
@@ -279,7 +273,6 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         const channels: ChannelAddress[] = [
             new ChannelAddress("_sum", "ProductionActivePower"),
             new ChannelAddress("_sum", "GridActivePower"),
-            new ChannelAddress("_sum", "GridBuyPrice"),
             new ChannelAddress("_sum", "ConsumptionActivePower"),
             new ChannelAddress("_sum", "EssSoc"),
             new ChannelAddress("_sum", "EssActivePower"),
@@ -328,12 +321,6 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
                 ? `${((this.SOC_CIRCUMFERENCE * Math.min(100, Math.max(0, this.soc))) / 100).toFixed(1)} 999`
                 : "0 999";
         this.storageEstimate = this.calculateStorageEstimate();
-
-        const price: number | null = c["_sum/GridBuyPrice"] ?? null;
-        this.gridPrice =
-            price != null && this.currencyLabel != null
-                ? Utils.CONVERT_PRICE_TO_CENT_PER_KWH(0, this.currencyLabel)(price)
-                : null;
 
         this.updateFlows();
         this.updateConsumers(c);
@@ -557,79 +544,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         return this.translate.instant(key, { value: value });
     }
 
-    /**
-     * Grid cost of today: the metered grid buy energy of today is distributed over the quarter hours in proportion to
-     * the average grid buy power of each quarter hour (the backend does not provide energy per 15 min), then multiplied
-     * with the grid buy price of that quarter hour and summed up. Works with dynamic tariffs. Hidden if no prices are
-     * available.
-     */
-    private updateTodayCost(gridBuyToday: number | null, schedule: GetSchedule.Response | null): Promise<void> {
-        if (this.edge == null || gridBuyToday == null) {
-            this.todayCost = null;
-            return Promise.resolve();
-        }
-        const QUARTER = 15 * 60 * 1000;
-        const from = startOfToday();
-        const request = new QueryHistoricTimeseriesDataRequest(
-            new Date(from),
-            new Date(from),
-            [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridBuyPrice")],
-            { value: 15, unit: ChronoUnit.Type.MINUTES },
-        );
-
-        return this.edge
-            .sendRequest<QueryHistoricTimeseriesDataResponse>(this.websocket, request)
-            .then((data) => {
-                // fallback prices from the energy schedule, by start of quarter hour
-                const schedulePrices = new Map<number, number>();
-                for (const e of schedule?.data ?? []) {
-                    if (e._sum.GridBuyPrice != null) {
-                        schedulePrices.set(Math.floor(e.timestamp.getTime() / QUARTER) * QUARTER, e._sum.GridBuyPrice);
-                    }
-                }
-                const power: (number | null)[] = data.result.data["_sum/GridActivePower"] ?? [];
-                const prices: (number | null)[] = data.result.data["_sum/GridBuyPrice"] ?? [];
-                const weights = power.map((p) => Math.max(0, p ?? 0));
-                const weightSum = weights.reduce((a, b) => a + b, 0);
-                if (weightSum <= 0) {
-                    this.todayCost = gridBuyToday > 0 ? null : this.formatCurrency(0);
-                    return;
-                }
-
-                let cost = 0;
-                let hasPrice = false;
-                let lastPrice: number | null = null;
-                data.result.timestamps.forEach((timestamp, i) => {
-                    const time = Math.floor(new Date(timestamp).getTime() / QUARTER) * QUARTER;
-                    const price = prices[i] ?? schedulePrices.get(time) ?? lastPrice;
-                    if (price == null) {
-                        return;
-                    }
-                    lastPrice = price;
-                    hasPrice = true;
-                    const wh = (weights[i] / weightSum) * gridBuyToday;
-                    // Wh / 1000 = kWh; x currency/MWh / 1000 = currency
-                    cost += ((wh / 1000) * price) / 1000;
-                });
-                this.todayCost = hasPrice ? this.formatCurrency(cost) : null;
-            })
-            .catch(() => {
-                this.todayCost = null;
-            });
-    }
-
-    private formatCurrency(value: number): string {
-        try {
-            return new Intl.NumberFormat(Language.getCurrentLanguage().i18nLocaleKey, {
-                style: "currency",
-                currency: this.currencyCode,
-            }).format(value);
-        } catch {
-            return value.toFixed(2);
-        }
-    }
-
-    /** Energy values of the current day, grid cost and predicted state of charge */
+    /** Energy values of the current day and predicted state of charge */
     private updateToday(): Promise<void> {
         const now = new Date();
         // a 'from' other than midnight returns two full days (today and tomorrow), midnight only one
@@ -637,7 +552,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             this.edge == null
                 ? Promise.resolve(null)
                 : GetSchedule.getSchedule(this.edge, this.websocket, addHours(startOfToday(), 12)).catch(() => null);
-        const gridBuy: Promise<number | null | undefined> = this.service
+        const energy: Promise<void> = this.service
             .queryEnergy(new Date(now), new Date(now), [
                 new ChannelAddress("_sum", "ProductionActiveEnergy"),
                 new ChannelAddress("_sum", "GridBuyActiveEnergy"),
@@ -655,20 +570,15 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
                     gridSell: d["_sum/GridSellActiveEnergy"] ?? null,
                     autarchy: Utils.calculateAutarchy(buy, consumption),
                 };
-                return buy ?? null;
             })
             .catch(() => {
                 // keep the last values; the daily summary is optional
-                return undefined;
             });
 
-        return Promise.all([gridBuy, schedule]).then(([buy, schedule]) => {
+        return Promise.all([energy, schedule]).then(([, schedule]) => {
             this.socForecast = (schedule?.data ?? [])
                 .filter((e) => e.timestamp > now && e._sum.EssSoc != null)
                 .map((e) => ({ time: e.timestamp, soc: e._sum.EssSoc }));
-            if (buy !== undefined) {
-                return this.updateTodayCost(buy, schedule);
-            }
         });
     }
 }

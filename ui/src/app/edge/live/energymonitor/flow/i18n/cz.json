@@ -1,0 +1,15 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Soběstačnost dnes",
+                "CONSUMPTION_TODAY": "Spotřeba dnes",
+                "EMPTY_AT": "vydrží do ~{{value}}",
+                "FULL_AT": "plná ~{{value}}",
+                "GRID_BUY_TODAY": "Nákup ze sítě dnes",
+                "GRID_SELL_TODAY": "Prodej do sítě dnes",
+                "PRODUCTION_TODAY": "Výroba dnes"
+            }
+        }
+    }
+}
