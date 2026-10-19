@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { DummyConfig } from "../components/edge/edgeconfig.spec";
 import { TestingUtils } from "../components/shared/testing/utils.spec";
@@ -13,7 +12,8 @@ describe("Utils", () => {
 
     it("#subtractSafely", () => {
         expect(Utils.subtractSafely(null, null)).toEqual(null);
-        expect(Utils.subtractSafely(null, undefined)).toEqual(null);
+        // Deliberately bypass the input type to verify undefined-value handling.
+        expect(Utils.subtractSafely(null, undefined!)).toEqual(null);
         expect(Utils.subtractSafely(0, null)).toEqual(0);
         expect(Utils.subtractSafely(1, 1)).toEqual(0);
         expect(Utils.subtractSafely(1, 2)).toEqual(-1);
@@ -52,35 +52,36 @@ describe("Utils", () => {
 
     it("+calculateOtherConsumption - evcs + consumptionMeters", () => {
         const expectedResult = [null, null, null, 565, 214, 561, 373];
-        expect(
+        // The runtime result preserves null readings despite the declared number[] return type.
+        expect<(number | null)[]>(
             Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, consumptionMeterComponents),
         ).toEqual(expectedResult);
     });
     it("+calculateOtherConsumption - only consumptionMeters", () => {
         const expectedResult2 = [null, null, null, 565, 214, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(
             expectedResult2,
         );
     });
     it("+calculateOtherConsumption - only evcs", () => {
         const expectedResult3 = [null, null, null, 565, 560, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(
             expectedResult3,
         );
     });
     it("+calculateOtherConsumption - no evcs + no consumptionMeters", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];
-        expect(Utils.calculateOtherConsumption(channelData, [], [], [])).toEqual(expectedResult4);
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], [], [])).toEqual(expectedResult4);
     });
     it("+calculateOtherConsumption - heat + consumptionMeters", () => {
         const expectedResult = [null, null, null, 565, 214, 561, 473];
-        expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(
             expectedResult,
         );
     });
     it("+calculateOtherConsumption - only heat", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];
-        expect(Utils.calculateOtherConsumption(channelData, [], heatComponents, [])).toEqual(expectedResult4);
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], heatComponents, [])).toEqual(expectedResult4);
     });
 
     it("+CONVERT_PRICE_TO_CENT_PER_KWH", () => {
