@@ -28,7 +28,7 @@ import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ServiceBinder;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -170,22 +170,22 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 						m(GoodWeStsBox.ChannelId.GENSET_UPPER_VOLTAGE_LIMIT, new UnsignedWordElement(45593)),
 						m(GoodWeStsBox.ChannelId.GENSET_LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(45594)),
 						m(GoodWeStsBox.ChannelId.GENSET_UPPER_FREQUENCY_LIMIT, new UnsignedWordElement(45595),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_2),
 						m(GoodWeStsBox.ChannelId.GENSET_LOWER_FREQUENCY_LIMIT, new UnsignedWordElement(45596),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_2),
 						m(GoodWeStsBox.ChannelId.DELAY_BEFORE_LOAD, new UnsignedWordElement(45597))),
 
 				new FC3ReadRegistersTask(47745, Priority.LOW,
 						m(GoodWeStsBox.ChannelId.GENSET_START_MODE_SELECTION, new UnsignedWordElement(47745)),
 						m(GoodWeStsBox.ChannelId.ONE_CLICK_ENABLE, new UnsignedWordElement(47746)),
 						m(GoodWeStsBox.ChannelId.GENSET_CHARGE_LIMIT, new UnsignedWordElement(47747),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(47748, 47755),
 						m(GoodWeStsBox.ChannelId.OPEN_VOLTAGE, new UnsignedWordElement(47756)),
 						m(GoodWeStsBox.ChannelId.CLOSED_VOLTAGE, new UnsignedWordElement(47757)),
 						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758)),
 						m(GoodWeStsBox.ChannelId.GENSET_RATED_POWER, new UnsignedWordElement(47759),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
+								ElementToChannelConverters.SCALE_FACTOR_1)),
 
 				new FC16WriteRegistersTask(45300, //
 						m(GoodWeStsBox.ChannelId.PORT_MUTLIPLEXING_MODE, new UnsignedWordElement(45300))),
@@ -194,9 +194,9 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 						m(GoodWeStsBox.ChannelId.GENSET_UPPER_VOLTAGE_LIMIT, new UnsignedWordElement(45593)),
 						m(GoodWeStsBox.ChannelId.GENSET_LOWER_VOLTAGE_LIMIT, new UnsignedWordElement(45594)),
 						m(GoodWeStsBox.ChannelId.GENSET_UPPER_FREQUENCY_LIMIT, new UnsignedWordElement(45595),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_2),
 						m(GoodWeStsBox.ChannelId.GENSET_LOWER_FREQUENCY_LIMIT, new UnsignedWordElement(45596),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_2)),
 
 				new FC16WriteRegistersTask(45597, //
 						m(GoodWeStsBox.ChannelId.DELAY_BEFORE_LOAD, new UnsignedWordElement(45597))),
@@ -207,13 +207,13 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(47746,
 						m(GoodWeStsBox.ChannelId.ONE_CLICK_ENABLE, new UnsignedWordElement(47746)),
 						m(GoodWeStsBox.ChannelId.GENSET_CHARGE_LIMIT, new UnsignedWordElement(47747),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(47748, 47755),
 						m(GoodWeStsBox.ChannelId.OPEN_VOLTAGE, new UnsignedWordElement(47756)),
 						m(GoodWeStsBox.ChannelId.CLOSED_VOLTAGE, new UnsignedWordElement(47757)),
 						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758)),
 						m(GoodWeStsBox.ChannelId.GENSET_RATED_POWER, new UnsignedWordElement(47759),
-								ElementToChannelConverter.SCALE_FACTOR_1)) //
+								ElementToChannelConverters.SCALE_FACTOR_1)) //
 		);
 	}
 

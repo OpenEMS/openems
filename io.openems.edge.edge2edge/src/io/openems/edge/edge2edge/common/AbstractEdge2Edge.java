@@ -1,7 +1,7 @@
 package io.openems.edge.edge2edge.common;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static java.util.concurrent.CompletableFuture.completedFuture;

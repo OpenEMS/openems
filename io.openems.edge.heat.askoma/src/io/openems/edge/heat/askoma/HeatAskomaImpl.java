@@ -1,6 +1,6 @@
 package io.openems.edge.heat.askoma;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;

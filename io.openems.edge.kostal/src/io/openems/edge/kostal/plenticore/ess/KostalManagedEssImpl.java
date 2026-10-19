@@ -1,6 +1,6 @@
 package io.openems.edge.kostal.plenticore.ess;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;

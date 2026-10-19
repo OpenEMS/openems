@@ -31,7 +31,7 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
@@ -142,10 +142,10 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
 		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
+				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
 
 		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
+				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
 
 		this.installListeners();
 		this._setInitializing(false);
