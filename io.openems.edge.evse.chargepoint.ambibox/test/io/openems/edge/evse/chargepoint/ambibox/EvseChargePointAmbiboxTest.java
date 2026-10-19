@@ -62,6 +62,10 @@ class EvseChargePointAmbiboxTest {
 		this.test //
 				.next(new TestCase() //
 						.activateStrictMode() //
+						.withIgnoredChannelsForStrictMode(//
+								EvseChargePoint.ChannelId.SET_EXTERNAL_MIN_CHARGE_POWER, //
+								EvseChargePoint.ChannelId.SET_EXTERNAL_MAX_CHARGE_POWER, //
+								EvseChargePoint.ChannelId.SET_EXTERNAL_STATIC_CHARGE_POWER) //
 
 						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
 						.output(ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED, false) //

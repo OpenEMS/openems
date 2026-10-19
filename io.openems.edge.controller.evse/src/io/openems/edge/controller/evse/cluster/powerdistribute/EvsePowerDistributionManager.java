@@ -184,9 +184,11 @@ public class EvsePowerDistributionManager {
 	}
 
 	protected PowerDistributionEntry mapDistributionEntryForSetPoint(Params params) {
+		final var mode = this.applyOnOffDelayToMode(params);
 		return new PowerDistributionEntry(new PowerDistributionKey.Evse(params.ctrlSingleId()),
-				mapDistributionStatus(params), this.applyOnOffDelayToMode(params), params.activePower(),
-				params.combinedAbilities().applySetPoint());
+				mapDistributionStatus(params), mode, params.activePower(), mode == Mode.EXTERNAL //
+						? params.createExternalApplySetPoint() //
+						: params.combinedAbilities().applySetPoint());
 	}
 
 	protected PowerDistributionEntries createEntriesForIdealSetPoint() {
@@ -197,9 +199,11 @@ public class EvsePowerDistributionManager {
 	}
 
 	protected PowerDistributionEntry mapDistributionEntryForIdealSetPoint(Params params) {
+		final var mode = this.calculateMode(params);
 		return new PowerDistributionEntry(new PowerDistributionKey.Evse(params.ctrlSingleId()),
-				mapDistributionStatus(params), this.calculateMode(params), params.activePower(),
-				params.createApplySetPointForAllPhases());
+				mapDistributionStatus(params), mode, params.activePower(), mode == Mode.EXTERNAL //
+						? params.createExternalApplySetPoint() //
+						: params.createApplySetPointForAllPhases());
 	}
 
 	protected static PowerDistributionEntry.Status mapDistributionStatus(Params params) {
