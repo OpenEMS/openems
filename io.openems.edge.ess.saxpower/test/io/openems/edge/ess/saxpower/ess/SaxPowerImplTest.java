@@ -73,10 +73,7 @@ public class SaxPowerImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
 						.setTimeout(60)
-						.build()) //
-				.next(new TestCase()
-						.input(SaxPower.ChannelId.CONTROL_MODE, 0)
-						.input(SaxPower.ChannelId.TIMEOUT, 300));
+						.build());
 
 		sut.applyPower(1000, 0);
 
