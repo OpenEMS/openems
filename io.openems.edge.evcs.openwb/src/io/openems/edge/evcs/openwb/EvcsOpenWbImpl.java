@@ -64,14 +64,16 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 	private volatile BridgeMqtt mqttBridge;
 
 	/**
-	 * Calculates {@link ElectricityMeter.ChannelId#ACTIVE_CONSUMPTION_ENERGY} by
-	 * integrating the locally measured {@code ActivePower}. The base value is
-	 * restored from Timedata on start, so the energy counter continues where it
-	 * left off instead of importing the absolute OpenWB meter reading (which would
-	 * otherwise appear as a one-time consumption spike in the history on first
-	 * start).
+	 * Calculates {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY} by
+	 * integrating the locally measured {@code ActivePower}. The energy delivered to
+	 * the vehicle is tracked as ActiveProductionEnergy - the same convention as e.g.
+	 * Evcs.ABL and the channel the UI reads for EVCS charge energy. The base value
+	 * is restored from Timedata on start, so the counter continues where it left off
+	 * instead of importing the absolute OpenWB meter reading (which would otherwise
+	 * appear as a one-time spike in the history on first start, and would reset on
+	 * restart).
 	 */
-	private final CalculateEnergyFromPower calculateProducptionEnergy = new CalculateEnergyFromPower(this,
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private Config config;
@@ -79,7 +81,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 	private MqttSubscription subscription;
 	private Integer energyStartSession = null;
 	// Last absolute energy counter [Wh] from the OpenWB 'imported' topic; used only
-	// for session-energy calculation, no longer for ActiveConsumptionEnergy.
+	// for session-energy calculation, no longer written to an energy channel.
 	private Integer lastImportedEnergy = null;
 
 	// State tracking for status calculation
@@ -239,15 +241,14 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 	}
 
 	private void handleImported(JsonElement json) {
-		// Absolute energy counter [Wh] of the OpenWB charge point.
+		// Absolute lifetime energy counter [Wh] of the OpenWB charge point.
 		var energyTotal = Math.round(json.getAsFloat());
 		this.lastImportedEnergy = energyTotal;
 
-		// ActiveConsumptionEnergy is NOT set from this absolute counter anymore: it is
-		// integrated from ActivePower in handleEvent() (see calculateConsumptionEnergy)
-		// so the history does not record the device's pre-existing total as a one-time
-		// consumption spike. EVCS only consumes energy, so production stays 0.
-		this._setActiveProductionEnergy(0L);
+		// The absolute counter is intentionally NOT written to an energy channel: the
+		// charge energy is integrated from ActivePower into ActiveProductionEnergy in
+		// handleEvent() (see calculateProductionEnergy), so the device's pre-existing
+		// total is not recorded in the history as a one-time spike.
 
 		// Initialize energyStartSession if charging but not yet initialized.
 		// This handles the case when component is activated while already charging.
@@ -318,7 +319,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 	 */
 	private void startNewSession() {
 		// Base the session on the absolute OpenWB counter, not on the integrated
-		// ActiveConsumptionEnergy channel.
+		// ActiveProductionEnergy channel.
 		if (this.lastImportedEnergy != null) {
 			this.energyStartSession = this.lastImportedEnergy;
 		}
@@ -341,7 +342,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 		}
 		switch (event.getTopic()) {
 		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> //
-			this.calculateProducptionEnergy.update(this.getActivePower().get());
+			this.calculateProductionEnergy.update(this.getActivePower().get());
 		}
 	}
 
