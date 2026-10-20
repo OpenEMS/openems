@@ -71,8 +71,8 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 	 * otherwise appear as a one-time consumption spike in the history on first
 	 * start).
 	 */
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	private final CalculateEnergyFromPower calculateProducptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private Config config;
 	private String topicPrefix;
@@ -341,7 +341,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent implements EvcsOpen
 		}
 		switch (event.getTopic()) {
 		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> //
-			this.calculateConsumptionEnergy.update(this.getActivePower().get());
+			this.calculateProducptionEnergy.update(this.getActivePower().get());
 		}
 	}
 
