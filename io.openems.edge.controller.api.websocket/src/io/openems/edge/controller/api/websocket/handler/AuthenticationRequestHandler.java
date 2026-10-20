@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +41,8 @@ public class AuthenticationRequestHandler implements JsonApi {
 
 	private final Map<String, String /* userid */> sessionTokens = new ConcurrentHashMap<>();
 
-	@Reference
-	private UserService userService;
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	private volatile UserService userService;
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
@@ -58,8 +60,14 @@ public class AuthenticationRequestHandler implements JsonApi {
 		builder.handleRequest(AuthenticateWithPasswordRequest.METHOD, call -> {
 			final var request = AuthenticateWithPasswordRequest.from(call.getRequest());
 
+			User user = request.usernameOpt.isPresent()
+				?
+				this.userService.authenticate(request.usernameOpt.get(), request.password).orElse(null)
+				:
+				this.userService.authenticate(request.password).orElse(null);
+
 			return this.handleAuthentication(call.get(OnRequest.WS_DATA_KEY), request.getId(),
-					this.userService.authenticate(request.password).orElse(null), UUID.randomUUID().toString());
+					user, UUID.randomUUID().toString());
 		});
 
 		builder.handleRequest(LogoutRequest.METHOD, endpoint -> {
