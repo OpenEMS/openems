@@ -15,7 +15,7 @@ public class ReadWorkerTest {
 
 	private static ReadWorker createWorker() throws Exception {
 		return new ReadWorker(new TeslaPowerwall2CoreImpl(), (Inet4Address) Inet4Address.getByName("127.0.0.1"),
-				443, "test@example.com", "password123");
+				443);
 	}
 
 	@Test
