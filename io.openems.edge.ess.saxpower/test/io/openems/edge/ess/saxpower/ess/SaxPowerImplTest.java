@@ -45,6 +45,7 @@ public class SaxPowerImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
+						.setTimeout(60)
 						.build()) //
 				.next(new TestCase() //
 						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600)
@@ -73,7 +74,16 @@ public class SaxPowerImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
 						.setTimeout(60)
-						.build());
+						.build())
+				.next(new TestCase()
+						.input(SaxPower.ChannelId.TIMEOUT, 300)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 0)
+
+				)
+				.next(new TestCase()
+						.input(SaxPower.ChannelId.TIMEOUT, null)
+						.input(SaxPower.ChannelId.CONTROL_MODE, null)
+				);
 
 		sut.applyPower(1000, 0);
 
