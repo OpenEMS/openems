@@ -3,17 +3,22 @@ package io.openems.edge.tesla.powerwall2.core;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -28,18 +33,28 @@ public class ReadWorker extends AbstractCycleWorker {
 
 	private static final String URL_SYSTEM_STATUS_SOE = "/system_status/soe";
 	private static final String URL_METERS_AGGREGATES = "/meters/aggregates";
+	private static final String URL_LOGIN = "/login/Basic";
 
 	private final TeslaPowerwall2CoreImpl parent;
 	private final String baseUrl;
+	final String emailAddress;
+	final String password;
 
-	protected ReadWorker(TeslaPowerwall2CoreImpl parent, Inet4Address ipAddress, int port)
-			throws NoSuchAlgorithmException, KeyManagementException {
+	private final SSLSocketFactory sslSocketFactory;
+	private List<String> cookies = new ArrayList<String>();
+
+	protected ReadWorker(TeslaPowerwall2CoreImpl parent, Inet4Address ipAddress, int port, String emailAddress,
+			String password) throws NoSuchAlgorithmException, KeyManagementException {
 		this.parent = parent;
 		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/api";
-
+		this.emailAddress = emailAddress;
+		this.password = password;
 		/*
 		 * Disable SSL certificate checking
 		 */
+		// only for this worker's connections; setting the default factory
+		// of HttpsURLConnection disabled certificate checking for every HTTPS request
+		// of the whole Edge (e.g. BridgeHttp: tariffs, cloud APIs with tokens)
 		var context = SSLContext.getInstance("TLSv1.2");
 		TrustManager[] trustManager = { new X509TrustManager() {
 			@Override
@@ -56,7 +71,7 @@ public class ReadWorker extends AbstractCycleWorker {
 			}
 		} };
 		context.init(null, trustManager, new SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+		this.sslSocketFactory = context.getSocketFactory();
 	}
 
 	@Override
@@ -66,6 +81,9 @@ public class ReadWorker extends AbstractCycleWorker {
 		this.parent.getBattery().ifPresent(battery -> {
 
 			try {
+				if (this.cookies.isEmpty()) {
+					this.cookies = this.login(URL_LOGIN);
+				}
 				var soe = this.getResponse(URL_SYSTEM_STATUS_SOE);
 				battery._setSoc(Math.round(JsonUtils.getAsFloat(soe, "percentage")));
 
@@ -113,6 +131,24 @@ public class ReadWorker extends AbstractCycleWorker {
 		this.parent._setSlaveCommunicationFailed(communicationError.get());
 	}
 
+	// certificate and hostname checks are disabled per connection, not
+	// globally
+	/**
+	 * Opens a HTTPS connection to the Powerwall that accepts its self-signed
+	 * certificate.
+	 *
+	 * @param path the api path
+	 * @return the (not yet connected) {@link HttpsURLConnection}
+	 * @throws IOException on error
+	 */
+	HttpsURLConnection openConnection(String path) throws IOException {
+		var url = URI.create(this.baseUrl + path).toURL();
+		var connection = (HttpsURLConnection) url.openConnection();
+		connection.setSSLSocketFactory(this.sslSocketFactory);
+		connection.setHostnameVerifier((hostname, session) -> true);
+		return connection;
+	}
+
 	/**
 	 * Gets the JSON response of a HTTPS GET Request.
 	 *
@@ -122,9 +158,12 @@ public class ReadWorker extends AbstractCycleWorker {
 	 */
 	private JsonObject getResponse(String path) throws OpenemsNamedException {
 		try {
-			var url = URI.create(this.baseUrl + path).toURL();
-			var connection = (HttpsURLConnection) url.openConnection();
-			connection.setHostnameVerifier((hostname, session) -> true);
+			// connection with this worker's own trust-all socket factory
+			var connection = this.openConnection(path);
+			for (String cookie : this.cookies) {
+				connection.setRequestProperty("Cookie", cookie);
+			}
+
 			try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
 				var content = reader.lines().collect(Collectors.joining());
 				return JsonUtils.parseToJsonObject(content);
@@ -134,4 +173,37 @@ public class ReadWorker extends AbstractCycleWorker {
 		}
 	}
 
+	/**
+	 * Gets the session-cookies of a login HTTPS POST Request.
+	 *
+	 * @param path the api path
+	 * @return session-cookies
+	 * @throws OpenemsNamedException on error
+	 */
+	private List<String> login(String path) throws OpenemsNamedException {
+		try {
+			var connection = this.openConnection(path);
+			connection.setRequestMethod("POST");
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			connection.setDoOutput(true);
+			String postParams = "username=customer&email=" + this.emailAddress + "&password=" + this.password
+					+ "&force_sm_off=false";
+			OutputStream os = connection.getOutputStream();
+			os.write(postParams.getBytes());
+			os.flush();
+			os.close();
+
+			var code = connection.getResponseCode();
+			if (code != HttpURLConnection.HTTP_OK) {
+				this.cookies.clear();
+				throw new OpenemsException("login failed: got HTTP-code:" + code);
+			}
+			List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
+			return cookies;
+
+		} catch (IOException e) {
+			throw new OpenemsException(e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+	}
 }
