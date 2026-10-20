@@ -71,7 +71,7 @@ export class ControllerChpHomeComponent extends AbstractFormlyComponent<ChpViewM
         }
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(this.component.id, ControllerChpFlatComponent.PROPERTY_MODE),

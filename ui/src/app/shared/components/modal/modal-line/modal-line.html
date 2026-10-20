@@ -87,32 +87,5 @@
         </ng-template>
       </tr>
     }
-    @if (formGroup) {
-      <tr>
-        <!-- 'RANGE' Line, provides a range button from min to max -->
-        @if (control?.type === "RANGE") {
-          <td style="width: 100%">
-            <ng-container [formGroup]="formGroup">
-              <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.tickMin ?? 1" [max]="control.properties.tickMax ?? 100" [step]="control.properties.step ?? 1" style="padding-top: 8px" [formControlName]="controlName" debounce="500" [pinFormatter]="control.properties.pinFormatter ?? DEFAULT_PIN_FORMATTER" [pin]="true" [snaps]="control.properties?.snaps ?? false">
-                <ion-label slot="start">
-                  @if (control.properties.unit) {
-                    {{ control.properties.tickMin | unitvalue: control.properties.unit }}
-                  } @else {
-                    {{ control.properties.tickMin | converter: (control.properties.tickFormatter ? control.properties.tickFormatter : null) }}
-                  }
-                </ion-label>
-                <ion-label slot="end">
-                  @if (control.properties.unit) {
-                    {{ control.properties.tickMax | unitvalue: control.properties.unit }}
-                  } @else {
-                    {{ control.properties.tickMax | converter: (control.properties.tickFormatter ? control.properties.tickFormatter : null) }}
-                  }
-                </ion-label>
-              </ion-range>
-            </ng-container>
-          </td>
-        }
-      </tr>
-    }
   </table>
 }

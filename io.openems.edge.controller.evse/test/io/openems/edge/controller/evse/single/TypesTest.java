@@ -15,7 +15,6 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 
 import io.openems.edge.controller.evse.single.Types.History;
-import io.openems.edge.controller.evse.single.Types.Hysteresis;
 
 public class TypesTest {
 
@@ -28,12 +27,12 @@ public class TypesTest {
 
 		IntStream.range(0, 400) //
 				.forEach(i -> {
-					h.addEntry(now.plusSeconds(i), 0, i, null, true);
+					h.addEntry(now.plusSeconds(i), 0, i, i, true);
 
 					switch (i) {
 					// Test streamAllButLast() vs streamAll()
 					case 49 -> {
-						h.addEntry(now.plusSeconds(i), 999, 0, null, false);
+						h.addEntry(now.plusSeconds(i), 999, 0, 0, false);
 						assertEquals(999, h.getLastEntry().getValue().activePower().intValue());
 
 						assertTrue(allActivePowersAreZero(h.streamAllButLast()));
@@ -56,25 +55,6 @@ public class TypesTest {
 					}
 				});
 		assertEquals(301, h.streamAll().count());
-	}
-
-	@Test
-	public void testHysteresis() {
-		var now = Instant.now(createDummyClock());
-		var h = new History();
-		h.addEntry(now.minusSeconds(310), null, 7000, null, true);
-		h.addEntry(now.minusSeconds(300), null, 8000, null, true);
-		h.addEntry(now.minusSeconds(290), null, 9000, null, true);
-		assertEquals(Hysteresis.INACTIVE, Hysteresis.from(h));
-	}
-
-	@Test
-	public void testHysteresis2() {
-		var now = Instant.now(createDummyClock());
-		var h = new History();
-		h.addEntry(now.minusSeconds(310), null, 7000, null, true);
-		h.addEntry(now.minusSeconds(300), null, 8000, null, false);
-		assertEquals(Hysteresis.KEEP_CHARGING, Hysteresis.from(h));
 	}
 
 	@Test

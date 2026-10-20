@@ -82,9 +82,12 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
                 }
             });
         });
-        //clear onInfoChannels Array
+        // unsubscribe the info channels of this component and clear them from onInfoChannels
+        const removedChannels = this.onInfoChannels.filter((channel) => channel.componentId == component.id);
         this.onInfoChannels = this.onInfoChannels.filter((channel) => channel.componentId != component.id);
-        this.edge?.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
+        if (removedChannels.length > 0) {
+            this.edge?.unsubscribeFromChannels(StatusSingleComponent.SELECTOR, this.websocket, removedChannels);
+        }
     }
 
     private getStateChannels(componentId: string): Promise<(typeof this.channels)["componentId"]> {

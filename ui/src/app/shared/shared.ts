@@ -48,6 +48,7 @@ addIcons({
     "oe-phase-switching-3": environment.icons.COMPONENT.EVCS_PHASE_SWITCHING_3,
     "oe-favorites": environment.icons.COMMON.FAVORITES,
     "oe-favorites-filled": environment.icons.COMMON.FAVORITES_FILLED,
+    "oe-schedule": environment.icons.COMMON.SCHEDULE,
 });
 
 export class Permission {}
@@ -81,7 +82,10 @@ export class EdgePermission {
      * @param historyPeriods The historyPeriods i.e 'day', 'week' or 'custom'
      * @returns The list of allowed periods for this edge
      */
-    public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
+    public static getAllowedHistoryPeriods(
+        edge: Edge | null,
+        historyPeriods?: DefaultTypes.PeriodStringValues[],
+    ): `${DefaultTypes.PeriodString}`[] {
         if (historyPeriods?.length > 0) {
             return historyPeriods;
         }
@@ -108,14 +112,14 @@ export class EdgePermission {
     }
 
     /**
-     * Checks if the edge version is at least 2026.8.2 to and temporally if the user is ADMIN to access the time
-     * schedule and base mode in the heatpump component.
+     * Checks if the edge version is at least 2026.8.2 to access the time schedule and base mode in the heatpump
+     * component.
      *
      * @param edge The edge to check
      * @returns True if the edge is 2026.8.2
      */
     public static isHeatpumpTimeScheduleAndBaseModeAvailable(edge: Edge): boolean {
-        return edge.isVersionAtLeast("2026.8.2") && edge.roleIsAtLeast(Role.ADMIN);
+        return edge.isVersionAtLeast("2026.8.2");
     }
 }
 
@@ -157,16 +161,6 @@ export class UserPermission {
      */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
         return Role.isAtLeast(user?.globalRole, Role.OWNER);
-    }
-
-    /**
-     * Checks if user is allowed to see additional updates.
-     *
-     * @param edge The current {@link Edge}
-     * @returns True, if user has access to see additional updates
-     */
-    public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
-        return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
     }
 }
 

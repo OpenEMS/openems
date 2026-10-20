@@ -57,3 +57,7 @@ Because the Backend.Edge.App handles the protocol towards the central Backend, *
 ====
 The Metadata service on the central Backend supplies the Backend.Edge.App with the API-key to Edge-ID mapping. When using File-based Metadata, make sure it provides this mapping (see xref:backend/metadata.adoc[Metadata]); the Odoo and Dummy Metadata implementations already do.
 ====
+
+=== Network security requirements
+
+The OpenEMS Backend websocket servers bind on all available network interfaces and the protocol between Backend.Edge.App and Edge.Manager is designed with a trusted-network assumption, without its own peer authentication. Make sure the inter-service ports - the Edge Manager websocket port (default `8083`) and the Apache Felix Web Console (default `8079`) - are reachable only from trusted hosts, e.g. by denying all incoming connections by default and permitting only the services that need to be reachable from the outside.

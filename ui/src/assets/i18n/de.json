@@ -8,10 +8,10 @@
         "ENERGY_MANAGEMENT": "Energiemanagementsystem",
         "FAQ": "Häufig gestellte Fragen (FAQ)",
         "LANGUAGE": "Sprache wählen:",
-        "THEME": "Theme",
         "NEW_UI": "Neues Design",
         "OPEN_EMS": "Mehr zu OpenEMS",
-        "PATCHNOTES": "Änderungen im Monitoring zu diesem Build"
+        "PATCHNOTES": "Änderungen im Monitoring zu diesem Build",
+        "THEME": "Theme"
     },
     "APP": {
         "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwende bitte dafür die Web-App."
@@ -71,8 +71,8 @@
                     "KEY": "Lizenzschlüssel",
                     "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achte bei der Eingabe des Lizenzschlüssels auf mögliche Tippfehler: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>",
                     "MASTER_KEY_HINT": "<br><span class=\"warning\">Hinweis</span>: Der Masterkey wird im Hintergrund verwendet. Es wird kein Key angezeigt. Sofern ein Lizenzschlüssel vorliegt, bitte diesen verwenden.<br>",
-                    "REGISTER_KEY": "Lizenzschlüssel registrieren",
                     "REGISTERED_KEY": "Registrierte Lizenzschlüssel",
+                    "REGISTER_KEY": "Lizenzschlüssel registrieren",
                     "SUCCESS_REGISTER_KEY": "Schlüssel wurde erfolgreich registriert",
                     "USE_KEY": "Lizenzschlüssel einlösen",
                     "USE_MASTER_KEY": "Masterkey verwenden",
@@ -146,10 +146,10 @@
                 "TIMESTAMP": "Zeitpunkt"
             },
             "MORE": {
-                "MANUAL_COMMAND": "Manueller Befehl",
                 "MANUALPQ_POWER_SPECIFICATION": "Leistungsvorgabe",
                 "MANUALPQ_RESET": "Zurücksetzen",
                 "MANUALPQ_SUBMIT": "Übernehmen",
+                "MANUAL_COMMAND": "Manueller Befehl",
                 "REFU_INVERTER": "REFU Wechselrichter",
                 "REFU_START": "Starten",
                 "REFU_START_STOP": "Wechselrichter starten/stoppen",
@@ -197,8 +197,10 @@
             "MAY": "Mai",
             "MON": "Mo",
             "MONTH": "Monat",
-            "NO_DATA": "keine Daten verfügbar",
             "NOV": "Nov",
+            "NO_DATA": "keine Daten verfügbar",
+            "NO_LOCAL_DATA_INFO": "Historische Daten sind derzeit lokal nicht verfügbar",
+            "NO_LOCAL_DATA_NOTICE": "",
             "OCT": "Okt",
             "OTHER_PERIOD": "Anderer Zeitraum",
             "PERIOD": "Zeitraum",
@@ -218,9 +220,7 @@
             "WED": "Mi",
             "WEEK": "Woche",
             "YEAR": "Jahr",
-            "YESTERDAY": "Gestern",
-            "NO_LOCAL_DATA_INFO": "Historische Daten sind derzeit lokal nicht verfügbar",
-            "NO_LOCAL_DATA_NOTICE": "Bitte besuchen Sie https://github.com/OpenEMS/openems für Updates zu diesem Thema."
+            "YESTERDAY": "Gestern"
         },
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -245,10 +245,10 @@
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
                 "INSTANT_START": "Sofortstart",
+                "IN_REFERENCE_CYCLE": "Referenzzyklus aktiv - Speicher wird für die Kapazitätserweiterung vorbereitet.",
                 "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
                 "OPTIMAL": "Kapazitätserweiterung",
                 "PLANNED_EXPANSION": "Geplante Erweiterung",
-                "IN_REFERENCE_CYCLE": "Referenzzyklus aktiv - Speicher wird für die Kapazitätserweiterung vorbereitet.",
                 "PREPARING": "Kapazitätserweiterung wird vorbereitet",
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
                 "REFERENCING_OF_STORAGE": {
@@ -280,19 +280,19 @@
                 "ENERIX_CONTROL": {
                     "CHARGE_CONSUMPTION": "<b>ACHTUNG:</b> Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/><b>Beachte:</b> Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
                     "CHARGE_FROM_GRID": "Beladung vom Netz erzwungen",
+                    "CHARGE_FROM_GRID_ALLOWED": "Aktive Beladung aus dem Netz erlauben",
                     "CONNECTED": "Verbunden",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Aktive Entladung in das Netz erlauben",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Einspeisung von Batteriestrom in das Netz, die über die technisch erforderlichen Betriebszustände hinausgeht, macht eine formelle Anmeldung des Speichersystems erforderlich. Wenden Sie sich im Zweifelsfall bitte an Ihren Installateur. Mit einem Klick auf die blaue Schaltfläche „Speichern“ bestätigen Sie, dass diese Prüfung erfolgt ist.<br/><br/><b>Hinweis:</b> Die Aktivierung dieser Funktion ermöglicht die Einspeisung von Energie aus dem Batteriespeicher in das öffentliche Stromnetz. Je nach Förderprogramm, Vergütungsmodell, Messkonzept und geltenden regulatorischen Vorgaben kann dies Auswirkungen auf bestehende Ansprüche im Zusammenhang mit Förderungen, Vergütungen oder Herkunftsnachweisen haben.<br/><br/>Insbesondere kann es erforderlich sein, den eingespeisten Strom eindeutig zuzuordnen und dessen Herkunft messtechnisch nachzuweisen. Wir können nicht gewährleisten, dass die Nutzung dieser Funktion mit den Anforderungen Ihres spezifischen Förder- oder Vergütungsmodells vereinbar ist.<br/><br/>Bitte klären Sie die Auswirkungen vor der Aktivierung mit Ihrem Installateur, Direktvermarkter, Netzbetreiber oder einem qualifizierten Berater ab.",
                     "DISCONNECTED": "Keine Verbindung",
+                    "NOTE": "Bitte beachte:",
                     "NO_DISCHARGE": "Keine Entladung",
                     "NO_INPUT": "Kein Befehl",
                     "NO_OVERWRITE": "keine Übersteuerung",
-                    "NOTE": "Bitte beachte:",
                     "OVERWRITE": "aktive Übersteuerung",
                     "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist.",
                     "OVERWRITE_MODE": "Übersteuerungsmodus",
-                    "READ_ONLY": "Lesend",
-                    "DISCHARGE_TO_GRID_ACTIVATE": "Aktive Entladung in das Netz erlauben",
-                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Einspeisung von Batteriestrom in das Netz, die über die technisch erforderlichen Betriebszustände hinausgeht, macht eine formelle Anmeldung des Speichersystems erforderlich. Wenden Sie sich im Zweifelsfall bitte an Ihren Installateur. Mit einem Klick auf die blaue Schaltfläche „Speichern“ bestätigen Sie, dass diese Prüfung erfolgt ist.<br/><br/><b>Hinweis:</b> Die Aktivierung dieser Funktion ermöglicht die Einspeisung von Energie aus dem Batteriespeicher in das öffentliche Stromnetz. Je nach Förderprogramm, Vergütungsmodell, Messkonzept und geltenden regulatorischen Vorgaben kann dies Auswirkungen auf bestehende Ansprüche im Zusammenhang mit Förderungen, Vergütungen oder Herkunftsnachweisen haben.<br/><br/>Insbesondere kann es erforderlich sein, den eingespeisten Strom eindeutig zuzuordnen und dessen Herkunft messtechnisch nachzuweisen. Wir können nicht gewährleisten, dass die Nutzung dieser Funktion mit den Anforderungen Ihres spezifischen Förder- oder Vergütungsmodells vereinbar ist.<br/><br/>Bitte klären Sie die Auswirkungen vor der Aktivierung mit Ihrem Installateur, Direktvermarkter, Netzbetreiber oder einem qualifizierten Berater ab.",
-                    "CHARGE_FROM_GRID_ALLOWED": "Aktive Beladung aus dem Netz erlauben"
+                    "READ_ONLY": "Lesend"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Aktivieren der Ladesäule",
@@ -325,6 +325,7 @@
                     "ENERGY_SINCE_BEGINNING": "Energie seit Ladebeginn",
                     "ENFORCE_CHARGING": "Erzwinge Beladung",
                     "ERROR": "Fehler",
+                    "FORCE_CHARGE": "Schnellladen",
                     "FORCE_CHARGE_MODE": {
                         "INFO": "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
                         "MAX_CHARGING": "Maximale Ladeleistung",
@@ -336,15 +337,18 @@
                     "FORCE_THREE_PHASE": "3-phasig",
                     "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
                     "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen.",
+                    "LINK_TO_DOCUMENTATION": "Mehr Informationen",
                     "MAX_ENERGY_RESTRICTION": "Maximale Energie pro Ladevorgang begrenzen",
+                    "MINIMUM": "PV-Überschuss mit garantierter Beladung",
+                    "NOT_AUTHORIZED": "Nicht authorisiert",
+                    "NOT_CHARGING": "Keine Beladung",
+                    "NOT_READY_FOR_CHARGING": "Nicht bereit zur Beladung",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
                         "HELP1": "Prüfe ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
                         "HELP1_1": "Die IP der Ladesäule erscheint beim erneuten einschalten"
                     },
-                    "NOT_AUTHORIZED": "Nicht authorisiert",
-                    "NOT_CHARGING": "Keine Beladung",
-                    "NOT_READY_FOR_CHARGING": "Nicht bereit zur Beladung",
                     "OPTIMIZED_CHARGE_MODE": {
                         "CHARGING_PRIORITY": {
                             "CAR": "E-Auto",
@@ -365,22 +369,32 @@
                     "READY_FOR_CHARGING": "Bereit zur Beladung",
                     "STARTING": "Startet",
                     "STATUS": "Status",
+                    "SURPLUS": "PV-Überschuss",
+                    "TASKS": "Tasks",
                     "TOTAL_CHARGE": "Gesamte Beladung",
                     "TOTAL_CHARGING_POWER": "Gesamte Ladeleistung",
-                    "TOTAL_DISCHARGE": "Gesamte Entladung",
                     "UNCONTROLLABLE": "Diese Ladesäule kann nicht gesteuert werden.",
                     "UNKNOWN": "Unbekannt",
                     "UNPLUGGED": "Ausgesteckt",
-                    "ZERO": "Keine Beladung",
-                    "MINIMUM": "PV-Überschuss mit garantierter Beladung",
-                    "SURPLUS": "PV-Überschuss",
-                    "FORCE_CHARGE": "Schnellladen",
-                    "TASKS": "Tasks"
+                    "ZERO": "Keine Beladung"
+                },
+                "EVSE": {
+                    "CHARGE_MODE": "Grundmodus",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen.",
+                    "SCHEDULE": {
+                        "ADD_TASK": "Aufgabe hinzufügen",
+                        "SCHEDULE": "Zeitplan"
+                    },
+                    "VEHICLE_ID_ERROR": "Alle registrierten Fahrzeuge werden angezeigt. Die entsprechende Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfe die Konfiguration."
                 },
                 "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
                 "GRID_OPTIMIZED_CHARGE": {
                     "CHARGING_DELAYED": "Beladung verzögert",
                     "CONSIDER_GRID_FEED_IN_LIMIT": "Maximale Netzeinspeisung berücksichtigen",
+                    "EEG_2025_APP_LINK": "Zur App",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "Die EEG-2025-App ist aktiv.<br/><br/>Bei negativen Börsenpreisen wird die Einspeisung automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Ist deine Anlage von der EEG-2025-Regelung betroffen?<br/><br/>Mit der EEG-2025-App wird die Einspeisung bei negativen Börsenpreisen automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
                     "END_TIME": "Endzeit",
                     "END_TIME_DESCRIPTION": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.",
                     "END_TIME_DETAILED_DESCRIPTION": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{ maxChargingPowerW }} bis {{ endTime }}.",
@@ -394,10 +408,12 @@
                         "BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION": "Die maximale Netzeinspeisung, ab der die Batteriebeladung erhöht wird (soweit möglich), liegt unter der maximal erlaubten Netzeinspeisung, um ein vorzeitiges Abregeln der Erzeugung zu verhindern.",
                         "PRIORITY_DESCRIPTION": "Die minimale Beladung hat eine höhere Priorität als die maximale Beladung"
                     },
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Hinweis: Die netzdienliche Beladung ist nun in die App „Dynamischer Stromtarif“ integriert. Die hier gesetzten Einstellungen bleiben weiterhin wirksam.",
+                    "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
                     "LOW": "Gering",
                     "MAXIMUM_CHARGE": "Maximale Beladung",
-                    "MAXIMUM_GRID_FEED_IN": "Maximal erlaubte Netzeinspeisung",
                     "MAXIMUM_GRIDSELL_WITH_CHARGE": "Maximale Netzeinspeisung durch Batteriebeladung",
+                    "MAXIMUM_GRID_FEED_IN": "Maximal erlaubte Netzeinspeisung",
                     "MEDIUM": "Mittel",
                     "MINIMUM_CHARGE": "Minimale Beladung",
                     "RISK_DESCRIPTION": {
@@ -420,24 +436,18 @@
                     "RISK_PROPENSITY": "Risikobereitschaft",
                     "SETTING_ONLY_VISABLE_FOR_INSTALLER": "Diese Einstellung ist nur für den Installateur sichtbar",
                     "STATE": {
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist.",
                         "AVOID_LOW_CHARGING": "Geringe Beladung vermieden",
                         "CHARGE_LIMIT_ACTIVE": "Beladelimit aktiv",
                         "END_TIME_NOT_CALCULATED": "Endzeitpunkt nicht berechnet",
                         "GRID_FEED_IN_LIMITATION_IS_AVOIDED": "Einspeisebegrenzung wird vermieden",
+                        "NOT_DEFINED": "Nicht definiert",
                         "NO_LIMIT_ACTIVE": "Kein Beladelimit aktiv",
                         "NO_LIMIT_POSSIBLE": "Keine Begrenzung Möglich(Eingeschränkt durch Steuerungen mit höherer Priorität)",
-                        "NOT_DEFINED": "Nicht definiert",
                         "PASSED_END_TIME": "Endzeitpunkt der begrenzten Beladung überschritten",
-                        "STORAGE_ALREADY_FULL": "Speicher bereits voll",
-                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist."
+                        "STORAGE_ALREADY_FULL": "Speicher bereits voll"
                     },
-                    "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
-                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)",
-                    "INFO_DISABLED_BY_TIME_OF_USE": "Hinweis: Die netzdienliche Beladung ist nun in die App „Dynamischer Stromtarif“ integriert. Die hier gesetzten Einstellungen bleiben weiterhin wirksam.",
-                    "EEG_2025_APP_NAME": "EEG 2025",
-                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Ist deine Anlage von der EEG-2025-Regelung betroffen?<br/><br/>Mit der EEG-2025-App wird die Einspeisung bei negativen Börsenpreisen automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
-                    "EEG_2025_DESCRIPTION_INSTALLED": "Die EEG-2025-App ist aktiv.<br/><br/>Bei negativen Börsenpreisen wird die Einspeisung automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
-                    "EEG_2025_APP_LINK": "Zur App"
+                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen deines AC-Thor Heizstabes kannst du in der MyPV-App vornehmen.",
@@ -451,8 +461,47 @@
                     "TEMPERATURE": "Wassertemperatur",
                     "TEMPERATURE_UNIT": "Wassertemperatur in °C"
                 },
+                "HEATINGELEMENT": {
+                    "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
+                    "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
+                    "ACTIVE_LEVEL": "Aktives Level",
+                    "CALIBRATION": "Kalibrierung",
+                    "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
+                    "DONE": "Fertig",
+                    "ENDTIME": "Endzeit",
+                    "ENERGY": "Energie",
+                    "ENERGY_SINCE_BEGINNING": "Energie seit Beginn",
+                    "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
+                    "GUARANTEE_MINIMUM_HEATING": "Minimale Heizdauer garantieren",
+                    "GUARANTEE_MODE": "Modus garantieren",
+                    "GUARANTEE_NONE": "Kein Modus",
+                    "HEATINGELEMENT": "Heizelement",
+                    "HEATING_POWER": "Heizleistung",
+                    "LEVEL_ONE": "Level 1",
+                    "LEVEL_THREE": "Level 3",
+                    "LEVEL_TWO": "Level 2",
+                    "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
+                    "MINIMAL_ENERGY_AMOUNT": "Minimale Energiemenge",
+                    "MINIMAL_ENERGY_LIMIT": "Minimales Energielimit",
+                    "MINIMUM_DURATION": "Minimale Heizdauer",
+                    "MINIMUM_ENERGY": "Minimale Heizenergie",
+                    "MINIMUM_RUN_TIME": "Mindestlaufzeit",
+                    "PRIORITY": "Priorität",
+                    "SET_ENDTIME": "Endzeit setzen",
+                    "TIME": "Zeit",
+                    "TIME_COUNTDOWN": "Spätester Start",
+                    "UNREACHABLE": "Unerreichbar"
+                },
                 "HEAT_PUMP": {
                     "ABOVE_SOC": "und ab Ladezustand von",
+                    "AUTOMATIC_DESCRIPTION": "Stelle hier die jeweiligen Schwellwerte für den Modus zum PV-Überschuss ein",
+                    "BASE_MODE_DESCRIPTIONS": {
+                        "AUTOMATIC": "Je nach eingestellten Schwellwerten des Netzbezugs sowie der Netzeinspeisung werden die einzelnen Modi geschaltet.\n(Die Schwellwerte können unter Einstellungen angepasst werden)",
+                        "LOCK": "Dieser Betriebszustand limitiert die Leistungsaufnahme der Wärmepumpe je nach Einstellung der Wärmepumpe auf 0 kW oder 4,2 kW.",
+                        "NORMAL_OPERATION": "Die Wärmepumpe arbeitet bedarfsgeführt im regulären Leistungsbereich.",
+                        "SWITCH_ON_COM": "Bei Einschaltbefehl heizt die Wärmepumpe auf höchster Stufe zur maximalen thermischen Speicherung.",
+                        "SWITCH_ON_REC": "Bei Aktivierung erhöht die Wärmepumpe ihre Leistung und nutzt verfügbare Energie verstärkt zur Wärmeerzeugung."
+                    },
                     "BELOW_SOC": "und unter Ladezustand von",
                     "GRID_BUY": "Ab Netzbezug von",
                     "GRID_SELL": "Ab Überschusseinspeisung von",
@@ -461,48 +510,13 @@
                     "MORE_THAN_HP_POWER": "Wert darf nicht niedriger als Maximalleistung der Wärmepumpe sein",
                     "NORMAL_OPERATION": "Normalbetrieb",
                     "NORMAL_OPERATION_SHORT": "Normal",
+                    "OPERATING_STATUS": "Betriebszustand",
                     "RELATION_ERROR": "Einschaltbefehl Überschusswert muss größer als Einschaltempfehlungswert sein",
                     "SWITCH_ON_COM": "Einschaltbefehl",
                     "SWITCH_ON_COM_SHORT": "Befehl",
                     "SWITCH_ON_REC": "Einschaltempfehlung",
                     "SWITCH_ON_REC_SHORT": "Empfehlung",
-                    "UNDEFINED": "Nicht definiert",
-                    "OPERATING_STATUS": "Betriebszustand",
-                    "AUTOMATIC_DESCRIPTION": "Stelle hier die jeweiligen Schwellwerte für den Modus zum PV-Überschuss ein",
-                    "BASE_MODE_DESCRIPTIONS": {
-                        "SWITCH_ON_COM": "Bei Einschaltbefehl heizt die Wärmepumpe auf höchster Stufe zur maximalen thermischen Speicherung.",
-                        "SWITCH_ON_REC": "Bei Aktivierung erhöht die Wärmepumpe ihre Leistung und nutzt verfügbare Energie verstärkt zur Wärmeerzeugung.",
-                        "NORMAL_OPERATION": "Die Wärmepumpe arbeitet bedarfsgeführt im regulären Leistungsbereich.",
-                        "AUTOMATIC": "Je nach eingestellten Schwellwerten des Netzbezugs sowie der Netzeinspeisung werden die einzelnen Modi geschaltet.\n(Die Schwellwerte können unter Einstellungen angepasst werden)",
-                        "LOCK": "Dieser Betriebszustand limitiert die Leistungsaufnahme der Wärmepumpe je nach Einstellung der Wärmepumpe auf 0 kW oder 4,2 kW."
-                    }
-                },
-                "HEATINGELEMENT": {
-                    "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
-                    "ACTIVE_LEVEL": "Aktives Level",
-                    "LEVEL_ONE": "Level 1",
-                    "LEVEL_TWO": "Level 2",
-                    "LEVEL_THREE": "Level 3",
-                    "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
-                    "CALIBRATION": "Kalibrierung",
-                    "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
-                    "DONE": "Fertig",
-                    "ENDTIME": "Endzeit",
-                    "SET_ENDTIME": "Endzeit setzen",
-                    "ENERGY": "Energie",
-                    "ENERGY_SINCE_BEGINNING": "Energie seit Beginn",
-                    "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
-                    "GUARANTEE_MINIMUM_HEATING": "Minimale Heizdauer garantieren",
-                    "HEATING_POWER": "Heizleistung",
-                    "HEATINGELEMENT": "Heizelement",
-                    "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
-                    "MINIMAL_ENERGY_AMOUNT": "Minimale Energiemenge",
-                    "MINIMAL_ENERGY_LIMIT": "Minimales Energielimit",
-                    "MINIMUM_RUN_TIME": "Mindestlaufzeit",
-                    "PRIORITY": "Priorität",
-                    "TIME": "Zeit",
-                    "TIME_COUNTDOWN": "Spätester Start",
-                    "UNREACHABLE": "Unerreichbar"
+                    "UNDEFINED": "Nicht definiert"
                 },
                 "INFO_STORAGE_FOR_CHARGE": "Negative Werte entsprechen Speicher Beladung",
                 "INFO_STORAGE_FOR_DISCHARGE": "Positive Werte entsprechen Speicher Entladung",
@@ -536,14 +550,14 @@
                     "MORE_THAN_HP_POWER": "Wert darf nicht niedriger als Maximalleistung des angesteuerten Geräts sein",
                     "OTHER": "Sonstige",
                     "RELATION_ERROR": "Schwellenwert muss größer als die geschaltete Last sein",
+                    "SWITCHED_LOAD_POWER": "Geschaltete Last",
                     "SWITCH_OFF_ABOVE": "Ausschalten über",
                     "SWITCH_OFF_BELOW": "Ausschalten unter",
                     "SWITCH_ON_ABOVE": "Einschalten über",
-                    "SWITCH_ON_BELOW": "Einschalten unter",
-                    "SWITCHED_LOAD_POWER": "Geschaltete Last",
-                    "THRESHOLD": "Schwellenwert",
                     "SWITCH_ON_ABOVE_THRESHOLD": "Einschalten über Schwellenwert",
-                    "SWITCH_ON_BELOW_THRESHOLD": "Einschalten unter Schwellenwert"
+                    "SWITCH_ON_BELOW": "Einschalten unter",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Einschalten unter Schwellenwert",
+                    "THRESHOLD": "Schwellenwert"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
@@ -554,11 +568,6 @@
                     "TOTAL_AC": "Gesamt AC",
                     "TOTAL_DC": "Gesamt DC"
                 },
-                "SYSTEM": {
-                    "RPC_SUCCESS": "Befehl erfolgreich ausgeführt",
-                    "RPC_FAILED": "Befehl ausführen fehlgeschlagen",
-                    "OVERALL_SYSTEM": "Gesamtsystem"
-                },
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
                     "CHART_TITLE": "Aktueller Fahrplan",
@@ -566,31 +575,23 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
+                    "EEG_2025_DESCRIPTION": "Die Grafik zeigt die zukünftig erwartete Netzeinspeisung sowie die voraussichtliche Einspeisevergütung gemäß EEG 2025. Diese wird bei der Berechnung der optimalen Betriebsweise berücksichtigt. Es wird versucht, die Netzeinspeisung zu Zeiten ohne Vergütung möglichst gering zu halten. Bitte beachte, dass die Prognose kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
+                    "EEG_2025_HEADER": "EEG 2025 Prognose",
                     "POWER_SOC_CHART_TITLE": "Vorhersagen",
                     "PRICE": "Aktueller Bezugsstrompreis",
                     "STATE": {
+                        "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
                         "BALANCING": "Eigenverbrauchsoptimierung",
                         "CHARGE_GRID": "Beladung aus dem Netz",
-                        "DELAY_DISCHARGE": "Entladung verzögern",
-                        "PEAK_SHAVING": "Lastspitzenkappung",
                         "DELAY_CHARGE": "Beladung verzögern",
-                        "LIMIT_CHARGE": "Beladung limitieren",
-                        "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
+                        "DELAY_DISCHARGE": "Entladung verzögern",
                         "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch",
-                        "DISCHARGE_GRID": "Entladung ins Netz"
-                    },
-                    "EEG_2025_HEADER": "EEG 2025 Prognose",
-                    "EEG_2025_DESCRIPTION": "Die Grafik zeigt die zukünftig erwartete Netzeinspeisung sowie die voraussichtliche Einspeisevergütung gemäß EEG 2025. Diese wird bei der Berechnung der optimalen Betriebsweise berücksichtigt. Es wird versucht, die Netzeinspeisung zu Zeiten ohne Vergütung möglichst gering zu halten. Bitte beachte, dass die Prognose kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann."
+                        "DISCHARGE_GRID": "Entladung ins Netz",
+                        "LIMIT_CHARGE": "Beladung limitieren",
+                        "PEAK_SHAVING": "Lastspitzenkappung"
+                    }
                 },
-                "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
-                "EVSE": {
-                    "SCHEDULE": {
-                        "SCHEDULE": "Zeitplan",
-                        "ADD_TASK": "Aufgabe hinzufügen"
-                    },
-                    "CHARGE_MODE": "Grundmodus",
-                    "VEHICLE_ID_ERROR": "Alle registrierten Fahrzeuge werden angezeigt. Die entsprechende Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfe die Konfiguration."
-                }
+                "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug"
             }
         },
         "NETWORK": {
@@ -600,7 +601,7 @@
                 "ADDRESS": "DHCP Adresse",
                 "INFO": "Die angezeigte IP-Adresse wurde dynamisch über DHCP (Dynamic Host Configuration Protocol) vergeben. Sie ist nicht dauerhaft und kann sich bei einem Neustart des Geräts oder Routers ändern."
             },
-            "ERROR_READING_CONFIGURATION": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
+            "ERROR_READING": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
             "ERROR_UPDATING": "Fehler beim Aktualisieren",
             "IP_ADDRESS": "IP-Adresse",
             "MANDATORY_FIELDS": "Bitte fülle die Pflichtfelder aus",
@@ -657,6 +658,7 @@
         "CHANGE_FAILED": "Änderung fehlgeschlagen",
         "CHARGE": "Beladung",
         "CHARGE_DISCHARGE": "Be-/Entladung",
+        "CHARGE_ONCE": "Einmalige Beladung",
         "COMPONENT_COUNT": "Anzahl Komponenten",
         "COMPONENT_INACTIVE": "Komponente ist inaktiv!",
         "CONNECTION_LOST": "Verbindung unterbrochen. Versuche die Verbindung wiederherzustellen.",
@@ -681,6 +683,7 @@
         "DIGITAL_INPUTS": "Digitaleingänge",
         "DIRECT_CONSUMPTION": "Direktverbrauch",
         "DISCHARGE": "Entladung",
+        "DISCHARGE_ONCE": "Einmalige Entladung",
         "EDIT": "Bearbeiten",
         "ENERGY_LIMIT": "Energielimit",
         "FAULT": "Fehler",
@@ -692,9 +695,8 @@
             "REQUIRED": "Ist erforderlich"
         },
         "FROM": "Von",
-        "GEOLOCATION": {
-            "CHECKBOX_LABEL": "Ich habe den Inhalt der vorliegenden <a href=''>DATENSCHUTZERKLÄRUNG</a> zur Kenntnis genommen und bestätige durch die Validierung der Standortdaten die Richtigkeit der Daten."
-        },
+        "GENERATOR_ON": "Generator aktiv",
+        "GENERATOR_SUPPLY": "Generatorversorgung",
         "GRID": "Netz",
         "GRID_BUY": "Netzbezug",
         "GRID_BUY_ADVANCED": "Bezug",
@@ -703,6 +705,7 @@
         "GRID_SELL_ADVANCED": "Einspeisung",
         "GRID_SELL_PRICE": "Einspeisevergütung",
         "HEAT_PUMP": "Wärmepumpe",
+        "HELP": "Hilfe",
         "HISTORY": "Historie",
         "INACTIVE": "Inaktiv",
         "INFO": "Info",
@@ -710,6 +713,8 @@
         "INSTALL": "Installieren",
         "INSUFFICIENT_RIGHTS": "Unzureichende Rechte",
         "LIGHT": "Hell",
+        "LINK": "Details findest du unter folgendem Link:",
+        "LINK_TEXT": "Changelog zum Beta-Test ansehen",
         "LIVE": "Live",
         "LOAD": "Last",
         "MANAGED_CONSUMPTION": "Gesteuerter Verbrauch",
@@ -732,13 +737,13 @@
             "SEPTEMBER": "September"
         },
         "MORE": "Mehr...",
+        "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
+        "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
         "NO": "Nein",
         "NO_VALUE": "Kein Wert",
         "NUMBER_OF_COMPONENTS": "Anzahl der Komponenten",
         "OFF": "Aus",
         "OFF_GRID": "Keine Netzverbindung!",
-        "GENERATOR_SUPPLY": "Generatorversorgung",
-        "GENERATOR_ON": "Generator aktiv",
         "OK": "ok",
         "ON": "An",
         "OPEN": "Öffnen",
@@ -773,10 +778,13 @@
             "HOUR": "Uhr"
         },
         "SUM_STATE": "Systemzustand",
+        "SURVEY": "Hier kannst du uns dein Feedback zum Beta-Test mitteilen:",
+        "SURVEY_LINK": "An der Beta-Test-Umfrage teilnehmen",
         "SYSTEM": "System",
         "SYSTEM_OUTAGE": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuche es später noch einmal. Mehr Informationen findest du unter",
         "SYSTEM_STATE": "Systemstatus",
         "SYSTEM_THEME": "System",
+        "TARGET_SOC": "Ziel-Ladezustand",
         "THEME_SELECTION": {
             "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!",
             "TITLE": "Licht aus, Komfort an!"
@@ -807,17 +815,7 @@
             "TUESDAY": "Dienstag",
             "WEDNESDAY": "Mittwoch"
         },
-        "YES": "Ja",
-        "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
-        "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
-        "LINK": "Details findest du unter folgendem Link:",
-        "LINK_TEXT": "Changelog zum Beta-Test ansehen",
-        "SURVEY": "Hier kannst du uns dein Feedback zum Beta-Test mitteilen:",
-        "SURVEY_LINK": "An der Beta-Test-Umfrage teilnehmen",
-        "HELP": "Hilfe",
-        "CHARGE_ONCE": "Einmalige Beladung",
-        "DISCHARGE_ONCE": "Einmalige Entladung",
-        "TARGET_SOC": "Ziel-Ladezustand"
+        "YES": "Ja"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Bezugslimitierung",
@@ -846,6 +844,15 @@
         "TYPE": "Typ",
         "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem das {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, kannst du es an dieser Stelle sehen."
     },
+    "JS_SCHEDULE": {
+        "ADD_EVENT": "Event hinzufügen",
+        "ADD_TASK": "Aufgabe hinzufügen",
+        "EDIT_EVENT": "Event bearbeiten",
+        "EDIT_TASK": "Aufgabe bearbeiten",
+        "MANUAL_EVENTS": "Manuelle Events",
+        "NEXT_EVENTS": "Nächste Events",
+        "SMART_EVENTS": "Smart Events"
+    },
     "LIVE": {
         "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
     },
@@ -858,32 +865,29 @@
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Authentifizierung fehlgeschlagen",
+        "EMPLOYEE_LOGIN": "Mitarbeiter Login",
         "PASSWORD_LABEL": "Passwort",
         "PASSWORD_RESET": "Passwort zurücksetzen",
         "PREAMBLE": "Bitte gib dein Passwort ein oder bestätige die Voreingabe um dich als Gast anzumelden.",
         "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
         "SIGN_IN": "Anmelden",
         "TITLE": "Login",
-        "USER": "Benutzer",
-        "EMPLOYEE_LOGIN": "Mitarbeiter Login"
+        "USER": "Benutzer"
     },
     "MENU": {
         "ACCESS_LEVEL": "Zugriffslevel",
         "CHANGELOG": "Changelog",
         "COCKPIT": "Cockpit",
-        "FAVORITES": "Favoriten",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Einstellungen",
         "EDGE_SYSTEM_SETTINGS": "Systemeinstellungen",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
+        "FAVORITES": "Favoriten",
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
         "GROUPS": {
-            "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
+            "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
-            "HEATING_ROOM": "Heizung",
-            "BRAIINS": "Bitcoin Miner"
+            "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
+            "HEATING_ROOM": "Heizung"
         },
-        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
         "INDEX": "Übersicht",
         "LOGOUT": "Abmelden",
         "MENU": "Menü",
@@ -891,10 +895,11 @@
         "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
         "OTHER_USER": "Weitere Benutzer",
         "OVERVIEW": "Alle Systeme",
-        "SYSTEMS": "Systeme",
+        "PROFILE": "Profil",
+        "SCHEDULE": "Fahrplan",
         "SETTINGS": "Einstellungen",
-        "USER": "Benutzer",
-        "PROFILE": "Profil"
+        "SYSTEMS": "Systeme",
+        "USER": "Benutzer"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
@@ -906,8 +911,8 @@
         "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung findest du in der Anleitung.",
         "LAST_COMMAND": "Letzter Schreibbefehl",
         "LIMITATION": "Vorgabe",
-        "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
         "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
+        "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
         "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
         "REGISTER": "Register",
         "SET_ACTIVE_POWER_EQUALS": "Vorgabe Wirkleistung",
@@ -925,14 +930,17 @@
         "LOGGED_IN_AS": "Angemeldet als Benutzer '{{ value }}'."
     },
     "OFFLINE": {
-        "EDGE": {
-            "DESCRIPTION": "Im Falle eines Neustarts des {{edgeShortName}}-Gerät, warte bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde.",
-            "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich"
+        "GENERAL": {
+            "AVAILABILITY": "Der Online-Zugriff auf den Energiespeicher ist derzeit nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+            "EMS_OFFLINE": "{{edgeShortName}} ist offline",
+            "MORE_INFO": "Weitere Informationen",
+            "TIME_OUT": "Das angeforderte {{ edgeShortName }} ist bereits <b>seit {{timeSinceOffline}}</b> offline.",
+            "TRY": "Versuchen Sie, den Browser in 10 Minuten neu zu laden."
         }
     },
     "ORDER": {
-        "A_TO_Z": "Bezeichnung A - Z",
         "ASCENDING": "Aufsteigend {{ edgeShortName }} Nr.",
+        "A_TO_Z": "Bezeichnung A - Z",
         "DESCENDING": "Absteigend {{ edgeShortName }} Nr.",
         "FAULT_TO_OK": "Systemzustand Fehler - Ok",
         "OK_TO_FAULT": "Systemzustand Ok - Fehler",
@@ -949,6 +957,7 @@
             "REQUIRED_FIELDS": "Bitte alle Felder ausfüllen"
         },
         "FORM": {
+            "ACCEPT_GTC": "Ich bestätige die <a target=\"_blank\" href={{link}}>AGB</a>.*",
             "CITY": "Ort",
             "COMPANY": "Firma",
             "COMPANY_NAME": "Firmenname",
@@ -959,15 +968,17 @@
             "EMAIL": "E-Mail Adresse",
             "FIRSTNAME": "Vorname",
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Mit der Erstellung eines Installateur-Kontos erkläre ich, dass ich die <a target=\"_blank\" href={{link}}>Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen habe und ihnen zustimme.*"
             },
+            "IS_ELECTRICIAN": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
             "LASTNAME": "Nachname",
             "PASSWORD": "Passwort",
             "PHONE": "Telefonnummer",
             "PRIVATE": "Privat",
             "STREET": "Straße | Hausnummer",
+            "SUBSCRIBE_NEWSLETTER": "Hier kannst du den Newsletter abonnieren.",
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": ""
+                "ACCEPT_PRIVACY_POLICY": "Mit der Erstellung eines Kontos erkläre ich, dass ich die <a target=\"_blank\" href={{link}}>Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen habe und ihnen zustimme.*"
             },
             "ZIP": "PLZ"
         },
@@ -993,14 +1004,14 @@
                 "EV_CHARGING_STATION": "E-Auto-Ladestation",
                 "EV_CHARGING_STATION_CONTROL": "E-Auto-Ladestation-Steuerung",
                 "EXTERNAL_INTERFACES": "Externe Schnittstellen",
-                "IO_CONTROL": "I/O-Steuerung",
                 "IOS": "I/Os",
+                "IO_CONTROL": "I/O-Steuerung",
                 "METER": "Zähler",
                 "OTHERS": "Weitere",
                 "SIMULATORS": "Simulatoren",
                 "STANDARD_COMPONENTS": "Standard-Komponenten",
-                "STORAGE_SYSTEM_CONTROL": "Speichersystem-Steuerung",
                 "STORAGE_SYSTEMS": "Speichersysteme",
+                "STORAGE_SYSTEM_CONTROL": "Speichersystem-Steuerung",
                 "TEMPERATURE_SENSORS": "Temperatursensoren"
             }
         },
@@ -1022,11 +1033,11 @@
             "NEW_VERSION": "Neueste Version:",
             "NEW_VERSION_INSTALLING": "Neueste Version installieren",
             "OFFLINE": "Das {{ edgeShortName }} ist offline.",
+            "RESTARTED": "{{system}} neu starten war erfolgreich.",
+            "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
             "RESTART_CONFIRMATION": "Möchtest du {{system}} neu starten?",
             "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
             "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stelle sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
-            "RESTARTED": "{{system}} neu starten war erfolgreich.",
-            "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
             "SUB_HEADER": "Möchtest du ein Systemupdate durchführen?",
             "UPDATE_COMPONENT": "Aktualisiere Komponente",
             "UPDATE_EXECUTE": "Systemupdate durchführen",

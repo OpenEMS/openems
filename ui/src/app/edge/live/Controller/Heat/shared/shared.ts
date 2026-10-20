@@ -43,10 +43,10 @@ export namespace SharedControllerHeat {
         const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
 
         return [
-            ...getFormlySharedLines(translate, component),
-            ...(isMyPv ? getMyPVInfoLine(translate) : []),
             ...(isAskoma ? getAskomaIcon() : []),
             ...(isMyPv ? getMyPvIcon() : []),
+            ...getFormlySharedLines(translate, component),
+            ...(isMyPv ? getMyPVInfoLine(translate) : []),
         ];
     };
 
@@ -186,24 +186,9 @@ export namespace SharedControllerHeat {
     export function getNavigationTree(
         translate: TranslateService,
         component: EdgeConfig.Component,
-        isAskoma: boolean,
     ): ConstructorParameters<typeof NavigationTree> {
         const isWritable = component.properties?.readOnly !== true;
         const children = [];
-
-        if (isWritable && isAskoma) {
-            children.push(
-                new NavigationTree(
-                    component.id + "-forecast",
-                    { baseString: "forecast" },
-                    { name: "stats-chart-outline", color: "success" },
-                    translate.instant("HEAT.FORECAST.FORECAST"),
-                    "label",
-                    [],
-                    null,
-                ),
-            );
-        }
 
         children.push(NavigationConstants.CommonNodes.HISTORY(translate, component.id));
 

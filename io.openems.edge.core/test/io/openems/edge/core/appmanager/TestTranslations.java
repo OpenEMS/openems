@@ -28,7 +28,6 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome15;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
-import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.SubdivisionCode;
@@ -74,13 +73,6 @@ class TestTranslations {
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
-			this.apps.add(
-					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
-			this.apps.add(
-					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
-			this.apps.add(
-					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybrid10(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("USER_KEY", "xxx") //
 					.build()));
@@ -321,10 +313,17 @@ class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPv(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("IP", "192.168.178.152") //
+					.addProperty("STORAGE_VOLUME", 333) //
+					.addProperty("HEATED_SHARE", 50) //
 					.addProperty("MAX_HEAT_POWER", 3000) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("IP", "192.168.178.152") //
+					.addProperty("STORAGE_VOLUME", 333) //
+					.addProperty("HEATED_SHARE", 50) //
+					.addProperty("MAX_HEAT_POWER", 3000) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.heatAskomaReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.appSohCycle(t), true, JsonUtils.buildJsonObject() //

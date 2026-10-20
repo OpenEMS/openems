@@ -1,6 +1,4 @@
-// @ts-strict-ignore
-import { Component, effect, model, OnDestroy, signal, ChangeDetectionStrategy, untracked } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, untracked } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -31,7 +29,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if the logged in user is allowed to install new edges. */
     public loggedInUserCanInstall = model<boolean>(false);
 
-    public form: FormGroup;
     public filteredEdges = model<Edge[]>([]);
 
     protected loading = signal(false);
@@ -83,22 +80,28 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         });
     }
 
-    static getNavigationTree(user: User, translate: TranslateService): NavigationTree[] {
-        if (!user?.hasMultipleEdges) {
-            return [];
+    /**
+     * Returns the navigation tree for the overview component.
+     *
+     * @param user The current user
+     * @param translate The translation service
+     * @param service The platform service
+     * @returns The navigation tree or null if device has smartphone resolution or the user does not have multiple edges
+     */
+    public static getNavigationTree(user: User, translate: TranslateService, service: Service): NavigationTree | null {
+        if (!user?.hasMultipleEdges || service.getIsSmartphoneResolution()) {
+            return null;
         }
-        return [
-            new NavigationTree(
-                "overview",
-                { baseString: "overview" },
-                { name: "apps-outline" },
-                { desktop: translate.instant("MENU.OVERVIEW"), mobile: translate.instant("MENU.SYSTEMS") },
-                "icon",
-                [],
-                null,
-                { customLink: "/overview", hideFavorite: true },
-            ),
-        ];
+        return new NavigationTree(
+            "overview",
+            { baseString: "overview" },
+            { name: "apps-outline" },
+            { desktop: translate.instant("MENU.OVERVIEW"), mobile: translate.instant("MENU.SYSTEMS") },
+            "icon",
+            [],
+            null,
+            { customLink: "/overview", hideFavorite: true },
+        );
     }
 
     ionViewWillEnter() {
@@ -155,7 +158,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 return;
             }
 
-            const searchParamsObj = {};
+            const searchParamsObj: Record<string, ChosenFilter["value"]> = {};
             if (this.searchParams && this.searchParams.size > 0) {
                 for (const [key, value] of this.searchParams) {
                     searchParamsObj[key] = value;
@@ -174,7 +177,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
                     // TODO could be applied before calling getEdges
-                    if (!UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
+                    if (user != null && !UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);

@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "Umístění",
+        "SYSTEM_LOCATION": "Umístění úložného systému",
+        "VALIDATED": "Validováno",
+        "NOT_VALIDATED": "Validujte prosím umístění svého systému.",
+        "TO_VALIDATION": "Přejít na validaci",
+        "EDIT": "Upravit",
+        "EDIT_CARD_TITLE": "Validace umístění vašeho systému",
+        "EDIT_CARD_SUBTITLE": "Údaje o umístění jsou validovány pro účely servisu a záruky.",
+        "EDIT_CARD_INFO": "Pro validaci umístění vašeho systému se ukládá pouze zeměpisná délka a šířka.",
+        "LONGITUDE": "Zeměpisná délka",
+        "LATITUDE": "Zeměpisná šířka",
+        "ADRESS_IS_VALIDATED": "Umístění je již validováno",
+        "SUCCESSFULL_VALIDATION": "Validace úspěšná!"
+    }
+}

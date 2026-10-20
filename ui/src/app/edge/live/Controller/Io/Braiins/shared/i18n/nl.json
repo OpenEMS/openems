@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "SCHEDULE": {
+            "MODE": "Modus",
+            "MODE_SELECTION_PLACEHOLDER": "Modus selecteren"
+        },
+        "MODE": {
+            "ACTIVE_MODE": "Modus",
+            "LABEL": "Basismodus",
+            "OFF": "Uit",
+            "ON": "Aan",
+            "SELECT_PROMPT": "Welke modus moet voor de miner gelden?"
+        }
+    }
+}

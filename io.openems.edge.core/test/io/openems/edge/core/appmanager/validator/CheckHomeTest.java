@@ -1,8 +1,8 @@
 package io.openems.edge.core.appmanager.validator;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,11 +76,11 @@ public class CheckHomeTest {
 	}
 
 	@Test
-	public void testGetErrorMessage() {
+	public void testGetValidationError() {
 		final var dt = TranslationUtil.enableDebugMode();
 		for (var l : Language.values()) {
-			this.checkHome.getErrorMessage(l);
-			this.checkHome.getInvertedErrorMessage(l);
+			this.checkHome.getValidationError(l);
+			this.checkHome.getInvertedValidationError(l);
 		}
 		assertTrue(dt.getMissingKeys().isEmpty());
 	}

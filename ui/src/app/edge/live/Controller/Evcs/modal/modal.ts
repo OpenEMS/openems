@@ -44,6 +44,7 @@ export class ModalComponent extends AbstractModal {
     protected awaitingHysteresis: boolean | null = null;
     protected isReadWrite: boolean = true;
     protected helpKey: string | null = null;
+    private showKEBAwarining: boolean = false;
 
     private chargePoint: EvcsComponent | null = null;
 
@@ -59,10 +60,6 @@ export class ModalComponent extends AbstractModal {
         public override ref: ChangeDetectorRef,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
-        ref.detach();
-        setInterval(() => {
-            this.ref.detectChanges(); // manually trigger change detection
-        }, 0);
     }
 
     protected static getHelpKey(factoryId: string): string | null {
@@ -71,6 +68,7 @@ export class ModalComponent extends AbstractModal {
             "Evcs.Keba.KeContact": "EVCS_KEBA",
             "Evcs.HardyBarth": "EVCS_HARDY_BARTH",
             "Evcs.Mennekes": "EVCS_MENNEKES",
+            "Evse.Alfen": "EVSE_ALFEN",
             "Evcs.Goe.Http": "EVCS_GO_E",
             "Evcs.Ocpp.IesKeywattSingle": "EVCS_IES",
             "Evcs.AlpitronicHypercharger": "EVCS_ALPITRONIC_HYPER",
@@ -161,6 +159,7 @@ export class ModalComponent extends AbstractModal {
         }
 
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
+        this.showKEBAwarining = this.helpKey === "REDIRECT.EVCS_KEBA";
         this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false; // 0 !== 3 -> true
         this.status = this.getState(
             this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false,

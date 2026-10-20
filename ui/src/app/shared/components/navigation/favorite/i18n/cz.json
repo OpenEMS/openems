@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Přidáno",
+        "DESCRIPTION_OWNER": "Označte obsah srdíčkem, abyste jej později snadno našli. Vaše výběr se zobrazí zde.",
+        "DESCRIPTION_OTHERS": "Vlastník systému může označit obsah jako oblíbený pomocí ikony srdíčka. Zde jej pak později snadno najde.",
+        "INFO": "Mějte důležité věci pod kontrolou",
+        "REMOVED_FAVORITE": "Odebráno"
+    }
+}

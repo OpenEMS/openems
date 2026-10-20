@@ -236,8 +236,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (emergencyReserveCtrl != null) {
-                this.setFormControlSafelyWithChannel(
-                    this.form,
+                this.setFormControlSafelyWithBooleanChannel(
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -246,7 +246,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_SOC(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -260,8 +260,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 .getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
                 .find((el) => el.getPropertyFromComponent("ess.id") == essComponent.id);
             if (prepareBatteryExtensionCtrl != null) {
-                this.setFormControlSafelyWithChannel(
-                    this.form,
+                this.setFormControlSafelyWithBooleanChannel(
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -270,7 +270,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_SOC(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -279,7 +279,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -288,7 +288,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_BUFFER(
                         essComponent,
                     ),
@@ -298,8 +298,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                         CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER,
                     ),
                 );
-                this.setFormControlSafelyWithChannel(
-                    this.form,
+                this.setFormControlSafelyWithBooleanChannel(
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_SPECIFIED(
                         essComponent,
                     ),
@@ -310,7 +310,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 );
                 this.setFormControlSafelyWithChannel(
-                    this.form,
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_EXPECTED_EPOCH_SECONDS(
                         essComponent,
                     ),
@@ -324,8 +324,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
 
             const meta = new MetaComponent(config);
             if (meta != null) {
-                this.setFormControlSafelyWithChannel(
-                    this.form,
+                this.setFormControlSafelyWithBooleanChannel(
+                    this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent),
                     currentData,
                     new ChannelAddress(
@@ -521,11 +521,11 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     buttons: [
                         {
                             name: translate.instant("EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION"),
-                            value: 1,
+                            value: true,
                         },
                         {
                             name: translate.instant("EDGE.INDEX.RETROFITTING.INSTANT_START"),
-                            value: 0,
+                            value: false,
                         },
                     ],
                     controlName:

@@ -9,7 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface RestApi extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		UNABLE_TO_START(Doc.of(Level.FAULT) //
+		UNABLE_TO_START(Doc.of(Level.FAULT)//
 				.text("Unable to start REST-Api Server"));
 
 		private final Doc doc;

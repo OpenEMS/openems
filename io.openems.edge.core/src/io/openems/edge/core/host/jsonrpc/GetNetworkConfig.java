@@ -6,9 +6,8 @@ import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.core.host.NetworkConfiguration;
-import io.openems.edge.core.host.jsonrpc.GetNetworkConfig.Response;
 
-public class GetNetworkConfig implements EndpointRequestType<EmptyObject, Response> {
+public class GetNetworkConfig implements EndpointRequestType<EmptyObject, GetNetworkConfig.Response> {
 
 	@Override
 	public String getMethod() {
@@ -32,10 +31,10 @@ public class GetNetworkConfig implements EndpointRequestType<EmptyObject, Respon
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetNetworkConfig.Response> serializer() {
+		public static JsonSerializer<Response> serializer() {
 			final var serializer = NetworkConfiguration.serializer();
-			return jsonSerializer(GetNetworkConfig.Response.class, json -> {
-				return new GetNetworkConfig.Response(serializer.deserializePath(json));
+			return jsonSerializer(Response.class, json -> {
+				return new Response(serializer.deserializePath(json));
 			}, obj -> {
 				return serializer.serialize(obj.config());
 			});

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -7,8 +7,13 @@ import { SystemLocationValidatorComponent } from "src/app/shared/components/syst
 import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { PromiseUtils } from "src/app/shared/utils/promise/promise.utils";
+import cz from "../i18n/cz.json";
 import de from "../i18n/de.json";
 import en from "../i18n/en.json";
+import es from "../i18n/es.json";
+import fr from "../i18n/fr.json";
+import ja from "../i18n/ja.json";
+import nl from "../i18n/nl.json";
 
 @Component({
     selector: "oe-settings-profile-location-validator",
@@ -81,11 +86,13 @@ export class LocationValidatorComponent implements OnInit {
     private translate: TranslateService = inject(TranslateService);
 
     public async ngOnInit() {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
 
         const [err, config] = await PromiseUtils.Functions.handle<EdgeConfig>(this.service.getConfig());
 

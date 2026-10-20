@@ -15,8 +15,13 @@ import { NumberFormatPipe } from "./pipes/number-format.pipe";
 import { WeatherCodeDescriptionPipe } from "./pipes/weather-code-description.pipe";
 import { WeatherCodeIconPipe } from "./pipes/weather-code-icon.pipe";
 import { WeekdayFormatPipe } from "./pipes/weekday-format.pipe";
+import cz from "./shared/i18n/cz.json";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
+import es from "./shared/i18n/es.json";
+import fr from "./shared/i18n/fr.json";
+import ja from "./shared/i18n/ja.json";
+import nl from "./shared/i18n/nl.json";
 import { WeatherSharedContentComponent } from "./shared/shared-content";
 import { SecondsToHoursPipe } from "./shared/weather.constants";
 
@@ -40,17 +45,12 @@ import { SecondsToHoursPipe } from "./shared/weather.constants";
         WeatherHomeComponent,
         WeatherComponent,
     ],
-    exports: [
-        WeatherSharedContentComponent,
-        WeatherComponent,
-        WeatherHomeComponent,
-        MiniWeatherComponent,
-    ],
+    exports: [WeatherSharedContentComponent, WeatherComponent, WeatherHomeComponent, MiniWeatherComponent],
 })
 export class WeatherModule {
     constructor(private translate: TranslateService) {
         registerWeatherIcons();
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
             (translations) => {
                 for (const { lang, translation, shouldMerge } of translations) {
                     translate.setTranslation(lang, translation, shouldMerge);

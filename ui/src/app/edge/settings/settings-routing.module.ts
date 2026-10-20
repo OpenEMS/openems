@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
+import { hasEdgeRole, hasEnvironmentBackend } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from "./channels/channels.component";
@@ -107,7 +107,7 @@ export const settingsRoutes: Routes = [
     {
         path: "app/single/install",
         loadComponent: () => import("./app/install.component").then((m) => m.InstallAppComponent),
-        canActivate: [hasEdgeRole(Role.OWNER)],
+        canActivate: [hasEdgeRole(Role.OWNER), hasEnvironmentBackend("OpenEMS Backend")],
     },
     {
         path: "app/single/update",

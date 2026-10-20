@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -26,17 +25,17 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     /** DisplayValue is the displayed @Input value in html */
     public displayValue: string | null = null;
 
-    protected displayName: string = null;
+    protected displayName: string | null | undefined = null;
     protected show: boolean = true;
 
-    private _name: string | ((value: any) => string);
+    private _name: string | ((value: any) => string) | undefined;
     private _channelAddress: ChannelAddress | null = null;
 
     /** Selector used for subscribe */
     private selector: string = uuidv4();
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge | null = null;
-    private subscription: EffectRef;
+    private subscription: EffectRef | undefined;
     private injector = inject(Injector);
 
     constructor(

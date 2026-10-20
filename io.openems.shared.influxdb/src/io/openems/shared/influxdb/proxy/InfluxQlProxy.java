@@ -57,11 +57,11 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyQuery(bucket, measurement, influxEdgeId, fromDate, toDate, channels);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		return convertHistoricEnergyResult(queryResult, influxEdgeId, channels);
+		return convertHistoricEnergyResult(queryResult, influxEdgeId, channels.toSet());
 	}
 
 	@Override
@@ -72,12 +72,12 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyQuerySingleValueInDay(bucket, measurement, influxEdgeId, fromDate, toDate,
 				channels);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		var firstResult = convertHistoricEnergyResultSingleValueInDay(queryResult, influxEdgeId, channels);
+		var firstResult = convertHistoricEnergyResultSingleValueInDay(queryResult, influxEdgeId, channels.toSet());
 		if (firstResult == null) {
 			// return a map which has for every channel JsonNull.INSTANCE
 			return channels.stream() //
@@ -100,13 +100,13 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricDataQuery(bucket, measurement, influxEdgeId, fromDate, toDate, channels,
 				resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		return convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels, Average::new);
+		return convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels.toSet(), Average::new);
 	}
 
 	protected static class Average implements BiFunction<JsonElement, JsonElement, JsonElement> {
@@ -146,15 +146,16 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyPerPeriodQuery(bucket, measurement, influxEdgeId, fromDate, toDate,
 				channels, resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
-		var result = convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels,
+		var channelsSet = channels.toSet();
+		var result = convertHistoricDataQueryResult(queryResult, fromDate, resolution, channelsSet,
 				() -> InfluxQlProxy::last);
-		return DbDataUtils.normalizeTable(result, channels, resolution, fromDate, toDate);
+		return DbDataUtils.normalizeTable(result, channelsSet, resolution, fromDate, toDate);
 	}
 
 	@Override
@@ -165,14 +166,15 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyPerPeriodQuerySingleValueInDay(bucket, measurement, influxEdgeId, fromDate,
 				toDate, channels, resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
 
-		final var result = convertHistoricDataQueryResultSingleValue(queryResult, fromDate, resolution, channels,
+		final var channelsSet = channels.toSet();
+		final var result = convertHistoricDataQueryResultSingleValue(queryResult, fromDate, resolution, channelsSet,
 				InfluxQlProxy::last);
 
 		if (result == null || result.isEmpty()) {
@@ -181,7 +183,7 @@ public class InfluxQlProxy extends QueryProxy {
 
 		final Set<ChannelAddress> channelsForBeforeValues;
 		if (!result.firstKey().isBefore(fromDate)) {
-			channelsForBeforeValues = channels;
+			channelsForBeforeValues = channelsSet;
 		} else {
 			final var first = result.get(result.firstKey());
 
@@ -193,7 +195,7 @@ public class InfluxQlProxy extends QueryProxy {
 
 		if (!channelsForBeforeValues.isEmpty()) {
 			final var beforeValues = this.queryFirstValueBefore(bucket, influxConnection, measurement, influxEdgeId,
-					fromDate, channelsForBeforeValues);
+					fromDate, QueryChannels.of(channelsForBeforeValues));
 
 			if (result.firstKey().isBefore(fromDate)) {
 				// only update values which are newly queried
@@ -202,7 +204,9 @@ public class InfluxQlProxy extends QueryProxy {
 					firstElement.putAll(beforeValues);
 				}
 			} else {
-				result.put(fromDate.minusDays(1), beforeValues);
+				if (beforeValues != null && !beforeValues.isEmpty()) {
+					result.put(fromDate.minusDays(1), beforeValues);
+				}
 			}
 		}
 
@@ -219,14 +223,14 @@ public class InfluxQlProxy extends QueryProxy {
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime date, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException {
 		if (channels.isEmpty()) {
 			return Collections.emptySortedMap();
 		}
 		final var query = this.buildFetchFirstValueBefore(bucket, measurement, influxEdgeId, date, channels);
 		final var queryResult = this.executeQuery(influxConnection, bucket, query);
-		return convertHistoricEnergyResultRaw(queryResult, influxEdgeId, channels);
+		return convertHistoricEnergyResultRaw(queryResult, influxEdgeId, channels.toSet());
 	}
 
 	@Override
@@ -236,7 +240,7 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException {
 		// Prepare query string
@@ -273,7 +277,7 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsException {
 		// Prepare query string
 		var b = new StringBuilder("SELECT ") //
@@ -304,7 +308,7 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsException {
 		fromDate = fromDate.minusDays(1);
 		// Prepare query string
@@ -335,7 +339,7 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException {
 		// Prepare query string
@@ -375,7 +379,7 @@ public class InfluxQlProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException {
 		fromDate = fromDate.minusDays(1);
@@ -416,7 +420,7 @@ public class InfluxQlProxy extends QueryProxy {
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime date, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) {
 		final var builder = new StringBuilder("SELECT ") //
 				.append(channels.stream().map(channel -> "LAST(\"" + channel + "\") as \"" + channel + "\"")

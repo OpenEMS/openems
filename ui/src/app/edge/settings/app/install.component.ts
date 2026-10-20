@@ -268,6 +268,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                             this.router.navigate(["../"], {
                                 ...navigationExtras,
                                 relativeTo: this.route,
+                                queryParams: {
+                                    name: this.appName,
+                                    appId: this.appId,
+                                },
                             });
                         }
                     })

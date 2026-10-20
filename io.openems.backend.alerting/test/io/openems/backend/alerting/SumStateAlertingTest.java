@@ -69,8 +69,7 @@ class SumStateAlertingTest {
 			this.alerting.metadata = this.meta;
 		}
 
-		void createEdge(String id, boolean online, ZonedDateTime lastMessage,
-				SimpleAlertingSetting... settings) {
+		void createEdge(String id, boolean online, ZonedDateTime lastMessage, SimpleAlertingSetting... settings) {
 			var edge = new Edge(this.meta, id, null, null, null, lastMessage);
 			edge.setOnline(online);
 			this.edges.put(id, edge);

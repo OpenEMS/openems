@@ -1,11 +1,10 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectorRef, Component, ContentChild, effect, Inject, input, model, output, TemplateRef, ChangeDetectionStrategy, } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, effect, Inject, inject, input, model, output, TemplateRef, } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { filter, take } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -16,12 +15,18 @@ import { GetAllTasks } from "src/app/shared/jsonrpc/request/getAllTasks";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { CommonUiModule } from "../../common-ui.module";
 import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { RouteService } from "../../service/route/route.service";
 import { Language } from "../../type/language";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { ComponentsBaseModule } from "../components.module";
 import { FlatWidgetButtonComponent } from "../flat/flat-widget-button/flat-widget-button";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import nl from "./i18n/nl.json";
 import { JsCalendar } from "./js-calendar-task";
 
 @Component({
@@ -41,6 +46,8 @@ export class ScheduleComponent extends AbstractModal {
     protected spinnerId: string = uuidv4();
     protected canWrite: boolean = false;
 
+    private readonly routeService = inject(RouteService);
+
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
         @Inject(ActivatedRoute) protected override route: ActivatedRoute,
@@ -54,11 +61,13 @@ export class ScheduleComponent extends AbstractModal {
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
 
         effect(() => {
             const edge = this.service.currentEdge();
@@ -97,17 +106,8 @@ export class ScheduleComponent extends AbstractModal {
     }
 
     public override async updateComponent(config: EdgeConfig) {
-        return new Promise<void>((res) => {
-            this.route.params
-                .pipe(
-                    filter((params) => params != null),
-                    take(1),
-                )
-                .subscribe((params) => {
-                    this.component = config.getComponent(params.componentId);
-                    res();
-                });
-        });
+        const componentId = this.routeService.getRouteParam<string>("componentId");
+        this.component = config.getComponentSafely(componentId);
     }
 
     public override onIsInitialized(): void {

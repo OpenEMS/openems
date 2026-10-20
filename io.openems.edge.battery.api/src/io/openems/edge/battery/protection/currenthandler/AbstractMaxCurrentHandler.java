@@ -290,8 +290,7 @@ public abstract class AbstractMaxCurrentHandler {
 		final var minCellTemperatureLimit = this
 				.percentToAmpere(this.temperatureToPercent.getValue(minCellTemperature));
 		// Calculate Ampere limit for Max-Cell-Temperature
-		final var maxCellTemperatureLimit = this
-				.percentToAmpere(this.temperatureToPercent.getValue(maxCellTemperature));
+		final var maxCellTemperatureLimit = this.getMaxCellTemperatureToPercentLimit(maxCellTemperature);
 		// Calculate Ampere limit for State of Charge
 		final var maxSocLimit = this.percentToAmpere(this.socToPercent.getValue(soc));
 		// Calculate Max Increase Ampere Limit
@@ -345,8 +344,8 @@ public abstract class AbstractMaxCurrentHandler {
 	}
 
 	/**
-	 * Calculates the current limit based on Min-/Max-Cell-Voltage according to the
-	 * 'voltageToPercent' characteristics.
+	 * Calculates the current limit based on Min-/Max-Cell-Voltage/Temperature
+	 * according to the related polyline characteristics.
 	 *
 	 * <p>
 	 * If for the given 'cellVoltage' value 'voltageToPercent' defines a limitation
@@ -361,14 +360,16 @@ public abstract class AbstractMaxCurrentHandler {
 	 * active charge/discharge limitations.
 	 *
 	 * @param activeLimit the currently active limit
-	 * @param cellVoltage the cell-voltage
+	 * @param polyline    the polyline for voltage or temperature
+	 * @param value       the cell voltage/temperature
 	 * @return the Cell-Voltage-To-Percent Limit
 	 */
-	private synchronized Double getCellVoltageToPercentLimit(AtomicReference<Double> activeLimit, Integer cellVoltage) {
-		if (cellVoltage == null) {
+	private synchronized Double getHysteresisLimit(AtomicReference<Double> activeLimit, PolyLine polyline,
+			Integer value) {
+		if (value == null) {
 			return null;
 		}
-		var percentage = this.voltageToPercent.getValue(cellVoltage);
+		var percentage = polyline.getValue(value);
 		if (percentage == null) {
 			return null;
 		}
@@ -392,13 +393,20 @@ public abstract class AbstractMaxCurrentHandler {
 	private final AtomicReference<Double> activeMinCellVoltageToPercentLimit = new AtomicReference<>();
 
 	protected Double getMinCellVoltageToPercentLimit(Integer minCellVoltage) {
-		return this.getCellVoltageToPercentLimit(this.activeMinCellVoltageToPercentLimit, minCellVoltage);
+		return this.getHysteresisLimit(this.activeMinCellVoltageToPercentLimit, this.voltageToPercent, minCellVoltage);
 	}
 
 	private final AtomicReference<Double> activeMaxCellVoltageToPercentLimit = new AtomicReference<>();
 
-	protected Double getMaxCellVoltageToPercentLimit(Integer minCellVoltage) {
-		return this.getCellVoltageToPercentLimit(this.activeMaxCellVoltageToPercentLimit, minCellVoltage);
+	protected Double getMaxCellVoltageToPercentLimit(Integer maxCellVoltage) {
+		return this.getHysteresisLimit(this.activeMaxCellVoltageToPercentLimit, this.voltageToPercent, maxCellVoltage);
+	}
+
+	private final AtomicReference<Double> activeMaxCellTemperatureToPercentLimit = new AtomicReference<>();
+
+	protected Double getMaxCellTemperatureToPercentLimit(Integer maxCellTemperature) {
+		return this.getHysteresisLimit(this.activeMaxCellTemperatureToPercentLimit, this.temperatureToPercent,
+				maxCellTemperature);
 	}
 
 	/**

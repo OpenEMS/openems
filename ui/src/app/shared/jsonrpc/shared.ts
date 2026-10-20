@@ -18,7 +18,7 @@ export type Edges = [
         role: "admin" | "installer" | "owner" | "guest";
         isOnline: boolean;
         lastmessage: Date;
-        firstSetupProtocol: Date;
+        firstSetupProtocol: Date | null;
     },
 ];
 

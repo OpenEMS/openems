@@ -691,7 +691,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		private Object resolveEnum(Channel<?> channel, Object got) {
 			if (channel.channelDoc() instanceof EnumDoc enumDoc) {
 				var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);

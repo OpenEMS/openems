@@ -96,6 +96,9 @@ public class ControllerPvInverterSellToGridLimitImpl extends AbstractOpenemsComp
 		// Calculates required charge/discharge power
 		var calculatedPower = this.calculateRequiredPower(pvInverter, meter, this.config.asymmetricMode());
 
+		// Clamp to >=0: unsigned Modbus registers wrap negatives to huge positives, disabling the control logic.
+		calculatedPower = Math.max(0, calculatedPower);
+
 		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math
 				.abs(this.lastSetLimit - calculatedPower) > Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE) {
 			if (this.lastSetLimit > calculatedPower) {

@@ -30,10 +30,12 @@ export namespace SharedConsumption {
             ?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(
                 (component) =>
-                    !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+                    component.factoryId !== "Controller.Heat.Heatingelement" && component.isEnabled !== false,
             );
         const sum: EdgeConfig.Component = config.getComponent("_sum");
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
+
+        const consumptionChildren = SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate);
 
         return new NavigationTree(
             "consumption",
@@ -42,7 +44,7 @@ export namespace SharedConsumption {
             translate.instant("GENERAL.CONSUMPTION"),
             "icon",
             [
-                ...SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate),
+                ...consumptionChildren,
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning", "consumption"),
                 getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
             ],
@@ -128,12 +130,12 @@ export namespace SharedConsumption {
             .getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(
                 (component) =>
-                    !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-                    !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+                    component.factoryId != "Evcs.Cluster.SelfConsumption" &&
+                    component.factoryId != "Evcs.Cluster.PeakShaving" &&
                     !config.factories[component.factoryId].natureIds.includes(
                         "io.openems.edge.meter.api.ElectricityMeter",
                     ) &&
-                    !component.isEnabled == false,
+                    component.isEnabled,
             );
 
         const consumptionMeters: EdgeConfig.Component[] | null = config
@@ -248,12 +250,12 @@ export namespace SharedConsumption {
             .getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(
                 (component) =>
-                    !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-                    !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+                    component.factoryId != "Evcs.Cluster.SelfConsumption" &&
+                    component.factoryId != "Evcs.Cluster.PeakShaving" &&
                     !config.factories[component.factoryId].natureIds.includes(
                         "io.openems.edge.meter.api.ElectricityMeter",
                     ) &&
-                    !component.isEnabled == false,
+                    component.isEnabled,
             );
 
         const consumptionMeters: EdgeConfig.Component[] | null = config

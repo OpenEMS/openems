@@ -1,0 +1,8 @@
+{
+    "SYSTEM_STATUS_MESSAGE": {
+        "OK": "Tout va bien",
+        "INFO": "Tout va bien",
+        "FAULT": "",
+        "WARNING": ""
+    }
+}

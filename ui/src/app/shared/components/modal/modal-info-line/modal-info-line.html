@@ -15,6 +15,9 @@
             @if (info.length > 1) {
               <br />
             }
+            @if (link) {
+              <a [href]="link.href" target="_blank">{{ link.text }}</a>
+            }
           </div>
         }
       } @else {

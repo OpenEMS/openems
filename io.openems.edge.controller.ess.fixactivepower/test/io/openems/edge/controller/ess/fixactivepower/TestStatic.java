@@ -12,13 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.openems.common.jscalendar.JSCalendar;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 
 class TestStatic {
 
-	private static final String DEFAULT_ESS_ID = "ess0";
 	private static final String DEFAULT_CONTROLLER_ID = "ctrlFixActivePower0";
 	private static final float TEST_BUFFER = 0f;
 
@@ -27,9 +28,11 @@ class TestStatic {
 
 	@BeforeEach
 	void setup() {
-		this.ess = new DummyManagedSymmetricEss(DEFAULT_ESS_ID);
+		this.ess = new DummyManagedSymmetricEss("ess0");
 		this.meta = new DummyMeta()//
-				.withGridBuyHardLimit(22000)//
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(22000)) //
+						.setSoft(JSCalendar.Tasks.empty())) //
 				.withGridSellHardLimit(22000)//
 				.withIsEssChargeFromGridAllowed(true)//
 				.withIsEssDischargeToGridAllowed(true);
@@ -73,8 +76,9 @@ class TestStatic {
 	void testLimitBySystemConstraints_LimitedByMeta() {
 
 		this.meta = this.meta //
-				.withGridBuyHardLimit(4200);// e.g. §14a EnWG limit in future
-
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(4200)) //
+						.setSoft(JSCalendar.Tasks.empty())); // e.g. §14a EnWG limit in future
 		var systemLimits = fromMeta(this.meta);
 		Integer gridActivePower = 1000;
 		var powerTarget = ControllerEssFixActivePowerImpl.PowerTarget.fromDcPowerWithDefaults(-10000);
@@ -123,7 +127,10 @@ class TestStatic {
 	@Test
 	void testCalculateAcMinimumWithoutGrid() {
 		// Without gridActivePower, minimum is limited only by gridBuyHardLimit
-		var systemLimits = fromMeta(new DummyMeta().withGridBuyHardLimit(5000));
+		var systemLimits = fromMeta(new DummyMeta()//
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(5000)) //
+						.setSoft(JSCalendar.Tasks.empty())));
 		int essMinPower = calculateAcMinimum(systemLimits, null, 0, TEST_BUFFER);
 
 		// Ess Allowed Charge Power is 5000 -> MinValue: -5000
@@ -132,7 +139,10 @@ class TestStatic {
 
 	@Test
 	void testCalculateAcMinimumWithGridBuy() {
-		var systemLimits = fromMeta(new DummyMeta().withGridBuyHardLimit(3000));
+		var systemLimits = fromMeta(new DummyMeta()//
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(3000)) //
+						.setSoft(JSCalendar.Tasks.empty())));
 		int essMinPower = calculateAcMinimum(systemLimits, 1000, 0, TEST_BUFFER);
 
 		assertEquals(-2000, essMinPower);
@@ -140,7 +150,9 @@ class TestStatic {
 
 	@Test
 	void testCalculateAcMinimumWithGridSell() {
-		var systemLimits = fromMeta(new DummyMeta().withGridBuyHardLimit(4000));
+		var systemLimits = fromMeta(new DummyMeta().withGridBuyLimit(b -> b //
+				.setHard(new GridBuyLimit.Hard(4000)) //
+				.setSoft(JSCalendar.Tasks.empty())));
 		int essMinPower = calculateAcMinimum(systemLimits, -2000, 0, TEST_BUFFER);
 
 		assertEquals(-6000, essMinPower);
@@ -148,7 +160,9 @@ class TestStatic {
 
 	@Test
 	void testCalculateAcMinimumWithEssDischarging() {
-		var systemLimits = fromMeta(new DummyMeta().withGridBuyHardLimit(10000));
+		var systemLimits = fromMeta(new DummyMeta().withGridBuyLimit(b -> b //
+				.setHard(new GridBuyLimit.Hard(10000)) //
+				.setSoft(JSCalendar.Tasks.empty())));
 		int acMin = calculateAcMinimum(systemLimits, 2000, 3000, TEST_BUFFER);
 
 		// Without essActivePower the realGridWould be 5000, so only 5000 for ess charge
@@ -158,7 +172,10 @@ class TestStatic {
 
 	@Test
 	void testCalculateAcMinimumWithEssCharging() {
-		var systemLimits = fromMeta(new DummyMeta().withGridBuyHardLimit(10000));
+		var systemLimits = fromMeta(new DummyMeta()//
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())));
 		int acMin = calculateAcMinimum(systemLimits, 2000, -500, TEST_BUFFER);
 
 		assertEquals(-8500, acMin);
@@ -207,7 +224,10 @@ class TestStatic {
 
 	@Test
 	void testCalculateAcMaximumWithEssChargingWithBuffer() {
-		var systemLimits = fromMeta(new DummyMeta().withGridSellHardLimit(10000).withGridBuyHardLimit(10000));
+		var systemLimits = fromMeta(new DummyMeta().withGridSellHardLimit(10000)//
+				.withGridBuyLimit(b -> b //
+						.setHard(new GridBuyLimit.Hard(10000)) //
+						.setSoft(JSCalendar.Tasks.empty())));
 		int acMax = calculateAcMaximum(systemLimits, 2000, -500, SystemLimitHelper.DEFAULT_GRID_BUFFER_FACTOR);
 
 		assertEquals(withDefaultBuffer(10000) - 500 + 2000, acMax);

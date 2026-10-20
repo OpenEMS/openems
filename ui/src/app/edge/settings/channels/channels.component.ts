@@ -147,11 +147,7 @@ export class ChannelsComponent {
 
         const channelAddress = new ChannelAddress(componentId, channelId);
         if (this.subscribedChannels.delete(channelAddress.toString())) {
-            this.edge.subscribeChannels(
-                this.websocket,
-                ChannelsComponent.SELECTOR,
-                Array.from(this.subscribedChannels.values()).flat(),
-            );
+            this.edge.unsubscribeFromChannels(ChannelsComponent.SELECTOR, this.websocket, [channelAddress]);
         }
 
         this.saveChannelsInUrl();

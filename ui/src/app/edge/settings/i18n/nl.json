@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "STATUS_INSTALLED": "Geïnstalleerd",
+                "STATUS_AVAILABLE": "Beschikbaar",
+                "STATUS_INCOMPATIBLE": "Incompatibel",
+                "STATUS_FILTER": "Beschikbaarheid",
+                "CATEGORY_FILTER": "App-categorieën"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "TITLE": "Systeemlocatie",
+            "SUCCESS_MESSAGE": "Systeemlocatie succesvol bijgewerkt."
+        },
+        "SYSTEM_PROTOCOL": {
+            "LABEL": "Systeemprotocol",
+            "DOWNLOAD": "Downloaden",
+            "TITLE": "Actueel"
+        }
+    }
+}

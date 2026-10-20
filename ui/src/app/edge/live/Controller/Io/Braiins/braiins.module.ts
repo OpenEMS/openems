@@ -13,8 +13,13 @@ import { ControllerBraiinsModeComponent } from "./pages/mode/mode";
 import { ControllerBraiinsScheduleComponent } from "./pages/schedule/schedule.component";
 import { ControllerBraiinsAddTaskComponent } from "./pages/schedule/task/add/add";
 import { ControllerBraiinsEditTaskComponent } from "./pages/schedule/task/edit/edit";
+import cz from "./shared/i18n/cz.json";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
+import es from "./shared/i18n/es.json";
+import fr from "./shared/i18n/fr.json";
+import ja from "./shared/i18n/ja.json";
+import nl from "./shared/i18n/nl.json";
 
 @NgModule({
     imports: [
@@ -35,7 +40,7 @@ import en from "./shared/i18n/en.json";
 })
 export class ControllerBraiinsModule {
     constructor(private readonly translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
             (translations) => {
                 for (const { lang, translation, shouldMerge } of translations) {
                     translate.setTranslation(lang, translation, shouldMerge);

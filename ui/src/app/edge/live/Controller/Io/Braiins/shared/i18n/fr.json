@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "SCHEDULE": {
+            "MODE": "Mode",
+            "MODE_SELECTION_PLACEHOLDER": "Sélectionner le mode"
+        },
+        "MODE": {
+            "ACTIVE_MODE": "Mode",
+            "LABEL": "Mode de base",
+            "OFF": "Désactivé",
+            "ON": "Activé",
+            "SELECT_PROMPT": "Quel mode doit s'appliquer au mineur ?"
+        }
+    }
+}

@@ -18,7 +18,6 @@ import static java.time.Duration.ofSeconds;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -36,6 +35,7 @@ import io.openems.common.jsonrpc.serialization.JsonObjectPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -47,6 +47,7 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
 import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
+import io.openems.edge.energy.optimizer.OptimizationResult;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
@@ -87,20 +88,19 @@ public final class AppUtils {
 	private static void simulate(GlobalOptimizationContext goc, long executionLimitSeconds, PlotSettings plotSettings)
 			throws IOException {
 		var simulator = new Simulator(goc);
-		simulator.setEarliestCallbackDelay(Duration.ZERO);
 
-		var simulationResult = new AtomicReference<SimulationResult>();
+		var optimizationResult = new AtomicReference<OptimizationResult>();
 		simulator.runOptimization(//
 				() -> EMPTY_SIMULATION_RESULT, //
-				false /* optimizeCurrentPeriod */, //
+				() -> false /* optimizeCurrentPeriod */, //
 				null, //
 				stream -> stream //
 						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))), //
-				simulationResult::set);
+				optimizationResult::set);
 
-		final var sr = simulationResult.get();
-		logSimulationResult(simulator, sr);
-		PlotUtils.plotSimulationResult(goc, sr);
+		final var or = optimizationResult.get();
+		logSimulationResult(simulator, or.simulationResult());
+		PlotUtils.plotSimulationResult(goc, or.simulationResult());
 	}
 
 	/**
@@ -164,10 +164,11 @@ public final class AppUtils {
 			// Header data
 			final var grid = json.getObject("grid", Grid.serializer(clock));
 			final var meta = new DummyMeta() //
-					.withGridBuyHardLimit(grid.maxBuyPower()) //
+					.withGridBuyLimit(l -> l //
+							.setHard(new GridBuyLimit.Hard(grid.maxBuyPower())) //
+							.setSoft(grid.gridBuySoftLimit())) //
 					.withGridSellHardLimit(grid.maxSellPower()) //
-					.withGridSellHardLimitWithBuffer(grid.maxSellPowerWithBuffer()) //
-					.withGridBuySoftLimit(grid.gridBuySoftLimit());
+					.withGridSellHardLimitWithBuffer(grid.maxSellPowerWithBuffer());
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //
 					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //

@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "MODE": {
+            "TITLE": "暖房モード",
+            "MANUAL_LOW": "低",
+            "MANUAL_HIGH": "高"
+        },
+        "HOME": {
+            "POWER_CONSUMPTION": "消費電力",
+            "FLOOR_ACTUAL": "床温度（実測）",
+            "FLOOR_TARGET": "床温度（目標）",
+            "AMBIENT_ACTUAL": "室温（実測）",
+            "AMBIENT_TARGET": "室温（目標）",
+            "UPCOMING_EVENTS": "今後の予定"
+        }
+    }
+}

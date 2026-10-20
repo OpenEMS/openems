@@ -459,7 +459,7 @@ export abstract class AbstractSection {
         rect: SvgSquare,
         innerRadius: number,
     ): SvgSquarePosition;
-    protected abstract getValueText(value: number): string;
+    protected abstract getValueText(value: number | null): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
     protected abstract setElementHeight();
 }

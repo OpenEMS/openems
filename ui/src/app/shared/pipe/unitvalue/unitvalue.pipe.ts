@@ -8,19 +8,22 @@ import { Language } from "../../type/language";
     standalone: false,
 })
 export class UnitvaluePipe implements PipeTransform {
+    constructor(private decimalPipe: DecimalPipe) {}
 
-    constructor(private decimalPipe: DecimalPipe) { }
-
-    transform(value: any, unit: string): any {
-        if (value == null || value == undefined
-            || (typeof value === "string" && value.trim() === "")
-            || typeof value === "boolean" || isNaN(value)) {
+    transform(value: any, unit: string, keepValue: boolean = false): any {
+        if (
+            value == null ||
+            value == undefined ||
+            (typeof value === "string" && value.trim() === "") ||
+            typeof value === "boolean" ||
+            isNaN(value)
+        ) {
             return "-" + "\u00A0";
         } else {
             // Changes the number format based on the language selected.
             const locale: string = Language.geti18nLocale();
 
-            if (unit == "kWh" || unit == "kW") {
+            if ((unit == "kWh" || unit == "kW") && !keepValue) {
                 return this.decimalPipe.transform(value / 1000, "1.0-1", locale) + "\u00A0" + unit;
             } else {
                 return this.decimalPipe.transform(value, "1.0-0", locale) + "\u00A0" + unit;

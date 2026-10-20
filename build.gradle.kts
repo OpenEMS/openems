@@ -218,7 +218,7 @@ subprojects {
 		}
 
 		extensions.configure<CheckstyleExtension>("checkstyle") {
-			toolVersion = "11.1.0"
+			toolVersion = providers.gradleProperty("checkstyle.toolVersion").get()
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			isIgnoreFailures = false
@@ -400,7 +400,9 @@ tasks.register("copyBundleReadmes") {
 						}
 					} else if (bundle.startsWith("io.openems.common.")) {
 						val commonBundle = bundle.removePrefix("io.openems.common.")
-						if (commonBundle.startsWith("bridge.")) {
+						if (commonBundle.startsWith("tariff.")) {
+							targetKey = "tariff"
+						} else if (commonBundle.startsWith("bridge.")) {
 							return@forEach
 						}
 					} else if (bundle.startsWith("io.openems.wrapper") || bundle.startsWith("io.openems.oem.")) {

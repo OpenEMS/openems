@@ -10,8 +10,8 @@ import static io.openems.common.types.OpenemsType.SHORT;
 import static io.openems.common.types.OpenemsType.STRING;
 import static io.openems.edge.common.type.TypeUtils.getAsJson;
 import static io.openems.edge.common.type.TypeUtils.sum;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Optional;
 
@@ -308,7 +308,7 @@ public class TypeUtilsTest {
 	private static void assertException(ThrowingRunnable<Exception> runnable) {
 		try {
 			runnable.run();
-			assertEquals("Expecting an Exception!", true, false);
+			assertEquals(true, false, "Expecting an Exception!");
 		} catch (Exception e) {
 			// ok
 		}

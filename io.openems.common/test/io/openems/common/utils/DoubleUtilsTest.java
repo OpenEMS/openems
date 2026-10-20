@@ -10,16 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class DoubleUtilsTest {
+class DoubleUtilsTest {
 
 	@Test
-	public void testGetOrNull() {
+	void testGetOrNull() {
 		assertNull(DoubleUtils.getOrNull(OptionalDouble.empty()));
 		assertEquals(5., DoubleUtils.getOrNull(OptionalDouble.of(5.)), 0.001);
 	}
 
 	@Test
-	public void testDoubleToDoubleFunction() {
+	void testDoubleToDoubleFunction() {
 		assertEquals(10., new DoubleUtils.DoubleToDoubleFunction() {
 
 			@Override
@@ -29,9 +29,15 @@ public class DoubleUtilsTest {
 		}.apply(5.), 0.001);
 	}
 
+	@Test
+	void testRoundPrice() {
+		assertEquals(5.12, DoubleUtils.roundPrice(5.1235), 0.00000001);
+		assertEquals(5.13, DoubleUtils.roundPrice(5.1255), 0.00000001);
+	}
+
 	@Nested
 	@DisplayName("normalize()")
-	public class NormalizeTest {
+	class NormalizeTest {
 
 		@Test
 		public void shouldReturnMinNormalized_whenValueBelowMin() {

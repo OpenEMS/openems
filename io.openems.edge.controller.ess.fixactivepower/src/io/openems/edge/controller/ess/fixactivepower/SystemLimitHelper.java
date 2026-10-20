@@ -21,7 +21,7 @@ public final class SystemLimitHelper {
 		static SystemLimits fromMeta(Meta meta) {
 			return new SystemLimits(meta.getIsEssChargeFromGridAllowed(), meta.getIsEssDischargeToGridAllowed(),
 					Math.max(0, meta.getEssDischargeToGridLimit()), Math.max(0, meta.getGridSellHardLimit()),
-					Math.max(0, meta.getGridBuyHardLimit()));
+					Math.max(0, meta.getGridBuyLimit().hard().power()));
 		}
 	}
 

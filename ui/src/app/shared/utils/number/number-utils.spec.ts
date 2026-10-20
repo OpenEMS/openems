@@ -104,8 +104,8 @@ describe("NumberUtils", () => {
         });
 
         it("should return orElse for values other than 0 or 1", () => {
-            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, false)).toBeFalse();
-            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, true)).toBeTrue();
+            expect(NumberUtils.numberToBooleanOrElse(2, false)).toBeFalse();
+            expect(NumberUtils.numberToBooleanOrElse(2, true)).toBeTrue();
         });
     });
 });

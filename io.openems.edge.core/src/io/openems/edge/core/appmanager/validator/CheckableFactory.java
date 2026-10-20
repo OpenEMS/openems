@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 
 @Component(//
@@ -111,13 +112,13 @@ public class CheckableFactory {
 		}
 
 		@Override
-		public String getErrorMessage(Language language) {
-			return this.checkable.getErrorMessage(language);
+		public OpenemsNamedException getValidationError(Language language) {
+			return this.checkable.getValidationError(language);
 		}
 
 		@Override
-		public String getInvertedErrorMessage(Language language) {
-			return this.checkable.getInvertedErrorMessage(language);
+		public OpenemsNamedException getInvertedValidationError(Language language) {
+			return this.checkable.getInvertedValidationError(language);
 		}
 
 		@Override

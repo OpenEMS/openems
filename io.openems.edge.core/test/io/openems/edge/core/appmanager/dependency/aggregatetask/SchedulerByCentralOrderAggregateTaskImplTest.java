@@ -3,8 +3,8 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -308,7 +308,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
-		assertTrue("Validation should be successful but got: " + String.join(", ", errors), errors.isEmpty());
+		assertTrue(errors.isEmpty(), "Validation should be successful but got: " + String.join(", ", errors));
 	}
 
 	@Test
@@ -329,7 +329,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
-		assertFalse("Validation should not be successful but got: " + String.join(", ", errors), errors.isEmpty());
+		assertFalse(errors.isEmpty(), "Validation should not be successful but got: " + String.join(", ", errors));
 	}
 
 	@Test
@@ -351,7 +351,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 		final var errors = new ArrayList<String>();
 		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
-		assertFalse("Validation should not be successful but got: " + String.join(", ", errors), errors.isEmpty());
+		assertFalse(errors.isEmpty(), "Validation should not be successful but got: " + String.join(", ", errors));
 	}
 
 }

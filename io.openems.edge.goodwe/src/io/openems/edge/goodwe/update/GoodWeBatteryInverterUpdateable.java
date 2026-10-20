@@ -20,11 +20,11 @@ import java.util.function.UnaryOperator;
 import org.slf4j.Logger;
 
 import io.openems.common.session.Language;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.common.update.Progress;
 import io.openems.edge.common.update.ProgressHistory;
 import io.openems.edge.common.update.ProgressPublisher;

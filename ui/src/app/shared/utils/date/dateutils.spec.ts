@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { DateUtils } from "./dateutils";
 
 describe("DateUtils", () => {
@@ -17,7 +16,7 @@ describe("DateUtils", () => {
         expect(DateUtils.minDate()).toEqual(null);
 
         // null as param
-        expect(isNaN(DateUtils.minDate(null, null)?.getTime())).toBe(true);
+        expect(DateUtils.minDate(null, null)).toBeNull();
     });
 
     it("#maxDate - biggest date", () => {
@@ -28,7 +27,7 @@ describe("DateUtils", () => {
         expect(DateUtils.maxDate()).toEqual(null);
 
         // null as param
-        expect(isNaN(DateUtils.maxDate(null, null)?.getTime())).toBe(true);
+        expect(DateUtils.maxDate(null, null)).toBeNull();
     });
 
     it("#stringToDate - converts string to date", () => {

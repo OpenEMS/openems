@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.hardybarth;
 
 import static io.openems.common.types.OpenemsType.FLOAT;
+import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.STRING;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static java.lang.Math.round;
@@ -49,7 +50,11 @@ public class EvcsHandler extends AbstractHardyBarthHandler<EvcsHardyBarthImpl> {
 				}, "secc", "port0", "salia", "chargedata"));
 
 		// Phases: keep last value if no power value was given
-		final var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
+		var phases = getValueFromJson(INTEGER, json, value -> TypeUtils.<Integer>getAsType(INTEGER, value), "secc",
+				"port0", "ci", "evse", "phase", "actual");
+		if (phases == null) {
+			phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
+		}
 		if (phases != null) {
 			hb._setPhases(phases);
 			switch (this.logVerbosity) {

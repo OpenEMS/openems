@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -15,7 +15,6 @@ import { SharedIoChannelSingleThreshold } from "../shared/shared";
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
-    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFormlyComponent {

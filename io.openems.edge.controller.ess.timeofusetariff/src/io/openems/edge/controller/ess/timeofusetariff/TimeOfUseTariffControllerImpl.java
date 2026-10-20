@@ -6,7 +6,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.Mode.OFF;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateApplyMode;
-import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
@@ -30,8 +29,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
@@ -41,21 +38,15 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
-import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge;
-import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
-import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1;
-import io.openems.edge.controller.ess.timeofusetariff.v1.EnergyScheduleHandlerV1.ContextV1;
-import io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -74,10 +65,6 @@ import io.openems.edge.timeofusetariff.api.TariffManager;
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
 
-	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
-
-	@Deprecated
-	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
@@ -101,24 +88,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
-	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
-
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
-	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
-
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
-	private volatile List<ControllerEssLimiter14a> ctrlLimiter14as = new CopyOnWriteArrayList<>();
-
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, target = "(&(enabled=true)(id=${config.ess_id}))")
 	private ManagedSymmetricEss ess;
-
-	@Deprecated
-	@Reference(policy = DYNAMIC, cardinality = OPTIONAL)
-	private volatile io.openems.edge.energy.api.EnergyScheduler energyScheduler;
 
 	private final List<ControllerEssGridOptimizedCharge> ctrlGridOptimizedCharges = new CopyOnWriteArrayList<>();
 
@@ -159,12 +130,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				Controller.ChannelId.values(), //
 				TimeOfUseTariffController.ChannelId.values() //
 		);
-
-		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
-				() -> this.config.controlMode().modesArray, //
-				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
-						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
-						this.config.maxChargePowerFromGrid()));
 	}
 
 	@Activate
@@ -203,17 +168,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		if (this.energyScheduler == null) {
-			this.logWarn(this.log, "EnergyScheduler reference is not available");
-			return;
-		}
-
-		var version = this.energyScheduler.getImplementationVersion();
-		if (version == null) {
-			return;
-		}
-
-		if (version != V2_ENERGY_SCHEDULABLE || this.config.mode() == OFF) {
+		if (this.config.mode() == OFF) {
 			this.enableRunOnGridOptimizedChargeControllers();
 		} else {
 			this.disableRunOnGridOptimizedChargeControllers();
@@ -221,45 +176,23 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		// NOTE gridBuySoftLimit is nullable to handle deprecation of Config
 		// maxChargePowerFromGrid
-		final var gridBuySoftLimit = Optional.ofNullable(this.meta.getGridBuySoftLimit().getActiveOneTask()) //
+		final var gridBuySoftLimit = Optional.ofNullable(this.meta.getGridBuyLimit().soft().getActiveOneTask()) //
 				.map(OneTask::payload) //
-				.map(GridBuySoftLimit::power) //
+				.map(GridBuyLimit.Soft::power) //
 				.orElse(this.config.maxChargePowerFromGrid());
 		final int gridSellHardLimit = this.meta.getGridSellHardLimitWithBuffer();
 
 		final var clock = this.componentManager.getClock();
 		final var currentPeriod = this.energyScheduleHandler.getCurrentPeriod();
 
-		// Version and Mode given from the configuration.
-		final var am = switch (this.energyScheduler.getImplementationVersion()) {
-
-		case V1_ESS_ONLY //
-			-> switch (this.config.mode()) {
-			case AUTOMATIC //
-				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
-						this.sum, this.ess, this.ctrlLimiter14as, //
-						this.config.maxChargePowerFromGrid(), //
-						null /* forceState */);
-			case MANUAL //
-				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
-						this.sum, this.ess, this.ctrlLimiter14as, //
-						this.config.maxChargePowerFromGrid(), //
-						validateManualModeV1(this.config.manualMode()) /* forceState */);
-			case OFF //
-				-> new ApplyMode(StateMachine.BALANCING, null);
-			};
-
-		case V2_ENERGY_SCHEDULABLE //
-			-> switch (this.config.mode()) {
-			case AUTOMATIC //
-				->
-				calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod, null, clock);
-			case MANUAL -> //
-				calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod,
-						this.config.manualMode(), clock);
-			case OFF //
-				-> new ApplyMode(StateMachine.BALANCING, null);
-			};
+		final var am = switch (this.config.mode()) {
+		case AUTOMATIC //
+			-> calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod, null, clock);
+		case MANUAL -> //
+			calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod,
+					this.config.manualMode(), clock);
+		case OFF //
+			-> new ApplyMode(StateMachine.BALANCING, null);
 		};
 
 		// Update Channels
@@ -283,62 +216,26 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(GetScheduleRequest.METHOD, call -> {
-			if (this.energyScheduler == null) {
-				this.logWarn(this.log, "EnergyScheduler reference is not available");
-				throw new IllegalStateException("No EnergyScheduler reference available");
-			}
-
-			var version = this.energyScheduler.getImplementationVersion();
-			if (version == null) {
-				throw new IllegalStateException("No EnergyScheduler version available");
-			}
-
-			return switch (version) {
-			case V1_ESS_ONLY //
-				-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
-			case V2_ENERGY_SCHEDULABLE //
-				-> GetScheduleResponse.from(call.getRequest().getId(), //
-						this.id(), this.componentManager.getClock(), this.ess, this.timedata,
-						this.energyScheduleHandler);
-			};
+			return GetScheduleResponse.from(call.getRequest().getId(), this.id(), this.componentManager.getClock(),
+					this.ess, this.timedata, this.energyScheduleHandler);
 		});
 	}
 
 	@Override
 	public String debugLog() {
-		if (this.energyScheduler == null) {
-			return null;
-		}
-
 		var b = new StringBuilder() //
 				.append(this.getStateMachine()); //
 
-		var version = this.energyScheduler.getImplementationVersion();
-		if (version != null) {
-			switch (version) {
-			case V1_ESS_ONLY -> {
-				if (this.energyScheduleHandlerV1 == null || this.energyScheduleHandlerV1.getCurrentState() == null) {
-					b.append("|No Schedule available");
-				}
-			}
-			case V2_ENERGY_SCHEDULABLE -> {
-				if (this.energyScheduleHandler.getCurrentPeriod() == null) {
-					b.append("|No Schedule available");
-				}
-			}
-			}
+		if (this.energyScheduleHandler.getCurrentPeriod() == null) {
+			b.append("|No Schedule available");
 		}
+
 		return b.toString();
 	}
 
 	@Override
 	public EshWithDifferentModes<StateMachine, OptimizationContext, Void> getEnergyScheduleHandler() {
 		return this.energyScheduleHandler;
-	}
-
-	@Override
-	public EnergyScheduleHandlerV1 getEnergyScheduleHandlerV1() {
-		return this.energyScheduleHandlerV1;
 	}
 
 	private EnergyScheduler.Config buildEnergySchedulerConfig() {
@@ -379,13 +276,5 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 					StateMachine.DISCHARGE_CONSUMPTION));
 		}
 		return List.copyOf(activeModes);
-	}
-
-	private static StateMachine validateManualModeV1(StateMachine manualMode) {
-		return switch (manualMode) {
-		case DELAY_DISCHARGE -> StateMachine.DELAY_DISCHARGE;
-		case CHARGE_GRID -> StateMachine.CHARGE_GRID;
-		default -> null;
-		};
 	}
 }

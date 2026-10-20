@@ -98,7 +98,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         return environment.icons.COMMON.PRODUCTION;
     }
 
-    protected getValueText(value: number): string {
+    protected getValueText(value: number | null): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }

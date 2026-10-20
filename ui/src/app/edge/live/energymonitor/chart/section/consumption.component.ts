@@ -89,7 +89,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return environment.icons.COMMON.CONSUMPTION;
     }
 
-    protected getValueText(value: number): string {
+    protected getValueText(value: number | null): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.JsonRpcError;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -103,24 +104,14 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	@Override
 	public JsonObject toJsonObject() {
-		var params = new Object[this.params.size()];
-		for (var i = 0; i < params.length; i++) {
-			try {
-				params[i] = JsonUtils.getAsBestType(this.params.get(i));
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
-			}
-		}
+		final var paramsArr = this.getParamsAsObjectArray();
+		var error = new JsonRpcError(//
+				this.openemsError.getCode(), //
+				this.openemsError.getMessage(paramsArr), //
+				paramsArr //
+		);
 		return JsonUtils.buildJsonObject(super.toJsonObject()) //
-				.add("error", JsonUtils.buildJsonObject() //
-						// A Number that indicates the error type that occurred.
-						.addProperty("code", this.openemsError.getCode()) //
-						// A String providing a short description of the error.
-						.addProperty("message", this.openemsError.getMessage(params)) //
-						// A Primitive or Structured value that contains additional information about
-						// the error. This may be omitted.
-						.add("data", this.params) //
-						.build()) //
+				.add("error", JsonRpcError.serializer().serialize(error)) //
 				.build();
 	}
 
@@ -146,5 +137,4 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 			return new Object[0];
 		}
 	}
-
 }

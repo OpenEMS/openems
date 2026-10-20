@@ -1,0 +1,6 @@
+{
+    "SHARED_MODULE": {
+        "PERSON_NAME_PROHIBITED_CHARACTERS": "'{{formControlValue}}' に、これらの無効な文字が少なくとも1つ含まれています: {{invalidCharacters}}。",
+        "CHECKBOX_REQUIRED_TO_BE_CHECKED": "このチェックボックスはオンにする必要があります。"
+    }
+}

@@ -1,7 +1,5 @@
 import { Component, computed, effect, inject, signal, untracked } from "@angular/core";
-
 import { TranslateService } from "@ngx-translate/core";
-
 import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { User } from "src/app/shared/jsonrpc/shared";
@@ -20,8 +18,13 @@ import { environment } from "src/environments";
 import { Edge, EdgeSettings } from "../../../edge/edge";
 import { NavigationService } from "../../service/navigation.service";
 import { NavigationId, NavigationTree } from "../../shared";
+import cz from "../i18n/cz.json";
 import de from "../i18n/de.json";
 import en from "../i18n/en.json";
+import es from "../i18n/es.json";
+import fr from "../i18n/fr.json";
+import ja from "../i18n/ja.json";
+import nl from "../i18n/nl.json";
 import { SharedFavorite } from "../shared/shared";
 
 @Component({
@@ -65,15 +68,17 @@ export class FavoriteButtonComponent {
     private favoriteMessageTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor() {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    this.translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
         effect(() => {
             const tree = this.navigationService.navigationTree();
 
-            untracked(() => {
+            untracked(async () => {
                 this.routesForbidden.set([
                     ...(tree?.getChildren()?.map((child) => child.routerLink.baseString) ?? []),
                     ...(tree
@@ -88,10 +93,12 @@ export class FavoriteButtonComponent {
                     return;
                 }
 
+                const predefinedNodes = SharedFavorite.getPredefinedNodes(this.translate, config, currentEdge);
+
                 this.favoriteIds.set([
                     ...(currentEdge?.getFavoritesFromSettings()?.includes ?? []),
                     ...(ArrayUtils.removeMatching(
-                        SharedFavorite.getPredefinedNodes(this.translate, config, currentEdge),
+                        predefinedNodes,
                         currentEdge?.getFavoritesFromSettings()?.excludes ?? [],
                     ) ?? []),
                 ]);
@@ -196,13 +203,7 @@ export class FavoriteButtonComponent {
     }
 
     private async getUpdatedFavoriteNavigationTree(edge: Edge, user: User): Promise<NavigationTree | null> {
-        let navigationTree = await NavigationService.createNavigationTree(
-            this.translate,
-            edge,
-            this.service,
-            user,
-            this.platFormService,
-        );
+        let navigationTree = await NavigationService.createNavigationTree(this.translate, edge, this.service, user);
 
         if (navigationTree == null) {
             return null;
@@ -219,6 +220,6 @@ export class FavoriteButtonComponent {
         // Finalize new tree
         navigationTree = navigationTree.setParentRecursively();
         navigationTree.reorderByShowOrder(navigationTree);
-        return NavigationTree.of(NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)));
+        return NavigationService.convertRelativeToAbsoluteLink(navigationTree);
     }
 }

@@ -60,7 +60,6 @@ input:-webkit-autofill:focus {
 }
 
 .hide-empty-list-header {
-
     // Guarantees evenly space between list-items
     ion-list {
         padding: 0;
@@ -211,9 +210,8 @@ ion-select::part(icon) {
 }
 
 .line-break {
-
-    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
-    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
+    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
+    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
@@ -258,6 +256,16 @@ ion-select::part(icon) {
 
 html.ios {
     --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
+}
+
+html.ios ion-alert {
+    --background: var(--ion-background-color);
+    --color: var(--ion-text-color);
+
+    .alert-wrapper {
+        background: var(--ion-background-color);
+        color: var(--ion-text-color);
+    }
 }
 
 html.md {
@@ -423,7 +431,6 @@ formly-input-section {
     }
 
     ion-card {
-
         ion-card-title,
         ion-card-subtitle {
             color: var(--ion-text-color);

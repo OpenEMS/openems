@@ -13,13 +13,13 @@ public interface TimeOfUseTariffRabotCharge extends TimeOfUseTariff, OpenemsComp
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.translationKey(TimeOfUseTariffRabotCharge.class, "httpStatusCode")), //
-		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING) //
+		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING)//
 				.translationKey(TimeOfUseTariffRabotCharge.class, "statusAuthenticationFailed")), //
 		/**
 		 * Should never happen. Only happens if the request has missing fields or wrong
 		 * format of timestamps.
 		 */
-		STATUS_BAD_REQUEST(Doc.of(Level.FAULT) //
+		STATUS_BAD_REQUEST(Doc.of(Level.FAULT)//
 				.translationKey(TimeOfUseTariffRabotCharge.class, "statusBadRequest")), //
 		;
 

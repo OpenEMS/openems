@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "STATUS_INSTALLED": "Installée",
+                "STATUS_AVAILABLE": "Disponible",
+                "STATUS_INCOMPATIBLE": "Incompatible",
+                "STATUS_FILTER": "Disponibilité",
+                "CATEGORY_FILTER": "Catégories d'apps"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "TITLE": "Emplacement du système",
+            "SUCCESS_MESSAGE": "L'emplacement du système a été mis à jour avec succès."
+        },
+        "SYSTEM_PROTOCOL": {
+            "LABEL": "Protocole système",
+            "DOWNLOAD": "Télécharger",
+            "TITLE": "Actuel"
+        }
+    }
+}

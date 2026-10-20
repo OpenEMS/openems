@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "SCHEDULE": {
+            "MODE": "Režim",
+            "MODE_SELECTION_PLACEHOLDER": "Vybrat režim"
+        },
+        "MODE": {
+            "ACTIVE_MODE": "Režim",
+            "LABEL": "Základní režim",
+            "OFF": "Vypnuto",
+            "ON": "Zapnuto",
+            "SELECT_PROMPT": "Který režim má pro miner platit?"
+        }
+    }
+}
