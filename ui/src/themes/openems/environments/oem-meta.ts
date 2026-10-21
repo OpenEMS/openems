@@ -68,6 +68,7 @@ export const OemMeta: BaseMeta = {
             KEBA_P30: null,
             KEBA_P40: null,
             HARDY_BARTH: null,
+            HARDY_BARTH_CPH1: "assets/img/product_pictures/Evse.ChargePoint.HardyBarth.cPH1.jpeg",
             ALPITRONIC: null,
             MENNEKES: null,
             VOLTIE: null,
