@@ -425,6 +425,17 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public String debugLog() {
+		var target = this.channel(ControllerEssFixActivePower.ChannelId.TARGET_AFTER_LIMITATIONS).value().asString();
+		return switch (this.config.mode()) {
+		case MANUAL_OFF -> "Off";
+		case MANUAL_ON -> "Manual:" + this.config.power() + " W|Target:" + target;
+		case CHARGE_ONCE -> "ChargeOnce:" + this.config.chargeOncePower() + " W|Target:" + target;
+		case DISCHARGE_ONCE -> "DischargeOnce:" + this.config.dischargeOncePower() + " W|Target:" + target;
+		};
+	}
+
+	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}

@@ -107,6 +107,35 @@ class ControllerEssFixActivePowerImplTest {
 	}
 
 	@Test
+	void testDebugLog() throws Exception {
+		final var sut = new ControllerEssFixActivePowerImpl();
+		new ControllerTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum() //
+						.withGridActivePower(0)) //
+				.addReference("meta", new DummyMeta()//
+						.withGridSellHardLimit(10_000) //
+						.withGridBuyLimit(b -> b //
+								.setHard(new GridBuyLimit.Hard(10000)) //
+								.setSoft(JSCalendar.Tasks.empty())) //
+						.withIsEssChargeFromGridAllowed(true) //
+						.withIsEssDischargeToGridAllowed(true)) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
+				.activate(this.baseConfig(Mode.MANUAL_ON) //
+						.setPower(0) //
+						.build()) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 80)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertEquals("Manual:0 W|Target:0 W", sut.debugLog()))) //
+				.modified(this.baseConfig(Mode.MANUAL_OFF).build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertEquals("Off", sut.debugLog()))) //
+				.deactivate();
+	}
+
+	@Test
 	void testChargeOnce() throws Exception {
 		AtomicReference<DummyMeta> meta = new AtomicReference<>(new DummyMeta() //
 				.withGridSellHardLimit(10_000) //
