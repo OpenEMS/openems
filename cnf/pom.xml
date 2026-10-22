@@ -587,7 +587,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.14</version>
+			<version>1.18.15</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -597,7 +597,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.14</version>
+			<version>1.18.15</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
