@@ -69,6 +69,26 @@
 			<version>2.22</version>
 		</dependency>
 		<dependency>
+			<!--
+			Jackson Core: Core JSON processing (streaming) API
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jackson Databind: General data-binding functionality
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.rzymek</groupId>
 			<artifactId>opczip</artifactId>
 			<version>1.2.0</version>
@@ -135,7 +155,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.6.1</version>
+			<version>4.6.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -318,6 +338,33 @@
 			<groupId>io.helins</groupId>
 			<artifactId>linux-errno</artifactId>
 			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Core
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-core</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Instrumentation JVM
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Exporter HTTP Server
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -932,21 +979,6 @@
 			<groupId>org.tribuo</groupId>
 			<artifactId>tribuo-util-tokenization</artifactId>
 			<version>4.3.2</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-core</artifactId>
-			<version>1.9.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
-			<version>1.9.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
-			<version>1.9.0</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -61,17 +61,14 @@
 	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
-	io.prometheus.metrics-config;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-core;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-exporter-common;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-exporter-httpserver;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-exposition-textformats;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-instrumentation-jvm;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-model;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-tracer-common;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-tracer-initializer;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-tracer-otel;version='[1.9.0,1.9.1)',\
-	io.prometheus.metrics-tracer-otel-agent;version='[1.9.0,1.9.1)',\
+	io.prometheus.metrics-config;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-core;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-exporter-common;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-exporter-httpserver;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-exposition-textformats;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-instrumentation-jvm;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-model;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-tracer-common;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
