@@ -321,6 +321,33 @@
 		</dependency>
 		<dependency>
 			<!--
+			Prometheus Metrics Core
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-core</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Instrumentation JVM
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Exporter HTTP Server
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
 			OpenEMS fork of j2mod - A Java Modbus implementation
 			Changelog: https://github.com/OpenEMS/j2mod/releases
 			Original: https://github.com/steveohara/j2mod/releases
@@ -932,21 +959,6 @@
 			<groupId>org.tribuo</groupId>
 			<artifactId>tribuo-util-tokenization</artifactId>
 			<version>4.3.2</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-core</artifactId>
-			<version>1.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
-			<version>1.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
-			<version>1.10.0</version>
 		</dependency>
 	</dependencies>
 </project>
