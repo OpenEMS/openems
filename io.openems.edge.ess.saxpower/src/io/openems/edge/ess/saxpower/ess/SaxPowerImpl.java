@@ -139,8 +139,15 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsError.OpenemsNamedException {
 
-		this.setControlMode(1);
-		this.setTimeout(this.checkTimeout());
+		final var controlMode = this.getControlMode().get();
+		if (controlMode == null || controlMode != 1) {
+			this.setControlMode(1);
+		}
+
+		final var timeout = this.getTimeout().get();
+		if (timeout == null || timeout != this.checkTimeout()) {
+			this.setTimeout(this.checkTimeout());
+		}
 
 		final var maxPowerReferenceValue = this.getReferenceMaximumPower().get();
 		if (maxPowerReferenceValue == null || maxPowerReferenceValue <= 0) {
