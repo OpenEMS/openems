@@ -69,6 +69,26 @@
 			<version>2.22</version>
 		</dependency>
 		<dependency>
+			<!--
+			Jackson Core: Core JSON processing (streaming) API
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jackson Databind: General data-binding functionality
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.rzymek</groupId>
 			<artifactId>opczip</artifactId>
 			<version>1.2.0</version>
@@ -135,7 +155,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.6.1</version>
+			<version>4.6.2</version>
 		</dependency>
 		<dependency>
 			<!--
