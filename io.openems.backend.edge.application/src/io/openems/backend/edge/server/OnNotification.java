@@ -3,13 +3,13 @@ package io.openems.backend.edge.server;
 import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
 import static io.openems.common.utils.StringUtils.toShortString;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.edge.application.BackendEdgeServerApp;
 import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.websocket.WebSocket;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 

@@ -474,6 +474,20 @@
 			<version>2.0.8</version>
 		</dependency>
 		<dependency>
+			<!--
+			Jetty WebSocket (core API)
+			Version must match the Jetty version embedded in org.apache.felix.http.jetty12
+			-->
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>jetty-websocket-core-server</artifactId>
+			<version>12.1.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>jetty-websocket-core-client</artifactId>
+			<version>12.1.13</version>
+		</dependency>
+		<dependency>
 			<!-- Apache Felix Servlet API -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.servlet-api</artifactId>

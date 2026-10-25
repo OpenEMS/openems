@@ -1,10 +1,10 @@
 package io.openems.backend.b2bwebsocket;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.websocket.WebSocket;
 
 public class OnError implements io.openems.common.websocket.OnError {
 

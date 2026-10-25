@@ -4,8 +4,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
-
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -14,6 +12,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

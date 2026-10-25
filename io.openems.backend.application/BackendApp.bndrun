@@ -109,7 +109,6 @@
 	io.openems.core.referencetarget;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
-	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.aXMLRPC;version=snapshot,\
 	io.openems.wrapper.auth0-java-jwt;version=snapshot,\
 	io.openems.wrapper.auth0-jwks-rsa;version=snapshot,\
@@ -160,4 +159,9 @@
 	org.owasp.encoder;version='[1.6.0,1.6.1)',\
 	org.postgresql.jdbc;version='[42.7.10,42.7.11)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	stax2-api;version='[4.3.0,4.3.1)'
+	stax2-api;version='[4.3.0,4.3.1)',\
+	org.eclipse.jetty.alpn.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.common;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.server;version='[12.1.13,12.1.14)'

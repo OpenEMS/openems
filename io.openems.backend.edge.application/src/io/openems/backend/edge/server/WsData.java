@@ -2,9 +2,8 @@ package io.openems.backend.edge.server;
 
 import java.util.List;
 
-import org.java_websocket.WebSocket;
-
 import io.openems.backend.common.edge.EdgeClient;
+import io.openems.common.websocket.WebSocket;
 
 public class WsData extends io.openems.common.websocket.WsData implements EdgeClient {
 

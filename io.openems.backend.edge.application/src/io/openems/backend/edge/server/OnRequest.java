@@ -6,7 +6,6 @@ import static java.util.concurrent.CompletableFuture.failedFuture;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import io.openems.common.jsonrpc.request.SyncableSubscribeRequest;
 import io.openems.common.jsonrpc.request.SyncableUnsubscribeRequest;
 import io.openems.common.jsonrpc.response.SyncableSubscribeResponse;
 import io.openems.common.jsonrpc.syncable.SyncableProviderType;
+import io.openems.common.websocket.WebSocket;
 import io.prometheus.metrics.core.datapoints.Timer;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {

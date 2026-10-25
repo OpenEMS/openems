@@ -3,7 +3,6 @@ package io.openems.edge.controller.api.websocket;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import org.java_websocket.WebSocket;
 import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,6 +16,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.common.websocket.WebSocket;
 import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.Key;

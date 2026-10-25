@@ -1,12 +1,12 @@
 package io.openems.edge.controller.api.backend;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.websocket.Handshake;
+import io.openems.common.websocket.WebSocket;
 import io.openems.edge.controller.api.backend.api.BackendEvent;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
@@ -19,7 +19,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
 		this.parent.logInfo(this.log, "Connected to OpenEMS Backend");
 
 		// Immediately send Config

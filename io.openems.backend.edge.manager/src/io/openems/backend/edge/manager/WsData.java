@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
-import org.java_websocket.WebSocket;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
@@ -20,6 +18,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.websocket.WebSocket;
 
 public class WsData extends io.openems.common.websocket.WsData {
 

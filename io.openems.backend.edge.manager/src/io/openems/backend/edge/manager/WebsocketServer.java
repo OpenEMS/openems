@@ -2,10 +2,10 @@ package io.openems.backend.edge.manager;
 
 import java.util.Objects;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
+import io.openems.common.websocket.WebSocket;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
