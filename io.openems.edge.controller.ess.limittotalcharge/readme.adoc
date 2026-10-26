@@ -1,0 +1,19 @@
+= ESS Limit Total Charge
+
+Limits the charge power of an energy storage system according to its State of Charge (SoC).
+
+* Below `maxSoc` (default 85%), no additional power constraint is applied.
+* At or above `maxSoc`, further charging is blocked.
+* At or above `forceDischargeSoc` (default 90%), discharging is forced. A positive `forceDischargePower` is used as configured; otherwise one fifth of the available discharge power is used.
+* State changes have a five-minute hysteresis.
+* The energy scheduler limits charging to the energy corresponding to `maxSoc`.
+
+`TARGET_AC` (default) constrains inverter power. For a hybrid ESS, `TARGET_DC` constrains battery power by adding local PV production, calculated as `max(0, ActivePower - DcDischargePower)`. Each missing AC or DC measurement defaults to zero, matching the ESS Limit Total Discharge controller. For a non-hybrid ESS both modes have the same effect.
+
+Configure the component as `Controller.Ess.LimitTotalCharge` and place it before other power controllers in the scheduler so that its lower power bound is respected.
+
+== Attribution and license
+
+Based on the OpenEMS ESS Limit Total Discharge controller by FENECON GmbH, with total-charge functionality contributed by i2m GmbH. The bundle retains its Eclipse Public License 2.0 declaration; see link:../LICENSE-EPL-2.0[LICENSE-EPL-2.0].
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.limittotalcharge[Source Code icon:github[]]
