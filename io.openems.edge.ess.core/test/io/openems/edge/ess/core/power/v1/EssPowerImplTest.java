@@ -1028,7 +1028,7 @@ public class EssPowerImplTest {
 		componentTest.next(new TestCase("#1") //
 		);
 
-		componentTest.removeReference("removeEss", ess3);
+		componentTest.addReference("removeEss", ess3);
 
 		expect("#2", ess1, 15000, 0);
 		expect("#2", ess2, 15000, 0);
