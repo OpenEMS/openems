@@ -132,6 +132,18 @@ class ControllerEssFixActivePowerImplTest {
 				.modified(this.baseConfig(Mode.MANUAL_OFF).build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(() -> assertEquals("Off", sut.debugLog()))) //
+				.modified(this.baseConfig(Mode.CHARGE_ONCE) //
+						.setChargeOncePower(2000) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(
+								() -> assertTrue(sut.debugLog().startsWith("ChargeOnce:2000 W|Target:")))) //
+				.modified(this.baseConfig(Mode.DISCHARGE_ONCE) //
+						.setDischargeOncePower(3000) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(
+								() -> assertTrue(sut.debugLog().startsWith("DischargeOnce:3000 W|Target:")))) //
 				.deactivate();
 	}
 
