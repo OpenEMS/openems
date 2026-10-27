@@ -143,13 +143,17 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		final var combinedAbilities = CombinedAbilities.createFrom(chargePointAbilities, electricVehicleAbilities) //
 				.setIsReadyForCharging(!isSessionLimitReached) //
 				.build();
+		final var externalMinChargePower = this.getExternalMinChargePowerChannel().getNextWriteValue().orElse(null);
+		final var externalMaxChargePower = this.getExternalMaxChargePowerChannel().getNextWriteValue().orElse(null);
+		final var externalStaticChargePower = this.getExternalStaticChargePowerChannel().getNextWriteValue().orElse(null);
+		this.getExternalMinChargePowerChannel().setNextValue(externalMinChargePower);
+		this.getExternalMaxChargePowerChannel().setNextValue(externalMaxChargePower);
+		this.getExternalStaticChargePowerChannel().setNextValue(externalStaticChargePower);
 
 		return new Params(this.id(), this.config.chargePoint_id(), this.config.mode(), activePower, //
 				sessionEnergy, sessionEnergyLimit, //
 				this.history, this.stateMachine.getCurrentState(), this.config.phaseSwitching(), combinedAbilities,
-				this.chargePoint.getSetExternalMinChargePowerChannel().getNextWriteValue().orElse(null), //
-				this.chargePoint.getSetExternalMaxChargePowerChannel().getNextWriteValue().orElse(null), //
-				this.chargePoint.getSetExternalStaticChargePowerChannel().getNextWriteValue().orElse(null), //
+				externalMinChargePower, externalMaxChargePower, externalStaticChargePower, //
 				this.tasks);
 	}
 

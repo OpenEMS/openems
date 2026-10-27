@@ -62,10 +62,6 @@ class EvseChargePointHardyImplTest {
 		sut.test //
 				.next(new TestCase() //
 						.activateStrictMode() //
-						.withIgnoredChannelsForStrictMode(//
-								EvseChargePoint.ChannelId.SET_EXTERNAL_MIN_CHARGE_POWER, //
-								EvseChargePoint.ChannelId.SET_EXTERNAL_MAX_CHARGE_POWER, //
-								EvseChargePoint.ChannelId.SET_EXTERNAL_STATIC_CHARGE_POWER) //
 						.onBeforeProcessImage(() -> sut.evseHandler
 								.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), PhaseRotation.L1_L2_L3)) //
 

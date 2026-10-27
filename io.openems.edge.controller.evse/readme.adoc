@@ -57,34 +57,34 @@ The cluster controller workflow is:
 
 This design keeps the cluster controller focused on optimization and distribution, while each `Evse.Controller.Single` remains responsible for actual charge point interaction and local state transitions.
 
-== External Control Mode
+== External Charge-Power Limits
 
-`Evse.Controller.Single` can be configured with `Mode.EXTERNAL` to let an external system provide the setpoint while OpenEMS still remains the single integration layer towards the charge point.
+`Evse.Controller.Single` exposes read-write channels that let an external system constrain the configured charging mode while OpenEMS remains the single integration layer towards the charge point.
 
 This is intended for systems like evcc:
 
 [source]
 ----
-evcc -> OpenEMS EVSE write channels -> Evse.Controller.Single -> EvseChargePoint -> wallbox
+evcc -> Evse.Controller.Single write channels -> EvseChargePoint -> wallbox
 ----
 
-In external mode the controller reads the following write channels from the bound `EvseChargePoint`:
+The controller provides these channels:
 
-- `SetExternalMinChargePower` — requested minimum charge power in [W]
-- `SetExternalMaxChargePower` — requested maximum charge power in [W]
-- `SetExternalStaticChargePower` — requested fixed charge power in [W]
+- `ExternalMinChargePower` — requested minimum charge power in [W]
+- `ExternalMaxChargePower` — requested maximum charge power in [W]
+- `ExternalStaticChargePower` — requested fixed charge power in [W]
 
-If no external charge power is written, the controller applies a zero setpoint. Otherwise the requested external range or static setpoint is limited to the charge point and electric vehicle abilities and forwarded as regular `ChargePointActions`.
+The external values are limited to the charge point and electric vehicle abilities and then applied to the active mode. For example, an external minimum can be combined with `SURPLUS` mode. A non-positive external maximum or static setpoint disables charging. Without an external value, the configured mode keeps its normal behavior.
 
 The existing OpenEMS write APIs can be used, e.g.:
 
 [source]
 ----
-POST /rest/channel/evseChargePoint0/SetExternalMaxChargePower
-POST /rest/channel/evseChargePoint0/SetExternalStaticChargePower
+POST /rest/channel/ctrlEvseSingle0/ExternalMaxChargePower
+POST /rest/channel/ctrlEvseSingle0/ExternalStaticChargePower
 ----
 
-Phase switching is not controlled by this first external mode implementation. It remains managed by the existing `Phase-Switching` configuration of `Evse.Controller.Single`.
+Phase switching remains managed by the existing `Phase-Switching` configuration of `Evse.Controller.Single`; external limits are applied to both the current-phase and ideal all-phase power ranges.
 
 == Phase-Switching Support Detection
 

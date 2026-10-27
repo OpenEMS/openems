@@ -65,15 +65,18 @@ class ControllerEvseSingleImplTest {
 	@Test
 	void testParamsExposeExternalWriteChannels() throws Exception {
 		var sut = generateSingleSut(FunctionUtils::doNothing);
-		sut.chargePoint().getSetExternalMinChargePowerChannel().setNextWriteValue(6_000);
-		sut.chargePoint().getSetExternalMaxChargePowerChannel().setNextWriteValue(10_000);
-		sut.chargePoint().getSetExternalStaticChargePowerChannel().setNextWriteValue(8_000);
+		sut.ctrlSingle().getExternalMinChargePowerChannel().setNextWriteValue(6_000);
+		sut.ctrlSingle().getExternalMaxChargePowerChannel().setNextWriteValue(10_000);
+		sut.ctrlSingle().getExternalStaticChargePowerChannel().setNextWriteValue(8_000);
 
 		var params = sut.ctrlSingle().getParams();
 
 		assertEquals(6_000, params.externalMinChargePower());
 		assertEquals(10_000, params.externalMaxChargePower());
 		assertEquals(8_000, params.externalStaticChargePower());
+		assertEquals(6_000, sut.ctrlSingle().getExternalMinChargePowerChannel().getNextValue().get());
+		assertEquals(10_000, sut.ctrlSingle().getExternalMaxChargePowerChannel().getNextValue().get());
+		assertEquals(8_000, sut.ctrlSingle().getExternalStaticChargePowerChannel().getNextValue().get());
 	}
 
 	@Test

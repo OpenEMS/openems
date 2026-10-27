@@ -1,13 +1,9 @@
 package io.openems.edge.evse.api.chargepoint;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Unit;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -28,46 +24,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 		 * <li>...
 		 * </ul>
 		 */
-		IS_READY_FOR_CHARGING(Doc.of(OpenemsType.BOOLEAN)), //
-
-		/**
-		 * Externally requested minimum charge power in [W].
-		 *
-		 * <p>
-		 * This write-only channel is intended for external controllers like evcc. It is
-		 * evaluated by {@code Evse.Controller.Single} only when configured in external
-		 * mode.
-		 */
-		SET_EXTERNAL_MIN_CHARGE_POWER(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.text("Externally requested minimum charge power in [W]. Evaluated by Evse.Controller.Single in external mode.")), //
-
-		/**
-		 * Externally requested maximum charge power in [W].
-		 *
-		 * <p>
-		 * This write-only channel is intended for external controllers like evcc. It is
-		 * evaluated by {@code Evse.Controller.Single} only when configured in external
-		 * mode.
-		 */
-		SET_EXTERNAL_MAX_CHARGE_POWER(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.text("Externally requested maximum charge power in [W]. Evaluated by Evse.Controller.Single in external mode.")), //
-
-		/**
-		 * Externally requested static charge power in [W].
-		 *
-		 * <p>
-		 * This write-only channel is intended for external controllers like evcc. It is
-		 * evaluated by {@code Evse.Controller.Single} only when configured in external
-		 * mode.
-		 */
-		SET_EXTERNAL_STATIC_CHARGE_POWER(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.text("Externally requested static charge power in [W]. Evaluated by Evse.Controller.Single in external mode.")) //
+		IS_READY_FOR_CHARGING(Doc.of(OpenemsType.BOOLEAN)) //
 		;
 
 		private final Doc doc;
@@ -141,32 +98,5 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	 */
 	public default boolean getIsReadyForCharging() {
 		return this.getIsReadyForChargingChannel().value().orElse(false);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SET_EXTERNAL_MIN_CHARGE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getSetExternalMinChargePowerChannel() {
-		return this.channel(ChannelId.SET_EXTERNAL_MIN_CHARGE_POWER);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SET_EXTERNAL_MAX_CHARGE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getSetExternalMaxChargePowerChannel() {
-		return this.channel(ChannelId.SET_EXTERNAL_MAX_CHARGE_POWER);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SET_EXTERNAL_STATIC_CHARGE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getSetExternalStaticChargePowerChannel() {
-		return this.channel(ChannelId.SET_EXTERNAL_STATIC_CHARGE_POWER);
 	}
 }

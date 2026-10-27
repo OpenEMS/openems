@@ -175,13 +175,9 @@ class EvseChargePointHardyBarthEcb1ImplTest {
 		test //
 				.next(new TestCase() //
 						.activateStrictMode() //
-						.withIgnoredChannelsForStrictMode(//
-								EvseChargePoint.ChannelId.SET_EXTERNAL_MIN_CHARGE_POWER, //
-								EvseChargePoint.ChannelId.SET_EXTERNAL_MAX_CHARGE_POWER, //
-								EvseChargePoint.ChannelId.SET_EXTERNAL_STATIC_CHARGE_POWER) //
 						.onBeforeProcessImage(() -> {
-								handler.handleChargeControlResponse(CHARGECONTROL_CHARGING);
-								handler.handleMeterResponse(METER_CHARGING);
+							handler.handleChargeControlResponse(CHARGECONTROL_CHARGING);
+							handler.handleMeterResponse(METER_CHARGING);
 						}) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
 

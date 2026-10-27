@@ -12,16 +12,23 @@ public class PowerDistributionEntry {
 	public final Mode mode;
 	public final Integer activePower;
 	public final ApplySetPoint.Ability.Watt applySetPoint;
+	public final boolean hasExternalStaticSetPoint;
 
 	protected int setPointInWatt;
 
 	public PowerDistributionEntry(PowerDistributionKey key, Status status, Mode mode, Integer activePower,
 			ApplySetPoint.Ability.Watt applySetPoint) {
+		this(key, status, mode, activePower, applySetPoint, false);
+	}
+
+	public PowerDistributionEntry(PowerDistributionKey key, Status status, Mode mode, Integer activePower,
+			ApplySetPoint.Ability.Watt applySetPoint, boolean hasExternalStaticSetPoint) {
 		this.key = key;
 		this.status = status;
 		this.mode = mode;
 		this.activePower = activePower;
 		this.applySetPoint = applySetPoint;
+		this.hasExternalStaticSetPoint = hasExternalStaticSetPoint;
 	}
 
 	public int getSetPointInWatt() {
@@ -39,7 +46,7 @@ public class PowerDistributionEntry {
 	 */
 	public boolean hasSurplus() {
 		return switch (this.mode) {
-		case EXTERNAL, FORCE, MINIMUM, ZERO -> false;
+		case FORCE, MINIMUM, ZERO -> false;
 		case SURPLUS -> true;
 		};
 	}
@@ -51,7 +58,7 @@ public class PowerDistributionEntry {
 	 */
 	public boolean hasSurplusOrMinimum() {
 		return switch (this.mode) {
-		case EXTERNAL, FORCE, ZERO -> false;
+		case FORCE, ZERO -> false;
 		case SURPLUS, MINIMUM -> true;
 		};
 	}

@@ -140,37 +140,48 @@ public record Params(//
 	}
 
 	/**
-	 * Creates the effective external apply set point. Without any external target it
-	 * returns zero, so external mode does not accidentally charge without a fresh
-	 * external command.
+	 * Applies the external charge-power limits to an apply set-point.
 	 *
-	 * @return External apply set point.
+	 * @param mode              the effective mode
+	 * @param baseApplySetPoint the apply set-point before external limits
+	 * @return the limited apply set-point
 	 */
-	public ApplySetPoint.Ability.Watt createExternalApplySetPoint() {
-		final var baseApplySetPoint = this.createApplySetPointForAllPhases();
-		if (this.externalMinChargePower == null && this.externalMaxChargePower == null
-				&& this.externalStaticChargePower == null) {
-			return new ApplySetPoint.Ability.Watt(baseApplySetPoint.phase(), 0, 0, baseApplySetPoint.step());
-		}
-
+	public ApplySetPoint.Ability.Watt applyExternalSetPoint(Mode mode,
+			ApplySetPoint.Ability.Watt baseApplySetPoint) {
 		var min = baseApplySetPoint.min();
 		var max = baseApplySetPoint.max();
 		if (this.externalMaxChargePower != null) {
 			max = fitWithin(min, max, this.externalMaxChargePower);
 		}
-		if (this.externalMinChargePower != null) {
+		if (mode.isSurplusOrMinimum() && this.externalMinChargePower != null) {
 			min = fitWithin(baseApplySetPoint.min(), max, this.externalMinChargePower);
 		}
-		if (this.externalStaticChargePower != null) {
-			if (this.externalStaticChargePower <= 0) {
-				return new ApplySetPoint.Ability.Watt(baseApplySetPoint.phase(), 0, 0, baseApplySetPoint.step());
-			}
+		if (this.externalStaticChargePower != null && this.externalStaticChargePower > 0) {
 			final var staticChargePower = fitWithin(min, max, this.externalStaticChargePower);
-			return new ApplySetPoint.Ability.Watt(baseApplySetPoint.phase(), staticChargePower, staticChargePower,
-					baseApplySetPoint.step());
+			min = staticChargePower;
+			max = staticChargePower;
 		}
 
 		return new ApplySetPoint.Ability.Watt(baseApplySetPoint.phase(), min, max, baseApplySetPoint.step());
+	}
+
+	/**
+	 * Returns whether an external set-point disallows charging.
+	 *
+	 * @return true if charging is externally disabled
+	 */
+	public boolean isExternalChargeDisallowed() {
+		return this.externalMaxChargePower != null && this.externalMaxChargePower <= 0
+				|| this.externalStaticChargePower != null && this.externalStaticChargePower <= 0;
+	}
+
+	/**
+	 * Returns whether an external static charge-power set-point is active.
+	 *
+	 * @return true if a positive static set-point is active
+	 */
+	public boolean hasExternalStaticChargePower() {
+		return this.externalStaticChargePower != null && this.externalStaticChargePower > 0;
 	}
 
 	/**

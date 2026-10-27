@@ -1,8 +1,8 @@
 package io.openems.edge.controller.evse.cluster.powerdistribute;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
-import static io.openems.edge.controller.evse.single.Mode.EXTERNAL;
 import static io.openems.edge.controller.evse.single.Mode.FORCE;
 import static io.openems.edge.controller.evse.single.Mode.MINIMUM;
 import static io.openems.edge.controller.evse.single.Mode.SURPLUS;
@@ -14,11 +14,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.google.common.collect.ImmutableList;
+
+import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.controller.evse.TestUtils;
 import io.openems.edge.controller.evse.cluster.DistributionStrategy;
 import io.openems.edge.controller.evse.cluster.powerdistribute.ramp.LimitIncreaseByPercentageRamp;
 import io.openems.edge.controller.evse.single.EvseSingleState;
@@ -101,6 +106,25 @@ class PowerDistributionTest {
 	}
 
 	@Test
+	void testRampIsSkippedOnlyForExternalStaticSetPoint() {
+		final var ability = new ApplySetPoint.Ability.Watt(THREE_PHASE, 4_140, 11_040);
+		final var staticEntry = new PowerDistributionEntry(new PowerDistributionKey.Evse("static"),
+				PowerDistributionEntry.Status.ACTIVE, FORCE, 0, ability, true);
+		final var dynamicEntry = new PowerDistributionEntry(new PowerDistributionKey.Evse("dynamic"),
+				PowerDistributionEntry.Status.ACTIVE, FORCE, 0, ability);
+		staticEntry.setSetPointInWatt(10_000);
+		dynamicEntry.setSetPointInWatt(10_000);
+		final var entries = new PowerDistributionEntries(ImmutableList.of(staticEntry, dynamicEntry));
+		final var ramp = new LimitIncreaseByPercentageRamp(
+				EvsePowerDistributionManager.MAX_PERCENTAGE_CHANGE_PER_SECOND, createDummyClock());
+
+		new PowerDistribution(entries, DistributionStrategy.EQUAL_POWER, 0).applyRamp(ramp);
+
+		assertEquals(10_000, staticEntry.getSetPointInWatt());
+		assertEquals(4_140, dynamicEntry.getSetPointInWatt());
+	}
+
+	@Test
 	void testMinimumWithSurplus() {
 		var sut = CalculateTester.generateControllers(3) //
 				.set(0, c -> c //
@@ -165,10 +189,10 @@ class PowerDistributionTest {
 	}
 
 	@Test
-	void testExternalModeAppliesWrittenMaximumChargePower() {
+	void testExternalMaximumChargePowerLimitsForceMode() {
 		var sut = CalculateTester.generateControllers(1) //
 				.set(0, c -> c //
-						.setMode(EXTERNAL) //
+						.setMode(FORCE) //
 						.setExternalMaxChargePower(10_000)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
@@ -176,10 +200,10 @@ class PowerDistributionTest {
 	}
 
 	@Test
-	void testExternalModeAppliesWrittenStaticChargePower() {
+	void testExternalStaticChargePowerOverridesForceMode() {
 		var sut = CalculateTester.generateControllers(1) //
 				.set(0, c -> c //
-						.setMode(EXTERNAL) //
+						.setMode(FORCE) //
 						.setExternalMinChargePower(6_000) //
 						.setExternalMaxChargePower(10_000) //
 						.setExternalStaticChargePower(8_000)) //
@@ -189,25 +213,52 @@ class PowerDistributionTest {
 	}
 
 	@Test
-	void testExternalModeDefaultsToZeroWithoutWrittenChargePower() {
+	void testExternalMinimumChargePowerLimitsSurplusMode() {
 		var sut = CalculateTester.generateControllers(1) //
 				.set(0, c -> c //
-						.setMode(EXTERNAL)) //
+						.setMode(SURPLUS) //
+						.setExternalMinChargePower(6_000)) //
+				.sum(s -> s //
+						.withGridActivePower(-6_000)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(8_696, sut.get(0).getApplySetPointInMilliAmpere());
+	}
+
+	@Test
+	void testExternalStaticZeroForcesZeroMode() {
+		var sut = CalculateTester.generateControllers(1) //
+				.set(0, c -> c //
+						.setMode(FORCE) //
+						.setExternalMaxChargePower(10_000) //
+						.setExternalStaticChargePower(0)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
 		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
 	}
 
 	@Test
-	void testExternalModeStaticZeroForcesZero() {
-		var sut = CalculateTester.generateControllers(1) //
-				.set(0, c -> c //
-						.setMode(EXTERNAL) //
-						.setExternalMaxChargePower(10_000) //
-						.setExternalStaticChargePower(0)) //
-				.execute(DistributionStrategy.EQUAL_POWER);
+	void testExternalLimitsPreserveCurrentAndIdealPhaseAbilities() {
+		final var params = TestUtils.createSingleCtrl() //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setExternalMaxChargePower(8_000) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SINGLE_PHASE, 6, 32)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true)) //
+				.build().getParams();
+		final var manager = new EvsePowerDistributionManager(List.of(params), DistributionStrategy.EQUAL_POWER, null,
+				null, io.openems.edge.controller.evse.cluster.LogVerbosity.NONE, new DummySum(), createDummyClock());
 
-		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
+		final var currentEntry = manager.mapDistributionEntryForSetPoint(params);
+		final var idealEntry = manager.mapDistributionEntryForIdealSetPoint(params);
+
+		assertEquals(SINGLE_PHASE, currentEntry.applySetPoint.phase());
+		assertEquals(7_360, currentEntry.applySetPoint.max());
+		assertNull(idealEntry.applySetPoint.phase());
+		assertEquals(8_000, idealEntry.applySetPoint.max());
 	}
 
 	@Test

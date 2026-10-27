@@ -25,16 +25,6 @@ The single-controller implementation `Evse.Controller.Single` binds exactly one 
 - It distributes power and phase-switch directives using the `PowerDistribution` classes.
 - Only controllers whose combined abilities include a valid `phaseSwitch` ability can receive a phase-switch action.
 
-== External Setpoint Channels
-
-`EvseChargePoint` exposes write channels for external charge-control setpoints:
-
-- `SetExternalMinChargePower` — requested minimum charge power in [W]
-- `SetExternalMaxChargePower` — requested maximum charge power in [W]
-- `SetExternalStaticChargePower` — requested fixed charge power in [W]
-
-These channels are intentionally generic and device-independent. They are evaluated by `Evse.Controller.Single` when it is configured in external mode, so external systems can write setpoints through OpenEMS instead of controlling a wallbox through a vendor API in parallel.
-
 == Notes
 
 - `EvseChargePoint` is an `ElectricityMeter` and exposes the active power and ready-for-charging state.

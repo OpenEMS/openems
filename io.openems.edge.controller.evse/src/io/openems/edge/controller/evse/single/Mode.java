@@ -6,8 +6,7 @@ public enum Mode implements OptionsEnum {
 	ZERO(0, "Zero"), //
 	MINIMUM(1, "Minimum"), //
 	SURPLUS(2, "Surplus"), //
-	FORCE(3, "Force"), //
-	EXTERNAL(4, "External") //
+	FORCE(3, "Force") //
 	;
 
 	private final int value;
@@ -36,7 +35,7 @@ public enum Mode implements OptionsEnum {
 	public boolean isSurplusOrMinimum() {
 		return switch (this) {
 		case MINIMUM, SURPLUS -> true;
-		case ZERO, FORCE, EXTERNAL -> false;
+		case ZERO, FORCE -> false;
 		};
 	}
 }
