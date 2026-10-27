@@ -22,8 +22,8 @@ import io.openems.edge.controller.io.heatingelement.enums.Status;
 public interface ControllerIoHeatingElement extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		LEVEL(Doc.of(Level.values()) //
-				.text("Current Level") //
+		LEVEL(Doc.of(Level.values())//
+				.text("Current Level")//
 				.persistencePriority(HIGH)),
 		AWAITING_HYSTERESIS(Doc.of(INTEGER)), //
 		PHASE1_TIME(Doc.of(INTEGER)//
@@ -47,37 +47,48 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 		 * Total active Time of each Level.
 		 */
 		LEVEL1_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		LEVEL2_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		LEVEL3_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		TOTAL_PHASE_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
 		FORCE_START_AT_SECONDS_OF_DAY(Doc.of(INTEGER)//
-				.unit(SECONDS) //
+				.unit(SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)),
-		STATUS(Doc.of(Status.values()) //
+		STATUS(Doc.of(Status.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
-		PHASE1_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE1_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		PHASE2_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE2_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		PHASE3_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE3_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		WAITING_FOR_CALIBRATION(Doc.of(OpenemsType.BOOLEAN)),
 
-		SESSION_ENERGY(Doc.of(LONG) //
-				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH));
+		SESSION_ENERGY(Doc.of(LONG)//
+				.unit(Unit.WATT_HOURS)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		WATER_ACTUAL(Doc.of(INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		WATER_TARGET(Doc.of(INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		WATER_THERMOMETER_NOT_AVAILABLE(Doc.of(io.openems.common.channel.Level.WARNING)//
+				.text("The water thermometer is not available")), //
+		LEGIONELLEN_PROTECTION_FAILED(Doc.of(io.openems.common.channel.Level.WARNING)//
+				.text("The Legionella temperature was not held in time"));
 
 		private final Doc doc;
 

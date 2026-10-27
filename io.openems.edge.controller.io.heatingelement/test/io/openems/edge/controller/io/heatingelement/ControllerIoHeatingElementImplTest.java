@@ -1,5 +1,5 @@
 package io.openems.edge.controller.io.heatingelement;
- 
+
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE1_TIME;
@@ -21,9 +21,9 @@ import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
- 
+
 public class ControllerIoHeatingElementImplTest {
- 
+
 	@Test
 	public void test() throws Exception {
 		final var clock = createDummyClock();
@@ -180,6 +180,5 @@ public class ControllerIoHeatingElementImplTest {
 						.output(PHASE3_TIME, 0)) //
 				.deactivate();
 	}
- 
-}
 
+}

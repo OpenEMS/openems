@@ -80,4 +80,32 @@ This controller supports time-based scheduling via the schedule parameter. It us
 Examples of usage and formatting can be found in the test classes https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.io.heatingelement/test/io/openems/edge/controller/io/heatingelement/ControllerHeatingElementImplTest9.java[ControllerHeatingElementImplTest9.java] and https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.io.heatingelement/test/io/openems/edge/controller/io/heatingelement/ControllerHeatingElementImplTest10.java[ControllerHeatingElementImplTest10.java]. +
 Note: The schedule only takes effect in the Mode Automatic with any WorkMode (None, Time, Energy)
 
+=== Water Temperature Control
+Optionally, the controller can take the water temperature of a Thermometer into account. This is enabled via the parameter _Has Water Thermometer?_ and the _Water Thermometer-ID_. If it is disabled, the temperature is ignored and the controller works as described above.
+
+In the Mode Automatic, the following rules are applied from top to bottom:
+
+. *Thermometer not available:* the Level configured in _Sensor Error Level_ is applied immediately (_Level 0_ switches the heating element off).
+. *Maximum Water Temperature* reached: the heating element is switched off immediately (safety limit).
+. *Legionella Protection* (optional): if the water was not kept at or above the _Legionella Water Temperature_ for _Minimum Legionella Time_ within the last _Legionella Interval_ days, the heating element heats with Level 3, even without excess power, until the temperature was held for the minimum time. If the temperature drops below the _Legionella Water Temperature_ in between, the time starts again. To avoid heating up to the maximum, the heating element is switched off above the _Legionella Water Temperature_ + 2 K and heats again below. If the temperature is not held within _Maximum Legionella Heating Time_, the heating is aborted, the Channel _LegionellenProtectionFailed_ is set and the heating is retried after one day.
+. *High Water Temperature* reached: the heating element is switched off immediately, even with excess power or while the minimum run time of the Work-Mode is not reached.
+. Below *Low Water Temperature*: the heating element heats with Level 3, even without excess power.
+. Between _Low_ and _High Water Temperature_: normal operation, i.e. excess power and Work-Mode as described above.
+
+The limits _Maximum_, _High_ and _Sensor Error_ are applied immediately and do not wait for the _Minimum switching time_. Heating because of _Low Water Temperature_ or _Legionella Protection_ has priority over the Work-Mode and the schedule, but respects the _Minimum switching time_.
+
+In the Mode Manual On the heating element heats with the _Default Level_, unless the _High Water Temperature_ is reached (off) or the thermometer is not available (_Sensor Error Level_). In the Mode Manual Off the heating element is always off.
+
+The configuration is validated on activation: _Low_ must be below _High_, _High_ must not be above _Maximum Water Temperature_, the _Legionella Water Temperature_ must not be above _Maximum Water Temperature_ and the _Maximum Legionella Heating Time_ must be greater than the _Minimum Legionella Time_.
+
+Note: The time of the next Legionella heating is kept in memory only. After a restart of the Edge the interval starts again.
+
+Channel _WaterActual_:: Current water temperature in [°C]
+
+Channel _WaterTarget_:: Target water temperature in [°C]: _High Water Temperature_, or the _Legionella Water Temperature_ during Legionella heating
+
+Channel _WaterThermometerNotAvailable_:: Warning if the configured Thermometer is not available
+
+Channel _LegionellenProtectionFailed_:: Warning if the Legionella temperature was not held in time; it is reset when the Legionella protection was completed
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]
