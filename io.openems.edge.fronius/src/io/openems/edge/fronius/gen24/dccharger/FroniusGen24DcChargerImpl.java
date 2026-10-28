@@ -29,6 +29,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -143,7 +144,7 @@ public class FroniusGen24DcChargerImpl extends AbstractOpenemsSunSpecComponent i
 	 * matching {@link io.openems.common.types.OptionsEnum} constant.
 	 *
 	 * <p>
-	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
+	 * {@link ElementToChannelConverters#DIRECT_1_TO_1} is not sufficient here: it
 	 * passes the raw value through unchanged, so the target Channel would end up
 	 * holding a plain {@code Integer} instead of the declared enum constant -
 	 * causing a {@link ClassCastException} the moment anything reads the Channel as

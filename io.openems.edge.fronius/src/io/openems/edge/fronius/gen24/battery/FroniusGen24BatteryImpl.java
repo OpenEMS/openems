@@ -25,6 +25,7 @@ import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -154,10 +155,10 @@ public class FroniusGen24BatteryImpl extends AbstractOpenemsSunSpecComponent
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
 		this.mapFirstPointToChannel(Battery.ChannelId.SOC, //
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S124.CHA_STATE);
+				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S124.CHA_STATE);
 
 		this.mapFirstPointToChannel(Battery.ChannelId.CAPACITY, //
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S120.W_H_RTG);
+				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S120.W_H_RTG);
 
 		this.mapFirstPointToChannel(FroniusGen24Battery.ChannelId.BAT_STATUS, //
 				enumConverter(io.openems.edge.fronius.enums.BatteryState.values()), DefaultSunSpecModel.S124.CHA_ST);
@@ -173,7 +174,7 @@ public class FroniusGen24BatteryImpl extends AbstractOpenemsSunSpecComponent
 	 * matching {@link io.openems.common.types.OptionsEnum} constant.
 	 *
 	 * <p>
-	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
+	 * {@link ElementToChannelConverters#DIRECT_1_TO_1} is not sufficient here: it
 	 * passes the raw value through unchanged, so the target Channel would end up
 	 * holding a plain {@code Integer} instead of the declared enum constant -
 	 * causing a {@link ClassCastException} the moment anything reads the Channel as

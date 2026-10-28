@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.gridmeter;
 
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 
 /**
  * If the {@link GoodWeGridMeter} State 'HAS_NO_METER' is set, all values should
@@ -22,7 +23,7 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 	 * @return the {@link ElementToChannelConverter}
 	 */
 	public static ElementToChannelConverter from(GoodWeGridMeter parent, ElementToChannelConverter converter) {
-		if (converter == ElementToChannelConverter.DIRECT_1_TO_1) {
+		if (converter == ElementToChannelConverters.DIRECT_1_TO_1) {
 			return new IgnoreZeroConverter(parent);
 		}
 		return ElementToChannelConverter.chain(new IgnoreZeroConverter(parent), converter);

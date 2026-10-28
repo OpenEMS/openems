@@ -1,9 +1,9 @@
 package io.openems.edge.battery.bmw;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,7 +42,7 @@ import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -263,13 +263,13 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 						m(BatteryBmw.ChannelId.INTERNAL_VOLTAGE, new UnsignedWordElement(1028)), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(1029), SCALE_FACTOR_MINUS_1), //
 						m(BatteryBmw.ChannelId.AVG_BATTERY_TEMPERATURE, new UnsignedWordElement(1030),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(1031), SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(1032), SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new SignedWordElement(1033), DIRECT_1_TO_1), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new SignedWordElement(1034), DIRECT_1_TO_1), //
 						m(BatteryBmw.ChannelId.AVG_CELL_TEMPERATURE, new UnsignedWordElement(1035),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(1036), //
 						m(BatteryBmw.ChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(1037)), //
 						new DummyRegisterElement(1038, 1040), //

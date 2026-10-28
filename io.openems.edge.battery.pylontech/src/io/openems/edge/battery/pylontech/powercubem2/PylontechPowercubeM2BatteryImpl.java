@@ -1,10 +1,10 @@
 package io.openems.edge.battery.pylontech.powercubem2;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.KEEP_NEGATIVE_AND_INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
@@ -40,7 +40,7 @@ import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine;
 import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -560,10 +560,10 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 									.bit(6, this.generatePileChannel(pile, "FAN_ACTIVE", OpenemsType.BOOLEAN))),
 							m(this.generatePileChannel(pile, "MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0010),
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+									ElementToChannelConverters.SCALE_FACTOR_MINUS_3),
 							m(this.generatePileChannel(pile, "MIN_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0011),
-									ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+									ElementToChannelConverters.SCALE_FACTOR_MINUS_3),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MAX_CELL_VOLTAGE", OpenemsType.INTEGER),
 									new UnsignedWordElement(pileOffset + 0x0012), DIRECT_1_TO_1),
 							m(this.generatePileChannel(pile, "SERIAL_NUMBER_OF_MIN_CELL_VOLTAGE", OpenemsType.INTEGER),

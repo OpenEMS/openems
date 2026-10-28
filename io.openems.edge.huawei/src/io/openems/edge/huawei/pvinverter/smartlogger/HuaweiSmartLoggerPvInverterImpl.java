@@ -24,7 +24,7 @@ import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -104,38 +104,38 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 		final var protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(40554, Priority.HIGH, //
 						this.m(ElectricityMeter.ChannelId.CURRENT, new SignedDoublewordElement(40554), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3)), //
 				new FC3ReadRegistersTask(40525, Priority.HIGH, //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(40525), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3)), //
 				new FC3ReadRegistersTask(40544, Priority.HIGH, //
 						this.m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(40544), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						new DummyRegisterElement(40546, 40571), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedWordElement(40572),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L2, new SignedWordElement(40573),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedWordElement(40574),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						this.m(HuaweiSmartloggerPvInverter.ChannelId.VOLTAGE_L1_L2, new SignedWordElement(40575),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						this.m(HuaweiSmartloggerPvInverter.ChannelId.VOLTAGE_L2_L3, new SignedWordElement(40576),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						this.m(HuaweiSmartloggerPvInverter.ChannelId.VOLTAGE_L1_L3, new SignedWordElement(40577),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3), //
 						new DummyRegisterElement(40578, 40698), //
 						this.m(HuaweiSmartloggerPvInverter.ChannelId.LOCKED, new SignedWordElement(40699)), //
 						new DummyRegisterElement(40700, 41933), //
 						this.m(HuaweiSmartloggerPvInverter.ChannelId.CAPACITY, new UnsignedDoublewordElement(41934),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)//
+								ElementToChannelConverters.SCALE_FACTOR_MINUS_3)//
 				));
 
 		if (!this.config.readOnly()) {
 			protocol.addTask(new FC16WriteRegistersTask(40424, //
 					this.m(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, //
 							new UnsignedDoublewordElement(40424), //
-							ElementToChannelConverter.SCALE_FACTOR_3)));
+							ElementToChannelConverters.SCALE_FACTOR_3)));
 		}
 		return protocol;
 	}

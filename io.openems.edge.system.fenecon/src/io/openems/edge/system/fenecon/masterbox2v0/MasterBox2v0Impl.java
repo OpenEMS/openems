@@ -22,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -94,7 +95,7 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(8, Priority.LOW, //
 						m(MasterBox2v0.ChannelId.ANALOG_OUT_VOLTAGE, new UnsignedWordElement(8),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverters.SCALE_FACTOR_2), //
 						m(MasterBox2v0.ChannelId.ANALOG_OUT_CONTROL, new UnsignedWordElement(9))), //
 
 				new FC3ReadRegistersTask(101, Priority.LOW, //
@@ -125,17 +126,17 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(301, Priority.HIGH, //
 						m(MasterBox2v0.ChannelId.VOLTAGE_L1_ENERGYMETER, new UnsignedWordElement(301), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.VOLTAGE_L2_ENERGYMETER, new UnsignedWordElement(302), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.VOLTAGE_L3_ENERGYMETER, new UnsignedWordElement(303), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.CURRENT_L1_ENERGYMETER, new UnsignedWordElement(304), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.CURRENT_L2_ENERGYMETER, new UnsignedWordElement(305), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.CURRENT_L3_ENERGYMETER, new UnsignedWordElement(306), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+								ElementToChannelConverters.SCALE_FACTOR_1), //
 						m(MasterBox2v0.ChannelId.ACTIVE_POWER_L1_ENERGYMETER, new UnsignedWordElement(307)), //
 						m(MasterBox2v0.ChannelId.ACTIVE_POWER_L2_ENERGYMETER, new UnsignedWordElement(308)), //
 						m(MasterBox2v0.ChannelId.ACTIVE_POWER_L3_ENERGYMETER, new UnsignedWordElement(309))),
@@ -164,7 +165,7 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 								new ChannelMetaInfoReadAndWrite(110, 6))), //
 				new FC6WriteRegisterTask(8, //
 						m(MasterBox2v0.ChannelId.ANALOG_OUT_VOLTAGE, new UnsignedWordElement(8),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								ElementToChannelConverters.SCALE_FACTOR_2)), //
 				new FC6WriteRegisterTask(9, //
 						m(MasterBox2v0.ChannelId.ANALOG_OUT_CONTROL, new UnsignedWordElement(9))));
 	}

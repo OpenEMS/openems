@@ -5,12 +5,12 @@ import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.sumInt;
 import static io.openems.common.utils.IntUtils.sumInteger;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
@@ -41,6 +41,7 @@ import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -1306,27 +1307,27 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		protocol.addTask(//
 				new FC3ReadRegistersTask(35103, Priority.HIGH, //
 						m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 
 						// Power having wrong values for two-string charger
 						new DummyRegisterElement(35105, 35106),
 
 						m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						new DummyRegisterElement(35109, 35110),
 						m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						new DummyRegisterElement(35113, 35114),
 						m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
-								ElementToChannelConverter.SCALE_FACTOR_2)) //
+								ElementToChannelConverters.SCALE_FACTOR_2)) //
 		);
 
 		/*
@@ -1336,53 +1337,53 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		protocol.addTask(//
 				new FC3ReadRegistersTask(35304, Priority.HIGH, //
 						m(GoodWe.ChannelId.TWO_S_PV5_V, new UnsignedWordElement(35304),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV5_I, new UnsignedWordElement(35305),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV6_V, new UnsignedWordElement(35306),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV6_I, new UnsignedWordElement(35307),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverters.SCALE_FACTOR_2), //
 						m(GoodWe.ChannelId.TWO_S_PV7_V, new UnsignedWordElement(35308),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV7_I, new UnsignedWordElement(35309),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								ElementToChannelConverters.SCALE_FACTOR_2), //
 						m(GoodWe.ChannelId.TWO_S_PV8_V, new UnsignedWordElement(35310),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV8_I, new UnsignedWordElement(35311),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV9_V, new UnsignedWordElement(35312),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV9_I, new UnsignedWordElement(35313),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV10_V, new UnsignedWordElement(35314),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV10_I, new UnsignedWordElement(35315),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV11_V, new UnsignedWordElement(35316),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV11_I, new UnsignedWordElement(35317),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV12_V, new UnsignedWordElement(35318),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV12_I, new UnsignedWordElement(35319),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV13_V, new UnsignedWordElement(35320),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV13_I, new UnsignedWordElement(35321),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV14_V, new UnsignedWordElement(35322),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV14_I, new UnsignedWordElement(35323),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV15_V, new UnsignedWordElement(35324),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV15_I, new UnsignedWordElement(35325),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV16_V, new UnsignedWordElement(35326),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.TWO_S_PV16_I, new UnsignedWordElement(35327),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						new DummyRegisterElement(35328, 35336),
 
 						m(GoodWe.ChannelId.MPPT1_P, new UnsignedWordElement(35337)), //
@@ -1395,21 +1396,21 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.MPPT8_P, new UnsignedWordElement(35344)), //
 
 						m(GoodWe.ChannelId.MPPT1_I, new UnsignedWordElement(35345), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT2_I, new UnsignedWordElement(35346), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT3_I, new UnsignedWordElement(35347), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT4_I, new UnsignedWordElement(35348), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT5_I, new UnsignedWordElement(35349), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT6_I, new UnsignedWordElement(35350), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT7_I, new UnsignedWordElement(35351), //
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverters.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT8_I, new UnsignedWordElement(35352), //
-								ElementToChannelConverter.SCALE_FACTOR_2)));
+								ElementToChannelConverters.SCALE_FACTOR_2)));
 	}
 
 	// TODO: Can be removed when GoodWeChargerTwoStringImpl has been deleted
