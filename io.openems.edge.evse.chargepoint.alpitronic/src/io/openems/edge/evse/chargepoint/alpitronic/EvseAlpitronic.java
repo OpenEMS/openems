@@ -1,5 +1,10 @@
 package io.openems.edge.evse.chargepoint.alpitronic;
 
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.channel.Unit.WATT_HOURS;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -14,7 +19,14 @@ public abstract class EvseAlpitronic extends AbstractOpenemsModbusComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		AVAILABLE_STATE(Doc.of(AvailableState.values()));
+		AVAILABLE_STATE(Doc.of(AvailableState.values())), //
+		// Version-aware channels
+		TOTAL_CHARGED_ENERGY(Doc.of(LONG)//
+				.unit(WATT_HOURS)//
+				.text("Total charged energy counter (v2.3+)")), //
+		MAX_CHARGING_POWER_AC(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.text("Maximum AC charging power per connector (v2.4+)"));
 
 		private final Doc doc;
 
@@ -45,6 +57,13 @@ public abstract class EvseAlpitronic extends AbstractOpenemsModbusComponent
 	public abstract boolean getIsReadyForCharging();
 
 	/**
+	 * Is a EV connected to the CP?.
+	 *
+	 * @return true/false
+	 */
+	public abstract boolean getIsEvConnected();
+
+	/**
 	 * Smallest allowed ChargePower.
 	 * 
 	 * @return the ChargePower
@@ -57,4 +76,5 @@ public abstract class EvseAlpitronic extends AbstractOpenemsModbusComponent
 	 * @return the ChargePower
 	 */
 	public abstract int getMaxChargePower();
+
 }
