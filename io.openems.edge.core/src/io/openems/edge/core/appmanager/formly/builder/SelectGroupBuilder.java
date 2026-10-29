@@ -102,8 +102,20 @@ public final class SelectGroupBuilder extends FormlyBuilder<SelectGroupBuilder> 
 		// "reset" required property in popup input and only set it in final input
 		this.isRequired(false);
 
+		// The visible selector is the outer field; hiding only the inner popup field is
+		// not sufficient.
+		final var innerField = super.build();
+		if (innerField.has("expressionProperties")) {
+			final var innerExpressionProperties = innerField.getAsJsonObject("expressionProperties");
+			if (innerExpressionProperties.has("hide")) {
+				final var outerExpressionProperties = new JsonObject();
+				outerExpressionProperties.add("hide", innerExpressionProperties.get("hide").deepCopy());
+				fieldGroup.jsonObject.add("expressionProperties", outerExpressionProperties);
+			}
+		}
+
 		fieldGroup.setFieldGroup(JsonUtils.buildJsonArray() //
-				.add(super.build()) //
+				.add(innerField) //
 				.build()); //
 
 		fieldGroup.setDefaultValue(this.getDefaultValue());
