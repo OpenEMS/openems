@@ -27,7 +27,7 @@ export class FooterNavigationComponent implements OnInit {
 
     protected areButtonsReadyToShow: boolean = false;
     protected buttons: NavigationOption[] = [];
-    protected popoverButtons: NavigationOption[] | null = [];
+    protected popoverButtons: NavigationOption[] = [];
     protected showPopover: boolean = false;
     protected isInitialized: boolean = false;
 
@@ -42,7 +42,8 @@ export class FooterNavigationComponent implements OnInit {
 
     @Input() public set navigationOptions(nodes: NavigationOption[]) {
         this._buttons = nodes;
-        this.buttons = nodes;
+        this.buttons = this.getAllowedButtons();
+        this.popoverButtons = [];
     }
     @HostListener("window:resize", ["$event.target.innerWidth"])
     public onResize(width: number) {
@@ -66,18 +67,22 @@ export class FooterNavigationComponent implements OnInit {
             return;
         }
 
-        this.buttons = this._buttons;
+        this.buttons = this.getAllowedButtons();
         this.getSplitIndex().then((indexToSplit) => {
             if (indexToSplit == null) {
                 return;
             }
 
-            const allowedButtons = this._buttons.filter((el) => (el.isEnabled == null ? true : el.isEnabled));
+            const allowedButtons = this.getAllowedButtons();
             this.buttons = allowedButtons.slice(0, indexToSplit);
             this.popoverButtons = allowedButtons.slice(indexToSplit);
             this.areButtonsReadyToShow = true;
         });
         this.isInitialized = true;
+    }
+
+    private getAllowedButtons(): NavigationOption[] {
+        return this._buttons.filter((button) => button.isEnabled == null || button.isEnabled);
     }
 
     /**
