@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -15,7 +14,7 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
     @Input({ required: true }) protected component!: EdgeConfig.Component;
     @Input({ required: true }) protected edge!: Edge;
 
-    public formGroup: FormGroup;
+    public formGroup!: FormGroup;
     public loading: boolean = false;
 
     constructor(
@@ -46,7 +45,7 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
                 const rechargePower = this.formGroup.controls["rechargePower"];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
-                        const updateComponentArray = [];
+                        const updateComponentArray: { name: string; value: string | number | boolean }[] = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
                                 updateComponentArray.push({

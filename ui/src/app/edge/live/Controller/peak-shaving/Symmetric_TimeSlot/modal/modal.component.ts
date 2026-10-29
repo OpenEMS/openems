@@ -1,8 +1,8 @@
-// @ts-strict-ignore
-import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/shared";
 
 @Component({
@@ -15,7 +15,7 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected edge: Edge | null = null;
 
-    public formGroup: FormGroup;
+    public formGroup!: FormGroup;
     public loading: boolean = false;
 
     constructor(
@@ -27,47 +27,48 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
     ) {}
 
     ngOnInit() {
+        const component = this.getModalComponent();
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(
-                this.component.properties.peakShavingPower,
+                component.properties.peakShavingPower,
                 Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
             ),
             rechargePower: new FormControl(
-                this.component.properties.rechargePower,
+                component.properties.rechargePower,
                 Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
             ),
             hysteresisSoc: new FormControl(
-                this.component.properties.hysteresisSoc,
+                component.properties.hysteresisSoc,
                 Validators.compose([Validators.pattern("^(100|[1-9]?[0-9])$"), Validators.required]),
             ),
-            slowChargePower: new FormControl(this.component.properties.slowChargePower * -1),
+            slowChargePower: new FormControl(component.properties.slowChargePower * -1),
             slowChargeStartTime: new FormControl(
-                this.component.properties.slowChargeStartTime,
+                component.properties.slowChargeStartTime,
                 Validators.compose([Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"), Validators.required]),
             ),
             startDate: new FormControl(
-                this.component.properties.startDate,
+                component.properties.startDate,
                 Validators.compose([
                     Validators.pattern("^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)[0-9]{2}$"),
                     Validators.required,
                 ]),
             ),
             startTime: new FormControl(
-                this.component.properties.startTime,
+                component.properties.startTime,
                 Validators.compose([Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"), Validators.required]),
             ),
-            endDate: new FormControl(this.component.properties.endDate),
+            endDate: new FormControl(component.properties.endDate),
             endTime: new FormControl(
-                this.component.properties.endTime,
+                component.properties.endTime,
                 Validators.compose([Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"), Validators.required]),
             ),
-            monday: new FormControl(this.component.properties.monday),
-            tuesday: new FormControl(this.component.properties.tuesday),
-            wednesday: new FormControl(this.component.properties.wednesday),
-            thursday: new FormControl(this.component.properties.thursday),
-            friday: new FormControl(this.component.properties.friday),
-            saturday: new FormControl(this.component.properties.saturday),
-            sunday: new FormControl(this.component.properties.sunday),
+            monday: new FormControl(component.properties.monday),
+            tuesday: new FormControl(component.properties.tuesday),
+            wednesday: new FormControl(component.properties.wednesday),
+            thursday: new FormControl(component.properties.thursday),
+            friday: new FormControl(component.properties.friday),
+            saturday: new FormControl(component.properties.saturday),
+            sunday: new FormControl(component.properties.sunday),
         });
     }
 
@@ -106,16 +107,17 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
 
         this.loading = true;
 
+        const component = this.getModalComponent();
         this.edge
-            .updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
+            .updateComponentConfig(this.websocket, component.id, updateComponentArray)
             .then(() => {
-                this.component.properties.peakShavingPower = peakShavingPower.value;
-                this.component.properties.rechargePower = rechargePower.value;
+                component.properties.peakShavingPower = peakShavingPower.value;
+                component.properties.rechargePower = rechargePower.value;
                 this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             })
             .catch((reason) => {
-                peakShavingPower.setValue(this.component.properties.peakShavingPower);
-                rechargePower.setValue(this.component.properties.rechargePower);
+                peakShavingPower.setValue(component.properties.peakShavingPower);
+                rechargePower.setValue(component.properties.rechargePower);
                 this.service.toast(
                     this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
                     "danger",
@@ -126,5 +128,11 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
                 this.loading = false;
                 this.formGroup.markAsPristine();
             });
+    }
+
+    private getModalComponent(): EdgeConfig.Component {
+        const component = this.component;
+        AssertionUtils.assertIsDefined(component);
+        return component;
     }
 }
