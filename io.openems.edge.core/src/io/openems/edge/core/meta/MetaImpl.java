@@ -118,6 +118,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 	private BridgeHttp httpBridge;
 	private OpenCageGeocodingService geocodingService;
+	private JSCalendar.Tasks<GridBuyLimit.Soft> configuredGridBuySoftLimit = JSCalendar.Tasks.empty();
 	private GridBuyLimit gridBuyLimit = GridBuyLimit.create()//
 			.setHard(new GridBuyLimit.Hard(0)) //
 			.setSoft(JSCalendar.Tasks.empty()) //
@@ -184,15 +185,15 @@ public class MetaImpl extends AbstractOpenemsComponent
 			final var gridBuyHardLimit = max(0, physicalLimitInWatt - bufferInWatt);
 
 			// Post-Process Grid-Buy-Soft-Limit
-			final var raw = JSCalendar.Tasks.fromStringOrEmpty(//
+			this.configuredGridBuySoftLimit = JSCalendar.Tasks.fromStringOrEmpty(//
 					this.componentManager.getClock(), //
 					config.gridBuySoftLimit(), //
 					GridBuyLimit.Soft.serializer());
 
-			final var result = JSCalendar.Tasks.<GridBuyLimit.Soft>create(raw.clock);
+			final var result = JSCalendar.Tasks.<GridBuyLimit.Soft>create(this.configuredGridBuySoftLimit.clock);
 
 			// Make sure each value is <= Grid-Buy-Hard-Limit
-			raw.tasks.stream() //
+			this.configuredGridBuySoftLimit.tasks.stream() //
 					.map(t -> {
 						if (t.payload().power() > gridBuyHardLimit) {
 							return JSCalendar.Task.createFrom(t) //
@@ -311,7 +312,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		JSCalendarApi.buildJsonApiRoutes(builder, GridBuyLimit.Soft.serializer(), //
-				() -> this.gridBuyLimit.soft(), //
+				() -> this.configuredGridBuySoftLimit, //
 				() -> new UpdateJsCalendarRecord(this.cm, this.componentManager, this.servicePid(),
 						"gridBuySoftLimit"));
 
