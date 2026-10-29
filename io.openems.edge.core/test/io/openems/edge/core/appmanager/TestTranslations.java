@@ -21,6 +21,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.core.GridFeedInLimitationType;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.integratedsystem.FeneconPro912.GridMeterType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
@@ -89,6 +90,20 @@ class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconMiniEs36(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_PHASE", Phase.L1) //
 					.addProperty("ESS_READ_ONLY", true) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconPro912(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_TYPE", GridMeterType.CARLO_GAVAZZI) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE", true) //
+					.addProperty("FORCE_CHARGE_SOC", 15) //
+					.addProperty("MIN_SOC", 20) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconPro912Cluster(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_TYPE", GridMeterType.SOCOMEC_THREEPHASE) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE_1", true) //
+					.addProperty("FORCE_CHARGE_SOC_1", 15) //
+					.addProperty("MIN_SOC_1", 20) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE_2", false) //
+					.addProperty("HAS_THIRD_ESS", false) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
