@@ -18,7 +18,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { GeoCodeJsonRpc } from "./json-rpc/geo-code-json-rpc";
 
 export type ComponentData = {
@@ -225,7 +227,17 @@ export class SystemLocationValidatorComponent implements OnInit {
 
     private async initTranslationsAndFields() {
         const [error, translations] = await PromiseUtils.Functions.handle(
-            Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }),
+            Language.normalizeAdditionalTranslationFiles({
+                cs: cz,
+                de: de,
+                en: en,
+                es: es,
+                fr: fr,
+                ja: ja,
+                lt: lt,
+                nl: nl,
+                sv: sv,
+            }),
         );
 
         if (error) {

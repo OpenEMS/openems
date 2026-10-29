@@ -1,10 +1,10 @@
 package io.openems.common.jsonrpc.notification;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.types.DataTable;
 
 /**
  * Represents a JSON-RPC Notification for timestamped data sent from Edge to
@@ -38,12 +38,8 @@ public final class TimestampedDataNotification extends AbstractDataNotification 
 		return new TimestampedDataNotification(parseParams(notification.getParams()));
 	}
 
-	public TimestampedDataNotification(TreeBasedTable<Long, String, JsonElement> data) {
+	public TimestampedDataNotification(DataTable data) {
 		super(TimestampedDataNotification.METHOD, data);
-	}
-
-	public TimestampedDataNotification() {
-		super(TimestampedDataNotification.METHOD, TreeBasedTable.create());
 	}
 
 }

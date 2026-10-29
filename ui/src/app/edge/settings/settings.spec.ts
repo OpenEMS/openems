@@ -8,6 +8,7 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { UserService } from "src/app/shared/service/user.service";
 import { Service, Utils } from "src/app/shared/shared";
@@ -27,12 +28,16 @@ describe("Edge", () => {
     });
 
     let settingsComponent: SettingsComponent;
+    const navigationServiceStub = {
+        headerTitle: signal({ text: null }),
+    };
     const userServiceSpyObj = jasmine.createSpyObj<UserService>("UserService", ["currentUser"], {
         currentUser: signal(new User("", "", "admin", "", true, { theme: Theme.LIGHT })),
     });
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
+                SettingsComponent,
                 TranslateModule.forRoot({
                     loader: {
                         provide: TranslateLoader,
@@ -42,6 +47,7 @@ describe("Edge", () => {
                 }),
             ],
             providers: [
+                { provide: NavigationService, useValue: navigationServiceStub },
                 { provide: UserService, useValue: userServiceSpyObj },
                 TranslateService,
                 {
@@ -61,7 +67,7 @@ describe("Edge", () => {
                 translateService.addLangs(["de"]);
                 translateService.use("de");
                 registerLocaleData(localDE, "de", localeDeExtra);
-                settingsComponent = new SettingsComponent(Utils, serviceSypObject, userServiceSpyObj);
+                settingsComponent = TestBed.createComponent(SettingsComponent).componentInstance;
             });
     });
 

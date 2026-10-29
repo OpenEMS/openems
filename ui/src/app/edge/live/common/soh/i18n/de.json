@@ -11,6 +11,7 @@
                 "ERROR": "Während des SoH-Zyklus ist ein Fehler aufgetreten. Bitte überprüfe die Systemprotokolle für weitere Details.",
                 "INFO": "Misst die Batteriekapazität indem ein Testzyklus durchgeführt wird und berechnet somit den State of Health (SOH). Der Prozess kann je nach Batterietyp und -größe mehrere Stunden dauern. Es wird empfohlen, den Testzyklus nur durchzuführen, wenn die Batterie nicht in Gebrauch ist.",
                 "MEASURED_CAPACITY": "Gemessene Kapazität",
+                "PV_OFF_CONFIRMATION": "Hiermit bestätige ich, dass die PV-Anlage am Wechselrichter über den integrierten DC-Schalter abgeschaltet wurde.",
                 "RESTART_CONFIRMATION_TITLE": "Erneut durchführen bestätigen",
                 "RESTART_WARNING": "Das Neustarten des SoH-Zyklus setzt die aktuellen Messungen zurück und startet einen neuen Zyklus. Bist du sicher, dass du neu starten möchten?",
                 "SOH_PERCENT": "SoH",

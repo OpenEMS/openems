@@ -14,7 +14,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 @Component({
     selector: "oe-settings-profile-location",
@@ -31,13 +33,21 @@ export class LocationComponent {
     private route: ActivatedRoute = inject(ActivatedRoute);
 
     constructor(translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         effect(() => {
             const edge = this.service.currentEdge();
@@ -46,7 +56,7 @@ export class LocationComponent {
         });
     }
 
-    public init(config: EdgeConfig) {
+    public init(config: EdgeConfig | null) {
         this.service.startSpinner(this.spinnerId);
         this.setLocationValidateState(config).finally(() => this.service.stopSpinner(this.spinnerId));
     }
@@ -55,7 +65,7 @@ export class LocationComponent {
         this.router.navigate(["./location-validation"], { relativeTo: this.route });
     }
 
-    private async setLocationValidateState(config: EdgeConfig) {
+    private async setLocationValidateState(config: EdgeConfig | null) {
         return new Promise<void>((resolve, reject) => {
             if (config == null) {
                 this.isValidated = false;

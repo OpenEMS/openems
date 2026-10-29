@@ -57,6 +57,7 @@ export namespace SharedBottomNavigationBar {
 
         const consumptionMetered = config.getComponentsByFactories(
             "Evse.Controller.Single",
+            "Evcs.Cluster.PeakShaving",
             "Controller.IO.HeatingElement",
             "Controller.Io.HeatPump.SgReady",
             "Controller.ChannelThreshold",
@@ -95,7 +96,7 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             NavigationId.LIVE,
             { baseString: "live" },
-            { name: "home-outline" },
+            { name: "oe-cockpit" },
             translate.instant("MENU.COCKPIT"),
             "icon",
             [production, consumption, storage, grid, weather]
@@ -110,15 +111,15 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             "profile",
             { baseString: "profile" },
-            { name: "person-outline" },
-            "Profil",
+            { name: "oe-user" },
+            translate.instant("MENU.PROFILE"),
             "icon",
             [
                 UserComponent.getNavigationTree(user),
                 new NavigationTree(
                     "profile-settings",
                     { baseString: "settings" },
-                    { name: "cog-outline" },
+                    { name: "oe-settings" },
                     translate.instant("MENU.EDGE_SYSTEM_SETTINGS"),
                     "label",
                     [],

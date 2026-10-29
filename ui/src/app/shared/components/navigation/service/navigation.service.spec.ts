@@ -1,8 +1,8 @@
 import { Component, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { Route, Routes, provideRouter } from "@angular/router";
+import { Route, Router, Routes, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
-import { AngularDelegate, ModalController } from "@ionic/angular";
+import { AngularDelegate, GestureController, ModalController } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -14,6 +14,7 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Pagination } from "src/app/shared/service/pagination";
 import { RouteService } from "src/app/shared/service/route/route.service";
 import { DummyWebsocket } from "src/app/shared/service/test/dummywebsocket";
+import { UserService } from "src/app/shared/service/user.service";
 import { Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { EdgeSettings } from "../../edge/edge";
@@ -214,6 +215,112 @@ describe("NavigationService", () => {
 
             await testRoutes(updatedNavigationTree, harness);
         });
+    });
+});
+
+describe("NavigationService.navigateAbsoluteById", () => {
+    let navigationService: NavigationService;
+    let navigateAbsolute: jasmine.Spy<NavigationService["navigateAbsolute"]>;
+    let tree: NavigationTree;
+    let settings: NavigationTree;
+
+    beforeEach(async () => {
+        TestBed.configureTestingModule({
+            providers: [
+                NavigationService,
+                { provide: Service, useValue: { currentEdge: signal(null) } },
+                { provide: UserService, useValue: { currentUser: signal(null) } },
+                { provide: RouteService, useValue: { currentUrl: signal(null) } },
+                { provide: Router, useValue: {} },
+                { provide: TranslateService, useValue: {} },
+                { provide: PlatFormService, useValue: {} },
+                { provide: GestureController, useValue: {} },
+            ],
+        });
+        navigationService = TestBed.inject(NavigationService);
+        TestBed.tick();
+        await Promise.resolve();
+        navigateAbsolute = spyOn(navigationService, "navigateAbsolute").and.resolveTo();
+
+        settings = new NavigationTree(
+            "grid-settings",
+            { baseString: "/device/edge0/live/common/grid/settings", queryParams: { source: "storage" } },
+            { name: "settings-outline" },
+            "Settings",
+            "label",
+            [],
+            null,
+        );
+        const grid = new NavigationTree(
+            "grid",
+            { baseString: "/device/edge0/live/common/grid" },
+            { name: "grid-outline" },
+            "Grid",
+            "label",
+            [settings],
+            null,
+        );
+        tree = NavigationTree.dummy();
+        tree.children = [grid];
+        navigationService.navigationTree.set(tree);
+    });
+
+    it("should navigate to a nested node by its ID and preserve its link and query parameters", async () => {
+        await navigationService.navigateAbsoluteById("grid-settings");
+
+        expect(navigateAbsolute).toHaveBeenCalledOnceWith(
+            jasmine.objectContaining({
+                id: settings.id,
+                routerLink: settings.routerLink,
+            }),
+        );
+    });
+
+    it("should also find the root node by its ID", async () => {
+        await navigationService.navigateAbsoluteById(tree.id);
+
+        expect(navigateAbsolute).toHaveBeenCalledOnceWith(jasmine.objectContaining({ id: tree.id }));
+    });
+
+    it("should resolve without navigating when the ID does not exist", async () => {
+        await expectAsync(navigationService.navigateAbsoluteById("unknown-settings")).toBeResolved();
+
+        expect(navigateAbsolute).not.toHaveBeenCalled();
+    });
+
+    it("should resolve without navigating when there is no navigation tree", async () => {
+        navigationService.navigationTree.set(null);
+
+        await expectAsync(navigationService.navigateAbsoluteById("grid-settings")).toBeResolvedTo(undefined);
+
+        expect(navigateAbsolute).not.toHaveBeenCalled();
+    });
+
+    it("should wait until absolute navigation completes", async () => {
+        let completeNavigation!: () => void;
+        navigateAbsolute.and.returnValue(
+            new Promise<void>((resolve) => {
+                completeNavigation = resolve;
+            }),
+        );
+        let completed = false;
+        const navigation = navigationService.navigateAbsoluteById("grid-settings").then(() => {
+            completed = true;
+        });
+
+        await Promise.resolve();
+        expect(completed).toBeFalse();
+
+        completeNavigation();
+        await navigation;
+        expect(completed).toBeTrue();
+    });
+
+    it("should propagate an absolute navigation failure", async () => {
+        const error = new Error("Navigation failed");
+        navigateAbsolute.and.rejectWith(error);
+
+        await expectAsync(navigationService.navigateAbsoluteById("grid-settings")).toBeRejectedWith(error);
     });
 });
 

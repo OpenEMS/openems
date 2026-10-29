@@ -240,7 +240,17 @@
                 "STORAGE_DISCHARGE": "Speicher-Entladung",
                 "TITLE": "Energiemonitor"
             },
+            "GRID": {
+                "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz erlauben",
+                "CHARGE_FROM_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/><b>Beachte:</b> Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
+                "CHARGE_ONCE_GRID_PERMISSION_REQUIRED": "Aktive Beladung aus dem Netz ist nicht freigegeben. Du kannst die Freigabe in den Netzeinstellungen ändern.",
+                "DISCHARGE_ONCE_GRID_PERMISSION_REQUIRED": "Aktive Entladung ins Netz ist nicht freigegeben. Du kannst die Freigabe in den Netzeinstellungen ändern.",
+                "DISCHARGE_TO_GRID_ACTIVATE": "Aktive Entladung in das Netz erlauben",
+                "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Einspeisung von Batteriestrom in das Netz, die über die technisch erforderlichen Betriebszustände hinausgeht, macht eine formelle Anmeldung des Speichersystems erforderlich. Wenden Sie sich im Zweifelsfall bitte an Ihren Installateur. Mit einem Klick auf die blaue Schaltfläche „Speichern“ bestätigen Sie, dass diese Prüfung erfolgt ist.<br/><br/><b>Hinweis:</b> Die Aktivierung dieser Funktion ermöglicht die Einspeisung von Energie aus dem Batteriespeicher in das öffentliche Stromnetz. Je nach Förderprogramm, Vergütungsmodell, Messkonzept und geltenden regulatorischen Vorgaben kann dies Auswirkungen auf bestehende Ansprüche im Zusammenhang mit Förderungen, Vergütungen oder Herkunftsnachweisen haben.<br/><br/>Insbesondere kann es erforderlich sein, den eingespeisten Strom eindeutig zuzuordnen und dessen Herkunft messtechnisch nachzuweisen. Wir können nicht gewährleisten, dass die Nutzung dieser Funktion mit den Anforderungen Ihres spezifischen Förder- oder Vergütungsmodells vereinbar ist.<br/><br/>Bitte klären Sie die Auswirkungen vor der Aktivierung mit Ihrem Installateur, Direktvermarkter, Netzbetreiber oder einem qualifizierten Berater ab.",
+                "SETTINGS_LINK": "Zu den Netzeinstellungen"
+            },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Eingeschränkter Speicherbetrieb - Kapazitätserweiterung wird vorbereitet",
                 "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
@@ -258,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Wähle bitte ein Datum aus",
                 "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt",
-                "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich."
+                "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
+                "WARNING_CHECK": "Ich habe den Hinweis zur Kenntnis genommen",
+                "WARNING_MESSAGE": "Zur Vorbereitung der Kapazitätserweiterung werden aktuell laufende Speicheranwendungen zeitweise ausgesetzt. Dies betrifft unter anderem die Lastspitzenkappung, die Eigenverbrauchsoptimierung sowie weitere Speicheranwendungen. Nach Abschluss der Vorbereitung stehen diese wieder wie gewohnt zur Verfügung."
             },
             "SYSTEMUPDATE": "Systemupdate",
             "WIDGETS": {
@@ -337,8 +349,7 @@
                     "FORCE_THREE_PHASE": "3-phasig",
                     "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
                     "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt.",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen.",
-                    "LINK_TO_DOCUMENTATION": "Mehr Informationen",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mehr Informationen</a>",
                     "MAX_ENERGY_RESTRICTION": "Maximale Energie pro Ladevorgang begrenzen",
                     "MINIMUM": "PV-Überschuss mit garantierter Beladung",
                     "NOT_AUTHORIZED": "Nicht authorisiert",
@@ -380,7 +391,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Grundmodus",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mehr Informationen</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Aufgabe hinzufügen",
                         "SCHEDULE": "Zeitplan"
@@ -563,6 +574,8 @@
                     "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
                     "BATTERY_DC": "Batterie - DC",
                     "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
+                    "GRID_CHARGE_ALLOWED_INFO": "Deine Notstromreserve wird durch Nachladen aus dem Netz aufrechterhalten. Wenn du das nicht möchtest, kannst du die Freigabe in den Netzeinstellungen deaktivieren.",
+                    "GRID_CHARGE_NOT_ALLOWED_INFO": "Deine Notstromreserve wird nicht durch Nachladen aus dem Netz aufrechterhalten. Wenn du das möchtest, kannst du die Freigabe in den Netzeinstellungen aktivieren.",
                     "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/>Beachte: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird",
                     "INVERTER": "Wechselrichter",
                     "TOTAL_AC": "Gesamt AC",
@@ -885,6 +898,7 @@
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
+            "EVCS": "Multiladepunkt Management",
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
             "HEATING_ROOM": "Heizung"
         },

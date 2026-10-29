@@ -37,7 +37,6 @@ import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
 import io.jenetics.engine.Limits;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.Fitness;
@@ -45,6 +44,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
+import io.openems.edge.energy.api.simulation.periods.PeriodData;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 
@@ -135,13 +135,13 @@ public class Simulator {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
 
-		final EnergyFlow.Model ef;
-		try {
-			ef = EnergyFlow.Model.from(gsc, period);
-		} catch (OpenemsException e) {
-			LOG.error("Error while simulating period [" + periodIndex + "]: " + e.getMessage());
+		final var ef = EnergyFlow.Model.from(gsc, period);
+		// Penalize unmet predicted consumption even though the model clamps it to available supply.
+		final int predictedConsumption = period.data().consumption() //
+				.map(PeriodData.Prediction::riskAdjusted) //
+				.orElse(0);
+		if (predictedConsumption > ef.getConsumption()) {
 			fitness.addHardConstraintViolation();
-			return;
 		}
 
 		// Simulate period

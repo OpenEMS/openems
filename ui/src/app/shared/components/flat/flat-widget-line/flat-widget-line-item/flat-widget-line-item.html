@@ -1,7 +1,6 @@
-@if (displayValue) {
-  <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'">
+@if (displayValue()) {
+  <td [style.width]="100 - (leftColumnWidth ?? 50) + '%'">
     <!-- 'Normal' line, name and value  -->
-    <span style="width: fit-content;">{{displayName ? displayName + ": " + displayValue: '&nbsp;&nbsp;' +
-    displayValue}}</span>
+    <span style="width: fit-content">{{ displayName() ? displayName() + ": " + displayValue() : "&nbsp;&nbsp;" + displayValue() }}</span>
   </td>
 }

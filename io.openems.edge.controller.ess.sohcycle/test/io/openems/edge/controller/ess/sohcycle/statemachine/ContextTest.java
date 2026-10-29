@@ -1,10 +1,13 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
+import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER;
+import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MIN_CELL_VOLTAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -212,6 +215,7 @@ public class ContextTest {
 		var context = new Context(this.controller, this.config, this.clock, this.ess);
 
 		// Prime internal state and channels
+		context.markPreparePrechargeUsed();
 		context.setMeasurementChargingMaxMinVoltage(3200);
 		context.setMeasurementStartEnergyWh(12_345L);
 		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.MEASURED_CAPACITY, 15_000L);
@@ -240,9 +244,36 @@ public class ContextTest {
 		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG).value().get());
 		assertEquals(BatteryBalanceError.NONE,
 				this.controller.channel(ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG).value().asEnum());
+		assertFalse(context.isPreparePrechargeUsed());
 		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.SOH_PERCENT).value().get());
 		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.SOH_RAW_DEBUG).value().get());
 		assertFalse((boolean) this.controller.channel(ControllerEssSohCycle.ChannelId.IS_MEASURED).value().get());
+	}
+
+	@Test
+	public void testPreparePrechargePowerCapabilitySemantics() {
+		var context = new Context(this.controller, this.config, this.clock, this.ess);
+
+		// Undefined discharge power is neither blocked nor available.
+		assertFalse(context.isDischargeBlocked());
+		assertFalse(context.isDischargeAvailable());
+		assertFalse(context.isChargeBlocked());
+
+		// Explicit zero means discharge and charge are blocked.
+		TestUtils.withValue(this.ess, ALLOWED_DISCHARGE_POWER, 0);
+		assertTrue("Explicit 0 W means discharge is blocked", context.isDischargeBlocked());
+		assertFalse(context.isDischargeAvailable());
+
+		TestUtils.withValue(this.ess, ALLOWED_CHARGE_POWER, 0);
+		assertTrue("Explicit 0 W means charging is blocked", context.isChargeBlocked());
+
+		// Positive discharge power is available; negative charge power is not blocked.
+		TestUtils.withValue(this.ess, ALLOWED_DISCHARGE_POWER, 1000);
+		assertFalse("Positive value means discharge is not blocked", context.isDischargeBlocked());
+		assertTrue("Defined positive value means discharge is available", context.isDischargeAvailable());
+
+		TestUtils.withValue(this.ess, ALLOWED_CHARGE_POWER, -1000);
+		assertFalse("Negative value means charging is not blocked", context.isChargeBlocked());
 	}
 
 	private void updateAllChannels() {

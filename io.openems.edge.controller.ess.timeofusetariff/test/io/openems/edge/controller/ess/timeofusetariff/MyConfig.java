@@ -14,7 +14,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private StateMachine manualMode;
 		private ControlMode controlMode;
 		private int essMaxChargePower;
-		private int maxChargePowerFromGrid;
 
 		private Builder() {
 		}
@@ -51,11 +50,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEssMaxChargePower(int essMaxChargePower) {
 			this.essMaxChargePower = essMaxChargePower;
-			return this;
-		}
-
-		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
-			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
 			return this;
 		}
 
@@ -103,11 +97,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public ControlMode controlMode() {
 		return this.builder.controlMode;
-	}
-
-	@Override
-	public int maxChargePowerFromGrid() {
-		return this.builder.maxChargePowerFromGrid;
 	}
 
 	@Override

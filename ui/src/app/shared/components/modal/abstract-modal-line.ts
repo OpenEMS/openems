@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Directive, inject, Inject, Input, OnChanges, OnDestroy, OnInit, } from "@angular/core";
+import { ChangeDetectorRef, Directive, inject, Inject, Input, OnChanges, OnDestroy, OnInit, signal, } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
@@ -9,16 +9,14 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
 import { Filter } from "../shared/filter";
 
 @Directive()
-export abstract class AbstractModalLine
-    implements OnInit, OnDestroy, OnChanges
-{
+export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
     /** FormGroup */
     @Input({ required: true }) public formGroup!: FormGroup;
 
@@ -29,8 +27,7 @@ export abstract class AbstractModalLine
     @Input({ required: true }) public controlName!: string;
 
     /**
-     * Use `converter` to convert/map a CurrentData value to another value, e.g.
-     * an Enum number to a text.
+     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
      *
      * @param value The current data value
      * @returns Converter function
@@ -54,8 +51,8 @@ export abstract class AbstractModalLine
     } = {};
 
     /** DisplayValue is the displayed @Input value in html */
-    public displayValue: SafeHtml | null = null;
-    public displayName: string | null = null;
+    public displayValue = signal<SafeHtml | null>(null);
+    public displayName = signal<string | null>(null);
     public edge: Edge | null = null;
     public config: EdgeConfig | null = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
@@ -63,8 +60,7 @@ export abstract class AbstractModalLine
     /**
      * Checks if any value of this line can be seen => hides line if false
      *
-     * @deprecated Can be remove in future when live-view is refactored with
-     *   formlyfield
+     * @deprecated Can be remove in future when live-view is refactored with formlyfield
      */
     protected isAllowedToBeSeen: boolean = true;
     protected show: boolean = true;
@@ -94,11 +90,7 @@ export abstract class AbstractModalLine
     }
 
     /** Name for parameter, displayed on the left side */
-    @Input() set name(
-        value:
-            | string
-            | { channel: ChannelAddress; converter: (value: any) => string },
-    ) {
+    @Input() set name(value: string | { channel: ChannelAddress; converter: (value: any) => string }) {
         if (typeof value === "object") {
             this.subscribe(value.channel);
             this._name = value.converter;
@@ -127,9 +119,7 @@ export abstract class AbstractModalLine
                 this.config = config;
 
                 // get the channel addresses that should be subscribed
-                const channelAddresses: ChannelAddress[] = [
-                    ...this.getChannelAddresses(),
-                ];
+                const channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
 
                 if (typeof this.name == "object") {
                     channelAddresses.push(this.name.channel);
@@ -137,29 +127,21 @@ export abstract class AbstractModalLine
 
                 const channelIds = this.getChannelIds();
                 for (const channelId of channelIds) {
-                    channelAddresses.push(
-                        new ChannelAddress(this.component.id, channelId),
-                    );
+                    channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                 }
                 if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(
-                        this.websocket,
-                        this.selector,
-                        channelAddresses,
-                    );
+                    this.edge.subscribeChannelsWithState(this.websocket, this.selector, channelAddresses);
                 }
 
                 // call onCurrentData() with latest data
-                edge.currentData
-                    .pipe(takeUntil(this.stopOnDestroy))
-                    .subscribe((currentData) => {
-                        const allComponents = {};
-                        for (const channelAddress of channelAddresses) {
-                            const ca = channelAddress.toString();
-                            allComponents[ca] = currentData.channel[ca];
-                        }
-                        this.onCurrentData({ allComponents: allComponents });
-                    });
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe((currentData) => {
+                    const allComponents = {};
+                    for (const channelAddress of channelAddresses) {
+                        const ca = channelAddress.toString();
+                        allComponents[ca] = currentData.channel[ca];
+                    }
+                    this.onCurrentData({ allComponents: allComponents });
+                });
             });
         });
     }
@@ -190,14 +172,14 @@ export abstract class AbstractModalLine
         }
 
         if (typeof this._name == "function") {
-            this.displayName = this._name(value);
+            this.displayName.set(this._name(value));
         } else {
-            this.displayName = this._name;
+            this.displayName.set(this._name);
         }
 
         if (this.converter) {
             const converted = this.converter(value);
-            this.displayValue = converted ? this.sanitizer.bypassSecurityTrustHtml(converted) : null;
+            this.displayValue.set(converted ? this.sanitizer.bypassSecurityTrustHtml(converted) : null);
         }
     }
 
@@ -209,23 +191,14 @@ export abstract class AbstractModalLine
             // Check if user is allowed to see these channel-values
             if (this.edge.roleIsAtLeast(this.roleIsAtLeast)) {
                 this.isAllowedToBeSeen = true;
-                edge.subscribeChannels(this.websocket, this.selector, [
-                    channelAddress,
-                ]);
+                edge.subscribeChannelsWithState(this.websocket, this.selector, [channelAddress]);
 
                 // call onCurrentData() with latest data
-                edge.currentData
-                    .pipe(takeUntil(this.stopOnDestroy))
-                    .subscribe((currentData) => {
-                        if (
-                            currentData.channel[channelAddress.toString()] !=
-                            null
-                        ) {
-                            this.setValue(
-                                currentData.channel[channelAddress.toString()],
-                            );
-                        }
-                    });
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe((currentData) => {
+                    if (currentData.channel[channelAddress.toString()] != null) {
+                        this.setValue(currentData.channel[channelAddress.toString()]);
+                    }
+                });
             } else {
                 this.isAllowedToBeSeen = false;
             }

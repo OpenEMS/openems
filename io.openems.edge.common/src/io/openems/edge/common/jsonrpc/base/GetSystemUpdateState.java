@@ -1,4 +1,3 @@
-
 package io.openems.edge.common.jsonrpc.base;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.emptyObjectSerializer;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.serialization.EmptyObject;
@@ -60,7 +58,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Response}.
-		 * 
+		 *
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<Response> serializer() {
@@ -77,8 +75,41 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 		) {
 
 			/**
-			 * Creates a SystemUpdateState which indicates that a update is available.
-			 * 
+			 * Creates a {@link SystemUpdateState} which indicates that the state is
+			 * unknown.
+			 *
+			 * @return the created {@link SystemUpdateState}
+			 */
+			public static SystemUpdateState unknownState() {
+				return new SystemUpdateState(null, null, null, new Unknown());
+			}
+
+			/**
+			 * Creates a {@link SystemUpdateState} which indicates that the latest version
+			 * is already installed.
+			 *
+			 * @param version the installed version
+			 * @return the created {@link SystemUpdateState}
+			 */
+			public static SystemUpdateState updated(SemanticVersion version) {
+				return new SystemUpdateState(null, null, new Updated(version), null);
+			}
+
+			/**
+			 * Creates a {@link SystemUpdateState} which indicates that an update is
+			 * currently running.
+			 *
+			 * @param updateState the {@link UpdateState}
+			 * @return the created {@link SystemUpdateState}
+			 */
+			public static SystemUpdateState running(UpdateState updateState) {
+				return new SystemUpdateState(new Running(updateState), null, null, null);
+			}
+
+			/**
+			 * Creates a {@link SystemUpdateState} which indicates that an update is
+			 * available.
+			 *
 			 * @param currentVersion the current version
 			 * @param latestVersion  the latest version to update to
 			 * @return the created {@link SystemUpdateState}
@@ -91,8 +122,8 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 			}
 
 			/**
-			 * Returns a {@link JsonSerializer} for a {@link Response}.
-			 * 
+			 * Returns a {@link JsonSerializer} for a {@link SystemUpdateState}.
+			 *
 			 * @return the created {@link JsonSerializer}
 			 */
 			public static JsonSerializer<SystemUpdateState> serializer() {
@@ -130,7 +161,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 
 				/**
 				 * Returns a {@link JsonSerializer} for a {@link Unknown}.
-				 * 
+				 *
 				 * @return the created {@link JsonSerializer}
 				 */
 				public static JsonSerializer<Unknown> serializer() {
@@ -143,7 +174,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 
 				/**
 				 * Returns a {@link JsonSerializer} for a {@link Updated}.
-				 * 
+				 *
 				 * @return the created {@link JsonSerializer}
 				 */
 				public static JsonSerializer<Updated> serializer() {
@@ -164,7 +195,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 
 				/**
 				 * Returns a {@link JsonSerializer} for a {@link Available}.
-				 * 
+				 *
 				 * @return the created {@link JsonSerializer}
 				 */
 				public static JsonSerializer<Available> serializer() {
@@ -184,7 +215,7 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 
 				/**
 				 * Returns a {@link JsonSerializer} for a {@link Running}.
-				 * 
+				 *
 				 * @return the created {@link JsonSerializer}
 				 */
 				public static JsonSerializer<Running> serializer() {
@@ -285,43 +316,28 @@ public class GetSystemUpdateState implements EndpointRequestType<EmptyObject, Ge
 		 * @param label    the label
 		 * @param response the {@link ExecuteSystemCommandResponse}
 		 */
-		public void addLog(String label, ExecuteSystemCommand.Response response) {
+		public void addLog(String label, ExecuteSystemCommandResponse response) {
 			synchronized (this.log) {
-				var stdout = response.stdout();
-				if (stdout.length > 0) {
+				var stdout = response.scr.stdout();
+				if (!stdout.isEmpty()) {
 					this.addLog(label + ": STDOUT");
 					for (var line : stdout) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				var stderr = response.stderr();
-				if (stderr.length > 0) {
+				var stderr = response.scr.stderr();
+				if (!stderr.isEmpty()) {
 					this.addLog(label + ": STDERR");
 					for (var line : stderr) {
 						this.addLog(label + ": " + line);
 					}
 				}
-				if (response.exitcode() == 0) {
+				if (response.scr.exitcode() == 0) {
 					this.addLog(label + ": FINISHED SUCCESSFULLY");
 				} else {
-					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.exitcode() + "]");
+					this.addLog(label + ": FINISHED WITH ERROR CODE [" + response.scr.exitcode() + "]");
 				}
 			}
-		}
-
-		protected JsonObject toJsonObject() {
-			var logs = JsonUtils.buildJsonArray();
-			synchronized (this.log) {
-				for (String log : this.logs) {
-					logs.add(log);
-				}
-			}
-			return JsonUtils.buildJsonObject() //
-					.add("running", JsonUtils.buildJsonObject() //
-							.addProperty("percentCompleted", this.percentCompleted.get()) //
-							.add("logs", logs.build()) //
-							.build()) //
-					.build();
 		}
 
 		/**

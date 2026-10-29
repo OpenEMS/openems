@@ -32,8 +32,8 @@ buildpath: \
 	com.google.guava.failureaccess;version='1.0.3',\
 	org.ops4j.pax.logging.pax-logging-api;version='2.2.1',\
 	org.osgi.service.cm;version='1.6.1',\
-	org.osgi.service.component;version='1.5.0',\
-	org.osgi.service.component.annotations;version='1.5.0',\
+	org.osgi.service.component;version='1.5.1',\
+	org.osgi.service.component.annotations;version='1.5.1',\
 	org.osgi.service.event;version='1.4.1',\
 	org.osgi.service.metatype;version='1.4.1',\
 	org.osgi.service.metatype.annotations;version='1.4.1',\

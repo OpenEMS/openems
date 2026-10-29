@@ -2,12 +2,12 @@ package io.openems.edge.app.api;
 
 import java.net.URI;
 
+import io.openems.edge.app.common.props.CommonProps;
+
 final class CleverPvUrl {
 
-	public static final String MASKED_URL = "xxx";
-
 	public static boolean isNewUrl(String url) {
-		return url != null && !MASKED_URL.equals(url);
+		return url != null && !CommonProps.MASKED_PASSWORD.equals(url);
 	}
 
 	public static boolean isValid(String url) {

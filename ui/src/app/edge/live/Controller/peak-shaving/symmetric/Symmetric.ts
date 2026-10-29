@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
@@ -15,9 +14,9 @@ import { Controller_Symmetric_PeakShavingModalComponent } from "./modal/modal.co
     standalone: false,
 })
 export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidget {
-    public activePower: number;
-    public peakShavingPower: number;
-    public rechargePower: number;
+    public activePower: number | null = null;
+    public peakShavingPower: number | null = null;
+    public rechargePower: number | null = null;
     public readonly CONVERT_WATT_TO_KILOWATT = Converter.POWER_IN_KILO_WATT;
 
     protected modalComponent: Modal | null = null;
@@ -35,22 +34,32 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
     }
 
     protected override getChannelAddresses() {
+        if (this.component == null) {
+            return [];
+        }
+
         return SharedControllerPeakShaving.getWidgetChannelAddresses(
             this.component.getPropertyFromComponent<string>("meter.id"),
-            this.componentId,
+            this.component.id,
         );
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null) {
+            return;
+        }
+
+        const peakShavingPower = this.component.getPropertyFromComponent<number>("peakShavingPower");
+        const rechargePower = this.component.getPropertyFromComponent<number>("rechargePower");
         const values = SharedControllerPeakShaving.getWidgetValues(
             currentData,
             this.component.getPropertyFromComponent<string>("meter.id"),
-            this.component.getPropertyFromComponent<number>("peakShavingPower"),
-            this.component.getPropertyFromComponent<number>("rechargePower"),
+            peakShavingPower ?? 0,
+            rechargePower ?? 0,
         );
 
         this.activePower = values.activePower;
-        this.peakShavingPower = values.peakShavingPower;
-        this.rechargePower = values.rechargePower;
+        this.peakShavingPower = peakShavingPower;
+        this.rechargePower = rechargePower;
     }
 }

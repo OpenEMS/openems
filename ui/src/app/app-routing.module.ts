@@ -1,8 +1,6 @@
 import { inject, NgModule } from "@angular/core";
 import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
-import { EmptyPageComponent } from "src/app/shared/components/navigation/empty-page/empty-page";
-import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
 import { HistoryComponent as EdgeHistoryComponent } from "./edge/history/history.component";
@@ -36,6 +34,7 @@ import { ScheduleComponent } from "./edge/schedule/schedule";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
+import { EmptyPageComponent } from "./shared/components/navigation/empty-page/empty-page";
 import { DataService } from "./shared/components/shared/dataservice";
 import { suffixMatcher } from "./shared/guards/url-matcher";
 import { OAuthCallBackComponent } from "./shared/service/auth/oauthcallback.component";
@@ -57,9 +56,6 @@ export const history: (/** Determines if titles in headers can be set */ customH
             {
                 path: "",
                 component: EdgeHistoryComponent,
-                data: {
-                    ...(customHeaders ? { navbarTitleToBeTranslated: "GENERAL.HISTORY" } : {}),
-                },
             },
             // History Chart Pages
             {
@@ -202,7 +198,6 @@ export const routes: Routes = [
     {
         path: "login",
         component: LoginComponent,
-        data: { navbarTitle: environment.uiTitle },
     },
 
     { path: "overview", component: OverViewComponent },
@@ -223,7 +218,6 @@ export const routes: Routes = [
             },
             {
                 path: "live",
-                data: { navbarTitle: environment.uiTitle },
                 providers: [
                     {
                         useClass: LiveDataService,
@@ -249,9 +243,6 @@ export const routes: Routes = [
             },
             {
                 path: "energy-journey/index",
-                data: {
-                    navbarTitleToBeTranslated: "SETTINGS.ENERGY_JOURNEY.ANALYSE_BATTERY_EXTENSION_TITLE",
-                },
                 children: [],
             },
             {
@@ -286,7 +277,6 @@ export const routes: Routes = [
                     {
                         path: "user",
                         component: UserComponent,
-                        data: { navbarTitleToBeTranslated: "MENU.USER" },
                     },
                 ],
             },
@@ -301,12 +291,10 @@ export const routes: Routes = [
     {
         matcher: suffixMatcher("user"),
         component: UserComponent,
-        data: { navbarTitleToBeTranslated: "MENU.USER" },
     },
     {
         matcher: suffixMatcher("changelog"),
         loadChildren: () => import("./changelog/changelog.module").then((m) => m.ChangelogModule),
-        data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" },
     },
     // Fallback
     { path: "**", pathMatch: "full", redirectTo: "index" },

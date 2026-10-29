@@ -42,7 +42,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_STORAGE",
             lines: await CommonStorageHomeComponent.getLines(translate, service, edge, config, energyScheduler),
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
+            useCiFont: true,
         };
     }
 
@@ -59,15 +59,16 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             [essId: string]: EdgeConfig.Component;
         } = config
             .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
-            .filter(component => component.isEnabled)
+            .filter((component) => component.isEnabled)
             .reduce((result, component) => {
                 return {
                     ...result,
                     [component.properties["ess.id"]]: component,
                 };
             }, {});
-        const prepareBatteryExtensionCtrl: { [essId: string]: EdgeConfig.Component } = config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
-            .filter(component => component.isEnabled)
+        const prepareBatteryExtensionCtrl: { [essId: string]: EdgeConfig.Component } = config
+            .getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
+            .filter((component) => component.isEnabled)
             .reduce((result, component) => {
                 return {
                     ...result,
@@ -264,7 +265,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         );
     }
 
-
     protected override onCurrentData(currentData: CurrentData): void {
         this.setFormControlSafelyWithValue(this.form(), "soc", currentData.allComponents["_sum/EssSoc"]);
     }
@@ -272,7 +272,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
     protected override getChannelAddresses(): Promise<ChannelAddress[]> {
         return Promise.resolve([new ChannelAddress("_sum", "EssSoc")]);
     }
-
 }
 
 export const ESS_CHARGE_OR_DISCHARGE =

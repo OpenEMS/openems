@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { ViewWillLeave } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
@@ -15,7 +14,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { OAuthService } from "./oauth.service";
 
 @Component({
@@ -35,7 +36,7 @@ import { OAuthService } from "./oauth.service";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NgxSpinnerModule, CommonUiModule, TranslateModule],
 })
-export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
+export class OAuthCallBackComponent implements OnDestroy {
     public static readonly ID: string = "oauthcallback";
     protected spinnerId: string = uuidv4();
     private oauthService: OAuthService = inject(OAuthService);
@@ -45,13 +46,21 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
         private service: Service,
         private translate: TranslateService,
     ) {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         effect(async () => {
             const status = this.service.websocket.state();
@@ -82,9 +91,5 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
 
     ngOnDestroy() {
         this.service.stopSpinner(this.spinnerId);
-    }
-
-    ionViewWillLeave() {
-        this.ngOnDestroy();
     }
 }

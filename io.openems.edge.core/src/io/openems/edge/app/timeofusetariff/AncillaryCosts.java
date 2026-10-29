@@ -75,8 +75,6 @@ public class AncillaryCosts extends
 		// Properties
 		ALIAS(CommonProps.alias()), //
 
-		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
-
 		FIXED_ELECTRICITY_TARIFF(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".fixedTariff.label") //
 				.setTranslatedDescriptionWithAppPrefix(".fixedTariff.description") //
@@ -127,7 +125,6 @@ public class AncillaryCosts extends
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 
-			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 			final var germanDso = this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO);
 			final var fixedTariff = this.getDouble(p, Property.FIXED_ELECTRICITY_TARIFF);
 			final var tariffTable = germanDso == GermanDSO.OTHER ? this.getJsonArray(p, Property.TARIFF_TABLE) : null;
@@ -138,7 +135,6 @@ public class AncillaryCosts extends
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l),
 							"TimeOfUseTariff.AncillaryCosts", JsonUtils.buildJsonObject() //

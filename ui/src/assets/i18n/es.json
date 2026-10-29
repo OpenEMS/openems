@@ -240,7 +240,17 @@
                 "STORAGE_DISCHARGE": "Descarga de memoria",
                 "TITLE": "Monitor de energía"
             },
+            "GRID": {
+                "CHARGE_FROM_GRID_ACTIVATE": "Permitir la carga activa desde la red",
+                "CHARGE_FROM_GRID_DESCRIPTION": "<b>ATENCIÓN:</b> La carga activa de la batería desde la red más allá de la carga de mantenimiento técnicamente necesaria requiere el registro correspondiente del sistema de almacenamiento. En caso de duda, consúltelo con su instalador. Al pulsar el botón azul „Guardar“ confirma que se ha realizado esta comprobación.<br/><br/><b>Tenga en cuenta:</b> el requisito previo para la subvención según la ley alemana de expansión de las energías renovables (EEG 2023) es que en la batería solo se almacene energía procedente de fuentes renovables y/o gas de mina. Al activar esta función, la batería se carga con energía de la red. Esta energía probablemente se genere, según el contrato de suministro eléctrico individual, a partir de fuentes fósiles y/o centrales nucleares. Por ello no podemos garantizar que la batería se cargue únicamente con energía de fuentes renovables y/o gas de mina.",
+                "CHARGE_ONCE_GRID_PERMISSION_REQUIRED": "La carga activa desde la red no está permitida. Puede cambiar este permiso en los ajustes de red.",
+                "DISCHARGE_ONCE_GRID_PERMISSION_REQUIRED": "La descarga activa a la red no está permitida. Puede cambiar este permiso en los ajustes de red.",
+                "DISCHARGE_TO_GRID_ACTIVATE": "Permitir la descarga activa a la red",
+                "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATENCIÓN:</b> La descarga activa de la batería a la red más allá de los estados operativos necesarios por razones técnicas requiere el registro formal del sistema de almacenamiento. En caso de duda, consúltelo con su instalador. Al pulsar el botón azul „Guardar“ confirma que esta comprobación se ha realizado.<br/><br/><b>Nota:</b> Al activar esta función se posibilita la inyección de energía del sistema de almacenamiento de batería en la red pública. Según el programa de subvenciones, el modelo de remuneración, el concepto de medición y los requisitos regulatorios aplicables, esto puede afectar a reclamaciones existentes relacionadas con subvenciones, remuneraciones o pruebas de origen.<br/><br/>En particular, puede ser necesario atribuir de forma unívoca la electricidad inyectada y verificar su origen mediante medición. No podemos garantizar que el uso de esta función sea compatible con los requisitos de su modelo específico de subvención o remuneración.<br/><br/>Antes de activarla, revise las implicaciones con su instalador, comercializador directo, operador de red o un asesor cualificado.",
+                "SETTINGS_LINK": "Ir a los ajustes de red"
+            },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Operación del sistema limitada - Se está preparando la ampliación de capacidad",
                 "INFORMATION_FOR_INSTANT_START": "La batería se carga o descarga con la máxima potencia para alcanzar lo antes posible un estado de carga del {{targetSoc}} % para una ampliación. Esto puede provocar consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras ampliarse la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Se espera que la batería se cargue/descargue a partir de las {{targetTime}} del {{targetDate}} para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista. En el proceso puede haber consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras la ampliación de la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Se espera que la batería se cargue/descargue para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista.",
@@ -258,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Seleccione una fecha",
                 "TARGET_TIME_SPECIFIED": "La ampliación de capacidad se realizará el {{targetDate}} a las {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Para poder utilizar la función de ampliación de la batería es necesario actualizar a la versión más reciente."
+                "UPDATE_TO_NEW_VERSION": "Para poder utilizar la función de ampliación de la batería es necesario actualizar a la versión más reciente.",
+                "WARNING_CHECK": "Confirmo que he tomado nota de esta información",
+                "WARNING_MESSAGE": "Para preparar la ampliación de capacidad, las aplicaciones del sistema que se estén ejecutando actualmente se suspenderán temporalmente. Esto afecta, entre otras, al recorte de picos, a la optimización del autoconsumo y a otras aplicaciones del sistema. Una vez finalizada la preparación, volverán a estar disponibles con normalidad."
             },
             "SYSTEMUPDATE": "Actualización del sistema",
             "WIDGETS": {
@@ -337,8 +349,7 @@
                     "FORCE_THREE_PHASE": "Trifásico",
                     "HYSTERESIS": "Tiempo mínimo de conmutación de la estación de carga activo",
                     "HYSTERESIS_INFO": "Para evitar interrupciones de carga debido a arranques/pausas demasiado frecuentes del proceso de carga, el modo de carga seleccionado actualmente continuará durante los próximos minutos.",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada.",
-                    "LINK_TO_DOCUMENTATION": "Más información",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada. <a class=\"ion-link\" href={{link}} target=\"_blank\">Más información</a>",
                     "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
                     "MINIMUM": "Excedente fotovoltaico con carga garantizada",
                     "NOT_AUTHORIZED": "No autorizado",
@@ -380,7 +391,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Modo básico",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“.",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Más información</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Añadir tarea",
                         "SCHEDULE": "Programación"
@@ -563,6 +574,8 @@
                     "AMBIENT_TEMPERATURE": "Temperatura ambiente",
                     "BATTERY_DC": "Batería - CC",
                     "GRID_CHARGE": "Activar el mantenimiento de la reserva de emergencia desde la red",
+                    "GRID_CHARGE_ALLOWED_INFO": "Su reserva de emergencia se mantiene mediante recarga desde la red. Si no lo desea, puede desactivar el permiso en los ajustes de red.",
+                    "GRID_CHARGE_NOT_ALLOWED_INFO": "Su reserva de emergencia no se mantiene mediante carga desde la red. Si lo desea, puede activar el permiso en los ajustes de red.",
                     "GRID_CHARGE_WARNING": "El sistema de almacenamiento puede recargarse activamente desde la red para mantener la reserva de emergencia configurada y compensar así las pérdidas por consumo interno propio en caso de una ausencia prolongada de generación. <br/><br/>ATENCIÓN: La carga activa de la batería desde la red más allá de la carga de mantenimiento técnicamente necesaria requiere el registro correspondiente del sistema de almacenamiento. En caso de duda, consúltelo con su instalador. Al pulsar el botón azul „Guardar“ confirma que se ha realizado esta comprobación.<br/><br/>Tenga en cuenta: el requisito previo para la subvención según la ley alemana de expansión de las energías renovables (EEG) es que en la batería solo se almacene energía procedente de fuentes renovables y/o gas de mina. Al activar esta función, la batería se carga con energía de la red. Esta energía probablemente se genere, según el contrato de suministro eléctrico individual, a partir de fuentes fósiles y/o centrales nucleares. Por ello no podemos garantizar que la batería se cargue únicamente con energía de fuentes renovables y/o gas de mina.",
                     "INVERTER": "Inversor",
                     "TOTAL_AC": "Total CA",

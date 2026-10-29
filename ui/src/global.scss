@@ -407,8 +407,11 @@ formly-input-section {
 
     .alert-message {
         text-align: center;
+        color: $primary-color;
     }
-
+    .alert-checkbox-label {
+        color: var(--ion-text-color) !important;
+    }
     .alert-wrapper {
         width: 25% !important;
 

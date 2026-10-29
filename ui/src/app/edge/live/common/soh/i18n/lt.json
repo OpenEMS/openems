@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Atlikti dar kartą",
+                "START": "Atlikti"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Talpa matuojama",
+                "ENABLED_INFO": "ESS SoH Cycle valdiklis įjungtas",
+                "ERROR": "SoH ciklo metu įvyko klaida. Daugiau informacijos rasite sistemos žurnaluose.",
+                "INFO": "Išmatuoja akumuliatoriaus talpą atliekant bandomąjį ciklą ir taip apskaičiuoja būklę (SoH). Procesas gali užtrukti kelias valandas, priklausomai nuo akumuliatoriaus tipo ir dydžio. Rekomenduojama bandomąjį ciklą atlikti tik tada, kai akumuliatorius nenaudojamas.",
+                "MEASURED_CAPACITY": "Išmatuota talpa",
+                "PV_OFF_CONFIRMATION": "Šiuo patvirtinu, kad fotovoltinė sistema prie keitiklio buvo išjungta naudojant integruotą DC jungiklį.",
+                "RESTART_CONFIRMATION_TITLE": "Patvirtinkite pakartotinį atlikimą",
+                "RESTART_WARNING": "Paleidus SoH ciklą iš naujo dabartiniai matavimai bus atšaukti ir prasidės naujas ciklas. Ar tikrai norite paleisti iš naujo?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "Būsena",
+                "TITLE": "Talpos nustatymas",
+                "TITLE_TIP": "matoma tik administratoriams"
+            }
+        }
+    }
+}

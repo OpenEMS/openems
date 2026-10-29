@@ -26,7 +26,13 @@ export class NavigationService {
     });
 
     /** @todo Refactor to be moved to action when navigated */
-    public headerTitle: WritableSignal<string | null> = signal(null);
+    public headerTitle: WritableSignal<{
+        text: string | null;
+        useCiFont?: boolean;
+    }> = signal({
+        text: null,
+        useCiFont: false,
+    });
 
     private readonly platFormService = inject(PlatFormService);
     private isInitialized = signal<boolean>(false);
@@ -305,6 +311,7 @@ export class NavigationService {
 
         this.executeNavigationCallbacks(navigationTree);
         this.navigationTree.set(navigationTree);
+
         this.initNavigation(
             currentUrl,
             untracked(() => this.navigationTree()),
@@ -353,6 +360,23 @@ export class NavigationService {
             ["/", ...newRoute],
             link.routerLink.queryParams ? { queryParams: link.routerLink.queryParams } : undefined,
         );
+    }
+
+    /**
+     * Navigates to the absolute navigation node with the given ID.
+     *
+     * @param id The navigation node ID to navigate to
+     * @returns A promise that resolves after navigation, or immediately if no matching node exists
+     */
+    public async navigateAbsoluteById(id: NavigationTree["id"]): Promise<void> {
+        const node = this.navigationTree()
+            ?.getAbsoluteNavigations()
+            .find((navigation) => navigation.id === id);
+        if (node === undefined) {
+            return;
+        }
+
+        await this.navigateAbsolute(node);
     }
 
     /**
@@ -479,7 +503,6 @@ export class NavigationService {
     private async initNavigation(currentUrl: string | null, navigationTree: NavigationTree | null) {
         this.setActiveNavigationTreeNode(currentUrl, navigationTree);
         this.setPosition();
-        this.headerTitle.set(null);
         this.isInitialized.set(true);
     }
 
@@ -505,8 +528,9 @@ export class NavigationService {
      */
     private async setPosition() {
         const user = this.userService.currentUser();
-        const config = await untracked(() => this.service.currentEdge()?.getFirstValidConfig(this.service.websocket));
-        if (NavigationService.isNewNavigation(user, config)) {
+        const edge = this.service.currentEdge();
+        const config = await untracked(() => edge?.getFirstValidConfig(this.service.websocket));
+        if (edge != null && edge.isOnline && NavigationService.isNewNavigation(user, config)) {
             const device = this.platFormService.getDevice();
             this.position.set(device.isSmartphone() ? "bottom" : "left");
         } else {

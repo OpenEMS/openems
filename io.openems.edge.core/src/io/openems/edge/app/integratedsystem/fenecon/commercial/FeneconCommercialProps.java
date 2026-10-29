@@ -204,10 +204,10 @@ public final class FeneconCommercialProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <A extends OpenemsApp, M extends BundleProvider, P extends Nameable & Type<P, A, M>> //
-			AppDef<A, P, M> gensetChargeSocGroup(//
-					final Nameable visibilityCondition, //
-					final P startSoc, //
-					final P endSoc //
+	AppDef<A, P, M> gensetChargeSocGroup(//
+			final Nameable visibilityCondition, //
+			final P startSoc, //
+			final P endSoc //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
@@ -358,15 +358,19 @@ public final class FeneconCommercialProps {
 	/**
 	 * Creates a {@link AppDef} for an accordion.
 	 *
-	 * @param translationKeyLabel the translationKey for the label
-	 * @param consumer            consumer for addition settings
+	 * @param translationKeyLabel        the translationKey for the label
+	 * @param consumer                   consumer for addition settings
+	 * @param translationLabelParameters the possible parameter values of the
+	 *                                   translation
 	 * @return the {@link AppDef}
 	 */
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> accordion(//
 			String translationKeyLabel, //
-			AppDef.FieldValuesConsumer<OpenemsApp, Nameable, BundleProvider, AccordionBuilder> consumer) {
+			AppDef.FieldValuesConsumer<OpenemsApp, Nameable, BundleProvider, AccordionBuilder> consumer,
+			Object... translationLabelParameters //
+	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel(translationKeyLabel) //
+				.setTranslatedLabel(translationKeyLabel, translationLabelParameters) //
 				.setAutoGenerateField(false) //
 				.setField(JsonFormlyUtil::buildAccordionFromNameable, consumer));
 	}

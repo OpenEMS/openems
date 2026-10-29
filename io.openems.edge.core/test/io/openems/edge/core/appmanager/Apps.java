@@ -80,6 +80,8 @@ import io.openems.edge.app.integratedsystem.FeneconMiniEs36;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
 import io.openems.edge.app.integratedsystem.FeneconProHybridGw;
+import io.openems.edge.app.integratedsystem.FeneconPro912;
+import io.openems.edge.app.integratedsystem.FeneconPro912Cluster;
 import io.openems.edge.app.integratedsystem.SystemFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
@@ -134,6 +136,7 @@ import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.Ews;
 import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
+import io.openems.edge.app.timeofusetariff.SpotTariffVendor;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
@@ -327,6 +330,26 @@ public final class Apps {
 		return app(t, FeneconMiniEs36::new, "App.FENECON.Mini.ES.3.6");
 	}
 
+	/**
+	 * Test method for creating a {@link FeneconPro912}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconPro912 feneconPro912(AppManagerTestBundle t) {
+		return app(t, FeneconPro912::new, "App.FENECON.Pro.9.12");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconPro912Cluster}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconPro912Cluster feneconPro912Cluster(AppManagerTestBundle t) {
+		return app(t, FeneconPro912Cluster::new, "App.FENECON.Pro.9.12.Cluster");
+	}
+
 	// TimeOfUseTariff
 
 	/**
@@ -387,6 +410,16 @@ public final class Apps {
 	 */
 	public static final GroupeE groupeE(AppManagerTestBundle t) {
 		return app(t, GroupeE::new, "App.TimeOfUseTariff.GroupeE");
+	}
+
+	/**
+	 * Test method for creating a {@link SpotTariffVendor}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SpotTariffVendor spotTariffVendor(AppManagerTestBundle t) {
+		return app(t, SpotTariffVendor::new, "App.Tariff.SpotTariff");
 	}
 
 	/**

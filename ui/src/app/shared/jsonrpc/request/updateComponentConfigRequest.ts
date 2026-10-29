@@ -2,7 +2,9 @@ import { States } from "../../states/states";
 import { JsonrpcRequest } from "../base";
 
 /**
- * Represents a JSON-RPC Request to update the configuration of an OpenEMS Edge Component.<pre>
+ * Represents a JSON-RPC Request to update the configuration of an OpenEMS Edge Component.
+ *
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": UUID,
@@ -11,11 +13,11 @@ import { JsonrpcRequest } from "../base";
  *     "componentId": string,
  *     "properties": [
  *       "name": string,
- *       "value": any
+ *       "value": unknown
  *     ]
  *   }
  * }
- * </pre>
+ * ```
  */
 export class UpdateComponentConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "updateComponentConfig";
@@ -26,7 +28,7 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
             componentId: string;
             properties: {
                 name: string;
-                value: any;
+                value: unknown;
             }[];
         },
     ) {

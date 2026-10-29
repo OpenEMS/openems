@@ -51,7 +51,7 @@ describe("ControllerHeatComponent", () => {
             ]);
         });
 
-        it("includes the _PropertyMode channel for Askoma components", () => {
+        it("includes the Mode channel for Askoma components", () => {
             const component = new EdgeConfig.Component("heat0", "ASKOMA", true, false, "Heat.Askoma", {});
 
             const channels = callGetChannelAddresses(component);
@@ -61,7 +61,7 @@ describe("ControllerHeatComponent", () => {
                 new ChannelAddress("heat0", "ControlNotAllowed"),
                 new ChannelAddress("heat0", "ActivePower"),
                 new ChannelAddress("heat0", "Temperature"),
-                new ChannelAddress("heat0", "_PropertyMode"),
+                new ChannelAddress("heat0", "Mode"),
             ]);
         });
     });

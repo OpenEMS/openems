@@ -73,7 +73,10 @@ export namespace SharedFavorite {
         return absoluteFavoriteNodes;
     }
 
-    export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig, edge: Edge): string[] {
+    export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig | null, edge: Edge): string[] {
+        if (config == null) {
+            return [EnergyJourneyShared.historyNavigationTree(translate).id];
+        }
         const consumptionChildren = SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate);
 
         return [

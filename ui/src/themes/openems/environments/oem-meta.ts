@@ -1,4 +1,4 @@
-import { analyticsOutline, alertCircleOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
+import { alertCircleOutline, analyticsOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, cogOutline, flame, heart, heartOutline, homeOutline, informationCircleOutline, personOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -11,6 +11,9 @@ export const OemMeta: BaseMeta = {
     },
     icons: {
         COMMON: {
+            USER: personOutline,
+            SETTINGS: cogOutline,
+            COCKPIT: homeOutline,
             CONSUMPTION: "assets/img/icon/consumption.svg",
             SELFCONSUMPTION: bagCheckOutline,
             GENERATOR: "assets/img/icon/generator.svg",
@@ -177,6 +180,8 @@ export const OemMeta: BaseMeta = {
             CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
             CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
             EVCS_KEBA: "io.openems.edge.evse.chargepoint.keba/readme.adoc",
+            EVCS_KEBA_HELP:
+                "https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evse.chargepoint.keba/readme.adoc",
             EVCS_HARDY_BARTH: "io.openems.edge.evse.chargepoint.hardybarth/readme.adoc",
             EVCS_MENNEKES: "io.openems.edge.evse.chargepoint.mennekes/readme.adoc",
             EVSE_ALFEN: "io.openems.edge.evse.chargepoint.alfen/readme.adoc",

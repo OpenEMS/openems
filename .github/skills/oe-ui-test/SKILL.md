@@ -1,9 +1,9 @@
 ---
 name: oe-ui-test
-description: Use when writing or fixing Angular/Ionic UI tests in the FEMS/OpenEMS UI (Karma/Jasmine), including formly view tests, chart tests, and component unit tests.
+description: Use when writing or fixing Angular/Ionic UI tests in the OpenEMS UI (Karma/Jasmine), including formly view tests, chart tests, and component unit tests.
 ---
 
-# FEMS UI Test Skill
+# OpenEMS UI Test Skill
 
 Use this skill when writing or fixing Angular/Ionic tests under `ui/src/app/`.
 
