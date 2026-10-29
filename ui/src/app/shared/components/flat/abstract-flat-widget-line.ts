@@ -87,7 +87,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
         if (typeof this._name == "function") {
             this.displayName.set(this._name(value));
         } else {
-            this.displayName.set(this._name);
+            this.displayName.set(this._name ?? null);
         }
         this.displayValue.set(this.converter(value));
 
