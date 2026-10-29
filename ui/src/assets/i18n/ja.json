@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "グリッド設定へ移動"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "システム運転が制限されています - 容量拡張を準備しています",
                 "INFORMATION_FOR_INSTANT_START": "拡張のために、電荷状態をできるだけ速く{{targetSoc}} %に到達させるため、電池は最大出力で充電または放電されます。これにより、系統からの受電や系統への送電が発生する場合があります。この電荷状態は{{targetTimeBuffer}}分間維持され、その後または容量拡張後に、蓄電システムは通常の運転状態に戻ります。",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "計画された拡張のために、電池は{{targetDate}}の{{targetTime}}以降に充電/放電され、{{targetSoc}} %の電荷状態に到達すると見込まれています。この過程で、系統からの受電や系統への送電が発生する場合があります。この電荷状態は{{targetTimeBuffer}}分間維持され、その後または容量拡張後に、蓄電システムは通常の運転状態に戻ります。",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "計画された拡張のために、電池は{{targetSoc}} %の電荷状態に到達するように充電/放電されると見込まれています。",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "日付を選択してください",
                 "TARGET_TIME_SPECIFIED": "容量拡張は{{targetDate}}の{{targetTime}}に実行されます",
-                "UPDATE_TO_NEW_VERSION": "電池のレトロフィット機能を利用するには、最新バージョンへのアップデートが必要です。"
+                "UPDATE_TO_NEW_VERSION": "電池のレトロフィット機能を利用するには、最新バージョンへのアップデートが必要です。",
+                "WARNING_CHECK": "この情報を確認しました",
+                "WARNING_MESSAGE": "容量拡張の準備のため、現在実行中のシステムアプリケーションは一時的に中断されます。これには、ピークシェービング、自家消費最適化、その他のシステムアプリケーションが含まれます。準備の完了後、これらは通常どおり再び利用可能になります。"
             },
             "SYSTEMUPDATE": "システムアップデート",
             "WIDGETS": {

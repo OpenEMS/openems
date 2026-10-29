@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Eiti į tinklo nustatymus"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Apribotas sistemos veikimas - ruošiamas talpos didinimas",
                 "INFORMATION_FOR_INSTANT_START": "Akumuliatorius yra kraunamas arba iškraunamas maksimalia galia, kad plėtimui kuo greičiau būtų pasiektas {{targetSoc}} % įkrovos lygis. Dėl to gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po to, kai talpa bus išplėsta, kaupimo sistema grįžta į įprastinę darbo būseną.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Numatoma, kad akumuliatorius bus kraunamas/iškraunamas nuo {{targetTime}} {{targetDate}}, kad planuojamam plėtimui būtų pasiektas {{targetSoc}} % įkrovos lygis. Šio proceso metu gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po talpos plėtimo, kaupimo sistema grįžta į įprastinę darbo būseną.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Numatoma, kad akumuliatorius bus kraunamas/iškraunamas, kad planuojamam plėtimui būtų pasiektas {{targetSoc}} % įkrovos lygis.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Pasirinkite datą",
                 "TARGET_TIME_SPECIFIED": "Talpos plėtimas bus atliktas {{targetDate}} {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Atnaujinkite iki naujausios versijos, kad galėtumėte naudoti akumuliatoriaus modernizavimo funkciją."
+                "UPDATE_TO_NEW_VERSION": "Atnaujinkite iki naujausios versijos, kad galėtumėte naudoti akumuliatoriaus modernizavimo funkciją.",
+                "WARNING_CHECK": "Patvirtinu, kad susipažinau su šia informacija",
+                "WARNING_MESSAGE": "Ruošiantis talpos didinimui, šiuo metu veikiančios sistemos programos bus laikinai sustabdytos. Tai susiję, be kita ko, su pikų ribojimu, savos suvartojimo optimizavimu ir kitomis sistemos programomis. Pasibaigus pasiruošimui, jos vėl bus prieinamos kaip įprasta."
             },
             "SYSTEMUPDATE": "Sistemos atnaujinimas",
             "WIDGETS": {

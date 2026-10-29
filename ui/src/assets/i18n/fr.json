@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Aller aux paramètres du réseau"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Fonctionnement du système limité - Préparation de l'extension de capacité en cours",
                 "INFORMATION_FOR_INSTANT_START": "La batterie est chargée ou déchargée à puissance maximale afin d'atteindre le plus rapidement possible un état de charge de {{targetSoc}} % pour une extension. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "La batterie devrait être chargée/déchargée à partir de {{targetTime}} le {{targetDate}} afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "La batterie devrait être chargée/déchargée afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Veuillez sélectionner une date",
                 "TARGET_TIME_SPECIFIED": "L'extension de capacité sera effectuée le {{targetDate}} à {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Pour pouvoir utiliser la fonction d'extension de la batterie, une mise à jour vers la version la plus récente est nécessaire."
+                "UPDATE_TO_NEW_VERSION": "Pour pouvoir utiliser la fonction d'extension de la batterie, une mise à jour vers la version la plus récente est nécessaire.",
+                "WARNING_CHECK": "Je confirme avoir pris connaissance de cette information",
+                "WARNING_MESSAGE": "En préparation de l'extension de capacité, les applications du système en cours d'exécution seront temporairement suspendues. Cela concerne, entre autres, l'écrêtage des pointes, l'optimisation de l'autoconsommation et d'autres applications du système. Une fois la préparation terminée, elles seront à nouveau disponibles comme d'habitude."
             },
             "SYSTEMUPDATE": "Mise à jour du système",
             "WIDGETS": {

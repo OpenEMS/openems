@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Gå till nätinställningarna"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Begränsad systemdrift - Kapacitetsutbyggnad förbereds",
                 "INFORMATION_FOR_INSTANT_START": "Batteriet laddas eller urladdas med maximal effekt för att så snabbt som möjligt nå ett laddningstillstånd på {{targetSoc}} % för en utbyggnad. Detta kan resultera i nätköp eller inmatning till nätet. Detta laddningstillstånd hålls i {{targetTimeBuffer}} minuter, därefter, eller när kapacitetsutbyggnaden har skett, återgår lagringssystemet till sitt normala drifttillstånd.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Batteriet väntas laddas/urladdas från {{targetTime}} den {{targetDate}} för att nå ett laddningstillstånd på {{targetSoc}} % för den planerade utbyggnaden. Under processen kan nätköp eller inmatning till nätet förekomma. Detta laddningstillstånd hålls i {{targetTimeBuffer}} minuter, därefter eller efter kapacitetsutbyggnaden återgår lagringssystemet till det normala drifttillståndet.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Batteriet väntas laddas/urladdas för att nå ett laddningstillstånd på {{targetSoc}} % för den planerade utbyggnaden.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Välj ett datum",
                 "TARGET_TIME_SPECIFIED": "Kapacitetsutbyggnaden utförs den {{targetDate}} klockan {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Uppdatera till den senaste versionen för att kunna använda funktionen för batteriutbyggnad."
+                "UPDATE_TO_NEW_VERSION": "Uppdatera till den senaste versionen för att kunna använda funktionen för batteriutbyggnad.",
+                "WARNING_CHECK": "Jag bekräftar att jag har tagit del av denna information",
+                "WARNING_MESSAGE": "I samband med förberedelsen av kapacitetsutbyggnaden kommer systemapplikationer som för närvarande körs att tillfälligt pausas. Detta påverkar bland annat peak shaving, optimering av egenförbrukning och andra systemapplikationer. När förberedelsen är klar är dessa återigen tillgängliga som vanligt."
             },
             "SYSTEMUPDATE": "Systemuppdatering",
             "WIDGETS": {

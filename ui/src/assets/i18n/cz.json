@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Přejít do nastavení sítě"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Omezený provoz úložného systému - připravuje se rozšíření kapacity",
                 "INFORMATION_FOR_INSTANT_START": "Baterie se nabíjí nebo vybíjí maximálním výkonem, aby co nejrychleji dosáhla stavu nabití {{targetSoc}} % pro rozšíření. Může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Očekává se, že baterie bude od {{targetTime}} dne {{targetDate}} nabíjena/vybíjena, aby dosáhla stavu nabití {{targetSoc}} % pro plánované rozšíření. Přitom může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Očekává se, že baterie bude nabíjena/vybíjena, aby dosáhla stavu nabití {{targetSoc}} % pro plánované rozšíření.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Vyberte prosím datum",
                 "TARGET_TIME_SPECIFIED": "Rozšíření kapacity bude provedeno dne {{targetDate}} v {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Pro využití funkce rozšíření baterie je vyžadována aktualizace na nejnovější verzi."
+                "UPDATE_TO_NEW_VERSION": "Pro využití funkce rozšíření baterie je vyžadována aktualizace na nejnovější verzi.",
+                "WARNING_CHECK": "Tuto informaci beru na vědomí",
+                "WARNING_MESSAGE": "Při přípravě rozšíření kapacity budou právě běžící aplikace úložného systému dočasně pozastaveny. To se týká mimo jiné omezování spotřebních špiček, optimalizace vlastní spotřeby a dalších aplikací úložného systému. Po dokončení přípravy budou opět k dispozici jako obvykle."
             },
             "SYSTEMUPDATE": "Aktualizace systému",
             "WIDGETS": {

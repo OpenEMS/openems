@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Naar de netinstellingen"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Beperkte systeemwerking - Uitbreiding van de capaciteit wordt voorbereid",
                 "INFORMATION_FOR_INSTANT_START": "De accu wordt met maximaal vermogen geladen of gelost om zo snel mogelijk een laadtoestand van {{targetSoc}} % te bereiken voor een uitbreiding. Hierdoor kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na het uitbreiden van de capaciteit, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Verwacht wordt dat de accu vanaf {{targetTime}} op {{targetDate}} wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken. Hierbij kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na de capaciteitsuitbreiding, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Verwacht wordt dat de accu wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Selecteer een datum",
                 "TARGET_TIME_SPECIFIED": "De capaciteitsuitbreiding wordt uitgevoerd op {{targetDate}} om {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Om de functie voor accu-uitbreiding te kunnen gebruiken, is een update naar de nieuwste versie vereist."
+                "UPDATE_TO_NEW_VERSION": "Om de functie voor accu-uitbreiding te kunnen gebruiken, is een update naar de nieuwste versie vereist.",
+                "WARNING_CHECK": "Ik bevestig dat ik kennis heb genomen van deze informatie",
+                "WARNING_MESSAGE": "Ter voorbereiding van de capaciteitsuitbreiding worden de momenteel actieve systeemapplicaties tijdelijk opgeschort. Dit betreft onder andere piekbelastingafvlakking, optimalisatie van eigen verbruik en andere systeemapplicaties. Nadat de voorbereiding is afgerond, zijn deze weer beschikbaar zoals gebruikelijk."
             },
             "SYSTEMUPDATE": "Systeemupdate",
             "WIDGETS": {

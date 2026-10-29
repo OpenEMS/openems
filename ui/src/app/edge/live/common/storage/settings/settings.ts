@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AlertController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { format } from "date-fns";
@@ -49,8 +50,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER = "_PropertyTargetTimeBuffer";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_EXPECTED_EPOCH_SECONDS = "ExpectedStartEpochSeconds";
     private static CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED = "IsEssChargeFromGridAllowed";
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
+    private readonly alertCtrl = inject(AlertController);
 
     private static CONTROL_NAME_PREFIX = (component: EdgeConfig.Component) => component.id + "-";
     private static FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED: (essComponent: EdgeConfig.Component) => string = (
@@ -431,6 +432,53 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
         const essComponents = SharedStorage.getEssComponents(config);
+
+        const requiresConfirmation = essComponents.some(
+            (essComponent) =>
+                formGroup.get(
+                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
+                )?.value === true,
+        );
+
+        if (requiresConfirmation) {
+            const alert = await this.alertCtrl.create({
+                header: this.translate.instant("EDGE.INDEX.RETROFITTING.OPTIMAL"),
+                message: this.translate.instant("EDGE.INDEX.RETROFITTING.WARNING_MESSAGE"),
+                inputs: [
+                    {
+                        type: "checkbox",
+                        label: this.translate.instant("EDGE.INDEX.RETROFITTING.WARNING_CHECK"),
+                        value: "confirmed",
+                    },
+                ],
+                buttons: [
+                    {
+                        text: this.translate.instant("GENERAL.CANCEL"),
+                        role: "cancel",
+                    },
+                    {
+                        text: this.translate.instant("GENERAL.APPLY"),
+                        role: "confirm",
+                        handler: (data) => {
+                            if (!data?.includes("confirmed")) {
+                                return false;
+                            }
+
+                            return true;
+                        },
+                    },
+                ],
+                cssClass: "alertController",
+            });
+
+            await alert.present();
+
+            const result = await alert.onDidDismiss();
+
+            if (result.role !== "confirm") {
+                return;
+            }
+        }
 
         for (const essComponent of essComponents) {
             const prepareBatteryExtensionCtrl = config

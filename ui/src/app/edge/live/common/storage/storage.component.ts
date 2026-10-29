@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { formatNumber } from "@angular/common";
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AdminStorageModalComponent } from "src/app/edge/live/common/storage/admin-modal/admin-modal.component";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";

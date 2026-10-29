@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Ir a los ajustes de red"
             },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Operación del sistema limitada - Se está preparando la ampliación de capacidad",
                 "INFORMATION_FOR_INSTANT_START": "La batería se carga o descarga con la máxima potencia para alcanzar lo antes posible un estado de carga del {{targetSoc}} % para una ampliación. Esto puede provocar consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras ampliarse la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Se espera que la batería se cargue/descargue a partir de las {{targetTime}} del {{targetDate}} para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista. En el proceso puede haber consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras la ampliación de la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Se espera que la batería se cargue/descargue para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista.",
@@ -267,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Seleccione una fecha",
                 "TARGET_TIME_SPECIFIED": "La ampliación de capacidad se realizará el {{targetDate}} a las {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Para poder utilizar la función de ampliación de la batería es necesario actualizar a la versión más reciente."
+                "UPDATE_TO_NEW_VERSION": "Para poder utilizar la función de ampliación de la batería es necesario actualizar a la versión más reciente.",
+                "WARNING_CHECK": "Confirmo que he tomado nota de esta información",
+                "WARNING_MESSAGE": "Para preparar la ampliación de capacidad, las aplicaciones del sistema que se estén ejecutando actualmente se suspenderán temporalmente. Esto afecta, entre otras, al recorte de picos, a la optimización del autoconsumo y a otras aplicaciones del sistema. Una vez finalizada la preparación, volverán a estar disponibles con normalidad."
             },
             "SYSTEMUPDATE": "Actualización del sistema",
             "WIDGETS": {
