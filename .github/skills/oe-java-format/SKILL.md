@@ -7,7 +7,7 @@ description: Use when creating or modifying Java files in the OpenEMS workspace,
 
 ## Requirement
 
-Every changed Java file must be equivalent to the output of Eclipse "Source > Format" (JDT default profile) plus "Source > Organize Imports".
+Every changed Java file must be equivalent to the output of Eclipse "Source > Format" plus "Source > Organize Imports", using the IDE's "Eclipse [built-in]" formatter profile.
 
 ## Headless Application
 
