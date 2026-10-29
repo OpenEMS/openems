@@ -6,23 +6,13 @@ import static io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActi
 import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Pwr;
 
 public final class SystemLimitHelper {
 
-	public static final float DEFAULT_GRID_BUFFER_FACTOR = 0.05f;
-
 	private SystemLimitHelper() {
-	}
-
-	record SystemLimits(boolean isEssChargeFromGridAllowed, boolean isEssDischargeToGridAllowed,
-			int essDischargeToGridLimit, int gridSellHardLimit, int gridBuyHardLimit) {
-		static SystemLimits fromMeta(Meta meta) {
-			return new SystemLimits(meta.getIsEssChargeFromGridAllowed(), meta.getIsEssDischargeToGridAllowed(),
-					Math.max(0, meta.getEssDischargeToGridLimit()), Math.max(0, meta.getGridSellHardLimit()),
-					Math.max(0, meta.getGridBuyLimit().hard().power()));
-		}
 	}
 
 	record LimitResult(ControllerEssFixActivePowerImpl.PowerTarget powerTarget, boolean limitedByEssHardware,
@@ -53,14 +43,14 @@ public final class SystemLimitHelper {
 	 * @param componentId     component ID for logging purposes
 	 * @param powerTarget     the requested power target
 	 * @param ess             the ESS for which the target is calculated
-	 * @param systemLimits    the system limits defined in the meta
+	 * @param gridLimit       the {@link GridLimit} defined in {@link Meta}
 	 * @param gridActivePower the current grid active power to
 	 * @return limited Result
 	 */
 	@VisibleForTesting
 	static LimitResult clampToSystemLimits(String componentId, ControllerEssFixActivePowerImpl.PowerTarget powerTarget,
-			ManagedSymmetricEss ess, SystemLimits systemLimits, Integer gridActivePower) {
-		return clampToSystemLimits(componentId, powerTarget, ess, systemLimits, gridActivePower, false, true);
+			ManagedSymmetricEss ess, GridLimit.Immutable gridLimit, Integer gridActivePower) {
+		return clampToSystemLimits(componentId, powerTarget, ess, gridLimit, gridActivePower, false, true);
 	}
 
 	/**
@@ -71,8 +61,8 @@ public final class SystemLimitHelper {
 	 * @param powerTarget                       the requested power target
 	 * @param ess                               the ESS for which the target is
 	 *                                          calculated
-	 * @param systemLimits                      the system limits defined in the
-	 *                                          meta
+	 * @param gridLimit                         the {@link GridLimit} defined in
+	 *                                          {@link Meta}
 	 * @param gridActivePower                   the current grid active power
 	 * @param ignoreSystemLimitsPermissionsOnce if true, system permissions will be
 	 *                                          ignored once (used for service
@@ -82,7 +72,7 @@ public final class SystemLimitHelper {
 	 * @return limited Result
 	 */
 	static LimitResult clampToSystemLimits(String componentId, ControllerEssFixActivePowerImpl.PowerTarget powerTarget,
-			ManagedSymmetricEss ess, SystemLimits systemLimits, Integer gridActivePower,
+			ManagedSymmetricEss ess, GridLimit.Immutable gridLimit, Integer gridActivePower,
 			boolean ignoreSystemLimitsPermissionsOnce, boolean considerSystemLimits) {
 
 		if (targetHasNoDirectGridInteraction(ess, powerTarget) || !considerSystemLimits) {
@@ -90,7 +80,7 @@ public final class SystemLimitHelper {
 		}
 
 		// Check Meta permissions
-		if (!ignoreSystemLimitsPermissionsOnce && !systemLimitsPermissionsGranted(ess, powerTarget, systemLimits)) {
+		if (!ignoreSystemLimitsPermissionsOnce && !systemLimitsPermissionsGranted(ess, powerTarget, gridLimit)) {
 			return LimitResult.noLimitWithWarning(false, true);
 		}
 
@@ -101,7 +91,7 @@ public final class SystemLimitHelper {
 		var isLimitedByEssHardware = requestedAcPower != essLimitedAcPower;
 
 		// Fit into GridLimits of Meta
-		var metaLimitedAcPower = limitAcPowerByMeta(essLimitedAcPower, systemLimits, gridActivePower,
+		var metaLimitedAcPower = limitAcPowerByMeta(essLimitedAcPower, gridLimit, gridActivePower,
 				ess.getActivePower().orElse(0));
 		var isLimitedByMetaLimit = metaLimitedAcPower != essLimitedAcPower;
 		isLimitedByEssHardware = isLimitedByEssHardware && !isLimitedByMetaLimit;
@@ -118,22 +108,22 @@ public final class SystemLimitHelper {
 	}
 
 	private static boolean systemLimitsPermissionsGranted(ManagedSymmetricEss ess,
-			ControllerEssFixActivePowerImpl.PowerTarget powerTarget, SystemLimits systemLimits) {
+			ControllerEssFixActivePowerImpl.PowerTarget powerTarget, GridLimit.Immutable gridLimit) {
 
 		var dcPower = getDcPower(ess, powerTarget.hybridEssMode(), powerTarget.power());
 		if (dcPower < 0) {
-			return systemLimits.isEssChargeFromGridAllowed();
+			return gridLimit.isEssChargeFromGridAllowed();
 		}
 		if (dcPower > 0) {
-			return systemLimits.isEssDischargeToGridAllowed();
+			return gridLimit.isEssDischargeToGridAllowed();
 		}
 		return true;
 	}
 
-	private static int limitAcPowerByMeta(int requestedAcPower, SystemLimits systemLimits, Integer gridActivePower,
+	private static int limitAcPowerByMeta(int requestedAcPower, GridLimit.Immutable gridLimit, Integer gridActivePower,
 			int essActivePower) {
-		var acMinimum = calculateAcMinimum(systemLimits, gridActivePower, essActivePower, DEFAULT_GRID_BUFFER_FACTOR);
-		var acMaximum = calculateAcMaximum(systemLimits, gridActivePower, essActivePower, DEFAULT_GRID_BUFFER_FACTOR);
+		var acMinimum = calculateAcMinimum(gridLimit, gridActivePower, essActivePower);
+		var acMaximum = calculateAcMaximum(gridLimit, gridActivePower, essActivePower);
 		return Math.clamp(requestedAcPower, acMinimum, acMaximum);
 	}
 
@@ -141,15 +131,13 @@ public final class SystemLimitHelper {
 	 * Calculates the minimum active power based on the system limits and current
 	 * grid and ESS power.
 	 *
-	 * @param systemLimits     the system limits defined in the meta
-	 * @param gridActivePower  the current grid active power
-	 * @param essActivePower   the current ESS active power
-	 * @param gridBufferFactor the buffer factor to apply to the grid limit
+	 * @param systemLimits    the system limits defined in the meta
+	 * @param gridActivePower the current grid active power
+	 * @param essActivePower  the current ESS active power
 	 * @return the calculated minimum active power
 	 */
-	static int calculateAcMinimum(SystemLimits systemLimits, Integer gridActivePower, int essActivePower,
-			float gridBufferFactor) {
-		final var gridLimit = systemLimits.gridBuyHardLimit() * (1 - gridBufferFactor);
+	static int calculateAcMinimum(GridLimit.Immutable systemLimits, Integer gridActivePower, int essActivePower) {
+		final var gridLimit = systemLimits.gridBuyHardLimitWithBuffer();
 		if (gridActivePower == null) {
 			return (int) -gridLimit;
 		}
@@ -161,20 +149,18 @@ public final class SystemLimitHelper {
 	 * Calculates the maximum active power based on the system limits and current
 	 * grid and ESS power.
 	 *
-	 * @param systemLimits     the system limits defined in the meta
-	 * @param gridActivePower  the current grid active power
-	 * @param essActivePower   the current ESS active power
-	 * @param gridBufferFactor the buffer factor to apply to the grid limit
+	 * @param gridLimit       the {@link GridLimit} defined in {@link Meta}
+	 * @param gridActivePower the current grid active power
+	 * @param essActivePower  the current ESS active power
 	 * @return the calculated maximum active power
 	 */
-	static int calculateAcMaximum(SystemLimits systemLimits, Integer gridActivePower, int essActivePower,
-			float gridBufferFactor) {
+	static int calculateAcMaximum(GridLimit.Immutable gridLimit, Integer gridActivePower, int essActivePower) {
 
-		final var gridLimit = systemLimits.gridSellHardLimit() * (1 - gridBufferFactor);
+		final var gridLimitWithBuffer = gridLimit.gridSellHardLimitWithBuffer();
 		if (gridActivePower == null) {
-			return (int) gridLimit;
+			return (int) gridLimitWithBuffer;
 		}
 		var realGridPower = gridActivePower + essActivePower;
-		return realGridPower + (int) gridLimit;
+		return realGridPower + (int) gridLimitWithBuffer;
 	}
 }

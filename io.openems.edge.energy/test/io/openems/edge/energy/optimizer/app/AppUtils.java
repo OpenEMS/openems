@@ -35,7 +35,6 @@ import io.openems.common.jsonrpc.serialization.JsonObjectPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -164,11 +163,11 @@ public final class AppUtils {
 			// Header data
 			final var grid = json.getObject("grid", Grid.serializer(clock));
 			final var meta = new DummyMeta() //
-					.withGridBuyLimit(l -> l //
-							.setHard(new GridBuyLimit.Hard(grid.maxBuyPower())) //
-							.setSoft(grid.gridBuySoftLimit())) //
-					.withGridSellHardLimit(grid.maxSellPower()) //
-					.withGridSellHardLimitWithBuffer(grid.maxSellPowerWithBuffer());
+					.withGridLimit(l -> l //
+							.setGridBuyHardLimit(grid.maxBuyPower()) //
+							.setGridSellHardLimit(grid.maxSellPower()) //
+							.setGridSellHardLimitWithBuffer(grid.maxSellPowerWithBuffer()) //
+							.setGridBuySoftLimit(grid.gridBuySoftLimit()));
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //
 					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //

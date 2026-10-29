@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.fixactivepower;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
 import static io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.clampToSystemLimits;
-import static io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.SystemLimits.fromMeta;
 import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
@@ -35,10 +34,10 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.Phase;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.SystemLimits;
 import io.openems.edge.controller.ess.fixactivepower.enums.HybridEssMode;
 import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -172,8 +171,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		case MANUAL_OFF -> ControllerTarget.inactiveNoWarning();
 		};
 
-		var systemLimits = fromMeta(this.meta);
-		this.applyControllerTargetConsideringSystemLimits(controllerTarget, systemLimits);
+		var gridLimit = this.meta.getGridLimit();
+		this.applyControllerTargetConsideringSystemLimits(controllerTarget, gridLimit);
 		this.calculateCumulatedActiveTime.update(this.isActive.get());
 	}
 
@@ -217,7 +216,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	}
 
 	private void applyControllerTargetConsideringSystemLimits(ControllerTarget controllerTarget,
-			SystemLimits systemLimits) {
+			GridLimit.Immutable gridLimit) {
 		this.setInformationChannels(null, false, false, false);
 		if (controllerTarget.resetModeToManualOff()) {
 			this.resetModeToManualOff();
@@ -230,7 +229,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		var limitedRequest = clampToSystemLimits(this.id(), request, this.ess, systemLimits,
+		var limitedRequest = clampToSystemLimits(this.id(), request, this.ess, gridLimit,
 				this.sum.getGridActivePower().get(), this.config.ignoreSystemLimitsPermissionsOnce(),
 				this.config.considerSystemLimits());
 
