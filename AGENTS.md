@@ -29,6 +29,7 @@ Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 - Device capabilities are expressed through natures like `ManagedSymmetricEss`, `ElectricityMeter`, and `EssDcCharger`.
 - Implementation classes must explicitly list all parent interfaces of child natures; otherwise OpenEMS nature detection does not work.
 - Channels are the main runtime data exchange mechanism; prefer existing typed `ChannelId` patterns and static imports for channel IDs/constants.
+- Prefer `ChannelUtils.setValue(component, ChannelId, value)` (and the matching `ChannelUtils` variants) over generated `_set...()` methods or direct `channel.setNextValue()` calls.
 - Edge logic is cycle/event driven via `EdgeEventConstants` topics. For controller changes, consider scheduler order, channel interactions, ESS/grid/PV/load energy flow, and production debugging.
 - Modbus devices should use the existing `io.openems.edge.bridge.modbus` protocol/register mapping patterns.
 - Checkstyle is enforced via `cnf/checkstyle.xml` with zero warnings.
