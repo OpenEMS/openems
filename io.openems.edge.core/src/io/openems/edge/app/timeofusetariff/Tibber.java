@@ -104,7 +104,6 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				})//
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
 						ComponentManagerSupplier::getComponentManager))), //
-		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 		;
 
 		private final AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def;
@@ -146,13 +145,11 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 			final var multipleHomesCheck = this.getBoolean(p, Property.MULTIPLE_HOMES_CHECK);
 			final var filter = multipleHomesCheck ? this.getString(p, Property.FILTER) : "";
-			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //

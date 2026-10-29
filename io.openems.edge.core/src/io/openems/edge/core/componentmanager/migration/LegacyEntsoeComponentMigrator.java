@@ -6,7 +6,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import static org.osgi.service.component.annotations.ServiceScope.SINGLETON;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +22,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
+
+import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.function.ThrowingConsumer;
@@ -230,17 +231,15 @@ public class LegacyEntsoeComponentMigrator {
 			}
 		}
 
-		final var properties = Arrays.asList(//
-				new UpdateComponentConfigRequest.Property("id", oldComponent.id()), //
-				new UpdateComponentConfigRequest.Property("alias", oldComponent.alias()), //
-				new UpdateComponentConfigRequest.Property("enabled", oldComponent.isEnabled()), //
-				new UpdateComponentConfigRequest.Property("biddingZone", (String) oldProperties.get("biddingZone")), //
-				new UpdateComponentConfigRequest.Property("ancillaryCosts",
-						(String) oldProperties.get("ancillaryCosts")), //
-				new UpdateComponentConfigRequest.Property("calculateExpression",
-						(String) oldProperties.get("calculateExpression")), //
-				new UpdateComponentConfigRequest.Property("service_ranking", 10) //
-		);
+		final var properties = new UpdatePropertiesBuilder() //
+				.add("id", oldComponent.id()) //
+				.add("alias", oldComponent.alias()) //
+				.add("enabled", oldComponent.isEnabled()) //
+				.add("biddingZone", (String) oldProperties.get("biddingZone")) //
+				.add("ancillaryCosts", (String) oldProperties.get("ancillaryCosts")) //
+				.add("calculateExpression", (String) oldProperties.get("calculateExpression")) //
+				.add("service_ranking", 10) //
+				.build();
 
 		this.log.info("Migrating TimeOfUseTariff.ENTSO-E to Tariff.BySpotTariff.GridBuy ...");
 		this.componentManager.handleDeleteComponentConfigRequest(null,
@@ -272,15 +271,14 @@ public class LegacyEntsoeComponentMigrator {
 			}
 		}
 
-		final var properties = Arrays.asList(//
-				new UpdateComponentConfigRequest.Property("id", oldComponent.id()), //
-				new UpdateComponentConfigRequest.Property("alias", oldComponent.alias()), //
-				new UpdateComponentConfigRequest.Property("enabled", oldComponent.isEnabled()), //
-				new UpdateComponentConfigRequest.Property("biddingZone", (String) oldProperties.get("biddingZone")), //
-				new UpdateComponentConfigRequest.Property("calculateExpression",
-						(String) oldProperties.get("calculateExpression")), //
-				new UpdateComponentConfigRequest.Property("service_ranking", 10) //
-		);
+		final var properties = new UpdatePropertiesBuilder() //
+				.add("id", oldComponent.id()) //
+				.add("alias", oldComponent.alias()) //
+				.add("enabled", oldComponent.isEnabled()) //
+				.add("biddingZone", (String) oldProperties.get("biddingZone")) //
+				.add("calculateExpression", (String) oldProperties.get("calculateExpression")) //
+				.add("service_ranking", 10) //
+				.build();
 
 		this.log.info("Migrating Tariff.ENTSO-E.GridSell to Tariff.BySpotTariff.GridSell ...");
 		this.componentManager.handleDeleteComponentConfigRequest(null,
@@ -313,23 +311,23 @@ public class LegacyEntsoeComponentMigrator {
 		return switch (fetchType) {
 		case WAITING -> null;
 		case FETCH_LOCALLY -> {
-			final var properties = Arrays.asList(//
-					new UpdateComponentConfigRequest.Property("id", TARIFF_PROVIDER_COMPONENT_ID), //
-					new UpdateComponentConfigRequest.Property("alias", ""), //
-					new UpdateComponentConfigRequest.Property("enabled", true), //
-					new UpdateComponentConfigRequest.Property("securityToken", entsoeSecurityToken), //
-					new UpdateComponentConfigRequest.Property("service_ranking", 80) //
-			);
+			final var properties = new UpdatePropertiesBuilder() //
+					.add("id", TARIFF_PROVIDER_COMPONENT_ID) //
+					.add("alias", "") //
+					.add("enabled", true) //
+					.add("securityToken", entsoeSecurityToken) //
+					.add("service_ranking", 80) //
+					.build();
 			this.createConfiguration("Tariff.SpotTariff.ENTSO-E", properties);
 			yield TARIFF_PROVIDER_COMPONENT_ID;
 		}
 		case FETCH_VIA_BACKEND -> {
-			final var properties = Arrays.asList(//
-					new UpdateComponentConfigRequest.Property("id", TARIFF_PROVIDER_COMPONENT_ID), //
-					new UpdateComponentConfigRequest.Property("alias", ""), //
-					new UpdateComponentConfigRequest.Property("enabled", true), //
-					new UpdateComponentConfigRequest.Property("service_ranking", 100) //
-			);
+			final var properties = new UpdatePropertiesBuilder() //
+					.add("id", TARIFF_PROVIDER_COMPONENT_ID) //
+					.add("alias", "") //
+					.add("enabled", true) //
+					.add("service_ranking", 100) //
+					.build();
 			this.createConfiguration("Tariff.SpotTariff.FromBackend", properties);
 			yield TARIFF_PROVIDER_COMPONENT_ID;
 		}
@@ -357,6 +355,33 @@ public class LegacyEntsoeComponentMigrator {
 		} catch (OpenemsError.OpenemsNamedException e) {
 			throw new Exception(String.format("Unable to create Component configuration for Factory [%s]", factoryPid),
 					e);
+		}
+	}
+
+	private class UpdatePropertiesBuilder {
+		private final ImmutableList.Builder<UpdateComponentConfigRequest.Property> properties = ImmutableList.builder();
+
+		public UpdatePropertiesBuilder add(String key, String value) {
+			if (value != null) {
+				this.properties.add(new UpdateComponentConfigRequest.Property(key, value));
+			}
+			return this;
+		}
+
+		public UpdatePropertiesBuilder add(String key, boolean value) {
+			this.properties.add(new UpdateComponentConfigRequest.Property(key, value));
+			return this;
+		}
+
+		public UpdatePropertiesBuilder add(String key, Number value) {
+			if (value != null) {
+				this.properties.add(new UpdateComponentConfigRequest.Property(key, value));
+			}
+			return this;
+		}
+
+		public List<UpdateComponentConfigRequest.Property> build() {
+			return this.properties.build();
 		}
 	}
 
