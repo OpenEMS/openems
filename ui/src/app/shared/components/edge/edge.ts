@@ -1,9 +1,8 @@
-// @ts-strict-ignore
 import { Signal, signal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { compareVersions } from "compare-versions";
-import { BehaviorSubject, Subject } from "rxjs";
-import { filter, first } from "rxjs/operators";
+import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
+import { filter } from "rxjs/operators";
 import { SumState } from "src/app/index/shared/sumState";
 import { environment } from "src/environments";
 import { UnimplementedInEdgeError } from "../../errors/errors";
@@ -32,6 +31,7 @@ import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getProper
 import { User } from "../../jsonrpc/shared";
 import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
+import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { SharedBottomNavigationBar } from "../navigation/bottom-bar/shared";
 import { NavigationId, NavigationTree } from "../navigation/shared";
@@ -49,6 +49,12 @@ interface EdgeSettingsConfig {
     };
 }
 
+type EdgeRpcSuccess<T> = JsonrpcResponseSuccess & {
+    result: {
+        payload: T;
+    };
+};
+
 export class Edge {
     // holds current data
     public currentData: BehaviorSubject<CurrentData> = new BehaviorSubject<CurrentData>(new CurrentData({}));
@@ -62,13 +68,13 @@ export class Edge {
     public isSubscribed: boolean = false;
 
     // holds config
-    private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
+    private config: BehaviorSubject<EdgeConfig | null> = new BehaviorSubject<EdgeConfig | null>(null);
     private _config = signal<EdgeConfig | null>(null);
 
     // holds currently subscribed channels, identified by source id
     private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
     private isRefreshConfigBlocked: boolean = false;
-    private subscribeChannelsTimeout: any = null;
+    private subscribeChannelsTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(
         public readonly id: string,
@@ -94,9 +100,9 @@ export class Edge {
      *     "xxxx1234" -> 1234
      *     "User1ID50" -> 50
      *
-     * @returns The edge number.
+     * @returns The trailing number from the edge id, or null if none exists.
      */
-    public getNameNumber(): number {
+    public getNameNumber(): number | null {
         return StringUtils.getTrailingNumber(this.id);
     }
 
@@ -106,7 +112,7 @@ export class Edge {
      * @deprecated Use {@link getConfigSignal}
      * @param websocket The Websocket connection
      */
-    public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
+    public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig | null> {
         if (this.config.value == null || !this.config.value.isValid()) {
             this.refreshConfig(websocket);
         }
@@ -118,7 +124,7 @@ export class Edge {
      *
      * @param websocket The Websocket connection
      */
-    public getConfigSignal(): Signal<EdgeConfig> {
+    public getConfigSignal(): Signal<EdgeConfig | null> {
         return this._config.asReadonly();
     }
 
@@ -133,12 +139,11 @@ export class Edge {
      * @param websocket The Websocket connection
      */
     public getFirstValidConfig(websocket: Websocket): Promise<EdgeConfig> {
-        return this.getConfig(websocket)
-            .pipe(
-                filter((config) => config != null && config.isValid()),
-                first(),
-            )
-            .toPromise();
+        return firstValueFrom(
+            this.getConfig(websocket).pipe(
+                filter((config): config is EdgeConfig => config != null && config.isValid()),
+            ),
+        );
     }
 
     /**
@@ -359,7 +364,7 @@ export class Edge {
     public createComponentConfig(
         ws: Websocket,
         factoryPid: string,
-        properties: { name: string; value: any }[],
+        properties: CreateComponentConfigRequest["params"]["properties"],
     ): Promise<JsonrpcResponseSuccess> {
         const request = new CreateComponentConfigRequest({
             factoryPid: factoryPid,
@@ -378,7 +383,7 @@ export class Edge {
     public createComponentConfigWithState(
         ws: Websocket,
         factoryPid: string,
-        properties: { name: string; value: any }[],
+        properties: CreateComponentConfigRequest["params"]["properties"],
     ): Promise<JsonrpcResponseSuccess> {
         const request = new CreateComponentConfigRequest({
             factoryPid: factoryPid,
@@ -397,7 +402,7 @@ export class Edge {
     public updateComponentConfig(
         ws: Websocket,
         componentId: string,
-        properties: { name: string; value: any }[],
+        properties: UpdateComponentConfigRequest["params"]["properties"],
     ): Promise<JsonrpcResponseSuccess> {
         const request = new UpdateComponentConfigRequest({
             componentId: componentId,
@@ -416,7 +421,7 @@ export class Edge {
     public updateComponentConfigWithState(
         ws: Websocket,
         componentId: string,
-        properties: { name: string; value: any }[],
+        properties: UpdateComponentConfigRequest["params"]["properties"],
     ): Promise<JsonrpcResponseSuccess> {
         const request = new UpdateComponentConfigRequest({
             componentId: componentId,
@@ -461,9 +466,9 @@ export class Edge {
     public sendRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
         const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
         return new Promise((resolve, reject) => {
-            ws.sendRequest(wrap)
+            ws.sendRequest<EdgeRpcSuccess<T>>(wrap)
                 .then((response) => {
-                    resolve(response["result"]["payload"]);
+                    resolve(response.result.payload);
                 })
                 .catch((reason) => {
                     reject(reason);
@@ -481,9 +486,9 @@ export class Edge {
     public sendStateFullRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
         const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
         return new Promise((resolve, reject) => {
-            ws.sendStateFullRequest(wrap)
+            ws.sendStateFullRequest<EdgeRpcSuccess<T>>(wrap)
                 .then((response) => {
-                    resolve(response["result"]["payload"]);
+                    resolve(response.result.payload);
                 })
                 .catch((reason) => {
                     reject(reason);
@@ -503,7 +508,7 @@ export class Edge {
         componentId: string,
         properties: { name: string; value: string | number | boolean }[],
     ): Promise<JsonrpcResponseSuccess> {
-        const jsonObject = properties.reduce((acc, current) => {
+        const jsonObject = properties.reduce<Record<string, string | number | boolean>>((acc, current) => {
             acc[current.name] = current.value;
             return acc;
         }, {});
@@ -576,6 +581,7 @@ export class Edge {
      */
     public createNavigationTree(translate: TranslateService, edge: Edge, service: Service, user: User): NavigationTree {
         const config = this.getConfigSignal()();
+        AssertionUtils.assertIsDefined(config);
         const sharedBottomNavigationBarTree = SharedBottomNavigationBar.getNavigationTree(
             edge,
             config,

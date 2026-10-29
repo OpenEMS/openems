@@ -56,7 +56,7 @@ export class LocationComponent {
         });
     }
 
-    public init(config: EdgeConfig) {
+    public init(config: EdgeConfig | null) {
         this.service.startSpinner(this.spinnerId);
         this.setLocationValidateState(config).finally(() => this.service.stopSpinner(this.spinnerId));
     }
@@ -65,7 +65,7 @@ export class LocationComponent {
         this.router.navigate(["./location-validation"], { relativeTo: this.route });
     }
 
-    private async setLocationValidateState(config: EdgeConfig) {
+    private async setLocationValidateState(config: EdgeConfig | null) {
         return new Promise<void>((resolve, reject) => {
             if (config == null) {
                 this.isValidated = false;

@@ -64,8 +64,11 @@ export namespace SharedSchedulerJsCalendar {
     export function getControllerOptions(service: Service): { value: string; label: string }[] {
         const edge = service.currentEdge();
         const config = edge.getConfigSignal()();
+        if (config == null) {
+            return [];
+        }
         const factories =
-            Object.values(config?.factories ?? {})
+            Object.values(config.factories ?? {})
                 ?.flat()
                 ?.filter((el) => el.componentIds?.length > 0) ?? [];
         const controllerOptions: { value: string; label: string }[] = [];
@@ -125,6 +128,9 @@ export namespace SharedSchedulerJsCalendar {
             const service = this.injector.get(Service);
             const edge = service.currentEdge();
             const config = edge.getConfigSignal()();
+            if (config == null) {
+                return null;
+            }
             return (
                 oneTask.payload.controllerIds
                     ?.map((controllerId) => {
