@@ -549,6 +549,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 },
                 {
                     type: "date-time-line",
+                    onlyFutureValuesAllowed: true,
                     defaultLabel: translate.instant("EDGE.INDEX.RETROFITTING.SELECT_A_DATE"),
                     label: (controlValue: string | number | null): string => {
                         if (typeof controlValue !== "string") {

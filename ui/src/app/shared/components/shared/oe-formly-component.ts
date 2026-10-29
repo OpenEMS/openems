@@ -731,5 +731,7 @@ export namespace OeFormlyField {
         controlName: string;
         label: (controlValue: number | string | null) => string;
         defaultLabel?: string;
+        /** Indicates whether only future values are allowed to be set */
+        onlyFutureValuesAllowed?: boolean;
     };
 }
