@@ -4,7 +4,7 @@ import { IonInput, IonRange } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { filter, finalize, take, takeUntil } from "rxjs/operators";
+import { filter, take, takeUntil } from "rxjs/operators";
 import { RouteService } from "../../service/route/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
@@ -66,9 +66,6 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
                 .pipe(
                     filter((config) => !!config),
                     takeUntil(this.stopOnDestroy),
-                    finalize(() => {
-                        this.navigationService.headerTitle.set(null);
-                    }),
                 )
                 .subscribe(async (config) => {
                     const view = await this.generateView({
@@ -79,6 +76,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
                     this.view.set(view);
                     this.form.set(this.getFormGroup());
                     this.setFields(view, this.form(), this.service.websocket);
+                    this.ngOnInit();
                 });
         });
 
@@ -93,11 +91,16 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
 
     ngOnInit() {
         const view = this.view();
-        const title = view?.isCommonWidget != null ? view.title : null;
-        this.navigationService.headerTitle.set(title);
+        this.navigationService.headerTitle.set({
+            text: view?.useCiFont ? view!.title : null,
+            useCiFont: view?.useCiFont ?? false,
+        });
     }
 
     public async ngOnDestroy() {
+        if (this.navigationService.headerTitle().text === this.view()!.title) {
+            this.navigationService.headerTitle.set({ text: null });
+        }
         this.initializeView();
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
@@ -385,7 +388,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
                                     : {}),
                             },
                             required: true,
-                            options: [{ line: el }],
+                            options: [{ line: el, ...(view.useCiFont != null ? { useCiFont: view.useCiFont } : {}) }],
                         },
                         hooks: {
                             onInit: (field) => {
@@ -427,7 +430,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
                                       },
                                   }
                                 : {}),
-                            ...(view.isCommonWidget != null ? { isCommonWidget: view.isCommonWidget } : {}),
+                            ...(view.useCiFont != null ? { useCiFont: view.useCiFont } : {}),
                         },
                     ],
                     onSubmit: (fg: FormGroup) => {
@@ -457,7 +460,7 @@ export type ViewContext = Readonly<{
 export type OeFormlyView<T = unknown> = {
     title: string;
     lines: OeFormlyField<T>[];
-    isCommonWidget?: boolean;
+    useCiFont?: boolean;
     helpKey?: string | null;
     icon?: Icon;
     component?: EdgeConfig.Component | null;

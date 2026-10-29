@@ -80,7 +80,7 @@
       <ion-list class="ion-no-padding-bottom">
         @if ((service.metadata | async)?.user; as user) {
           <ion-item tabindex="0" button routerLinkActive="active" (keydown.enter)="navigateToUser()" (click)="navigateToUser()">
-            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline"> </ion-icon>
+            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="oe-user"> </ion-icon>
             <ion-label>
               <p style="color: var(--ion-text-color); font-weight: bold">
                 {{ user.name }}

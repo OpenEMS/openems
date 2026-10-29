@@ -31,6 +31,9 @@ export interface Environment {
     };
     readonly icons: {
         readonly COMMON: {
+            readonly USER: string;
+            readonly SETTINGS: string;
+            readonly COCKPIT: string;
             readonly FAVORITES: string;
             readonly FAVORITES_FILLED: string;
             readonly CONSUMPTION: string;

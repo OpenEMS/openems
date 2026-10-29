@@ -109,7 +109,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
+            useCiFont: true,
         };
     }
 

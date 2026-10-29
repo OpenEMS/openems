@@ -96,7 +96,7 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             NavigationId.LIVE,
             { baseString: "live" },
-            { name: "home-outline" },
+            { name: "oe-cockpit" },
             translate.instant("MENU.COCKPIT"),
             "icon",
             [production, consumption, storage, grid, weather]
@@ -111,7 +111,7 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             "profile",
             { baseString: "profile" },
-            { name: "person-outline" },
+            { name: "oe-user" },
             translate.instant("MENU.PROFILE"),
             "icon",
             [
@@ -119,7 +119,7 @@ export namespace SharedBottomNavigationBar {
                 new NavigationTree(
                     "profile-settings",
                     { baseString: "settings" },
-                    { name: "cog-outline" },
+                    { name: "oe-settings" },
                     translate.instant("MENU.EDGE_SYSTEM_SETTINGS"),
                     "label",
                     [],

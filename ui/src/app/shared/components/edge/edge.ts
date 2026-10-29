@@ -588,7 +588,7 @@ export class Edge {
         ) => [
             NavigationId.ROOT,
             { baseString: "device/" + edge.id },
-            { name: "home-outline" },
+            { name: "oe-cockpit" },
             "root",
             "icon",
             sharedBottomNavigationBarTree,

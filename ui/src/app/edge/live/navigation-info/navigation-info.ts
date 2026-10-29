@@ -239,8 +239,8 @@ export class NavigationInfoComponent extends AbstractModal {
     }
 
     private setHeaderTitle(): void {
-        this.navigationService.headerTitle.set(
-            this.translate.instant(this.isGlobalInfo() ? "GENERAL.HELP" : "GENERAL.INFO"),
-        );
+        this.navigationService.headerTitle.set({
+            text: this.translate.instant(this.isGlobalInfo() ? "GENERAL.HELP" : "GENERAL.INFO"),
+        });
     }
 }

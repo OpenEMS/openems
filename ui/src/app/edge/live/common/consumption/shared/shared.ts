@@ -239,7 +239,7 @@ export namespace SharedConsumption {
         return {
             title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
-            isCommonWidget: true,
+            useCiFont: true,
             lines: lines,
             component: new EdgeConfig.Component(),
         };
@@ -357,11 +357,10 @@ export namespace SharedConsumption {
         });
 
         return {
-            title: translate.instant("GENERAL.CONSUMPTION"),
+            title: translate.instant("EDGE.HISTORY.PHASE_ACCURATE"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
         };
     }
 }

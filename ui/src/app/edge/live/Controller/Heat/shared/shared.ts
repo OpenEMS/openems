@@ -227,15 +227,7 @@ export namespace SharedControllerHeat {
                     ],
                     null,
                 ),
-                new NavigationTree(
-                    component.id + "-settings",
-                    { baseString: "settings" },
-                    { name: "cog-outline" },
-                    translate.instant("MENU.SETTINGS"),
-                    "label",
-                    [],
-                    null,
-                ),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
             );
         }
 

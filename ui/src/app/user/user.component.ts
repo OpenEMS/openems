@@ -53,9 +53,7 @@ export class UserComponent implements OnInit {
     protected readonly environment = environment;
     protected readonly uiVersion = Changelog.UI_VERSION;
     protected readonly languages: Language[] = Language.ALL;
-    protected readonly isThemeSelectionAvailable = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(
-        environment.theme,
-    );
+    protected readonly isThemeSelectionAvailable = ["OpenEMS", "FENECON", "FENECONBeta"].includes(environment.theme);
     protected currentLanguage: Language;
     protected isEditModeDisabled: boolean = true;
     protected form: { formGroup: FormGroup; model: UserInformation | CompanyUserInformation };
@@ -127,16 +125,10 @@ export class UserComponent implements OnInit {
     } // Theme as of "Light","Dark" or "System" Themes.
 
     public static getNavigationTree(user: User): NavigationTree {
-        return new NavigationTree(
-            "user",
-            { baseString: "user" },
-            { name: "person-outline" },
-            user.name,
-            "label",
-            [],
-            null,
-            { showOrder: "LOW", hideFavorite: true },
-        );
+        return new NavigationTree("user", { baseString: "user" }, { name: "oe-user" }, user.name, "label", [], null, {
+            showOrder: "LOW",
+            hideFavorite: true,
+        });
     }
 
     ngOnInit() {

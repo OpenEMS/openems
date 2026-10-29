@@ -1,4 +1,4 @@
-import { analyticsOutline, alertCircleOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, flame, heart, heartOutline, informationCircleOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
+import { alertCircleOutline, analyticsOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, cogOutline, flame, heart, heartOutline, homeOutline, informationCircleOutline, personOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -11,6 +11,9 @@ export const OemMeta: BaseMeta = {
     },
     icons: {
         COMMON: {
+            USER: personOutline,
+            SETTINGS: cogOutline,
+            COCKPIT: homeOutline,
             CONSUMPTION: "assets/img/icon/consumption.svg",
             SELFCONSUMPTION: bagCheckOutline,
             GENERATOR: "assets/img/icon/generator.svg",

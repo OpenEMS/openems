@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PlatFormService } from "src/app/platform.service";
@@ -23,12 +23,14 @@ export class EmptyPageComponent implements OnInit, OnDestroy {
         if (currentNode == null) {
             return;
         }
-        this.navigationService.headerTitle.set(
-            NavigationLabelLineComponent.getDisplayLabel(currentNode.label, this.platFormService),
-        );
+        const headerTitle = NavigationLabelLineComponent.getDisplayLabel(currentNode.label, this.platFormService);
+        this.navigationService.headerTitle.set({
+            text: headerTitle,
+            useCiFont: true,
+        });
     }
 
     ngOnDestroy() {
-        this.navigationService.headerTitle.set(null);
+        this.navigationService.headerTitle.set({ text: null });
     }
 }

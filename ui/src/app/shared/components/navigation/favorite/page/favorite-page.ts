@@ -71,9 +71,11 @@ export class FavoritePageComponent implements OnDestroy {
             if (currentNode == null) {
                 return;
             }
-            this.navigationService.headerTitle.set(
-                NavigationLabelLineComponent.getDisplayLabel(currentNode.label, this.platFormService),
-            );
+            const headerTitle = NavigationLabelLineComponent.getDisplayLabel(currentNode.label, this.platFormService);
+            this.navigationService.headerTitle.set({
+                text: headerTitle,
+                useCiFont: true,
+            });
         });
     }
 
@@ -94,6 +96,6 @@ export class FavoritePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.navigationService.headerTitle.set(null);
+        this.navigationService.headerTitle.set({ text: null });
     }
 }
