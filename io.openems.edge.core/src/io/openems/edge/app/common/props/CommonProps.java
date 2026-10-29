@@ -23,6 +23,8 @@ import io.openems.edge.meter.api.PhaseRotation;
 
 public final class CommonProps {
 
+	public static final String MASKED_PASSWORD = "xxx";
+
 	private CommonProps() {
 	}
 

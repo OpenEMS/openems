@@ -43,6 +43,7 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenems
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -630,7 +631,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				JsonElement value = null;
 				if (property.isPassword()) {
 					// hide Password fields
-					value = new JsonPrimitive("xxx");
+					value = new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 
 				} else {
 					// get configured value

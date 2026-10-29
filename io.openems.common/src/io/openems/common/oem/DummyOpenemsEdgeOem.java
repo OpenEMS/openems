@@ -190,6 +190,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Tariff.SpotTariff", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.TimeOfUseTariff.AncillaryCosts", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //

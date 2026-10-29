@@ -145,7 +145,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 									.addProperty("ess.id", "ess0") //
 									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "Tariff.BySpotTariff.GridBuy",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("biddingZone", biddingZone) //
 									.addProperty("ancillaryCosts", ancillaryCosts) //
@@ -153,6 +153,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			);
 
 			return AppConfiguration.create() //
+					.addDependency(SpotTariffVendor.dependency()) //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEssTimeOfUseTariffId,
 							"Controller.Ess.Time-Of-Use-Tariff", this.getAppId()))) //

@@ -87,7 +87,7 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 										if (s.isEmpty()) {
 											return null;
 										}
-										return new JsonPrimitive("xxx");
+										return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 									})//
 									.orElse(null);
 						}))),
@@ -147,9 +147,10 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Swisspower",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("meteringCode", meteringCode) //
-									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
-										b.addProperty("accessToken", accessToken);
-									}) //
+									.onlyIf(accessToken != null && !accessToken.equals(CommonProps.MASKED_PASSWORD),
+											b -> {
+												b.addProperty("accessToken", accessToken);
+											}) //
 									.build())//
 			);
 

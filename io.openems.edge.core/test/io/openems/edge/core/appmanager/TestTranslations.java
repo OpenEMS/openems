@@ -18,6 +18,7 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.core.GridFeedInLimitationType;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
@@ -75,7 +76,7 @@ class TestTranslations {
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybrid10(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("USER_KEY", "xxx") //
+					.addProperty("USER_KEY", CommonProps.MASKED_PASSWORD) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybridGW(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("HAS_DC_PV1", "true") //
@@ -115,6 +116,10 @@ class TestTranslations {
 					.addProperty("BIDDING_ZONE", "GERMANY") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.spotTariffVendor(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("PRICE_SOURCE", "ENTSOE") //
+					.addProperty("ACCESS_TOKEN", "token") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.octopusGo(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("STANDARD_PRICE", 27.6) //

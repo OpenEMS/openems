@@ -87,7 +87,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 										if (s.isEmpty()) {
 											return null;
 										}
-										return new JsonPrimitive("xxx");
+										return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 									})//
 									.orElse(null);
 						}))), //
@@ -156,9 +156,10 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //
-									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
-										b.addProperty("accessToken", accessToken);
-									}) //
+									.onlyIf(accessToken != null && !accessToken.equals(CommonProps.MASKED_PASSWORD),
+											b -> {
+												b.addProperty("accessToken", accessToken);
+											}) //
 									.addProperty("filter", filter) //
 									.build())//
 			);

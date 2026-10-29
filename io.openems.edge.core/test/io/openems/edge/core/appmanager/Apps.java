@@ -136,6 +136,7 @@ import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.Ews;
 import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
+import io.openems.edge.app.timeofusetariff.SpotTariffVendor;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Swisspower;
@@ -409,6 +410,16 @@ public final class Apps {
 	 */
 	public static final GroupeE groupeE(AppManagerTestBundle t) {
 		return app(t, GroupeE::new, "App.TimeOfUseTariff.GroupeE");
+	}
+
+	/**
+	 * Test method for creating a {@link SpotTariffVendor}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SpotTariffVendor spotTariffVendor(AppManagerTestBundle t) {
+		return app(t, SpotTariffVendor::new, "App.Tariff.SpotTariff");
 	}
 
 	/**
