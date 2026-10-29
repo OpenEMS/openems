@@ -176,7 +176,7 @@ public class EnergyScheduler {
 
 					if (period.gridBuySoftLimit() != null) {
 						// Try setting GridMaxBuy to GridBuySoftLimit
-						ef.setGridMaxBuy(period.gridBuySoftLimit());
+						ef.setGridLessOrEquals(period.gridBuySoftLimit());
 					}
 
 					if (isFinalRun) {
@@ -271,7 +271,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyBalancing(EnergyFlow.Model model) {
 		final int target = -model.getSurplus();
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyDelayDischarge(EnergyFlow.Model model) {
 		final int target = min(0, -model.getSurplus());
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -294,7 +294,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyChargeGrid(EnergyFlow.Model model, int chargeEnergy) {
 		final int target = min(0, -model.getSurplus()) - chargeEnergy;
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -306,7 +306,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyDischargeGrid(EnergyFlow.Model model, int dischargeEnergy) {
 		final int target = max(0, -model.getSurplus()) + dischargeEnergy;
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -317,7 +317,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyDelayCharge(EnergyFlow.Model model) {
 		final int target = -min(0, model.getSurplus());
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class EnergyScheduler {
 		final int target = (limitChargeEnergy != null) //
 				? -min(limitChargeEnergy, model.getSurplus()) //
 				: -model.getSurplus();
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class EnergyScheduler {
 	 */
 	public static void applyDischargeConsumption(EnergyFlow.Model model) {
 		final int target = model.getConsumption();
-		model.setEss(target);
+		model.commitEss(target);
 	}
 
 	private static Integer calculateLimitChargeEnergy(//
