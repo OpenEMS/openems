@@ -32,6 +32,7 @@ import fr from "./shared/i18n/fr.json";
 import ja from "./shared/i18n/ja.json";
 import lt from "./shared/i18n/lt.json";
 import nl from "./shared/i18n/nl.json";
+import sv from "./shared/i18n/sv.json";
 
 @NgModule({
     imports: [
@@ -74,6 +75,7 @@ export class ControllerEvseSingle {
             ja: ja,
             lt: lt,
             nl: nl,
+            sv: sv,
         }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);

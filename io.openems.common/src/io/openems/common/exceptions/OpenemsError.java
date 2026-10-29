@@ -341,7 +341,7 @@ public enum OpenemsError {
 		final var availableLanguage = switch (language) {
 		case null -> Language.DEFAULT;
 		// Translations are not available -> fall back to ENGLISH
-		case CS, ES, FR, NL, JA, LT -> Language.EN;
+		case CS, ES, FR, NL, JA, LT, SV -> Language.EN;
 		case DE, EN -> language;
 		};
 

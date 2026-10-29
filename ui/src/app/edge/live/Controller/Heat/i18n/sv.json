@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Valt läge"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "Inte tillgänglig i läget endast läsning."
+        },
+        "SCHEDULE": {
+            "END_TEMPERATURE": "Sluttemperatur",
+            "MANUAL_EVENTS": "Manuella händelser",
+            "MODE": "Värmeläge",
+            "MODE_SELECTION_PLACEHOLDER": "Välj",
+            "SCHEDULE": "Schema",
+            "SMART_EVENT": "Smart händelse",
+            "SMART_EVENTS": "Smarta händelser",
+            "SMART_EVENT_END": "Imorgon 07:00"
+        },
+        "SETTINGS": {
+            "MODE": {
+                "FAST_HEAT": {
+                    "DESCRIPTION": "Värmestaven väljer automatiskt motsvarande värmeläge.\nMaximal effekttid är 10 timmar.\nDärefter görs en 1 timmes paus.",
+                    "TITLE": "Snabbvärme"
+                },
+                "OFF": {
+                    "TITLE": "Ingen uppvärmning"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "Möjliggör jämn uppvärmning av olika bufferttankar. Aktiveringen sker automatiskt, perfekt anpassad till ditt överskott och tillgänglig PV-energi.",
+                    "TITLE": "PV-överskott"
+                }
+            },
+            "NO_SETTINGS_AVAILABLE": "Inga inställningar tillgängliga."
+        }
+    }
+}
