@@ -9,6 +9,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
 		IDLE(1), //
 		PREPARE(2), //
+		PREPARE_PRECHARGE(15), //
 		REFERENCE_CYCLE_CHARGING(3), //
 		REFERENCE_CYCLE_CHARGING_WAIT(4), //
 		REFERENCE_CYCLE_DISCHARGING(5), //
@@ -58,6 +59,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		return switch (state) {
 		case IDLE -> new IdleHandler();
 		case PREPARE -> new PrepareHandler();
+		case PREPARE_PRECHARGE -> new PreparePrechargeHandler();
 		case REFERENCE_CYCLE_CHARGING -> new ReferenceCycleChargingHandler();
 		case REFERENCE_CYCLE_CHARGING_WAIT -> new ReferenceCycleChargingWaitHandler();
 		case REFERENCE_CYCLE_DISCHARGING -> new ReferenceCycleDischargingHandler();

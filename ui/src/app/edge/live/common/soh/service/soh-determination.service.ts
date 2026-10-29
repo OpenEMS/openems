@@ -29,6 +29,7 @@ enum SohCycleStateMachine {
     EVALUATE_RESULT = 12,
     DONE = 13,
     ERROR_ABORT = 14,
+    PREPARE_PRECHARGE = 15,
 }
 
 export interface SohCycleState {

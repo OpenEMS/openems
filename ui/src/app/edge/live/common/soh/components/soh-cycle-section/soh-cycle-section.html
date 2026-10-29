@@ -53,15 +53,18 @@
         }
       } @else {
         <ion-grid class="soh-restart-block ion-no-padding" id="restart-block">
+          <ion-row class="ion-padding ion-no-padding-bottom">
+            <oe-checkbox [form]="{ formGroup: pvOffFormGroup, controlName: 'pvOffConfirmed' }" [attributes]="{ labelPlacement: 'start', text: 'STORAGE.ADMIN_MODAL.SOH.PV_OFF_CONFIRMATION' | translate }" (setFormGroup)="setPvOffFormGroup($event)" ngClass="ion-font-size-small"> </oe-checkbox>
+          </ion-row>
           @if (isSohCycleCapacityMeasured) {
             <oe-modal-line [name]="'STORAGE.ADMIN_MODAL.SOH.SOH_PERCENT' | translate" [formGroup]="sohCycleControllerFormGroup" controlName="sohPercent" [control]="{ type: 'TEXT', valueConverter: Converter.STATE_IN_PERCENT }"> </oe-modal-line>
             <oe-modal-line [name]="'STORAGE.ADMIN_MODAL.SOH.MEASURED_CAPACITY' | translate" [formGroup]="sohCycleControllerFormGroup" controlName="measuredCapacity" [control]="{ type: 'TEXT', valueConverter: Converter.TO_WATT_HOURS }"> </oe-modal-line>
             <ion-item lines="none" class="soh-restart-action">
-              <ion-button translate (click)="showRestartConfirmation()"> STORAGE.ADMIN_MODAL.BUTTONS.RESTART</ion-button>
+              <ion-button translate [disabled]="!isPvOffConfirmed" (click)="showRestartConfirmation()"> STORAGE.ADMIN_MODAL.BUTTONS.RESTART</ion-button>
             </ion-item>
           } @else {
             <ion-item lines="none" class="soh-restart-action">
-              <ion-button translate (click)="startSohCycle()"> STORAGE.ADMIN_MODAL.BUTTONS.START</ion-button>
+              <ion-button translate [disabled]="!isPvOffConfirmed" (click)="startSohCycle()"> STORAGE.ADMIN_MODAL.BUTTONS.START</ion-button>
             </ion-item>
           }
         </ion-grid>
