@@ -8,7 +8,6 @@ import { FieldWrapper } from "@ngx-formly/core";
     standalone: false,
 })
 export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implements OnInit {
-
     protected secondLabel: string | undefined;
 
     public ngOnInit() {

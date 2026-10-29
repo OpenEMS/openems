@@ -26,16 +26,9 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  * ```
  */
 export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
-
-
     private static METHOD: string = "queryHistoricTimeseriesEnergyPerPeriod";
 
-    public constructor(
-        fromDate: Date,
-        toDate: Date,
-        channels: ChannelAddress[],
-        resolution: Resolution,
-    ) {
+    public constructor(fromDate: Date, toDate: Date, channels: ChannelAddress[], resolution: Resolution) {
         super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
@@ -44,6 +37,4 @@ export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
             resolution: resolution,
         });
     }
-
 }
-

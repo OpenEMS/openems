@@ -1,8 +1,8 @@
 {
     "FAVORITES": {
         "ADDED_FAVORITE": "Toegevoegd",
-        "DESCRIPTION_OWNER": "Markeer content met het hartje, zodat u deze later makkelijk terugvindt. Uw selectie verschijnt hier.",
         "DESCRIPTION_OTHERS": "De eigenaar van het systeem kan content markeren als favoriet met het hartje-icoon. Zo is deze later hier makkelijk terug te vinden.",
+        "DESCRIPTION_OWNER": "Markeer content met het hartje, zodat u deze later makkelijk terugvindt. Uw selectie verschijnt hier.",
         "INFO": "Houd belangrijke zaken in de gaten",
         "REMOVED_FAVORITE": "Verwijderd"
     }
