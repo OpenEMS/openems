@@ -26,23 +26,27 @@ public interface HekatronB9X2 extends OpenemsComponent, ModbusComponent {
 				.translationKey(HekatronB9X2.class, "relayMalfunctionActive")), //
 		RELAY_CONTAINER_ALARM(Doc.of(Level.FAULT)//
 				.translationKey(HekatronB9X2.class, "relayContainerAlarm")), //
-        RELAY_CONTAINER_ALARM_SHUTDOWN(Doc.of(Level.WARNING)//
-                .translationKey(HekatronB9X2.class, "relayContainerAlarmShutdown")), //
+		RELAY_CONTAINER_ALARM_SHUTDOWN(Doc.of(Level.WARNING)//
+				.translationKey(HekatronB9X2.class, "relayContainerAlarmShutdown")), //
 		RELAY_CONTAINER_SHUTDOWN(Doc.of(Level.WARNING)//
 				.translationKey(HekatronB9X2.class, "relayContainerShutdown")), //
 		RELAY_CONTAINER_ACTIVE(Doc.of(Level.INFO)//
 				.translationKey(HekatronB9X2.class, "relayContainerActive")), //
-        EXTINGUISHING_SYSTEM_SHUTDOWN(Doc.of(Level.WARNING)//
-                .translationKey(HekatronB9X2.class, "extinguishingSystemShutdown")), //
-        EXTINGUISHING_ACTIVATED(Doc.of(Level.FAULT)//
-                .translationKey(HekatronB9X2.class, "extinguishingActivated")), //
+		EXTINGUISHING_SYSTEM_SHUTDOWN(Doc.of(Level.WARNING)//
+				.translationKey(HekatronB9X2.class, "extinguishingSystemShutdown")), //
+		EXTINGUISHING_ACTIVATED(Doc.of(Level.FAULT)//
+				.translationKey(HekatronB9X2.class, "extinguishingActivated")), //
 		DETECTOR_1_ALARM(Doc.of(Level.FAULT)//
+				.translationKey(HekatronB9X2.class, "detector1Alarm")), //
+		DETECTOR_1_ALARM_BIT9(Doc.of(Level.FAULT)//
 				.translationKey(HekatronB9X2.class, "detector1Alarm")), //
 		DETECTOR_1_MALFUNCTION(Doc.of(Level.INFO)//
 				.translationKey(HekatronB9X2.class, "detector1Malfunction")), //
 		DETECTOR_1_SHUTDOWN(Doc.of(Level.WARNING)//
 				.translationKey(HekatronB9X2.class, "detector1Shutdown")), //
 		DETECTOR_2_ALARM(Doc.of(Level.FAULT)//
+				.translationKey(HekatronB9X2.class, "detector2Alarm")), //
+		DETECTOR_2_ALARM_BIT9(Doc.of(Level.FAULT)//
 				.translationKey(HekatronB9X2.class, "detector2Alarm")), //
 		DETECTOR_2_MALFUNCTION(Doc.of(Level.INFO)//
 				.translationKey(HekatronB9X2.class, "detector2Malfunction")), //
@@ -62,14 +66,14 @@ public interface HekatronB9X2 extends OpenemsComponent, ModbusComponent {
 				.translationKey(HekatronB9X2.class, "mainAlarm")), //
 		MAIN_ALARM_MESSAGE_DISABLED(Doc.of(Level.WARNING)//
 				.translationKey(HekatronB9X2.class, "mainAlarmMessageDisabled")), //
-        EXTINGUISHING_SYSTEM_INTERFACE_SHUTDOWN(Doc.of(Level.WARNING)//
-                .translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceShutdown")), //
-        EXTINGUISHING_SYSTEM_INTERFACE_ACTIVATED(Doc.of(Level.INFO)//
-                .translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceActivated")), //
-        EXTINGUISHING_SYSTEM_BLOCK_SHUTDOWN(Doc.of(Level.WARNING)//
-                .translationKey(HekatronB9X2.class, "extinguishingSystemBlockShutdown")), //
-        EXTINGUISHING_SYSTEM_INTERFACE_BLOCKED(Doc.of(Level.INFO)//
-                .translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceBlocked")), //
+		EXTINGUISHING_SYSTEM_INTERFACE_SHUTDOWN(Doc.of(Level.WARNING)//
+				.translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceShutdown")), //
+		EXTINGUISHING_SYSTEM_INTERFACE_ACTIVATED(Doc.of(Level.INFO)//
+				.translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceActivated")), //
+		EXTINGUISHING_SYSTEM_BLOCK_SHUTDOWN(Doc.of(Level.WARNING)//
+				.translationKey(HekatronB9X2.class, "extinguishingSystemBlockShutdown")), //
+		EXTINGUISHING_SYSTEM_INTERFACE_BLOCKED(Doc.of(Level.INFO)//
+				.translationKey(HekatronB9X2.class, "extinguishingSystemInterfaceBlocked")), //
 
 		;
 
