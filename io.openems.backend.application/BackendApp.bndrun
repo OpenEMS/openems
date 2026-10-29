@@ -66,6 +66,7 @@
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
 	bnd.identity;id='io.openems.core.logger',\
 	bnd.identity;id='io.openems.core.referencetarget',\
+	bnd.identity;id='io.prometheus.metrics-tracer-initializer',\
 
 -runbundles: \
 	com.fasterxml.aalto-xml;version='[1.4.0,1.4.1)',\
@@ -134,6 +135,9 @@
 	io.prometheus.metrics-instrumentation-jvm;version='[1.10.0,1.10.1)',\
 	io.prometheus.metrics-model;version='[1.10.0,1.10.1)',\
 	io.prometheus.metrics-tracer-common;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-tracer-initializer;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-tracer-otel;version='[1.10.0,1.10.1)',\
+	io.prometheus.metrics-tracer-otel-agent;version='[1.10.0,1.10.1)',\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
 	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\
 	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
