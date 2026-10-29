@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "Nematote teisingo adreso sąraše? Redaguokite aukščiau pateiktą informaciją ir atlikite patvirtinimą dar kartą.",
+        "ADDRESS_LIST_NOTE_PROFILE": "Nematote teisingo adreso sąraše? Jei reikia, pakeiskite aukščiau esančius duomenis ir atlikite patvirtinimą dar kartą.",
+        "ADDRESS_LIST_TITLE": "Kuris adresas atitinka {{ edgeShortName }}{{ id }} vietą?",
+        "APPLY_BUTTON_LABEL": "Taikyti",
+        "BUTTON_LABEL_INSTALLATION": "Atlikti patvirtinimą",
+        "BUTTON_LABEL_PROFILE": "Patvirtinti adresą",
+        "GEO_CODE_RESULT_LABEL": "Pasirinkite atitinkamą adresą:",
+        "UNKNOWN_ADDRESS": "Visoms funkcijoms naudoti koordinatės vėliau įvedamos rankiniu būdu sistemos nustatymuose."
+    }
+}

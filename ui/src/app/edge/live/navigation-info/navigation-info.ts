@@ -16,6 +16,7 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
 
 type IconWithRequiredName = Required<Pick<Icon, "name">> & Partial<Omit<Icon, "name">>;
@@ -52,13 +53,20 @@ const EVSE_DOC_LINKS = {
 } as const;
 
 function initializeNavigationInfoTranslations(translate: TranslateService): void {
-    void Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-        (translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        },
-    );
+    void Language.normalizeAdditionalTranslationFiles({
+        cs: cz,
+        de: de,
+        en: en,
+        es: es,
+        fr: fr,
+        ja: ja,
+        lt: lt,
+        nl: nl,
+    }).then((translations) => {
+        for (const { lang, translation, shouldMerge } of translations) {
+            translate.setTranslation(lang, translation, shouldMerge);
+        }
+    });
 }
 
 function isEvseDocLink(factoryId: string | null): factoryId is keyof typeof EVSE_DOC_LINKS {

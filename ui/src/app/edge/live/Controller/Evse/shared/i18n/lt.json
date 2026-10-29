@@ -1,0 +1,73 @@
+{
+    "EVSE_SINGLE": {
+        "HOME": {
+            "ACTUAL_MODE": {
+                "LABEL": "Dabartinis režimas"
+            },
+            "ENERGY_SINCE_START": "Energija nuo paskutinio įkrovimo pradžios",
+            "MODE": {
+                "FORCE": "Greitas",
+                "LABEL": "Pagrindinis režimas",
+                "MINIMUM": "Minimalus",
+                "SURPLUS": "PV",
+                "ZERO": "Išjungta"
+            },
+            "POWER": "Galia",
+            "STATE_MACHINE": {
+                "CHARGING": "Įkrovimas",
+                "EV_CONNECTED": "EV prijungtas",
+                "EV_NOT_CONNECTED": "EV neprijungtas",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Įkrovimas baigtas pagal energijos limitą",
+                "FINISHED_EV_STOP": "Įkrovimas baigtas transporto priemonės",
+                "LABEL": "Būsena",
+                "PHASE_SWITCH": "Rankinis fazių perjungimas",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Perjungti į vienfazį",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Perjungti į trifazį"
+            },
+            "VEHICLES": "Programų centro transporto priemonės"
+        },
+        "SCHEDULE": {
+            "ACCEPT": "Priimti",
+            "ADD": "Pridėti",
+            "ADD_ERROR": "Užduoties nepavyko pridėti",
+            "ADD_SUCCESS": "Užduotis sėkmingai pridėta",
+            "DAY": {
+                "FRIDAY": "Penktadienis",
+                "MONDAY": "Pirmadienis",
+                "SATURDAY": "Šeštadienis",
+                "SUNDAY": "Sekmadienis",
+                "THURSDAY": "Ketvirtadienis",
+                "TUESDAY": "Antradienis",
+                "WEDNESDAY": "Trečiadienis"
+            },
+            "DELETE": "Ištrinti",
+            "DELETE_ERROR": "Užduoties nepavyko ištrinti",
+            "DELETE_SUCCESS": "Užduotis sėkmingai ištrinta",
+            "DURATION": "Trukmė",
+            "EDIT": "Redaguoti",
+            "EDIT_ERROR": "Užduoties nepavyko pritaikyti",
+            "EDIT_SUCCESS": "Užduotis sėkmingai pritaikyta",
+            "END": "Pabaiga",
+            "FREQ": {
+                "DAILY": "Kasdien",
+                "MONTHLY": "Kas mėnesį",
+                "WEEKLY": "Kas savaitę",
+                "YEARLY": "Kasmet"
+            },
+            "FREQUENCY": "Kartojimas",
+            "MODE": "Įkrovimo režimas",
+            "MODE_SELECTION_PLACEHOLDER": "Pasirinkite",
+            "SMART_EVENT_TITLE": "Išmanusis {{kwh}} kWh įkrovimas",
+            "START": "Pradžia",
+            "VALIDATION_ERROR_1": "Nurodykite pradžios laiką",
+            "VALIDATION_ERROR_2": "Nurodykite pabaigos laiką",
+            "VALIDATION_ERROR_3": "Pasirinkite įkrovimo režimą",
+            "VALIDATION_ERROR_4": "Nurodykite pradžios laiką HH:mm formatu ir tik ketvirčio valandomis (00, 15, 30 arba 45 minutės)",
+            "VALIDATION_ERROR_5": "Nurodykite pabaigos laiką HH:mm formatu ir tik ketvirčio valandomis (00, 15, 30 arba 45 minutės)",
+            "VALIDATION_ERROR_6": "Pabaigos laikas turi būti vėlesnis nei pradžios laikas"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Energijos limitas"
+        }
+    }
+}

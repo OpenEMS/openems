@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "HOME": {
+            "AMBIENT_ACTUAL": "Aplinkos temperatūra",
+            "AMBIENT_TARGET": "Aplinkos pageidaujama temperatūra",
+            "FLOOR_ACTUAL": "Grindo temperatūra",
+            "FLOOR_TARGET": "Grindo pageidaujama temperatūra",
+            "POWER_CONSUMPTION": "Suvartojama galia",
+            "UPCOMING_EVENTS": "Artėjantys įvykiai"
+        },
+        "MODE": {
+            "MANUAL_HIGH": "Aukštas",
+            "MANUAL_LOW": "Žemas",
+            "TITLE": "Šildymo režimas"
+        }
+    }
+}

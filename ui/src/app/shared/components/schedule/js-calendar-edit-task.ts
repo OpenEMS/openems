@@ -14,6 +14,7 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
 
 @Directive()
@@ -31,12 +32,19 @@ export class JsCalendarEditTaskComponent extends AbstractModal {
         public override ref: ChangeDetectorRef,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    this.translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                this.translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 }

@@ -1835,7 +1835,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		// Language was not set -> fall back to default (currently GERMAN)
 		case null -> Language.DEFAULT;
 		// Translations are not available -> fall back to ENGLISH
-		case CS, ES, FR, NL, JA -> Language.EN;
+		case CS, ES, FR, NL, JA, LT -> Language.EN;
 		case DE, EN -> language;
 		};
 

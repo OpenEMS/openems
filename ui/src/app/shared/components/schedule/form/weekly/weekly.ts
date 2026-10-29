@@ -13,6 +13,7 @@ import en from "../../i18n/en.json";
 import es from "../../i18n/es.json";
 import fr from "../../i18n/fr.json";
 import ja from "../../i18n/ja.json";
+import lt from "../../i18n/lt.json";
 import nl from "../../i18n/nl.json";
 import { JsCalendar } from "../../js-calendar-task";
 
@@ -29,13 +30,20 @@ export class TaskFormWeeklyComponent {
     protected readonly spinnerId: string = uuidv4();
 
     constructor(private translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 
     public static readonly WEEK_DAYS = (translate: TranslateService) =>

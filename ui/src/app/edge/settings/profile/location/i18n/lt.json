@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "ADRESS_IS_VALIDATED": "Vieta jau patvirtinta",
+        "EDIT": "Redaguoti",
+        "EDIT_CARD_INFO": "Jūsų sistemos vietos patvirtinimui saugoma tik ilguma ir platuma.",
+        "EDIT_CARD_SUBTITLE": "Vietos duomenys patvirtinami aptarnavimo ir garantijos tikslais.",
+        "EDIT_CARD_TITLE": "Jūsų sistemos vietos patvirtinimas",
+        "LATITUDE": "Platuma",
+        "LOCATION": "Vieta",
+        "LONGITUDE": "Ilguma",
+        "NOT_VALIDATED": "Patvirtinkite savo sistemos vietą.",
+        "SUCCESSFULL_VALIDATION": "Patvirtinimas sėkmingas!",
+        "SYSTEM_LOCATION": "Sistemos vieta",
+        "TO_VALIDATION": "Eiti į patvirtinimą",
+        "VALIDATED": "patvirtinta"
+    }
+}
