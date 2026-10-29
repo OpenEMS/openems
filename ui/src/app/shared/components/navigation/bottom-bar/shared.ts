@@ -57,6 +57,7 @@ export namespace SharedBottomNavigationBar {
 
         const consumptionMetered = config.getComponentsByFactories(
             "Evse.Controller.Single",
+            "Evcs.Cluster.PeakShaving",
             "Controller.IO.HeatingElement",
             "Controller.Io.HeatPump.SgReady",
             "Controller.ChannelThreshold",
@@ -111,7 +112,7 @@ export namespace SharedBottomNavigationBar {
             "profile",
             { baseString: "profile" },
             { name: "person-outline" },
-            "Profil",
+            translate.instant("MENU.PROFILE"),
             "icon",
             [
                 UserComponent.getNavigationTree(user),

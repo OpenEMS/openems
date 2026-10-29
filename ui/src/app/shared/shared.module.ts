@@ -29,6 +29,7 @@ import { FormlyWrapperComponent } from "./components/formly/formly-field-navigat
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlyReorderGroupComponent } from "./components/formly/formly-reorder-group/formly-reorder-group";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 
@@ -335,6 +336,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyReorderGroupComponent,
         FormlyWrapperComponent,
     ],
     declarations: [
@@ -374,6 +376,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         FormlyFieldWithLoadingAnimationComponent,
+        FormlyReorderGroupComponent,
         FormlyIonicModule,
         FormlyModule,
         FormsModule,

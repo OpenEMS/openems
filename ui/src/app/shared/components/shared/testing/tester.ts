@@ -176,6 +176,13 @@ export class OeFormlyViewTester {
                     component: field.component.name,
                 };
             }
+            case "reorder-group-line": {
+                return {
+                    type: field.type,
+                    controlName: field.controlName,
+                    items: field.items,
+                };
+            }
             /** {@link OeFormlyField.ButtonsFromFormControlLine} */
             case "buttons-from-form-control-line": {
                 return {
@@ -469,6 +476,7 @@ export namespace OeFormlyViewTester {
         | Field.RadioButtonsFromFormControlLine
         | Field.ImageLine
         | Field.ComponentLine
+        | Field.ReorderGroupLine
         | Field.InputLine;
 
     export namespace Field {
@@ -534,6 +542,11 @@ export namespace OeFormlyViewTester {
             type: "component-line";
             component: string;
             inputs?: Record<string, unknown>;
+        };
+        export type ReorderGroupLine = {
+            type: "reorder-group-line";
+            controlName: string;
+            items: { value: string; label: string }[];
         };
         export type InputLine = {
             type: "input-line";

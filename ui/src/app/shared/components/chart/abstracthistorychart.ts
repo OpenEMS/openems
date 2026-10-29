@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal, AfterViewInit, AfterContentInit, } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -1290,7 +1290,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     calculateViewHeight(): string {
-        return ViewUtils.getChartContentHeightInVh(this.navigationService.position()) + "dvh";
+        return (
+            ViewUtils.getChartContentHeightInVh(this.navigationService.position(), this.customChartHeightPercentage) +
+            "dvh"
+        );
     }
 
     ngAfterContentInit() {

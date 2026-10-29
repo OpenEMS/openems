@@ -480,6 +480,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.DateTimeLine
     | OeFormlyField.HorizontalLine
     | OeFormlyField.ComponentLine
+    | OeFormlyField.ReorderGroupLine
     | OeFormlyField.WeekdayCheckboxLine
     | OeFormlyField.ValueFromChannelsLine
     | OeFormlyField.ValueFromFormControlLine
@@ -552,6 +553,12 @@ export namespace OeFormlyField {
 
         /** Will be applied on the wrapper component */
         componentWrapperCssClass?: string;
+    };
+
+    export type ReorderGroupLine = {
+        type: "reorder-group-line";
+        controlName: string;
+        items: { value: string; label: string }[];
     };
 
     export type Item = {

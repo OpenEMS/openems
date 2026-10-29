@@ -885,6 +885,7 @@
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
+            "EVCS": "Multiladepunkt Management",
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
             "HEATING_ROOM": "Heizung"
         },

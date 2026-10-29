@@ -885,6 +885,7 @@
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",
             "CHANNEL_SINGLE_THRESHOLD": "Threshold Control",
+            "EVCS": "Multi-Charging Point Management",
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
             "HEATING_ROOM": "Heating"
         },

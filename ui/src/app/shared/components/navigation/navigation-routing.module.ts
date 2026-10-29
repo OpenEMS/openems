@@ -94,6 +94,7 @@ import { ControllerPeakShavingSymmetricTimeSlotHomeComponent } from "src/app/edg
 import { ControllerPeakShavingSymmetricTimeSlotSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/settings/settings";
 import { ControllerEssFixReactivePowerComponent } from "src/app/edge/live/Controller/symmetric/FixReactivePower/new-navigation/new-navigation";
 import { LiveComponent as EdgeLiveComponent } from "src/app/edge/live/live.component";
+import { EvcsApiClusterHomeComponent } from "src/app/edge/live/Multiple/evcs-api-cluster/new-navigation/new-navigation";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -501,18 +502,18 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         },
         {
             path: "controller/evcs-cluster",
-            component: ControllerGroupListComponent,
+            component: EvcsApiClusterHomeComponent,
         },
         {
-            path: "controller/evcs-cluster/evcs/:componentId",
+            path: "controller/evcs-cluster/:componentId",
             component: EvcsHomeComponent,
         },
         {
-            path: "controller/evcs-cluster/evcs/:componentId/settings",
+            path: "controller/evcs-cluster/:componentId/settings",
             component: EvcsSettingsComponent,
         },
         {
-            path: "controller/evcs-cluster/evcs/:componentId/history",
+            path: "controller/evcs-cluster/:componentId/history",
             component: CommonConsumptionSingleHistoryOverviewComponent,
         },
         {

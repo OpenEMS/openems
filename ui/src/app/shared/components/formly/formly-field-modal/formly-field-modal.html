@@ -76,6 +76,10 @@
             @case ("percentage-bar-line") {
               <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value"></oe-flat-widget-percentagebar>
             }
+
+            @case ("reorder-group-line") {
+              <oe-formly-reorder-group [formGroup]="form" [line]="line"></oe-formly-reorder-group>
+            }
           }
         }
       }

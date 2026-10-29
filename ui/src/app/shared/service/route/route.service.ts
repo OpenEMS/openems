@@ -174,7 +174,7 @@ export class RouteService {
     }
 
     public getCurrentUrlRouteSegments(): string[] {
-        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading();
+        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading()?.split("?")[0];
         return (
             cleanedCurrentUrl?.split("/")?.reduce((acc: string[], curr) => {
                 const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
