@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "Triphasé",
                     "HYSTERESIS": "Temps minimal de commutation de la borne de recharge actif",
                     "HYSTERESIS_INFO": "Pour éviter les interruptions de charge dues à des démarrages/pauses trop fréquents du processus de charge, le mode de charge actuellement sélectionné se poursuivra pendant les prochaines minutes.",
-                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée.",
-                    "LINK_TO_DOCUMENTATION": "Plus d'informations",
+                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée. <a class=\"ion-link\" href={{link}} target=\"_blank\">Plus d'informations</a>",
                     "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
                     "MINIMUM": "Surplus photovoltaïque avec charge garantie",
                     "NOT_AUTHORIZED": "Pas Authorisé",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Mode de base",
-                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ».",
+                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ». <a class=\"ion-link\" href={{link}} target=\"_blank\">Plus d'informations</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Ajouter une tâche",
                         "SCHEDULE": "Planification"

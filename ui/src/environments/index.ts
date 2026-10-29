@@ -169,6 +169,7 @@ export interface Environment {
             readonly CONTROLLER_TIMESLOT_PEAKSHAVING: string | null;
 
             readonly EVCS_KEBA: string | null;
+            readonly EVCS_KEBA_HELP: string | null;
             readonly EVCS_HARDY_BARTH: string | null;
             readonly EVCS_MENNEKES: string | null;
             readonly EVSE_ALFEN: string | null;

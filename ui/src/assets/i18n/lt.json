@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "Trifazis",
                     "HYSTERESIS": "Aktyvus minimalus krovimo stotelės perjungimo laikas",
                     "HYSTERESIS_INFO": "Siekiant išvengti krovimo pertraukimų dėl dažno krovimo proceso paleidimo ir pristabdymo, šiuo metu pasirinktas krovimo režimas tęsiamas dar kelias minutes.",
-                    "KEBA_WARNING": "Pastaba: naudojant šį režimą kartu su KEBA P40 šiuo metu gali įvykti klaida. Todėl rekomenduojame šio režimo laikinai nenaudoti ir vietoj to pasirinkti režimą „Automatinis“ su įjungta parinktimi „Garantuoti minimalų įkrovimą“.",
-                    "LINK_TO_DOCUMENTATION": "Daugiau informacijos",
+                    "KEBA_WARNING": "Pastaba: naudojant šį režimą kartu su KEBA P40 šiuo metu gali įvykti klaida. Todėl rekomenduojame šio režimo laikinai nenaudoti ir vietoj to pasirinkti režimą „Automatinis“ su įjungta parinktimi „Garantuoti minimalų įkrovimą“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Daugiau informacijos</a>",
                     "MAX_ENERGY_RESTRICTION": "Riboti maksimalią energiją vienam krovimui",
                     "MINIMUM": "PV perteklius su garantuotu įkrovimu",
                     "NOT_AUTHORIZED": "Neautorizuota",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Pagrindinis režimas",
-                    "KEBA_WARNING": "Pastaba: naudojant šį režimą kartu su KEBA P40 gali įvykti klaida. Todėl rekomenduojame šio režimo šiuo metu nenaudoti ir vietoj to laikinai naudoti režimą „PV perteklius su garantuotu įkrovimu“ arba „Greitas įkrovimas“.",
+                    "KEBA_WARNING": "Pastaba: naudojant šį režimą kartu su KEBA P40 gali įvykti klaida. Todėl rekomenduojame šio režimo šiuo metu nenaudoti ir vietoj to laikinai naudoti režimą „PV perteklius su garantuotu įkrovimu“ arba „Greitas įkrovimas“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Daugiau informacijos</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Pridėti užduotį",
                         "SCHEDULE": "Grafikas"

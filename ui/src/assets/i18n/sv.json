@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "3-fas",
                     "HYSTERESIS": "Laddstationens minsta omkopplingstid aktiv",
                     "HYSTERESIS_INFO": "För att förhindra avbrott i laddningen på grund av frekvent start/pausning av laddprocessen fortsätter det för närvarande valda laddningsläget i några minuter till.",
-                    "KEBA_WARNING": "Obs: Vid användning av detta läge kan det för närvarande uppstå ett fel i kombination med KEBA P40. Vi rekommenderar därför att inte använda detta läge för tillfället och istället välja läget „Automatiskt“ med „Garantera minimal laddning“ aktiverat.",
-                    "LINK_TO_DOCUMENTATION": "Mer information",
+                    "KEBA_WARNING": "Obs: Vid användning av detta läge kan det för närvarande uppstå ett fel i kombination med KEBA P40. Vi rekommenderar därför att inte använda detta läge för tillfället och istället välja läget „Automatiskt“ med „Garantera minimal laddning“ aktiverat. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mer information</a>",
                     "MAX_ENERGY_RESTRICTION": "Begränsa maximal energi per laddning",
                     "MINIMUM": "PV-överskott med garanterad laddning",
                     "NOT_AUTHORIZED": "Inte behörig",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Grundläge",
-                    "KEBA_WARNING": "Obs: Vid användning av detta läge kan det uppstå ett fel i kombination med KEBA P40. Vi rekommenderar därför att inte använda detta läge för närvarande och istället tillfälligt använda läget „PV-överskott med garanterad laddning“ eller „Snabbladdning“.",
+                    "KEBA_WARNING": "Obs: Vid användning av detta läge kan det uppstå ett fel i kombination med KEBA P40. Vi rekommenderar därför att inte använda detta läge för närvarande och istället tillfälligt använda läget „PV-överskott med garanterad laddning“ eller „Snabbladdning“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mer information</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Lägg till uppgift",
                         "SCHEDULE": "Schema"

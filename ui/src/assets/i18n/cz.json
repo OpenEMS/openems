@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "3fázové",
                     "HYSTERESIS": "Minimální doba přepnutí nabíjecí stanice aktivní",
                     "HYSTERESIS_INFO": "Aby se zabránilo přerušení nabíjení v důsledku příliš častého spouštění/pozastavování nabíjení, bude aktuálně zvolený režim nabíjení po dalších několik minut pokračovat.",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“.",
-                    "LINK_TO_DOCUMENTATION": "Více informací",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Více informací</a>",
                     "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
                     "MINIMUM": "Přetok PV se zaručeným nabíjením",
                     "NOT_AUTHORIZED": "Neautorizovaný",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Základní režim",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“.",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Více informací</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Přidat úlohu",
                         "SCHEDULE": "Časový plán"

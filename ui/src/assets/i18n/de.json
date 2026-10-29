@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "3-phasig",
                     "HYSTERESIS": "Mindestumschaltzeit der Ladestation aktiv",
                     "HYSTERESIS_INFO": "Um Ladeabbrüche aufgrund zu häufigen Startens/Pausierens des Ladevorgangs zu verhindern, wird der aktuell eingestellte Lademodus für die nächsten Minuten fortgesetzt.",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen.",
-                    "LINK_TO_DOCUMENTATION": "Mehr Informationen",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es aktuell in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus vorübergehend nicht zu verwenden und stattdessen den Modus „Automatisch“ mit „Minimale Beladung garantieren“ aktiviert zu wählen. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mehr Informationen</a>",
                     "MAX_ENERGY_RESTRICTION": "Maximale Energie pro Ladevorgang begrenzen",
                     "MINIMUM": "PV-Überschuss mit garantierter Beladung",
                     "NOT_AUTHORIZED": "Nicht authorisiert",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Grundmodus",
-                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen.",
+                    "KEBA_WARNING": "Hinweis: Bei der Nutzung dieses Modus kann es in Verbindung mit der KEBA P40 zu einem Fehler kommen. Wir empfehlen daher, diesen Modus derzeit nicht zu verwenden und stattdessen vorübergehend den Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ zu nutzen. <a class=\"ion-link\" href={{link}} target=\"_blank\">Mehr Informationen</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Aufgabe hinzufügen",
                         "SCHEDULE": "Zeitplan"

@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "3-fase",
                     "HYSTERESIS": "Minimale omschakeltijd van het laadstation actief",
                     "HYSTERESIS_INFO": "Om laadonderbrekingen als gevolg van te vaak starten/pauzeren van het laadproces te voorkomen, wordt de huidige laadmodus nog enkele minuten voortgezet.",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren.",
-                    "LINK_TO_DOCUMENTATION": "Meer informatie",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er momenteel een fout optreden in combinatie met de KEBA P40. Wij adviseren daarom deze modus tijdelijk niet te gebruiken en in plaats daarvan de modus „Automatisch“ met „Minimale lading garanderen“ te activeren. <a class=\"ion-link\" href={{link}} target=\"_blank\">Meer informatie</a>",
                     "MAX_ENERGY_RESTRICTION": "Beperk de maximale energie per lading",
                     "MINIMUM": "PV-overschot met gegarandeerde lading",
                     "NOT_AUTHORIZED": "Geen bevoegdheid",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Basismodus",
-                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er een fout optreden in combinatie met de KEBA P40. Wij adviseren deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken.",
+                    "KEBA_WARNING": "Let op: Bij het gebruik van deze modus kan er een fout optreden in combinatie met de KEBA P40. Wij adviseren deze modus voorlopig niet te gebruiken en in plaats daarvan tijdelijk de modus „PV-overschot met gegarandeerde lading“ of „Snel laden“ te gebruiken. <a class=\"ion-link\" href={{link}} target=\"_blank\">Meer informatie</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Taak toevoegen",
                         "SCHEDULE": "Tijdschema"

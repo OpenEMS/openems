@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "Trifásico",
                     "HYSTERESIS": "Tiempo mínimo de conmutación de la estación de carga activo",
                     "HYSTERESIS_INFO": "Para evitar interrupciones de carga debido a arranques/pausas demasiado frecuentes del proceso de carga, el modo de carga seleccionado actualmente continuará durante los próximos minutos.",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada.",
-                    "LINK_TO_DOCUMENTATION": "Más información",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse actualmente un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo temporalmente y elegir en su lugar el modo „Automático“ con la opción „Garantizar carga mínima“ activada. <a class=\"ion-link\" href={{link}} target=\"_blank\">Más información</a>",
                     "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
                     "MINIMUM": "Excedente fotovoltaico con carga garantizada",
                     "NOT_AUTHORIZED": "No autorizado",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Modo básico",
-                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“.",
+                    "KEBA_WARNING": "Nota: Al usar este modo puede producirse un error en combinación con la KEBA P40. Por ello recomendamos no usar este modo por ahora y utilizar temporalmente el modo „Excedente fotovoltaico con carga garantizada“ o „Carga rápida“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Más información</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Añadir tarea",
                         "SCHEDULE": "Programación"

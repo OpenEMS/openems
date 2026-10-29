@@ -337,8 +337,7 @@
                     "FORCE_THREE_PHASE": "3-phase",
                     "HYSTERESIS": "Minimum switching time of the charging station active",
                     "HYSTERESIS_INFO": "For preventing charging interruptions due to frequent starting/pausing of the charing process, the charging mode currently selected will continue for the next few minutes.",
-                    "KEBA_WARNING": "Note: When using this mode, an error may currently occur in combination with the KEBA P40. We therefore recommend not using this mode for the time being and choosing the „Automatic“ mode with „Guarantee minimum charge“ enabled instead.",
-                    "LINK_TO_DOCUMENTATION": "Mehr Informationen",
+                    "KEBA_WARNING": "Note: When using this mode, an error may currently occur in combination with the KEBA P40. We therefore recommend not using this mode for the time being and choosing the „Automatic“ mode with „Guarantee minimum charge“ enabled instead. <a class=\"ion-link\" href={{link}} target=\"_blank\">More information</a>",
                     "MAX_ENERGY_RESTRICTION": "Limit maximum energy per charge",
                     "MINIMUM": "PV Surplus with guaranteed charge",
                     "NOT_AUTHORIZED": "Not authorized",
@@ -380,7 +379,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Base mode",
-                    "KEBA_WARNING": "Note: An error may occur when using this mode in combination with the KEBA P40. We therefore recommend not using this mode for now and using the „PV surplus with guaranteed charge“ or „Fast charging“ mode temporarily instead.",
+                    "KEBA_WARNING": "Note: An error may occur when using this mode in combination with the KEBA P40. We therefore recommend not using this mode for now and using the „PV surplus with guaranteed charge“ or „Fast charging“ mode temporarily instead. <a class=\"ion-link\" href={{link}} target=\"_blank\">More information</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Add task",
                         "SCHEDULE": "Schedule"

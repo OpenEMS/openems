@@ -535,8 +535,8 @@ export namespace OeFormlyField {
         type: "info-line";
         name?: string | { text: string; lineStyle?: string }[];
         html?: string;
+        customClass?: string;
         icon?: Icon;
-        link?: { text: string; href: string };
     };
 
     export type ImageLine = {

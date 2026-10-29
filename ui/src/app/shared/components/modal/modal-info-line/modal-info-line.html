@@ -1,5 +1,5 @@
 @if (info || html) {
-  <ion-row size="12" [style]="rowStyle" class="full_width ion-align-items-center">
+  <ion-row size="12" class="full_width ion-align-items-center" [class]="customClass() ?? ''">
     @if (icon) {
       <ion-col [size]="icon ? 1 : 0">
         <ion-icon [color]="icon?.color ?? 'primary'" [name]="icon?.name ?? 'information-outline'" [size]="icon?.size ?? 'small'"> </ion-icon>
@@ -15,13 +15,10 @@
             @if (info.length > 1) {
               <br />
             }
-            @if (link) {
-              <a [href]="link.href" target="_blank">{{ link.text }}</a>
-            }
           </div>
         }
       } @else {
-        <div [style]="lineStyle">
+        <div>
           {{ info }}
         </div>
       }
