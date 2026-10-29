@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, effect, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { RouteService } from "src/app/shared/service/route/route.service";
 import { Edge, Service } from "src/app/shared/shared";
@@ -17,15 +18,17 @@ import { NavigationTree } from "../shared";
 @Component({
     standalone: true,
     imports: [
-        CommonModule,
-        IonicModule,
+        CommonUiModule,
         TranslateModule,
         PipeComponentsModule,
         NavigationLabelLineComponent,
         ForwardNavigationOptions,
         FavoriteButtonComponent,
+        CommonModule,
+        IonicModule,
     ],
     templateUrl: "./group.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ControllerGroupListComponent {
     protected titleKey = signal<NavigationTree["label"] | null>(null);
@@ -43,12 +46,6 @@ export class ControllerGroupListComponent {
             }
         });
         this.titleKey.set(null);
-    }
-
-    public async navigateTo(componentId: string): Promise<void> {
-        const currentUrl = this.routeService.getCurrentUrl();
-        const cleanedUrl = currentUrl?.split("?")[0] ?? "/";
-        await this.router.navigate([cleanedUrl, componentId]);
     }
 
     private async initialize(edge: Edge): Promise<void> {
@@ -73,6 +70,7 @@ export class ControllerGroupListComponent {
 
         const groupedTree =
             Widgets.GROUPED_FACTORIES[factoryId]?.grouped(this.translate, componentIds, config, factoryId) ?? null;
+
         if (groupedTree == null) {
             return;
         }

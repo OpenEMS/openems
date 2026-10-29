@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from "@angular/core";
+import { Component, computed, effect, inject, OnDestroy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -24,7 +24,7 @@ import nl from "../i18n/nl.json";
     templateUrl: "./favorite-page.html",
     imports: [CommonUiModule, ComponentsBaseModule, ForwardNavigationOptions],
 })
-export class FavoritePageComponent {
+export class FavoritePageComponent implements OnDestroy {
     protected readonly service = inject(Service);
     protected readonly navigationService = inject(NavigationService);
     protected readonly translate = inject(TranslateService);
@@ -91,7 +91,7 @@ export class FavoritePageComponent {
         return newNodes;
     }
 
-    ionViewWillLeave() {
+    ngOnDestroy() {
         this.navigationService.headerTitle.set(null);
     }
 }

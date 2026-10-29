@@ -65,7 +65,8 @@ export class SchedulerJsCalendarAddTaskComponent extends JsCalendarAddTaskCompon
         });
     }
 
-    public ionViewWillEnter() {
+    public override ngOnInit() {
+        super.ngOnInit();
         this.controllerOptions = SharedSchedulerJsCalendar.getControllerOptions(this.service);
     }
 }

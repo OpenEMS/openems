@@ -67,6 +67,7 @@ export class Language {
     constructor(
         public readonly title: string,
         public readonly key: string,
+        /** The i18n locale key used for translations, */
         public readonly i18nLocaleKey: string,
         public readonly json: any,
         // Angular is not providing common type for locale.

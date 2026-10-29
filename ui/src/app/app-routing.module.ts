@@ -1,7 +1,6 @@
 import { inject, NgModule } from "@angular/core";
 import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
-import { EmptyPageComponent } from "src/app/shared/components/navigation/empty-page/empty-page";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
@@ -36,6 +35,7 @@ import { ScheduleComponent } from "./edge/schedule/schedule";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
+import { EmptyPageComponent } from "./shared/components/navigation/empty-page/empty-page";
 import { DataService } from "./shared/components/shared/dataservice";
 import { suffixMatcher } from "./shared/guards/url-matcher";
 import { OAuthCallBackComponent } from "./shared/service/auth/oauthcallback.component";

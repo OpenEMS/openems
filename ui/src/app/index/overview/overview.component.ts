@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, untracked } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
+import { InfiniteScrollCustomEvent } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { NavigationTree } from "src/app/shared/components/navigation/shared";
@@ -8,7 +8,7 @@ import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest"
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, Service, UserPermission, Utils, Websocket } from "src/app/shared/shared";
+import { Edge, Service, UserPermission, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
@@ -21,7 +21,7 @@ import { SUM_STATES } from "../shared/sumState";
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class OverViewComponent implements ViewWillEnter, OnDestroy {
+export class OverViewComponent implements OnDestroy, OnInit {
     public environment = environment;
     /** True, if there is no access to any Edge. */
     public noEdges: boolean = false;
@@ -39,6 +39,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
     private query: string | null = null;
+    private searchGeneration = 0;
 
     /** Limits edges in pagination response */
     private readonly limit: number = 20;
@@ -50,32 +51,23 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     constructor(
         public service: Service,
         public websocket: Websocket,
-        public utils: Utils,
         public translate: TranslateService,
         public pagination: Pagination,
         protected route: ActivatedRoute,
-        private router: Router,
+        protected readonly router: Router,
         private userService: UserService,
-        private platform: Platform,
     ) {
         effect(async () => {
             const user = this.userService.currentUser();
             if (user) {
                 this.loggedInUserCanInstall.set(user.isAtLeast(Role.INSTALLER));
                 this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
-
                 this.filters.set([
                     ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
                     ...(this.loggedInUserCanInstall()
                         ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)]
                         : []),
                 ]);
-                untracked(() => {
-                    this.loadNextPage().then((edges) => {
-                        this.filteredEdges.set(edges);
-                    });
-                });
-                // this.filteredEdges.set(await this.loadNextPage());
             }
         });
     }
@@ -104,23 +96,8 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         );
     }
 
-    ionViewWillEnter() {
-        this.page = 0;
-        this.limitReached = false;
-    }
-
-    ionViewDidEnter() {
-        // TODO implement gestures
-        // prevent url segment pop by back navigation gesture
-        this.sub = this.platform.backButton.subscribeWithPriority(1, () => {});
-    }
-
-    ionViewWillLeave() {
-        this.filteredEdges.set([]);
-        this.sub?.unsubscribe();
-        this.page = 0;
-        this.limitReached = false;
-        this.ngOnDestroy();
+    ngOnInit() {
+        this.searchOnChange();
     }
 
     /**
@@ -129,14 +106,18 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
      * @param infiniteScroll The InfiniteScrollCustomEvent
      */
     doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
+        const searchGeneration = this.searchGeneration;
         setTimeout(() => {
+            if (searchGeneration !== this.searchGeneration) {
+                infiniteScroll.target.complete();
+                return;
+            }
             this.page++;
             this.loadNextPage()
                 .then((edges) => {
-                    this.filteredEdges.update((el) => {
-                        el.push(...edges);
-                        return el;
-                    });
+                    if (searchGeneration === this.searchGeneration) {
+                        this.filteredEdges.update((currentEdges) => [...currentEdges, ...edges]);
+                    }
                     infiniteScroll.target.complete();
                 })
                 .catch(() => {
@@ -146,11 +127,17 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.searchGeneration++;
+        this.filteredEdges.set([]);
+        this.sub?.unsubscribe();
+        this.page = 0;
+        this.limitReached = false;
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }
 
     loadNextPage(): Promise<Edge[]> {
+        const searchGeneration = this.searchGeneration;
         this.loading.set(true);
         return new Promise<Edge[]>((resolve, reject) => {
             if (this.limitReached) {
@@ -170,29 +157,30 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 ...(this.limit && { limit: this.limit }),
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
-
             this.service
                 .getEdges(req)
                 .then((edges) => {
+                    if (searchGeneration !== this.searchGeneration) {
+                        resolve([]);
+                        return;
+                    }
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
                     // TODO could be applied before calling getEdges
                     if (user != null && !UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
                         const edge = edges[0];
-                        setTimeout(() => {
-                            this.router.navigate(["/device", edge.id]);
-                        }, 100);
+                        this.router.navigate(["/device", edge.id]);
                     }
                     resolve(edges);
                 })
                 .catch((err) => {
                     reject(err);
                 });
-        }).finally(() => this.loading.set(false));
-    }
-
-    protected getAndSubscribeEdge(edge: Edge) {
-        this.pagination.getAndSubscribeEdge(edge.id);
+        }).finally(() => {
+            if (searchGeneration === this.searchGeneration) {
+                this.loading.set(false);
+            }
+        });
     }
 
     /**
@@ -201,6 +189,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
      * @param event From template passed event
      */
     protected searchOnChange(searchParams?: Map<string, ChosenFilter["value"]>) {
+        const searchGeneration = ++this.searchGeneration;
         if (searchParams) {
             this.searchParams = searchParams;
         }
@@ -211,7 +200,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         this.limitReached = false;
 
         this.loadNextPage().then((edges) => {
-            this.filteredEdges.set(edges);
+            if (searchGeneration === this.searchGeneration) {
+                this.filteredEdges.set(edges);
+                this.noEdges = edges.length === 0;
+            }
         });
     }
 }

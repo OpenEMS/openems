@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { ViewWillLeave } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
@@ -36,7 +35,7 @@ import { OAuthService } from "./oauth.service";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NgxSpinnerModule, CommonUiModule, TranslateModule],
 })
-export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
+export class OAuthCallBackComponent implements OnDestroy {
     public static readonly ID: string = "oauthcallback";
     protected spinnerId: string = uuidv4();
     private oauthService: OAuthService = inject(OAuthService);
@@ -90,9 +89,5 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
 
     ngOnDestroy() {
         this.service.stopSpinner(this.spinnerId);
-    }
-
-    ionViewWillLeave() {
-        this.ngOnDestroy();
     }
 }

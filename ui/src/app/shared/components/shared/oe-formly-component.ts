@@ -1,4 +1,4 @@
-import { Directive, effect, EffectRef, inject, Injector, OnDestroy, signal, Type } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy, OnInit, signal, Type } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { IonInput, IonRange } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -24,7 +24,7 @@ import { DataService } from "./dataservice";
 import { Filter } from "./filter";
 
 @Directive()
-export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy {
+export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy, OnInit {
     protected readonly fields = signal<FormlyFieldConfig[]>([]);
     protected readonly form = signal<FormGroup>(new FormGroup({}));
     protected readonly view = signal<OeFormlyView<T> | null>(null);
@@ -43,6 +43,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     protected skipCurrentData: boolean = false;
     private injector: Injector = inject(Injector);
     private subscription: EffectRef | null = null;
+    private initEffect: EffectRef | null = null;
 
     constructor() {
         this.initializeView();
@@ -81,22 +82,19 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                 });
         });
 
-        effect(() => {
+        this.initEffect = effect(() => {
             const isNavigationInitialized = this.navigationService.getIsInitialized();
             if (!isNavigationInitialized) {
                 return;
             }
-            this.ionViewWillEnter();
+            this.ngOnInit();
         });
     }
 
-    ionViewWillEnter() {
-        this.navigationService.headerTitle.set(this.view()?.isCommonWidget ? this.view()!.title : null);
-    }
-
-    ionViewWillLeave() {
-        this.navigationService.headerTitle.set(null);
-        this.ngOnDestroy();
+    ngOnInit() {
+        const view = this.view();
+        const title = view?.isCommonWidget != null ? view.title : null;
+        this.navigationService.headerTitle.set(title);
     }
 
     public async ngOnDestroy() {
@@ -372,7 +370,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         formlyWrapper: "formly-field-modal" | "formly-field-navigation" | "formly-field-waiting-spinner" = this
             .formlyWrapper,
     ) {
-        this.ionViewWillEnter();
+        this.ngOnInit();
         this.fields.set([
             {
                 fieldGroup: view.lines.map((el, index) => {

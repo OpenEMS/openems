@@ -9,14 +9,9 @@ import { FormUtils } from "../../utils/form/form.utils";
     standalone: true,
     templateUrl: "./datetime-picker.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        CommonUiModule,
-    ],
+    imports: [FormsModule, ReactiveFormsModule, CommonUiModule],
 })
 export class DateTimeLineComponent implements OnInit, OnDestroy {
-
     @Input() public formGroup!: FormGroup;
     @Input() public controlName!: string;
     public defaultLabel = input<string>();
@@ -33,18 +28,15 @@ export class DateTimeLineComponent implements OnInit, OnDestroy {
         control.setValue(event.detail.value);
     }
 
-    ionViewWillEnter() {
-        this.ngOnInit();
-    }
-
     ngOnInit() {
-
         this.time.set(this.formGroup.controls[this.controlName].value);
 
         // Control needs to be rebuilt, otherwise field is not updated on init
-        this.subscription.add(this.formGroup.controls[this.controlName].valueChanges.subscribe(value => {
-            this.time.set(value);
-        }));
+        this.subscription.add(
+            this.formGroup.controls[this.controlName].valueChanges.subscribe((value) => {
+                this.time.set(value);
+            }),
+        );
     }
 
     ngOnDestroy() {

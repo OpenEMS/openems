@@ -34,7 +34,7 @@
         <ion-col size-md="8" size-lg="10" size-xl="10">
           @for (f of field.fieldGroup; track f) {
             @if (f.hide !== true) {
-              @for (entry of f.props.options; track entry) {
+              @for (entry of f.props.options; track $index) {
                 @let line = entry.line;
 
                 <oe-formly-wrapper [class]="line.componentWrapperCssClass ?? ''">

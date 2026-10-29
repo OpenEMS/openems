@@ -1,5 +1,5 @@
 import { Location } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren, ChangeDetectionStrategy, } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnInit, QueryList, ViewChild, ViewChildren, } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { NavigationService } from "../../navigation/service/navigation.service";
 
@@ -17,7 +17,7 @@ export type NavigationOption = {
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class FooterNavigationComponent implements AfterViewInit {
+export class FooterNavigationComponent implements OnInit {
     private static readonly INTERVAL: number = 1000;
 
     @ViewChildren("subnavigationbuttons", { read: ElementRef })
@@ -49,7 +49,7 @@ export class FooterNavigationComponent implements AfterViewInit {
         this.initializeFooterSubnavigation();
     }
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.cdr.detectChanges();
         this.initializeFooterSubnavigation();
     }

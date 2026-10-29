@@ -210,11 +210,8 @@ export class NavigationInfoComponent extends AbstractModal {
                 : []),
         ]);
 
-    ionViewWillLeave() {
-        this.ngOnDestroy();
-    }
-
-    ionViewWillEnter() {
+    override ngOnInit() {
+        super.ngOnInit();
         this.resolveSourceAndMode();
         this.setHeaderTitle();
     }
