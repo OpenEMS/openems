@@ -311,6 +311,7 @@ export namespace SharedGrid {
                         null,
                     ),
                 ]),
+                NavigationConstants.CommonNodes.SETTINGS(translate, "grid"),
             ],
             null,
             { isCommonWidget: true },

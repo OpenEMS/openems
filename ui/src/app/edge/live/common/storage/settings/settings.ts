@@ -18,6 +18,7 @@ import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { SharedStorage } from "../shared/shared";
 
 @Component({
@@ -86,24 +87,49 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static getMetaIsChargeFromGridAllowedFields(
         essComponent: EdgeConfig.Component,
         translate: TranslateService,
+        navigateToGridSettings: () => void,
     ): OeFormlyField[] {
-        const key = CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent);
-        const lines: OeFormlyField[] = [
-            { type: "horizontal-line" },
+        const reserveEnabledControl =
+            CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent);
+        const isEssChargeFromGridAllowed =
+            CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent);
+        const hideWhenReserveDisabled: NonNullable<OeFormlyField["hide"]> = (field) =>
+            field[reserveEnabledControl] == 0;
+
+        return [
             {
-                type: "toggle-line",
-                style: { name: { fontWeight: "bold" } },
-                controlName:
-                    CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent),
-                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE"),
+                type: "horizontal-line",
+                hide: hideWhenReserveDisabled,
             },
-            { type: "info-line", html: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING") },
-            { type: "horizontal-line" },
+            {
+                type: "info-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_ALLOWED_INFO"),
+                link: {
+                    text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                    callback: navigateToGridSettings,
+                },
+                icon: { name: "oe-info", color: "primary", size: "large" },
+                hide: (field) =>
+                    hideWhenReserveDisabled(field) ||
+                    NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], false) !== true,
+            },
+            {
+                type: "info-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_NOT_ALLOWED_INFO"),
+                link: {
+                    text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                    callback: navigateToGridSettings,
+                },
+                icon: { name: "oe-info", color: "primary", size: "large" },
+                hide: (field) =>
+                    hideWhenReserveDisabled(field) ||
+                    NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], true) !== false,
+            },
+            {
+                type: "horizontal-line",
+                hide: hideWhenReserveDisabled,
+            },
         ];
-        return lines.map((el) => {
-            el.hide = (field) => field[key] == 0;
-            return el;
-        });
     }
 
     private static getUpdateComponentPropertyEntry<T = string>(
@@ -401,7 +427,6 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         if (edge == null || formGroup == null) {
             return;
         }
-
         const updateArray: Map<string, Parameters<Edge["updateComponentConfig"]>[2]> = new Map();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
@@ -473,23 +498,6 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     ),
                 ].filter((entry) => entry != null);
                 updateArray.set(emergencyReserveCtrl.id, updateObj);
-            }
-
-            const meta = new MetaComponent(config);
-            if (meta) {
-                updateArray.set(
-                    meta.id,
-                    [
-                        CommonStorageSettingsComponent.getUpdateComponentPropertyEntry(
-                            "isEssChargeFromGridAllowed",
-                            formGroup.get(
-                                CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(
-                                    essComponent,
-                                ),
-                            ),
-                        ),
-                    ].filter((el) => el != null),
-                );
             }
         }
 
@@ -713,7 +721,13 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     hide: (field) =>
                         field[CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent)] == 0,
                 },
-                ...CommonStorageSettingsComponent.getMetaIsChargeFromGridAllowedFields(essComponent, this.translate),
+                ...CommonStorageSettingsComponent.getMetaIsChargeFromGridAllowedFields(
+                    essComponent,
+                    this.translate,
+                    () => {
+                        void this.navigationService.navigateAbsoluteById("grid-settings");
+                    },
+                ),
             );
         }
 

@@ -13,6 +13,7 @@ import { CommonGridExternalLimitationOverviewComponent } from "src/app/edge/live
 import { CommonGridPhaseAccurateOverviewComponent } from "src/app/edge/live/common/grid/history/details/phase-accurate/new-navigation/new-navigation";
 import { CommonGridHistoryComponent } from "src/app/edge/live/common/grid/history/new-navigation/new-navigation";
 import { CommonGridHomeComponent } from "src/app/edge/live/common/grid/new-navigation/new-navigation";
+import { CommonGridSettingsComponent } from "src/app/edge/live/common/grid/settings/settings";
 import { CommonProductionDetailsComponent } from "src/app/edge/live/common/production/details/details";
 import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
 import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
@@ -558,6 +559,7 @@ export const commonRoutes: Routes = [
     },
     ...controllerRoutes("common/consumption"),
     { path: "common/grid", component: CommonGridHomeComponent },
+    { path: "common/grid/settings", component: CommonGridSettingsComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
     {
         path: "common/grid/history/external-limitation",

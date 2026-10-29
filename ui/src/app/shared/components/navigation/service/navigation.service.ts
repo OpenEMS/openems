@@ -363,6 +363,23 @@ export class NavigationService {
     }
 
     /**
+     * Navigates to the absolute navigation node with the given ID.
+     *
+     * @param id The navigation node ID to navigate to
+     * @returns A promise that resolves after navigation, or immediately if no matching node exists
+     */
+    public async navigateAbsoluteById(id: NavigationTree["id"]): Promise<void> {
+        const node = this.navigationTree()
+            ?.getAbsoluteNavigations()
+            .find((navigation) => navigation.id === id);
+        if (node === undefined) {
+            return;
+        }
+
+        await this.navigateAbsolute(node);
+    }
+
+    /**
      * Navigates to passed link absolutely.
      *
      * @param link The link segment to navigate to

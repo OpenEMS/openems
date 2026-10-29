@@ -1,8 +1,7 @@
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { SharedEssFixDigitalPowerControl } from "./shared";
 
@@ -50,6 +49,9 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
             edge,
             this.unit,
             this.powerConverter,
+            () => {
+                this.navigationService.navigateAbsoluteById("grid-settings");
+            },
         );
     }
 
@@ -70,6 +72,25 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
             "mode",
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_MODE),
+        );
+
+        this.setFormControlSafelyWithBooleanChannel(
+            this.form(),
+            "isEssChargeFromGridAllowed",
+            currentData,
+            new ChannelAddress(
+                "_meta",
+                SharedEssFixDigitalPowerControl.CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED,
+            ),
+        );
+        this.setFormControlSafelyWithBooleanChannel(
+            this.form(),
+            "isEssDischargeToGridAllowed",
+            currentData,
+            new ChannelAddress(
+                "_meta",
+                SharedEssFixDigitalPowerControl.CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED,
+            ),
         );
 
         if (this.skipCurrentData || this.form().dirty || this.form().touched) {
@@ -139,29 +160,6 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
             currentData,
             new ChannelAddress(component.id, SharedEssFixDigitalPowerControl.PROPERTY_DISCHARGE_ONCE_TARGET_SOC),
         );
-
-        const meta = new MetaComponent(this.service.currentEdge().getCurrentConfig());
-        if (meta != null) {
-            this.setFormControlSafelyWithChannel(
-                this.form(),
-                "isEssChargeToGridAllowed",
-                currentData,
-                new ChannelAddress(
-                    meta.id,
-                    SharedEssFixDigitalPowerControl.CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED,
-                ),
-            );
-
-            this.setFormControlSafelyWithChannel(
-                this.form(),
-                "isEssDischargeToGridAllowed",
-                currentData,
-                new ChannelAddress(
-                    meta.id,
-                    SharedEssFixDigitalPowerControl.CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED,
-                ),
-            );
-        }
     }
 
     /**
@@ -174,7 +172,7 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
         const updates = super
             .buildUpdateComponentArr(fg)
             .filter((update) => update.name !== "powerDirection")
-            .filter((update) => update.name !== "isEssChargeToGridAllowed")
+            .filter((update) => update.name !== "isEssChargeFromGridAllowed")
             .filter((update) => update.name !== "isEssDischargeToGridAllowed");
 
         const direction: PowerDirection = fg.value["powerDirection"] ?? "DISCHARGE";
@@ -195,49 +193,5 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
         }
 
         return updates;
-    }
-
-    protected override applyChanges(
-        fg: FormGroup<any>,
-        service: Service,
-        websocket: Websocket,
-        component: EdgeConfig.Component | null,
-        edge: Edge | null,
-    ): void {
-        super.applyChanges(fg, service, websocket, component, edge);
-
-        const chargeConsumptionControl = fg.controls["isEssChargeToGridAllowed"];
-        const dischargeToGridControl = fg.controls["isEssDischargeToGridAllowed"];
-
-        const isChargeDirty = chargeConsumptionControl?.dirty ?? false;
-        const isDischargeDirty = dischargeToGridControl?.dirty ?? false;
-
-        if (!isChargeDirty && !isDischargeDirty) {
-            return;
-        }
-
-        const config = edge?.getCurrentConfig() ?? null;
-        const meta = new MetaComponent(config);
-        if (meta == null || edge == null) {
-            return;
-        }
-
-        const metaUpdates: { name: string; value: any }[] = [];
-        if (isChargeDirty) {
-            metaUpdates.push({
-                name: "isEssChargeFromGridAllowed",
-                value: chargeConsumptionControl.value ?? false,
-            });
-        }
-        if (isDischargeDirty) {
-            metaUpdates.push({
-                name: "isEssDischargeToGridAllowed",
-                value: dischargeToGridControl.value ?? false,
-            });
-        }
-
-        edge.updateComponentConfig(websocket, meta.id, metaUpdates).catch((reason) => {
-            service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-        });
     }
 }

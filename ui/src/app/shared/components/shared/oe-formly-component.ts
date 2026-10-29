@@ -15,6 +15,7 @@ import { FormUtils } from "../../utils/form/form.utils";
 import { NumberUtils } from "../../utils/number/number-utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
+import type { InfoLineLink } from "../modal/modal-info-line/modal-info-line";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { OeImageComponent } from "../oe-img/oe-img";
@@ -508,7 +509,8 @@ export type OeFormlyField<T = any> = (
         | "ion-padding-left"
         | "ion-padding-right"
         | "ion-text-font-style-italic"
-        | "ion-padding-top-triple";
+        | "ion-padding-top-triple"
+        | "ion-font-size-smaller";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -540,6 +542,8 @@ export namespace OeFormlyField {
         html?: string;
         customClass?: string;
         icon?: Icon;
+        lineStyle?: string;
+        link?: InfoLineLink;
     };
 
     export type ImageLine = {
