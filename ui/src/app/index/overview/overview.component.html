@@ -46,7 +46,7 @@
                     </ion-item>
                   }
                   @for (edge of filteredEdges(); track edge.id; let i = $index) {
-                    <ion-item lines="inset" [color]="edge.isOnline ? null : 'light'" (click)="router.navigate(['/device', edge.id])">
+                    <ion-item lines="inset" [button]="true" [color]="edge.isOnline ? null : 'light'" (click)="router.navigate(['/device', edge.id])">
                       <ion-label>
                         <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                         @if (!edge.isOnline) {
