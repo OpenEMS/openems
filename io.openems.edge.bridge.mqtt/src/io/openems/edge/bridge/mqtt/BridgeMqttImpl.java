@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.mqtt;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +36,9 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(BridgeMqttImpl.class);
 
-	private final Map<String, SubscriptionHolder> subscriptions = new ConcurrentHashMap<>();
+	// Several Components may subscribe to the same topic filter (e.g. a shared
+	// ack topic): each gets its own holder, the broker subscription is shared.
+	private final Set<SubscriptionHolder> subscriptions = ConcurrentHashMap.newKeySet();
 
 	private Config config;
 	private MqttConnectionHandler connectionHandler;
@@ -126,9 +128,9 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.subscriptions.forEach((topicFilter, holder) -> {
+		this.subscriptions.stream().map(holder -> holder.topicFilter).distinct().forEach(topicFilter -> {
 			try {
-				this.connectionHandler.subscribe(topicFilter, holder.qos, this.createDispatcher(topicFilter));
+				this.connectionHandler.subscribe(topicFilter, this.qosOf(topicFilter), this.createDispatcher(topicFilter));
 				if (this.config.debugMode()) {
 					this.log.debug("Re-subscribed to topic: {}", topicFilter);
 				}
@@ -150,8 +152,8 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 				this.log.debug("Message arrived on {}: {} bytes", msg.topic(), msg.payload().length);
 			}
 
-			this.subscriptions.forEach((f, holder) -> {
-				if (MqttConnectionHandler.topicMatchesFilter(msg.topic(), f)) {
+			this.subscriptions.forEach(holder -> {
+				if (holder.topicFilter.equals(filter)) {
 					try {
 						holder.callback.accept(msg);
 					} catch (Exception e) {
@@ -214,9 +216,10 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 	@Override
 	public MqttSubscription subscribe(String topicFilter, QoS qos, Consumer<MqttMessage> callback) {
 		var holder = new SubscriptionHolder(this, topicFilter, qos, callback);
-		this.subscriptions.put(topicFilter, holder);
+		var firstForFilter = !this.hasSubscription(topicFilter);
+		this.subscriptions.add(holder);
 
-		if (this.connectionHandler != null && this.connectionHandler.isConnected()) {
+		if (firstForFilter && this.connectionHandler != null && this.connectionHandler.isConnected()) {
 			this.connectionHandler.subscribe(topicFilter, qos, this.createDispatcher(topicFilter));
 		}
 
@@ -225,13 +228,26 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 	@Override
 	public CompletableFuture<Void> unsubscribe(MqttSubscription subscription) {
-		this.subscriptions.remove(subscription.topicFilter());
+		this.subscriptions.remove(subscription);
 
-		if (this.connectionHandler != null && this.connectionHandler.isConnected()) {
+		if (!this.hasSubscription(subscription.topicFilter()) && this.connectionHandler != null
+				&& this.connectionHandler.isConnected()) {
 			return this.connectionHandler.unsubscribe(subscription.topicFilter());
 		}
 
 		return CompletableFuture.completedFuture(null);
+	}
+
+	private boolean hasSubscription(String topicFilter) {
+		return this.subscriptions.stream().anyMatch(holder -> holder.topicFilter.equals(topicFilter));
+	}
+
+	private QoS qosOf(String topicFilter) {
+		return this.subscriptions.stream() //
+				.filter(holder -> holder.topicFilter.equals(topicFilter)) //
+				.map(holder -> holder.qos) //
+				.max(Enum::compareTo) //
+				.orElse(QoS.AT_LEAST_ONCE);
 	}
 
 	private void _setConnected(boolean value) {
