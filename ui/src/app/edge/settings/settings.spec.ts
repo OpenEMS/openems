@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
 import localDE from "@angular/common/locales/de";
 import localeDeExtra from "@angular/common/locales/extra/de";
@@ -20,8 +19,9 @@ import { SettingsComponent } from "./settings.component";
 
 describe("Edge", () => {
     const serviceSypObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "currentEdge"], {
-        metadata: new BehaviorSubject({
-            edges: null,
+        metadata: new BehaviorSubject<Service["metadata"]["value"]>({
+            // Preserve the existing fixture's null value despite the non-nullable service type.
+            edges: null!,
             user: new User("", "test.user", "admin", Language.DE.key, true, {}),
         }),
         currentEdge: signal(DummyConfig.dummyEdge({})),
