@@ -39,7 +39,6 @@ public record EvsePowerDistributionApplyHandler(PowerDistributionResult powerDis
 	 * setPointInWattWithoutPhaseLimitation is checked.
 	 */
 	private static final Duration AUTOMATIC_PROBABLE_PHASE_SWITCH_WINDOW = Duration.ofSeconds(20);
-	private static final int AUTOMATIC_THREE_TO_SINGLE_PHASE_SWITCH_WINDOW_MIN_SAMPLE_COUNT = 20;
 	/**
 	 * Delay for the EpochSecond probable phase switch evaluation. If a probable
 	 * phase switch is detected the next switch is set to now plus this Duration.
@@ -200,8 +199,7 @@ public record EvsePowerDistributionApplyHandler(PowerDistributionResult powerDis
 						Types.History.AutomaticPhaseSwitchThresholdDirection.ABOVE,
 						AUTOMATIC_PROBABLE_PHASE_SWITCH_WINDOW, this.powerDistributionResult.idealSetPointInWatt());
 
-		final var singlePhaseFeasibleInRecentWindow = isAutomaticPhaseSwitchWindowThresholdReached(
-				singlePhaseFeasibilityEvaluation);
+		final var singlePhaseFeasibleInRecentWindow = singlePhaseFeasibilityEvaluation.shouldSwitch();
 
 		if (threeToSingleEvaluation.shouldSwitch() && singlePhaseFeasibleInRecentWindow) {
 			this.setProbableNextPhaseSwitchEpochSecondsIfUnset(shortWindowEvaluation);
@@ -299,21 +297,6 @@ public record EvsePowerDistributionApplyHandler(PowerDistributionResult powerDis
 		if (this.logVerbosity == TRACE) {
 			log.info("{}: {}", this.ctrl.id(), msg);
 		}
-	}
-
-	private static boolean isAutomaticPhaseSwitchWindowThresholdReached(
-			Types.History.AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluation) {
-		return evaluation.windowActive()
-				&& evaluation.sampleCount() >= AUTOMATIC_THREE_TO_SINGLE_PHASE_SWITCH_WINDOW_MIN_SAMPLE_COUNT
-				&& isAutomaticPhaseSwitchThresholdReached(evaluation);
-	}
-
-	private static boolean isAutomaticPhaseSwitchThresholdReached(
-			Types.History.AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluation) {
-		return switch (evaluation.direction()) {
-		case ABOVE -> evaluation.directionalNinetyPercentAverage() >= evaluation.thresholdInWatt();
-		case BELOW -> evaluation.directionalNinetyPercentAverage() <= evaluation.thresholdInWatt();
-		};
 	}
 
 }

@@ -30,8 +30,13 @@ public class Types {
 		protected static final int MAX_AGE = 300; // [s]
 
 		private static final Duration AUTOMATIC_PHASE_SWITCH_COOLDOWN = Duration.ofSeconds(MAX_AGE);
-		private static final Duration AUTOMATIC_PHASE_SWITCH_PV_LIMIT_WINDOW = Duration.ofMinutes(2);
-		private static final int AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT = 60;
+		static final Duration AUTOMATIC_PHASE_SWITCH_PV_LIMIT_WINDOW = Duration.ofMinutes(2);
+		/**
+		 * Fraction of the theoretically expected sample count (derived from the
+		 * actually observed Cycle-Time) that must be reached within a window before a
+		 * phase switch decision is made.
+		 */
+		static final double AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT_FACTOR = 0.9;
 
 		private final TreeMap<Instant, Entry> entries = new TreeMap<>();
 
@@ -247,12 +252,52 @@ public class Types {
 			if (currentSetPointWithoutPhaseLimitation != null) {
 				samplesBuilder.add(currentSetPointWithoutPhaseLimitation);
 			}
+			final var minSampleCount = this.calculateMinSampleCount(window,
+					AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT_FACTOR);
 			return this.evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationSamples(samplesBuilder.build(),
-					thresholdInWatt, direction);
+					thresholdInWatt, direction, minSampleCount);
+		}
+
+		/**
+		 * Calculates the minimum sample count required within the given window, derived
+		 * from the actually observed Core-Cycle-Time (average interval between recorded
+		 * entries) instead of a fixed constant.
+		 *
+		 * <p>
+		 * This way the requirement automatically scales with the Cycle-Time: e.g. a
+		 * Cycle-Time of 5 s allows for at most 24 samples within a 2-minute window
+		 * (instead of a fixed count that assumed a 1 s Cycle-Time and could never be
+		 * reached with a slower Cycle). {@code requiredFractionOfExpectedSampleCount}
+		 * leaves some tolerance for Cycle-Time jitter or a temporarily slower Cycle; it
+		 * is passed in rather than read from a specific constant so this method stays
+		 * reusable for other sample-count-based evaluations.
+		 *
+		 * @param window                                the evaluation window
+		 * @param requiredFractionOfExpectedSampleCount the required fraction (0..1) of
+		 *                                              the theoretically expected
+		 *                                              sample count for this window
+		 * @return the required minimum sample count; {@link Integer#MAX_VALUE} if the
+		 *         Cycle-Time cannot yet be estimated (too little History)
+		 */
+		private int calculateMinSampleCount(Duration window, double requiredFractionOfExpectedSampleCount) {
+			if (this.entries.size() < 2) {
+				return Integer.MAX_VALUE;
+			}
+			final var oldestEntryTimestamp = this.entries.firstKey();
+			final var newestEntryTimestamp = this.entries.lastKey();
+			final var observedHistorySpanMillis = Duration.between(oldestEntryTimestamp, newestEntryTimestamp)
+					.toMillis();
+			if (observedHistorySpanMillis <= 0) {
+				return Integer.MAX_VALUE;
+			}
+			final var averageCycleTimeMillis = (double) observedHistorySpanMillis / (this.entries.size() - 1);
+			final var expectedSampleCountForWindow = window.toMillis() / averageCycleTimeMillis;
+			return (int) Math.ceil(expectedSampleCountForWindow * requiredFractionOfExpectedSampleCount);
 		}
 
 		private AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation evaluateAutomaticPhaseSwitchSetPointWithoutPhaseLimitationSamples(
-				List<Integer> samples, int thresholdInWatt, AutomaticPhaseSwitchThresholdDirection direction) {
+				List<Integer> samples, int thresholdInWatt, AutomaticPhaseSwitchThresholdDirection direction,
+				int minSampleCount) {
 			if (samples.isEmpty()) {
 				return new AutomaticPhaseSwitchSetPointWithoutPhaseLimitationEvaluation(false, false, 0, 0,
 						thresholdInWatt, direction, 0);
@@ -263,7 +308,7 @@ public class Types {
 			case ABOVE -> directionalNinetyPercentAverage >= thresholdInWatt;
 			case BELOW -> directionalNinetyPercentAverage <= thresholdInWatt;
 			};
-			final var sampleCountReached = samples.size() >= AUTOMATIC_PHASE_SWITCH_MIN_SAMPLE_COUNT;
+			final var sampleCountReached = samples.size() >= minSampleCount;
 			final var currentPercentage = calculateDirectionalPercentage(directionalNinetyPercentAverage,
 					thresholdInWatt, direction);
 
