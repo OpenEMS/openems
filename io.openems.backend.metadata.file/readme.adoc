@@ -6,6 +6,17 @@ Allows you to configure multiple edges by a single JSON file.
 Using this bundle enables you to easily set up an OpenEMS 
 Backend for testing purposes.
 
+The component configuration accepts a `defaultLanguage` setting for the shared
+user. Supported values are `EN`, `DE`, `CS`, `NL`, `ES`, `FR` and `JA`. It
+defaults to `DE` for backwards compatibility.
+
+Example component configuration:
+
+```
+path="/var/opt/openems/metadata.json"
+defaultLanguage="EN"
+```
+
 
 == Example configuration file
 
