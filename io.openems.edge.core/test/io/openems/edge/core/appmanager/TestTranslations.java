@@ -18,9 +18,11 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.core.GridFeedInLimitationType;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.integratedsystem.FeneconPro912.GridMeterType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
@@ -74,7 +76,7 @@ class TestTranslations {
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybrid10(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("USER_KEY", "xxx") //
+					.addProperty("USER_KEY", CommonProps.MASKED_PASSWORD) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybridGW(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("HAS_DC_PV1", "true") //
@@ -90,6 +92,20 @@ class TestTranslations {
 					.addProperty("ESS_PHASE", Phase.L1) //
 					.addProperty("ESS_READ_ONLY", true) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconPro912(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_TYPE", GridMeterType.CARLO_GAVAZZI) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE", true) //
+					.addProperty("FORCE_CHARGE_SOC", 15) //
+					.addProperty("MIN_SOC", 20) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconPro912Cluster(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_TYPE", GridMeterType.SOCOMEC_THREEPHASE) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE_1", true) //
+					.addProperty("FORCE_CHARGE_SOC_1", 15) //
+					.addProperty("MIN_SOC_1", 20) //
+					.addProperty("HAS_TOTAL_LIMIT_DISCHARGE_2", false) //
+					.addProperty("HAS_THIRD_ESS", false) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
 					.addProperty("GERMAN_DSO", GermanDSO.BAYERNWERK) //
@@ -100,6 +116,10 @@ class TestTranslations {
 					.addProperty("BIDDING_ZONE", "GERMANY") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.groupeE(t), true, JsonUtils.buildJsonObject() //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.spotTariffVendor(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("PRICE_SOURCE", "ENTSOE") //
+					.addProperty("ACCESS_TOKEN", "token") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.octopusGo(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("STANDARD_PRICE", 27.6) //

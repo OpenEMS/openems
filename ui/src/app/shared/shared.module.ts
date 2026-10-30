@@ -29,6 +29,7 @@ import { FormlyWrapperComponent } from "./components/formly/formly-field-navigat
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlyReorderGroupComponent } from "./components/formly/formly-reorder-group/formly-reorder-group";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 
@@ -66,7 +67,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
@@ -335,6 +338,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyReorderGroupComponent,
         FormlyWrapperComponent,
     ],
     declarations: [
@@ -374,6 +378,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         FormlyFieldWithLoadingAnimationComponent,
+        FormlyReorderGroupComponent,
         FormlyIonicModule,
         FormlyModule,
         FormsModule,
@@ -417,12 +422,20 @@ export class SharedModule {
     ) {
         SharedModule.injector = injector;
 
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 }

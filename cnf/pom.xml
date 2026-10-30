@@ -20,6 +20,16 @@
 		</repository>
 	</repositories>
 	<dependencies>
+		<!--
+		This file defines the "Maven Central" Bnd repository (see cnf/build.bnd).
+		Policy: declare every dependency of the OSGi runtime explicitly, including
+		transitive ones. The BndPomRepository would provide transitive dependencies
+		implicitly, but only an explicit and complete list makes this file a
+		reliable SBOM and protects against unnoticed changes of upstream
+		dependency graphs. When adding a dependency, also add its compile- and
+		runtime-scope transitive dependencies at the same version; skip optional,
+		provided and test scopes.
+		-->
 		<!-- biz -->
 		<dependency>
 			<!--
@@ -368,13 +378,22 @@
 		</dependency>
 		<dependency>
 			<!--
+			Prometheus Metrics Tracer Initializer
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-tracer-initializer</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
 			OpenEMS fork of j2mod - A Java Modbus implementation
 			Changelog: https://github.com/OpenEMS/j2mod/releases
 			Original: https://github.com/steveohara/j2mod/releases
 			-->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.4.0-openems.1</version>
+			<version>3.4.0-openems.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>

@@ -269,20 +269,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-		var edgeOpt = this.postgresHandler.getEdgeForApikey(apikey);
-		if (edgeOpt.isPresent()) {
-			return Optional.of(edgeOpt.get().getId());
-		}
-		return Optional.empty();
+		return this.postgresHandler.getEdgeForApikey(apikey).map(Edge::getId);
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
-		var optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
-		if (!optEdgeId.isPresent()) {
-			return Optional.empty();
-		}
-		return this.getEdge(optEdgeId.get());
+		return this.odooHandler.getEdgeIdBySetupPassword(setupPassword).flatMap(this::getEdge);
 	}
 
 	@Override

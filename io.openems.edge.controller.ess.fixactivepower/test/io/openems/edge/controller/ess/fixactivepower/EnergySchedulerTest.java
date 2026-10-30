@@ -31,7 +31,7 @@ class EnergySchedulerTest {
 			final var result = tester.simulatePeriod();
 
 			// energy = 2000 W × 15 min = 500 Wh (discharge, positive)
-			assertEquals(500, result.ef().setEss(99_999));
+			assertEquals(500, result.ef().commitEss(99_999));
 		}
 
 		@Test
@@ -42,7 +42,7 @@ class EnergySchedulerTest {
 			final var result = EnergyScheduleTester.from(esh).simulatePeriod();
 
 			// ef untouched -> max discharge available = 4000 Wh
-			assertEquals(4000, result.ef().setEss(99_999));
+			assertEquals(4000, result.ef().commitEss(99_999));
 		}
 	}
 
@@ -57,7 +57,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(-1000, result.ef().setEss(99_999));
+			assertEquals(-1000, result.ef().commitEss(99_999));
 		}
 
 		@Test
@@ -67,7 +67,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(-60, result.ef().setEss(99_999));
+			assertEquals(-60, result.ef().commitEss(99_999));
 		}
 
 		@Test
@@ -78,7 +78,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(4000, result.ef().setEss(99_999)); // max discharge
+			assertEquals(4000, result.ef().commitEss(99_999)); // max discharge
 		}
 
 		@Test
@@ -90,7 +90,7 @@ class EnergySchedulerTest {
 			tester.simulatePeriod();
 			final var result = tester.simulatePeriod();
 
-			assertEquals(4000, result.ef().setEss(99_999)); // max discharge
+			assertEquals(4000, result.ef().commitEss(99_999)); // max discharge
 		}
 
 		@Test
@@ -100,7 +100,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(-1000, result.ef().setEss(99_999));
+			assertEquals(-1000, result.ef().commitEss(99_999));
 		}
 	}
 
@@ -114,7 +114,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(1000, result.ef().setEss(99_999));
+			assertEquals(1000, result.ef().commitEss(99_999));
 		}
 
 		@Test
@@ -124,7 +124,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(160, result.ef().setEss(99_999));
+			assertEquals(160, result.ef().commitEss(99_999));
 		}
 
 		@Test
@@ -135,7 +135,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(4000, result.ef().setEss(99_999)); // max discharge
+			assertEquals(4000, result.ef().commitEss(99_999)); // max discharge
 		}
 
 		@Test
@@ -147,7 +147,7 @@ class EnergySchedulerTest {
 			tester.simulatePeriod();
 			final var result = tester.simulatePeriod();
 
-			assertEquals(4000, result.ef().setEss(99_999)); // max discharge
+			assertEquals(4000, result.ef().commitEss(99_999)); // max discharge
 		}
 
 		@Test
@@ -157,7 +157,7 @@ class EnergySchedulerTest {
 
 			final var result = tester.simulatePeriod();
 
-			assertEquals(1000, result.ef().setEss(99_999));
+			assertEquals(1000, result.ef().commitEss(99_999));
 		}
 	}
 
