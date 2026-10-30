@@ -101,8 +101,8 @@ public class PhaseDef {
 	}
 
 	/**
-	 * Calculates the average power of a phase for the last 20 times there will be
-	 * a power on that phase.
+	 * Calculates the average power of a phase for the last 20 times there will be a
+	 * power on that phase.
 	 *
 	 * @param activePower the current active power of this phase
 	 */

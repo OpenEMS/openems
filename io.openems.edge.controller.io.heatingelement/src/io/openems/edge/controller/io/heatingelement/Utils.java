@@ -19,6 +19,20 @@ public class Utils {
 	}
 
 	/**
+	 * The result of the temperature control.
+	 *
+	 * @param level   the {@link Level} demanded by the temperature control; null if
+	 *                the temperature does not demand anything
+	 * @param isFinal true if the level must be applied immediately, i.e. without
+	 *                considering excess power, work mode and hysteresis
+	 */
+	public static record TemperatureControl(Level level, boolean isFinal) {
+
+		/** The temperature does not demand anything. */
+		public static final TemperatureControl NONE = new TemperatureControl(null, false);
+	}
+
+	/**
 	 * Calculates the required level based from a power value of a phase.
 	 * 
 	 * @param excessPower   the excess power in Watt

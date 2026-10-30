@@ -93,7 +93,7 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
 						.setMeterid("dummy-meter") //
-						.setScheduler("") // 
+						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -140,7 +140,7 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
 						.setMeterid("dummy-meter") //
-						.setScheduler("") // 
+						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //

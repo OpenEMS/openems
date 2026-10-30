@@ -23,6 +23,39 @@ import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
+	@AttributeDefinition(name = "Has Water Thermometer?", description = "Enable the temperature control, the water temperature limits and the Legionella protection using a water thermometer")
+	boolean hasWaterThermometer() default false;
+
+	@AttributeDefinition(name = "Water Thermometer-ID", description = "ID of the water Thermometer")
+	String waterThermometer_id() default "";
+
+	@AttributeDefinition(name = "Sensor Error Level", description = "Level that is applied if the water thermometer is not available; 'Level 0' switches the heating element off")
+	Level sensorErrorLevel() default Level.LEVEL_0;
+
+	@AttributeDefinition(name = "Low Water Temperature", description = "Below this temperature the heating element heats with all phases, even without excess power [°C]")
+	int lowWaterTemperature() default 45;
+
+	@AttributeDefinition(name = "High Water Temperature", description = "Above this temperature the heating element is switched off, even with excess power [°C]")
+	int highWaterTemperature() default 60;
+
+	@AttributeDefinition(name = "Maximum Water Temperature", description = "Safety limit: the heating element is always switched off above this temperature [°C]")
+	int maxWaterTemperature() default 85;
+
+	@AttributeDefinition(name = "Enable Legionella Protection?", description = "Periodically heat the water up to the Legionella temperature")
+	boolean enableLegionellenProtection() default false;
+
+	@AttributeDefinition(name = "Legionella Water Temperature", description = "Target water temperature of the Legionella protection [°C]")
+	int legionellenWaterTemperature() default 65;
+
+	@AttributeDefinition(name = "Legionella Interval", description = "Maximum number of days between two Legionella heatings")
+	int legionellenInterval() default 7;
+
+	@AttributeDefinition(name = "Minimum Legionella Time [h]", description = "Time in hours the water has to stay at or above the Legionella temperature; the Legionella interval is restarted afterwards")
+	int minLegionellenTime() default 1;
+
+	@AttributeDefinition(name = "Maximum Legionella Heating Time [h]", description = "Maximum time in hours to reach and hold the Legionella temperature; afterwards the heating is aborted, a warning is set and it is retried after one day")
+	int legionellenMaxHeatingTime() default 6;
+
 	@AttributeDefinition(name = "Output Channel Phase L1", description = "Channel address of the Digital Output for Phase L1")
 	String outputChannelPhaseL1() default "io0/Relay1";
 

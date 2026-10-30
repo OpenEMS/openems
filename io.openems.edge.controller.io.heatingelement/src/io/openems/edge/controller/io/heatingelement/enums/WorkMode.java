@@ -9,7 +9,7 @@ public enum WorkMode {
 	 * None (= only run on excess power, no guaranteed Minimum Time).
 	 */
 	NONE,
-	
+
 	/**
 	 * Energy (= run if the minEnergylimit and the maxEnergylimit is active).
 	 */
