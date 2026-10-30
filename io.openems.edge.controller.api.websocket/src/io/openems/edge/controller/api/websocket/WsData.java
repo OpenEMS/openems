@@ -87,10 +87,16 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private String sessionToken = null;
 
 	private volatile User user;
+	private final User externallyAuthenticatedUser;
 
 	public WsData(WebSocket ws, ControllerApiWebsocketImpl parent) {
+		this(ws, parent, null);
+	}
+
+	public WsData(WebSocket ws, ControllerApiWebsocketImpl parent, User externallyAuthenticatedUser) {
 		super(ws);
 		this.parent = parent;
+		this.externallyAuthenticatedUser = externallyAuthenticatedUser;
 	}
 
 	/**
@@ -142,6 +148,16 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public Optional<User> getUser() {
 		return Optional.ofNullable(this.user);
+	}
+
+	/**
+	 * Gets the externally authenticated user resolved during the WebSocket
+	 * handshake.
+	 *
+	 * @return the externally authenticated user
+	 */
+	public Optional<User> getExternallyAuthenticatedUser() {
+		return Optional.ofNullable(this.externallyAuthenticatedUser);
 	}
 
 	@Override
