@@ -293,6 +293,8 @@ export namespace ControllerEvseSingleShared {
                 return environment.images.EVSE.KEBA_P40;
             case "Evse.ChargePoint.HardyBarth":
                 return environment.images.EVSE.HARDY_BARTH;
+            case "Evse.ChargePoint.HardyBarth.cPH1":
+                return environment.images.EVSE.HARDY_BARTH_CPH1;
             default:
                 return null;
         }
