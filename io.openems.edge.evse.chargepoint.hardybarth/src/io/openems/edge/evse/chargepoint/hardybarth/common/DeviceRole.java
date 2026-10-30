@@ -1,26 +1,46 @@
 package io.openems.edge.evse.chargepoint.hardybarth.common;
 
-public enum DeviceRole {
+import io.openems.common.types.OptionsEnum;
+
+public enum DeviceRole implements OptionsEnum {
 
 	/**
 	 * Master device role.
 	 */
-	MASTER("2310006"),
+	MASTER(0, "2310006"),
 
 	/**
 	 * Slave device role.
 	 */
-	SLAVE("2310007"),
+	SLAVE(1, "2310007"),
 
 	/**
 	 * Unknown device role.
 	 */
-	UNKNOWN("");
+	UNKNOWN(2, "");
+
+	private final int value;
 
 	private final String product;
 
-	DeviceRole(String product) {
+	DeviceRole(int value, String product) {
+		this.value = value;
 		this.product = product;
+	}
+
+	@Override
+	public int getValue() {
+		return this.value;
+	}
+
+	@Override
+	public String getName() {
+		return this.name();
+	}
+
+	@Override
+	public OptionsEnum getUndefined() {
+		return UNKNOWN;
 	}
 
 	/**

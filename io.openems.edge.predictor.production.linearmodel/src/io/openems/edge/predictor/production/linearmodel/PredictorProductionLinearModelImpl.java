@@ -76,6 +76,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 	private static final long NO_INITIAL_DELAY = 0L;
 	private static final int MINUTES_PER_QUARTER = 15;
+	private static final int HISTORY_QUARTERS = GaussianKernels.SIZE_9.length / 2;
 
 	private final Logger log = LoggerFactory.getLogger(PredictorProductionLinearModelImpl.class);
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -296,12 +297,45 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 			}
 		}
 
-		var smoothedValues = new GaussianSmoother(GaussianKernels.SIZE_9).smooth(rawValues);
+		var smoothedValues = new GaussianSmoother(GaussianKernels.SIZE_9).smooth(rawValues,
+				this.getProductionHistory(now, channelAddress));
 		var smoothedIntegerValues = Arrays.stream(smoothedValues)//
 				.mapToObj(value -> (int) Math.round(value))//
 				.toArray(Integer[]::new);
 
 		return Prediction.from(this.sum, channelAddress, now.toInstant(), smoothedIntegerValues);
+	}
+
+	private double[] getProductionHistory(ZonedDateTime start, ChannelAddress channelAddress) {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData;
+		try {
+			historicData = this.timedata.queryHistoricData(//
+					null, //
+					start.minusMinutes(HISTORY_QUARTERS * MINUTES_PER_QUARTER), //
+					start, //
+					Set.of(channelAddress), //
+					new Resolution(MINUTES_PER_QUARTER, MINUTES));
+		} catch (OpenemsNamedException e) {
+			this.logWarn(this.log, "Unable to smooth prediction transition: " + e.getMessage());
+			return new double[0];
+		}
+
+		if (historicData == null) {
+			return new double[0];
+		}
+		var history = new double[HISTORY_QUARTERS];
+		int firstIndex = history.length;
+		for (int i = history.length - 1; i >= 0; i--) {
+			var time = start.minusMinutes((history.length - i) * MINUTES_PER_QUARTER);
+			var historicValues = historicData.get(time);
+			var historicValue = historicValues == null ? null : historicValues.get(channelAddress);
+			if (historicValue == null || historicValue.isJsonNull()) {
+				break;
+			}
+			history[i] = Math.max(0, historicValue.getAsDouble());
+			firstIndex = i;
+		}
+		return Arrays.copyOfRange(history, firstIndex, history.length);
 	}
 
 	private TrainingContext createTrainingContext() {

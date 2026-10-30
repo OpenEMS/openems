@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import io.openems.common.session.Language;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.type.TextProvider;
 
 class NumberChannelParameterProviderImpl<V extends Number> extends ChannelParameterProvider<V>
 		implements NumberChannelParameterProvider<V> {

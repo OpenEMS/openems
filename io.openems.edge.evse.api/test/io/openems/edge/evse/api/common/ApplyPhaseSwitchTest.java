@@ -39,6 +39,23 @@ class ApplyPhaseSwitchTest {
 	}
 
 	@Test
+	void testManualWithoutZeroSetPointSerializeDeserialize() {
+		var sut = new ApplyPhaseSwitch(TO_THREE_PHASE,
+				new ApplyPhaseSwitch.PhaseSwitchAbility.ManualWithoutZeroSetPoint(),
+				new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360, 230));
+		var json = ApplyPhaseSwitch.serializer().serialize(sut).getAsJsonObject();
+
+		assertEquals("TO_THREE_PHASE", json.get("direction").getAsString());
+		assertEquals("ManualWithoutZeroSetPoint", json.getAsJsonObject("phaseSwitchAbility").get("class").getAsString());
+		assertEquals(7360, json.getAsJsonObject("oppositePhaseApplySetPoint").get("max").getAsInt());
+
+		var deserialized = ApplyPhaseSwitch.serializer().deserialize(json);
+		assertEquals(sut, deserialized);
+		assertInstanceOf(ApplyPhaseSwitch.PhaseSwitchAbility.ManualWithoutZeroSetPoint.class,
+				deserialized.ability());
+	}
+
+	@Test
 	void testSerializeNull() {
 		assertEquals(JsonNull.INSTANCE, ApplyPhaseSwitch.serializer().serialize(null));
 	}

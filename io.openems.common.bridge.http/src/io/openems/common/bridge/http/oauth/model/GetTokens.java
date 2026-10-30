@@ -36,8 +36,7 @@ public final class GetTokens {
 			String tokenType, String idToken, Integer notBeforePolicy, String sessionState, String scope) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a
-		 * {@link GetTokens.Response}.
+		 * Returns a {@link JsonSerializer} for a {@link GetTokens.Response}.
 		 *
 		 * @return the created {@link JsonSerializer}
 		 */

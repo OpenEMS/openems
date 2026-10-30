@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
@@ -77,10 +76,10 @@ public class PlcNextMeterImplTest {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<String>(HttpStatus.OK, Map.of(),
 							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+					return CompletableFuture.completedFuture(new HttpResponse<String>(HttpStatus.OK, Map.of(),
 							"{'access_token': '" + PlcNextMeterImplTest.this.accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
@@ -108,8 +107,8 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(createSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+				.thenReturn(CompletableFuture
+						.completedFuture(new HttpResponse<>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		var maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
 				.buildUrlString(this.dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
@@ -120,7 +119,7 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().startsWith(maintainSessionEndpointUrl))))
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.test = new ComponentTest(this.componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
@@ -129,7 +128,6 @@ public class PlcNextMeterImplTest {
 	}
 
 	@Test
-	@Disabled
 	public void testRunModuleSuccessfully() throws Exception {
 		// prep
 		var variables = new JsonArray();
@@ -158,7 +156,7 @@ public class PlcNextMeterImplTest {
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
-		var expectedEnergyImportValue = 440000;
+		var expectedEnergyImportValue = 440000L;
 		var varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path", this.myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
@@ -173,13 +171,13 @@ public class PlcNextMeterImplTest {
 				argThat(arg -> Objects.nonNull(arg) //
 						&& arg.method() == HttpMethod.POST //
 						&& arg.url().equals(dataEndpointUrl)))) //
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
+				.thenReturn(CompletableFuture.completedFuture(HttpResponse.ok(responseBody)));
 
 		// test + check
 		this.test.activate(this.myConfig)
 
-				.next(new TestCase("Trigger value consumption and do one wait cycle")) //
-				.next(new TestCase("Check requested data dropped in asynchronously")
+				.next(new TestCase("Trigger value consumption")) //
+				.next(new TestCase("Check requested data has been set to channels")
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								ElectricityMeter.ChannelId.VOLTAGE_L1, expectedPhases2Neutral1Value)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
@@ -189,7 +187,7 @@ public class PlcNextMeterImplTest {
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
 								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)) //
 						.onAfterProcessImage(assertChannelValue(this.componentUnderTest,
-								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)))
+								ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, expectedEnergyImportValue)))
 
 				.deactivate();
 	}

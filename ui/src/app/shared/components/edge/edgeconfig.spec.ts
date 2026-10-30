@@ -161,6 +161,18 @@ export namespace DummyConfig {
             ],
         };
 
+        export const EVSE_CHARGEPOINT_ALFEN: Factory = {
+            id: "Evse.ChargePoint.Alfen",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                "io.openems.edge.evse.chargepoint.alfen.EvseAlfen",
+                "io.openems.edge.timedata.api.TimedataProvider",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
+            ],
+        };
+
         export const ESS_GENERIC_MANAGEDSYMMETRIC: Factory = {
             id: "Ess.Generic.ManagedSymmetric",
             natureIds: [
@@ -691,6 +703,18 @@ export namespace DummyConfig {
             id: id,
             alias: alias ?? id,
             factory: Factory.EVSE_CHARGEPOINT_KEBA_UDP,
+            properties: {
+                alias: alias ?? id,
+                enabled: true,
+                readOnly: false,
+            },
+            channels: {},
+        });
+
+        export const EVSE_CHARGEPOINT_ALFEN = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVSE_CHARGEPOINT_ALFEN,
             properties: {
                 alias: alias ?? id,
                 enabled: true,

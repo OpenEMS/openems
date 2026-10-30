@@ -29,6 +29,8 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 	protected Float targetPower = 0f;
 	protected float rampPower;
 
+	private boolean rampResetRequested;
+
 	private static final Logger log = LoggerFactory.getLogger(Context.class);
 
 	public Context(ControllerEssSohCycleImpl parent, Config config, Clock clock, ManagedSymmetricEss ess) {
@@ -52,6 +54,18 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 
 	public Float getTargetPower() {
 		return this.targetPower;
+	}
+
+	/**
+	 * Requests zero battery power immediately and resets the ramp filter to zero.
+	 */
+	public void requestZeroBatteryPower() {
+		this.setTargetPower(0f);
+		this.rampResetRequested = true;
+	}
+
+	public boolean isRampResetRequested() {
+		return this.rampResetRequested;
 	}
 
 	public void setRampPower(float rampPower) {
@@ -175,6 +189,77 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 
 	public boolean isRunning() {
 		return this.config.isRunning();
+	}
+
+	/**
+	 * Checks whether the ESS explicitly blocks discharging.
+	 *
+	 * <p>
+	 * Per {@link ManagedSymmetricEss.ChannelId#ALLOWED_DISCHARGE_POWER},
+	 * {@code AllowedDischargePower} is always zero or positive; a value of
+	 * {@code 0} means discharging is currently not possible (e.g. because battery
+	 * protection blocks it after a previous deep discharge). An undefined value is
+	 * <b>not</b> treated as blocked, to avoid false positives, e.g. right after
+	 * startup, following the same convention used by {@code ReferenceCycleHandler}
+	 * in {@code io.openems.edge.controller.ess.fixstateofcharge}.
+	 *
+	 * @return {@code true} if discharge is currently explicitly blocked
+	 */
+	public boolean isDischargeBlocked() {
+		final var allowedDischargePower = this.ess.getAllowedDischargePower();
+		return allowedDischargePower.isDefined() && allowedDischargePower.get() == 0;
+	}
+
+	/**
+	 * Checks whether the ESS currently allows discharging with a clearly defined
+	 * positive capability.
+	 *
+	 * <p>
+	 * Unlike {@link #isDischargeBlocked()}, an undefined value does <b>not</b>
+	 * count as available here: leaving the {@code PREPARE_PRECHARGE} recovery
+	 * requires positive proof that discharging works again, not merely the
+	 * absence of an explicit block.
+	 *
+	 * @return {@code true} if discharge is explicitly possible right now
+	 */
+	public boolean isDischargeAvailable() {
+		final var allowedDischargePower = this.ess.getAllowedDischargePower();
+		return allowedDischargePower.isDefined() && allowedDischargePower.get() > 0;
+	}
+
+	/**
+	 * Checks whether the ESS explicitly blocks charging.
+	 *
+	 * <p>
+	 * Per {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER},
+	 * {@code AllowedChargePower} is always zero or negative; a value of
+	 * {@code 0} means charging is currently not possible. An undefined value is
+	 * <b>not</b> treated as blocked, following the same convention as
+	 * {@link #isDischargeBlocked()}.
+	 *
+	 * @return {@code true} if charging is currently explicitly blocked
+	 */
+	public boolean isChargeBlocked() {
+		final var allowedChargePower = this.ess.getAllowedChargePower();
+		return allowedChargePower.isDefined() && allowedChargePower.get() == 0;
+	}
+
+	/**
+	 * Whether the single-use {@code PREPARE_PRECHARGE} recovery has already been
+	 * used during the current SoH run.
+	 *
+	 * @return {@code true} if the recovery was already used
+	 */
+	public boolean isPreparePrechargeUsed() {
+		return this.getParent().isPreparePrechargeUsed();
+	}
+
+	/**
+	 * Marks the {@code PREPARE_PRECHARGE} recovery as used for the current SoH
+	 * run, preventing a second recovery attempt.
+	 */
+	public void markPreparePrechargeUsed() {
+		this.getParent().setPreparePrechargeUsed(true);
 	}
 
 	/**
@@ -373,6 +458,11 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 		this.resetBalancingDiagnostics();
 		this.resetSoh();
 		this.resetIsMeasuredChannel();
+		this.resetPreparePrechargeUsed();
+	}
+
+	private void resetPreparePrechargeUsed() {
+		this.getParent().setPreparePrechargeUsed(false);
 	}
 
 	private void resetSoh() {

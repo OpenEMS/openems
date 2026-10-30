@@ -202,10 +202,10 @@ public class ControllerApiRestReadWriteImplTest {
 			implements OpenemsComponent {
 
 		private static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-			READ_CHANNEL(new IntegerDoc() //
-					.unit(Unit.WATT) //
+			READ_CHANNEL(new IntegerDoc()//
+					.unit(Unit.WATT)//
 					.text("This is a Read-Channel")), //
-			WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(AccessMode.READ_WRITE)); //
 
 			private final Doc doc;

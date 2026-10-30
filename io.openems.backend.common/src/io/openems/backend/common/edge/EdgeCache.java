@@ -3,7 +3,6 @@ package io.openems.backend.common.edge;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -41,9 +40,9 @@ public class EdgeCache {
 		/**
 		 * Updates the Cache.
 		 *
-		 * @param incomingDatas the incoming data
+		 * @param incomingDatas the incoming data, ordered by timestamp ascending
 		 */
-		public void update(SortedMap<Long, Map<String, JsonElement>> incomingDatas) {
+		public void update(Map<Long, Map<String, JsonElement>> incomingDatas) {
 			for (var entry : incomingDatas.entrySet()) {
 				var incomingTimestamp = entry.getKey();
 				var incomingData = entry.getValue();

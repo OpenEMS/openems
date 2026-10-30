@@ -3,6 +3,9 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
@@ -31,6 +34,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
@@ -225,14 +229,21 @@ public class FeneconCommercial92ClusterMaster
 			if (isOldGridMeterAppUsedByCommercialApp(this.appManagerUtil, this.getAppId())) {
 				dependencies.add(//
 						FeneconCommercialComponents.gridMeterWithOldDependency(bundle, gridMeterId,
-								modbusToGridMeterAndExternalId));
+								modbusToGridMeterAndExternalId, t));
 			} else {
 				dependencies.add(//
-						FeneconCommercialComponents.gridMeter(bundle));
+						FeneconCommercialComponents.gridMeter(bundle, t));
 			}
 
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+			}
+
+			final var gpioId = FunctionUtils
+					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			return AppConfiguration.create() //

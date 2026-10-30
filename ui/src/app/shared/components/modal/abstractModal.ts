@@ -37,6 +37,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     protected subscription: Subscription = new Subscription();
 
     private id: string = uuidv4();
+    private detectChangesIntervalId: ReturnType<typeof setInterval> | null = null;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -48,12 +49,17 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         public ref: ChangeDetectorRef,
     ) {
         ref.detach();
-        setInterval(() => {
+        this.detectChangesIntervalId = setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection
-        }, 0);
+        }, 100);
     }
 
     public ngOnDestroy() {
+        if (this.detectChangesIntervalId != null) {
+            clearInterval(this.detectChangesIntervalId);
+            this.detectChangesIntervalId = null;
+        }
+
         this.edge.unsubscribeFromChannels(this.id, this.websocket, this.getChannelAddresses());
         this.subscription.unsubscribe();
 

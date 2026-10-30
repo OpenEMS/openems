@@ -38,6 +38,7 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evse.chargepoint.hardybarth.common.DeviceRole;
 import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth;
 import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -110,6 +111,7 @@ class EvcsHardyBarthImplTest {
 						.output(Evcs.ChannelId.STATUS, CHARGING) //
 
 						.output(HardyBarth.ChannelId.METER_NOT_AVAILABLE, false) //
+						.output(HardyBarth.ChannelId.PHASE_SWITCHING_NOT_SLAVE, false) //
 						.output(HardyBarth.ChannelId.RAW_ACTIVE_ENERGY_EXPORT, 0.0) //
 						.output(HardyBarth.ChannelId.RAW_ACTIVE_ENERGY_TOTAL, 4658050.0) //
 						.output(HardyBarth.ChannelId.RAW_CABLE_CURRENT_LIMIT, "-1") //
@@ -132,6 +134,7 @@ class EvcsHardyBarthImplTest {
 						.output(HardyBarth.ChannelId.RAW_DEVICE_SOFTWARE_VERSION, "1.50.0") //
 						.output(HardyBarth.ChannelId.RAW_DEVICE_UUID, "5491ad62-022a-4356-a32c-00018713102x") //
 						.output(HardyBarth.ChannelId.RAW_DEVICE_VCS_VERSION, "V0R5e") //
+						.output(HardyBarth.ChannelId.DEVICE_ROLE, DeviceRole.SLAVE) //
 						.output(HardyBarth.ChannelId.RAW_DIODE_PRESENT, "1") //
 						.output(HardyBarth.ChannelId.RAW_EMERGENCY_SHUTDOWN, "0") //
 						.output(HardyBarth.ChannelId.RAW_EVSE_GRID_CURRENT_LIMIT, 16) //
@@ -141,6 +144,7 @@ class EvcsHardyBarthImplTest {
 						.output(HardyBarth.ChannelId.RAW_METER_SERIALNUMBER, "21031835") //
 						.output(HardyBarth.ChannelId.RAW_METER_TYPE, "klefr") //
 						.output(HardyBarth.ChannelId.RAW_PHASE_COUNT, 3) //
+						.output(HardyBarth.ChannelId.RAW_PHASE_ACTUAL, 3) //
 						.output(HardyBarth.ChannelId.RAW_PLUG_LOCK_ERROR, "0") //
 						.output(HardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_ACTUAL, "1") //
 						.output(HardyBarth.ChannelId.RAW_PLUG_LOCK_STATE_TARGET, "1") //
@@ -177,6 +181,11 @@ class EvcsHardyBarthImplTest {
 						.output(ManagedEvcs.ChannelId.SET_CHARGE_POWER_REQUEST, null) //
 						.output(ManagedEvcs.ChannelId.SET_DISPLAY_TEXT, null) //
 						.output(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT, null) //
+
+						.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_ACTUAL, "3") //
+						.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, "idle") //
+						.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_DURATION, null) //
+						.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_DELAY, null) //
 
 						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
 				);
@@ -318,9 +327,9 @@ class EvcsHardyBarthImplTest {
 	}
 
 	/**
-	 * Lightweight check that {@link HardyBarth#hasPhaseSwitchingApi()} and
-	 * {@link HardyBarth#canStartPhaseSwitch()} are available on this architecture
-	 * too; the detailed mapping/interpretation is covered by
+	 * Lightweight check that {@link HardyBarth#hasPhaseSwitchingApi()} is available
+	 * on this
+	 * architecture too; the detailed mapping/interpretation is covered by
 	 * {@code EvseChargePointHardyImplTest}.
 	 */
 	@Test
@@ -345,15 +354,17 @@ class EvcsHardyBarthImplTest {
 		var rh = ReflectionUtils.<EvcsHandler>getValueViaReflection(sut, "handler");
 
 		test.next(new TestCase() //
-				.onBeforeProcessImage(() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE),
-						phaseRotation)));
+				.onBeforeProcessImage(
+						() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE), phaseRotation)));
 		assertTrue(sut.hasPhaseSwitchingApi());
-		assertTrue(sut.canStartPhaseSwitch());
+		assertEquals("idle", sut.getSaliaPhaseSwitchingStatus().get());
+		assertEquals(false, sut.channel(HardyBarth.ChannelId.PHASE_SWITCHING_NOT_SLAVE).value().get());
 
 		test.next(new TestCase() //
 				.onBeforeProcessImage(
 						() -> rh.handleGetApiCallResponse(HttpResponse.ok(PHASE_SWITCHING_MISSING), phaseRotation)));
 		assertFalse(sut.hasPhaseSwitchingApi());
-		assertFalse(sut.canStartPhaseSwitch());
+		assertEquals(null, sut.getSaliaPhaseSwitchingStatus().get());
+		assertEquals(false, sut.channel(HardyBarth.ChannelId.PHASE_SWITCHING_NOT_SLAVE).value().get());
 	}
 }

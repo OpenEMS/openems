@@ -134,6 +134,18 @@ export default defineConfig([
                 {
                     selector: "Program > VariableDeclaration:has(NewExpression)",
                     message: "Do not create class instances at module scope."
+                },
+                {
+                    selector: "DebuggerStatement",
+                    message: "Using 'debugger' is not allowed.",
+                },
+                {
+                    selector: "MethodDefinition[key.name=/^ionView/]",
+                    message: "Ionic lifecycle methods are not allowed. Use Angular lifecycle hooks instead."
+                },
+                {
+                    selector: "ClassProperty[key.name=/^ionView/]",
+                    message: "Ionic lifecycle methods are not allowed. Use Angular lifecycle hooks instead."
                 }
             ],
             // TODO reapply this rule

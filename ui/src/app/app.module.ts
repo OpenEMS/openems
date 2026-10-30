@@ -12,10 +12,12 @@ import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
 import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
+import { environment } from "src/environments";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
+import { LiveDataService } from "./edge/live/livedataservice";
 import { SystemOutageInfoComponent } from "./edge/live/system-outage-info/oe-system-outage-info";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
@@ -24,10 +26,12 @@ import { FooterContentComponent } from "./shared/components/footer/content/conte
 import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/navigation-back-button";
 import { BottomNavigationBarComponent } from "./shared/components/navigation/bottom-bar/bottom-navigation-bar";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { DataService } from "./shared/components/shared/dataservice";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
+import { TrackingService } from "./shared/service/tracking-service";
 import { SharedModule } from "./shared/shared.module";
 import { AppStateTracker } from "./shared/states/app-state-tracker";
 import { registerTranslateExtension } from "./shared/translate.extension";
@@ -63,6 +67,10 @@ provideTranslateLoader(MyTranslateLoader);
         CookieService,
         { provide: ErrorHandler, useClass: MyErrorHandler },
         {
+            provide: DataService,
+            useClass: LiveDataService,
+        },
+        {
             provide: LOCALE_ID,
             useFactory: () => Language.getCurrentLanguage().key,
         },
@@ -82,7 +90,9 @@ provideTranslateLoader(MyTranslateLoader);
         AuthService,
         provideAppInitializer(() => {
             inject(NavigationService);
+            inject(TrackingService);
         }),
+        environment.ENVIRONMENT_PROVIDERS,
         provideCharts(withDefaultRegisterables()),
     ],
     bootstrap: [AppComponent],

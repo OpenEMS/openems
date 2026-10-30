@@ -63,6 +63,7 @@ public class TestData {
 			            "socketmaxamp":"16",
 			            "intctrl_limit":"16",
 			            "phase_switching":{
+						   "actual":"3",
 			               "status":"idle"
 			            }
 			         },

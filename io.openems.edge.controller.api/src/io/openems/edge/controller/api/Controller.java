@@ -24,8 +24,8 @@ public interface Controller extends OpenemsComponent {
 	public void run() throws OpenemsNamedException;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RUN_FAILED(Doc.of(Level.FAULT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Running the Controller failed"));
 
 		private final Doc doc;

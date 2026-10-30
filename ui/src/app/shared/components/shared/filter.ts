@@ -39,13 +39,6 @@ export namespace Filter {
         return value !== null && value !== undefined;
     };
 
-    export const HIDE_NEGATIVE_VALUES: Filter = (value): boolean => {
-        if (typeof value !== "number") {
-            return true;
-        }
-        return value < 0;
-    };
-
     /**
      * Filter passes only if user is atlest role admin
      *

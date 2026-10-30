@@ -48,6 +48,7 @@ class AppHeatMyPvTest {
 						AppHeatMyPv.Property.ALIAS, //
 						AppHeatMyPv.Property.IP, //
 						AppHeatMyPv.Property.MAX_HEAT_POWER, //
+						AppHeatMyPv.Property.NAVIGATION_MIGRATION_ACKNOWLEDGEMENT, //
 						AppHeatMyPv.Property.STORAGE_VOLUME, //
 						AppHeatMyPv.Property.HEATED_SHARE);
 	}
@@ -83,9 +84,9 @@ class AppHeatMyPvTest {
 	@Test
 	void testPermissions() {
 		this.appManagerTestBundle.assertPermissions(this.heatMyPv, properties()) //
-				.canSeeWithOnlyRoles(Role.ADMIN) //
-				.canDeleteWithOnlyRoles(Role.ADMIN) //
-				.canInstallWithOnlyRoles(Role.ADMIN);
+				.canSeeWithOnlyRoles(Role.ADMIN, Role.INSTALLER) //
+				.canDeleteWithOnlyRoles(Role.ADMIN, Role.INSTALLER) //
+				.canInstallWithOnlyRoles(Role.ADMIN, Role.INSTALLER);
 	}
 
 	@Test

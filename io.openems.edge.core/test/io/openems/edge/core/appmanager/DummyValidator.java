@@ -7,6 +7,8 @@ import java.util.function.Supplier;
 
 import org.osgi.service.component.annotations.Component;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
@@ -100,19 +102,19 @@ public final class DummyValidator {
 		}
 
 		@Override
-		public String getErrorMessage(Language language) {
+		public OpenemsNamedException getValidationError(Language language) {
 			if (this.errorMessage == null) {
-				return "No error message provided!";
+				return OpenemsError.GENERIC.exception("No error message provided!");
 			}
-			return this.errorMessage.apply(language);
+			return OpenemsError.GENERIC.exception(this.errorMessage.apply(language));
 		}
 
 		@Override
-		public String getInvertedErrorMessage(Language language) {
+		public OpenemsNamedException getInvertedValidationError(Language language) {
 			if (this.invertedErrorMessage == null) {
-				return "No inverted error message provided!";
+				return OpenemsError.GENERIC.exception("No inverted error message provided!");
 			}
-			return this.invertedErrorMessage.apply(language);
+			return OpenemsError.GENERIC.exception(this.invertedErrorMessage.apply(language));
 		}
 
 	}

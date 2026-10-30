@@ -2,10 +2,10 @@ package io.openems.edge.energy.api.simulation;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.common.utils.IntUtils.fitWithin;
+import static java.lang.Math.clamp;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.periods.PeriodData;
 
@@ -43,13 +42,21 @@ public class EnergyFlow {
 	}
 
 	/**
-	 * Returns the production, which can eventually be curtailed if the
-	 * {@link EnergyFlow#excessProduction} is greater than zero.
+	 * Returns the actual production after curtailment.
 	 *
 	 * @return the production value
 	 */
 	public int getProduction() {
 		return this.production;
+	}
+
+	/**
+	 * Returns the available production before curtailment.
+	 *
+	 * @return the available production
+	 */
+	public int getAvailableProduction() {
+		return this.production + this.excessProduction;
 	}
 
 	/**
@@ -68,9 +75,9 @@ public class EnergyFlow {
 	 * @return the total consumption value
 	 */
 	public int getConsumption() {
-		return this.unmanagedConsumption //
-				+ this.managedConsumptions.values().stream() //
-						.mapToInt(Integer::intValue) //
+		return this.unmanagedConsumption//
+				+ this.managedConsumptions.values().stream()//
+						.mapToInt(Integer::intValue)//
 						.sum();
 	}
 
@@ -98,8 +105,8 @@ public class EnergyFlow {
 	 * @return the total managed consumption value
 	 */
 	public int getManagedConsumption() {
-		return this.managedConsumptions.values().stream() //
-				.mapToInt(Integer::intValue) //
+		return this.managedConsumptions.values().stream()//
+				.mapToInt(Integer::intValue)//
 				.sum();
 	}
 
@@ -146,6 +153,19 @@ public class EnergyFlow {
 				.toString();
 	}
 
+	/**
+	 * Priority when accepting a constraint.
+	 */
+	public enum Curtailment {
+		/** Accept constraints even if they require additional PV curtailment. */
+		ALLOW,
+		/** Preserve the currently maximum usable PV, including existing curtailment. */
+		AVOID
+	}
+
+	/**
+	 * Mutable energy flow for one period.
+	 */
 	public static class Model {
 
 		private final int production;
@@ -153,19 +173,14 @@ public class EnergyFlow {
 		private final Map<String, Integer> managedConsumptions;
 
 		/* -: charge, +: discharge */
-		private Integer ess;
-		private int essMaxCharge;
-		private int essMaxDischarge;
+		private int essMin;
+		private int essMax;
 
 		/* -: sell, +: buy */
-		private Integer grid;
-		private int gridMaxBuy;
-		private int gridMaxSell;
+		private int gridMin;
+		private int gridMax;
 
 		private int consumption;
-		private int surplus;
-
-		private State state;
 
 		public Model(//
 				int production, //
@@ -173,40 +188,32 @@ public class EnergyFlow {
 				int essMaxCharge, //
 				int essMaxDischarge, //
 				int gridMaxBuy, //
-				int gridMaxSell) throws OpenemsException {
-			this(//
-					production, unmanagedConsumption, new HashMap<>(), //
-					null, essMaxCharge, essMaxDischarge, //
-					null, gridMaxBuy, gridMaxSell, //
-					unmanagedConsumption, State.UNSET);
+				int gridMaxSell) {
+			checkArgument(production >= 0, "production must not be negative");
+			checkArgument(unmanagedConsumption >= 0, "unmanagedConsumption must not be negative");
+			checkArgument(essMaxCharge >= 0 && essMaxDischarge >= 0, "ESS limits must not be negative");
+			checkArgument(gridMaxBuy >= 0 && gridMaxSell >= 0, "Grid limits must not be negative");
+
+			this.production = production;
+			this.unmanagedConsumption = (int) min(unmanagedConsumption,
+					(long) production + essMaxDischarge + gridMaxBuy);
+			this.managedConsumptions = new HashMap<>();
+			this.essMin = -essMaxCharge;
+			this.essMax = essMaxDischarge;
+			this.gridMin = -gridMaxSell;
+			this.gridMax = gridMaxBuy;
+			this.consumption = this.unmanagedConsumption;
 		}
 
-		private Model(//
-				int production, int unmanagedConsumption, Map<String, Integer> managedConsumptions, //
-				Integer ess, int essMaxCharge, int essMaxDischarge, //
-				Integer grid, int gridMaxBuy, int gridMaxSell, //
-				int consumption, State state) throws OpenemsException {
-			this.production = production;
-			this.unmanagedConsumption = unmanagedConsumption;
-			this.managedConsumptions = managedConsumptions;
-
-			this.ess = ess;
-			this.essMaxCharge = essMaxCharge;
-			this.essMaxDischarge = essMaxDischarge;
-
-			this.grid = grid;
-			this.gridMaxBuy = gridMaxBuy;
-			this.gridMaxSell = gridMaxSell;
-
-			this.consumption = consumption;
-			this.surplus = this.production - this.consumption;
-			this.state = state;
-
-			// Check that initial setup is solvable
-			int minPossibleSurplus = -this.essMaxDischarge - this.gridMaxBuy;
-			if (this.surplus < minPossibleSurplus) {
-				throw new OpenemsException("Initial setup not solvable");
-			}
+		private Model(Model other) {
+			this.production = other.production;
+			this.unmanagedConsumption = other.unmanagedConsumption;
+			this.managedConsumptions = new HashMap<>(other.managedConsumptions);
+			this.essMin = other.essMin;
+			this.essMax = other.essMax;
+			this.gridMin = other.gridMin;
+			this.gridMax = other.gridMax;
+			this.consumption = other.consumption;
 		}
 
 		/**
@@ -216,9 +223,8 @@ public class EnergyFlow {
 		 * @param gsc    the {@link GlobalScheduleContext}
 		 * @param period the {@link Period}
 		 * @return a new {@link EnergyFlow.Model}
-		 * @throws OpenemsException if initial setup not solvable
 		 */
-		public static EnergyFlow.Model from(GlobalScheduleContext gsc, Period period) throws OpenemsException {
+		public static EnergyFlow.Model from(GlobalScheduleContext gsc, Period period) {
 			final var essGlobal = gsc.goc.ess();
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
@@ -248,206 +254,174 @@ public class EnergyFlow {
 		 * @return a copy
 		 */
 		public static EnergyFlow.Model copyOf(EnergyFlow.Model o) {
-			try {
-				return new EnergyFlow.Model(//
-						o.production, o.unmanagedConsumption, o.managedConsumptions, //
-						o.ess, o.essMaxCharge, o.essMaxDischarge, //
-						o.grid, o.gridMaxBuy, o.gridMaxSell, //
-						o.consumption, o.state);
-			} catch (OpenemsException e) {
-				System.err.println("Error while copying EnergyFlow.Model. This should never happen: " + e.getMessage());
-				e.printStackTrace();
-				return null;
-			}
+			return new EnergyFlow.Model(o);
 		}
 
 		/**
-		 * Sets the maximum allowed ESS charge, adjusting if necessary to satisfy
-		 * constraints.
+		 * Raises the ESS lower bound without additional curtailment.
 		 *
-		 * @param target the desired maximum ESS charge
-		 * @return the actual maximum ESS charge that was set
+		 * @param target desired lower bound (negative: charge, positive: discharge)
+		 * @return the accepted lower bound
 		 */
-		public int setEssMaxCharge(int target) {
-			checkArgument(target >= 0, "target must not be negative");
-
-			if (target >= this.essMaxCharge) {
-				return this.essMaxCharge;
-			}
-
-			int minRequiredCharge = switch (this.state) {
-			case UNSET -> max(0, this.surplus - this.gridMaxSell);
-			case ESS_SET, GRID_SET -> -this.ess;
-			};
-
-			if (minRequiredCharge >= this.essMaxCharge) {
-				return this.essMaxCharge;
-			}
-
-			this.essMaxCharge = max(target, minRequiredCharge);
-			return this.essMaxCharge;
+		public int setEssGreaterOrEquals(int target) {
+			return this.setEssGreaterOrEquals(target, Curtailment.AVOID);
 		}
 
 		/**
-		 * Sets the maximum allowed ESS discharge, adjusting if necessary to satisfy
-		 * constraints.
-		 * 
-		 * @param target the desired maximum ESS discharge
-		 * @return the actual maximum ESS discharge that was set
-		 */
-		public int setEssMaxDischarge(int target) {
-			checkArgument(target >= 0, "target must not be negative");
-
-			if (target >= this.essMaxDischarge) {
-				return this.essMaxDischarge;
-			}
-
-			int minRequiredDischarge = switch (this.state) {
-			case UNSET -> max(0, -this.surplus - this.gridMaxBuy);
-			case ESS_SET, GRID_SET -> this.ess;
-			};
-
-			this.essMaxDischarge = max(target, minRequiredDischarge);
-			return this.essMaxDischarge;
-		}
-
-		/**
-		 * Sets the maximum allowed grid sell, adjusting if necessary to satisfy
-		 * constraints.
+		 * Raises the ESS lower bound, preserving feasibility and commitments.
 		 *
-		 * @param target the desired maximum grid sell
-		 * @return the actual maximum grid sell that was set
+		 * @param target      desired lower bound
+		 * @param curtailment whether additional PV curtailment is acceptable
+		 * @return the accepted lower bound
 		 */
-		public int setGridMaxSell(int target) {
-			checkArgument(target >= 0, "target must not be negative");
-
-			if (target >= this.gridMaxSell) {
-				return this.gridMaxSell;
-			}
-
-			int minRequiredSell = switch (this.state) {
-			case UNSET -> max(0, this.surplus - this.essMaxCharge);
-			case ESS_SET, GRID_SET -> -this.grid;
-			};
-
-			if (minRequiredSell >= this.gridMaxSell) {
-				return this.gridMaxSell;
-			}
-
-			this.gridMaxSell = max(target, minRequiredSell);
-			return this.gridMaxSell;
+		public int setEssGreaterOrEquals(int target, Curtailment curtailment) {
+			final long maxAllowed = min(this.essMax,
+					(long) this.consumption - this.requiredProduction(curtailment) - this.gridMin);
+			this.essMin = (int) clamp(target, this.essMin, maxAllowed);
+			return this.essMin;
 		}
 
 		/**
-		 * Sets the maximum allowed grid buy, adjusting if necessary to satisfy
-		 * constraints.
+		 * Lowers the ESS upper bound without additional curtailment.
 		 *
-		 * @param target the desired maximum grid buy
-		 * @return the actual maximum grid buy that was set
+		 * @param target desired upper bound (negative: charge, positive: discharge)
+		 * @return the accepted upper bound
 		 */
-		public int setGridMaxBuy(int target) {
-			checkArgument(target >= 0, "target must not be negative");
-
-			if (target >= this.gridMaxBuy) {
-				return this.gridMaxBuy;
-			}
-
-			int minRequiredBuy = switch (this.state) {
-			case UNSET -> max(0, -this.surplus - this.essMaxDischarge);
-			case ESS_SET, GRID_SET -> this.grid;
-			};
-
-			this.gridMaxBuy = max(target, minRequiredBuy);
-			return this.gridMaxBuy;
+		public int setEssLessOrEquals(int target) {
+			final long minAllowed = max(this.essMin, (long) this.consumption - this.production - this.gridMax);
+			this.essMax = (int) clamp(target, minAllowed, this.essMax);
+			return this.essMax;
 		}
 
 		/**
-		 * Adds a managed consumption for the specified ID, adjusted if necessary to
-		 * satisfy constraints.
+		 * Raises the grid lower bound without additional curtailment.
 		 *
-		 * @param id     the identifier, e.g., the component ID
-		 * @param target the desired consumption value
-		 * @return the actual managed consumption that was set
+		 * @param target desired lower bound (negative: export, positive: import)
+		 * @return the accepted lower bound
+		 */
+		public int setGridGreaterOrEquals(int target) {
+			return this.setGridGreaterOrEquals(target, Curtailment.AVOID);
+		}
+
+		/**
+		 * Raises the grid lower bound, preserving feasibility and commitments.
+		 *
+		 * @param target      desired lower bound
+		 * @param curtailment whether additional PV curtailment is acceptable
+		 * @return the accepted lower bound
+		 */
+		public int setGridGreaterOrEquals(int target, Curtailment curtailment) {
+			final long maxAllowed = min(this.gridMax,
+					(long) this.consumption - this.requiredProduction(curtailment) - this.essMin);
+			this.gridMin = (int) clamp(target, this.gridMin, maxAllowed);
+			return this.gridMin;
+		}
+
+		/**
+		 * Lowers the grid upper bound without additional curtailment.
+		 *
+		 * @param target desired upper bound (negative: export, positive: import)
+		 * @return the accepted upper bound
+		 */
+		public int setGridLessOrEquals(int target) {
+			final long minAllowed = max(this.gridMin, (long) this.consumption - this.production - this.essMax);
+			this.gridMax = (int) clamp(target, minAllowed, this.gridMax);
+			return this.gridMax;
+		}
+
+		/**
+		 * Commits ESS energy without additional curtailment.
+		 *
+		 * @param target desired ESS energy (positive: discharge, negative: charge)
+		 * @return the accepted, irrevocable ESS energy
+		 */
+		public int commitEss(int target) {
+			return this.commitEss(target, Curtailment.AVOID);
+		}
+
+		/**
+		 * Commits the nearest feasible ESS energy. Later requests cannot change it.
+		 *
+		 * @param target      desired ESS energy
+		 * @param curtailment whether additional PV curtailment is acceptable
+		 * @return the accepted, irrevocable ESS energy
+		 */
+		public int commitEss(int target, Curtailment curtailment) {
+			final long minAllowed = max(this.essMin, (long) this.consumption - this.production - this.gridMax);
+			final long maxAllowed = min(this.essMax,
+					(long) this.consumption - this.requiredProduction(curtailment) - this.gridMin);
+			final int value = (int) clamp(target, minAllowed, maxAllowed);
+			this.essMin = value;
+			this.essMax = value;
+			return value;
+		}
+
+		/**
+		 * Commits grid energy without additional curtailment.
+		 *
+		 * @param target desired grid energy (positive: import, negative: export)
+		 * @return the accepted, irrevocable grid energy
+		 */
+		public int commitGrid(int target) {
+			return this.commitGrid(target, Curtailment.AVOID);
+		}
+
+		/**
+		 * Commits the nearest feasible grid energy. Later requests cannot change it.
+		 *
+		 * @param target      desired grid energy
+		 * @param curtailment whether additional PV curtailment is acceptable
+		 * @return the accepted, irrevocable grid energy
+		 */
+		public int commitGrid(int target, Curtailment curtailment) {
+			final long minAllowed = max(this.gridMin, (long) this.consumption - this.production - this.essMax);
+			final long maxAllowed = min(this.gridMax,
+					(long) this.consumption - this.requiredProduction(curtailment) - this.essMin);
+			final int value = (int) clamp(target, minAllowed, maxAllowed);
+			this.gridMin = value;
+			this.gridMax = value;
+			return value;
+		}
+
+		private int requiredProduction(Curtailment curtailment) {
+			return switch (requireNonNull(curtailment)) {
+			case ALLOW -> 0;
+			case AVOID -> this.usableProduction();
+			};
+		}
+
+		private int usableProduction() {
+			return (int) min(this.production, (long) this.consumption - this.essMin - this.gridMin);
+		}
+
+		/**
+		 * Adds an irrevocable consumption, limited by remaining supply. Repeated IDs
+		 * return their original allocation.
+		 *
+		 * @param id     identifier, e.g. component ID
+		 * @param target nonnegative desired consumption
+		 * @return the accepted consumption
 		 */
 		public int addManagedConsumption(String id, int target) {
+			requireNonNull(id, "id must not be null");
 			checkArgument(target >= 0, "target must not be negative");
-
-			if (this.managedConsumptions.containsKey(id)) {
-				return this.managedConsumptions.get(id);
+			final var existing = this.managedConsumptions.get(id);
+			if (existing != null) {
+				return existing;
 			}
 
-			int maxPossibleManagedConsumption = switch (this.state) {
-			case UNSET -> this.surplus + this.essMaxDischarge + this.gridMaxBuy;
-			case ESS_SET -> this.surplus + this.ess + this.gridMaxBuy;
-			case GRID_SET -> this.surplus + this.essMaxDischarge + this.grid;
-			};
-
-			int actualManagedConsumption = min(target, maxPossibleManagedConsumption);
-
-			this.managedConsumptions.put(id, actualManagedConsumption);
-			this.consumption += actualManagedConsumption;
-			this.surplus = this.production - this.consumption;
-
-			switch (this.state) {
-			case UNSET -> doNothing();
-			case ESS_SET -> this.grid = max(-this.gridMaxSell, -(this.surplus + this.ess));
-			case GRID_SET -> this.ess = max(-this.essMaxCharge, -(this.surplus + this.grid));
-			}
-
-			return actualManagedConsumption;
+			final long headroom = min((long) Integer.MAX_VALUE - this.consumption,
+					(long) this.production + this.essMax + this.gridMax - this.consumption);
+			final int accepted = (int) min(target, headroom);
+			this.managedConsumptions.put(id, accepted);
+			this.consumption += accepted;
+			return accepted;
 		}
 
 		/**
-		 * Sets the ess value (+: discharge, -: charge), adjusted if necessary to
-		 * satisfy constraints.
+		 * Returns the available production before curtailment.
 		 *
-		 * @param target the desired ess value
-		 * @return the actual ess value that was set
-		 */
-		public int setEss(int target) {
-			switch (this.state) {
-			case UNSET -> {
-				int maxPossibleCharge = min(this.essMaxCharge, this.surplus + this.gridMaxBuy);
-				int maxPossibleDischarge = max(-this.essMaxCharge,
-						min(this.essMaxDischarge, -this.surplus + this.gridMaxSell));
-				this.ess = fitWithin(-maxPossibleCharge, maxPossibleDischarge, target);
-
-				this.grid = max(-this.gridMaxSell, -(this.surplus + this.ess));
-				this.state = State.ESS_SET;
-			}
-			case ESS_SET, GRID_SET -> doNothing();
-			}
-
-			return this.ess;
-		}
-
-		/**
-		 * Sets the grid value (+: buy, -: sell), adjusted if necessary to satisfy
-		 * constraints.
-		 *
-		 * @param target the desired grid value
-		 * @return the actual grid value that was set
-		 */
-		public int setGrid(int target) {
-			switch (this.state) {
-			case UNSET -> {
-				int maxPossibleSell = min(this.gridMaxSell, this.surplus + this.essMaxDischarge);
-				int maxPossibleBuy = max(-this.gridMaxSell, min(this.gridMaxBuy, -this.surplus + this.essMaxCharge));
-				this.grid = fitWithin(-maxPossibleSell, maxPossibleBuy, target);
-
-				this.ess = max(-this.essMaxCharge, -(this.surplus + this.grid));
-				this.state = State.GRID_SET;
-			}
-			case ESS_SET, GRID_SET -> doNothing();
-			}
-
-			return this.grid;
-		}
-
-		/**
-		 * Returns the production.
-		 *
-		 * @return the production value
+		 * @return the available production in Wh
 		 */
 		public int getProduction() {
 			return this.production;
@@ -469,9 +443,7 @@ public class EnergyFlow {
 		 * @return the total managed consumption value
 		 */
 		public int getManagedConsumption() {
-			return this.managedConsumptions.values().stream() //
-					.mapToInt(Integer::intValue) //
-					.sum();
+			return this.consumption - this.unmanagedConsumption;
 		}
 
 		/**
@@ -490,47 +462,40 @@ public class EnergyFlow {
 		 * @return the surplus value
 		 */
 		public int getSurplus() {
-			return this.surplus;
+			return this.production - this.consumption;
 		}
 
 		/**
-		 * Solves the {@link EnergyFlow.Model} and returns an {@link EnergyFlow}.
+		 * Solves without modifying the model. Maximizes PV use, then minimizes absolute
+		 * grid exchange within the remaining intervals.
 		 * 
-		 * @return the {@link EnergyFlow}; null if this {@link EnergyFlow.Model} is
-		 *         unsolvable
+		 * @return an immutable, balanced energy flow
 		 */
 		public EnergyFlow solve() {
-			if (this.state == State.UNSET) {
-				// Apply balancing
-				this.setEss(-this.surplus);
-			}
-
-			final int excessProduction = max(0, this.surplus + this.ess + this.grid);
-			final int curtailedProduction = this.production - excessProduction;
+			final int actualProduction = this.usableProduction();
+			final int ess = this.getEss();
+			final int grid = (int) ((long) this.consumption - actualProduction - ess);
 
 			return new EnergyFlow(//
-					curtailedProduction, //
-					excessProduction, //
+					actualProduction, //
+					this.production - actualProduction, //
 					this.unmanagedConsumption, //
 					ImmutableSortedMap.copyOf(this.managedConsumptions), //
-					this.ess, //
-					this.grid);
-		}
-
-		private enum State {
-			UNSET, //
-			ESS_SET, //
-			GRID_SET
+					ess, //
+					grid);
 		}
 
 		@VisibleForTesting
 		int getEss() {
-			return this.ess;
+			final long residual = (long) this.consumption - this.usableProduction();
+			final long minAllowed = max(this.essMin, residual - this.gridMax);
+			final long maxAllowed = min(this.essMax, residual - this.gridMin);
+			return (int) clamp(residual, minAllowed, maxAllowed);
 		}
 
 		@VisibleForTesting
 		int getGrid() {
-			return this.grid;
+			return (int) ((long) this.consumption - this.usableProduction() - this.getEss());
 		}
 	}
 }

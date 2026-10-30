@@ -57,7 +57,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
       "HEAT_ID":"heat0",
       "MODBUS_ID":"modbus0",
       "IP":"e.g.""192.168.178.152",
- "STORAGE_VOLUME": 500,
+      "STORAGE_VOLUME": 500,
       "HEATED_SHARE": 100,
       "MAX_HEAT_POWER":9000
     },
@@ -91,6 +91,8 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 								.setMin(0)//
 								.setMax(9000)//
 								.setUnit(Unit.WATT, l))), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
+
 		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
@@ -185,9 +187,9 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

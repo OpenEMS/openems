@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "Staat het juiste adres er niet bij? Wijzig bovenstaande gegevens en voer de validatie opnieuw uit.",
+        "ADDRESS_LIST_NOTE_PROFILE": "Staat het juiste adres er niet bij? Wijzig zo nodig bovenstaande gegevens en voer de validatie opnieuw uit.",
+        "ADDRESS_LIST_TITLE": "Welk adres hoort bij de locatie van {{ edgeShortName }}{{ id }}?",
+        "APPLY_BUTTON_LABEL": "Toepassen",
+        "BUTTON_LABEL_INSTALLATION": "Validatie uitvoeren",
+        "BUTTON_LABEL_PROFILE": "Adres valideren",
+        "GEO_CODE_RESULT_LABEL": "Selecteer het bijbehorende adres:",
+        "UNKNOWN_ADDRESS": "De coördinaten worden naderhand handmatig ingevoerd voor de volledige functionaliteit onder systeeminstellingen."
+    }
+}

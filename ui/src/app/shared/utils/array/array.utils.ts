@@ -198,6 +198,13 @@ export namespace ArrayUtils {
         return duplicates;
     }
 
+    export function getFirstSafely<T>(array: T[]): T | null {
+        if (array == null || array.length < 1) {
+            return null;
+        }
+        return array[0];
+    }
+
     export namespace ReducerFunctions {
         export const sum = (acc: number, val: number) => acc + val;
         export const STRINGIFY_SAFELY: (arr: string[], item: string | null | undefined) => string[] = (arr, item) => {

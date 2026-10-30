@@ -1143,7 +1143,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				this.handleBattery2Protocol(protocol);
 			}
 
-			case FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH -> {
+			case FENECON_FHI_29_9_DAH -> {
+				this.handleMultipleStringChargers(protocol);
+				this.handleDefaultEmsPower(protocol);
+				this.handleExtendedFeedPower(protocol);
+			}
+			case FENECON_FHI_20_DAH -> {
 				this.handleMultipleStringChargers(protocol);
 				this.handleDefaultEmsPower(protocol);
 			}

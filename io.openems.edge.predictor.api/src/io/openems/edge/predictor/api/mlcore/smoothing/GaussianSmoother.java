@@ -32,8 +32,27 @@ public class GaussianSmoother implements Smoother {
 	 */
 	@Override
 	public double[] smooth(double[] values) {
+		return this.smooth(values, new double[0]);
+	}
+
+	/**
+	 * Smooths values using preceding history as left boundary context. Only the
+	 * values are returned and scaled to preserve their original sum; history does
+	 * not contribute to that sum. Missing boundary context is extended by repeating
+	 * the earliest available value.
+	 *
+	 * @param values  the input values to smooth
+	 * @param history preceding values, possibly empty
+	 * @return smoothed and sum-preserved values of the same length as input
+	 * @throws IllegalArgumentException if values is null or empty, or history is
+	 *                                  null
+	 */
+	public double[] smooth(double[] values, double[] history) {
 		if (values == null || values.length == 0) {
 			throw new IllegalArgumentException("Input values must not be null or empty");
+		}
+		if (history == null) {
+			throw new IllegalArgumentException("History must not be null");
 		}
 
 		final double[] smoothed = new double[values.length];
@@ -42,8 +61,8 @@ public class GaussianSmoother implements Smoother {
 		for (int i = 0; i < values.length; i++) {
 			double sum = 0.0;
 			for (int k = 0; k < this.kernel.length; k++) {
-				final int idx = Math.clamp(i + k - radius, 0, values.length - 1);
-				sum += this.kernel[k] * values[idx];
+				final int idx = Math.clamp(i + k - radius, -history.length, values.length - 1);
+				sum += this.kernel[k] * (idx < 0 ? history[history.length + idx] : values[idx]);
 			}
 			smoothed[i] = sum;
 		}

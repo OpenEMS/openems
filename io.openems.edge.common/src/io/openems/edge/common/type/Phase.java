@@ -55,5 +55,12 @@ public final class Phase {
 		private SingleOrThreePhase(int count) {
 			this.count = count;
 		}
+
+		public SingleOrThreePhase getOppositePhase() {
+			return switch (this) {
+			case SINGLE_PHASE -> THREE_PHASE;
+			case THREE_PHASE -> SINGLE_PHASE;
+			};
+		}
 	}
 }

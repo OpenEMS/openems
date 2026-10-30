@@ -56,7 +56,7 @@ public interface Mennekes extends OpenemsComponent {
 
 		PHASE_SWITCH_RUNNING(Doc.of(BOOLEAN)), //
 
-		DEVICE_ID(Doc.of(DeviceID.values())), //
+		DEVICE_ID(Doc.of(DeviceID.values()).persistencePriority(PersistencePriority.HIGH)), //
 
 		;
 

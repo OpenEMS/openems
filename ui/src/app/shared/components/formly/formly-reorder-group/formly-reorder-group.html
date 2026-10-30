@@ -1,0 +1,11 @@
+<ion-list>
+  <ion-reorder-group (ionItemReorder)="onReorder($event)" disabled="false">
+    @for (item of orderedItems(); track item.value; let i = $index) {
+      <ion-item [attr.data-index]="i" lines="full">
+        <ion-text>{{ i + 1 }}.&nbsp;</ion-text>
+        <ion-label>{{ item.label }}</ion-label>
+        <ion-reorder slot="end"></ion-reorder>
+      </ion-item>
+    }
+  </ion-reorder-group>
+</ion-list>

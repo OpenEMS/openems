@@ -55,7 +55,6 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
@@ -473,18 +472,6 @@ public class AppManagerTestBundle {
 		final var clusterTask = new EvseClusterTaskImpl(this.componentManger);
 		this.appHelper.addAggregateTask(clusterTask);
 		return clusterTask;
-	}
-
-	/**
-	 * Adds a {@link EnergySchedulerVersionAggregateTaskImpl} to the current active
-	 * tasks.
-	 *
-	 * @return the created {@link EnergySchedulerVersionAggregateTaskImpl}
-	 */
-	public EnergySchedulerVersionAggregateTaskImpl addEnergySchedulerVersionAggregateTask() {
-		final var task = new EnergySchedulerVersionAggregateTaskImpl(this.componentManger);
-		this.appHelper.addAggregateTask(task);
-		return task;
 	}
 
 	/**

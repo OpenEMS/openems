@@ -1,16 +1,19 @@
 package io.openems.common.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingConsumer;
@@ -93,7 +96,7 @@ public class FunctionUtilsTest {
 		var result = FunctionUtils.runWithTimeout("TimeoutTest", 1_000L, () -> {
 			wasExecuted.set(true);
 		});
-		assertTrue(result instanceof FunctionUtils.RunWithTimeoutResult.Success);
+		assertInstanceOf(FunctionUtils.RunWithTimeoutResult.Success.class, result);
 		assertTrue(wasExecuted.get());
 
 		wasExecuted.set(false);
@@ -105,7 +108,7 @@ public class FunctionUtilsTest {
 				// Empty
 			}
 		});
-		assertTrue(result instanceof FunctionUtils.RunWithTimeoutResult.TimeoutReached);
+		assertInstanceOf(FunctionUtils.RunWithTimeoutResult.TimeoutReached.class, result);
 
 		wasExecuted.set(false);
 		result = FunctionUtils.runWithTimeout("TimeoutTest", 1_000L, () -> {
@@ -116,8 +119,14 @@ public class FunctionUtilsTest {
 				// Empty
 			}
 		});
-		assertTrue(result instanceof FunctionUtils.RunWithTimeoutResult.TimeoutReached);
+		assertInstanceOf(FunctionUtils.RunWithTimeoutResult.TimeoutReached.class, result);
 		assertFalse(wasExecuted.get());
+	}
+
+	@Test
+	public void testReturnNothing() {
+		final Supplier<?> supplier = FunctionUtils::returnNothing;
+		assertNull(supplier.get());
 	}
 
 }

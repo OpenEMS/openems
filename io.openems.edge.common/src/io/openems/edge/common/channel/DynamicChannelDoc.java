@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.dynamicdoctext.DynamicDocText;
 import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.channel.internal.AbstractDoc;
-import io.openems.edge.common.type.TextProvider;
 
 public interface DynamicChannelDoc<V> {
 	/**

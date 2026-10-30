@@ -59,6 +59,19 @@
           </oe-modal-buttons>
         }
       }
+      @if (showKEBAwarning) {
+        @if (formGroup.controls["minGuarantee"].value !== true) {
+          <oe-modal-info-line
+            [html]="
+              translate.instant('EDGE.INDEX.WIDGETS.EVCS.KEBA_WARNING', {
+                environment: environment.edgeLongName,
+                link: kebaP40HelpLink,
+              })
+            "
+            customClass="ion-border-danger ion-font-color-danger ion-font-size-larger"
+          ></oe-modal-info-line>
+        }
+      }
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       @if (controller) {
         <!--Force Charge settings-->
@@ -83,6 +96,7 @@
           </ng-container>
           <oe-modal-horizontal-line></oe-modal-horizontal-line>
         }
+
         <!--Excess Power settings-->
         @if (formGroup.value.chargeMode === "EXCESS_POWER") {
           <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.MIN_CHARGING' | translate" [formGroup]="formGroup" controlName="minGuarantee" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"></oe-modal-line>

@@ -29,7 +29,6 @@ import io.openems.backend.authentication.api.AuthUserAuthorizationCodeFlowServic
 import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationService;
 import io.openems.backend.authentication.api.AuthUserRegistrationService;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeCache;
 import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
@@ -45,6 +44,7 @@ import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.logger.DebugLoggable;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//

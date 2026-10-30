@@ -2,13 +2,9 @@ package io.openems.edge.energy.api.test;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -18,6 +14,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.periods.PeriodData;
 
 public class EnergyScheduleTester {
 
@@ -47,8 +44,6 @@ public class EnergyScheduleTester {
 
 	public final ImmutableList<EshContainer> perEsh;
 	public final ImmutableMap<EnergyScheduleHandler, Object> cscs;
-
-	private final Logger log = LoggerFactory.getLogger(EnergyScheduleTester.class);
 
 	private int nextPeriod;
 
@@ -82,13 +77,13 @@ public class EnergyScheduleTester {
 		var gsc = GlobalScheduleContext.from(this.goc);
 		var period = this.goc.periods().get(index);
 
-		final EnergyFlow.Model ef;
-		try {
-			ef = EnergyFlow.Model.from(gsc, period);
-		} catch (OpenemsException e) {
-			this.log.error("Error while simulating period [" + index + "]", e);
+		final var ef = EnergyFlow.Model.from(gsc, period);
+		// Penalize unmet predicted consumption even though the model clamps it to available supply.
+		final int predictedConsumption = period.data().consumption() //
+				.map(PeriodData.Prediction::riskAdjusted) //
+				.orElse(0);
+		if (predictedConsumption > ef.getConsumption()) {
 			fitness.addHardConstraintViolation();
-			return new SimulatedPeriod(period, gsc, null, fitness);
 		}
 
 		var eshIndex = 0;

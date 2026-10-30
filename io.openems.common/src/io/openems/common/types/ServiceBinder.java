@@ -105,6 +105,7 @@ public class ServiceBinder<T, S> {
 		for (var bindService : this.bindServices.values()) {
 			this.deactivateBindService(bindService);
 		}
+		this.bindServices.clear();
 	}
 
 	private void deactivateBindService(BindService<S> bindService) {
@@ -122,6 +123,9 @@ public class ServiceBinder<T, S> {
 
 	private ServiceRegistration<? super S> createServiceReference(S service) {
 		if (this.bundleContext == null) {
+			return null;
+		}
+		if (service == null) {
 			return null;
 		}
 

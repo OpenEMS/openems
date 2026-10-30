@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
@@ -38,14 +37,14 @@ describe("History Heatpump", () => {
                             ],
                         ),
                     ],
-                    labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
+                    labels: LABELS(History.DAY.dataChannelWithValues!.result.timestamps),
                     options: (() => {
                         const options = OeTester.ChartOptions.MULTI_LINE_OPTIONS("hour", "line", {
                             [ChartAxis.RIGHT]: {
                                 scale: { beginAtZero: true, title: { text: "kW" }, grid: { display: true } },
                             },
                         });
-                        (options.options.scales[ChartAxis.LEFT] as any).title.text = "Zustand";
+                        (options.options.scales![ChartAxis.LEFT] as any).title.text = "Zustand";
                         return options;
                     })(),
                 },
@@ -82,10 +81,10 @@ describe("History Heatpump", () => {
                             null,
                         ]),
                     ],
-                    labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
+                    labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues!.result.timestamps),
                     options: (() => {
                         const options = OeTester.ChartOptions.BAR_CHART_OPTIONS("day", "bar", {}, "Aktive Zeit");
-                        options.options.scales[ChartAxis.RIGHT] = {
+                        options.options.scales![ChartAxis.RIGHT] = {
                             title: { padding: 5, text: "kWh", display: false, font: { size: 11 } },
                             stacked: true,
                             beginAtZero: true,

@@ -25,9 +25,11 @@ import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
+import { FormlyWrapperComponent } from "./components/formly/formly-field-navigation/wrapper/wrapper.component";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlyReorderGroupComponent } from "./components/formly/formly-reorder-group/formly-reorder-group";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 
@@ -59,8 +61,15 @@ import { HelpPopoverButtonComponent } from "./components/shared/view-component/h
 import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
@@ -329,6 +338,8 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyReorderGroupComponent,
+        FormlyWrapperComponent,
     ],
     declarations: [
         AppHeaderComponent,
@@ -367,6 +378,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         FormlyFieldWithLoadingAnimationComponent,
+        FormlyReorderGroupComponent,
         FormlyIonicModule,
         FormlyModule,
         FormsModule,
@@ -410,7 +422,17 @@ export class SharedModule {
     ) {
         SharedModule.injector = injector;
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

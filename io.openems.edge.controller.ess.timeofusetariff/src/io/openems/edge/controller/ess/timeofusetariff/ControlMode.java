@@ -12,7 +12,7 @@ public enum ControlMode {
 	 */
 	DELAY_DISCHARGE(//
 			StateMachine.BALANCING, //
-			StateMachine.DELAY_DISCHARGE //
+			StateMachine.DELAY_DISCHARGE//
 	),
 	/**
 	 * Active Charge from grid.
@@ -20,7 +20,7 @@ public enum ControlMode {
 	CHARGE_CONSUMPTION(//
 			StateMachine.BALANCING, //
 			StateMachine.DELAY_DISCHARGE, //
-			StateMachine.CHARGE_GRID //
+			StateMachine.CHARGE_GRID//
 	),
 	/**
 	 * Active Discharge to grid.
@@ -29,7 +29,7 @@ public enum ControlMode {
 			StateMachine.BALANCING, //
 			StateMachine.DELAY_DISCHARGE, //
 			StateMachine.CHARGE_GRID, //
-			StateMachine.DISCHARGE_GRID //
+			StateMachine.DISCHARGE_GRID//
 	);
 
 	public final ImmutableList<StateMachine> modes;

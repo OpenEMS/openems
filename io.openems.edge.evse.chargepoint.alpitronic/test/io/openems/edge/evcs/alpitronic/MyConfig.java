@@ -16,6 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwPower;
 		private int maxHwPower;
 		private Connector connector;
+		private boolean debugMode;
 
 		private Builder() {
 		}
@@ -50,6 +51,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setDebugMode(boolean debugMode) {
+			this.debugMode = debugMode;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -73,7 +79,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public boolean debugMode() {
-		return false;
+		return this.builder.debugMode;
 	}
 
 	@Override

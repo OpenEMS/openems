@@ -10,8 +10,6 @@ import java.util.function.Consumer;
 import org.java_websocket.WebSocket;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.edge.EdgeCache;
@@ -19,6 +17,7 @@ import io.openems.backend.common.edge.jsonrpc.ConnectedEdges;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.DataTable;
 import io.openems.common.utils.StringUtils;
 
 public class WsData extends io.openems.common.websocket.WsData {
@@ -26,7 +25,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	/**
 	 * Authenticated Edges with EdgeCache of remote connections.
 	 */
-	private final ConcurrentMap<String, EdgeCache> edges = Maps.newConcurrentMap();
+	private final ConcurrentMap<String, BackendEdgeClient> edges = Maps.newConcurrentMap();
 
 	private String id;
 
@@ -85,7 +84,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return;
 		}
 		final var now = Instant.now().toEpochMilli();
-		final var data = TreeBasedTable.<Long, String, JsonElement>create();
+		final var data = new DataTable();
+		data.reserveRow(now, metrics.size());
 		for (var entry : metrics.entrySet()) {
 			data.put(now, this.id + "/" + entry.getKey(), new JsonPrimitive(entry.getValue()));
 		}
@@ -100,7 +100,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public void updateEdgeStatus(String edgeId, boolean isOnline) {
 		if (isOnline) {
-			this.edges.computeIfAbsent(edgeId, ignore -> new EdgeCache());
+			this.edges.computeIfAbsent(edgeId, ignore -> new BackendEdgeClient(edgeId, this));
 		} else {
 			this.edges.remove(edgeId);
 		}
@@ -132,28 +132,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	/**
-	 * Gets the {@link EdgeCache} for the given Edge-ID.
-	 * 
+	 * Gets the {@link BackendEdgeClient} for the given Edge-ID.
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the {@link EdgeCache} or null
 	 */
-	public EdgeCache getEdgeCache(String edgeId) {
+	public BackendEdgeClient getEdgeClient(String edgeId) {
 		return this.edges.get(edgeId);
-	}
-
-	/**
-	 * Asserts that the {@link EdgeCache} is available.
-	 * 
-	 * @param edgeId the Edge-ID
-	 * @return the {@link EdgeCache}
-	 * @throws OpenemsException on error
-	 */
-	public EdgeCache assertEdgeCache(String edgeId) throws OpenemsException {
-		final var edgeCache = this.getEdgeCache(edgeId);
-		if (edgeCache == null) {
-			throw new OpenemsException("[" + edgeId + "] No EdgeCache available");
-		}
-		return edgeCache;
 	}
 
 	/**

@@ -89,6 +89,8 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 								.setMin(250)//
 								.setMax(30000)//
 								.setUnit(Unit.WATT, l))), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
+
 		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
@@ -183,9 +185,9 @@ public class AppHeatAskoma extends AbstractOpenemsAppWithProps<AppHeatAskoma, Ap
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

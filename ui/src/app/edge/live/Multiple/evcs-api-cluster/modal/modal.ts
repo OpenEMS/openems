@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ItemReorderCustomEvent } from "@ionic/angular";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
@@ -18,7 +18,7 @@ export class ModalComponent extends AbstractModal {
     protected override getFormGroup(): FormGroup {
         AssertionUtils.assertIsDefined(this.component);
         return this.formBuilder.group({
-            "evcs.ids": new FormControl(this.component.getPropertyFromComponent("evcs.ids")),
+            evcs_ids: new FormControl(this.component.getPropertyFromComponent("evcs.ids")),
         });
     }
 
@@ -49,7 +49,7 @@ export class ModalComponent extends AbstractModal {
     protected onReorder(event: ItemReorderCustomEvent) {
         let evcsIds = Object.entries(this.evcss).map(([k, _v]) => k);
         evcsIds = event.detail.complete(evcsIds);
-        const control = FormUtils.findFormControlSafely(this.formGroup, "evcs.ids");
+        const control = FormUtils.findFormControlSafely(this.formGroup, "evcs_ids");
 
         if (control == null) {
             return;

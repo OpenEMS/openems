@@ -114,7 +114,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
                     color: this.getColor(line.level),
                     level: line.level,
                     source: line.source,
-                    message: line.message.replace(/\n/g, "</br>"),
+                    message: line.message.replaceAll("\n", "</br>"),
                 });
 
                 this.filterLogs();

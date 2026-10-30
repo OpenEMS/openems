@@ -4,7 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -35,14 +35,14 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         service: Service,
         edge: Edge,
         config: EdgeConfig,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
     ): Promise<OeFormlyView> {
         return {
             title: translate.instant("GENERAL.STORAGE_SYSTEM"),
             helpKey: "REDIRECT.COMMON_STORAGE",
             lines: await CommonStorageHomeComponent.getLines(translate, service, edge, config, energyScheduler),
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
+            useCiFont: true,
         };
     }
 
@@ -51,7 +51,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         service: Service,
         edge: Edge,
         config: EdgeConfig,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
     ): Promise<OeFormlyField[]> {
         await energyScheduler?.updateSchedule(edge, service.websocket);
         const essComponents: EdgeConfig.Component[] = SharedStorage.getEssComponents(config);
@@ -59,15 +59,16 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             [essId: string]: EdgeConfig.Component;
         } = config
             .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
-            .filter(component => component.isEnabled)
+            .filter((component) => component.isEnabled)
             .reduce((result, component) => {
                 return {
                     ...result,
                     [component.properties["ess.id"]]: component,
                 };
             }, {});
-        const prepareBatteryExtensionCtrl: { [essId: string]: EdgeConfig.Component } = config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
-            .filter(component => component.isEnabled)
+        const prepareBatteryExtensionCtrl: { [essId: string]: EdgeConfig.Component } = config
+            .getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
+            .filter((component) => component.isEnabled)
             .reduce((result, component) => {
                 return {
                     ...result,
@@ -253,7 +254,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const energy = new EnergySchedulerV2(config);
+        const energy = new EnergyScheduler(config);
 
         return await CommonStorageHomeComponent.getFormlyGeneralView(
             this.translate,
@@ -264,7 +265,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         );
     }
 
-
     protected override onCurrentData(currentData: CurrentData): void {
         this.setFormControlSafelyWithValue(this.form(), "soc", currentData.allComponents["_sum/EssSoc"]);
     }
@@ -272,7 +272,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
     protected override getChannelAddresses(): Promise<ChannelAddress[]> {
         return Promise.resolve([new ChannelAddress("_sum", "EssSoc")]);
     }
-
 }
 
 export const ESS_CHARGE_OR_DISCHARGE =

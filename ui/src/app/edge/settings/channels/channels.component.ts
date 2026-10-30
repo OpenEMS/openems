@@ -1,5 +1,6 @@
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Location } from "@angular/common";
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PersistencePriority } from "src/app/shared/components/edge/edgeconfig";
@@ -17,7 +18,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "../../../s
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class ChannelsComponent {
+export class ChannelsComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "channels";
     private static readonly URL_PREFIX = "channels";
     public customAlertOptions: any = {
@@ -40,13 +41,14 @@ export class ChannelsComponent {
         private websocket: Websocket,
         private route: ActivatedRoute,
         private router: Router,
+        private location: Location,
         protected translate: TranslateService,
     ) {}
 
     private static readonly ERROR_COMPONENT_COULD_NOT_BE_FOUND = (componentId: string) =>
         `[ComponentId] ${componentId} doesn't exist on this edge`;
 
-    ionViewWillEnter() {
+    ngOnInit() {
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
         });
@@ -73,7 +75,7 @@ export class ChannelsComponent {
         });
     }
 
-    ionViewDidLeave() {
+    public ngOnDestroy() {
         this.selectedComponentChannels = new Map();
         this.edge?.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
     }
@@ -147,11 +149,7 @@ export class ChannelsComponent {
 
         const channelAddress = new ChannelAddress(componentId, channelId);
         if (this.subscribedChannels.delete(channelAddress.toString())) {
-            this.edge.subscribeChannels(
-                this.websocket,
-                ChannelsComponent.SELECTOR,
-                Array.from(this.subscribedChannels.values()).flat(),
-            );
+            this.edge.unsubscribeFromChannels(ChannelsComponent.SELECTOR, this.websocket, [channelAddress]);
         }
 
         this.saveChannelsInUrl();
@@ -209,15 +207,20 @@ export class ChannelsComponent {
             });
     }
 
+    /**
+     * Updates the url without triggering a router navigation, which would recreate this component and reload the saved
+     * channels. The channels are only restored from the url on a page reload.
+     */
     private saveChannelsInUrl(): void {
         const selectedChannels = this.getSelectedChannelStrings();
+        const commands = ["device/" + this.edge.id + "/settings/channels/"];
         if (selectedChannels && selectedChannels.length > 0) {
-            this.router.navigate(["device/" + this.edge.id + "/settings/channels/"], {
-                queryParams: { save: selectedChannels.toString() },
-            });
+            this.location.replaceState(
+                this.router.createUrlTree(commands, { queryParams: { save: selectedChannels.toString() } }).toString(),
+            );
             this.isAtLeastOneChannelExistingInEdgeConfig = false;
         } else {
-            this.router.navigate(["device/" + this.edge.id + "/settings/channels/"]);
+            this.location.replaceState(this.router.createUrlTree(commands).toString());
         }
     }
 

@@ -75,8 +75,8 @@ export class KeyModalComponent implements OnInit {
         }
 
         // remove last dash
-        const hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
-        trimmed = trimmed.replace(/-/g, "");
+        const hasDashAsLastChar = trimmed.endsWith("-");
+        trimmed = trimmed.replaceAll("-", "");
 
         const numbers = [];
 
@@ -372,59 +372,60 @@ export class KeyModalComponent implements OnInit {
      */
     private getFields(): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
-        fields.push({
-            key: "useRegisteredKeys",
-            type: "checkbox",
-            props: {
-                label: this.translate.instant("EDGE.CONFIG.APP.KEY.USE_REGISTERED_KEY"),
-            },
-            hide: this.registeredKeys.length === 0,
-            expressions: {
-                "props.disabled": (field) => field.model.useMasterKey,
-            },
-        });
 
-        fields.push({
-            key: "registeredKey",
-            type: "select",
-            props: {
-                label: this.translate.instant("EDGE.CONFIG.APP.KEY.REGISTERED_KEY"),
-                required: true,
-                options: [],
-            },
-            expressions: {
-                hide: () => this.registeredKeys.length === 0,
-                "props.disabled": (field) => !field.model.useRegisteredKeys || field.model.useMasterKey,
-            },
-            wrappers: ["formly-select-extended-wrapper"],
-        });
-
-        fields.push({
-            key: "key",
-            type: "input",
-            props: {
-                label: this.translate.instant("EDGE.CONFIG.APP.KEY.KEY"),
-                required: true,
-                placeholder: "XXXX-XXXX-XXXX-XXXX",
-            },
-            expressions: {
-                "props.disabled": (field) => field.model.useRegisteredKeys || field.model.useMasterKey,
-            },
-            validators: {
-                validation: ["key"],
-            },
-            hooks: {
-                onInit: (field) => {
-                    field.formControl.valueChanges.subscribe((next) => {
-                        const nextInput = KeyModalComponent.transformInput(next);
-                        if (!nextInput) {
-                            return;
-                        }
-                        field.formControl.setValue(nextInput);
-                    });
+        fields.push(
+            {
+                key: "useRegisteredKeys",
+                type: "checkbox",
+                props: {
+                    label: this.translate.instant("EDGE.CONFIG.APP.KEY.USE_REGISTERED_KEY"),
+                },
+                hide: this.registeredKeys.length === 0,
+                expressions: {
+                    "props.disabled": (field) => field.model.useMasterKey,
                 },
             },
-        });
+            {
+                key: "registeredKey",
+                type: "select",
+                props: {
+                    label: this.translate.instant("EDGE.CONFIG.APP.KEY.REGISTERED_KEY"),
+                    required: true,
+                    options: [],
+                },
+                expressions: {
+                    hide: () => this.registeredKeys.length === 0,
+                    "props.disabled": (field) => !field.model.useRegisteredKeys || field.model.useMasterKey,
+                },
+                wrappers: ["formly-select-extended-wrapper"],
+            },
+            {
+                key: "key",
+                type: "input",
+                props: {
+                    label: this.translate.instant("EDGE.CONFIG.APP.KEY.KEY"),
+                    required: true,
+                    placeholder: "XXXX-XXXX-XXXX-XXXX",
+                },
+                expressions: {
+                    "props.disabled": (field) => field.model.useRegisteredKeys || field.model.useMasterKey,
+                },
+                validators: {
+                    validation: ["key"],
+                },
+                hooks: {
+                    onInit: (field) => {
+                        field.formControl.valueChanges.subscribe((next) => {
+                            const nextInput = KeyModalComponent.transformInput(next);
+                            if (!nextInput) {
+                                return;
+                            }
+                            field.formControl.setValue(nextInput);
+                        });
+                    },
+                },
+            },
+        );
 
         if (
             this.behaviour !== KeyValidationBehaviour.REGISTER &&
