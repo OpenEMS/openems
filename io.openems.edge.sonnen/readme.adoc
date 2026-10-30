@@ -1,0 +1,136 @@
+= Sonnen sonnenBatterie
+
+Integration of the sonnenBatterie (e.g. sonnenBatterie 10) via the local JSON-API of the device.
+
+== Overview
+
+This bundle provides integration with the sonnenBatterie, using the local JSON-API of the device (see the sonnen 'JSON Write API' and 'Read API' documentation available via the sonnenBatterie webinterface under 'Software-Integration').
+
+The bundle consists of four components:
+
+* **Sonnen Core**: connects to the local JSON-API, polls the read endpoints and executes the write commands
+* **Sonnen ESS**: Managed Symmetric ESS
+* **Sonnen Grid-Meter**: grid meter, measured by the sonnenBatterie
+* **Sonnen PV-Meter**: PV production, measured by the sonnenBatterie
+
+== API
+
+The following endpoints of the local JSON-API are used:
+
+[cols="1,3"]
+|===
+|Endpoint |Description
+
+|`GET /api/v2/status`
+|System status: ESS power, SoC, operating mode, grid feed-in, consumption, PV production. This endpoint does not require an API token.
+
+|`GET /api/v2/powermeter`
+|Per-phase measurements of the 'consumption' (grid) and 'production' (PV) meters. Requires an API token on most firmwares.
+
+|`PUT /api/v2/configurations`
+|Sets the operating mode (`EM_OperatingMode`). Form-encoded body, e.g. `EM_OperatingMode=2`. Requires an API token.
+
+|`POST /api/v2/setpoint/charge/{watts}` +
+`POST /api/v2/setpoint/discharge/{watts}`
+|Sets the charge/discharge set-point in [W]. Requires an API token and 'Manual' operating mode. The set-point is kept until a new one is received.
+|===
+
+Sign conventions of the API:
+
+* `Pac_total_W`: positive = discharging, negative = charging
+* `GridFeedIn_W`: positive = feed-in, negative = purchase from grid
+* `Production_W`: positive = PV production
+* Powermeter `w` values: positive in the direction of the respective meter; i.e. positive = purchase from grid for the 'consumption' entry and positive = production for the 'production' entry
+
+== Components
+
+=== Sonnen Core
+
+*Factory-PID*: `Sonnen.Core`
+
+*Description*: Core communication component. Must be configured before the other components.
+
+.*Configuration*:
+
+* `id` (String): Component ID (default: "sonnenCore0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ipAddress` (String): IPv4 address of the sonnenBatterie
+* `port` (Integer): Port of the local JSON-API (default: 80)
+* `apiToken` (String): API token (webinterface: 'Software-Integration'). Required for the Write-API.
+* `readInterval` (Integer): Read interval in seconds (default: 5)
+
+=== Sonnen ESS
+
+*Factory-PID*: `Sonnen.ESS`
+
+.Implemented Natures/Interfaces
+* EssSonnen
+* ManagedSymmetricEss
+* SymmetricEss
+* OpenemsComponent
+
+*Description*: Managed Symmetric ESS. The active power set-point is applied via the 'Manual' operating mode and the charge/discharge set-points of the Write-API.
+
+.*Configuration*:
+
+* `id` (String): Component ID (default: "ess0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `core_id` (String): Component ID of the Core component (default: "sonnenCore0")
+* `controlMode` (Enum): INTERNAL, SMART (default) or REMOTE - see below
+* `defaultOperatingMode` (Enum): operating mode of the sonnenBatterie whenever it is not remote-controlled; default: SELF_CONSUMPTION
+* `capacity` (Integer): usable capacity of the battery in [Wh] (default: 5500)
+* `maxApparentPower` (Integer): maximum apparent power in [VA] (default: 3300)
+* `maxChargePower` (Integer): maximum charge power in [W] (default: 3300)
+* `maxDischargePower` (Integer): maximum discharge power in [W] (default: 3300)
+
+.Control Modes
+
+* `INTERNAL`: the sonnenBatterie controls itself in the `defaultOperatingMode`. No remote control of set-points.
+* `SMART`: the sonnenBatterie controls itself; OpenEMS takes over via 'Manual' mode only if the internal energy management does not achieve the requested set-point. This avoids conflicts with the internal energy management, e.g. when the OpenEMS Balancing controller regulates to zero at the grid junction point anyway. Requires a grid meter (the Sonnen Grid-Meter component or any other grid meter).
+* `REMOTE`: OpenEMS fully controls the sonnenBatterie via 'Manual' mode.
+
+=== Sonnen Grid-Meter
+
+*Factory-PID*: `Sonnen.Meter`
+
+.Implemented Natures/Interfaces
+* MeterSonnen
+* ElectricityMeter
+* OpenemsComponent
+
+*Description*: Grid meter. Total power is taken from the `/api/v2/status` endpoint; per-phase values and energies from the 'consumption' entry of the `/api/v2/powermeter` endpoint (requires API token).
+
+.*Configuration*:
+
+* `id` (String): Component ID (default: "meter0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `core_id` (String): Component ID of the Core component (default: "sonnenCore0")
+
+=== Sonnen PV-Meter
+
+*Factory-PID*: `Sonnen.PV`
+
+.Implemented Natures/Interfaces
+* PvSonnen
+* ElectricityMeter
+* OpenemsComponent
+
+*Description*: PV production meter. Total power is taken from the `/api/v2/status` endpoint; per-phase values and energies from the 'production' entry of the `/api/v2/powermeter` endpoint (requires API token).
+
+.*Configuration*:
+
+* `id` (String): Component ID (default: "pv0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `core_id` (String): Component ID of the Core component (default: "sonnenCore0")
+
+== Notes
+
+* The Write-API must be activated in the webinterface of the sonnenBatterie ('Software-Integration') and the generated API token must be configured in the Core component.
+* The sonnenBatterie rejects write-commands while a VPP (virtual power plant) has priority.
+* Reactive power set-points are not supported by the API and are ignored.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.sonnen[Source Code icon:github[]]
