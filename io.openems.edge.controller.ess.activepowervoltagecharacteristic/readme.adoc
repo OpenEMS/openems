@@ -1,4 +1,4 @@
-= Ess Active Power Voltage Characteristic
+= ESS Active Power Voltage Characteristic
 
 * This controller charges/discharges an energy storage system with active power in order to keep the grid voltage within an acceptable range.
 
