@@ -250,8 +250,8 @@
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.google.protobuf;version='[4.36.2,4.36.3)',\
 	com.opencsv;version='[5.9.0,5.9.1)',\
-	com.squareup.okhttp3;version='[5.5.0,5.5.1)',\
-	com.squareup.okhttp3.logging;version='[5.5.0,5.5.1)',\
+	com.squareup.okhttp3;version='[5.5.1,5.5.2)',\
+	com.squareup.okhttp3.logging;version='[5.5.1,5.5.2)',\
 	com.squareup.okio;version='[3.18.2,3.18.3)',\
 	com.sun.jna;version='[5.19.1,5.19.2)',\
 	io.openems.common;version=snapshot,\
