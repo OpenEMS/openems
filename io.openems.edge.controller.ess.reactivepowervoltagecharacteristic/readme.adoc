@@ -1,4 +1,4 @@
-= Ess Reactive Power Voltage Characteristic
+= ESS Reactive Power Voltage Characteristic
 
 * This controller sets reactive power of an energy storage system in order to keep the grid voltage within an acceptable range.
 
