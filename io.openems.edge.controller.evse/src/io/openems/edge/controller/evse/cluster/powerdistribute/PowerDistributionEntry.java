@@ -12,16 +12,23 @@ public class PowerDistributionEntry {
 	public final Mode mode;
 	public final Integer activePower;
 	public final ApplySetPoint.Ability.Watt applySetPoint;
+	public final boolean hasExternalStaticSetPoint;
 
 	protected int setPointInWatt;
 
 	public PowerDistributionEntry(PowerDistributionKey key, Status status, Mode mode, Integer activePower,
 			ApplySetPoint.Ability.Watt applySetPoint) {
+		this(key, status, mode, activePower, applySetPoint, false);
+	}
+
+	public PowerDistributionEntry(PowerDistributionKey key, Status status, Mode mode, Integer activePower,
+			ApplySetPoint.Ability.Watt applySetPoint, boolean hasExternalStaticSetPoint) {
 		this.key = key;
 		this.status = status;
 		this.mode = mode;
 		this.activePower = activePower;
 		this.applySetPoint = applySetPoint;
+		this.hasExternalStaticSetPoint = hasExternalStaticSetPoint;
 	}
 
 	public int getSetPointInWatt() {

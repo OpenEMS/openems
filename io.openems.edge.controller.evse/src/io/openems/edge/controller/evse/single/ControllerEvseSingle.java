@@ -1,14 +1,18 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.UNIX_TIMESTAMP_SECONDS;
+import static io.openems.common.channel.Unit.WATT;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
@@ -31,6 +35,21 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 				.unit(UNIX_TIMESTAMP_SECONDS)//
 				.text("Unix epoch seconds for the next probable automatic phase switch")//
 				.persistencePriority(HIGH)), //
+
+		EXTERNAL_MIN_CHARGE_POWER(new IntegerDoc() //
+				.unit(WATT) //
+				.accessMode(READ_WRITE) //
+				.text("Externally requested minimum charge power in [W]")), //
+
+		EXTERNAL_MAX_CHARGE_POWER(new IntegerDoc() //
+				.unit(WATT) //
+				.accessMode(READ_WRITE) //
+				.text("Externally requested maximum charge power in [W]")), //
+
+		EXTERNAL_STATIC_CHARGE_POWER(new IntegerDoc() //
+				.unit(WATT) //
+				.accessMode(READ_WRITE) //
+				.text("Externally requested static charge power in [W]")), //
 
 		PHASE_SWITCH_FAILED(Doc.of(Level.WARNING)) //
 		;
@@ -69,6 +88,33 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getSessionEnergyChannel() {
 		return this.channel(ChannelId.SESSION_ENERGY);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EXTERNAL_MIN_CHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getExternalMinChargePowerChannel() {
+		return this.channel(ChannelId.EXTERNAL_MIN_CHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EXTERNAL_MAX_CHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getExternalMaxChargePowerChannel() {
+		return this.channel(ChannelId.EXTERNAL_MAX_CHARGE_POWER);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EXTERNAL_STATIC_CHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getExternalStaticChargePowerChannel() {
+		return this.channel(ChannelId.EXTERNAL_STATIC_CHARGE_POWER);
 	}
 
 	/**
