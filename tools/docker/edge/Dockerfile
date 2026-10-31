@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=21
+ARG JAVA_VERSION=25
 ARG JAVA_PACKAGE=jre
 
 ### Build edge binary
@@ -43,7 +43,7 @@ RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
 RUN echo "Alpine Linux $(apk version alpine-baselayout 2>/dev/null | awk -F'-' '{print $3}' | grep -v '^$')" \
     | tee /app/version
 
-ENV EXTRA_JVM_OPTS=""
+ENV EXTRA_JVM_OPTS="-XX:+ExitOnOutOfMemoryError"
 
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data

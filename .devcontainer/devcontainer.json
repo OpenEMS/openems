@@ -1,4 +1,4 @@
-// Dev container for OpenEMS — Java 21 (Gradle/OSGi) + Node.js 22 (Angular UI)
+// Dev container for OpenEMS — Java 25 (Gradle/OSGi) + Node.js 22 (Angular UI)
 {
 	"name": "OpenEMS",
 	"build": {
