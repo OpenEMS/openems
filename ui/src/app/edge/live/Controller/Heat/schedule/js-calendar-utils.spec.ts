@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import heatEn from "../i18n/en.json";
-import { Mode } from "../settings/settings";
+import { PropertyMode } from "../shared/shared";
 import { HeatManualPayload } from "./js-calendar-utils";
 
 describe("HeatManualPayload", () => {
@@ -9,9 +9,7 @@ describe("HeatManualPayload", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [
-                TranslateModule.forRoot(),
-            ],
+            imports: [TranslateModule.forRoot()],
         }).compileComponents();
 
         translate = TestBed.inject(TranslateService);
@@ -21,10 +19,10 @@ describe("HeatManualPayload", () => {
 
     it("serializes the OpenEMS payload", () => {
         const payload = TestBed.runInInjectionContext(() => new HeatManualPayload());
-        payload.setValue({ mode: Mode.SURPLUS });
+        payload.setValue({ mode: PropertyMode.SURPLUS });
 
         expect(payload.toOpenEMSPayload()).toEqual({
-            "openems.io:payload": { mode: Mode.SURPLUS },
+            "openems.io:payload": { mode: PropertyMode.SURPLUS },
         });
     });
 
@@ -36,11 +34,11 @@ describe("HeatManualPayload", () => {
             start: "2026-04-22T08:00:00",
             recurrenceRules: [],
             "openems.io:payload": {
-                mode: Mode.FAST_HEAT,
+                mode: PropertyMode.FAST_HEAT,
             },
         });
 
-        expect(payload["value"]).toEqual({ mode: Mode.FAST_HEAT });
+        expect(payload["value"]).toEqual({ mode: PropertyMode.FAST_HEAT });
     });
 
     it("formats the payload text with localized mode labels", () => {
@@ -52,7 +50,7 @@ describe("HeatManualPayload", () => {
             start: "2026-04-22T08:00:00",
             recurrenceRules: [],
             "openems.io:payload": {
-                mode: Mode.OFF,
+                mode: PropertyMode.OFF,
             },
         });
 

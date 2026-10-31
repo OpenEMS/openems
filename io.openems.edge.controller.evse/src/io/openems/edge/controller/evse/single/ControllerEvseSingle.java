@@ -11,13 +11,12 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 public interface ControllerEvseSingle extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(StateMachine.State.values())//
+		STATE_MACHINE(Doc.of(EvseSingleState.values())//
 				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
 

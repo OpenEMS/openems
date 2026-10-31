@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes;
@@ -19,6 +20,7 @@ import io.openems.edge.energy.api.handler.DifferentModes.Modes.SingleModes;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes.SingleModes.SingleMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.heat.api.Heat;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EnergyScheduler {
@@ -57,7 +59,41 @@ public class EnergyScheduler {
 
 	public record OptimizationContext(JSCalendar.OneTasks<HeatAskomaPayload> oneTasks, //
 			Mode defaultMode, //
-			int maxHeatPower) { //
+			                          int maxHeatPower, //
+			                          Integer remainingHeatEnergy) { //
+	}
+
+	public static class ScheduleContext {
+		private Integer remainingHeatEnergy;
+
+		public ScheduleContext(Integer remainingHeatEnergy) {
+			this.remainingHeatEnergy = remainingHeatEnergy;
+		}
+
+		/**
+		 * Limits the given energy to the remaining heat energy.
+		 *
+		 * @param energy the energy
+		 * @return the limited energy
+		 */
+		public int limitToRemainingHeatEnergy(int energy) {
+			if (this.remainingHeatEnergy == null) {
+				return energy;
+			}
+			return Math.min(energy, this.remainingHeatEnergy);
+		}
+
+		/**
+		 * Applies the planned heat energy.
+		 *
+		 * @param energy the planned energy
+		 */
+		public void applyHeatEnergy(int energy) {
+			if (this.remainingHeatEnergy == null) {
+				return;
+			}
+			this.remainingHeatEnergy = Math.max(0, this.remainingHeatEnergy - energy);
+		}
 	}
 
 	/**
@@ -73,11 +109,11 @@ public class EnergyScheduler {
 	 * @param configSupplier supplier for {@link Config}
 	 * @return a {@link EnergyScheduleHandler}
 	 */
-	public static EshWithDifferentModes<Mode, OptimizationContext, Void> buildEnergyScheduleHandler(
+	public static EshWithDifferentModes<Mode, OptimizationContext, ScheduleContext> buildEnergyScheduleHandler(
 			OpenemsComponent parent, //
 			ClockProvider clockProvider, //
 			Supplier<Config> configSupplier) {
-		return EnergyScheduleHandler.WithDifferentModes.<Mode, OptimizationContext, Void>create(parent) //
+		return EnergyScheduleHandler.WithDifferentModes.<Mode, OptimizationContext, ScheduleContext>create(parent) //
 				.setSerializer(Config.serializer(clockProvider.getClock()), configSupplier) //
 
 				.setModes(() -> new SingleModes<>(//
@@ -96,8 +132,11 @@ public class EnergyScheduler {
 					var firstPeriodTime = goc.periods().getFirst().time();
 					var lastPeriodTime = goc.periods().getLast().time();
 					var tasks = config.tasks().getOneTasksBetween(firstPeriodTime, lastPeriodTime);
-					return new OptimizationContext(tasks, config.defaultMode(), config.maxHeatPower());
+					return new OptimizationContext(tasks, config.defaultMode(), config.maxHeatPower(),
+							getRemainingHeatEnergy(parent));
 				})
+
+				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.remainingHeatEnergy()))
 
 				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
 					if (coc == null) {
@@ -107,14 +146,25 @@ public class EnergyScheduler {
 					var activeMode = payload != null ? payload.mode() : coc.defaultMode();
 					var maxHeatEnergy = period.duration().convertPowerToEnergy(coc.maxHeatPower());
 					var energy = switch (activeMode) {
-					case FAST_HEAT -> maxHeatEnergy;
-					case SURPLUS -> clamp(ef.getSurplus(), 0, maxHeatEnergy);
-					case OFF -> 0;
+						case FAST_HEAT -> csc.limitToRemainingHeatEnergy(maxHeatEnergy);
+						case SURPLUS -> csc.limitToRemainingHeatEnergy(clamp(ef.getSurplus(), 0, maxHeatEnergy));
+						case OFF -> 0;
 					};
-					ef.addManagedConsumption(id, energy);
+					var actualEnergy = ef.addManagedConsumption(id, energy);
+					if (activeMode != Mode.OFF) {
+						csc.applyHeatEnergy(actualEnergy);
+					}
 					return activeMode;
 				})
 
 				.build();
+	}
+
+	private static Integer getRemainingHeatEnergy(OpenemsComponent parent) {
+		Channel<Integer> channel = parent.channelOrNull(Heat.ChannelId.REMAINING_HEAT_ENERGY);
+		if (channel == null) {
+			return null;
+		}
+		return channel.value().get();
 	}
 }

@@ -226,4 +226,28 @@ public class StringUtils {
 		}
 		return obj.toString();
 	}
+
+	/**
+	 * Extracts the substring between the first occurrence of {@code startCharacter}
+	 * and the last occurrence of {@code endCharacter}.
+	 *
+	 * <p>
+	 * Returns {@code null} if one of the delimiters is not found or if the
+	 * resulting range is empty or invalid.
+	 *
+	 * @param str            the source string
+	 * @param startCharacter the start delimiter
+	 * @param endCharacter   the end delimiter
+	 * @return the extracted substring, or {@code null} if no valid enclosed text
+	 *         exists
+	 */
+	public static String extractTextSurroundedBy(String str, String startCharacter, String endCharacter) {
+		final var startIdx = str.indexOf(startCharacter);
+		final var endIdx = str.lastIndexOf(endCharacter);
+		if (startIdx == -1 || endIdx == -1 || startIdx + startCharacter.length() > endIdx || startIdx >= endIdx) {
+			return null;
+		}
+
+		return str.substring(startIdx + startCharacter.length(), endIdx);
+	}
 }

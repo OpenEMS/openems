@@ -43,10 +43,10 @@ export class ModalValueLineComponent extends AbstractModalLine {
     protected override onCurrentData(currentData: CurrentData): void {
         this.shouldShow =
             this._filters !== null && typeof this._filters === "function" ? this._filters(currentData) : true;
-        this.displayValue = this.valueCallback(currentData);
+        this.displayValue.set(this.valueCallback(currentData));
 
         if (this.nameCallback != null) {
-            this.displayName = this.nameCallback(currentData);
+            this.displayName.set(this.nameCallback(currentData));
         }
     }
 }

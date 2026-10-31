@@ -21,7 +21,7 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: true,
+        useCiFont: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {

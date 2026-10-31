@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
@@ -14,9 +13,9 @@ import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal
     standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends AbstractFlatWidget {
-    public activePower: number;
-    public peakShavingPower: number;
-    public rechargePower: number;
+    public activePower: number | null = null;
+    public peakShavingPower: number | null = null;
+    public rechargePower: number | null = null;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     protected modalComponent: Modal | null = null;
     protected override afterIsInitialized(): void {
@@ -33,12 +32,20 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
     }
 
     protected override getChannelAddresses() {
+        if (this.component == null) {
+            return [];
+        }
+
         return SharedControllerPeakShaving.getWidgetChannelAddresses(
             this.component.getPropertyFromComponent<string>("meter.id"),
-            this.componentId,
+            this.component.id,
         );
     }
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null) {
+            return;
+        }
+
         const values = SharedControllerPeakShaving.getWidgetValues(
             currentData,
             this.component.getPropertyFromComponent<string>("meter.id"),

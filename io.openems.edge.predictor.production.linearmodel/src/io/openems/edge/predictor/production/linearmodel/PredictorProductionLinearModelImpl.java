@@ -6,6 +6,7 @@ import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.Executors;
@@ -49,6 +50,8 @@ import io.openems.edge.predictor.api.common.TrainingError;
 import io.openems.edge.predictor.api.common.TrainingState;
 import io.openems.edge.predictor.api.mlcore.datastructures.Series;
 import io.openems.edge.predictor.api.mlcore.regression.RandomForestRegressor;
+import io.openems.edge.predictor.api.mlcore.smoothing.GaussianKernels;
+import io.openems.edge.predictor.api.mlcore.smoothing.GaussianSmoother;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
@@ -73,6 +76,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 	private static final long NO_INITIAL_DELAY = 0L;
 	private static final int MINUTES_PER_QUARTER = 15;
+	private static final int HISTORY_QUARTERS = GaussianKernels.SIZE_9.length / 2;
 
 	private final Logger log = LoggerFactory.getLogger(PredictorProductionLinearModelImpl.class);
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -282,19 +286,56 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		var now = roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock()));
 		var timestampValueMap = series.toMap();
 
-		var predictedValues = new Integer[this.predictorConfig.forecastQuarters()];
+		var rawValues = new double[this.predictorConfig.forecastQuarters()];
 		for (int i = 0; i < this.predictorConfig.forecastQuarters(); i++) {
 			var expectedTime = now.plus(i * MINUTES_PER_QUARTER, MINUTES);
 			Double value = timestampValueMap.get(expectedTime);
-
 			if (value == null || Double.isNaN(value)) {
-				predictedValues[i] = null;
+				rawValues[i] = 0.0;
 			} else {
-				predictedValues[i] = (int) Math.round(value < 5 ? 0 : value);
+				rawValues[i] = Math.round(value < 5.0 ? 0.0 : value);
 			}
 		}
 
-		return Prediction.from(this.sum, channelAddress, now.toInstant(), predictedValues);
+		var smoothedValues = new GaussianSmoother(GaussianKernels.SIZE_9).smooth(rawValues,
+				this.getProductionHistory(now, channelAddress));
+		var smoothedIntegerValues = Arrays.stream(smoothedValues)//
+				.mapToObj(value -> (int) Math.round(value))//
+				.toArray(Integer[]::new);
+
+		return Prediction.from(this.sum, channelAddress, now.toInstant(), smoothedIntegerValues);
+	}
+
+	private double[] getProductionHistory(ZonedDateTime start, ChannelAddress channelAddress) {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData;
+		try {
+			historicData = this.timedata.queryHistoricData(//
+					null, //
+					start.minusMinutes(HISTORY_QUARTERS * MINUTES_PER_QUARTER), //
+					start, //
+					Set.of(channelAddress), //
+					new Resolution(MINUTES_PER_QUARTER, MINUTES));
+		} catch (OpenemsNamedException e) {
+			this.logWarn(this.log, "Unable to smooth prediction transition: " + e.getMessage());
+			return new double[0];
+		}
+
+		if (historicData == null) {
+			return new double[0];
+		}
+		var history = new double[HISTORY_QUARTERS];
+		int firstIndex = history.length;
+		for (int i = history.length - 1; i >= 0; i--) {
+			var time = start.minusMinutes((history.length - i) * MINUTES_PER_QUARTER);
+			var historicValues = historicData.get(time);
+			var historicValue = historicValues == null ? null : historicValues.get(channelAddress);
+			if (historicValue == null || historicValue.isJsonNull()) {
+				break;
+			}
+			history[i] = Math.max(0, historicValue.getAsDouble());
+			firstIndex = i;
+		}
+		return Arrays.copyOfRange(history, firstIndex, history.length);
 	}
 
 	private TrainingContext createTrainingContext() {

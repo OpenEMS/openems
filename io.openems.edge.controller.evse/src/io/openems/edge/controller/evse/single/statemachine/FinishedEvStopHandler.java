@@ -3,21 +3,21 @@ package io.openems.edge.controller.evse.single.statemachine;
 import static io.openems.edge.controller.evse.single.Types.History.allActivePowersAreZero;
 
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
+import io.openems.edge.controller.evse.single.EvseSingleState;
 
-public class FinishedEvStopHandler extends StateHandler<State, Context> {
+public class FinishedEvStopHandler extends StateHandler<EvseSingleState, Context> {
 
 	@Override
-	public State runAndGetNextState(Context context) {
+	public EvseSingleState runAndGetNextState(Context context) {
 		// Allow charge with minimum power
 		context.applyMinSetPointActions();
 
 		final var history = context.history;
 		if (!allActivePowersAreZero(history.streamAll())) { // Non-Zero Active Powers were measured
 			// -> EV is again charging
-			return State.CHARGING;
+			return EvseSingleState.CHARGING;
 		}
 
-		return State.FINISHED_EV_STOP;
+		return EvseSingleState.FINISHED_EV_STOP;
 	}
 }

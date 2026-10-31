@@ -28,6 +28,7 @@ import java.util.Optional;
 import com.google.common.primitives.ImmutableIntArray;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.Environment;
@@ -66,7 +67,7 @@ public final class Utils {
 	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	static ApplyMode calculateApplyMode(//
-			Sum sum, ManagedSymmetricEss ess, Integer gridBuySoftLimit, int gridSellHardLimit,
+			Sum sum, ManagedSymmetricEss ess, GridLimit gridLimit,
 			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode, Clock clock) {
 		final Integer gridActivePower = sum.getGridActivePower().get();
 		final Integer essActivePower = ess.getActivePower().get();
@@ -85,7 +86,7 @@ public final class Utils {
 		case BALANCING -> new ApplyMode(BALANCING, balancingSetpoint);
 		case DELAY_DISCHARGE -> calculateDelayDischarge(ess, essActivePower, balancingSetpoint);
 		case CHARGE_GRID, PEAK_SHAVING -> calculateChargeGrid(ess, essActivePower, gridActivePower, balancingSetpoint,
-				gridBuySoftLimit, optimizationContext);
+				gridLimit.activeGridBuySoftLimit(), optimizationContext);
 		case DISCHARGE_GRID -> calculateDischargeGrid(essActivePower, gridActivePower);
 		case DELAY_CHARGE -> calculateLimitCharge(ess, essActivePower, 0, balancingSetpoint);
 		case LIMIT_CHARGE -> {
@@ -96,7 +97,8 @@ public final class Utils {
 			calculateDischargeConsumption(balancingSetpoint, productionActivePower);
 		};
 
-		return postProcessApplyMode(applyMode, balancingSetpoint, gridBuySoftLimit, gridSellHardLimit);
+		return postProcessApplyMode(applyMode, balancingSetpoint, gridLimit.activeGridBuySoftLimit(),
+				gridLimit.gridSellHardLimitWithBuffer());
 	}
 
 	static ApplyMode calculateChargeGrid(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,

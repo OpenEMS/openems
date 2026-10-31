@@ -10,6 +10,8 @@
 
 This chapter explains how OpenEMS Backend can be deployed on a Debian Linux server. Similar techniques will work for other operating systems as well.
 
+The involved components (Edge.Manager, Backend.Edge.App) and the available deployment options are described in xref:backend/architecture.adoc[Backend Architecture]. This guide covers the single-server setup, where the Backend and the Backend Edge Application run on the same host as two separate services.
+
 == Prepare operating system environment
 
 NOTE: It is recommended to run every service on a server with limited permissions. This example runs OpenEMS Backend with user "root" which is a bad idea for a production server!  
@@ -28,11 +30,19 @@ Create the directory */opt/openems-backend*. This is going to be the place, wher
 
 Execute `mkdir /opt/openems-backend`.
 
+Create the directory */opt/openems-backend-edge* as well. This is going to be the place, where we put the JAR file of the Backend Edge Application.
+
+Execute `mkdir /opt/openems-backend-edge`.
+
 === Create a config directory
 
 Create the directory */opt/openems-backend/config.d*. This is going to be the place, where all the bundle configurations are held.
 
 Execute `mkdir /opt/openems-backend/config.d`.
+
+Create the directory */opt/openems-backend-edge/config.d* for the Backend Edge Application as well.
+
+Execute `mkdir /opt/openems-backend-edge/config.d`.
 
 === Create a systemd service definition
 
@@ -74,16 +84,90 @@ WantedBy=multi-user.target
 
 . Press btn:[Ctrl] + btn:[x] to exit and btn:[y] to save the file.
 
-. Activate the service definition:
+. Create and open the service definition file of the Backend Edge Application.
++
+Execute `nano /etc/systemd/system/openems-backend-edge.service`
+
+. Paste the following content:
++
+[source,ini]
+----
+[Unit]
+Description=OpenEMS Backend Edge Application <1>
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+WorkingDirectory=/opt/openems-backend-edge
+ExecStart=/usr/bin/java -XX:+ExitOnOutOfMemoryError -Dfelix.cm.dir=/opt/openems-backend-edge/config.d -jar /opt/openems-backend-edge/openems-backend-edge.jar <2>
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+----
+<1> The name of the service. The Backend Edge Application is the process that the OpenEMS Edge devices connect to (see xref:backend/architecture.adoc[Backend Architecture]).
+<2> Same as the OpenEMS Backend service, but using the JAR file and config directory of the Backend Edge Application.
+
+. Press btn:[Ctrl] + btn:[x] to exit and btn:[y] to save the file.
+
+. Activate the service definitions:
 +
 Execute `systemctl daemon-reload`
 
 == Start OpenEMS Backend
 
-To update the OpenEMS JAR file at the target device, it is required to copy the JAR file from your build directory to `/opt/openems-backend/openems-backend.jar` on the server. Afterwards it is required to restart the systemd service
+To update the OpenEMS JAR files at the target device, it is required to copy the JAR files from your build directory to `/opt/openems-backend/openems-backend.jar` and `/opt/openems-backend-edge/openems-backend-edge.jar` on the server. Afterwards it is required to restart the systemd services
 
-. (Re)start OpenEMS systemd service.
+. (Re)start OpenEMS systemd services.
 +
-Execute `systemctl restart openems-backend --no-block; journalctl -lfu openems-backend`
+Execute `systemctl restart openems-backend openems-backend-edge --no-block; journalctl -lfu openems-backend -fu openems-backend-edge`
 +
-The command restarts the service (_systemctl restart openems-backend_) while not waiting for the OpenEMS startup notification (_--no-block_). Then it directly prints the OpenEMS system log (_journalctl -lfu openems-backend_).
+The command restarts both services (_systemctl restart openems-backend openems-backend-edge_) while not waiting for the OpenEMS startup notification (_--no-block_). Then it directly prints the OpenEMS system logs (_journalctl -lfu openems-backend -fu openems-backend-edge_).
+
+== Backend configuration
+
+=== Edge Manager
+
+. Open the http://localhost:8079/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
++
+NOTE: The Apache Felix Web Console for OpenEMS Backend is started on port *8079* by default. This is configured using the `org.osgi.service.http.port` setting in BackendApp.bndrun.
++
+Login with username *admin* and password *admin*.
+
+. Configure the _**Edge Manager**_ service.
++
+NOTE: The _**Edge Manager**_ is the service that manages the connections of the Backend.Edge.App instances (see xref:backend/architecture.adoc[Backend Architecture]).
++
+The relevant configuration parameters are:
++
+* *Port*: the port of the websocket server that the Backend.Edge.App instances connect to (default `8083`)
+* *Number of Threads*: the pool size, i.e. the number of threads dedicated to handle the tasks (default `10`)
++
+For the single-server setup of this guide the default values can be accepted. Click btn:[Save].
+
+=== Backend Edge Application
+
+The Backend Edge Application runs as a separate process with its own Apache Felix Web Console on port *8078*.
+
+. Open the http://localhost:8078/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
++
+Login with username *admin* and password *admin*.
+
+. Configure the _**Backend Edge Application**_ service.
++
+NOTE: The _**Backend Edge Application**_ is the proxy process that the OpenEMS Edge devices connect to (see xref:backend/architecture.adoc[Backend Architecture]).
++
+The relevant configuration parameters are:
++
+* *Component-ID*: a unique ID of this Backend Edge Application (default `edges0`)
+* *Uri*: the connection Uri to the OpenEMS Backend Edge-Manager (default `ws://localhost:8083`)
+* *Port*: the port of the websocket server for OpenEMS Edge Controller.Api.Backend (default `8081`)
+* *Number of Client-Threads* / *Number of Server-Threads*: the pool sizes handling the Client and Server tasks (default `10` each)
++
+For the single-server setup of this guide the default values can be accepted. Click btn:[Save].
+
+NOTE: In this setup, the Backend Edge Application connects to the Edge Manager of the OpenEMS Backend process via the loopback interface using the default *Uri* `ws://localhost:8083`.

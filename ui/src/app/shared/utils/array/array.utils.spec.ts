@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ArrayUtils } from "./array.utils";
 
 describe("Array-Utils", () => {
@@ -21,8 +20,6 @@ describe("Array-Utils", () => {
 
         expect(ArrayUtils.sortedAlphabetically(inputArr, (a) => a)).toEqual(sortedArr);
         expect(ArrayUtils.sortedAlphabetically(inputArr, (_a) => null)).toEqual(inputArr);
-
-        expect(() => ArrayUtils.sortedAlphabetically(inputArr, null)).toThrow();
     });
 
     describe("ReducerFunctions", () => {

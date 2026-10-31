@@ -26,7 +26,7 @@
 
             <!-- OeFormlyField.InfoLine -->
             @case ("info-line") {
-              <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html"></oe-modal-info-line>
+              <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html" [lineStyle]="line.lineStyle" [customClass]="line.customClass" [link]="line.link"></oe-modal-info-line>
             }
 
             @case ("horizontal-line") {
@@ -58,7 +58,7 @@
             }
 
             @case ("range-button-from-form-control-line") {
-              <oe-modal-line [controlName]="line.controlName" [control]="{ type: 'RANGE', properties: line.properties }" [formGroup]="form"></oe-modal-line>
+              <oe-range-slider [controlName]="line.controlName" [properties]="line.properties" [formGroup]="form"></oe-range-slider>
             }
 
             @case ("toggle-line") {
@@ -75,6 +75,10 @@
 
             @case ("percentage-bar-line") {
               <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value"></oe-flat-widget-percentagebar>
+            }
+
+            @case ("reorder-group-line") {
+              <oe-formly-reorder-group [formGroup]="form" [line]="line"></oe-formly-reorder-group>
             }
           }
         }

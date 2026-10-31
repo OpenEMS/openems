@@ -33,8 +33,14 @@
 
       <div class="sunshine-row">
         <ion-icon name="oe-sunshine-duration" color="primary" class="sunshine-duration-icon"></ion-icon>
-        <ion-text [translate]="'SUNSHINE_DURATION_HOURS'" [translateParams]="{ duration: currentDailyForecast.sunshineDuration | numberFormat: '1.0-0' }"></ion-text>
-        <ion-text [translate]="'SUNSHINE_DURATION_LABEL'"></ion-text>
+        <ion-text
+          [translate]="(currentDailyForecast.sunshineDuration | numberFormat: '1.0-0') === 1 ? 'SUNSHINE_DURATION_LABEL_WITH_HOUR' : 'SUNSHINE_DURATION_LABEL_WITH_HOURS'"
+          [translateParams]="{
+            duration: currentDailyForecast.sunshineDuration | numberFormat: '1.0-0',
+          }"
+          style="text-align: start"
+        >
+        </ion-text>
       </div>
     </div>
   }

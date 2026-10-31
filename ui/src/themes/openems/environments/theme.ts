@@ -14,5 +14,6 @@ export const theme: Omit<
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     PRODUCT_TYPES: () => null,
+    ENVIRONMENT_PROVIDERS: [],
     ...OemMeta,
 };

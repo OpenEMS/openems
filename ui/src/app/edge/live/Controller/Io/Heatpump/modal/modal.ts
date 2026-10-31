@@ -42,67 +42,67 @@ export class ControllerIoHeatpumpModalComponent extends AbstractFormlyComponent<
             return;
         }
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticRecommendationCtrlEnabled",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationCtrlEnabled"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticForceOnCtrlEnabled",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnCtrlEnabled"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticForceOnSurplusPower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSurplusPower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticRecommendationSurplusPower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationSurplusPower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticForceOnSoc",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSoc"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticLockCtrlEnabled",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticLockCtrlEnabled"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticLockGridBuyPower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticLockGridBuyPower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "automaticLockSoc",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyAutomaticLockSoc"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "minimumSwitchingTime",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMinimumSwitchingTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "manualState",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyManualState"),

@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "CATEGORY_FILTER": "Programėlių kategorijos",
+                "STATUS_AVAILABLE": "Prieinama",
+                "STATUS_FILTER": "Prieinamumas",
+                "STATUS_INCOMPATIBLE": "Nesuderinama",
+                "STATUS_INSTALLED": "Įdiegta"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "SUCCESS_MESSAGE": "Sistemos vieta sėkmingai atnaujinta.",
+            "TITLE": "Sistemos vieta"
+        },
+        "SYSTEM_PROTOCOL": {
+            "DOWNLOAD": "Atsisiųsti",
+            "LABEL": "Sistemos protokolas",
+            "TITLE": "Šiuo metu"
+        }
+    }
+}

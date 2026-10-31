@@ -28,7 +28,10 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class ProductionChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeData24hForChannel("ProductionActivePower");
+        const data = this.data.summarizeData24hForChannel(
+            "ProductionActivePower",
+            this.service.historyPeriod.value.from,
+        );
 
         return [
             {

@@ -1,12 +1,20 @@
-import { Component, model, ModelSignal, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model, ModelSignal } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
+
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Language } from "src/app/shared/type/language";
+import cz from "../../i18n/cz.json";
 import de from "../../i18n/de.json";
 import en from "../../i18n/en.json";
+import es from "../../i18n/es.json";
+import fr from "../../i18n/fr.json";
+import ja from "../../i18n/ja.json";
+import lt from "../../i18n/lt.json";
+import nl from "../../i18n/nl.json";
+import sv from "../../i18n/sv.json";
 
 @Component({
     selector: "oe-schedule-task-form-daily",
@@ -26,7 +34,19 @@ import en from "../../i18n/en.json";
             }
 
             .picker-opts {
-                --background: none;
+                --background: transparent;
+                --wheel-highlight-background: transparent;
+            }
+
+            .button-grid {
+                width: max-content;
+                margin: 0 auto;
+                background: transparent;
+
+                ion-row {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                }
             }
         `,
     ],
@@ -36,8 +56,38 @@ export class TaskFormTimeComponent {
     public endTime: ModelSignal<string | null> = model<string | null>(null);
     protected readonly spinnerId: string = uuidv4();
 
+    protected readonly timeFields: ReadonlyArray<{
+        key: string;
+        label: string;
+        id: string;
+        signal: ModelSignal<string | null>;
+    }> = [
+        {
+            key: "start",
+            label: this.translate.instant("JS_SCHEDULE.START"),
+            id: "-start-time",
+            signal: this.startTime,
+        },
+        {
+            key: "end",
+            label: this.translate.instant("JS_SCHEDULE.END"),
+            id: "-end-time",
+            signal: this.endTime,
+        },
+    ];
+
     constructor(private translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

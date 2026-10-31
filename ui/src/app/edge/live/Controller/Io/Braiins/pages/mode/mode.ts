@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -81,7 +81,7 @@ export class ControllerBraiinsModeComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<number>(this.form, "mode", currentData, this.modeChannel);
+        this.setFormControlSafelyWithChannel<number>(this.form(), "mode", currentData, this.modeChannel);
     }
 
     protected override generateView(viewContext: ViewContext): OeFormlyView {

@@ -37,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.shared.influxdb.proxy.QueryChannels;
 import io.openems.shared.influxdb.proxy.QueryProxy;
 import okhttp3.OkHttpClient;
 
@@ -234,13 +235,14 @@ public class InfluxConnector {
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, String measurement)
 			throws OpenemsNamedException {
-		// handle empty call
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		// handle empty call, also when validation dropped every channel
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
 		return this.queryProxy.queryHistoricEnergy(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
-				fromDate, toDate, channels);
+				fromDate, toDate, queryChannels);
 	}
 
 	/**
@@ -261,13 +263,14 @@ public class InfluxConnector {
 			Set<ChannelAddress> channels, //
 			String measurement //
 	) throws OpenemsNamedException {
-		// handle empty call
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		// handle empty call, also when validation dropped every channel
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
 		return this.queryProxy.queryHistoricEnergySingleValueInDay(this.getInfluxConnection(), this.bucket, measurement,
-				influxEdgeId, fromDate, toDate, channels);
+				influxEdgeId, fromDate, toDate, queryChannels);
 	}
 
 	/**
@@ -285,13 +288,14 @@ public class InfluxConnector {
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
 			Resolution resolution, String measurement) throws OpenemsNamedException {
-		// handle empty call
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		// handle empty call, also when validation dropped every channel
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
 		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, measurement,
-				influxEdgeId, fromDate, toDate, channels, resolution);
+				influxEdgeId, fromDate, toDate, queryChannels, resolution);
 	}
 
 	/**
@@ -310,13 +314,14 @@ public class InfluxConnector {
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryRawHistoricEnergyPerPeriodSinglePerDay(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
 			Resolution resolution, String measurement) throws OpenemsNamedException {
-		// handle empty call
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		// handle empty call, also when validation dropped every channel
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
 		return this.queryProxy.queryRawHistoricEnergyPerPeriodSingleValueInDay(this.getInfluxConnection(), this.bucket,
-				measurement, influxEdgeId, fromDate, toDate, channels, resolution);
+				measurement, influxEdgeId, fromDate, toDate, queryChannels, resolution);
 	}
 
 	/**
@@ -335,13 +340,14 @@ public class InfluxConnector {
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
 			Resolution resolution, String measurement) throws OpenemsNamedException {
 
-		// handle empty call
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		// handle empty call, also when validation dropped every channel
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
 		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
-				fromDate, toDate, channels, resolution);
+				fromDate, toDate, queryChannels, resolution);
 	}
 
 	/**
@@ -364,7 +370,10 @@ public class InfluxConnector {
 		}
 
 		// Create a set of ChannelAdresses thus we need only one
-		Set<ChannelAddress> channels = Set.of(channelAddress);
+		var queryChannels = QueryChannels.of(Set.of(channelAddress));
+		if (queryChannels.isEmpty()) {
+			return emptySortedMap();
+		}
 
 		ZonedDateTime now = ZonedDateTime.now();
 
@@ -375,7 +384,7 @@ public class InfluxConnector {
 				measurement, //
 				influxEdgeId, //
 				now, //
-				channels//
+				queryChannels//
 		);
 	}
 
@@ -395,7 +404,8 @@ public class InfluxConnector {
 			Set<ChannelAddress> channels, //
 			String measurement //
 	) throws OpenemsNamedException {
-		if (channels.isEmpty()) {
+		var queryChannels = QueryChannels.of(channels);
+		if (queryChannels.isEmpty()) {
 			return emptySortedMap();
 		}
 
@@ -405,7 +415,7 @@ public class InfluxConnector {
 				measurement, //
 				influxEdgeId, //
 				date, //
-				channels//
+				queryChannels//
 		);
 	}
 

@@ -11,6 +11,14 @@ public final class EssSohCycleConstants {
     public static final int MIN_SOC = 0;
     public static final int MAX_CELL_VOLTAGE_DIFFERENCE_MV = 100;
     public static final int WAIT_DURATION_MINUTES = 30;
+
+	/**
+	 * Maximum time to stay in {@code PREPARE_PRECHARGE} before aborting if
+	 * discharging never becomes available again. Kept separate from
+	 * {@link #WAIT_DURATION_MINUTES} since it guards a different (recovery)
+	 * situation and may need independent tuning.
+	 */
+	public static final int PREPARE_PRECHARGE_TIMEOUT_MINUTES = 30;
     /**
      * Charge/discharge C-rate as a fraction of the battery capacity per hour.
      *
@@ -23,4 +31,3 @@ public final class EssSohCycleConstants {
     private EssSohCycleConstants() {
     }
 }
-

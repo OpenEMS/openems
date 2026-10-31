@@ -95,11 +95,10 @@ export class CommonProductionDetailsComponent extends AbstractFormlyComponent {
         lines.push({ type: "info-line", name: this.translate.instant("EDGE.INDEX.WIDGETS.PHASES_INFO") });
 
         return {
-            title: this.translate.instant("GENERAL.PRODUCTION"),
+            title: this.translate.instant("EDGE.HISTORY.PHASE_ACCURATE"),
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
         };
     }
 }

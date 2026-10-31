@@ -1,8 +1,8 @@
 package io.openems.edge.core.predictormanager;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 

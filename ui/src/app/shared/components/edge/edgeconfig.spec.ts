@@ -8,8 +8,9 @@ import { Role } from "../../type/role";
 import { TEnumKeys } from "../../type/utility";
 import { WidgetFactory } from "../../type/widget";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeImageComponent } from "../oe-img/oe-img";
+import { OeFormlyField } from "../shared/oe-formly-component";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -157,6 +158,18 @@ export namespace DummyConfig {
                 "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
                 "io.openems.edge.evse.chargepoint.keba.common.EvseKeba",
                 "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
+        export const EVSE_CHARGEPOINT_ALFEN: Factory = {
+            id: "Evse.ChargePoint.Alfen",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                "io.openems.edge.evse.chargepoint.alfen.EvseAlfen",
+                "io.openems.edge.timedata.api.TimedataProvider",
+                "io.openems.edge.bridge.modbus.api.ModbusComponent",
             ],
         };
 
@@ -698,6 +711,18 @@ export namespace DummyConfig {
             channels: {},
         });
 
+        export const EVSE_CHARGEPOINT_ALFEN = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVSE_CHARGEPOINT_ALFEN,
+            properties: {
+                alias: alias ?? id,
+                enabled: true,
+                readOnly: false,
+            },
+            channels: {},
+        });
+
         export const GOODWE_CHARGER_PV_1 = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
@@ -1143,7 +1168,7 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (
 export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(
     controlName: string,
     expectedValue: T,
-    properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+    properties: OeFormlyField.RangeLineProperties,
 ): OeFormlyViewTester.Field => ({
     type: "range-button-from-form-control-line",
     controlName,

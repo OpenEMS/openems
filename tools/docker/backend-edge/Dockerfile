@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=21
+ARG JAVA_VERSION=25
 ARG JAVA_PACKAGE=jre
 
 ### Build backend binary
@@ -39,6 +39,8 @@ COPY --from=build_backend --chown=abc:abc /opt/root/ /
 COPY --from=build_backend --chown=abc:abc /opt/openems-backend-edge.jar /opt/openems/openems-backend-edge.jar
 
 RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
+ENV EXTRA_JVM_OPTS="-XX:+ExitOnOutOfMemoryError -XX:+UseZGC -XX:+UseCompactObjectHeaders"
 
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data

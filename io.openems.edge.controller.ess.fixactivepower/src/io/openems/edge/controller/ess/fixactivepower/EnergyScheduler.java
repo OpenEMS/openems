@@ -43,7 +43,7 @@ public class EnergyScheduler {
 					final int energy = period.duration().convertPowerToEnergy(coc.power());
 
 					switch (coc.mode()) {
-					case MANUAL_ON -> ef.setEss(energy);
+					case MANUAL_ON -> ef.commitEss(energy);
 					case CHARGE_ONCE -> {
 						if (csc.isTargetReached()) {
 							return;
@@ -56,7 +56,7 @@ public class EnergyScheduler {
 						}
 
 						final int chargeEnergy = Math.min(Math.abs(energy), remainingEnergy);
-						ef.setEss(-chargeEnergy);
+						ef.commitEss(-chargeEnergy);
 					}
 					case DISCHARGE_ONCE -> {
 						if (csc.isTargetReached()) {
@@ -70,7 +70,7 @@ public class EnergyScheduler {
 						}
 
 						final int dischargeEnergy = Math.min(Math.abs(energy), remainingEnergy);
-						ef.setEss(dischargeEnergy);
+						ef.commitEss(dischargeEnergy);
 					}
 					case MANUAL_OFF ->
 						throw new IllegalStateException("Mode MANUAL_OFF must not reach EnergyScheduler simulator");

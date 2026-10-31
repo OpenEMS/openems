@@ -203,7 +203,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
         return StorageTotalChartComponent.getChartData(this.translate, this.chartType, this.config);
     }
 
-    public ionViewDidEnter() {
+    public override ngOnInit() {
+        super.ngOnInit();
         setTimeout(() => {
             this.chart?.chart?.resize();
             this.chart?.update();

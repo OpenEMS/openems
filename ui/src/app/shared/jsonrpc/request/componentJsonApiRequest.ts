@@ -4,13 +4,17 @@ import { JsonrpcRequest } from "../base";
 /**
  * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi.
  *
- * @typedef {"jsonrpc": "2.0",
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": "componentJsonApi",
  *   "params": {
  *     "componentId": string,
  *     "payload": JsonrpcRequest
- *   }} Request
+ *   }
+ * }
+ * ```
  */
 export class ComponentJsonApiRequest extends JsonrpcRequest {
     private static METHOD: string = "componentJsonApi";

@@ -71,16 +71,16 @@
 
   <!-- Show Sub-Views -->
 
-  <ion-router-outlet (activate)="onActivate($event)" id="content"></ion-router-outlet>
+  <router-outlet (activate)="onActivate($event)" id="content"></router-outlet>
 </ng-template>
 
 <ng-template #sidemenu>
-  <ion-menu menuId="main-menu" [contentId]="navigationService.position() === 'left' ? 'main' : 'content'" [type]="navigationService.position() === 'left' ? '' : 'overlay'" side="start" style="width: 100%; min-width: 20% !important">
+  <ion-menu menuId="main-menu" [contentId]="navigationService.position() === 'left' ? 'main' : 'content'" type="overlay" side="start" style="width: 100%; min-width: 20% !important">
     @if (navigationService.position() === "disabled") {
       <ion-list class="ion-no-padding-bottom">
         @if ((service.metadata | async)?.user; as user) {
           <ion-item tabindex="0" button routerLinkActive="active" (keydown.enter)="navigateToUser()" (click)="navigateToUser()">
-            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline"> </ion-icon>
+            <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="oe-user"> </ion-icon>
             <ion-label>
               <p style="color: var(--ion-text-color); font-weight: bold">
                 {{ user.name }}
@@ -125,7 +125,7 @@
 <ng-template #footer>
   @if (!isSmartphone) {
     <ion-footer>
-        <oe-system-outage-info></oe-system-outage-info>
+      <oe-system-outage-info></oe-system-outage-info>
     </ion-footer>
   }
   @if (isUserAllowedToSeeFooter && !isHistoryDetailView) {

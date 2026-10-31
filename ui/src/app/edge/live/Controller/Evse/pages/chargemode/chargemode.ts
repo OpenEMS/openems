@@ -1,13 +1,16 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
+import { environment } from "src/environments";
+import { EvcsChargeModeViewModel } from "../../shared/shared";
 
 @Component({
     selector: "oe-evse-charge-mode",
@@ -23,15 +26,12 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
         `,
     ],
 })
-export class ChargeModeComponent extends AbstractFormlyComponent {
+export class ChargeModeComponent extends AbstractFormlyComponent<EvcsChargeModeViewModel> {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     protected component: EdgeConfig.Component | null = null;
     protected modeChannel: any;
 
-    constructor(
-        protected override service: Service,
-        private route: ActivatedRoute,
-    ) {
+    constructor(protected override service: Service) {
         super();
     }
 
@@ -39,11 +39,14 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
         translate: TranslateService,
         component: EdgeConfig.Component | null,
         edge: Edge | null,
-    ): OeFormlyView {
+    ): OeFormlyView<EvcsChargeModeViewModel> {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
-        const lines: OeFormlyField[] = [
+        const hasKebaComponent: boolean =
+            (edge.getCurrentConfig()?.getComponentsByFactory("Evse.ChargePoint.Keba.Modbus")?.length ?? 0) > 0;
+
+        const lines: OeFormlyField<EvcsChargeModeViewModel>[] = [
             {
                 type: "info-line",
                 name: translate.instant("EVSE_SINGLE.SETTINGS.CHARGE_MODE"),
@@ -79,8 +82,20 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
                     },
                 ],
             },
+            {
+                type: "info-line",
+                html: translate.instant("EDGE.INDEX.WIDGETS.EVSE.KEBA_WARNING", {
+                    environment: environment.edgeLongName,
+                    link: DocsUtils.replaceDocsLanguage(
+                        environment.links.REDIRECT.EVCS_KEBA_HELP,
+                        Language.getDocsLang(translate.getCurrentLang()),
+                    ),
+                }),
+                customClass: "ion-border-danger ion-font-color-danger ion-font-size-larger",
+                hide: (el) =>
+                    (el.mode !== Mode.SURPLUS && el.mode !== Mode.ZERO) || component == null || !hasKebaComponent,
+            },
         ];
-
         return {
             title: Name.METER_ALIAS_OR_ID(component),
             lines: lines,
@@ -90,15 +105,16 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<number>(this.form, "mode", currentData, this.modeChannel);
+        this.setFormControlSafelyWithChannel<number>(this.form(), "mode", currentData, this.modeChannel);
     }
 
-    protected override generateView(viewContext: ViewContext): OeFormlyView {
-        this.component = viewContext.config.getComponent(this.route.snapshot.params.componentId);
+    protected override generateView(viewContext: ViewContext): OeFormlyView<EvcsChargeModeViewModel> {
+        this.component = this.getComponent();
         return ChargeModeComponent.generateView(viewContext.translate, this.component, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {
+        this.component ??= this.getComponent();
         AssertionUtils.assertIsDefined(this.component);
         return new FormGroup({
             mode: new FormControl(this.component.properties.mode),
@@ -106,8 +122,7 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-        const config = await this.service.getConfig();
-        const component = config.getComponent(this.route.snapshot.params.componentId);
+        const component = this.getComponent();
 
         if (component === undefined || component.id === undefined) {
             return [];

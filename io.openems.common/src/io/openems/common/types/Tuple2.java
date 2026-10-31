@@ -87,8 +87,8 @@ public record Tuple2<A, B>(A a, B b) {
 	 * @throws NullPointerException if any mapper is {@code null}
 	 */
 	public <R, S> Tuple2<R, S> map(//
-	                               Function<? super A, ? extends R> mapA, //
-	                               Function<? super B, ? extends S> mapB //
+			Function<? super A, ? extends R> mapA, //
+			Function<? super B, ? extends S> mapB //
 	) {
 		return new Tuple2<>(mapA.apply(this.a), mapB.apply(this.b));
 	}
@@ -110,9 +110,9 @@ public record Tuple2<A, B>(A a, B b) {
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public <C, D> Tuple2<C, D> combine(//
-	                                   Tuple2<? extends A, ? extends B> other, //
-	                                   BiFunction<? super A, ? super A, ? extends C> combineA, //
-	                                   BiFunction<? super B, ? super B, ? extends D> combineB //
+			Tuple2<? extends A, ? extends B> other, //
+			BiFunction<? super A, ? super A, ? extends C> combineA, //
+			BiFunction<? super B, ? super B, ? extends D> combineB //
 	) {
 		return new Tuple2<>(combineA.apply(this.a, other.a), combineB.apply(this.b, other.b));
 	}

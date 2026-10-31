@@ -2,8 +2,8 @@ package io.openems.backend.uiwebsocket.impl;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -11,11 +11,12 @@ import io.openems.common.jsonrpc.notification.LogMessageNotification;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
-	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
+	private final Logger log;
 	private final UiWebsocketImpl parent;
 
 	public OnNotification(UiWebsocketImpl parent) {
 		this.parent = parent;
+		this.log = AbstractOpenemsBackendComponent.getComponentLogger(this.getClass(), parent);
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			}
 		}
 
-		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
+		this.log.warn("Unhandled Notification: {}", notification);
 	}
 
 	/**
@@ -56,9 +57,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param notification the {@link LogMessageNotification}
 	 */
 	private void handleUnauthenticatedLogMessageNotification(LogMessageNotification notification) {
-		this.parent.logInfo(this.log, "User [NOT AUTHENTICATED] " //
-				+ notification.level.getName() + "-Message: " //
-				+ notification.msg);
+		this.log.info("User [NOT AUTHENTICATED] {}-Message: {}", //
+				notification.level.getName(), notification.msg);
 	}
 
 	/**
@@ -68,8 +68,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param notification the {@link LogMessageNotification}
 	 */
 	private void handleLogMessageNotification(User user, LogMessageNotification notification) {
-		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] " //
-				+ notification.level.getName() + "-Message: " //
-				+ notification.msg);
+		this.log.info("User [{}:{}] {}-Message: {}", //
+				user.getId(), user.getName(), notification.level.getName(), notification.msg);
 	}
 }

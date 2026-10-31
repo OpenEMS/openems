@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -16,7 +16,6 @@ import { PropertyMode, SharedControllerHeat } from "../shared/shared";
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             ::ng-deep formly-form {
@@ -61,7 +60,7 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         }
 
         this.setFormControlSafelyWithChannel<PropertyMode>(
-            this.form,
+            this.form(),
             ControllerHeatSettingsComponent.FORM_CONTROL_NAME,
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMode"),
@@ -92,10 +91,4 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
     protected isReadOnly(): boolean {
         return this.component == null || this.component?.properties?.readOnly === true;
     }
-}
-
-export enum Mode {
-    OFF = "OFF",
-    FAST_HEAT = "FAST_HEAT",
-    SURPLUS = "SURPLUS",
 }

@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
@@ -64,7 +66,7 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
+	public OpenemsNamedException getValidationError(Language language) {
 		final var appManagerImpl = this.getAppManagerImpl();
 		var appNameStream = this.installedApps.stream();
 		if (appManagerImpl != null) {
@@ -76,12 +78,12 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 				return id;
 			});
 		}
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckAppsNotInstalled.Message",
+		return OpenemsError.EDGE_APP_VALIDATION_APPS_NOT_INSTALLED.exception(language,
 				appNameStream.collect(Collectors.joining(", ")));
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 

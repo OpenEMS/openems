@@ -7,6 +7,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -19,7 +20,6 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
@@ -1471,6 +1471,8 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
+		FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM(Doc.of(Level.WARNING)//
+				.translationKey(GoodWe.class, "GoodWe.FeedPowerLimit.ExceedsSupportedMaximum")), //
 		EXTENDED_FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		EXTENDED_FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//

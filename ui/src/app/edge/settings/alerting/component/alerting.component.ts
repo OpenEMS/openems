@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, EventEmitter, Input, OnDestroy, Output, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonCol } from "@ionic/angular";
@@ -21,8 +21,15 @@ import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
 import { CommonUiModule } from "../../../../shared/common-ui.module";
 import { currentUserRows, otherUserRows } from "../formly/formly-alerting-configs";
+import cz from "../i18n/cz.json";
 import de from "../i18n/de.json";
 import en from "../i18n/en.json";
+import es from "../i18n/es.json";
+import fr from "../i18n/fr.json";
+import ja from "../i18n/ja.json";
+import lt from "../i18n/lt.json";
+import nl from "../i18n/nl.json";
+import sv from "../i18n/sv.json";
 
 export enum AlertingType {
     OFFLINE,
@@ -101,7 +108,17 @@ export class AlertingComponent implements OnDestroy {
         private translate: TranslateService,
         public formBuilder: FormBuilder,
     ) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

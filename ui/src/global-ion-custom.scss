@@ -59,20 +59,12 @@
     font-size: medium !important;
 }
 
-.ion-font-size-large {
-    font-size: large !important;
-}
-
 .ion-font-size-xxx-large {
     font-size: xxx-large !important;
 }
 
 .ion-font-size-xx-large {
     font-size: xx-large !important;
-}
-
-.ion-font-size-smaller {
-    font-size: smaller !important;
 }
 
 .ion-font-size-smaller {
@@ -103,6 +95,14 @@
     font-weight: bolder;
 }
 
+.ion-font-color-danger {
+    color: var(--ion-color-danger);
+}
+
+.ion-border-danger {
+    border: 0.15em solid var(--ion-color-danger);
+}
+
 /** Text */
 .ion-text-align-center {
     text-align: center;
@@ -114,6 +114,14 @@
 
 .ion-text-align-left {
     text-align: left;
+}
+
+.ion-text-transform-no {
+    text-transform: none;
+}
+
+.ion-text-font-style-italic {
+    font-style: italic !important;
 }
 
 /** Others */
@@ -233,10 +241,29 @@
 .ion-margin-right {
     margin-right: var(--ion-margin);
 }
+.ion-margin-top-triple {
+    margin-top: calc(var(--ion-margin) * 3);
+}
 
 .ion-no-margin-right {
     margin-right: 0;
 }
 .ion-no-margin-left {
     margin-left: 0;
+}
+
+.ion-position-sticky {
+    position: sticky;
+    top: 0;
+}
+
+.ion-background-color {
+    background-color: var(--ion-background-color) !important;
+}
+
+.ion-no-margin-bottom {
+    margin-bottom: 0 !important;
+}
+.ion-no-margin-top {
+    margin-top: 0 !important;
 }

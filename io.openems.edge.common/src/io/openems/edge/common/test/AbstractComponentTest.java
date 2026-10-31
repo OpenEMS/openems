@@ -1,9 +1,6 @@
 package io.openems.edge.common.test;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
-import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
-import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
@@ -14,26 +11,19 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static java.util.stream.Collectors.joining;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -44,11 +34,11 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.OsgiComponentTest;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
-import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
@@ -691,7 +681,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		private Object resolveEnum(Channel<?> channel, Object got) {
 			if (channel.channelDoc() instanceof EnumDoc enumDoc) {
 				var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
@@ -789,10 +778,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	public final SUT sut;
 
-	/**
-	 * References added by {@link #addReference()}.
-	 */
-	private final Set<Object> references = new HashSet<>();
+	private final OsgiComponentTest<SUT> osgiComponentTester;
 
 	/**
 	 * Components referenced by the tested Component.
@@ -807,6 +793,17 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	public AbstractComponentTest(SUT sut) throws OpenemsException {
 		this.sut = sut;
+		this.osgiComponentTester = new OsgiComponentTest<>(sut) {
+			@Override
+			protected Object resolveActivateArg(Parameter parameter) throws Exception {
+				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
+					// ComponentContext
+					return DummyComponentContext.from((AbstractComponentConfig) this.config);
+				}
+
+				return super.resolveActivateArg(parameter);
+			}
+		};
 
 		// Of all implemented interfaces...
 		for (Class<?> iface : sut.getClass().getInterfaces()) {
@@ -873,13 +870,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF addReference(String memberName, Object object) throws Exception {
-		// Set the reference recursively via reflection
-		if (!this.addReference(this.sut.getClass(), memberName, object)) {
-			throw new Exception("Unable to add reference on field or method [" + memberName + "]");
-		}
-
-		// Store reference
-		this.references.add(object);
+		this.osgiComponentTester.addReference(memberName, object);
 
 		switch (object) {
 		case DummyComponentManager dcm ->
@@ -903,26 +894,6 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		return this.self();
 	}
 
-	private boolean addReference(Class<?> clazz, String memberName, Object object)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		try {
-			setAttributeViaReflection(this.sut, memberName, object);
-			return true;
-		} catch (ReflectionException e) {
-			// Ignore. Try method.
-			if (this.invokeSingleArgMethod(clazz, memberName, object)) {
-				return true;
-			}
-		}
-		// If we are here, no matching field or method was found. Search in parent
-		// classes.
-		Class<?> parent = clazz.getSuperclass();
-		if (parent == null) {
-			return false; // reached 'java.lang.Object'
-		}
-		return this.addReference(parent, memberName, object);
-	}
-
 	/**
 	 * Adds an available {@link OpenemsComponent}.
 	 *
@@ -936,7 +907,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.components.put(component.id(), component);
 
 		// Is a DummyComponentManager present -> add this Component
-		this.references.stream() //
+		this.osgiComponentTester.references.stream() //
 				.filter(DummyComponentManager.class::isInstance) //
 				.map(DummyComponentManager.class::cast) //
 				.forEach(dcm -> dcm.addComponent(component));
@@ -957,19 +928,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	public SELF activate(AbstractComponentConfig config) throws Exception {
 		// Add the configuration to ConfigurationAdmin
-		for (Object object : this.references) {
+		for (Object object : this.osgiComponentTester.references) {
 			if (object instanceof DummyConfigurationAdmin cm) {
 				cm.addConfig(config);
 			}
 		}
 
-		var configChangeCount = this.getConfigChangeCount();
-		this.callActivate(config);
-
-		if (configChangeCount != this.getConfigChangeCount()) {
-			// Config change detected
-			this.callModified(config);
-		}
+		this.osgiComponentTester.activate(config);
 
 		// Now SUT can be added to the list, as it does have an ID now
 		this.addComponent(this.sut);
@@ -986,14 +951,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 */
 	public SELF modified(AbstractComponentConfig config) throws Exception {
 		// Add the configuration to ConfigurationAdmin
-		for (Object object : this.references) {
+		for (Object object : this.osgiComponentTester.references) {
 			if (object instanceof DummyConfigurationAdmin cm) {
 				cm.addConfig(config);
 			}
 		}
 
-		this.callModified(config);
-
+		this.osgiComponentTester.modified(config);
 		return this.self();
 	}
 
@@ -1004,102 +968,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * @throws Exception on error
 	 */
 	public SELF deactivate() throws Exception {
-		this.callDeactivate();
+		this.osgiComponentTester.deactivate();
 		return this.self();
-	}
-
-	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
-		var result = 0;
-		for (var object : this.references) {
-			if (object instanceof ConfigurationAdmin cm) {
-				for (var config : cm.listConfigurations(null)) {
-					result += config.getChangeCount();
-				}
-			}
-		}
-		return result;
-	}
-
-	private void callActivate(AbstractComponentConfig config)
-			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		this.callActivateOrModified("activate", config);
-	}
-
-	private boolean callActivateOrModified(String methodName, AbstractComponentConfig config)
-			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Class<?> clazz = this.sut.getClass();
-		var methods = clazz.getDeclaredMethods();
-		for (Method method : methods) {
-			if (!method.getName().equals(methodName)) {
-				continue;
-			}
-			var args = new Object[method.getParameterCount()];
-			for (var i = 0; i < method.getParameterCount(); i++) {
-				var parameter = method.getParameters()[i];
-				Object arg;
-
-				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
-					// ComponentContext
-					arg = DummyComponentContext.from(config);
-
-				} else if (BundleContext.class.isAssignableFrom(parameter.getType())) {
-					// BundleContext
-					arg = null;
-
-				} else if (parameter.getType().isInstance(config)) {
-					// Config
-					arg = config;
-
-				} else {
-					throw new IllegalArgumentException("Unknown activate() parameter " + parameter);
-
-				}
-				args[i] = arg;
-			}
-			invokeMethodViaReflection(this.sut, method, args);
-			return true;
-		}
-		return false;
-	}
-
-	private void callModified(AbstractComponentConfig config) throws Exception {
-		var hasModified = this.callActivateOrModified("modified", config);
-		if (hasModified) {
-			return;
-
-		} else {
-			// Has no modified() method -> Deactivate + recursive activate
-			this.callDeactivate();
-			this.activate(config);
-		}
-	}
-
-	private void callDeactivate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
-		invokeMethodWithoutArgumentsViaReflection(this.sut, "deactivate");
-	}
-
-	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg) throws ReflectionException {
-		var methods = clazz.getDeclaredMethods();
-		for (Method method : methods) {
-			if (!method.getName().equals(methodName)) {
-				continue;
-			}
-			if (method.getParameterCount() != 1) {
-				continue;
-			}
-
-			var parameter = method.getParameters()[0];
-			if (!parameter.getType().isAssignableFrom(arg.getClass())) {
-				continue;
-			}
-
-			invokeMethodViaReflection(this.sut, method, arg);
-			return true;
-		}
-
-		// Unable to find matching method
-		return false;
 	}
 
 	/**

@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
@@ -79,10 +81,10 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 			}
 			break;
 		case SINGLE_IN_CATEGORY:
-			var matchedCategorie = this.getMatchingCategorie(this.appManagerUtil, instantiatedApps);
-			if (matchedCategorie != null) {
+			var matchedCategory = this.getMatchingCategory(this.appManagerUtil, instantiatedApps);
+			if (matchedCategory != null) {
 				// only create one instance with the same category of this app
-				this.matchingCategory = matchedCategorie;
+				this.matchingCategory = matchedCategory;
 				this.errorType = ErrorType.SAME_CATEGORIE;
 			}
 			break;
@@ -94,7 +96,7 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 		return this.errorType == ErrorType.NONE;
 	}
 
-	private OpenemsAppCategory getMatchingCategorie(AppManagerUtil appManagerUtil,
+	private OpenemsAppCategory getMatchingCategory(AppManagerUtil appManagerUtil,
 			List<OpenemsAppInstance> instantiatedApps) {
 		for (var openemsAppInstance : instantiatedApps) {
 			var app = appManagerUtil.findAppById(openemsAppInstance.appId).orElse(null);
@@ -116,20 +118,19 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
+	public OpenemsNamedException getValidationError(Language language) {
 		return switch (this.errorType) {
-		case SAME_APP -> getTranslation(language, //
-				"Validator.Checkable.CheckCardinality.Message.Single", this.openemsApp.getAppId());
-		case SAME_CATEGORIE -> getTranslation(language, //
-				"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
+		case SAME_APP ->
+			OpenemsError.EDGE_APP_VALIDATION_CHECK_CARDINALITY_SINGLE.exception(language, this.openemsApp.getAppId());
+		case SAME_CATEGORIE -> OpenemsError.EDGE_APP_VALIDATION_CHECK_CARDINALITY_SINGLE_IN_CATEGORY.exception(language,
 				this.matchingCategory.getReadableName(language));
-		case OTHER -> this.errorMessage;
+		case OTHER -> OpenemsError.GENERIC.exception(this.errorMessage);
 		case NONE -> null;
 		};
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 

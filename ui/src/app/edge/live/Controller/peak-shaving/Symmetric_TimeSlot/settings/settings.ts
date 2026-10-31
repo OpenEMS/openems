@@ -56,98 +56,98 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
         this.component ??= this.getComponent();
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "peakShavingPower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyPeakShavingPower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "rechargePower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyRechargePower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "slowChargeStartTime",
             currentData,
             new ChannelAddress(this.component.id, "_PropertySlowChargeStartTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "slowChargePower",
             currentData,
             new ChannelAddress(this.component.id, "_PropertySlowChargePower"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "endTime",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyEndTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "startTime",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyStartTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "endDate",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyEndDate"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "startDate",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyStartDate"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "hysteresisSoc",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyHysteresisSoc"),
         );
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "monday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyMonday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "tuesday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyTuesday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "wednesday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyWednesday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "thursday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyThursday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "friday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertyFriday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "saturday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertySaturday"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "sunday",
             currentData,
             new ChannelAddress(this.component.id, "_PropertySunday"),

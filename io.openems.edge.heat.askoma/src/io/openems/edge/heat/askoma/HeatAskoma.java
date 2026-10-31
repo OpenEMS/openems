@@ -1,9 +1,7 @@
 package io.openems.edge.heat.askoma;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
@@ -56,22 +54,6 @@ public interface HeatAskoma extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		FAST_HEAT_POWER_NOT_APPLIED(Doc.of(Level.WARNING)//
 				.text("Fast Heat power not applied")), //
-
-		/**
-		 * Target temperature (SOLL) read from Modbus register 597
-		 * (MODBUS_CON_TEMPERATURE_LOAD_SETPOINT).
-		 *
-		 * <ul>
-		 * <li>Interface: HeatAskoma
-		 * <li>Type: Integer
-		 * <li>Unit: Deci-Degree Celsius
-		 * </ul>
-		 */
-		TEMPERATURE_SETPOINT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.DEZIDEGREE_CELSIUS)//
-				.persistencePriority(PersistencePriority.HIGH)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.text("Target temperature setpoint")), //
 		;
 
 		private final Doc doc;

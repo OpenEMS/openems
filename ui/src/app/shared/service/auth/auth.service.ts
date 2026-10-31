@@ -4,6 +4,7 @@ import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
 import { States } from "../../states/states";
 import { ObjectUtils } from "../../utils/object/object-utils";
+import { RouteService } from "../route/route.service";
 import { Service } from "../service";
 import { Websocket } from "../websocket";
 import { AUTHENTICATION_STATE, OAuthService } from "./oauth.service";
@@ -20,6 +21,7 @@ export class AuthService {
     private oAuthService = inject(OAuthService);
     private service = inject(Service);
     private router = inject(Router);
+    private routeService = inject(RouteService);
 
     constructor() {
         const context = effect(() => {
@@ -27,9 +29,19 @@ export class AuthService {
             const oauthredirectstate = this.cookieService.get("oauthredirectstate");
             const oauthRedirectStateHref =
                 ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
-
-            if (oauthRedirectStateHref != null && oauthRedirectStateHref != OAuthCallBackComponent.ID) {
-                this.router.navigateByUrl(oauthRedirectStateHref);
+            const oauthRedirectStateQueryParams =
+                ObjectUtils.parseFromString<{ queryParams: Record<string, string> }>(oauthredirectstate)?.queryParams ??
+                null;
+            const queryParams = this.routeService.getQueryParams()?.() ?? null;
+            const queryParamsFromRoute = queryParams?.toNavigatableQueryParams() ?? null;
+            if (
+                oauthRedirectStateHref != null &&
+                oauthRedirectStateQueryParams !== null &&
+                oauthRedirectStateHref != OAuthCallBackComponent.ID
+            ) {
+                this.router.navigate([oauthRedirectStateHref], {
+                    queryParams: { ...oauthRedirectStateQueryParams, ...queryParamsFromRoute },
+                });
                 return;
             }
 

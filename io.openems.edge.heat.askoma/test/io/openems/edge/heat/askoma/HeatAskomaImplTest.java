@@ -121,13 +121,13 @@ class HeatAskomaImplTest {
 				// Actual (50.0 °C) < Target (60.0 °C) → keep heating at maximum power
 				.next(new TestCase("Actual below target: keep heating") //
 						.input(Heat.ChannelId.TEMPERATURE, 500) // 50.0 °C in deci-degree
-						.input(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, 600) // 60.0 °C in deci-degree
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) // 60.0 °C in deci-degree
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, -10_050) //
 						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT)) //
 				// Actual (60.0 °C) >= Target (60.0 °C) → continue heating
 				.next(new TestCase("Actual reaches target: continue heating") //
 						.input(Heat.ChannelId.TEMPERATURE, 600) // 60.0 °C in deci-degree
-						.input(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, 600) // 60.0 °C in deci-degree
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) // 60.0 °C in deci-degree
 						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT) //
 						.onAfterControllersCallbacks(() -> { //
 							var config = configurationAdmin.getOrCreateEmptyConfiguration("component0"); //
@@ -174,14 +174,14 @@ class HeatAskomaImplTest {
 				// Actual (50.0 °C) < target (60.0 °C) → keep heating at maximum power
 				.next(new TestCase("Actual below target: keep heating at max power") //
 						.input(Heat.ChannelId.TEMPERATURE, 500) // 50.0 °C in deci-degree
-						.input(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, 600) // 60.0 °C in deci-degree
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) // 60.0 °C in deci-degree
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, -10_050) //
 						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT)) //
 				// Advance clock past FAST_HEAT_DURATION (10 hours) → fast heat expires, mode
 				.next(new TestCase("fast heat expired: enter safety lockout and stop heating") //
 						.timeleap(clock, 10, ChronoUnit.HOURS) //
 						.input(Heat.ChannelId.TEMPERATURE, 500) // still below target
-						.input(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, 600) //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) //
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, 0) //
 						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PROTECTION_PAUSE) //
 						.onAfterControllersCallbacks(() -> { //
@@ -253,6 +253,95 @@ class HeatAskomaImplTest {
 	}
 
 	@Test
+	void testRemainingHeatEnergyPositiveDelta() throws Exception {
+		new ControllerTest(new HeatAskomaImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(300) //
+						.build()) //
+				.next(new TestCase() //
+						.input(Heat.ChannelId.TEMPERATURE, 400) // 40.0 °C
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) // 60.0 °C
+						// 300l * 1.163 Wh/(l*K) * 20K
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, 6978)) //
+				.deactivate();
+	}
+
+	@Test
+	void testRemainingHeatEnergyTargetEqualsActual() throws Exception {
+		new ControllerTest(new HeatAskomaImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(300) //
+						.build()) //
+				.next(new TestCase() //
+						.input(Heat.ChannelId.TEMPERATURE, 600) //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, 0)) //
+				.deactivate();
+	}
+
+	@Test
+	void testRemainingHeatEnergyActualAboveTarget() throws Exception {
+		new ControllerTest(new HeatAskomaImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(300) //
+						.build()) //
+				.next(new TestCase() //
+						.input(Heat.ChannelId.TEMPERATURE, 650) //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, 0)) //
+				.deactivate();
+	}
+
+	@Test
+	void testRemainingHeatEnergyMissingActualTemperature() throws Exception {
+		new ControllerTest(new HeatAskomaImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(300) //
+						.build()) //
+				.next(new TestCase() //
+						.input(Heat.ChannelId.TARGET_TEMPERATURE, 600) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, null)) //
+				.deactivate();
+	}
+
+	@Test
+	void testRemainingHeatEnergyMissingTargetTemperature() throws Exception {
+		new ControllerTest(new HeatAskomaImpl()) //
+				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId("component0") //
+						.setModbusId("modbus0") //
+						.setReadOnly(true) //
+						.setEffectiveStorageVolume(300) //
+						.build()) //
+				.next(new TestCase() //
+						.input(Heat.ChannelId.TEMPERATURE, 400) //
+						.output(Heat.ChannelId.REMAINING_HEAT_ENERGY, null)) //
+				.deactivate();
+	}
+
+	@Test
 	void testDefineModbusProtocolReadOnly() throws Exception {
 		var sut = new HeatAskomaImpl();
 		new ComponentTest(sut) //
@@ -276,7 +365,7 @@ class HeatAskomaImplTest {
 
 		assertEquals(//
 				new ChannelMetaInfo(597), //
-				sut.channel(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT).getMetaInfo());
+				sut.channel(Heat.ChannelId.TARGET_TEMPERATURE).getMetaInfo());
 		assertEquals(//
 				new ChannelMetaInfo(638), //
 				sut.channel(Heat.ChannelId.TEMPERATURE).getMetaInfo());
@@ -308,7 +397,7 @@ class HeatAskomaImplTest {
 
 		assertEquals(//
 				new ChannelMetaInfo(597), //
-				sut.channel(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT).getMetaInfo());
+				sut.channel(Heat.ChannelId.TARGET_TEMPERATURE).getMetaInfo());
 		assertEquals(//
 				new ChannelMetaInfo(638), //
 				sut.channel(Heat.ChannelId.TEMPERATURE).getMetaInfo());

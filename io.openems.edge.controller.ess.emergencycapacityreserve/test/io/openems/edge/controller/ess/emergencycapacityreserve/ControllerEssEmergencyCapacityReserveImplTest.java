@@ -549,7 +549,8 @@ public class ControllerEssEmergencyCapacityReserveImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("meta", new DummyMeta() //
-						.withIsEssChargeFromGridAllowed(true)) //
+						.withGridLimit(l -> l //
+								.setEssChargeFromGridAllowed(true))) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
 						.withMaxApparentPower(10000)) //
 				.activate(MyConfig.create() //

@@ -4,16 +4,20 @@ import { JsonrpcRequest } from "../base";
 /**
  * Represents a JSON-RPC Request to create a configuration for an OpenEMS Edge Component.
  *
- * @typedef {"jsonrpc": "2.0",
+ * ```json
+ * {
+ *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "method": "createComponentConfig",
  *   "params": {
  *     "factoryPid": string,
  *     "properties": [
  *       "name": string,
- *       "value": any
+ *       "value": unknown
  *     ]
- *   }} Request
+ *   }
+ * }
+ * ```
  */
 export class CreateComponentConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "createComponentConfig";
@@ -24,7 +28,7 @@ export class CreateComponentConfigRequest extends JsonrpcRequest {
             factoryPid: string;
             properties: {
                 name: string;
-                value: any;
+                value: unknown;
             }[];
         },
     ) {

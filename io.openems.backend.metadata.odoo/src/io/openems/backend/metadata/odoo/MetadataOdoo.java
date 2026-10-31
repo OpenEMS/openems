@@ -55,7 +55,6 @@ import io.openems.backend.authentication.api.model.PasswordAuthenticationResult;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.mail.MailContext;
 import io.openems.backend.common.mail.Mailer;
@@ -70,7 +69,6 @@ import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils;
-import io.openems.backend.metadata.odoo.odoo.http.OdooDeviceData;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.common.channel.Level;
@@ -78,9 +76,9 @@ import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -271,20 +269,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-		var edgeOpt = this.postgresHandler.getEdgeForApikey(apikey);
-		if (edgeOpt.isPresent()) {
-			return Optional.of(edgeOpt.get().getId());
-		}
-		return Optional.empty();
+		return this.postgresHandler.getEdgeForApikey(apikey).map(Edge::getId);
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
-		var optEdgeId = this.odooHandler.getEdgeIdBySetupPassword(setupPassword);
-		if (!optEdgeId.isPresent()) {
-			return Optional.empty();
-		}
-		return this.getEdge(optEdgeId.get());
+		return this.odooHandler.getEdgeIdBySetupPassword(setupPassword).flatMap(this::getEdge);
 	}
 
 	@Override
@@ -400,7 +390,28 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			role = OdooUserRole.OWNER;
 		}
 
-		this.odooHandler.registerUser(jsonObject, role, oem);
+		try {
+			this.odooHandler.registerUser(jsonObject, role, oem);
+		} catch (OpenemsNamedException e) {
+			// TODO remove this workaround when Odoo is fixed
+			if (!(e.getMessage().contains("Unable to write to Odoo") && e.getMessage().contains("res.partner"))) {
+				throw e;
+			}
+			// Hide password before logging (see JsonrpcUtils.simplifyJsonrpcMessage)
+			final var logJson = jsonObject.deepCopy();
+			if (logJson.has("password")) {
+				logJson.addProperty("password", "HIDDEN");
+			}
+			this.log.error("[ODOO_INTERNAL_ERROR] Unable to register user: {}. Retrying... {}", //
+					e.getMessage(), logJson, e);
+			try {
+				Thread.sleep(5_000);
+			} catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+				throw new RuntimeException(ex);
+			}
+			this.odooHandler.registerUser(jsonObject, role, oem);
+		}
 	}
 
 	@Override
@@ -750,28 +761,6 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				throw new CompletionException(e);
 			}
 		});
-	}
-
-	private EdgeMetadata deviceDataToEdgeMetadata(User user, OdooDeviceData deviceData) {
-
-		// TODO remove cached edge
-		final var cachedEdge = this.getEdge(deviceData.name()).orElse(null);
-		if (cachedEdge == null) {
-			throw new OpenemsRuntimeException("Unable to find edge with id [" + deviceData.name() + "]");
-		}
-
-		return new EdgeMetadata(//
-				deviceData.name(), //
-				deviceData.comment(), //
-				deviceData.producttype(), //
-				cachedEdge.getVersion(), //
-				deviceData.role(), //
-				cachedEdge.isOnline(), //
-				deviceData.lastmessage(), //
-				deviceData.firstSetupProtocol(), //
-				deviceData.sumState(), //
-				deviceData.settings() //
-		);
 	}
 
 	@Override

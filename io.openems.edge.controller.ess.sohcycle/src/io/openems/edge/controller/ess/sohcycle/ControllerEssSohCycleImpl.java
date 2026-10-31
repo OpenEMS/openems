@@ -82,6 +82,14 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 	 */
 	private Long measurementStartEnergyWh;
 
+	/**
+	 * Whether the {@code PREPARE_PRECHARGE} recovery has already been used during
+	 * the current SoH run. Stored here (instead of in {@code Context}, which is
+	 * re-created every cycle) so that it survives across controller cycles, and
+	 * reset whenever a new SoH cycle starts (see {@code IdleHandler#onExit}).
+	 */
+	private boolean preparePrechargeUsed;
+
 	@VisibleForTesting
 	static ControllerEssSohCycleImpl startIn(StateMachine.State initialState) {
 		return new ControllerEssSohCycleImpl(initialState, 0f);
@@ -152,12 +160,13 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 		final Float targetPower = context.getTargetPower();
 		final float rampPower = context.getRampPower();
 
-		Integer activePower = null;
-		if (targetPower != null && rampPower > 0f) {
-			activePower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
+		int batteryPower = ZERO_WATT_POWER;
+		if (context.isRampResetRequested()) {
+			this.rampFilter.resetTo(0f);
+		} else if (targetPower != null && rampPower > 0f) {
+			batteryPower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
 		}
-		var limitedActivePower = this.calculateAcLimit(activePower == null ? ZERO_WATT_POWER : activePower);
-		this.ess.setActivePowerEqualsWithoutFilter(limitedActivePower);
+		this.ess.setActivePowerEqualsWithoutFilter(this.calculateAcLimit(batteryPower));
 	}
 
 	private void applyConfig(Config config) {
@@ -207,6 +216,14 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
 	 */
 	public void setMeasurementStartEnergyWh(Long energyWh) {
 		this.measurementStartEnergyWh = energyWh;
+	}
+
+	public boolean isPreparePrechargeUsed() {
+		return this.preparePrechargeUsed;
+	}
+
+	public void setPreparePrechargeUsed(boolean used) {
+		this.preparePrechargeUsed = used;
 	}
 
 	/**

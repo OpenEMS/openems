@@ -24,8 +24,15 @@ import { ModalComponent } from "./pages/home";
 import { EvsePhaseSwitchingComponent } from "./pages/phase-switching/phase-switching";
 import { EvseAddTaskComponent } from "./pages/schedule/task/add/add";
 import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-config";
+import cz from "./shared/i18n/cz.json";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
+import es from "./shared/i18n/es.json";
+import fr from "./shared/i18n/fr.json";
+import ja from "./shared/i18n/ja.json";
+import lt from "./shared/i18n/lt.json";
+import nl from "./shared/i18n/nl.json";
+import sv from "./shared/i18n/sv.json";
 
 @NgModule({
     imports: [
@@ -55,16 +62,21 @@ import en from "./shared/i18n/en.json";
         StatusChartComponent,
         UpdateAppConfigComponent,
     ],
-    exports: [
-        FlatComponent,
-        UpdateAppConfigComponent,
-        UpdateAppComponent,
-    ],
+    exports: [FlatComponent, UpdateAppConfigComponent, UpdateAppComponent],
 })
 export class ControllerEvseSingle {
-
     constructor(private translate: TranslateService) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

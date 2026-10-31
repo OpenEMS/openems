@@ -2,7 +2,6 @@ package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
@@ -63,7 +62,6 @@ import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evse.chargepoint.keba.common.EvcsKeba;
-import io.openems.edge.evse.chargepoint.keba.common.EvseKeba;
 import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
@@ -370,8 +368,6 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 			modbusProtocol.addTasks(//
 					new FC6WriteRegisterTask(5004,
 							m(Keba.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))),
-					new FC6WriteRegisterTask(5010,
-							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010), SCALE_FACTOR_1)),
 					new FC6WriteRegisterTask(5012, m(Keba.ChannelId.SET_UNLOCK_PLUG, new UnsignedWordElement(5012))),
 					new FC6WriteRegisterTask(5014, m(Keba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 					new FC6WriteRegisterTask(5050,

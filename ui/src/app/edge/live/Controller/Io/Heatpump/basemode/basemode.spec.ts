@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Subject } from "rxjs";
 import { BaseMode, HeatpumpMode, ManualState } from "../shared/shared";
@@ -27,7 +28,7 @@ function buildFormAndTriggerBaseMode(
     };
 
     const form = (ControllerIoHeatpumpBaseModeComponent.prototype as any).getFormGroup.call(stub) as FormGroup;
-    stub.form = form;
+    stub.form = signal(form);
 
     form.controls["baseMode"].setValue(nextBaseMode);
 
