@@ -8,8 +8,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,13 +98,8 @@ public class WsData implements WsConnection {
 		if (!this.websocket.isOpen()) {
 			return false;
 		}
-		try {
-			this.websocket.send(message.toString());
-			return true;
-		} catch (WebsocketNotConnectedException e) {
-			// handles corner cases
-			return false;
-		}
+		this.websocket.send(message.toString());
+		return true;
 	}
 
 	/**

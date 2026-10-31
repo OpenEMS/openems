@@ -535,4 +535,9 @@
 	org.owasp.encoder;version='[1.6.0,1.6.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.10.0,3.10.1)',\
-	stax2-api;version='[4.3.0,4.3.1)'
+	stax2-api;version='[4.3.0,4.3.1)',\
+	org.eclipse.jetty.alpn.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.client;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.common;version='[12.1.13,12.1.14)',\
+	org.eclipse.jetty.websocket.core.server;version='[12.1.13,12.1.14)'

@@ -1,10 +1,10 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.OnOpen;
+import io.openems.common.websocket.WebSocket;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 

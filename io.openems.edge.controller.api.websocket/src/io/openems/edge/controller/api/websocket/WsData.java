@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,7 @@ import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.websocket.WebSocket;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.event.EdgeEventConstants;

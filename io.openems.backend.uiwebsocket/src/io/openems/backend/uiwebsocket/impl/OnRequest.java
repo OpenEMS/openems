@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
@@ -63,6 +62,7 @@ import io.openems.common.jsonrpc.response.GetEdgesResponse;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.PasswordUtils;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
