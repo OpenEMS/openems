@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { Location } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -40,6 +41,7 @@ export class ChannelsComponent implements OnInit, OnDestroy {
         private websocket: Websocket,
         private route: ActivatedRoute,
         private router: Router,
+        private location: Location,
         protected translate: TranslateService,
     ) {}
 
@@ -205,15 +207,20 @@ export class ChannelsComponent implements OnInit, OnDestroy {
             });
     }
 
+    /**
+     * Updates the url without triggering a router navigation, which would recreate this component and reload the saved
+     * channels. The channels are only restored from the url on a page reload.
+     */
     private saveChannelsInUrl(): void {
         const selectedChannels = this.getSelectedChannelStrings();
+        const commands = ["device/" + this.edge.id + "/settings/channels/"];
         if (selectedChannels && selectedChannels.length > 0) {
-            this.router.navigate(["device/" + this.edge.id + "/settings/channels/"], {
-                queryParams: { save: selectedChannels.toString() },
-            });
+            this.location.replaceState(
+                this.router.createUrlTree(commands, { queryParams: { save: selectedChannels.toString() } }).toString(),
+            );
             this.isAtLeastOneChannelExistingInEdgeConfig = false;
         } else {
-            this.router.navigate(["device/" + this.edge.id + "/settings/channels/"]);
+            this.location.replaceState(this.router.createUrlTree(commands).toString());
         }
     }
 
