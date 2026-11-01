@@ -23,6 +23,9 @@ updates:
       guava:
         patterns:
           - "com.google.guava:*"
+      jackson:
+        patterns:
+          - "com.fasterxml.jackson.*:*"
       prometheus:
         patterns:
           - "io.prometheus:*"
