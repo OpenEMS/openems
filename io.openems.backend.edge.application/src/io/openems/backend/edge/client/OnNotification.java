@@ -1,6 +1,5 @@
 package io.openems.backend.edge.client;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
@@ -10,6 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.AllSyncableEntriesNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.websocket.WebSocket;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 

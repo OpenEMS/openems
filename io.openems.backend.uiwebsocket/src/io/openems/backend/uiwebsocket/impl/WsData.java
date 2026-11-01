@@ -12,8 +12,6 @@ import java.util.SortedSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.java_websocket.WebSocket;
-
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonElement;
 
@@ -27,6 +25,7 @@ import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.LogMessageNotification;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.websocket.WebSocket;
 
 public class WsData extends io.openems.common.websocket.WsData {
 

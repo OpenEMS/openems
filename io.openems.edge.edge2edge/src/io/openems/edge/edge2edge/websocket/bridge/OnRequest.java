@@ -2,12 +2,11 @@ package io.openems.edge.edge2edge.websocket.bridge;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.java_websocket.WebSocket;
-
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

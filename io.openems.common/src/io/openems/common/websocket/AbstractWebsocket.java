@@ -4,8 +4,6 @@ import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
 import static io.openems.common.utils.StringUtils.toShortString;
 import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,21 +107,11 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	 */
 	protected final boolean sendMessage(WebSocket ws, JsonrpcMessage message) {
 		if (!ws.isOpen()) {
-			// Catch status before to avoid throwing an expensive
-			// WebsocketNotConnectedException
 			this.sendMessageFailedLog(ws, message);
 			return false;
 		}
-
-		try {
-			ws.send(message.toString());
-			return true;
-
-		} catch (WebsocketNotConnectedException e) {
-			// Fallback for race condition if Connection was closed inbetween
-			this.sendMessageFailedLog(ws, message);
-			return false;
-		}
+		ws.send(message.toString());
+		return true;
 	}
 
 	private void sendMessageFailedLog(WebSocket ws, JsonrpcMessage message) {

@@ -1,14 +1,14 @@
 package io.openems.backend.edge.server;
 
+import static io.openems.common.websocket.CloseCode.REFUSE;
 import static io.openems.common.websocket.WebsocketUtils.parseRemoteIdentifier;
-import static org.java_websocket.framing.CloseFrame.REFUSE;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.websocket.Handshake;
+import io.openems.common.websocket.WebSocket;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -20,10 +20,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
 		var error = this._apply(ws);
 		if (error != null) {
-			ws.closeConnection(REFUSE, "Connection to backend failed. Remote [" //
+			ws.close(REFUSE, "Connection to backend failed. Remote [" //
 					+ parseRemoteIdentifier(ws, handshakedata) //
 					+ "] Error: " + error.name() //
 			);
