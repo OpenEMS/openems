@@ -21,40 +21,40 @@ import io.openems.edge.meter.test.DummyElectricityMeter;
  * A test to check if the meter is correct referred to the heating element.
  */
 public class ControllerIoHeatingElementImplTest5 {
-    
-    @Test
-    public void test() throws Exception {
-        final var clock = createDummyClock();
-        new ControllerTest(new ControllerIoHeatingElementImpl()) //
-                .addReference("componentManager", new DummyComponentManager(clock)) //
-                .addReference("sum", new DummySum()) //
-                .addReference("meter", new DummyElectricityMeter("meter3")) //
-                .addComponent(new DummyInputOutput("io0")) //
-                .activate(MyConfig.create() //
-                        .setId("ctrl0") //
-                        .setOutputChannelPhaseL1("io0/InputOutput0") //
-                        .setOutputChannelPhaseL2("io0/InputOutput1") //
-                        .setOutputChannelPhaseL3("io0/InputOutput2") //
-                        .setPowerOfPhase(2000) //
-                        .setMode(Mode.AUTOMATIC) //
-                        .setWorkMode(WorkMode.NONE) //
-                        .setDefaultLevel(Level.LEVEL_1) //
-                        .setMeterid("meter3") //
-                        .setEndTime("00:00") //
-                        .setMinTime(1) //
-                        .setMinimumSwitchingTime(60) //
-                        .setMinEnergylimit(5000) //
-                        .setEndTimeWithMeter("00:00") //
-						.setScheduler("") // 
-                        .build()) //
-                .next(new TestCase() //
-                        .input(GRID_ACTIVE_POWER, -6400) //
-                        .input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-                        .input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-                        .input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-                        .input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-                        .output(LEVEL, Level.LEVEL_3)) //
-                .deactivate();
-        
-    }
+
+	@Test
+	public void test() throws Exception {
+		final var clock = createDummyClock();
+		new ControllerTest(new ControllerIoHeatingElementImpl()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("sum", new DummySum()) //
+				.addReference("meter", new DummyElectricityMeter("meter3")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setOutputChannelPhaseL1("io0/InputOutput0") //
+						.setOutputChannelPhaseL2("io0/InputOutput1") //
+						.setOutputChannelPhaseL3("io0/InputOutput2") //
+						.setPowerOfPhase(2000) //
+						.setMode(Mode.AUTOMATIC) //
+						.setWorkMode(WorkMode.NONE) //
+						.setDefaultLevel(Level.LEVEL_1) //
+						.setMeterid("meter3") //
+						.setEndTime("00:00") //
+						.setMinTime(1) //
+						.setMinimumSwitchingTime(60) //
+						.setMinEnergylimit(5000) //
+						.setEndTimeWithMeter("00:00") //
+						.setScheduler("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -6400) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.output(LEVEL, Level.LEVEL_3)) //
+				.deactivate();
+
+	}
 }

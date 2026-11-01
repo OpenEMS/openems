@@ -38,7 +38,7 @@ public enum Status implements OptionsEnum {
 	 * The heating element can't reach the minimum limit on time.
 	 */
 	UNREACHABLE(5, "Unreachable"),
-	
+
 	/**
 	 * The heating element is calibrated to get the power of the levels.
 	 */

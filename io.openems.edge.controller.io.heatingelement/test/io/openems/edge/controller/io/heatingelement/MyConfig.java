@@ -24,6 +24,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Level defaultLevel;
 		private int minimumSwitchingTime;
 		private String scheduler;
+		private boolean hasWaterThermometer = false;
+		private String waterThermometerId = "";
+		private Level sensorErrorLevel = Level.LEVEL_0;
+		private int lowWaterTemperature = 45;
+		private int highWaterTemperature = 60;
+		private int maxWaterTemperature = 85;
+		private boolean enableLegionellenProtection = false;
+		private int legionellenWaterTemperature = 65;
+		private int legionellenInterval = 7;
+		private int minLegionellenTime = 1;
+		private int legionellenMaxHeatingTime = 6;
 
 		private Builder() {
 
@@ -101,6 +112,38 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setScheduler(String scheduler) {
 			this.scheduler = scheduler;
+			return this;
+		}
+
+		public Builder setHasWaterThermometer(boolean hasWaterThermometer) {
+			this.hasWaterThermometer = hasWaterThermometer;
+			return this;
+		}
+
+		public Builder setWaterThermometerId(String waterThermometerId) {
+			this.waterThermometerId = waterThermometerId;
+			return this;
+		}
+
+		public Builder setSensorErrorLevel(Level sensorErrorLevel) {
+			this.sensorErrorLevel = sensorErrorLevel;
+			return this;
+		}
+
+		public Builder setWaterTemperatures(int low, int high, int max) {
+			this.lowWaterTemperature = low;
+			this.highWaterTemperature = high;
+			this.maxWaterTemperature = max;
+			return this;
+		}
+
+		public Builder setLegionellenProtection(boolean enabled, int temperature, int interval, int minTime,
+				int maxHeatingTime) {
+			this.enableLegionellenProtection = enabled;
+			this.legionellenWaterTemperature = temperature;
+			this.legionellenInterval = interval;
+			this.minLegionellenTime = minTime;
+			this.legionellenMaxHeatingTime = maxHeatingTime;
 			return this;
 		}
 
@@ -193,5 +236,60 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String schedule() {
 		return this.builder.scheduler;
+	}
+
+	@Override
+	public boolean hasWaterThermometer() {
+		return this.builder.hasWaterThermometer;
+	}
+
+	@Override
+	public String waterThermometer_id() {
+		return this.builder.waterThermometerId;
+	}
+
+	@Override
+	public Level sensorErrorLevel() {
+		return this.builder.sensorErrorLevel;
+	}
+
+	@Override
+	public int lowWaterTemperature() {
+		return this.builder.lowWaterTemperature;
+	}
+
+	@Override
+	public int highWaterTemperature() {
+		return this.builder.highWaterTemperature;
+	}
+
+	@Override
+	public int maxWaterTemperature() {
+		return this.builder.maxWaterTemperature;
+	}
+
+	@Override
+	public boolean enableLegionellenProtection() {
+		return this.builder.enableLegionellenProtection;
+	}
+
+	@Override
+	public int legionellenWaterTemperature() {
+		return this.builder.legionellenWaterTemperature;
+	}
+
+	@Override
+	public int legionellenInterval() {
+		return this.builder.legionellenInterval;
+	}
+
+	@Override
+	public int minLegionellenTime() {
+		return this.builder.minLegionellenTime;
+	}
+
+	@Override
+	public int legionellenMaxHeatingTime() {
+		return this.builder.legionellenMaxHeatingTime;
 	}
 }

@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -48,11 +49,13 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.io.heatingelement.Utils.CumulatedActiveTimes;
 import io.openems.edge.controller.io.heatingelement.Utils.HeatingPhases;
+import io.openems.edge.controller.io.heatingelement.Utils.TemperatureControl;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.Status;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.thermometer.api.Thermometer;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -63,7 +66,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
-@GenerateTargetsFromReferences("meter")
+@GenerateTargetsFromReferences({ "meter", "waterThermometer" })
 public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		implements ControllerIoHeatingElement, Controller, OpenemsComponent, TimedataProvider {
 
@@ -74,6 +77,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	private static final double PERCENTAGE_ENERGYLIMIT_TO_NOT_TURN_UP = 0.01;
 	private static final Duration SHOWING_DONE_FOR_HALF_AN_HOUR = Duration.ofMinutes(30);
 	private static final int CALIBRATION_SECONDS = 4;
+	/** Legionella: heating is stopped above Legionella temperature + band [d°C]. */
+	private static final int LEGIONELLEN_TEMPERATURE_BAND = 20;
+	/** Legionella: pause after an aborted heating until the next try. */
+	private static final Duration LEGIONELLEN_RETRY_PAUSE = Duration.ofDays(1);
 
 	/*
 	 * Definitions for each phase.
@@ -97,6 +104,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	@Reference(cardinality = OPTIONAL, policyOption = GREEDY, //
 			target = "(&(id=${config.meter_id})(enabled=true))")
 	private volatile ElectricityMeter meter;
+
+	@Reference(cardinality = OPTIONAL, policyOption = GREEDY, //
+			target = "(&(id=${config.waterThermometer_id})(enabled=true))")
+	private volatile Thermometer waterThermometer;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -151,6 +162,18 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 	/** The configured endTime in the mode time. */
 	private LocalTime endTimeWorkModeTime;
+	/** Remaining hours until the next Legionella heating is required. */
+	private int legionellenCountdownHours = 0;
+	/** Last time the Legionella countdown was updated. */
+	private LocalDateTime lastLegionellenCheck = LocalDateTime.MIN;
+	/** Time since the water is at or above the Legionella temperature. */
+	private LocalDateTime legionellenHoldStart = null;
+	/** Start of the current Legionella heating; null if not heating. */
+	private LocalDateTime legionellenHeatingStart = null;
+	/** Time the last Legionella heating was aborted; null if not aborted. */
+	private LocalDateTime legionellenAbortTime = null;
+	/** True if the missing water thermometer was already logged. */
+	private boolean sensorErrorLogged = false;
 	private Config config;
 
 	public ControllerIoHeatingElementImpl() {
@@ -181,7 +204,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	}
 
 	private void updateConfig(Config config) throws OpenemsException {
+		validateTemperatureConfig(config);
 		this.config = config;
+		this.sensorErrorLogged = false;
+		this.initLegionellenCountdown();
 		this.minimumTotalPhaseTime = calculateMinimumTotalPhaseTime(config);
 		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule(),
 				Payload.serializer());
@@ -202,10 +228,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			this.modeManualOff();
 			yield Status.INACTIVE;
 		}
-		case MANUAL_ON -> {
-			this.modeManualOn();
-			yield Status.ACTIVE;
-		}
+		case MANUAL_ON -> this.modeManualOn();
 		};
 
 		if (this.isPowerCapturedByMeter()) {
@@ -237,14 +260,23 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Handle Mode "Manual On".
 	 *
+	 * @return run state
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
-	private void modeManualOn() throws IllegalArgumentException, OpenemsNamedException {
+	private Status modeManualOn() throws IllegalArgumentException, OpenemsNamedException {
 		if (this.isPowerCapturedByMeter()) {
 			setValue(this, ControllerIoHeatingElement.ChannelId.WAITING_FOR_CALIBRATION, false);
 		}
-		this.applyLevel(this.config.defaultLevel());
+		var level = this.config.defaultLevel();
+		if (this.config.hasWaterThermometer()) {
+			var temperatureControl = this.getTemperatureControl();
+			if (temperatureControl.isFinal()) {
+				level = temperatureControl.level();
+			}
+		}
+		this.applyLevel(level);
+		return this.getStateFromLevel(level);
 	}
 
 	/**
@@ -254,6 +286,9 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws IllegalArgumentException on error
 	 */
 	private void modeManualOff() throws IllegalArgumentException, OpenemsNamedException {
+		if (this.config.hasWaterThermometer()) {
+			this.readWaterTemperature();
+		}
 		this.applyLevel(Level.LEVEL_0);
 	}
 
@@ -293,6 +328,16 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		Level targetLevel = this.getRequiredLevel(excessPower);
 		this.runState = this.getStateFromLevel(targetLevel);
 
+		var temperatureControl = this.config.hasWaterThermometer() //
+				? this.getTemperatureControl() //
+				: TemperatureControl.NONE;
+		if (temperatureControl.isFinal()) {
+			this.runState = this.getStateFromLevel(temperatureControl.level());
+			this.applyLevel(temperatureControl.level());
+			this.lastRunState = this.runState;
+			return this.runState;
+		}
+
 		// Example with schedule
 		if (this.isScheduleConfigured()) {
 			targetLevel = this.getLevelFromSchedule(targetLevel);
@@ -302,6 +347,13 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			case WorkMode.ENERGY -> this.modeEnergy(targetLevel);
 			case WorkMode.NONE -> targetLevel;
 			};
+		}
+
+		// Heating demanded by the temperature control has priority over work mode and
+		// schedule
+		if (temperatureControl.level() != null) {
+			targetLevel = temperatureControl.level();
+			this.runState = this.getStateFromLevel(targetLevel);
 		}
 
 		targetLevel = this.runState == Status.ACTIVE_FORCED_LIMIT || this.runState == Status.ACTIVE_FORCED ? targetLevel
@@ -835,6 +887,202 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			break;
 		}
 		return endTime.minusSeconds(remainingTotalPhaseTime);
+	}
+
+	/**
+	 * Validates the configuration of the temperature control.
+	 *
+	 * @param config the {@link Config}
+	 * @throws OpenemsException if the configuration is invalid
+	 */
+	private static void validateTemperatureConfig(Config config) throws OpenemsException {
+		if (!config.hasWaterThermometer()) {
+			return;
+		}
+		if (config.waterThermometer_id().isEmpty()) {
+			throw new OpenemsException("Water Thermometer-ID must be set");
+		}
+		if (config.lowWaterTemperature() >= config.highWaterTemperature()) {
+			throw new OpenemsException("Low water temperature must be below high water temperature");
+		}
+		if (config.highWaterTemperature() > config.maxWaterTemperature()) {
+			throw new OpenemsException("High water temperature must not be above maximum water temperature");
+		}
+		if (config.enableLegionellenProtection()) {
+			if (config.legionellenInterval() <= 0) {
+				throw new OpenemsException("Legionella interval must be greater than zero");
+			}
+			if (config.minLegionellenTime() < 0) {
+				throw new OpenemsException("Minimum Legionella time must not be negative");
+			}
+			if (config.legionellenMaxHeatingTime() <= config.minLegionellenTime()) {
+				throw new OpenemsException(
+						"Maximum Legionella heating time must be greater than minimum Legionella time");
+			}
+			if (config.legionellenWaterTemperature() > config.maxWaterTemperature()) {
+				throw new OpenemsException("Legionella water temperature must not be above maximum water temperature");
+			}
+		}
+	}
+
+	/**
+	 * Reads the water temperature and updates the related Channels.
+	 *
+	 * @return the temperature in [d°C]; null if the thermometer is not available
+	 */
+	private Integer readWaterTemperature() {
+		var thermometer = this.waterThermometer;
+		var temperature = thermometer == null ? null : thermometer.getTemperature().get();
+		var isAvailable = temperature != null;
+
+		setValue(this, ControllerIoHeatingElement.ChannelId.WATER_THERMOMETER_NOT_AVAILABLE, !isAvailable);
+		setValue(this, ControllerIoHeatingElement.ChannelId.WATER_ACTUAL,
+				isAvailable ? Math.round(temperature / 10F) : null);
+		setValue(this, ControllerIoHeatingElement.ChannelId.WATER_TARGET, this.config.highWaterTemperature());
+
+		if (isAvailable) {
+			this.sensorErrorLogged = false;
+		} else if (!this.sensorErrorLogged) {
+			this.log.warn("Water thermometer [" + this.config.waterThermometer_id()
+					+ "] is not available. Using sensor error level [" + this.config.sensorErrorLevel() + "].");
+			this.sensorErrorLogged = true;
+		}
+		return temperature;
+	}
+
+	/**
+	 * Gets the demand of the temperature control.
+	 *
+	 * @return the {@link TemperatureControl}
+	 */
+	private TemperatureControl getTemperatureControl() {
+		var temperature = this.readWaterTemperature();
+		if (temperature == null) {
+			return new TemperatureControl(this.config.sensorErrorLevel(), true);
+		}
+
+		if (temperature >= this.config.maxWaterTemperature() * 10) {
+			this.log.warn("Water temperature safety limit reached: " + temperature / 10F + " °C");
+			return new TemperatureControl(Level.LEVEL_0, true);
+		}
+
+		if (this.config.enableLegionellenProtection()) {
+			var legionellenControl = this.getLegionellenControl(temperature);
+			if (legionellenControl != null) {
+				return legionellenControl;
+			}
+		}
+
+		if (temperature >= this.config.highWaterTemperature() * 10) {
+			return new TemperatureControl(Level.LEVEL_0, true);
+		}
+
+		if (temperature < this.config.lowWaterTemperature() * 10) {
+			return new TemperatureControl(Level.LEVEL_3, false);
+		}
+
+		return TemperatureControl.NONE;
+	}
+
+	/**
+	 * Gets the demand of the Legionella protection.
+	 *
+	 * @param temperature the water temperature in [d°C]
+	 * @return the {@link TemperatureControl}; null if the Legionella protection
+	 *         does not demand anything
+	 */
+	private TemperatureControl getLegionellenControl(int temperature) {
+		var now = LocalDateTime.now(this.componentManager.getClock());
+		this.updateLegionellenCountdown(temperature);
+
+		if (this.legionellenCountdownHours > 0) {
+			// Protection is not due or was completed
+			this.legionellenHeatingStart = null;
+			this.legionellenAbortTime = null;
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEGIONELLEN_PROTECTION_FAILED, false);
+			return null;
+		}
+
+		if (this.legionellenAbortTime != null) {
+			if (Duration.between(this.legionellenAbortTime, now).compareTo(LEGIONELLEN_RETRY_PAUSE) < 0) {
+				// Waiting for the next try
+				setValue(this, ControllerIoHeatingElement.ChannelId.LEGIONELLEN_PROTECTION_FAILED, true);
+				return null;
+			}
+			this.legionellenAbortTime = null;
+		}
+
+		if (this.legionellenHeatingStart == null) {
+			this.legionellenHeatingStart = now;
+		}
+		var maxHeatingTime = Duration.ofHours(this.config.legionellenMaxHeatingTime());
+		if (Duration.between(this.legionellenHeatingStart, now).compareTo(maxHeatingTime) > 0) {
+			this.log.warn(
+					"Legionella protection aborted: the temperature of " + this.config.legionellenWaterTemperature()
+							+ " °C was not held in time. Retry in " + LEGIONELLEN_RETRY_PAUSE.toHours() + " h.");
+			this.legionellenAbortTime = now;
+			this.legionellenHeatingStart = null;
+			this.legionellenHoldStart = null;
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEGIONELLEN_PROTECTION_FAILED, true);
+			return null;
+		}
+
+		setValue(this, ControllerIoHeatingElement.ChannelId.LEGIONELLEN_PROTECTION_FAILED, false);
+		setValue(this, ControllerIoHeatingElement.ChannelId.WATER_TARGET, this.config.legionellenWaterTemperature());
+		if (temperature >= this.config.legionellenWaterTemperature() * 10 + LEGIONELLEN_TEMPERATURE_BAND) {
+			// Keep the temperature slightly above the Legionella temperature
+			return new TemperatureControl(Level.LEVEL_0, false);
+		}
+		return new TemperatureControl(Level.LEVEL_3, false);
+	}
+
+	/**
+	 * Starts the Legionella countdown if the protection is enabled and no countdown
+	 * is running.
+	 */
+	private void initLegionellenCountdown() {
+		if (!this.config.hasWaterThermometer() || !this.config.enableLegionellenProtection()) {
+			this.legionellenCountdownHours = 0;
+			this.lastLegionellenCheck = LocalDateTime.MIN;
+			this.legionellenHoldStart = null;
+			this.legionellenHeatingStart = null;
+			this.legionellenAbortTime = null;
+			return;
+		}
+		if (this.legionellenCountdownHours == 0) {
+			this.legionellenCountdownHours = this.config.legionellenInterval() * 24;
+			this.lastLegionellenCheck = LocalDateTime.now(this.componentManager.getClock());
+		}
+	}
+
+	/**
+	 * Updates the Legionella countdown; it is restarted as soon as the water stayed
+	 * at or above the Legionella temperature for the minimum Legionella time.
+	 *
+	 * @param temperature the water temperature in [d°C]
+	 */
+	private void updateLegionellenCountdown(int temperature) {
+		var now = LocalDateTime.now(this.componentManager.getClock());
+		if (temperature >= this.config.legionellenWaterTemperature() * 10) {
+			if (this.legionellenHoldStart == null) {
+				this.legionellenHoldStart = now;
+			}
+			var minTime = Duration.ofHours(this.config.minLegionellenTime());
+			if (Duration.between(this.legionellenHoldStart, now).compareTo(minTime) >= 0) {
+				this.lastLegionellenCheck = now;
+				this.legionellenCountdownHours = this.config.legionellenInterval() * 24;
+			}
+			return;
+		}
+
+		// Temperature was not held long enough
+		this.legionellenHoldStart = null;
+
+		var hoursSinceLastCheck = ChronoUnit.HOURS.between(this.lastLegionellenCheck, now);
+		if (hoursSinceLastCheck >= 1) {
+			this.legionellenCountdownHours = (int) Math.max(0, this.legionellenCountdownHours - hoursSinceLastCheck);
+			this.lastLegionellenCheck = now;
+		}
 	}
 
 	/**
