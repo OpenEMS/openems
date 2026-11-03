@@ -8,7 +8,7 @@ OpenEMS (FEMS) is a modular energy management system:
 - **Backend** (`io.openems.backend.*`) aggregates, monitors, and supports remote control.
 - **UI** (`ui/`) is the Angular/Ionic frontend for real-time monitoring.
 
-Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
+Main stacks: Java 25, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 
 ## Working Style
 
