@@ -19,6 +19,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusProtocolBuilder;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -36,6 +37,8 @@ import io.openems.edge.common.taskmanager.Priority;
 @GenerateTargetsFromReferences("Modbus")
 public class BlueEPlusImpl extends AbstractOpenemsModbusComponent
 		implements BlueEPlus, OpenemsComponent, ModbusComponent {
+
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -59,6 +62,7 @@ public class BlueEPlusImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
@@ -69,6 +73,19 @@ public class BlueEPlusImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
+		return switch (this.config.version()) {
+		case KERNEL_4_19 -> ModbusProtocolBuilder.create(this)//
+				.addProtocol(this.defaultProtocol())//
+				.addProtocol(this.kernel419Protocol())//
+				.build();
+		case KERNEL_6_6 -> ModbusProtocolBuilder.create(this)//
+				.addProtocol(this.defaultProtocol())//
+				.addProtocol(this.kernel66Protocol())//
+				.build();
+		};
+	}
+
+	private ModbusProtocol defaultProtocol() {
 		return new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(0, //
 						m(BlueEPlus.ChannelId.INTERNAL_TEMPERATURE_SET_PT_HIGH_FAULT, new UnsignedDoublewordElement(0)), //
@@ -191,7 +208,12 @@ public class BlueEPlusImpl extends AbstractOpenemsModbusComponent
 						m(BlueEPlus.ChannelId.REMOTE_TEMPERATURE_TIMEOUT, new UnsignedDoublewordElement(82)), //
 						m(BlueEPlus.ChannelId.REMOTE_TEMPERATURE_TIMEOUT_REQUIRED, new UnsignedDoublewordElement(84)), //
 						m(BlueEPlus.ChannelId.REMOTE_TEMPERATURE_CATEGORY, new UnsignedDoublewordElement(86)) //
-				), //
+				)//
+		);
+	}
+
+	private ModbusProtocol kernel66Protocol() {
+		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3038, Priority.LOW, //
 						m(BlueEPlus.ChannelId.INTERNAL_TEMPERATURE_STATUS, new UnsignedDoublewordElement(3038)) //
 				), //
@@ -252,4 +274,64 @@ public class BlueEPlusImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	private ModbusProtocol kernel419Protocol() {
+		return new ModbusProtocol(this, //
+				new FC4ReadInputRegistersTask(396, Priority.LOW, //
+						m(BlueEPlus.ChannelId.INTERNAL_TEMPERATURE_STATUS, new UnsignedDoublewordElement(396)) //
+				), //
+				new FC4ReadInputRegistersTask(514, Priority.LOW, //
+						m(BlueEPlus.ChannelId.AMBIENT_TEMPERATURE_STATUS, new UnsignedDoublewordElement(514)) //
+				), //
+				new FC4ReadInputRegistersTask(632, Priority.LOW, //
+						m(BlueEPlus.ChannelId.EXTERNAL_TEMPERATURE_SENSOR_STATUS, new UnsignedDoublewordElement(632)) //
+				), //
+				new FC4ReadInputRegistersTask(1021, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_COOLING_STATUS, new UnsignedDoublewordElement(1021)) //
+				), //
+				new FC4ReadInputRegistersTask(1139, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_INTERNAL_AIR_CIRCUIT_STATUS,
+								new UnsignedDoublewordElement(1139)) //
+				), //
+				new FC4ReadInputRegistersTask(1257, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_EXTERNAL_AIR_CIRCUIT_STATUS,
+								new UnsignedDoublewordElement(1257)) //
+				), //
+				new FC4ReadInputRegistersTask(1426, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_INTERNAL_FAN_STATUS, new UnsignedDoublewordElement(1426)) //
+				), //
+				new FC4ReadInputRegistersTask(1595, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_EXTERNAL_FAN_STATUS, new UnsignedDoublewordElement(1595)) //
+				), //
+				new FC4ReadInputRegistersTask(1764, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_COMPRESSOR_STATUS, new UnsignedDoublewordElement(1764)) //
+				), //
+				new FC4ReadInputRegistersTask(1933, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_EEV_STATUS, new UnsignedDoublewordElement(1933)) //
+				), //
+				new FC4ReadInputRegistersTask(2000, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_FILTER_STATUS, new UnsignedDoublewordElement(2000)) //
+				), //
+				new FC4ReadInputRegistersTask(2067, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_DOOR_STATUS, new UnsignedDoublewordElement(2067)) //
+				), //
+				new FC4ReadInputRegistersTask(2134, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_ELECTRONICS_STATUS, new UnsignedDoublewordElement(2134)) //
+				), //
+				new FC4ReadInputRegistersTask(2201, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_CONDENSATE_STATUS, new UnsignedDoublewordElement(2201)) //
+				), //
+				new FC4ReadInputRegistersTask(2268, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_SYSTEM_MESSAGES_STATUS, new UnsignedDoublewordElement(2268)) //
+				), //
+				new FC4ReadInputRegistersTask(2743, Priority.LOW, //
+						m(BlueEPlus.ChannelId.MONITORING_ERROR_LIST_STATUS, new UnsignedDoublewordElement(2743)) //
+				), //
+				new FC4ReadInputRegistersTask(2912, Priority.LOW, //
+						m(BlueEPlus.ChannelId.REMOTE_DOOR_STATUS, new UnsignedDoublewordElement(2912)) //
+				), //
+				new FC4ReadInputRegistersTask(2979, Priority.LOW, //
+						m(BlueEPlus.ChannelId.REMOTE_TEMPERATURE_STATUS, new UnsignedDoublewordElement(2979)) //
+				) //
+		);
+	}
 }

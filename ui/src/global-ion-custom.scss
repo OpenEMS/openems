@@ -59,20 +59,12 @@
     font-size: medium !important;
 }
 
-.ion-font-size-large {
-    font-size: large !important;
-}
-
 .ion-font-size-xxx-large {
     font-size: xxx-large !important;
 }
 
 .ion-font-size-xx-large {
     font-size: xx-large !important;
-}
-
-.ion-font-size-smaller {
-    font-size: smaller !important;
 }
 
 .ion-font-size-smaller {
@@ -101,6 +93,14 @@
 
 .ion-font-weight-bolder {
     font-weight: bolder;
+}
+
+.ion-font-color-danger {
+    color: var(--ion-color-danger);
+}
+
+.ion-border-danger {
+    border: 0.15em solid var(--ion-color-danger);
 }
 
 /** Text */

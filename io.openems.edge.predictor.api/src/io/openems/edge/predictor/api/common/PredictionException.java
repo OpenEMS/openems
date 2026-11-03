@@ -1,9 +1,9 @@
 package io.openems.edge.predictor.api.common;
 
 public class PredictionException extends Exception {
-	
+
 	private static final long serialVersionUID = 42L;
-	
+
 	private final PredictionError error;
 
 	public PredictionException(PredictionError error, String message) {

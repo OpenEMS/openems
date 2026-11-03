@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "MODE": {
+            "ACTIVE_MODE": "Režimas",
+            "LABEL": "Pagrindinis režimas",
+            "OFF": "Išjungta",
+            "ON": "Įjungta",
+            "SELECT_PROMPT": "Kuris režimas turėtų būti taikomas mineriui?"
+        },
+        "SCHEDULE": {
+            "MODE": "Režimas",
+            "MODE_SELECTION_PLACEHOLDER": "Pasirinkite režimą"
+        }
+    }
+}

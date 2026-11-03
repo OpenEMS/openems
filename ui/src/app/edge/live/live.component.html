@@ -3,6 +3,8 @@
     <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
       <!-- SoH Status Banner Component -->
       <soh-status-banner></soh-status-banner>
+      <!-- Capacity Extension Running Component -->
+      <capacity-extension-status-banner></capacity-extension-status-banner>
 
       <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {

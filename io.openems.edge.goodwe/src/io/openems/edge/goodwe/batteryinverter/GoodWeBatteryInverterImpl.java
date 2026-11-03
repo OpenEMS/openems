@@ -515,9 +515,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
 			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
 		}
-		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
-				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
-				GOODWE_8K_ET -> {
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K, FENECON_GEN2_6K, GOODWE_10K_BT,
+				GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT, GOODWE_8K_ET -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
 			// Feed-in limitation - register is a signed 16-bit value, clamp defensively.
@@ -1047,14 +1046,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void handleGridFeed() throws OpenemsNamedException {
 
 		switch (this.getGoodweType()) {
-			case GoodWeType.FENECON_FHI_29_9_DAH ->
-				this.handleGridFeedForFeneconFhi299Dah();
-			case GoodWeType.FENECON_50K, GoodWeType.FENECON_100K, GoodWeType.FENECON_FHI_10_DAH,
-					GoodWeType.FENECON_FHI_20_DAH, GoodWeType.FENECON_GEN2_10K, GoodWeType.FENECON_GEN2_15K,
-					GoodWeType.FENECON_GEN2_6K, GoodWeType.GOODWE_10K_BT, GoodWeType.GOODWE_10K_ET,
-					GoodWeType.GOODWE_5K_BT, GoodWeType.GOODWE_5K_ET, GoodWeType.GOODWE_8K_BT,
-					GoodWeType.GOODWE_8K_ET -> this.handleGridFeedForOther();
-			case GoodWeType.UNDEFINED -> doNothing();
+		case GoodWeType.FENECON_FHI_29_9_DAH //
+			-> this.handleGridFeedForFeneconFhi299Dah();
+		case GoodWeType.FENECON_50K, GoodWeType.FENECON_100K, GoodWeType.FENECON_FHI_10_DAH,
+				GoodWeType.FENECON_FHI_20_DAH, GoodWeType.FENECON_GEN2_10K, GoodWeType.FENECON_GEN2_15K,
+				GoodWeType.FENECON_GEN2_6K, GoodWeType.GOODWE_10K_BT, GoodWeType.GOODWE_10K_ET, GoodWeType.GOODWE_5K_BT,
+				GoodWeType.GOODWE_5K_ET, GoodWeType.GOODWE_8K_BT, GoodWeType.GOODWE_8K_ET //
+			-> this.handleGridFeedForOther();
+		case GoodWeType.UNDEFINED //
+			-> doNothing();
 		}
 	}
 
@@ -1063,7 +1063,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				&& !this.getMaxApparentPower().isDefined()) {
 			return;
 		}
-		var limit = this.meta.getConfiguredMaximumGridFeedInLimit().orElseGet(this.meta::getGridSellHardLimit);
+		var limit = this.meta.getGridLimit().gridSellHardLimit();
 		var rcrLimit = this.getRcrLimitation();
 		if (rcrLimit.isPresent()) {
 			limit = min(limit, rcrLimit.getAsInt());
@@ -1080,7 +1080,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var gridFeedInLimit = maxApparentPower;
 
 		// Limit from general Feed-In Limitation (Meta)
-		var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		var gridSellHardLimit = this.meta.getGridLimit().gridSellHardLimit();
 		if (gridSellHardLimit < maxApparentPower) {
 			enableFeedInLimit = true;
 			gridFeedInLimit = gridSellHardLimit;

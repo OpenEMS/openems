@@ -1,0 +1,15 @@
+{
+    "BRAIINS_SINGLE": {
+        "MODE": {
+            "ACTIVE_MODE": "Läge",
+            "LABEL": "Grundläge",
+            "OFF": "Av",
+            "ON": "På",
+            "SELECT_PROMPT": "Vilket läge ska gälla för minern?"
+        },
+        "SCHEDULE": {
+            "MODE": "Läge",
+            "MODE_SELECTION_PLACEHOLDER": "Välj läge"
+        }
+    }
+}

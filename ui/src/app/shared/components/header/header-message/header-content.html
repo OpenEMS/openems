@@ -29,11 +29,18 @@
           @let alignRight = !alignLeft && message !== null;
           @let alignCenter = !alignLeft && !alignRight;
           <ion-col [size]="showBackNavigation ? 9 : 10" class="ion-text-align-center ion-no-padding-top ion-padding-left" [class.ion-text-align-left]="alignLeft" [class.ion-text-align-center]="alignCenter" [class.ion-text-align-right]="alignRight">
-            <ion-label style="line-height: 1.2" [class.ion-font-size-x-large]="showBackNavigation == false && (message !== null || navigationService.headerTitle())" class="oe-ci-font-family-bold ion-text-wrap ion-no-padding-top">
+            <ion-label
+              style="line-height: 1.2"
+              [class.ion-font-size-x-large]="showBackNavigation == false && (message !== null || navigationService.headerTitle()?.text)"
+              class="ion-text-wrap ion-no-padding-top"
+              [ngClass]="{
+                'oe-ci-font-family-bold': navigationService.headerTitle()?.useCiFont || message !== null,
+              }"
+            >
               @if (message !== null) {
                 <span [innerHTML]="message"></span>
-              } @else {
-                {{ navigationService.headerTitle() }}
+              } @else if (navigationService.headerTitle()?.useCiFont) {
+                {{ navigationService.headerTitle()?.text }}
               }
             </ion-label>
           </ion-col>

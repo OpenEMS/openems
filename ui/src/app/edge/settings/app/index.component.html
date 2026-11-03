@@ -84,6 +84,13 @@
 
   <ion-grid>
     <ion-row>
+      <ion-col size="12">
+        <ion-item lines="none">
+          <ion-label class="ion-text-center"> {{ "EDGE.CONFIG.APP.NAME" | translate }} </ion-label>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row>
       <ion-searchbar mode="md" style="--background: var(--ion-color-searchbar-background); color: var(--ion-color-searchbar-text); flex: 1" (ionInput)="onValueChanged($event)" [debounce]="1000"> </ion-searchbar>
     </ion-row>
 

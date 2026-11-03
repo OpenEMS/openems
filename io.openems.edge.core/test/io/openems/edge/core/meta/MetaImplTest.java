@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.meta.GridSellLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.types.Environment;
 import io.openems.edge.common.meta.types.EnvironmentStatus;
@@ -107,7 +105,7 @@ class MetaImplTest {
 		assertEquals(EnvironmentStatus.STABLE.name(), //
 				cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?").getProperties().get("environmentStatus"));
 
-		final var ots = sut.getGridBuyLimit().soft() //
+		final var ots = sut.getGridLimit().gridBuySoftLimit() //
 				.getOneTasksBetween(clock.now(), clock.now().plusHours(48)).iterator();
 		{
 			// from 00:00 to 08:00: defined fallback task
@@ -151,11 +149,10 @@ class MetaImplTest {
 		}
 
 		// Validate Hard Limits
-		assertEquals(16170, sut.getGridBuyLimit().hard().power());
-		assertEquals(new GridSellLimit(new GridSellLimit.Hard(12345, 11728)), sut.getGridSellLimit());
-		assertEquals(12345, sut.getGridSellHardLimit());
-		assertEquals(11728, sut.getGridSellHardLimitWithBuffer());
-		assertEquals(12345, sut.getEssDischargeToGridLimit());
+		assertEquals(22170, sut.getGridLimit().gridBuyHardLimit());
+		assertEquals(16170, sut.getGridLimit().gridBuyHardLimitWithBuffer());
+		assertEquals(12345, sut.getGridLimit().gridSellHardLimit());
+		assertEquals(11728, sut.getGridLimit().gridSellHardLimitWithBuffer());
 
 		// Test Live Channels
 		test //
@@ -233,8 +230,8 @@ class MetaImplTest {
 						.build());
 
 		// Grid sell hard limit should be clamped to 0 (zero export enforced)
-		assertEquals(0, sut.getGridSellHardLimit());
-		assertEquals(Optional.of(0), sut.getConfiguredMaximumGridFeedInLimit());
+		assertEquals(0, sut.getGridLimit().gridSellHardLimit());
+		assertEquals(0, sut.getGridLimit().gridSellHardLimitWithBuffer());
 	}
 
 	@ParameterizedTest
@@ -264,8 +261,8 @@ class MetaImplTest {
 
 		// Grid sell hard limit should fall back to fuse limit when no fixed limit is
 		// set
-		assertEquals(22170, sut.getGridSellHardLimit());
-		assertEquals(Optional.empty(), sut.getConfiguredMaximumGridFeedInLimit());
+		assertEquals(22170, sut.getGridLimit().gridSellHardLimit());
+		assertEquals(21061, sut.getGridLimit().gridSellHardLimitWithBuffer());
 	}
 
 	@ParameterizedTest
@@ -295,8 +292,7 @@ class MetaImplTest {
 						.build());
 
 		// Grid sell hard limit should be the minimum of configured and fuse limits
-		assertEquals(hardLimit, sut.getGridSellHardLimit());
-		assertEquals(Optional.of(configuredLimit), sut.getConfiguredMaximumGridFeedInLimit());
+		assertEquals(hardLimit, sut.getGridLimit().gridSellHardLimit());
 	}
 
 	@Test
@@ -325,12 +321,13 @@ class MetaImplTest {
 
 		// Grid sell hard limit should be fuse limit (configured limit is ignored with
 		// NO_LIMITATION)
-		assertEquals(22170, sut.getGridSellHardLimit());
-		assertEquals(Optional.empty(), sut.getConfiguredMaximumGridFeedInLimit());
+		assertEquals(22170, sut.getGridLimit().gridSellHardLimit());
+		assertEquals(21061, sut.getGridLimit().gridSellHardLimitWithBuffer());
 	}
 
 	@ParameterizedTest(name = "gridSellHardLimit={0} -> expected={1}")
-	@CsvSource({ "1000,850", // 5% = 50 -> min buffer 150
+	@CsvSource({ //
+			"1000,850", // 5% = 50 -> min buffer 150
 			"10000,9500", // 5% = 500
 			"3333,3166" // 5% = 166.65 -> round(3166.35) = 3166
 	})
@@ -356,8 +353,7 @@ class MetaImplTest {
 						.setMaximumGridFeedInLimit(gridSellHardLimit) //
 						.build());
 
-		assertEquals(expected, sut.getGridSellLimit().hard().powerWithBuffer());
-		assertEquals(expected, sut.getGridSellHardLimitWithBuffer());
+		assertEquals(expected, sut.getGridLimit().gridSellHardLimitWithBuffer());
 		test.deactivate();
 	}
 
@@ -386,6 +382,6 @@ class MetaImplTest {
 						.setMaximumGridFeedInLimit(12345) //
 						.build());
 
-		assertEquals(0, sut.getEssDischargeToGridLimit());
+		assertEquals(0, sut.getGridLimit().essDischargeToGridLimit());
 	}
 }
