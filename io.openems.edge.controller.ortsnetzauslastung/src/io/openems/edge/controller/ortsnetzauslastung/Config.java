@@ -22,6 +22,9 @@ import io.openems.common.types.DebugMode;
 	@AttributeDefinition(name = "URL", description = "URL of the Ortsnetz-Auslastung measurements API")
 	String url() default "https://www.ortsnetz-auslastung.de/v1/measurements";
 
+	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the grid meter; empty = first enabled meter of type GRID")
+	String meter_id() default "";
+
 	@AttributeDefinition(name = "PV capacity [kWp]", description = "Installed PV capacity in kWp (max. 1000); 0 = not sent")
 	double plantCapacityKwp() default 0;
 

@@ -65,6 +65,10 @@ public class ControllerOrtsnetzAuslastungImplTest {
 	}
 
 	private static Setup setup(HttpResponse<String> response) throws Exception {
+		return setup(response, "");
+	}
+
+	private static Setup setup(HttpResponse<String> response, String meterId) throws Exception {
 		final var clock = createDummyClock();
 		final var meter = new DummyElectricityMeter("meter0") //
 				.withMeterType(MeterType.GRID) //
@@ -98,6 +102,7 @@ public class ControllerOrtsnetzAuslastungImplTest {
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setUrl(URL) //
+						.setMeterId(meterId) //
 						.setPlantCapacityKwp(9.8) //
 						.setDebugMode(DebugMode.OFF) //
 						.build());
@@ -265,6 +270,28 @@ public class ControllerOrtsnetzAuslastungImplTest {
 	public void testWithoutGridMeter() throws Exception {
 		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE));
 		s.meter().withMeterType(MeterType.PRODUCTION);
+		s.test() //
+				.next(new TestCase() //
+						.output(COMPONENT_ID, NO_GRID_METER, true) //
+						.onAfterControllersCallbacks(() -> assertEquals(0, s.requests().size()))) //
+				.deactivate();
+	}
+
+	@Test
+	public void testConfiguredMeter() throws Exception {
+		// Configured meter is used independent of its meter type
+		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE), "meter0");
+		s.meter().withMeterType(MeterType.PRODUCTION);
+		s.test() //
+				.next(new TestCase() //
+						.output(COMPONENT_ID, NO_GRID_METER, false) //
+						.onAfterControllersCallbacks(() -> assertEquals(1, s.requests().size()))) //
+				.deactivate();
+	}
+
+	@Test
+	public void testConfiguredMeterNotAvailable() throws Exception {
+		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE), "meter1");
 		s.test() //
 				.next(new TestCase() //
 						.output(COMPONENT_ID, NO_GRID_METER, true) //

@@ -200,8 +200,11 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	 *         Component-ID); null if none exists
 	 */
 	private ElectricityMeter findGridMeter() {
+		final var meterId = this.config.meter_id();
 		return this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class).stream() //
-				.filter(m -> m.getMeterType() == MeterType.GRID) //
+				.filter(meterId.isBlank() //
+						? m -> m.getMeterType() == MeterType.GRID //
+						: m -> m.id().equals(meterId)) //
 				.min(Comparator.comparing(OpenemsComponent::id)) //
 				.orElse(null);
 	}

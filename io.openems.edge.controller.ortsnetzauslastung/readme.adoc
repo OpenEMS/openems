@@ -5,7 +5,7 @@ Sends periodic grid measurements to https://www.ortsnetz-auslastung.de/: immedia
 All values are derived from the system:
 
 * Location: coordinates of the 'Meta' component.
-* Phase voltages, frequency, active power and phase currents: the enabled Electricity-Meter of type GRID (if there are several, the first by Component-ID). Minimum, maximum and mean of voltages and frequency are collected every cycle over the send interval.
+* Phase voltages, frequency, active power and phase currents: the configured Grid-Meter; if none is configured, the enabled Electricity-Meter of type GRID (if there are several, the first by Component-ID). Minimum, maximum and mean of voltages and frequency are collected every cycle over the send interval.
 * Battery state of charge and capacity: 'Sum' component.
 * Meter model: name of the Factory of the grid meter.
 

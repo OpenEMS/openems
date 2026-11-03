@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String url;
+		private String meterId = "";
 		private double plantCapacityKwp;
 		private DebugMode debugMode;
 
@@ -22,6 +23,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setUrl(String url) {
 			this.url = url;
+			return this;
+		}
+
+		public Builder setMeterId(String meterId) {
+			this.meterId = meterId;
 			return this;
 		}
 
@@ -59,6 +65,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String url() {
 		return this.builder.url;
+	}
+
+	@Override
+	public String meter_id() {
+		return this.builder.meterId;
 	}
 
 	@Override
