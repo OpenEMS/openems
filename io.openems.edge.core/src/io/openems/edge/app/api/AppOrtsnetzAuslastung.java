@@ -46,6 +46,8 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
@@ -156,6 +158,13 @@ public class AppOrtsnetzAuslastung
 	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
+	}
+
+	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(Checkables.check3rdPartyAccessAccepted()) //
+				.setCompatibleCheckableConfigs(Checkables.checkCoordinatesSet());
 	}
 
 	@Override
