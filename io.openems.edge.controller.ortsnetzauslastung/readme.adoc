@@ -1,7 +1,20 @@
 = Ortsnetz-Auslastung
 
-Sends periodic grid voltage measurements to https://www.ortsnetz-auslastung.de/.
+Sends periodic grid measurements to https://www.ortsnetz-auslastung.de/: immediately after start, then every 5 minutes.
 
-The electricity data is read from the configured Electricity-Meter, the coordinates of the system location from the 'Meta' component. Sending is read-only: the received storage recommendation is not processed.
+All values are derived from the system:
+
+* Location: coordinates of the 'Meta' component.
+* Phase voltages, frequency, active power and phase currents: the enabled Electricity-Meter of type GRID (if there are several, the first by Component-ID). Minimum, maximum and mean of voltages and frequency are collected every cycle over the send interval.
+* Battery state of charge and capacity: 'Sum' component.
+* Meter model: name of the Factory of the grid meter.
+
+Only the installed PV capacity has to be configured; it is optional.
+
+Values outside the ranges of the API are not sent; phase voltages and currents of phases without valid measurement are sent as -1. Static values (PV capacity, battery capacity, meter model) are sent with the first measurement and whenever they change.
+
+Nothing is sent if the coordinates are missing, if no phase provides a valid voltage or if third-party usage is declined in 'Meta'.
+
+The traffic light status per phase and overall, the storage recommendation and the redispatch information of the response are provided as Channels; they are not used for control.
 
 See https://github.com/thomaslehmann1234/datenerfassung-ortsnetz-auslastung/blob/master/API.md for the API reference.
