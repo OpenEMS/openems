@@ -15,7 +15,7 @@ import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAu
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.REDISPATCH_ACTIVE;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.REQUEST_REJECTED;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.STORAGE_RECOMMENDATION;
-import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.THIRD_PARTY_USAGE_DECLINED;
+import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.THIRD_PARTY_USAGE_NOT_ACCEPTED;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.UNABLE_TO_SEND;
 
 import java.time.Duration;
@@ -159,16 +159,16 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 		this.applyResult(this.pendingResult.getAndSet(null));
 
 		final var coordinates = this.meta.getCoordinates();
-		final var isDeclined = this.meta.getThirdPartyUsageAcceptance() == ThirdPartyUsageAcceptance.DECLINED;
+		final var isAccepted = this.meta.getThirdPartyUsageAcceptance() == ThirdPartyUsageAcceptance.ACCEPTED;
 		final var meter = this.findGridMeter();
 		setValue(this, NO_COORDINATES, coordinates == null);
-		setValue(this, THIRD_PARTY_USAGE_DECLINED, isDeclined);
+		setValue(this, THIRD_PARTY_USAGE_NOT_ACCEPTED, !isAccepted);
 		setValue(this, NO_GRID_METER, meter == null);
 
 		final var hasVoltage = meter != null && this.addSamples(meter);
 		setValue(this, NO_VOLTAGE, meter != null && !hasVoltage);
 
-		if (coordinates == null || isDeclined || !hasVoltage) {
+		if (coordinates == null || !isAccepted || !hasVoltage) {
 			// Nothing is sent; a previous send error is no longer relevant
 			setValue(this, UNABLE_TO_SEND, false);
 			return;

@@ -29,8 +29,8 @@ public interface ControllerOrtsnetzAuslastung extends Controller, OpenemsCompone
 		REQUEST_REJECTED(Doc.of(Level.WARNING)//
 				.translationKey(ControllerOrtsnetzAuslastung.class, "requestRejected")), //
 
-		THIRD_PARTY_USAGE_DECLINED(Doc.of(Level.INFO)//
-				.translationKey(ControllerOrtsnetzAuslastung.class, "thirdPartyUsageDeclined")), //
+		THIRD_PARTY_USAGE_NOT_ACCEPTED(Doc.of(Level.WARNING)//
+				.translationKey(ControllerOrtsnetzAuslastung.class, "thirdPartyUsageNotAccepted")), //
 
 		GRID_STATUS(Doc.of(GridStatus.values()) //
 				.text("Overall grid voltage status as reported by the API")), //

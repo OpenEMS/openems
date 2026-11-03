@@ -12,7 +12,7 @@ import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAu
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.REDISPATCH_ACTIVE;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.REQUEST_REJECTED;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.STORAGE_RECOMMENDATION;
-import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.THIRD_PARTY_USAGE_DECLINED;
+import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.THIRD_PARTY_USAGE_NOT_ACCEPTED;
 import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAuslastung.ChannelId.UNABLE_TO_SEND;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.FREQUENCY;
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -80,7 +82,9 @@ public class ControllerOrtsnetzAuslastungImplTest {
 				.withCurrentL3(2500) //
 				.withActivePower(-1500);
 		TestUtils.withValue(meter, FREQUENCY, 50010);
-		final var meta = new DummyMeta().withCoordinates(Coordinates.of(52.520008, 13.404954));
+		final var meta = new DummyMeta() //
+				.withCoordinates(Coordinates.of(52.520008, 13.404954)) //
+				.withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance.ACCEPTED);
 		final var sum = new DummySum() //
 				.withEssSoc(62) //
 				.withEssCapacity(10200);
@@ -116,6 +120,7 @@ public class ControllerOrtsnetzAuslastungImplTest {
 				.next(new TestCase() // first measurement is sent immediately
 						.onAfterControllersCallbacks(() -> assertEquals(1, s.requests().size())) //
 						.output(COMPONENT_ID, NO_COORDINATES, false) //
+						.output(COMPONENT_ID, THIRD_PARTY_USAGE_NOT_ACCEPTED, false) //
 						.output(COMPONENT_ID, NO_GRID_METER, false) //
 						.output(COMPONENT_ID, NO_VOLTAGE, false)) //
 				.next(new TestCase() // response is applied
@@ -242,13 +247,14 @@ public class ControllerOrtsnetzAuslastungImplTest {
 				.deactivate();
 	}
 
-	@Test
-	public void testThirdPartyUsageDeclined() throws Exception {
+	@ParameterizedTest
+	@EnumSource(value = ThirdPartyUsageAcceptance.class, names = { "UNDECIDED", "DECLINED" })
+	public void testThirdPartyUsageNotAccepted(ThirdPartyUsageAcceptance acceptance) throws Exception {
 		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE));
-		s.meta().withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance.DECLINED);
+		s.meta().withThirdPartyUsageAcceptance(acceptance);
 		s.test() //
 				.next(new TestCase() //
-						.output(COMPONENT_ID, THIRD_PARTY_USAGE_DECLINED, true) //
+						.output(COMPONENT_ID, THIRD_PARTY_USAGE_NOT_ACCEPTED, true) //
 						.onAfterControllersCallbacks(() -> assertEquals(0, s.requests().size()))) //
 				.deactivate();
 	}
