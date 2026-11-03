@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TestUtils;
 import io.openems.edge.common.sum.DummySum;
@@ -106,12 +107,13 @@ class ControllerEssFixActivePowerImplTest {
 				.addReference("sum", new DummySum() //
 						.withGridActivePower(0)) //
 				.addReference("meta", new DummyMeta()//
-						.withGridSellHardLimit(10_000) //
-						.withGridBuyLimit(b -> b //
-								.setHard(new GridBuyLimit.Hard(10000)) //
-								.setSoft(JSCalendar.Tasks.empty())) //
-						.withIsEssChargeFromGridAllowed(true) //
-						.withIsEssDischargeToGridAllowed(true)) //
+						.withGridLimit(l -> l //
+								.setGridSellHardLimit(10_000) //
+								.setGridBuyHardLimit(10_000) //
+								.setGridBuySoftLimit(JSCalendar.Tasks.empty()) //
+								.setEssChargeFromGridAllowed(true) //
+								.setEssDischargeToGridAllowed(true)) //
+				) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(this.baseConfig(Mode.MANUAL_ON) //
 						.setPower(0) //
@@ -127,7 +129,7 @@ class ControllerEssFixActivePowerImplTest {
 						.setChargeOncePower(2000) //
 						.build()) //
 				.next(new TestCase() //
-						.onAfterProcessImage(
+						.onAfterProcessImage(//
 								() -> assertTrue(sut.debugLog().startsWith("ChargeOnce:2000 W|Target:")))) //
 				.modified(this.baseConfig(Mode.DISCHARGE_ONCE) //
 						.setDischargeOncePower(3000) //
