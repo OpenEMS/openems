@@ -1,0 +1,18 @@
+@if (isInitialized) {
+  <oe-modal [title]="component.alias" [component]="component">
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.GRID_STATUS' | translate" [channelAddress]="component.id + '/GridStatus'" [converter]="CONVERT_GRID_STATUS"> </oe-modal-line>
+    <oe-modal-line [name]="('GENERAL.PHASE' | translate) + ' L1'" [channelAddress]="component.id + '/GridStatusL1'" [converter]="CONVERT_GRID_STATUS"> </oe-modal-line>
+    <oe-modal-line [name]="('GENERAL.PHASE' | translate) + ' L2'" [channelAddress]="component.id + '/GridStatusL2'" [converter]="CONVERT_GRID_STATUS"> </oe-modal-line>
+    <oe-modal-line [name]="('GENERAL.PHASE' | translate) + ' L3'" [channelAddress]="component.id + '/GridStatusL3'" [converter]="CONVERT_GRID_STATUS"> </oe-modal-line>
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.STORAGE_RECOMMENDATION' | translate" [channelAddress]="component.id + '/StorageRecommendation'" [converter]="CONVERT_STORAGE_RECOMMENDATION"> </oe-modal-line>
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.REDISPATCH_ACTIVE' | translate" [channelAddress]="component.id + '/RedispatchActive'" [converter]="CONVERT_YES_NO"> </oe-modal-line>
+    @if (problemKeys.length > 0) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.TRANSMISSION' | translate" [value]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.TRANSMISSION_PROBLEM' | translate"> </oe-modal-line>
+      @for (key of problemKeys; track key) {
+        <oe-modal-info-line [info]="key | translate"> </oe-modal-info-line>
+      }
+    }
+  </oe-modal>
+}
