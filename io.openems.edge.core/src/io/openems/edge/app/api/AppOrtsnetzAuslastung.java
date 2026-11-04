@@ -63,7 +63,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
       "CONTROLLER_ID": "ctrlOrtsnetzAuslastung0",
       "URL": "https://www.ortsnetz-auslastung.de/v1/measurements",
       "METER_ID": "",
-      "PLANT_CAPACITY_KWP": 0
+      "PLANT_CAPACITY_KWP": 0,
+      "SEND_PV_FORECAST": false
     },
     "appDescriptor": {}
   }
@@ -127,6 +128,11 @@ public class AppOrtsnetzAuslastung
 								.setMin(0) //
 								.setMax(1000) //
 								.setUnit("kWp")))), //
+		SEND_PV_FORECAST(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".sendPvForecast.label") //
+				.setTranslatedDescriptionWithAppPrefix(".sendPvForecast.description") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DATA_PROTECTION_HINT(AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
 			return translate(parameter.bundle(), "App.Cloud.OrtsnetzAuslastung.dataProtectionHint");
 		}), def -> def //
@@ -195,6 +201,7 @@ public class AppOrtsnetzAuslastung
 			final var url = this.getString(p, l, Property.URL);
 			final var meterId = this.getString(p, l, Property.METER_ID);
 			final var plantCapacityKwp = this.getDouble(p, Property.PLANT_CAPACITY_KWP);
+			final var sendPvForecast = this.getBoolean(p, Property.SEND_PV_FORECAST);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, FACTORY_ID, //
@@ -202,6 +209,7 @@ public class AppOrtsnetzAuslastung
 									.addProperty("url", url) //
 									.addProperty("meter.id", meterId) //
 									.addProperty("plantCapacityKwp", plantCapacityKwp) //
+									.addProperty("sendPvForecast", sendPvForecast) //
 									.build()));
 
 			return AppConfiguration.create() //
