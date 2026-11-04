@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String url;
 		private String meterId = "";
 		private double plantCapacityKwp;
+		private boolean sendPvForecast = true;
 		private DebugMode debugMode;
 
 		private Builder() {
@@ -33,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPlantCapacityKwp(double plantCapacityKwp) {
 			this.plantCapacityKwp = plantCapacityKwp;
+			return this;
+		}
+
+		public Builder setSendPvForecast(boolean sendPvForecast) {
+			this.sendPvForecast = sendPvForecast;
 			return this;
 		}
 
@@ -75,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public double plantCapacityKwp() {
 		return this.builder.plantCapacityKwp;
+	}
+
+	@Override
+	public boolean sendPvForecast() {
+		return this.builder.sendPvForecast;
 	}
 
 	@Override

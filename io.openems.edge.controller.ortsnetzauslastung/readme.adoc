@@ -8,6 +8,7 @@ All values are derived from the system:
 * Phase voltages, frequency, active power and phase currents: the configured Grid-Meter; if none is configured, the enabled Electricity-Meter of type GRID (if there are several, the first by Component-ID). Minimum, maximum and mean of voltages and frequency are collected every cycle over the send interval.
 * Battery state of charge and capacity: 'Sum' component.
 * Meter model: name of the Factory of the grid meter.
+* PV forecast (`pv_forecast_kwh`): only if 'Send PV forecast?' is enabled (default: off). Total for today, calculated as the energy produced since midnight (`_sum/ProductionActiveEnergy` from Timedata) plus the prediction of `_sum/ProductionActivePower` for the remaining quarters of the day. It is not sent if the PV capacity is not configured, if there is no Timedata, if the prediction is incomplete, if the produced energy is negative or if the value exceeds the API limit of 10 kWh per kWp. The value is calculated in the background after each measurement, so it is first sent with the second measurement.
 
 Only the installed PV capacity has to be configured; it is optional.
 

@@ -28,6 +28,9 @@ import io.openems.common.types.DebugMode;
 	@AttributeDefinition(name = "PV capacity [kWp]", description = "Installed PV capacity in kWp (max. 1000); 0 = not sent")
 	double plantCapacityKwp() default 0;
 
+	@AttributeDefinition(name = "Send PV forecast?", description = "Sends the total PV forecast for today. Requires the PV capacity, Timedata and a Predictor for the production")
+	boolean sendPvForecast() default false;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	DebugMode debugMode() default DebugMode.OFF;
 

@@ -78,6 +78,7 @@ public final class Types {
 	 * @param l2A                L2 current in [A] or null
 	 * @param l3A                L3 current in [A] or null
 	 * @param batterySocPercent  battery state of charge in [%] or null
+	 * @param pvForecastKwh      total PV forecast for today in [kWh] or null
 	 * @param staticData         static data or null if it should not be sent
 	 * @param integrationVersion the integration version
 	 */
@@ -97,6 +98,7 @@ public final class Types {
 			Double l2A, //
 			Double l3A, //
 			Integer batterySocPercent, //
+			Double pvForecastKwh, //
 			StaticData staticData, //
 			String integrationVersion) {
 
@@ -130,6 +132,7 @@ public final class Types {
 						.addProperty("l3_a", orNoPhaseValue(this.l3A));
 			}
 			builder.addPropertyIfNotNull("battery_soc_percent", this.batterySocPercent);
+			builder.addPropertyIfNotNull("pv_forecast_kwh", this.pvForecastKwh);
 			if (this.staticData != null) {
 				this.staticData.addTo(builder);
 			}
