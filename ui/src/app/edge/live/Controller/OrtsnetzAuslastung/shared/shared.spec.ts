@@ -1,4 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
+import { EdgeConfig } from "src/app/shared/shared";
 import { SharedControllerOrtsnetzAuslastung as Shared } from "./shared";
 
 describe("SharedControllerOrtsnetzAuslastung", () => {
@@ -34,6 +35,13 @@ describe("SharedControllerOrtsnetzAuslastung", () => {
         expect(Shared.getStatusColor(1)).toEqual("warning");
         expect(Shared.getStatusColor(2)).toEqual("danger");
         expect(Shared.getStatusColor(null)).toEqual("normal");
+    });
+
+    it("getNavigationTree", () => {
+        const component = { id: "ctrl0", alias: "Ortsnetz" } as EdgeConfig.Component;
+        const [id, routerLink] = Shared.getNavigationTree(translate, component);
+        expect(id).toEqual("ctrl0");
+        expect(routerLink.baseString).toEqual("controller/ortsnetz-auslastung/ctrl0");
     });
 
     it("getProblemKeys", () => {
