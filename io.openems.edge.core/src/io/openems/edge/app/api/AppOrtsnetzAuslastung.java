@@ -61,6 +61,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
     "image": base64,
     "properties":{
       "CONTROLLER_ID": "ctrlOrtsnetzAuslastung0",
+      "URL": "https://www.ortsnetz-auslastung.de/v1/measurements",
       "METER_ID": "",
       "PLANT_CAPACITY_KWP": 0
     },
@@ -74,10 +75,19 @@ public class AppOrtsnetzAuslastung
 		implements OpenemsApp {
 
 	private static final String FACTORY_ID = "Controller.Ortsnetz-Auslastung";
+	private static final String DEFAULT_URL = "https://www.ortsnetz-auslastung.de/v1/measurements";
 
 	public static enum Property implements Type<Property, AppOrtsnetzAuslastung, BundleParameter>, Nameable {
 		CONTROLLER_ID(AppDef.componentId("ctrlOrtsnetzAuslastung0")), //
 		ALIAS(alias()), //
+		URL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".url.label") //
+				.setTranslatedDescriptionWithAppPrefix(".url.description") //
+				.setDefaultValue(DEFAULT_URL) //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setValidation("^https?://\\S+$",
+								translate(parameter.bundle(), "App.Cloud.OrtsnetzAuslastung.url.invalid"))))), //
 		METER_ID(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".meterId.label") //
 				.setTranslatedDescriptionWithAppPrefix(".meterId.description") //
@@ -182,12 +192,14 @@ public class AppOrtsnetzAuslastung
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
+			final var url = this.getString(p, l, Property.URL);
 			final var meterId = this.getString(p, l, Property.METER_ID);
 			final var plantCapacityKwp = this.getDouble(p, Property.PLANT_CAPACITY_KWP);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, FACTORY_ID, //
 							JsonUtils.buildJsonObject() //
+									.addProperty("url", url) //
 									.addProperty("meter.id", meterId) //
 									.addProperty("plantCapacityKwp", plantCapacityKwp) //
 									.build()));
