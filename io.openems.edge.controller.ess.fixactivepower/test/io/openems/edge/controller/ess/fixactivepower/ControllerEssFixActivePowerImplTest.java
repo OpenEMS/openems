@@ -98,6 +98,47 @@ class ControllerEssFixActivePowerImplTest {
 	}
 
 	@Test
+	void testDebugLog() throws Exception {
+		final var sut = new ControllerEssFixActivePowerImpl();
+		new ControllerTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("sum", new DummySum() //
+						.withGridActivePower(0)) //
+				.addReference("meta", new DummyMeta()//
+						.withGridSellHardLimit(10_000) //
+						.withGridBuyLimit(b -> b //
+								.setHard(new GridBuyLimit.Hard(10000)) //
+								.setSoft(JSCalendar.Tasks.empty())) //
+						.withIsEssChargeFromGridAllowed(true) //
+						.withIsEssDischargeToGridAllowed(true)) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
+				.activate(this.baseConfig(Mode.MANUAL_ON) //
+						.setPower(0) //
+						.build()) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 80)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertEquals("Manual:0 W|Target:0 W", sut.debugLog()))) //
+				.modified(this.baseConfig(Mode.MANUAL_OFF).build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertEquals("Off", sut.debugLog()))) //
+				.modified(this.baseConfig(Mode.CHARGE_ONCE) //
+						.setChargeOncePower(2000) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(
+								() -> assertTrue(sut.debugLog().startsWith("ChargeOnce:2000 W|Target:")))) //
+				.modified(this.baseConfig(Mode.DISCHARGE_ONCE) //
+						.setDischargeOncePower(3000) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(
+								() -> assertTrue(sut.debugLog().startsWith("DischargeOnce:3000 W|Target:")))) //
+				.deactivate();
+	}
+
+	@Test
 	void testChargeOnce() throws Exception {
 		final var meta = new DummyMeta() //
 				.withGridLimit(l -> l //
