@@ -451,7 +451,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.26</version>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<!--
