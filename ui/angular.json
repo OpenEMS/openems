@@ -211,6 +211,73 @@
                                     "with": "src/themes/openems/environments/oem-meta.ts"
                                 }
                             ]
+                        },
+                        "neutrava": {
+                            "assets": [
+                                "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "src/themes/neutrava/root",
+                                    "output": ""
+                                },
+                                {
+                                    "glob": "**/*",
+                                    "input": "src/themes/neutrava/assets",
+                                    "output": "./assets"
+                                },
+                                {
+                                    "glob": "**/*.svg",
+                                    "input": "node_modules/ionicons/dist/ionicons/svg",
+                                    "output": "./svg"
+                                },
+                                {
+                                    "glob": "**/*.js",
+                                    "input": "src/themes/shared",
+                                    "output": ""
+                                }
+                            ],
+                            "stylePreprocessorOptions": {
+                                "includePaths": [
+                                    "src/themes/neutrava/scss"
+                                ]
+                            },
+                            "styles": [
+                                "src/themes/neutrava/scss/variables.scss",
+                                "src/global.scss",
+                                "src/global-ion-custom.scss"
+                            ]
+                        },
+                        "neutrava-backend-docker": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/neutrava/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/neutrava/environments/backend-docker.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/neutrava/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "neutrava-backend-dev": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/neutrava/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/neutrava/environments/backend-dev.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/neutrava/environments/oem-meta.ts"
+                                }
+                            ]
                         }
                     }
                 },

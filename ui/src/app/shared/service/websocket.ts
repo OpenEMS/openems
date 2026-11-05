@@ -233,7 +233,8 @@ export class Websocket implements WebsocketInterface {
             request instanceof AuthenticateWithOAuthRequest ||
             request instanceof AuthenticateWithPasswordRequest ||
             request instanceof AuthenticateWithTokenRequest ||
-            request instanceof RegisterUserRequest
+            request instanceof RegisterUserRequest ||
+            request.method?.startsWith("neutravaPublic")
         ) {
             return new Promise((resolve, reject) => {
                 this.wsdata
@@ -296,7 +297,10 @@ export class Websocket implements WebsocketInterface {
                             this.state.set(States.NOT_AUTHENTICATED);
 
                             // Needed for oauth authentication+
-                            if (refreshToken == "" && oAuthRedirectState == "") {
+                            // neutrava: do not redirect public pages (e.g. /reset password recovery)
+                            const publicRoutes = ["login", "reset"];
+                            const currentPath = this.router.url.split("?")[0].replace(/^\//, "");
+                            if (refreshToken == "" && oAuthRedirectState == "" && !publicRoutes.includes(currentPath)) {
                                 this.router.navigate(["login"]);
                             }
 
