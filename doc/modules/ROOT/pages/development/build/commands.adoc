@@ -1,0 +1,150 @@
+= Build and run commands
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:development/de/build/commands.adoc[OpenEMS-Entwicklung: Build- und Startbefehle]
+
+__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development version, branch develop)__
+
+This page is a quick reference for the commands. It complements the xref:development/overview.adoc[Developer Guide overview], xref:edge/build.adoc[Build OpenEMS Edge] and xref:ui/build.adoc[Build OpenEMS UI]. If you do not yet know OSGi, bnd and Gradle, start with xref:development/fundamentals/osgi-and-tools.adoc[OSGi and tools].
+
+[#sec-repository-structure]
+== Repository structure
+
+[cols="2*",options="header"]
+|===
+| Path
+| Content
+
+| `+io.openems.edge.*+`
+| bundles of the Edge (devices, Controllers, core)
+| `+io.openems.backend.*+`
+| bundles of the Backend
+| `+io.openems.common*+`, `+io.openems.core.*+`, `+io.openems.shared.*+`
+| shared code
+| `+cnf/+`
+| bnd workspace configuration: dependencies (`+build.bnd+`), Checkstyle (`+checkstyle.xml+`)
+| `+io.openems.edge.application/EdgeApp.bndrun+`
+| start description of the Edge: framework, bundles, runtime parameters
+| `+ui/+`
+| Angular/Ionic UI
+| `+doc/+`
+| this documentation (Antora/AsciiDoc)
+|===
+
+Each bundle has the same structure: `+bnd.bnd+` (name, `+-buildpath+`, `+-testpath+`), `+src/+`, `+test/+` and `+readme.adoc+`.
+
+[#sec-building-edge-and-backend]
+== Building Edge and Backend
+
+All commands in the root directory of the repository:
+
+[source]
+----
+./gradlew buildEdge          # Fat-JAR of the Edge to build/openems-edge.jar
+./gradlew buildBackend       # Fat-JAR of the Backend to build/openems-backend.jar
+./gradlew buildBackendEdge   # Fat-JAR of the Backend-Edge to build/openems-backend-edge.jar
+./gradlew buildComponents    # compile all bundles without packing a JAR
+./gradlew :io.openems.edge.meter.janitza:jar             # JAR of a single bundle to <bundle>/generated/
+./gradlew :io.openems.edge.meter.janitza:test            # tests of a bundle
+./gradlew :io.openems.edge.meter.janitza:checkstyleMain  # Checkstyle of a bundle
+./gradlew checkstyleAll      # Checkstyle across all bundles
+----
+
+* The target path of the JARs can be changed via the Gradle property `+oems.edge.output+` or the environment variable `+OEMS_EDGE_OUTPUT+` (`+…backend…+` accordingly).
+* Checkstyle runs with zero warnings allowed. Before a pull request, `+checkstyleMain+` should be free of errors for every changed bundle; see also the xref:development/coding-guidelines.adoc[Coding Guidelines].
+* A new bundle does not need to be entered in a list; Gradle finds all directories with `+bnd.bnd+`. To be part of the Edge JAR, however, it must be listed in `+EdgeApp.bndrun+` under `+-runrequires+`.
+
+[#sec-starting-the-edge-locally]
+== Starting the Edge locally
+
+[source]
+----
+java -jar build/openems-edge.jar
+----
+
+Without configuration, the Edge reports “There are no Schedulers configured!” every second. This is normal.
+
+**Where the configuration is located:** `+EdgeApp.bndrun+` sets `+c:/openems/config+` for the directory `+felix.cm.dir+` and `+openems.data.dir=c:/openems/data+` for data (e.g. rrd4j history). On macOS or Linux these are relative paths; a folder named `+c:+` is then created in the working directory. You can set your own paths at startup:
+
+[source]
+----
+java -Dfelix.cm.dir=$HOME/openems/config \
+     -Dopenems.data.dir=$HOME/openems/data \
+     -jar build/openems-edge.jar
+----
+
+**First configuration:** see xref:gettingstarted.adoc[Getting Started]. The Apache Felix Web Console runs at `+http://localhost:8080/system/console/configMgr+` (port from `+org.osgi.service.http.port+`). For experiments without hardware, there are simulator bundles (`+io.openems.edge.simulator+`).
+
+[#sec-ui-in-development-mode]
+== UI in development mode
+
+In the directory `+ui/+`:
+
+[source]
+----
+npm ci
+npx ng serve -c openems-edge-dev       # connects to ws://<host>:8085 (Edge directly)
+npx ng serve -c openems-backend-dev    # connects to the local Backend
+----
+
+The target URLs are in `+ui/src/themes/openems/environments/edge-dev.ts+` and `+backend-dev.ts+`. Tests and lint:
+
+[source]
+----
+npm test -- --watch=false --browsers=ChromeHeadlessCI
+npm run lint
+----
+
+Changed texts in the UI must be added in `+ui/src/app/shared/i18n/+`; `+npm run lint+` checks the translation keys.
+
+[#sec-building-the-ui]
+== Building the UI
+
+In the directory `+ui/+`:
+
+[source]
+----
+npm ci
+npx ng build -c "openems,openems-edge-prod,prod"
+----
+
+The result is in `+ui/target/+`: static files for a web server. The configurations in `+ui/angular.json+` are combined:
+
+[cols="2*",options="header"]
+|===
+| Configuration
+| Effect
+
+| `+openems+`
+| theme from `+src/themes/openems/+`
+| `+prod+`
+| production build: AOT, minified, file names with hash, without source maps, with license file
+| `+openems-edge-prod+`
+| Edge directly via `+ws(s)://<host>:8075+`. The default port of `+Controller.Api.Websocket+` is 8085, so change it there.
+| `+openems-edge-docker+`
+| Edge via `+ws(s)://<host>/openems-edge+`; needs the nginx proxy of the UI image
+| `+openems-backend-prod+`
+| Backend via `+ws(s)://<host>:8082+`
+| `+openems-backend-docker+`
+| Backend via `+ws(s)://<host>/openems-backend+`
+|===
+
+The addresses are in `+ui/src/themes/openems/environments/*.ts+`. A build with `+-c "openems,openems-edge-dev,prod"+` is optimized and connects to port 8085. New apps in the App Center do not require a UI build (see xref:development/implementing/apps.adoc[Apps for the App Center]).
+
+As a Docker image, from the root directory of the repository (default configuration `+openems,openems-edge-docker,prod+`, see xref:ui/deploy/docker.adoc[Deploy UI to Docker]):
+
+[source]
+----
+docker build -f tools/docker/ui/Dockerfile.edge -t openems_ui_edge:custom .
+----
+
+[#sec-notes]
+== Notes
+
+* The Edge targets weak hardware (about 1 GB RAM, 2 cores). Computationally intensive logic does not belong in every Cycle.
+* The repository contains `+CLAUDE.md+` and `+AGENTS.md+` with short rules for code style and tests.

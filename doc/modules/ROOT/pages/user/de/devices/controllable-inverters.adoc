@@ -125,7 +125,7 @@ Diese technische Aufteilung sagt **nichts** über die Hardware aus. So heißt de
 |===
 
 * Die Kombinationen aus Batterie-Wechselrichter, Batterie und allgemeinem Speicher (KACO gridsave, REFU, Sinexcel) sind vor allem für gewerbliche Speicher gedacht.
-* **SMA Sunny Boy Storage:** Für eine feste Lade- oder Entladeleistung schaltet OpenEMS den Speicher in den Modus „Laden“ bzw. „Entladen“. Bei 0 W kehrt der Speicher zur internen Eigenverbrauchsregelung zurück. Für dieses Gerät gibt es eine App im App-Center.
+* **SMA Sunny Boy Storage:** Für eine feste Lade- oder Entladeleistung schaltet OpenEMS den Speicher in den Modus „Laden“ bzw. „Entladen“. Bei 0 W kehrt der Speicher zur internen Eigenverbrauchsregelung zurück. Für dieses Gerät gibt es eine App im App Center.
 * **Victron:** Der Multiplus hat selbst keine PV-Eingänge. Solarladeregler (MPPT) von Victron hängen auf der Gleichstromseite an der Batterie und werden als eigene Komponenten (`+Victron.DC-Charger+`) nur abgefragt. Gesteuert wird nur über `+Victron.Ess+`. Die einzelne Komponente `+Victron.Battery-Inverter+` ist laut Beschreibung nur zum Abfragen gedacht und schreibt keine Sollwerte.
 * **GoodWe BT:** siehe Abschnitt „GoodWe-Serie BT“ weiter unten.
 * **FENECON Pro 9-12:** Die System-Apps (für Installateure) richten den Speicher ohne PV-Eingänge ein. Sie legen zusätzlich einen Tiefentladeschutz an (Mindestladezustand fürs Entladen ab Werk 13 %, erzwungenes Laden unter 10 %). Dieselbe Komponente `+Fenecon.Pro.Ess+` wird auch für den Pro Hybrid verwendet, dort mit PV-Zähler.
@@ -345,7 +345,7 @@ Bei PV-Wechselrichtern kann OpenEMS eine **Obergrenze für die Wirkleistung** se
 [#sec-ab-werk-nur-abfrage]
 === Ab Werk nur Abfrage
 
-Bei allen PV-Wechselrichtern mit Read-Only-Einstellung (SMA, Fronius, Kostal, KACO blueplanet, SolarEdge, Huawei, Sungrow) ist **Read-Only ab Werk eingeschaltet**. Auch die Apps im App-Center (SMA, Fronius, Kostal, KACO, SolarEdge) setzen diese Einstellung nicht um. Ein so eingerichteter Wechselrichter wird also zunächst **nur abgefragt**. Damit die Begrenzung wirkt, muss Read-Only in der Konfiguration der Komponente abgeschaltet werden.
+Bei allen PV-Wechselrichtern mit Read-Only-Einstellung (SMA, Fronius, Kostal, KACO blueplanet, SolarEdge, Huawei, Sungrow) ist **Read-Only ab Werk eingeschaltet**. Auch die Apps im App Center (SMA, Fronius, Kostal, KACO, SolarEdge) setzen diese Einstellung nicht um. Ein so eingerichteter Wechselrichter wird also zunächst **nur abgefragt**. Damit die Begrenzung wirkt, muss Read-Only in der Konfiguration der Komponente abgeschaltet werden.
 
 Fordert eine Funktion bei aktivem Read-Only eine Begrenzung an, wird sie nicht geschrieben. Die SunSpec-Treiber (SMA, Fronius, Kostal, KACO, SolarEdge) melden das über den Kanal `+ReadOnlyModePvLimitFailed+`.
 

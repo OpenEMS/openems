@@ -1,0 +1,145 @@
+= OpenEMS-Entwicklung: Komponenten und Channels im Code
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:development/fundamentals/components-and-channels.adoc[Components and Channels in code]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Die Konzepte beschreiben xref:coreconcepts.adoc[Core concepts & terminology] und xref:edge/architecture.adoc[Edge Architecture]. Diese Seite zeigt, wie sie im Code von OpenEMS Edge aussehen.
+
+[#sec-osgi-und-bundles]
+== OSGi und Bundles
+
+Die Edge ist eine OSGi-Anwendung auf Apache Felix. Wichtige Dienste aus `+EdgeApp.bndrun+`:
+
+[cols="2*",options="header"]
+|===
+| Bundle
+| Aufgabe
+
+| `+org.apache.felix.scr+`
+| Declarative Services: erzeugt Komponenten aus `+@Component+`-Klassen und verbindet `+@Reference+`s
+| `+org.apache.felix.configadmin+`
+| speichert Konfigurationen (Verzeichnis `+felix.cm.dir+`)
+| `+org.apache.felix.eventadmin+`
+| verteilt die Zyklus-Ereignisse (siehe xref:development/de/fundamentals/cycle-and-ess-power.adoc[Zyklus])
+| `+org.apache.felix.metatype+`
+| beschreibt Konfigurationsfelder; daraus entstehen die Formulare in Webkonsole und UI
+| `+io.openems.core.referencetarget+`
+| setzt Referenz-Filter aus Konfigurationswerten (siehe xref:development/de/implementing/controller.adoc[Komponente])
+|===
+
+Jedes Verzeichnis `+io.openems.*+` ist ein Bundle. Ein Bundle darf nur auf Bundles zugreifen, die in seinem `+-buildpath+` stehen. Typisch sind API-Bundles (`+*.api+`, z. B. `+io.openems.edge.ess.api+`) mit den Natures und Geräte-Bundles, die nur gegen diese APIs programmiert sind.
+
+[#sec-komponenten]
+== Komponenten
+
+Eine Komponente ist eine Klasse mit `+@Component+` und einer Konfiguration (`+@Designate(ocd = Config.class, factory = true)+`). Mit `+factory = true+` kann es beliebig viele Instanzen geben, jede mit eigener ID (`+meter0+`, `+meter1+` …). Der Name in `+@Component(name = "Meter.Janitza.UMG96RME")+` ist die **Factory-PID**; sie erscheint in der Konfiguration und darf aus Kompatibilitätsgründen nicht geändert werden.
+
+Fast alle Komponenten erben von `+AbstractOpenemsComponent+` (Geräte mit Modbus von `+AbstractOpenemsModbusComponent+`). Die Basisklasse:
+
+* legt im Konstruktor alle Channels an, deren `+ChannelId+`-Enums übergeben werden,
+* setzt in `+activate(context, id, alias, enabled)+` die Grunddaten,
+* gibt in `+deactivate()+` die Channels frei.
+
+Jede Komponente hat die Nature `+OpenemsComponent+` mit u. a. den Channels `+State+` (Sammelzustand aus allen State-Channels) und Fehlermeldungen.
+
+**Singleton-Komponenten** mit fester ID beginnen mit Unterstrich, z. B. `+_sum+`, `+_cycle+`, `+_componentManager+`, `+_power+`, `+_meta+`, `+_appManager+`.
+
+[#sec-natures]
+== Natures
+
+Controller programmieren gegen Natures, nicht gegen konkrete Geräte. Beispiele:
+
+[cols="3*",options="header"]
+|===
+| Nature
+| Bundle
+| Bedeutung
+
+| `+ElectricityMeter+`
+| `+io.openems.edge.meter.api+`
+| Zähler: Leistung, Spannung, Strom, Energie; `+MeterType+` (GRID, PRODUCTION, CONSUMPTION_METERED …)
+| `+SymmetricEss+`
+| `+io.openems.edge.ess.api+`
+| Speicher: SoC, Kapazität, Ist-Leistung
+| `+ManagedSymmetricEss+`
+| `+io.openems.edge.ess.api+`
+| steuerbarer Speicher: Sollwert-Channels, `+applyPower()+`
+| `+EssDcCharger+`
+| `+io.openems.edge.ess.api+`
+| DC-seitige PV am Hybrid-Wechselrichter
+| `+Controller+`
+| `+io.openems.edge.controller.api+`
+| Regel-Logik in `+run()+`
+| `+Sum+`
+| `+io.openems.edge.common+`
+| Summen über alle Geräte (`+_sum+`)
+|===
+
+**Wichtig:** Eine Implementierung muss **alle** Natures, die sie anbietet, in der `+implements+`-Liste aufzählen, auch die geerbten Eltern-Interfaces (z. B. `+ManagedSymmetricEss, SymmetricEss, OpenemsComponent+`). Die Erkennung als OSGi-Dienst richtet sich nach den deklarierten Interfaces der Klasse, nicht nach der vollständigen Vererbung.
+
+[#sec-channels]
+== Channels
+
+Ein Channel wird als Enum-Konstante im Interface (Nature oder komponenteneigenes Interface) definiert:
+
+[source]
+----
+public interface MyMeter extends OpenemsComponent {
+    enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+        TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),
+        COMMUNICATION_FAILED(Doc.of(Level.FAULT).text("Communication failed"));
+        ...
+    }
+}
+----
+
+Die Adresse eines Channels ist `+Komponenten-ID/ChannelName+`, wobei aus `+ACTIVE_POWER+` der Name `+ActivePower+` wird.
+
+[#sec-lesen-und-schreiben]
+=== Lesen und Schreiben
+
+[cols="2*",options="header"]
+|===
+| Methode
+| Wirkung
+
+| `+_setNextValue(v)+` / `+setNextValue(v)+`
+| setzt den **nächsten** Wert; sichtbar erst nach dem Wechsel des Prozessabbilds im nächsten Zyklus
+| `+value()+`
+| liefert den Wert des **aktuellen** Prozessabbilds (für den ganzen Zyklus stabil)
+| `+getNextValue()+`
+| liefert den noch nicht übernommenen nächsten Wert
+| `+setNextWriteValue(v)+`
+| nur bei Write-Channels: Schreibwunsch, z. B. Sollwert an ein Gerät
+| `+getNextWriteValueAndReset()+`
+| holt den Schreibwunsch ab und setzt ihn zurück (typisch im Gerätetreiber)
+| `+onSetNextValue+`, `+onUpdate+`, `+onChange+`, `+onSetNextWrite+`
+| Callbacks
+|===
+
+[#sec-arten]
+=== Arten
+
+* Read-Channels (`+IntegerReadChannel+`, `+EnumReadChannel+` …) und Write-Channels (`+IntegerWriteChannel+`, `+BooleanWriteChannel+` …), alle in `+io.openems.edge.common.channel+`.
+* **State-Channels** (`+Doc.of(Level.WARNING)+` usw.) sind Boolean-Channels mit Schweregrad INFO, WARNING oder FAULT. Ist einer aktiv, geht der Sammelzustand `+State+` der Komponente auf den höchsten Level; `+_sum/State+` fasst alle Komponenten zusammen.
+* Die Zugriffsart (`+accessMode+`) READ_ONLY, READ_WRITE oder WRITE_ONLY bestimmt, ob der Channel z. B. über REST beschrieben werden kann.
+* `+persistencePriority+` steuert, welche Channels in Historie und Backend landen.
+
+[#sec-sum]
+== Sum
+
+Die Komponente `+_sum+` (Interface `+Sum+`) bildet in jedem Zyklus Summen über alle Zähler, Speicher und Erzeuger: `+GridActivePower+`, `+ProductionActivePower+`, `+ConsumptionActivePower+`, `+EssSoc+`, Energie-Zähler usw. Die Werte werden kurz vor dem Wechsel des Prozessabbilds berechnet (`+updateChannelsBeforeProcessImage()+`). Controller und UI nutzen `+_sum+` statt einzelner Geräte, wo das reicht. Was in die Summen eingeht, beschreibt die Anwenderseite xref:user/de/basics/energy-flows.adoc[Grundlagen].
+
+[#sec-konfiguration-zur-laufzeit]
+== Konfiguration zur Laufzeit
+
+* Konfigurationen ändert man über den Configuration Admin, siehe xref:edge/configuration.adoc[Configuration]. Die UI und JSON-RPC (`+createComponentConfig+`, `+updateComponentConfig+`, `+deleteComponentConfig+`) gehen über den `+ComponentManager+`.
+* Nach einer Änderung ruft OSGi `+@Modified+` auf, falls vorhanden; sonst wird die Komponente deaktiviert und neu aktiviert.
+* `+ComponentManager.getEdgeConfig()+` liefert die gesamte Konfiguration inklusive aller Channels. Der Aufbau ist aufwendig; nicht in jedem Zyklus aufrufen.

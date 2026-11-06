@@ -49,7 +49,7 @@ Für den Benutzer sieht beides fast gleich aus. Was die Anlage an das Backend sc
 . Die Oberfläche lädt die Konfiguration: welche Geräte und Funktionen es gibt.
 . Sie meldet an, welche Werte sie gerade anzeigen möchte.
 . Ab dann kommen diese Werte **jede Sekunde** automatisch.
-. Bei Bedarf werden zusätzlich Verläufe, Einstellungen, das App-Center, der xref:user/de/schedule/overview.adoc[Fahrplan] oder das Systemprotokoll abgerufen.
+. Bei Bedarf werden zusätzlich Verläufe, Einstellungen, das App Center, der xref:user/de/schedule/overview.adoc[Fahrplan] oder das Systemprotokoll abgerufen.
 
 [#sec-funktionen-und-benutzerrollen]
 == Funktionen und Benutzerrollen
@@ -94,7 +94,7 @@ Die folgende Tabelle gilt für den **direkten Zugriff im lokalen Netz**:
 | keine
 | Einstellungen ändern
 | Eigentümer
-| App-Center, Wärmepumpe, Ladepunkte u. a.
+| App Center, Wärmepumpe, Ladepunkte u. a.
 | je nach Funktion unterschiedlich
 |===
 

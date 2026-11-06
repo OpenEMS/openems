@@ -87,7 +87,7 @@ Dieselben Anfragen funktionieren über verschiedene Wege:
 
 „Angemeldet“ heißt: Der Quellcode verlangt keine bestimmte Rolle. Über REST ist trotzdem immer eine Anmeldung nötig, weil REST bei jeder Anfrage Benutzername und Passwort prüft.
 
-Manche Funktionen bieten eigene Anfragen an, z. B. der xref:user/de/schedule/overview.adoc[Fahrplan] oder das App-Center. Solche Anfragen werden „verpackt“ an die jeweilige Funktion geschickt (`+componentJsonApi+` mit der ID der Funktion).
+Manche Funktionen bieten eigene Anfragen an, z. B. der xref:user/de/schedule/overview.adoc[Fahrplan] oder das App Center. Solche Anfragen werden „verpackt“ an die jeweilige Funktion geschickt (`+componentJsonApi+` mit der ID der Funktion).
 
 [#sec-benutzerrollen]
 == Benutzerrollen
@@ -108,7 +108,7 @@ Jede Anfrage läuft im Namen eines angemeldeten Benutzers. OpenEMS kennt vier Ro
 | zusätzlich Einstellungen ändern
 | Installateur (INSTALLER)
 | Fachbetrieb
-| zusätzlich bestimmte Apps im App-Center sehen, installieren und entfernen
+| zusätzlich bestimmte Apps im App Center sehen, installieren und entfernen
 | Admin (ADMIN)
 | Hersteller / Entwickler
 | alles
