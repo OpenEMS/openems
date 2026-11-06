@@ -1,0 +1,376 @@
+= OpenEMS: FENECON Home
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/systems/fenecon-home.adoc[OpenEMS: FENECON Home]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+The FENECON Home is a home storage system consisting of a hybrid inverter, battery and energy management. This page summarizes what the **OpenEMS source code** contains about the FENECON Home: structure, settings, protective functions and additional functions. FENECON devices run the manufacturer's own FEMS; individual functions may differ there or be available earlier.
+
+[#sec-models]
+== Models
+
+OpenEMS has the following Home variants, each as a separate app in the app center:
+
+[cols="5*",options="header"]
+|===
+| Model
+| App
+| Inverter (according to the code)
+| Series
+| DC PV inputs (MPPT)
+
+| FENECON Home 10
+| App.FENECON.Home
+| FENECON FHI 10 DAH
+| ET
+| 2
+| FENECON Home 6
+| App.FENECON.Home6
+| FENECON ET Gen2 6K
+| EUB
+| 2
+| FENECON Home 10 Gen2
+| App.FENECON.Home10.Gen2
+| FENECON ET Gen2 10K
+| EUB
+| 3
+| FENECON Home 15
+| App.FENECON.Home15
+| FENECON ET Gen2 15K
+| EUB
+| 3
+| FENECON Home 20
+| App.FENECON.Home.20
+| FENECON FHI 20 DAH
+| ETT
+| 2
+| FENECON Home 30
+| App.FENECON.Home.30
+| FENECON FHI 30 DAH (internally 29.9 kW)
+| ETT
+| 3
+|===
+
+Technically, the inverters come from the GoodWe family. In the code, the series are called “ET” (Home 10), “ETT – Home Series 20 & 30 kW” and “EUB – Home Gen2 Series 6, 10 & 15 kW”. The inverter type is recognized by the serial number. The Home apps may only be seen and deleted by installers.
+
+**DC inputs on Home 20 and 30:** Previously, the individual PV strings were entered there (Home 20: 4 strings, Home 30: 6 strings, i.e. 2 strings per MPPT). This division is marked as “no longer supported” in the code and is only displayed for existing systems. New entries are made per MPPT input: 2 for the Home 20, 3 for the Home 30.
+
+[#sec-generations]
+== Generations
+
+Two generations are commonly distinguished: **generation 1** is the Home 10 with 2.2 kWh battery modules, **generation 2** are the Home 6, 10 Gen2, 15, 20 and 30 with 2.8 kWh modules. The OpenEMS code does not use this classification in this way. It distinguishes by **inverter series** and **battery module type**. This results in:
+
+[cols="4*",options="header"]
+|===
+| 
+| Home 10 (Gen 1)
+| Home 6 / 10 Gen2 / 15
+| Home 20 / 30
+
+| Inverter series
+| ET
+| EUB (“Home Gen2”)
+| ETT
+| Permitted battery modules
+| only 52 Ah (2.2 kWh)
+| 52 Ah (2.2 kWh) **or** 64.4 Ah (2.8 kWh)
+| only 64.4 Ah (2.8 kWh)
+| Max. battery current
+| 25 A
+| 25 A with 52 Ah modules, 40 A with 64.4 Ah modules
+| 50 A
+| Max. battery charging power
+| 10 kW
+| 9 / 16 / 24 kW
+| 20 / 30 kW
+| Max. battery discharging power
+| 10 kW
+| 6.6 / 11 / 16.5 kW
+| 20 / 30 kW
+| DC PV inputs (MPPT)
+| 2
+| 2 / 3 / 3
+| 2 / 3
+| Grid meter
+| Home 3-phase sensor (fixed)
+| integrated sensor or external sensor (120 A) or sensor with own current transformers
+| external sensor (120 A) or sensor with own current transformers
+| Additional AC meter (for AC PV)
+| yes
+| no
+| yes
+|===
+
+**Important:** According to the code, the Home 6, 10 Gen2 and 15 may also be operated with the older 2.2 kWh modules, but then with lower battery current (25 instead of 40 A). The equation “Gen2 = 2.8 kWh modules” therefore only applies to the Home 20 and 30 in the code.
+
+[#sec-impermissible-combination]
+=== Impermissible combination
+
+OpenEMS checks whether the inverter and battery modules match. If the combination is not permitted, for example a Home 10 inverter (Gen 1) with 2.8 kWh modules or a Home 20/30 with 2.2 kWh modules, then:
+
+* **charging and discharging are blocked** (battery current 0 A),
+* the warning appears: “The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.”
+
+OpenEMS reads the module type from the battery management. With very old battery firmware that does not report the type, 52 Ah (2.2 kWh) is assumed.
+
+[#sec-control-computer-generations-do-not-confuse]
+=== Control computer generations (do not confuse)
+
+In the code, “Gen2” and “Gen3” also appear for the **control computer** (compute module “CM4S Gen2” or “CM4S Gen3”). This is independent of the Home generation. The following depend on it, for example:
+
+* the relay used to start the battery (`+io0/Relay6+` for CM4S Gen3, otherwise `+io0/Relay4+`),
+* whether an additional relay board is set up,
+* the status LED and the § 14a limitation.
+
+[#sec-structure-in-openems]
+== Structure in OpenEMS
+
+When a Home app is installed, it automatically sets up these building blocks:
+
+[cols="3*",options="header"]
+|===
+| Building block
+| typical ID
+| Task
+
+| Battery
+| battery0
+| Battery management (BMS) of the FENECON Home battery tower
+| Battery inverter
+| batteryInverter0
+| Hybrid inverter
+| Storage system
+| ess0
+| combines battery and inverter into one controllable storage system
+| Grid meter
+| meter0
+| 3-phase sensor at the house connection
+| PV inputs (DC)
+| charger0, charger1 …
+| Solar modules directly on the inverter (MPPT)
+| Emergency power meter
+| meter2
+| measures the emergency power output (if available)
+| Relay board
+| io0
+| among other things, start relay of the battery
+| Communication
+| modbus0, modbus1, modbus2
+| internal connections to battery and inverter, possibly external meters
+| Emergency reserve
+| ctrlEmergencyCapacityReserve0
+| keeps capacity free for power outages
+| DC surplus feed-in
+| ctrlEssSurplusFeedToGrid0
+| feeds DC surplus into the grid if the battery cannot absorb it
+|===
+
+In addition, matching apps are installed or required: self-consumption optimization, xref:user/storage-control/grid-optimized-charge.adoc[grid-optimized charge], xref:user/schedule/forecasts.adoc[forecasts], depending on the hardware the status LED and possibly a limitation according to § 14a EnWG.
+
+[#sec-settings-during-installation]
+== Settings during installation
+
+[#sec-country-and-grid]
+=== Country and grid
+
+[cols="2*",options="header"]
+|===
+| Setting
+| Meaning
+
+| Country setting
+| Country's grid regulations for the inverter: Germany, Austria, Switzerland, Sweden, Czech Republic, Netherlands, Greece, Lithuania, etc.
+| Grid setting
+| Reactive power behavior: Q(U) curve, P(U) curve, fixed cos φ = 1 or fixed cos φ between 0.80 and 0.99 (inductive or capacitive)
+| Remote shutdown (central grid and system protection)
+| Shutdown by an external grid and system protection
+|===
+
+[#sec-feed-in]
+=== Feed-in
+
+[cols="2*",options="header"]
+|===
+| Type of limitation
+| Meaning
+
+| No limitation
+| no limitation of feed-in
+| Dynamic feed-in
+| The feed-in at the grid connection is limited to a fixed value (e.g. 60 % or 70 % of the PV power); OpenEMS controls the inverter for this.
+| Ripple control receiver
+| The grid operator limits via ripple control receiver.
+| Dynamic ripple control receiver
+| Ripple control receiver whose specifications OpenEMS implements dynamically
+| Dynamic feed-in & ripple control receiver
+| both combined
+|===
+
+The maximum feed-in power is stored centrally in the system settings and can also be changed there later (“Feed-In Settings”). This value is additionally limited by the fusing of the grid connection.
+
+[#sec-meters]
+=== Meters
+
+* **Grid meter:** Home 3-phase sensor with 120 A current transformer (default) or without current transformer. On Gen2 models, the sensor is integrated; an external one is optional. With current transformers, the primary current is entered (200 to 5000 A, secondary 5 A).
+* **AC meter** (Home 10, 20, 30): optional meter for an additional AC-coupled PV system (Socomec or KDK type).
+
+[#sec-pv]
+=== PV
+
+* **DC PV inputs:** Which inputs (MPPT) are occupied; each can be given its own name.
+* **Shadow management:** The inverter regularly searches for the best operating point when modules are partially shaded. **It only has to be deactivated if power optimizers are installed on the modules.**
+
+[#sec-emergency-power]
+=== Emergency power
+
+* **Activate emergency power supply**: whether an emergency power output is available.
+* **Emergency reserve**: Part of the battery is not discharged during normal operation so that it is available in the event of a power failure. Adjustable from 5 to 100 %, default 10 %.
+
+[#sec-other]
+=== Other
+
+* **§ 14a EnWG:** If a control device of the grid operator is connected, the storage power can be limited on its instructions (depending on the hardware).
+
+[#sec-battery]
+== Battery
+
+The battery tower consists of modules; several towers are possible. OpenEMS automatically recognizes the module type:
+
+[cols="4*",options="header"]
+|===
+| Module type
+| Capacity per module
+| Cells per module
+| Initial maximum current
+
+| 52 Ah
+| 2.2 kWh
+| 14
+| 40 A
+| 64.4 Ah
+| 2.8 kWh
+| 14
+| 50 A
+|===
+
+The storage capacity results from the number of modules. Voltage and temperature are monitored **per tower and module**.
+
+In detail on the battery (BMS communication, charging and discharging limits, emergency reserve, startup and shutdown): xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery].
+
+[#sec-protective-functions]
+=== Protective functions
+
+* **Charging and discharging current** are limited depending on cell voltage and temperature. After a limitation, the current is only increased slowly again (0.1 A per second).
+* **Deep discharge protection:** If the cell voltage falls too low (critical limit 2.8 V), OpenEMS reports in stages (see table).
+* At very low state of charge, the battery can be force-charged with a small current (2 A per tower).
+
+.Messages at low cell voltage
+[cols="2*",options="header"]
+|===
+| Level
+| Message
+
+| Warning
+| “Low battery state of charge because the battery cannot be charged by the inverter. Without charging, the battery will soon switch off to protect itself.”
+| Fault
+| “Low state of charge. The battery will soon switch off to protect itself.”
+| Fault
+| “Battery was switched off due to too low a state of charge. Please contact your installer.”
+|===
+
+[#sec-startup-updates-extension]
+=== Startup, updates, extension
+
+* The battery is switched on at startup via a relay (`+io0/Relay4+`, with control computer CM4S Gen3 `+io0/Relay6+`).
+* OpenEMS contains a function to update the battery **firmware**.
+* **Extending the battery:** An auxiliary function (“Prepare Battery Extension”) brings the storage to a suitable state of charge before installing further modules.
+* **Measuring the state of health (SoH):** An optional function (“SoH Cycle”) carries out a charge/discharge cycle and uses it to determine the state of health of the battery.
+
+[#sec-inverter]
+== Inverter
+
+[#sec-control-by-openems]
+=== Control by OpenEMS
+
+The inverter can be operated in three ways:
+
+[cols="2*",options="header"]
+|===
+| Mode
+| Meaning
+
+| SMART (default)
+| The inverter controls itself (fast); OpenEMS switches to its own specifications when required, e.g. for price control or grid charging.
+| INTERNAL
+| Only the internal control of the inverter; no specifications from OpenEMS.
+| REMOTE
+| OpenEMS specifies everything. Slower, but possible without a smart meter at the grid connection.
+|===
+
+[#sec-grid-regulations]
+=== Grid regulations
+
+The inverter component contains extensive settings for the grid connection rules, including grid code (VDE-AR-N 4105 / 4110), power reduction at over- and underfrequency (P(F)), power depending on voltage (P(U)) and reactive power methods (fixed cos φ, cos φ(P), Q(U), Q(P)). The installer sets these values according to the specifications of the grid operator.
+
+[#sec-emergency-power-2]
+=== Emergency power
+
+* The **emergency power output** can be switched on or off (“Off-Grid outlet”).
+* A separate meter (`+meter2+`) measures the power at the emergency power output.
+* In island mode, OpenEMS shows the grid state “Off-Grid” and counts the time in island mode.
+* There is a connection via an STS box for emergency generators.
+
+[#sec-dc-surplus]
+=== DC surplus
+
+If the PV modules on the inverter supply more than the house and battery can absorb (e.g. battery full), the “Surplus-Feed-To-Grid” function ensures that this DC surplus is fed into the grid and not curtailed, provided the feed-in limit allows it.
+
+[#sec-status-led]
+== Status LED
+
+OpenEMS controls a status LED (component “System FENECON Home”, `+system0+`). It is set up automatically by the apps for **Home 6, Home 10 Gen2, Home 15, Home 20 and Home 30**, and also by the Commercial systems. **On the Home 10 (Gen 1), the app does not set up a status LED.** A further prerequisite is a control computer with its own switching outputs (CM3, CM4, CM4S, CM4S Gen2 or Gen3). Only an admin can set up the LED app manually.
+
+The LED shows:
+
+[cols="2*",options="header"]
+|===
+| LED
+| Meaning (according to the code)
+
+| blue, continuous
+| no fault and no warning
+| blue, flashing (1 second)
+| warning or fault, and no connection to the backend
+| off
+| warning or fault with an existing connection to the backend
+|===
+
+The LED also has red and green contacts; however, only blue is used for the status in the current code.
+
+[#sec-control-computer]
+== Control computer
+
+The FENECON Home contains a control computer based on a Raspberry Pi Compute Module. The code distinguishes between CM3, CM4, CM4S, CM4S Gen2 and Gen3. Some functions (e.g. status LED, § 14a limitation) depend on this hardware.
+
+[#sec-what-else-openems-does-with-the-home]
+== What else OpenEMS does with the Home
+
+All general functions described on the other pages apply to the Home:
+
+* xref:user/basics/energy-flows.adoc[Energy flows and total values]: Grid meter, DC PV inputs and storage supply the values for `+_sum+`.
+* xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] and xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs] control the storage.
+* xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging] and xref:user/io-control/heat-pumps-and-heating-elements.adoc[heat pump/heating element] use the PV surplus.
+* The xref:user/data/history-rrd4j.adoc[history] is stored locally; the data is optionally transferred to a xref:user/cloud-interfaces/backend-data-transfer.adoc[backend].
+
+[#sec-good-to-know]
+== Good to know
+
+* This page describes what is available in the **OpenEMS source code** for the FENECON Home. It does not say whether and how a FENECON Home can be operated with plain OpenEMS. FENECON ships the devices with its own FEMS.
+* Many settings (country setting, grid regulations, feed-in limitation) are **legally relevant** and belong in the hands of the installer.
+* Only deactivate shadow management if power optimizers are installed.

@@ -1,0 +1,136 @@
+= OpenEMS: Datenübertragung zum Backend
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/cloud-interfaces/backend-data-transfer.adoc[OpenEMS: Data transfer to the backend]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Das **Backend** ist ein zentraler Server, mit dem sich Anlagen verbinden können. Darüber laufen das Online-Monitoring von unterwegs, die Langzeit-Historie und der Fernzugriff. Diese Seite beschreibt, **was die Anlage wann an das Backend sendet** und was sie von dort bekommt.
+
+Ob überhaupt etwas gesendet wird, entscheidet die Einrichtung: Ohne Backend-Verbindung bleiben alle Daten auf dem Gerät. Bei reinem OpenEMS betreibt man das Backend selbst oder nutzt das eines Anbieters.
+
+[#sec-einrichtung]
+== Einrichtung
+
+Die Verbindung stellt die Funktion **Controller.Api.Backend** her (meist `+ctrlBackend0+`).
+
+[cols="3*",options="header"]
+|===
+| Einstellung
+| Standard
+| Bedeutung
+
+| Uri
+| –
+| Adresse des Backends, z. B. `+wss://…+`. Ohne Angabe gibt es keine Verbindung.
+| Apikey
+| –
+| Zugangsschlüssel. Daran erkennt das Backend die Anlage.
+| Proxy
+| –
+| optional, falls das Netz einen Proxy verlangt
+| Persistence Priority
+| HIGH
+| welche Werte laufend gesendet werden
+| Aggregated values Persistence Priority
+| LOW
+| welche Werte als 5-Minuten-Werte gesendet werden
+| Resend values Persistence Priority
+| HIGH
+| welche Werte nach einem Verbindungsausfall nachgesendet werden
+| Api-Timeout
+| 60 s
+| wie lange ein über das Backend gesetzter Steuerwert ohne Erneuerung gilt
+|===
+
+[#sec-wie-die-verbindung-aufgebaut-wird]
+== Wie die Verbindung aufgebaut wird
+
+* **Die Anlage baut die Verbindung selbst auf**, nach außen zum Backend. Im Router muss deshalb kein Port freigegeben werden.
+* Es ist eine dauerhafte Websocket-Verbindung. Abgebrochene Verbindungen werden automatisch neu aufgebaut.
+* Beim Verbindungsaufbau schickt die Anlage den **Apikey** und eine zufällige Kennung, die bei jedem Programmstart neu erzeugt wird. Benutzername und Passwort der Anlage werden dabei nicht übertragen.
+
+[#sec-was-wann-gesendet-wird]
+== Was wann gesendet wird
+
+[cols="3*",options="header"]
+|===
+| Was
+| Wann
+| Inhalt
+
+| **Konfiguration**
+| nach dem Verbindungsaufbau und bei jeder Änderung
+| alle eingerichteten Geräte und Funktionen mit ihren Einstellungen und der Liste ihrer Werte
+| **Aktuelle Werte**
+| **jede Sekunde** (je Programmzyklus)
+| nur Werte, die sich **geändert** haben; alle 5 Minuten einmal alle Werte vollständig
+| **5-Minuten-Werte**
+| alle 5 Minuten, mit zufälliger Verzögerung von bis zu 4½ Minuten
+| zusammengefasste Werte der letzten 5 Minuten: Mittelwert, bei Zählerständen der Stand
+| **Nachgesendete Werte**
+| nach einem Verbindungsausfall, frühestens 5 Minuten nach dem Wiederverbinden (zufällig verteilt, bis etwa eine Stunde später)
+| die in der Zwischenzeit lokal gespeicherten Werte (aus der xref:user/de/data/history-rrd4j.adoc[Historie])
+| **Fahrplan**
+| nur solange jemand ihn über das Backend ansieht
+| der aktuelle xref:user/de/schedule/overview.adoc[Fahrplan] bei jeder Neuplanung
+| **Systemprotokoll**
+| nur solange jemand es über das Backend mitliest
+| die laufenden Protokollzeilen der Anlage
+| **Antworten**
+| auf Anfrage
+| Antworten auf Anfragen aus der Weboberfläche, z. B. Verläufe, Einstellungen, App-Center
+|===
+
+Die zufällige Verzögerung bei den 5-Minuten-Werten sorgt dafür, dass nicht alle Anlagen zur selben Sekunde senden.
+
+[#sec-welche-werte-gesendet-werden]
+== Welche Werte gesendet werden
+
+Nicht jeder Messwert geht an das Backend. Jeder Wert hat eine **Priorität** (VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH). Gesendet wird nur, was mindestens die eingestellte Priorität hat:
+
+* **Laufend, jede Sekunde:** Werte ab Priorität HIGH, also vor allem die wichtigen Summenwerte wie Netz, Erzeugung, Verbrauch und Speicher.
+* **Als 5-Minuten-Werte:** Werte ab Priorität LOW, also deutlich mehr Detailwerte einzelner Geräte.
+* **Nachgesendet:** Werte ab Priorität HIGH. Diese Einstellung sollte zur Priorität der lokalen Historie passen, denn nachgesendet werden kann nur, was lokal gespeichert wurde.
+
+Reine Steuerwerte (nur schreibbar) werden nie gesendet.
+
+[#sec-nach-einem-verbindungsausfall]
+== Nach einem Verbindungsausfall
+
+* Während der Unterbrechung gehen die sekündlichen Werte verloren; es gibt keinen Puffer.
+* Die Anlage merkt sich in ihrer lokalen Historie, **wann sie nicht senden konnte**.
+* Nach dem Wiederverbinden schickt sie zuerst Konfiguration und alle aktuellen Werte.
+* Frühestens nach 5 Minuten, zufällig verteilt bis etwa eine Stunde später, werden die fehlenden Zeiträume aus der lokalen Historie nachgesendet, in Abschnitten von 5 Minuten. Diese Werte haben die Auflösung der lokalen Historie (5-Minuten-Werte).
+* Ohne lokale Historie (z. B. rrd4j deaktiviert) bleibt die Lücke im Backend bestehen.
+
+[#sec-was-die-anlage-vom-backend-bekommt]
+== Was die Anlage vom Backend bekommt
+
+[cols="2*",options="header"]
+|===
+| Was
+| Wofür
+
+| Anfragen aus der Weboberfläche
+| Wer die Anlage von unterwegs bedient, schickt seine Anfragen über das Backend. Es gelten die xref:user/de/external-interfaces/websocket.adoc#sec-funktionen-und-benutzerrollen[Rollen] des Benutzers im Backend.
+| Börsenstrompreise
+| als eine der Preisquellen für xref:user/de/storage-control/time-of-use-tariffs.adoc[dynamische Stromtarife]
+| Wechselkurse
+| zur Umrechnung der Preise in die Währung der Anlage
+|===
+
+Preise und Wechselkurse werden **abonniert**: Das Backend schickt sie, sobald sie sich ändern. Ist kein Backend eingerichtet oder ist es länger als 5 Minuten nicht erreichbar, holt die Anlage diese Daten selbst aus dem Internet.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* **Datenmenge:** Die meiste Datenmenge machen die sekündlichen Werte aus. Da nur geänderte Werte gesendet werden, hängt die Menge davon ab, wie viel sich in der Anlage bewegt.
+* **Datenschutz:** Mit dem Backend verlassen Messwerte und die Konfiguration das Haus. Wer das nicht möchte, richtet keine Backend-Verbindung ein. Die Anlage funktioniert lokal vollständig.
+* **Steuern über das Backend:** Auch über das Backend gesetzte Steuerwerte gelten nur bis zum Api-Timeout (siehe xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON]).
+* **Fehlersuche:** Kann die Anlage nicht senden, zeigt die Backend-Funktion eine Warnung („Unable to send“).

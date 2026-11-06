@@ -1,0 +1,187 @@
+= OpenEMS: openWB
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/third-party/openwb.adoc[OpenEMS: openWB]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+openWB is a wallbox with its own charging control (software “openWB 2”). There are **two independent connections** between openWB and OpenEMS, one in each direction:
+
+[cols="4*",options="header"]
+|===
+| Direction
+| Who reads whom?
+| Route
+| Controls anything?
+
+| openWB reads OpenEMS
+| openWB queries grid, PV and storage from OpenEMS to charge with surplus
+| REST interface of OpenEMS (port 8084)
+| no
+| OpenEMS reads openWB
+| OpenEMS adopts the power and state of an openWB charge point
+| MQTT broker of openWB
+| no
+|===
+
+The basis is the source code of openWB 2 (“core”) and the OpenEMS source code. Neither of the two connections has been tried out here. The page xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] gives a comparison with Home Assistant and evcc.
+
+[#sec-openwb-reads-openems]
+== openWB reads OpenEMS
+
+[#sec-setup]
+=== Setup
+
+In openWB, there is the device **“openEMS, Fenecon FEMS, CENTURIO 10, Kaco Hy-Control”** for this. Only the **IP address** of the system and the **password** need to be entered. openWB always uses “x” as the user name; with OpenEMS only the password counts.
+
+You create up to three components for the device:
+
+[cols="2*",options="header"]
+|===
+| Component in openWB
+| Meaning
+
+| Meter
+| Grid connection (utility meter)
+| Inverter
+| PV production
+| Storage
+| Home battery; setting “Number”: 1 = `+ess0+`, any other number = `+ess2+`
+|===
+
+**Prerequisite in OpenEMS:** the app or component “REST/JSON API read access” (Controller.Api.Rest.ReadOnly) or “… read/write access” on the default port **8084**. openWB always queries this port. According to the OpenEMS code, reading already works with the Guest role. See xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON].
+
+[#sec-which-values-are-read]
+=== Which values are read
+
+[cols="3*",options="header"]
+|===
+| openWB component
+| Value in openWB
+| Channel in OpenEMS
+
+.5+| Meter
+| Total power and per phase
+| `+meter0/ActivePower+`, `+ActivePowerL1…L3+`
+| Voltage per phase
+| `+meter0/VoltageL1…L3+`
+| Frequency
+| `+meter0/Frequency+`
+| Purchase (meter reading)
+| `+_sum/GridBuyActiveEnergy+`
+| Feed-in (meter reading)
+| `+_sum/GridSellActiveEnergy+`
+.2+| Inverter
+| Power
+| `+_sum/ProductionActivePower+` (sign inverted)
+| Meter reading
+| `+_sum/ProductionActiveEnergy+`
+.3+| Storage
+| State of charge
+| `+ess0/Soc+` or `+ess2/Soc+`
+| Charge and discharge energy
+| `+ess0/DcChargeEnergy+`, `+DcDischargeEnergy+`
+| Power
+| **calculated** from `+_sum+`: grid {plus} production − consumption
+|===
+
+openWB reads units (e.g. W or kW) from the response and converts them. The values are queried in each openWB control cycle (default 10 seconds).
+
+[#sec-how-it-queries]
+=== How it queries
+
+* openWB uses the OpenEMS option of reading several values in one request with **patterns** (regular expressions), e.g. all matching values of `+meter0+` and `+_sum+` at once.
+* At startup, openWB checks whether the system understands patterns across components. If so, **one** request per component is sufficient; otherwise openWB splits the query into several requests. The current OpenEMS code understands both.
+* A comment in the openWB code says that systems should not be queried too often with the combined query.
+
+[#sec-limits]
+=== Limits
+
+* **Fixed names:** openWB assumes that the grid meter is called `+meter0+` and the storage `+ess0+` (or `+ess2+`). With different naming, for example if `+meter0+` is a consumption meter, the values are not correct.
+* **Storage power is derived:** It does not come from the storage itself, but from the total values. With several storage systems, it is the sum of all, but the state of charge is only that of `+ess0+`.
+* **Inverter = total production:** The sum of all PV sources is read (AC and DC), not an individual inverter.
+* **Read only:** openWB does not control anything in OpenEMS via this connection, not even the storage.
+* **Port fixed at 8084:** If the REST interface runs on another port or only behind a proxy, the connection does not work.
+* **Unencrypted:** HTTP with basic authentication; the password goes through the network in plain text.
+* In the openWB code, a fallback route for the meter was noticed, intended for very old systems without pattern queries. It accesses a password field that the meter component does not set anywhere. In Python, such an access aborts with an error, so the fallback route cannot work. This route is not used with current OpenEMS.
+
+[#sec-openems-reads-openwb]
+== OpenEMS reads openWB
+
+[#sec-setup-2]
+=== Setup
+
+OpenEMS has the component **“EVCS OpenWB”** (Evcs.OpenWB). It reads an internal charge point of an openWB series 2. This additionally requires a **“Bridge MQTT”**, which is connected to the MQTT broker of the openWB.
+
+[cols="2*",options="header"]
+|===
+| Setting
+| Meaning
+
+| MQTT Bridge ID
+| ID of the MQTT bridge (default `+mqtt0+`)
+| Chargepoint
+| internal charge point 0 or 1 (with openWB Duo two charge points)
+| Phase rotation
+| Phase rotation of the connection
+|===
+
+The MQTT bridge needs the address and port of the broker. In the configuration of openWB 2, the broker can be reached in insecure mode on port **1883** without login, in secure mode encrypted on port **8883**. Reading is permitted for everyone (`+openWB/#+`). For secure mode, openWB sets up a self-signed certificate (Debian's “snakeoil” certificate). The OpenEMS MQTT bridge has fields for its own certificate store (“Trust Store”, “Key Store”), but does not evaluate them in the code. It only trusts the root certificates delivered with Java. A self-signed certificate is not one of them, so the encrypted connection to the openWB is not established. The unencrypted port 1883 remains for the bridge.
+
+[#sec-which-values-are-read-2]
+=== Which values are read
+
+OpenEMS subscribes to the messages under `+openWB/internal_chargepoint/0/get/…+` (or `+…/1/…+`) and adopts:
+
+[cols="2*",options="header"]
+|===
+| openWB message
+| Value in OpenEMS
+
+| power, powers
+| Charging power total and per phase
+| voltages, currents
+| Voltage and current per phase
+| imported
+| Energy meter (charged energy) and from this the energy of the charging session
+| plug_state, charge_state
+| Plug inserted, charging
+| phases_in_use
+| Phases used
+| fault_state
+| Fault state
+|===
+
+The charge point appears in OpenEMS as a **metered consumer** and is thus included in consumption and energy flows (see xref:user/basics/energy-flows.adoc[Energy flows]).
+
+[#sec-limits-2]
+=== Limits
+
+* **Read only:** The component is a pure measured-value charge point. OpenEMS can therefore **not control** the openWB (no surplus charging by OpenEMS, no power specification). In this combination, surplus charging is done by the openWB itself, with the values from the first section.
+* Only **internal** charge points of the openWB, no other charge points managed by the openWB.
+* The energy meter of the openWB is adopted as an absolute meter reading.
+* In OpenEMS, there is no app in the app center for openWB; the bridge and component are created as components.
+
+[#sec-typical-questions]
+== Typical questions
+
+**Can openWB control the OpenEMS storage, e.g. not discharge into the car?**
+
+Not via this connection; openWB only reads. Such behavior must be set in OpenEMS itself.
+
+**openWB shows wrong grid values.**
+
+Check whether the grid meter in OpenEMS is really called `+meter0+`. openWB always queries this name.
+
+**Do I need the OpenEMS write app for openWB?**
+
+No. The read app is sufficient for openWB; for OpenEMS → openWB, no REST app is needed, but the MQTT bridge.
+
+**Do both systems charge with surplus at the same time?**
+
+If OpenEMS only reads the openWB (as above), the openWB alone controls. If you also use surplus charging in OpenEMS for other charge points, bear in mind that both systems see the same surplus (see xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging]).

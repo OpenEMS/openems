@@ -1,0 +1,376 @@
+= OpenEMS: FENECON Home
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/systems/fenecon-home.adoc[OpenEMS: FENECON Home]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Das FENECON Home ist ein Heimspeichersystem aus Hybrid-Wechselrichter, Batterie und Energiemanagement. Diese Seite fasst zusammen, was der **OpenEMS-Quellcode** über das FENECON Home enthält: Aufbau, Einstellungen, Schutzfunktionen und Zusatzfunktionen. Auf FENECON-Geräten läuft das herstellereigene FEMS; einzelne Funktionen können dort abweichen oder früher verfügbar sein.
+
+[#sec-modelle]
+== Modelle
+
+OpenEMS kennt folgende Home-Varianten, jeweils als eigene App im App-Center:
+
+[cols="5*",options="header"]
+|===
+| Modell
+| App
+| Wechselrichter (laut Code)
+| Serie
+| DC-PV-Eingänge (MPPT)
+
+| FENECON Home 10
+| App.FENECON.Home
+| FENECON FHI 10 DAH
+| ET
+| 2
+| FENECON Home 6
+| App.FENECON.Home6
+| FENECON ET Gen2 6K
+| EUB
+| 2
+| FENECON Home 10 Gen2
+| App.FENECON.Home10.Gen2
+| FENECON ET Gen2 10K
+| EUB
+| 3
+| FENECON Home 15
+| App.FENECON.Home15
+| FENECON ET Gen2 15K
+| EUB
+| 3
+| FENECON Home 20
+| App.FENECON.Home.20
+| FENECON FHI 20 DAH
+| ETT
+| 2
+| FENECON Home 30
+| App.FENECON.Home.30
+| FENECON FHI 30 DAH (intern 29,9 kW)
+| ETT
+| 3
+|===
+
+Die Wechselrichter stammen technisch aus der GoodWe-Familie. Im Code heißen die Serien „ET“ (Home 10), „ETT – Home Series 20 & 30 kW“ und „EUB – Home Gen2 Series 6, 10 & 15 kW“. Der Wechselrichtertyp wird an der Seriennummer erkannt. Die Home-Apps dürfen nur Installateure sehen und löschen.
+
+**DC-Eingänge bei Home 20 und 30:** Früher wurden dort die einzelnen PV-Strings eingetragen (Home 20: 4 Strings, Home 30: 6 Strings, also 2 Strings je MPPT). Diese Einteilung ist im Code als „nicht mehr unterstützt“ markiert und wird nur noch für bestehende Anlagen angezeigt. Neu wird je MPPT-Eingang eingetragen: 2 beim Home 20, 3 beim Home 30.
+
+[#sec-generationen]
+== Generationen
+
+Im Sprachgebrauch werden zwei Generationen unterschieden: **Generation 1** ist das Home 10 mit 2,2-kWh-Batteriemodulen, **Generation 2** sind Home 6, 10 Gen2, 15, 20 und 30 mit 2,8-kWh-Modulen. Der OpenEMS-Code verwendet diese Einteilung so nicht. Er unterscheidet nach **Wechselrichter-Serie** und **Batteriemodul-Typ**. Daraus ergibt sich:
+
+[cols="4*",options="header"]
+|===
+| 
+| Home 10 (Gen 1)
+| Home 6 / 10 Gen2 / 15
+| Home 20 / 30
+
+| Wechselrichter-Serie
+| ET
+| EUB („Home Gen2“)
+| ETT
+| zulässige Batteriemodule
+| nur 52 Ah (2,2 kWh)
+| 52 Ah (2,2 kWh) **oder** 64,4 Ah (2,8 kWh)
+| nur 64,4 Ah (2,8 kWh)
+| max. Batteriestrom
+| 25 A
+| 25 A mit 52-Ah-Modulen, 40 A mit 64,4-Ah-Modulen
+| 50 A
+| max. Batterie-Ladeleistung
+| 10 kW
+| 9 / 16 / 24 kW
+| 20 / 30 kW
+| max. Batterie-Entladeleistung
+| 10 kW
+| 6,6 / 11 / 16,5 kW
+| 20 / 30 kW
+| DC-PV-Eingänge (MPPT)
+| 2
+| 2 / 3 / 3
+| 2 / 3
+| Netzzähler
+| Home-3-Phasensensor (fest)
+| integrierter Sensor oder externer Sensor (120 A) oder Sensor mit eigenen Stromwandlern
+| externer Sensor (120 A) oder Sensor mit eigenen Stromwandlern
+| zusätzlicher AC-Zähler (für AC-PV)
+| ja
+| nein
+| ja
+|===
+
+**Wichtig:** Laut Code dürfen Home 6, 10 Gen2 und 15 auch mit den älteren 2,2-kWh-Modulen betrieben werden, dann aber mit geringerem Batteriestrom (25 statt 40 A). Die Gleichung „Gen2 = 2,8-kWh-Module“ gilt im Code also nur für Home 20 und 30.
+
+[#sec-unzulaessige-kombination]
+=== Unzulässige Kombination
+
+OpenEMS prüft, ob Wechselrichter und Batteriemodule zusammenpassen. Ist die Kombination nicht zugelassen, zum Beispiel ein Home-10-Wechselrichter (Gen 1) mit 2,8-kWh-Modulen oder ein Home 20/30 mit 2,2-kWh-Modulen, dann:
+
+* wird **Laden und Entladen gesperrt** (Batteriestrom 0 A),
+* erscheint die Warnung: „The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.“
+
+Den Modultyp liest OpenEMS aus dem Batteriemanagement aus. Bei sehr alter Batterie-Firmware, die den Typ nicht meldet, wird 52 Ah (2,2 kWh) angenommen.
+
+[#sec-steuerrechner-generationen-nicht-verwechseln]
+=== Steuerrechner-Generationen (nicht verwechseln)
+
+Im Code taucht „Gen2“ und „Gen3“ auch beim **Steuerrechner** auf (Compute Module „CM4S Gen2“ bzw. „CM4S Gen3“). Das ist unabhängig von der Home-Generation. Davon hängen z. B. ab:
+
+* das Relais, über das die Batterie gestartet wird (bei CM4S Gen3 `+io0/Relay6+`, sonst `+io0/Relay4+`),
+* ob eine zusätzliche Relaisplatine eingerichtet wird,
+* die Status-LED und die § 14a-Begrenzung.
+
+[#sec-aufbau-in-openems]
+== Aufbau in OpenEMS
+
+Wird eine Home-App installiert, richtet sie automatisch diese Bausteine ein:
+
+[cols="3*",options="header"]
+|===
+| Baustein
+| typische ID
+| Aufgabe
+
+| Batterie
+| battery0
+| Batteriemanagement (BMS) des FENECON-Home-Batterieturms
+| Batterie-Wechselrichter
+| batteryInverter0
+| Hybrid-Wechselrichter
+| Speichersystem
+| ess0
+| fasst Batterie und Wechselrichter zu einem steuerbaren Speicher zusammen
+| Netzzähler
+| meter0
+| 3-Phasen-Sensor am Hausanschluss
+| PV-Eingänge (DC)
+| charger0, charger1 …
+| Solarmodule direkt am Wechselrichter (MPPT)
+| Notstromzähler
+| meter2
+| misst den Notstromausgang (wenn vorhanden)
+| Relaisplatine
+| io0
+| u. a. Startrelais der Batterie
+| Kommunikation
+| modbus0, modbus1, modbus2
+| interne Verbindungen zu Batterie und Wechselrichter, ggf. externe Zähler
+| Notstromreserve
+| ctrlEmergencyCapacityReserve0
+| hält Kapazität für Stromausfälle frei
+| DC-Überschuss-Einspeisung
+| ctrlEssSurplusFeedToGrid0
+| speist DC-Überschuss ins Netz, wenn die Batterie ihn nicht aufnehmen kann
+|===
+
+Zusätzlich werden passende Apps mit installiert bzw. vorausgesetzt: Eigenverbrauchsoptimierung, xref:user/de/storage-control/grid-optimized-charge.adoc[netzdienliche Beladung], xref:user/de/schedule/forecasts.adoc[Prognosen], je nach Hardware die Status-LED und ggf. eine Begrenzung nach § 14a EnWG.
+
+[#sec-einstellungen-bei-der-installation]
+== Einstellungen bei der Installation
+
+[#sec-land-und-netz]
+=== Land und Netz
+
+[cols="2*",options="header"]
+|===
+| Einstellung
+| Bedeutung
+
+| Ländereinstellung
+| Netzvorschriften des Landes für den Wechselrichter: Deutschland, Österreich, Schweiz, Schweden, Tschechien, Niederlande, Griechenland, Litauen u. a.
+| Netzeinstellung
+| Blindleistungsverhalten: Q(U)-Kurve, P(U)-Kurve, fester cos φ = 1 oder fester cos φ zwischen 0,80 und 0,99 (induktiv oder kapazitiv)
+| Fernabschaltung (zentraler NA-Schutz)
+| Abschaltung durch einen externen Netz- und Anlagenschutz
+|===
+
+[#sec-einspeisung]
+=== Einspeisung
+
+[cols="2*",options="header"]
+|===
+| Art der Begrenzung
+| Bedeutung
+
+| Keine Limitierung
+| keine Begrenzung der Einspeisung
+| Dynamische Einspeisung
+| Die Einspeisung am Netzanschluss wird auf einen festen Wert begrenzt (z. B. 60 % oder 70 % der PV-Leistung); OpenEMS regelt dafür den Wechselrichter.
+| Rundsteuerempfänger
+| Der Netzbetreiber begrenzt per Rundsteuerempfänger.
+| Dynamischer Rundsteuerempfänger
+| Rundsteuerempfänger, dessen Vorgaben OpenEMS dynamisch umsetzt
+| Dynamische Einspeisung & Rundsteuerempfänger
+| beides kombiniert
+|===
+
+Die maximale Einspeiseleistung wird zentral in den Systemeinstellungen hinterlegt und dort auch später geändert („Einspeise-Einstellungen“). Dieser Wert wird zusätzlich durch die Absicherung des Netzanschlusses begrenzt.
+
+[#sec-zaehler]
+=== Zähler
+
+* **Netzzähler:** Home-3-Phasen-Sensor mit Stromwandler 120 A (Standard) oder ohne Stromwandler. Bei Gen2-Modellen ist der Sensor integriert; ein externer ist optional. Bei Stromwandlern wird der Primärstrom eingetragen (200 bis 5000 A, Sekundär 5 A).
+* **AC Zähler** (Home 10, 20, 30): optionaler Zähler für eine zusätzliche AC-gekoppelte PV-Anlage (Typ Socomec oder KDK).
+
+[#sec-pv]
+=== PV
+
+* **DC-PV-Eingänge:** Welche Eingänge (MPPT) belegt sind; jeder kann einen eigenen Namen bekommen.
+* **Schattenmanagement:** Der Wechselrichter sucht regelmäßig den besten Arbeitspunkt, wenn Module teilweise verschattet sind. **Nur wenn Leistungsoptimierer an den Modulen verbaut sind, muss es deaktiviert werden.**
+
+[#sec-notstrom]
+=== Notstrom
+
+* **Aktivieren der Notstromversorgung**: ob ein Notstromausgang vorhanden ist.
+* **Notstromreserve**: Ein Teil der Batterie wird im normalen Betrieb nicht entladen, damit er bei Stromausfall zur Verfügung steht. Einstellbar von 5 bis 100 %, Standard 10 %.
+
+[#sec-weitere]
+=== Weitere
+
+* **§ 14a EnWG:** Ist ein Steuergerät des Netzbetreibers angeschlossen, kann die Speicherleistung auf dessen Anweisung begrenzt werden (abhängig von der Hardware).
+
+[#sec-batterie]
+== Batterie
+
+Der Batterieturm besteht aus Modulen; mehrere Türme sind möglich. OpenEMS erkennt den Modultyp automatisch:
+
+[cols="4*",options="header"]
+|===
+| Modultyp
+| Kapazität je Modul
+| Zellen je Modul
+| anfänglicher Maximalstrom
+
+| 52 Ah
+| 2,2 kWh
+| 14
+| 40 A
+| 64,4 Ah
+| 2,8 kWh
+| 14
+| 50 A
+|===
+
+Die Speicherkapazität ergibt sich aus der Zahl der Module. Spannung und Temperatur werden **je Turm und Modul** überwacht.
+
+Ausführlich zur Batterie (BMS-Kommunikation, Lade- und Entladegrenzen, Notstromreserve, Start und Abschaltung): xref:user/de/systems/fenecon-home-battery.adoc[FENECON-Home-Batterie].
+
+[#sec-schutzfunktionen]
+=== Schutzfunktionen
+
+* **Lade- und Entladestrom** werden abhängig von Zellspannung und Temperatur begrenzt. Nach einer Begrenzung wird der Strom nur langsam wieder erhöht (0,1 A pro Sekunde).
+* **Tiefentladeschutz:** Sinkt die Zellspannung zu weit (kritische Grenze 2,8 V), meldet OpenEMS stufenweise (siehe Tabelle).
+* Bei sehr niedrigem Ladezustand kann die Batterie mit einem kleinen Strom zwangsgeladen werden (2 A je Turm).
+
+.Meldungen bei niedriger Zellspannung
+[cols="2*",options="header"]
+|===
+| Stufe
+| Meldung
+
+| Warnung
+| „Niedriger Ladezustand der Batterie, da die Batterie nicht durch den Wechselrichter beladen werden kann. Ohne Beladung schaltet sich die Batterie demnächst ab, um sich selbst zu schützen.“
+| Fehler
+| „Niedriger Ladezustand. Die Batterie schaltet sich demnächst ab, um sich selbst zu schützen.“
+| Fehler
+| „Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur.“
+|===
+
+[#sec-start-updates-erweiterung]
+=== Start, Updates, Erweiterung
+
+* Die Batterie wird beim Start über ein Relais eingeschaltet (`+io0/Relay4+`, bei Steuerrechner CM4S Gen3 `+io0/Relay6+`).
+* OpenEMS enthält eine Funktion, um die **Firmware** der Batterie zu aktualisieren.
+* **Batterie erweitern:** Eine Hilfsfunktion („Batterienachrüstung“) bringt den Speicher vor dem Einbau weiterer Module auf einen passenden Ladezustand.
+* **Zustand (SoH) messen:** Eine optionale Funktion („SoH Zyklus“) führt einen Lade-/Entladezyklus durch und ermittelt daraus den Gesundheitszustand der Batterie.
+
+[#sec-wechselrichter]
+== Wechselrichter
+
+[#sec-steuerung-durch-openems]
+=== Steuerung durch OpenEMS
+
+Der Wechselrichter kann auf drei Arten betrieben werden:
+
+[cols="2*",options="header"]
+|===
+| Modus
+| Bedeutung
+
+| SMART (Standard)
+| Der Wechselrichter regelt selbst (schnell), OpenEMS schaltet bei Bedarf auf eigene Vorgaben um, z. B. für Preissteuerung oder Netzladen.
+| INTERNAL
+| Nur die interne Regelung des Wechselrichters; keine Vorgaben von OpenEMS.
+| REMOTE
+| OpenEMS gibt alles vor. Langsamer, aber ohne Smart Meter am Netzanschluss möglich.
+|===
+
+[#sec-netzvorschriften]
+=== Netzvorschriften
+
+Der Wechselrichter-Baustein enthält umfangreiche Einstellungen für die Netzanschlussregeln, u. a. Netzcode (VDE-AR-N 4105 / 4110), Leistungsreduktion bei Über- und Unterfrequenz (P(F)), Leistung abhängig von der Spannung (P(U)) und Blindleistungsverfahren (cos φ fest, cos φ(P), Q(U), Q(P)). Diese Werte stellt der Installateur nach den Vorgaben des Netzbetreibers ein.
+
+[#sec-notstrom-2]
+=== Notstrom
+
+* Der **Notstromausgang** kann ein- oder ausgeschaltet werden („Off-Grid outlet“).
+* Ein eigener Zähler (`+meter2+`) misst die Leistung am Notstromausgang.
+* Im Inselbetrieb zeigt OpenEMS den Netzzustand „Off-Grid“ an und zählt die Zeit im Inselbetrieb mit.
+* Für Notstromaggregate gibt es eine Anbindung über eine STS-Box.
+
+[#sec-dc-ueberschuss]
+=== DC-Überschuss
+
+Liefern die PV-Module am Wechselrichter mehr, als Haus und Batterie aufnehmen können (z. B. Batterie voll), sorgt die Funktion „Surplus-Feed-To-Grid“ dafür, dass dieser DC-Überschuss ins Netz eingespeist und nicht abgeregelt wird, sofern die Einspeisegrenze es zulässt.
+
+[#sec-status-led]
+== Status-LED
+
+OpenEMS steuert eine Status-LED (Komponente „System FENECON Home“, `+system0+`). Sie wird von den Apps für **Home 6, Home 10 Gen2, Home 15, Home 20 und Home 30** automatisch eingerichtet, außerdem von den Commercial-Systemen. **Beim Home 10 (Gen 1) richtet die App keine Status-LED ein.** Voraussetzung ist zusätzlich ein Steuerrechner mit eigenen Schaltausgängen (CM3, CM4, CM4S, CM4S Gen2 oder Gen3). Von Hand einrichten kann die LED-App nur ein Admin.
+
+Die LED zeigt:
+
+[cols="2*",options="header"]
+|===
+| LED
+| Bedeutung (laut Code)
+
+| blau, dauerhaft
+| kein Fehler und keine Warnung
+| blau, blinkend (1 Sekunde)
+| Warnung oder Fehler, und keine Verbindung zum Backend
+| aus
+| Warnung oder Fehler bei bestehender Verbindung zum Backend
+|===
+
+Die LED hat auch rote und grüne Kontakte; im aktuellen Code wird für den Status aber nur Blau verwendet.
+
+[#sec-steuerrechner]
+== Steuerrechner
+
+Im FENECON Home steckt ein Steuerrechner auf Basis eines Raspberry Pi Compute Module. Der Code unterscheidet CM3, CM4, CM4S, CM4S Gen2 und Gen3. Manche Funktionen (z. B. Status-LED, § 14a-Begrenzung) hängen von dieser Hardware ab.
+
+[#sec-was-openems-sonst-mit-dem-home-macht]
+== Was OpenEMS sonst mit dem Home macht
+
+Für das Home gelten alle allgemeinen Funktionen, die auf den anderen Seiten beschrieben sind:
+
+* xref:user/de/basics/energy-flows.adoc[Energieflüsse und Summenwerte]: Netzzähler, DC-PV-Eingänge und Speicher liefern die Werte für `+_sum+`.
+* xref:user/de/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung] und xref:user/de/storage-control/time-of-use-tariffs.adoc[dynamische Stromtarife] steuern den Speicher.
+* xref:user/de/ev-charging-control/surplus-charging.adoc[Überschussladen] und xref:user/de/io-control/heat-pumps-and-heating-elements.adoc[Wärmepumpe/Heizstab] nutzen den PV-Überschuss.
+* Die xref:user/de/data/history-rrd4j.adoc[Historie] wird lokal gespeichert, die Daten optional an ein xref:user/de/cloud-interfaces/backend-data-transfer.adoc[Backend] übertragen.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* Diese Seite beschreibt, was im **OpenEMS-Quellcode** für das FENECON Home vorhanden ist. Ob und wie man ein FENECON Home mit reinem OpenEMS betreibt, ist damit nicht gesagt. FENECON liefert die Geräte mit dem eigenen FEMS aus.
+* Viele Einstellungen (Ländereinstellung, Netzvorschriften, Einspeisebegrenzung) sind **rechtlich relevant** und gehören in die Hand des Installateurs.
+* Das Schattenmanagement nur deaktivieren, wenn Leistungsoptimierer verbaut sind.

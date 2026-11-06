@@ -1,0 +1,528 @@
+= OpenEMS: FENECON-Home-Batterie
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/systems/fenecon-home-battery.adoc[OpenEMS: FENECON Home battery]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite beschreibt, was der **OpenEMS-Quellcode** über die Batterie des FENECON Home enthält: wie OpenEMS mit dem Batteriemanagement (BMS) spricht, wann die Batterie als voll oder leer gilt, wie Laden und Entladen begrenzt und gesteuert werden, wie die Batterie gestartet und abgeschaltet wird und welche Werte und Meldungen es gibt. Aufbau, Modelle und Wechselrichter des FENECON Home stehen auf der Seite xref:user/de/systems/fenecon-home.adoc[FENECON Home]. Auf FENECON-Geräten läuft das herstellereigene FEMS; einzelne Werte können dort abweichen.
+
+Alle Zahlen stammen aus dem Code. Was das BMS intern macht (z. B. wie es den Ladezustand berechnet), steht nicht im OpenEMS-Code und ist hier nicht beschrieben.
+
+[#sec-ueberblick]
+== Überblick
+
+Am Speicher sind drei Komponenten beteiligt:
+
+[cols="3*",options="header"]
+|===
+| Komponente
+| ID
+| Aufgabe
+
+| Batterie („Battery FENECON Home“)
+| battery0
+| liest das BMS aus, berechnet die erlaubten Lade- und Entladeströme, startet und stoppt die Batterie
+| Batterie-Wechselrichter (GoodWe)
+| batteryInverter0
+| bekommt von OpenEMS die Batteriewerte und Grenzen und setzt die Leistung um
+| Speichersystem („ESS Generic Managed Symmetric“)
+| ess0
+| fasst beides zusammen; daran setzen alle Steuerfunktionen (Eigenverbrauch, Notstromreserve, Tarife) an
+|===
+
+Der Weg der Daten:
+
+[source]
+----
+BMS ──Modbus──> battery0 ──> ess0 <── Steuerfunktionen
+                   │          │
+     Batteriewerte,│          │Leistungsvorgaben
+     Stromgrenzen  v          v
+                batteryInverter0
+----
+
+Wichtig für das Verständnis: Der GoodWe-Wechselrichter spricht beim FENECON Home **nicht direkt** mit dem BMS. OpenEMS liest das BMS aus und reicht die Werte an den Wechselrichter weiter (Betriebsart „EMS“). Fällt OpenEMS aus, fehlen dem Wechselrichter diese Werte.
+
+[#sec-modultypen]
+== Modultypen
+
+OpenEMS erkennt den Modultyp beim Start aus dem BMS. Bei sehr alter BMS-Firmware, die den Typ nicht meldet, wird 52 Ah angenommen. Nach einem Firmware-Update wird der Typ neu gelesen.
+
+[cols="3*",options="header"]
+|===
+| 
+| 52 Ah
+| 64,4 Ah
+
+| Energie je Modul
+| 2,2 kWh
+| 2,8 kWh
+| Zellen je Modul (in Reihe)
+| 14
+| 14
+| Temperaturfühler je Modul
+| 3
+| 5
+| Modulspannung min. / max.
+| 42,0 V / 49,0 V (3,00 / 3,50 V je Zelle)
+| 40,6 V / 49,7 V (2,90 / 3,55 V je Zelle)
+| Anfangswert für den Maximalstrom
+| 40 A
+| 50 A
+|===
+
+Aus der Zahl der Türme und der Module je Turm berechnet OpenEMS:
+
+* **Kapazität** = Türme × Module je Turm × Energie je Modul (Beispiel: 1 Turm mit 5 Modulen à 2,8 kWh = 14 kWh). Das ist der **Nennwert**; der Gesundheitszustand (SoH) geht nicht ein.
+* **Ladeschlussspannung** = Module je Turm × maximale Modulspannung.
+* **Entladeschlussspannung** = Module je Turm × minimale Modulspannung.
+
+Weil das BMS laut Code am Anfang manchmal zu kleine Werte meldet, rechnet OpenEMS bei jeder Änderung neu. Gilt ein Wechselrichter mit dem erkannten Modultyp als unzulässig, sperrt OpenEMS Laden und Entladen (siehe xref:user/de/systems/fenecon-home.adoc[FENECON Home], „Unzulässige Kombination“).
+
+[#sec-kommunikation-mit-dem-bms]
+== Kommunikation mit dem BMS
+
+[#sec-verbindung]
+=== Verbindung
+
+* Serielle Modbus-Verbindung (RS485) über die interne Schnittstelle des Steuerrechners, 19.200 Baud, 8 Datenbits, keine Parität, 1 Stoppbit, Modbus-Adresse 1. Die App des FENECON Home richtet das so ein.
+* Laut einem Kommentar im Code bleibt das BMS hängen, wenn es auf dem Bus etwa 30 bis 45 ms lang Anfragen an andere Geräte sieht. OpenEMS legt deshalb zwischen Anfragen an verschiedene Geräte auf demselben Bus eine Pause von **50 ms** ein.
+* **OpenEMS schreibt nichts in das BMS.** Es liest nur. Gestartet wird die Batterie über ein Relais, abgeschaltet über eine Kommunikationspause (siehe <<sec-start-und-abschaltung,Start und Abschaltung>>).
+
+[#sec-was-gelesen-wird]
+=== Was gelesen wird
+
+[cols="3*",options="header"]
+|===
+| Bereich
+| Werte
+| Abfrage
+
+| Gesamtbatterie
+| Spannung, Strom, Ladezustand (SoC), Gesundheitszustand (SoH), kleinste und größte Zellspannung mit Zellnummer, kleinste und größte Temperatur mit Fühlernummer, vom BMS erlaubter Lade- und Entladestrom, Zahl der Türme, Zellgrenzspannungen, Alarm-, Warn- und Fehlerbits
+| jeder Zyklus
+| Steuerung
+| „BMS gestartet“ (ja/nein), Inselbetrieb erkannt, Stromaufnahme des Steuerrechners
+| jeder Zyklus
+| je Turm
+| Firmware-Version, Status (Laden, Entladen, Ruhe, Lade-/Entlade-Schalter ein/aus), Alarme, SoC, SoH, Spannung, Strom, Zellspannungen, Restkapazität, Temperaturen, Seriennummer, Statistikwerte (siehe unten)
+| jeder Zyklus bzw. seltener
+| je Modul
+| jede einzelne Zellspannung, jeder Temperaturfühler, zwei Temperaturen der Ausgleichsschaltung („Balancing“), Seriennummer
+| seltener
+|===
+
+Die Kanäle für Türme und Module legt OpenEMS erst an, wenn Zahl der Türme und Module bekannt ist. Sie heißen z. B. `+battery0/Tower0Module2Cell003Voltage+` (Zelle 3 im Modul 2 des ersten Turms). Seriennummern von BMS und Modulen werden gespeichert.
+
+[#sec-was-an-den-wechselrichter-weitergegeben-wird]
+=== Was an den Wechselrichter weitergegeben wird
+
+OpenEMS schreibt laufend in den GoodWe-Wechselrichter: Spannung, Strom, SoC, SoH, mittlere Temperatur, Zahl der Module, Lade- und Entladeschlussspannung sowie die erlaubten Lade- und Entladeströme.
+
+Einige Besonderheiten:
+
+* Der **SoC wird mindestens als 1 %** übergeben. Laut Code verhindert das, dass der Wechselrichter bei 0 % selbst eine Zwangsladung beginnt.
+* Die eigenen Mindest-SoC-Werte des Wechselrichters (Netz- und Inselbetrieb) setzt OpenEMS auf **0 %**. Die Grenzen für „leer“ kommen damit allein von OpenEMS und dem BMS.
+* Die übergebenen Stromgrenzen steigen um höchstens **1 A je Zyklus** und sind auf den Höchststrom des Wechselrichters begrenzt (siehe Seite xref:user/de/systems/fenecon-home.adoc[FENECON Home]).
+* Ist die Batterie nicht gestartet, gibt OpenEMS Standardwerte weiter und das Speichersystem erlaubt keine Leistung.
+
+[#sec-ladezustand-soc]
+== Ladezustand (SoC)
+
+* Der SoC kommt **direkt aus dem BMS**. OpenEMS rechnet ihn nicht selbst aus, sondern übernimmt ihn für Batterie und Speichersystem. Die Anzeige in der Oberfläche ist also der Wert des BMS.
+* Bei mehreren Speichern ist der Gesamt-SoC nach Kapazität gewichtet (siehe xref:user/de/devices/cluster.adoc[Cluster]).
+* Auch der Gesundheitszustand (SoH) kommt aus dem BMS.
+* 0 % und 100 % bedeuten nicht, dass OpenEMS dort hart abschaltet. Entscheidend sind die Grenzen in den nächsten beiden Abschnitten, und die hängen vor allem von den **Zellspannungen** ab.
+
+[#sec-wann-ist-die-batterie-voll]
+== Wann ist die Batterie voll?
+
+Ab einem hohen SoC wird der erlaubte Ladestrom stufenweise verringert. Die Prozente beziehen sich auf den Maximalstrom (Anfangswert 40 A bzw. 50 A oder der höchste Wert, den das BMS je gemeldet hat); zwischen den Stützpunkten wird linear gerechnet:
+
+.Ladestrom abhängig vom SoC
+[cols="3*",options="header"]
+|===
+| SoC
+| 52 Ah
+| 64,4 Ah
+
+| bis knapp unter 96 %
+| 100 %
+| 100 %
+| 96 %
+| 100 %
+| 80 %
+| 97 %
+| 62,5 %
+| 60 %
+| 98 %
+| 40 %
+| 40 %
+| 99 %
+| 20 %
+| 20 %
+| 100 %
+| 5 % (2 A)
+| 8 % (4 A)
+|===
+
+Auch bei 100 % ist also noch ein kleiner Ladestrom erlaubt. Einen Grund dafür nennt der Code nicht.
+
+Zusätzlich begrenzt die **höchste Zellspannung** (nur 64,4-Ah-Module):
+
+.Ladestrom abhängig von der höchsten Zellspannung (64,4 Ah)
+[cols="2*",options="header"]
+|===
+| Zellspannung
+| erlaubter Ladestrom
+
+| bis 3,45 V
+| 100 %
+| 3,54 V
+| 8 %
+| ab 3,58 V
+| 0 (Laden gesperrt)
+|===
+
+Für 52-Ah-Module gibt es diese Kurve nicht; dort greifen das BMS und der Überladeschutz.
+
+**Überladeschutz (Zwangsentladung):** Liegt die höchste Zellspannung 60 Sekunden lang auf oder über der Startschwelle, wird die Batterie mit einem kleinen Strom entladen, bis die Spannung unter die zweite Schwelle fällt. Danach bleibt Laden gesperrt, bis die Spannung unter die dritte Schwelle sinkt.
+
+[cols="4*",options="header"]
+|===
+| 
+| Zwangsentladung ab
+| bis unter
+| Laden gesperrt bis unter
+
+| 52 Ah
+| 3,55 V
+| 3,49 V
+| 3,45 V
+| 64,4 Ah
+| 3,63 V
+| 3,54 V
+| 3,45 V
+|===
+
+Kurz: Die Batterie ist „voll“, wenn das BMS 100 % meldet und der Ladestrom auf wenige Ampere zurückgeht, oder wenn eine Zelle die obere Spannungsgrenze erreicht. Dann wird nicht mehr (nennenswert) geladen. Ob das BMS selbst noch früher abregelt, hängt von seiner Firmware ab; OpenEMS übernimmt dessen Grenze (siehe <<sec-wie-die-grenzen-zusammenkommen,Wie die Grenzen zusammenkommen>>).
+
+[#sec-wann-ist-die-batterie-leer]
+== Wann ist die Batterie leer?
+
+Für das Entladen gibt es **keine SoC-Kurve** in OpenEMS. Begrenzt wird über die **niedrigste Zellspannung**:
+
+.Entladestrom abhängig von der niedrigsten Zellspannung
+[cols="3*",options="header"]
+|===
+| Zellspannung
+| 52 Ah
+| 64,4 Ah
+
+| ab 3,10 V
+| 100 %
+| 100 %
+| 3,00 V
+| 10 %
+| ca. 55 % (linear zwischen 2,90 und 3,10 V)
+| knapp über 2,90 V
+| 10 %
+| 10 %
+| 2,90 V und darunter
+| 10 %
+| 0 (Entladen gesperrt)
+|===
+
+**Tiefentladeschutz (Zwangsladung):** Liegt die niedrigste Zellspannung 60 Sekunden lang auf oder unter der Startschwelle, wird die Batterie mit **2 A je Turm** geladen, notfalls aus dem Netz, bis die Spannung die zweite Schwelle erreicht. Danach bleibt Entladen gesperrt, bis die dritte Schwelle überschritten ist.
+
+[cols="4*",options="header"]
+|===
+| 
+| Zwangsladung ab
+| bis
+| Entladen gesperrt bis über
+
+| 52 Ah
+| 2,90 V
+| 3,00 V
+| 3,10 V
+| 64,4 Ah
+| 2,85 V
+| 2,95 V
+| 3,10 V
+|===
+
+**Kritische Unterspannung (2,8 V):** Unabhängig vom Modultyp überwacht OpenEMS die Grenze von 2,8 V je Zelle:
+
+[cols="3*",options="header"]
+|===
+| Situation
+| Meldung
+| Folge
+
+| unter 2,8 V, Batterie wird geladen
+| Warnung: „Niedriger Ladezustand der Batterie, da die Batterie nicht durch den Wechselrichter beladen werden kann. Ohne Beladung schaltet sich die Batterie demnächst ab, um sich selbst zu schützen“
+| keine
+| unter 2,8 V, ohne Ladung, weniger als 10 Minuten
+| dieselbe Warnung
+| keine
+| unter 2,8 V, ohne Ladung, länger als 10 Minuten
+| Fehler: „Niedriger Ladezustand. Die Batterie schaltet sich demnächst ab, um sich selbst zu schützen“
+| OpenEMS schaltet die Batterie ab
+| Batterie abgeschaltet, letzte Zellspannung unter 2,8 V
+| Fehler: „Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur“
+| Batterie bleibt aus
+|===
+
+Nach dem Code wird die Batterie in diesem Fall nicht von selbst wieder gestartet, solange der zuletzt gemessene Wert unter 2,8 V liegt; daher der Hinweis auf den Installateur.
+
+**Notstromreserve:** Im normalen Betrieb hört das Entladen meist schon viel früher auf, nämlich an der eingestellten Notstromreserve (siehe <<sec-notstromreserve,Notstromreserve>>).
+
+Kurz: Für den Alltag ist die Batterie „leer“, wenn die Notstromreserve erreicht ist. Ist die Reserve ausgeschaltet, entscheidet die Zellspannung: Ab etwa 3,1 V wird das Entladen gedrosselt, bei 2,9 V (64,4 Ah) gesperrt, und darunter beginnt die Zwangsladung. Der angezeigte SoC kann dabei noch über 0 % liegen oder schon 0 % zeigen; das hängt von der Berechnung im BMS ab.
+
+[#sec-wie-die-grenzen-zusammenkommen]
+== Wie die Grenzen zusammenkommen
+
+OpenEMS berechnet in jedem Zyklus (etwa jede Sekunde) einen erlaubten Lade- und einen Entladestrom. Er ist der **kleinste** dieser Werte:
+
+[cols="3*",options="header"]
+|===
+| Quelle
+| Laden
+| Entladen
+
+| Grenze, die das BMS selbst meldet
+| ja
+| ja
+| SoC-Kurve
+| ja
+| –
+| Zellspannungskurve (niedrigste und höchste Zelle)
+| ja (64,4 Ah)
+| ja
+| Temperaturkurve
+| im Code leer, also keine Begrenzung durch OpenEMS
+| ebenso
+| langsames Wiederhochfahren
+| ja
+| ja
+| Zwangsladung / Zwangsentladung
+| ja
+| ja
+| Batterie nicht gestartet oder Werte fehlen
+| 0
+| 0
+|===
+
+Besonderheiten:
+
+* **Nur verringern, solange begrenzt wird:** Hat eine Kurve den Strom einmal reduziert, kann sie ihn danach nur weiter senken. Erst wenn der Wert wieder im unbegrenzten Bereich liegt, gilt die Begrenzung als aufgehoben.
+* **Langsames Wiederhochfahren:** Der erlaubte Strom steigt um höchstens 0,1 A je Sekunde. Von 0 auf 50 A dauert das gut 8 Minuten. Nach einem Start oder nach einer Begrenzung lädt und entlädt die Batterie daher zunächst nur langsam.
+* Temperatur: OpenEMS selbst begrenzt nicht nach Temperatur. Das macht das BMS über seine eigene Grenze.
+
+Das Speichersystem (ess0) rechnet daraus die erlaubte Leistung:
+
+* Laden: erlaubter Ladestrom × Batteriespannung.
+* Entladen: erlaubter Entladestrom × Batteriespannung × 0,95 (Wirkungsgradabschlag), dazu die aktuelle PV-Leistung am Hybrid-Wechselrichter.
+* Auch die erlaubte Leistung steigt nur langsam (höchstens 5 % des Zielwerts je Sekunde).
+
+Die Einstellung „ESS Protection“ des Speichersystems steht auf „Spannungsregelung“. Diese braucht laut Code den Innenwiderstand der Batterie; die FENECON-Home-Batterie meldet ihn aber nicht in der dafür vorgesehenen Form. Nach dem Code wirkt diese zusätzliche Begrenzung beim FENECON Home deshalb nicht (aus dem Code geschlossen, nicht an einer Anlage geprüft).
+
+[#sec-wie-die-batterie-gesteuert-wird]
+== Wie die Batterie gesteuert wird
+
+Innerhalb der erlaubten Grenzen entscheiden die Steuerfunktionen, wie viel geladen oder entladen wird:
+
+[cols="3*",options="header"]
+|===
+| Funktion
+| Wirkung auf die Batterie
+| Seite
+
+| Eigenverbrauchsoptimierung (Standard)
+| Wechselrichter regelt den Netzanschluss auf 0: Überschuss laden, Bedarf entladen
+| xref:user/de/systems/fenecon-home.adoc[FENECON Home]
+| Notstromreserve
+| Entladung endet an der Reserve, ggf. Nachladen
+| <<sec-notstromreserve,unten>>
+| Netzdienliche Beladung
+| verschiebt das Laden in die Mittagsspitze
+| xref:user/de/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung]
+| Dynamischer Stromtarif
+| sperrt Entladen in günstigen Stunden oder lädt aus dem Netz
+| xref:user/de/storage-control/time-of-use-tariffs.adoc[Dynamische Stromtarife]
+| § 14a, Rundsteuerempfänger
+| begrenzen die Leistung auf Anweisung des Netzbetreibers
+| xref:user/de/storage-control/section-14a-enwg.adoc[§ 14a], xref:user/de/storage-control/ripple-control-receiver.adoc[Rundsteuerempfänger]
+| DC-Überschuss-Einspeisung
+| speist PV-Überschuss ein, wenn die Batterie voll ist
+| xref:user/de/systems/fenecon-home.adoc[FENECON Home]
+|===
+
+Gleichzeitige Vorgaben werden von OpenEMS zusammengeführt; Grenzen der Batterie haben dabei immer Vorrang.
+
+[#sec-notstromreserve]
+=== Notstromreserve
+
+Die Notstromreserve hält einen Teil der Batterie für einen Stromausfall zurück. Der Eigentümer kann sie in den Speicher-Einstellungen ein- und ausschalten und zwischen 5 % und 100 % einstellen; voreingestellt sind 10 %. Die Steuerung läuft nach dem Code so (R = eingestellte Reserve):
+
+[cols="2*",options="header"]
+|===
+| SoC
+| Verhalten
+
+| über R {plus} 1 %
+| keine Begrenzung
+| R {plus} 1 %
+| Entladen wird sanft auf die halbe Wechselrichterleistung zurückgenommen (bzw. auf die aktuelle DC-PV-Leistung, wenn diese größer ist)
+| R
+| Entladen nur noch im Umfang der aktuellen DC-PV-Leistung, die Batterie selbst gibt praktisch nichts mehr ab
+| unter R
+| keine Abgabe aus dem Speicher
+| R − 1 %
+| Laden mit der Leistung zusätzlicher AC-gekoppelter PV-Anlagen
+| R − 2 % und Nachladen aus dem Netz erlaubt
+| Laden aus dem Netz mit 10 % der Wechselrichterleistung
+| R − 4 % und Nachladen aus dem Netz erlaubt
+| Laden aus dem Netz mit 50 % der Wechselrichterleistung
+|===
+
+Nachgeladen wird jeweils bis R {plus} 1 %. Ein SoC von 100 % beendet das Nachladen ebenfalls.
+
+**Nachladen aus dem Netz** ist eine eigene Einstellung („Erhalt der Notstromreserve aus dem Netz aktivieren“, in den Netz-Einstellungen), voreingestellt aus. Die Oberfläche weist darauf hin, dass aktives Laden aus dem Netz über die technisch notwendige Erhaltungsladung hinaus angemeldet sein muss und die EEG-Förderung betreffen kann.
+
+Der Baustein der Notstromreserve fragt den Netzzustand nicht ab und setzt seine Entladegrenze auch im Inselbetrieb. OpenEMS gibt die Vorgabe an den Wechselrichter weiter, ebenfalls ohne den Netzzustand zu beachten. Wie der GoodWe-Wechselrichter im Inselbetrieb mit der Vorgabe umgeht, bestimmt seine Firmware; das steht nicht im OpenEMS-Code. Laut seiner Beschreibung ist der Baustein für den normalen Netzbetrieb gedacht.
+
+[#sec-start-und-abschaltung]
+== Start und Abschaltung
+
+[#sec-start]
+=== Start
+
+Das Speichersystem startet erst die Batterie, dann den Wechselrichter. Die Batterie durchläuft dabei diese Schritte:
+
+. Warten, bis das BMS antwortet (höchstens 60 Sekunden).
+. Meldet das BMS „nicht gestartet“, schaltet OpenEMS das **Startrelais** ein (`+io0/Relay4+`, beim Steuerrechner CM4S Gen3 `+io0/Relay6+`), hält es 10 Sekunden und schaltet es wieder aus.
+. Warten, bis das BMS „gestartet“ meldet und die Kommunikation steht.
+
+Für jeden Schritt gilt eine Zeitgrenze von 120 Sekunden. Wird sie überschritten, meldet die Batterie „Running the Logic failed“ (Warnung); der Ablauf bleibt im selben Schritt und geht weiter, sobald die Bedingung erfüllt ist. Während des Starts sind Laden und Entladen gesperrt.
+
+[#sec-abschaltung]
+=== Abschaltung
+
+OpenEMS hat **keinen Abschaltbefehl** für das BMS. Stattdessen stellt es die Abfrage des BMS ein; das BMS schaltet sich nach dem Code dann nach einer eigenen Zeitüberschreitung ab. Nach 35 Minuten nimmt OpenEMS die Abfrage wieder auf. Sobald die Kommunikation ausbleibt, gilt die Batterie als gestoppt.
+
+Abgeschaltet wird:
+
+* wenn am Speichersystem, an der Batterie oder am Wechselrichter ein **Fehler** (Stufe „Fehler“) ansteht. Das Speichersystem stoppt dann Wechselrichter und Batterie. Ist der Fehler weg und die Batterie gestoppt, startet es beides wieder.
+* bei kritischer Unterspannung (siehe oben). Dann bleibt die Batterie aus.
+* wenn die Einstellung „Start/stop behaviour“ auf STOP steht.
+
+[#sec-firmware-update]
+=== Firmware-Update
+
+Der Baustein enthält eine Update-Funktion für die BMS-Firmware. Laut Code dauert ein Update etwa 25 Minuten, die Batterie ist in dieser Zeit nicht nutzbar, und das Speichersystem geht in den Wartungszustand. Woher die Firmware kommt, liefert ein zusätzlicher Dienst; im OpenEMS-Code gibt es keinen solchen Dienst. In reinem OpenEMS ist das Update deshalb nicht nutzbar.
+
+[#sec-meldungen]
+== Meldungen
+
+Das BMS meldet Zustände in drei Stufen: Voralarm, Stufe 1 und Stufe 2, jeweils für die Gesamtbatterie und je Turm (z. B. Zellüberspannung, Zellunterspannung, Überstrom, Über- und Untertemperatur, Spannungsunterschied der Zellen, niedriger SoC oder SoH). In OpenEMS sind Voralarm und Stufe 1 nur Ja/Nein-Werte ohne Meldung. Erst Stufe 2 erscheint als Meldung; die meisten davon als **Warnung**, „Zellüberspannung Stufe 2“ nur als Info. Hardwarefehler des BMS (z. B. Schütz schließt nicht, Sicherung defekt, Kurzschluss) erscheinen ebenfalls als Warnung.
+
+Weitere Meldungen:
+
+[cols="3*",options="header"]
+|===
+| Meldung
+| Stufe
+| Bedeutung
+
+| Warnungen und Fehler zur kritischen Unterspannung
+| Warnung / Fehler
+| siehe <<sec-wann-ist-die-batterie-leer,Wann ist die Batterie leer?>>
+| „The installed inverter and battery combination is not authorised …“
+| Warnung (Wechselrichter)
+| Modultyp passt nicht zum Wechselrichter, Laden und Entladen gesperrt
+| „Running the Logic failed“
+| Warnung
+| ein Schritt beim Start der Batterie dauert länger als 120 Sekunden, oder ein anderer Fehler im Ablauf
+| „Deep discharge protection triggered!“ / „Over charge protection triggered!“
+| Fehler (Speichersystem)
+| Schutz des Speichersystems; tritt nach dem Code nur auf, wenn Lade- und Entladegrenze gleichzeitig ins Negative gehen und 4 Minuten so bleiben
+|===
+
+Da eine Meldung der Stufe „Fehler“ das Speichersystem stoppt, schalten die Warnungen des BMS die Batterie nicht ab; die Fehler zur Unterspannung schon.
+
+[#sec-weitere-werte-aus-dem-bms]
+== Weitere Werte aus dem BMS
+
+Je Turm liest OpenEMS eine Reihe von Lebensdauer- und Statistikwerten. Sie sind in der Kanalansicht bzw. über die Schnittstellen sichtbar:
+
+[cols="2*",options="header"]
+|===
+| Wert
+| Bedeutung
+
+| geladene und entladene Energie (gesamt)
+| Zählerstände des BMS in Wh
+| geladene und entladene Ladungsmenge
+| in mAh
+| Restenergie, Restkapazität
+| laut BMS
+| Wirkungsgrad Laden/Entladen, Selbstentladerate
+| laut Kommentar im Code liefert nur der erste Turm gültige Werte (z. B. etwa 94 % Wirkungsgrad), die anderen Türme zeigen 0
+| Innenwiderstand
+| je Turm
+| Zähler für Tiefentlade- und Überladeereignisse
+| Anzahl
+| Zeiten
+| aufsummierte Dauer von Tiefentladung, Überladung, hoher, sehr hoher, niedriger und sehr niedriger Temperatur sowie Überstrom beim Laden und Entladen
+| Seriennummern
+| BMS und jedes Modul; das Präfix hängt vom Modultyp und beim 64,4-Ah-Modul vom Herstelldatum ab
+|===
+
+[#sec-weitere-funktionen]
+== Weitere Funktionen
+
+* **Gesundheitszustand messen (SoH-Zyklus):** Eine Steuerfunktion entlädt die Batterie Richtung 0 %, lädt sie auf 100 % und entlädt sie wieder, normalerweise mit 0,2 C und mit 30 Minuten Pause zwischen den Phasen. Aus der entladenen Energie ergibt sich der SoH. Optional läuft vorher ein Referenzzyklus.
+* **Batterie erweitern:** Vor dem Einbau weiterer Module bringt eine Hilfsfunktion den Speicher auf einen passenden Ladezustand (nur für Installateure).
+* **Zwei Batterien an einem Wechselrichter:** Der Baustein kennt zwei Batterieanschlüsse am Wechselrichter („Port on BatteryInverter“).
+
+[#sec-typische-fragen]
+== Typische Fragen
+
+**Warum lädt die Batterie ab 96 % so langsam?**
+
+Das ist die SoC-Kurve: Oberhalb von 96 % (52 Ah) bzw. ab 96 % (64,4 Ah) wird der Ladestrom schrittweise bis auf 2 A bzw. 4 A bei 100 % verringert (Werte für den Anfangs-Maximalstrom).
+
+**Warum lädt oder entlädt die Batterie nach einem Neustart nur langsam?**
+
+Der erlaubte Strom steigt um höchstens 0,1 A je Sekunde, die übergebene Grenze am Wechselrichter um 1 A je Zyklus und die erlaubte Leistung um 5 % je Sekunde. Bis zur vollen Leistung vergehen einige Minuten.
+
+**Warum entlädt die Batterie nicht, obwohl der SoC noch über der Reserve liegt?**
+
+Mögliche Gründe nach dem Code: Die niedrigste Zellspannung liegt bei oder unter 3,1 V und begrenzt; nach einer Zwangsladung ist Entladen bis über 3,1 V gesperrt; eine Steuerfunktion (z. B. dynamischer Stromtarif) sperrt das Entladen; die Batterie startet gerade.
+
+**Warum lädt die Batterie nachts aus dem Netz?**
+
+Entweder hält sie die Notstromreserve (nur wenn „aus dem Netz nachladen“ erlaubt ist), sie wird wegen sehr niedriger Zellspannung zwangsgeladen (2 A je Turm, auch ohne diese Erlaubnis), oder ein dynamischer Stromtarif lädt gezielt.
+
+**Zeigt die Kapazität den tatsächlichen Zustand?**
+
+Nein. Die angezeigte Kapazität ist der Nennwert aus der Zahl der Module. Den Zustand gibt der SoH des BMS wieder.
+
+**Was passiert bei einem Fehler am Wechselrichter?**
+
+Das Speichersystem stoppt Wechselrichter und Batterie. Die Batterie schaltet sich durch die Kommunikationspause ab und wird nach dem Ende des Fehlers wieder gestartet.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* Die Seite beschreibt den OpenEMS-Quellcode. Getestet an einer Anlage wurde nichts davon.
+* Grenzen, die das BMS selbst setzt, und seine SoC-Berechnung stehen nicht im Code; sie können sich mit der BMS-Firmware ändern.
+* Die Schwellen und Kurven sind fest im Code hinterlegt und nicht einstellbar.

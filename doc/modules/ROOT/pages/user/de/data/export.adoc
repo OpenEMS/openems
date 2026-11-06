@@ -1,0 +1,225 @@
+= OpenEMS: Daten exportieren
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/data/export.adoc[OpenEMS: Exporting data]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite beschreibt, welche Daten der **Excel-Export** der Weboberfläche enthält, wie er vom gewählten Zeitraum abhängt und welche anderen Wege es gibt, Daten als Datei oder Text aus OpenEMS herauszuholen.
+
+[#sec-der-excel-export]
+== Der Excel-Export
+
+[#sec-wo-man-ihn-findet]
+=== Wo man ihn findet
+
+* **Historie, Energie-Übersicht:** Schaltfläche „Download als Excel-Datei“ (in der alten Oberfläche direkt am Energie-Widget).
+* **Neue Navigation:** eigene Export-Seite unter Historie, mit Zeitraumauswahl.
+
+In der **Smartphone-App** ist der Export laut Code „vorübergehend nicht verfügbar“; er funktioniert nur im Browser. Die Datei heißt z. B. `+Export-edge0-01.-31.10.2026.xlsx+`.
+
+[#sec-ist-der-export-vom-angezeigten-zeitraum-abhaengig]
+=== Ist der Export vom angezeigten Zeitraum abhängig?
+
+**Ja.** Exportiert wird genau der Zeitraum, der in der Historie gerade eingestellt ist (Tag, Woche, Monat, Jahr oder eigener Zeitraum):
+
+* Es werden immer **ganze Tage** exportiert: vom ersten Tag 0:00 Uhr bis zum Ende des letzten Tages, in der Zeitzone des Browsers.
+* Ist das Datum der Inbetriebnahme bekannt, beginnt der Export frühestens dort.
+* Ist „heute“ eingestellt, enthält der Export auch die restlichen Viertelstunden des Tages; für die Zukunft gibt es noch keine Werte (Anzeige „-“).
+* Wie weit man zurückgehen kann, hängt vom Speicher der Historie ab. Auf dem Gerät reichen die Daten etwa 15 Monate zurück (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+
+Ein langer Zeitraum ergibt eine große Datei: ein Jahr sind rund 35.000 Zeilen.
+
+[#sec-woher-die-daten-kommen]
+=== Woher die Daten kommen
+
+Die Datei wird nicht im Browser zusammengestellt, sondern von dem System, mit dem die Weboberfläche verbunden ist:
+
+* **Lokal mit der Anlage verbunden:** Die Anlage erzeugt die Datei aus ihrer eigenen xref:user/de/data/history-rrd4j.adoc[Historie].
+* **Über das Online-Portal verbunden:** Das Backend erzeugt die Datei aus den dort gespeicherten Daten (siehe xref:user/de/cloud-interfaces/backend-data-transfer.adoc[Datenübertragung zum Backend]).
+
+Aufbau und Spalten sind in beiden Fällen gleich. Die Werte können sich leicht unterscheiden, weil die Daten unterschiedlich gespeichert werden.
+
+[#sec-was-in-der-datei-steht]
+=== Was in der Datei steht
+
+Die Datei hat ein Tabellenblatt „Export“ mit drei Teilen.
+
+**1. Kopf:** Anlagennummer (nur beim Export über das Backend), Erstellungszeitpunkt, Exportzeitraum.
+
+**2. Gesamtübersicht – Energiemengen für den ganzen Zeitraum (kWh):**
+
+[cols="2*",options="header"]
+|===
+| Spalte
+| Quelle
+
+| Netzbezug
+| `+_sum/GridBuyActiveEnergy+`
+| Netzeinspeisung
+| `+_sum/GridSellActiveEnergy+`
+| Erzeugung
+| `+_sum/ProductionActiveEnergy+`
+| Speicher Beladung
+| `+_sum/EssDcChargeEnergy+`
+| Speicher Entladung
+| `+_sum/EssDcDischargeEnergy+`
+| Verbrauch
+| `+_sum/ConsumptionActiveEnergy+`
+|===
+
+Jeder Wert ist die Differenz der Zählerstände am Anfang und am Ende des Zeitraums. Fehlt ein Wert, steht dort „nicht vorhanden“.
+
+**3. Allgemeine Daten – Leistung je Viertelstunde:** eine Zeile je 15 Minuten.
+
+[cols="3*",options="header"]
+|===
+| Spalte
+| Quelle
+| Hinweis
+
+| Datum / Uhrzeit
+| –
+| Zeitpunkt der Viertelstunde
+| Netzbezug [W] / Netzeinspeisung [W]
+| `+_sum/GridActivePower+`
+| aufgeteilt nach Vorzeichen; die jeweils andere Spalte ist 0
+| Erzeugung [W]
+| `+_sum/ProductionActivePower+`
+| 
+| Speicher Beladung [W] / Speicher Entladung [W]
+| `+_sum/EssDischargePower+`
+| aufgeteilt nach Vorzeichen
+| Verbrauch [W]
+| `+_sum/ConsumptionActivePower+`
+| 
+| Ladezustand [%]
+| `+_sum/EssSoc+`
+| 
+|===
+
+Die Leistungswerte sind **Mittelwerte über die Viertelstunde**, auf ganze Watt gerundet. Fehlende Werte erscheinen als „-“. Alle Werte stammen aus den Summen von OpenEMS (Komponente `+_sum+`); wie diese entstehen, erklärt die Seite xref:user/de/basics/energy-flows.adoc[Grundlagen].
+
+**4. Detaillierte Auswertung der Erzeuger, Verbraucher und Apps:** rechts neben den allgemeinen Daten, ebenfalls je Viertelstunde. Für jedes passende Gerät gibt es eine eigene Spalte mit seinem Namen:
+
+[cols="3*",options="header"]
+|===
+| Gruppe
+| Was hineinkommt
+| Wert
+
+| Erzeugung
+| PV-Wechselrichter, Zähler vom Typ „Erzeugung“, PV-Eingänge von Hybrid-Wechselrichtern
+| Leistung [W]
+| Verbrauch
+| Zähler vom Typ „Verbrauch“, Ladepunkte, Wärme-Steuerungen (z. B. Heizstäbe), Notstrom-Zähler
+| Leistung [W]
+| Dynamischer Stromtarif
+| jede Tarif-Komponente, sofern die Preissteuerung eingerichtet ist
+| Preis je Viertelstunde in der Untereinheit der Währung je kWh (z. B. ct/kWh)
+|===
+
+* **Nicht** als eigene Spalte erscheinen: Netzzähler, Zähler vom Typ „Erzeugung und Verbrauch“, Gruppen von Ladepunkten und Gruppen von PV-Wechselrichtern.
+* Die Detailwerte sind **bereits in der Gesamtübersicht enthalten**. Darauf weist auch die Datei hin. Wer sie aufsummiert und zur Gesamtsumme addiert, zählt doppelt.
+* Der Strompreis ist der Preis, mit dem die xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung] in der jeweiligen Viertelstunde gerechnet hat. Bei mehreren Tarif-Komponenten zeigen alle Spalten diesen einen Preis.
+
+[#sec-worauf-man-achten-sollte]
+=== Worauf man achten sollte
+
+* **Summe der Viertelstunden ≠ Gesamtübersicht:** Rechnet man die Leistungswerte in Energie um (Watt × 0,25 h), ergibt sich nicht genau die Gesamtübersicht. Diese kommt aus den Zählerständen, die Zeitreihe aus Mittelwerten. Besonders beim Speicher weichen die Werte voneinander ab: Die Energiesummen messen auf der Batterieseite (DC), die Leistungsspalten auf der Wechselstromseite.
+* **Negative oder unplausible Summen** in der Gesamtübersicht haben dieselben Ursachen wie in der Historie, z. B. ein zurückgesetzter Zählerstand (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+* **Tarif ohne Preissteuerung:** Für jede Tarif-Komponente liest der Export den Preis aus der ersten Preissteuerung. Ist eine Tarif-Komponente eingerichtet, aber keine Preissteuerung, gibt es diese erste Preissteuerung nicht. Laut Code bricht der Export dann mit einem Fehler ab, und es entsteht keine Datei. Abhilfe: die Tarif-Komponente deaktivieren oder eine Preissteuerung einrichten. An einer Anlage ausprobiert wurde das nicht.
+* Die Datei ist für die Ansicht gedacht (Farben, verbundene Zellen). Für die Weiterverarbeitung eignen sich die Wege unten besser.
+
+[#sec-andere-wege-daten-zu-exportieren]
+== Andere Wege, Daten zu exportieren
+
+[cols="4*",options="header"]
+|===
+| Weg
+| Liefert
+| Format
+| Voraussetzung
+
+| **JSON-RPC über REST**
+| Verläufe beliebiger Kanäle, Energiemengen, Energie je Zeitabschnitt, auch die Excel-Datei
+| JSON (leicht in CSV umzuwandeln)
+| REST/JSON-API **mit Schreibzugriff** (`+Controller.Api.Rest.ReadWrite+`), Benutzer mindestens **Eigentümer**
+| **REST-Abfrage einzelner Werte**
+| aktuelle Werte, auch mehrere per Platzhalter
+| JSON
+| REST/JSON-API, auch die Nur-Lesen-Variante; Rolle Gast genügt
+| **Modbus/TCP-API**
+| aktuelle Werte für Fremdsysteme (z. B. SPS, Hausautomation), die sie selbst aufzeichnen
+| Modbus-Register
+| App „Modbus/TCP-API“
+| **Modbus-Registerliste**
+| Beschreibung aller Register der Modbus-API (keine Messwerte)
+| Excel
+| eingerichtete Modbus-API; Download im Anlagenprofil
+| **Websocket**
+| laufende Werte im Sekundentakt, solange man verbunden ist
+| JSON
+| siehe xref:user/de/external-interfaces/websocket.adoc[Websocket]
+|===
+
+[#sec-verlaeufe-ueber-json-rpc-abrufen]
+=== Verläufe über JSON-RPC abrufen
+
+Über die REST-Schnittstelle (Port 8084, Pfad `+/jsonrpc+`, siehe xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON]) lassen sich dieselben Abfragen stellen, die auch die Weboberfläche nutzt. Dafür gelten zwei Voraussetzungen:
+
+* Es muss die REST/JSON-API **mit Schreibzugriff** eingerichtet sein (`+Controller.Api.Rest.ReadWrite+`). Die Nur-Lesen-Variante lehnt jeden Aufruf von `+/jsonrpc+` mit „REST-Api is in Read-Only mode“ ab, auch reine Abfragen.
+* Der Benutzer braucht mindestens die Rolle **Eigentümer**. Über die Weboberfläche bzw. den xref:user/de/external-interfaces/websocket.adoc[Websocket] genügt für dieselben Abfragen dagegen die Rolle Gast (siehe xref:user/de/external-interfaces/json-rpc.adoc[JSON-RPC]).
+
+Mit dieser Variante und diesen Zugangsdaten kann man die Anlage auch steuern und Einstellungen ändern (siehe xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON]). Das Passwort sollte deshalb entsprechend geschützt werden.
+
+[cols="2*",options="header"]
+|===
+| Abfrage
+| Liefert
+
+| `+queryHistoricTimeseriesData+`
+| Werte beliebiger Kanäle als Zeitreihe; die Auflösung ist wählbar (z. B. 5 oder 15 Minuten)
+| `+queryHistoricTimeseriesEnergy+`
+| Energiemenge je Kanal für den ganzen Zeitraum
+| `+queryHistoricTimeseriesEnergyPerPeriod+`
+| Energiemenge je Kanal für jeden Abschnitt (z. B. je Tag oder Monat)
+| `+queryHistoricTimeseriesExportXlxs+`
+| die Excel-Datei wie oben, Base64-kodiert
+|===
+
+Die Datumsangaben sind ganze Tage (`+JJJJ-MM-TT+`). Das Bis-Datum ist eingeschlossen. Die `+id+` muss eine UUID sein.
+
+Beispiel: Netz, Erzeugung und Verbrauch eines Tages in 15-Minuten-Auflösung abrufen und als CSV-Datei speichern. Das Umwandeln übernimmt das Werkzeug `+jq+`.
+
+[source]
+----
+curl -s -u 'x:PASSWORT' -H 'Content-Type: application/json' \
+  -X POST 'http://IP-DER-ANLAGE:8084/jsonrpc' \
+  -d '{"jsonrpc":"2.0","id":"00000000-0000-0000-0000-000000000001",
+       "method":"queryHistoricTimeseriesData",
+       "params":{"fromDate":"2026-10-29","toDate":"2026-10-29",
+                 "timezone":"Europe/Berlin",
+                 "channels":["_sum/GridActivePower","_sum/ProductionActivePower",
+                             "_sum/ConsumptionActivePower","_sum/EssSoc"],
+                 "resolution":{"value":15,"unit":"minutes"}}}' \
+| jq -r '.result as $r | ($r.data|keys) as $k
+         | (["Zeit"]+$k|@csv),
+           (range($r.timestamps|length) as $i
+            | [$r.timestamps[$i]] + [$k[] as $c | $r.data[$c][$i]] | @csv)' \
+> export.csv
+----
+
+Ergebnis: eine Zeile je Viertelstunde, erste Spalte Zeitpunkt, danach eine Spalte je Kanal. Fehlende Werte bleiben leer. Die Umwandlung mit `+jq+` wurde an Beispieldaten geprüft, die Abfrage an einer echten Anlage nicht.
+
+[#sec-hinweise]
+=== Hinweise
+
+* Welche Kanäle in der Historie gespeichert sind und wie lange, steht auf der Seite xref:user/de/data/history-rrd4j.adoc[Historie]. Was dort nicht gespeichert wird, kann auch kein Export liefern.
+* Für eine dauerhafte Aufzeichnung über die rund 15 Monate des Geräts hinaus muss man die Daten regelmäßig abrufen und selbst ablegen, z. B. täglich per Skript mit der Abfrage oben.
+* Für aktuelle Werte genügen die Nur-Lesen-Varianten von REST- und Modbus-API. Für Verläufe und Energiemengen über REST (JSON-RPC) ist die Variante mit Schreibzugriff nötig, auch wenn der Abruf selbst nur liest.

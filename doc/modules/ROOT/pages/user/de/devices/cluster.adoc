@@ -1,0 +1,232 @@
+= OpenEMS: Cluster
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/devices/cluster.adoc[OpenEMS: Cluster]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Ein **Cluster** fasst mehrere gleichartige Geräte zu **einem** Gerät zusammen. Die Regelfunktionen sehen dann zum Beispiel nicht drei Speicher, sondern einen großen Speicher mit der Summe der Leistungen und Kapazitäten. Der Cluster verteilt die Vorgaben anschließend auf die einzelnen Geräte.
+
+Diese Seite beschreibt, welche Cluster es in OpenEMS gibt, was sie voraussetzen und wo ihre Grenzen liegen. Grundlage ist eine Durchsicht des Codes. Mit echten Anlagen wurde nicht getestet.
+
+[#sec-welche-cluster-es-gibt]
+== Welche Cluster es gibt
+
+[cols="4*",options="header"]
+|===
+| Cluster
+| Fasst zusammen
+| In der Konfiguration
+| Eingerichtet über
+
+| **Speicher-Cluster**
+| mehrere Speichersysteme an einer Anlage
+| „ESS Cluster“ (`+Ess.Cluster+`), meist mit der ID `+ess0+`
+| System-Apps, z. B. „FENECON Pro 9-12“ als Cluster aus 2–3 Geräten oder „FENECON Commercial 92 Cluster“
+| **Verbund mehrerer OpenEMS-Geräte** (Master/Slave)
+| Speicher, die von einem **eigenen** OpenEMS-Gerät gesteuert werden
+| „Edge-2-Edge Bridge“ und „Edge-2-Edge ESS Websocket“ auf dem Master, darüber ein Speicher-Cluster
+| App „FENECON Commercial 92 Cluster“ (Master) und „… Cluster Slave“ (je Slave)
+| **PV-Wechselrichter-Cluster**
+| mehrere steuerbare PV-Wechselrichter
+| „PV-Inverter Cluster“ (`+PvInverter.Cluster+`)
+| Konfiguration der Komponente
+| **Ladepunkt-Cluster** (neue Ladepunkt-Steuerung)
+| mehrere Ladepunkte mit Überschussladen
+| „EVSE Controller Cluster of Charge-Points“, App „Ladepunkt Cluster“
+| entsteht automatisch mit der ersten Ladepunkt-App (Alfen, KEBA, Mennekes)
+| **Multiladepunkt Management** (ältere Ladestationen)
+| mehrere Ladestationen an einem Netzanschluss
+| „EVCS Cluster Peak Shaving“ (`+Evcs.Cluster.PeakShaving+`)
+| App „Multiladepunkt Management“
+|===
+
+Batterie-„Cluster“ innerhalb eines Geräts (z. B. mehrere Batterietürme an einem Wechselrichter) und die Prognose „Profile Clustering“ haben mit diesen Clustern nichts zu tun.
+
+[#sec-speicher-cluster]
+== Speicher-Cluster
+
+[#sec-was-er-leistet]
+=== Was er leistet
+
+* Alle Regelfunktionen (Eigenverbrauchsoptimierung, netzdienliche Beladung, dynamische Stromtarife, Notstromreserve usw.) arbeiten mit dem Cluster wie mit einem einzelnen Speicher. Sie werden einmal für den Cluster eingerichtet, nicht für jeden Speicher.
+* Der Cluster bildet seine Werte aus den Mitgliedern:
+
+[cols="2*",options="header"]
+|===
+| Wert
+| Berechnung im Cluster
+
+| Leistung, Blindleistung, maximale Scheinleistung
+| Summe
+| Kapazität
+| Summe
+| Erlaubte Lade- und Entladeleistung
+| Summe
+| Geladene und entladene Energie
+| Summe
+| Ladezustand (SoC)
+| Mittelwert, gewichtet nach Kapazität. Fehlt bei einem Mitglied die Kapazität, einfacher Mittelwert.
+| Zellspannung und Zelltemperatur
+| kleinster bzw. größter Wert aller Mitglieder
+| Leistung je Phase
+| Summe; bei Speichern ohne Phasenwerte wird ein Drittel der Gesamtleistung je Phase angenommen
+| Netzmodus (Netzbetrieb/Inselbetrieb)
+| aus allen Mitgliedern zusammengefasst
+|===
+
+* **Start/Stopp**: Der Cluster startet oder stoppt alle Mitglieder gemeinsam. Er meldet „gestartet“ nur, wenn alle Mitglieder gestartet sind.
+* **Keine Doppelzählung**: In die Gesamtwerte der Anlage (Live-Ansicht, Historie) gehen nur die einzelnen Speicher ein, nicht zusätzlich der Cluster. Die Speicheransicht der Oberfläche zeigt die Mitglieder einzeln.
+
+[#sec-wie-die-leistung-verteilt-wird]
+=== Wie die Leistung verteilt wird
+
+Der Cluster gibt Vorgaben nicht selbst an die Speicher weiter. Das übernimmt die zentrale Leistungsverteilung „ESS Power“ (`+_power+`), die bei jeder Anlage vorhanden ist. Die Art der Verteilung wird dort als **Strategie** eingestellt und bei der Einrichtung festgelegt.
+
+[cols="2*",options="header"]
+|===
+| Strategie
+| Verhalten
+
+| __Optimize By Moving Towards Target__ (Voreinstellung im Code)
+| Verteilt nach Ladezustand: Beim Entladen trägt der vollere Speicher mehr, beim Laden der leerere. Die Aufteilung nähert sich dem Ziel schrittweise (je Sekunde 10 % des Abstands), damit es keine Sprünge gibt.
+| __Optimize By Keeping All Inverters Nearly Equal__
+| Ebenfalls nach Ladezustand gewichtet, aber in jedem Zyklus sofort. Stößt ein Speicher an seine Grenze, übernehmen die anderen den Rest. Speicher mit Fehler bleiben bei 0 W. Diese Strategie setzt die App „FENECON Commercial 92 Cluster“.
+| __Optimize By Keeping All Inverters Equal__
+| Alle Speicher erhalten dieselbe Leistung, unabhängig vom Ladezustand. Geht das nicht, weicht die Verteilung auf „Nearly Equal“ aus.
+| __Optimize By Keeping Target Direction And Maximizing In Order__
+| Ein Speicher nach dem anderen wird voll ausgelastet: beim Entladen der vollste zuerst, beim Laden der leerste.
+| __Optimize by Keeping ESS in Balance__
+| Neueres Verfahren für Cluster: verteilt die Cluster-Vorgabe im Verhältnis zum jeweils verfügbaren Spielraum der Speicher.
+|===
+
+Findet eine Strategie keine Lösung, versucht die Leistungsverteilung der Reihe nach andere. Gelingt gar keine, erhalten alle Speicher für diesen Zyklus 0 W, und die Meldung „NotSolved“ erscheint.
+
+[#sec-voraussetzungen]
+=== Voraussetzungen
+
+* Alle Mitglieder sind **steuerbare** Speicher. Speicher, die OpenEMS nur ausliest, kann der Cluster nicht aufnehmen.
+* Die Mitglieder sind **aktiviert** und in der Cluster-Einstellung „ESS-IDs“ eingetragen. Ein deaktivierter Speicher fällt aus dem Cluster heraus; der Cluster rechnet dann nur mit den übrigen.
+* Alle Speicher hängen am **selben Netzanschluss** und werden über **einen** Netzzähler geregelt.
+* Die Regelfunktionen sind auf die Cluster-ID eingestellt (meist `+ess0+`), nicht auf einzelne Mitglieder. Die System-Apps richten das so ein.
+
+[#sec-grenzen]
+=== Grenzen
+
+* **Keine verschachtelten Cluster**: Ein Speicher-Cluster kann keinen anderen Speicher-Cluster als Mitglied aufnehmen. Die Auswahl der Mitglieder schließt Cluster ausdrücklich aus.
+* **Fehlende Werte zählen als 0**: Liefert ein Mitglied z. B. keine erlaubte Ladeleistung (etwa bei Verbindungsabbruch), geht es mit 0 in die Summe ein. Der Cluster wirkt dann kleiner, meldet aber keinen eigenen Fehler; die Fehlermeldung kommt vom betroffenen Speicher.
+* **Ladezustand ist ein Mittelwert**: Ein Cluster-SoC von 50 % kann bedeuten, dass ein Speicher voll und einer leer ist. Grenzen wie die Notstromreserve beziehen sich auf den Cluster-Wert.
+* **Gleiche Grenzen für alle**: Einstellungen wie Mindestladezustand gelten für den ganzen Cluster, nicht je Speicher (soweit die System-App sie nicht je Gerät anlegt).
+* **Mitglieder einzeln ansprechbar**: Die einzelnen Speicher bleiben eigene Komponenten. Wird zusätzlich eine Regelfunktion auf ein Mitglied eingestellt, mischen sich Vorgaben für Cluster und Mitglied. Das ist möglich, aber schwer zu überblicken.
+
+[#sec-verbund-mehrerer-openems-geraete-master-slave]
+== Verbund mehrerer OpenEMS-Geräte (Master/Slave)
+
+Bei größeren Anlagen hat jeder Speicher ein eigenes OpenEMS-Gerät (Slave). Ein weiteres Gerät (Master) misst am Netzanschluss, regelt die ganze Anlage und gibt den Slaves Leistungen vor. In OpenEMS heißt das **Edge-2-Edge**.
+
+[#sec-so-ist-es-aufgebaut]
+=== So ist es aufgebaut
+
+* Auf dem Master stellt eine „Edge-2-Edge Bridge“ je Slave die Verbindung her, über die gleiche Websocket-Schnittstelle, die auch die Weboberfläche nutzt (Port 8085).
+* Je Slave gibt es auf dem Master eine Komponente „Edge-2-Edge ESS Websocket“. Sie bildet den Speicher des Slaves nach und gibt Vorgaben an ihn weiter. Batterie und Batterie-Wechselrichter des Slaves erscheinen auf dem Master zusätzlich als reine Lese-Komponenten.
+* Über diese nachgebildeten Speicher legt der Master einen Speicher-Cluster `+ess0+`. Alles aus dem Abschnitt „Speicher-Cluster“ gilt daher auch hier.
+* Die App „FENECON Commercial 92 Cluster“ richtet das für 1–5 Slaves ein. Sie legt auf dem Master ein eigenes Netz für die Slaves an (Master 10.5.0.1, Slaves 10.5.0.11, 10.5.0.12 …). Die Slaves erhalten ihre Adresse laut Code über einen vorkonfigurierten Router. Die Slave-App richtet auf dem Slave nur Batterie, Wechselrichter und Speicher ein, keine eigenen Regelfunktionen.
+* Beide Apps sieht und installiert nur der **Installateur**.
+
+Es gibt eine ältere Variante über Modbus/TCP („Edge-2-Edge ESS“, „Edge-2-Edge Meter“). Dafür muss auf dem Slave die Modbus/TCP-Schnittstelle mit Schreibzugriff aktiv sein.
+
+[#sec-voraussetzungen-2]
+=== Voraussetzungen
+
+* Master und Slaves sind über ein lokales Netz verbunden.
+* Der Master meldet sich beim Slave mit einem eigenen Zugang an. Laut Code wird dafür beim ersten Einrichten auf dem Slave ein Benutzer mit Administratorrechten angelegt; das Passwort speichert der Master in der Bridge-Einstellung.
+* Damit der Master steuern darf, steht der Zugriff in „Edge-2-Edge ESS Websocket“ auf „Read-Write“. Mit „Read-Only“ (Voreinstellung der Komponente) liest der Master nur.
+
+[#sec-grenzen-2]
+=== Grenzen
+
+* **Abhängig von der Verbindung**: Der Master schickt die Vorgabe jede Sekunde neu. Bricht die Verbindung ab, behält der Slave die letzte Vorgabe laut Code bis zu **60 Sekunden** bei (Einstellung „API Timeout“ der Websocket-Schnittstelle des Slaves), danach entfällt sie. Auf dem Master fehlen in der Zeit die Werte dieses Slaves; der Cluster rechnet ohne ihn weiter.
+* **Verzögerung**: Messwerte und Vorgaben laufen über das Netz. Die Regelung reagiert dadurch etwas träger als bei Speichern, die direkt am Master hängen. Wie groß der Unterschied ist, wurde nicht gemessen.
+* **Nur Speicher werden gesteuert**: Andere Geräte des Slaves werden höchstens gelesen.
+* **Monitoring des Masters ist unvollständig**: Die Live-Ansicht und die Historie des Masters zählen nur Komponenten, die auf dem Master als Speicher, Zähler oder PV-Erzeuger angelegt sind. Von jedem Slave kommt über die Websocket-Variante nur der **Speicher** an (Leistung, Ladezustand, Energie). Batterie und Batterie-Wechselrichter erscheinen als reine Lese-Komponenten; ihre Werte stehen nur in der Kanalansicht, nicht im Energiefluss. Folgen laut Code:
+* **PV-Anlagen, Zähler und PV-Eingänge (DC) eines Slaves fehlen** in Erzeugung und Verbrauch des Masters. Es gibt in der Websocket-Variante keine Komponente, die sie auf den Master spiegelt.
+* **Hybridwechselrichter als Slave**: Der nachgebildete Speicher auf dem Master ist kein Hybridgerät. Seine Wechselstrom-Leistung enthält dann auch den Solarstrom des Slaves; der Master verbucht ihn als **Entladung des Speichers**. Die Erzeugung erscheint zu niedrig, die Speicherentladung zu hoch.
+* Richtig erfasst wird PV, die **direkt am Master** angeschlossen ist (eigener Zähler oder PV-Wechselrichter am Master). Der Netzzähler am Master misst ohnehin den gesamten Austausch mit dem Netz.
+* Ausweg nach dem Code (an Anlagen nicht getestet): Die Modbus-Variante kennt „Edge-2-Edge Meter“ mit Zählertyp „Erzeugung“. Damit lässt sich ein Zähler des Slaves auf dem Master nachbilden, wenn auf dem Slave die Modbus/TCP-Schnittstelle mit diesem Zähler freigegeben ist. Alternativ wird der PV-Zähler direkt am Master eingebunden.
+* **Updates**: Der Master bietet „Systemupdates für Cluster Slaves“ an (ab Rolle Eigentümer). Die Slaves werden nacheinander aktualisiert, nicht gleichzeitig. Ob das Update selbst funktioniert, hängt von der Installation auf den Slaves ab; ausprobiert wurde es nicht.
+
+[#sec-pv-wechselrichter-cluster]
+== PV-Wechselrichter-Cluster
+
+[#sec-was-er-leistet-2]
+=== Was er leistet
+
+* Mehrere steuerbare PV-Wechselrichter erscheinen als einer: Leistung, Strom und Energie werden addiert, Spannung und Frequenz gemittelt.
+* Eine Leistungsgrenze für den Cluster (z. B. aus einer Einspeisebegrenzung) wird **zu gleichen Teilen** auf die Wechselrichter aufgeteilt. Ein Wechselrichter, der seinen Anteil nicht schafft, wird auf seine Höchstleistung begrenzt.
+* Gibt keine Regelfunktion eine Grenze vor, hebt der Cluster die Grenzen aller Wechselrichter auf.
+
+[#sec-voraussetzungen-3]
+=== Voraussetzungen
+
+* Alle Mitglieder sind PV-Wechselrichter, deren Leistung OpenEMS begrenzen kann (siehe xref:user/de/devices/controllable-inverters.adoc[Steuerbare Wechselrichter]).
+* Jeder Wechselrichter meldet seine Höchstleistung.
+
+[#sec-grenzen-3]
+=== Grenzen
+
+* **Gleiche Teile, kein Ausgleich**: Laut Code wird der Rest, den ein schwächerer Wechselrichter nicht übernehmen kann, **nicht** auf die anderen umverteilt. Bei unterschiedlich großen Wechselrichtern bleibt die Summe dann unter der Grenze; es wird also stärker abgeregelt als nötig.
+* **Ein Ausfall stoppt die Aufteilung**: Fehlt ein Wechselrichter oder seine Höchstleistung, setzt der Cluster die Meldung „Execution failed“ und verteilt in diesem Zyklus keine Grenze.
+* **„Add to Sum?“ ausgeschaltet lassen**: Die einzelnen Wechselrichter gehen ohnehin in die Gesamterzeugung ein. Wird die Einstellung beim Cluster eingeschaltet, zählt die Erzeugung laut Code doppelt.
+
+[#sec-mehrere-ladepunkte]
+== Mehrere Ladepunkte
+
+[#sec-ladepunkt-cluster-neue-ladepunkt-steuerung]
+=== Ladepunkt-Cluster (neue Ladepunkt-Steuerung)
+
+Für Ladepunkte mit der neuen Ladepunkt-Steuerung (Alfen, KEBA, Mennekes) gibt es immer einen Cluster, auch bei nur einem Ladepunkt. Er wird mit der ersten Ladepunkt-App angelegt und verteilt beim Überschussladen die verfügbare Leistung: **gleichmäßig** (Voreinstellung) oder **nach Priorität** in der Reihenfolge der Ladepunkte. Einzelheiten stehen auf der Seite xref:user/de/ev-charging-control/surplus-charging.adoc[Überschussladen und Phasenumschaltung].
+
+[#sec-multiladepunkt-management-aeltere-ladestationen]
+=== Multiladepunkt Management (ältere Ladestationen)
+
+Für Ladestationen der älteren Anbindung gibt es das „Multiladepunkt Management“. Es schützt den Netzanschluss vor Überlast, wenn mehrere Fahrzeuge gleichzeitig laden.
+
+* **Verfügbare Leistung**: Der Cluster rechnet aus, wie viel die Ladestationen zusammen nutzen dürfen: freie Leistung am Netzanschluss (Grenze je Phase × 3 minus aktuell am stärksten belastete Phase × 3) plus, falls ein Speicher eingetragen ist, dessen noch freie Entladeleistung plus die Leistung, mit der die Fahrzeuge schon laden.
+* **Netzgrenze**: In der App heißt sie „Max. Netzbezug“ und wird für alle Phasen zusammen eingetragen, z. B. 22.000 W bei einem Hausanschluss von 22 kW. Die App teilt den Wert durch drei und legt ihn als Grenze je Phase ab. Ändern darf ihn nur der Installateur.
+* **Reihenfolge**: Die Ladestationen werden in der eingetragenen Reihenfolge bedient. Jedes ladende Fahrzeug bekommt zunächst eine Mindestleistung (Voreinstellung 4.500 W), danach erhalten die vorderen Ladestationen so viel wie möglich.
+* **Warten**: Reicht die Leistung für ein neues Fahrzeug nicht, zeigt die Ladestation „Warte auf Leistung“.
+* **Grenzen**: Der Cluster rechnet einphasig ladende Fahrzeuge so, als würden sie alle drei Phasen belegen. Eine gedrehte Phasenbelegung der Ladestationen wird laut Code noch nicht berücksichtigt. Nach jeder Änderung wartet der Cluster, bis die Fahrzeuge reagiert haben; nur wenn die Netzgrenze überschritten wird, regelt er sofort nach.
+
+[#sec-typische-fragen]
+== Typische Fragen
+
+[cols="2*",options="header"]
+|===
+| Frage
+| Antwort
+
+| Kann ich Speicher verschiedener Hersteller in einem Cluster zusammenfassen?
+| Laut Code ja, solange beide steuerbar sind. Ob die Geräte gemeinsam gut zusammenspielen (Reaktionszeit, Genauigkeit), prüft OpenEMS nicht.
+| Sehe ich die Speicher noch einzeln?
+| Ja. Die Live-Ansicht zeigt die Mitglieder, und jedes Mitglied hat eigene Messwerte und Meldungen.
+| Was passiert, wenn ein Speicher ausfällt?
+| Der Cluster rechnet mit den übrigen weiter. Seine Kapazität und erlaubte Leistung werden entsprechend kleiner. Ob der ausgefallene Speicher sicher auf 0 W gehalten wird, hängt von der Strategie ab („Nearly Equal“ tut das ausdrücklich).
+| Kann ich zwei getrennte Anlagen mit eigenem Netzanschluss zu einem Cluster verbinden?
+| Technisch lassen sich die Speicher verbinden, aber die Regelung misst nur an **einem** Netzzähler. Für zwei Netzanschlüsse ist der Cluster nicht gedacht.
+| Kann ein Gerät Master für mehrere Gruppen sein oder ein Slave selbst wieder Master?
+| Ein Master kann laut App bis zu 5 Slaves steuern. Verschachtelte Speicher-Cluster sind nicht möglich (siehe Grenzen oben).
+|===
+
+[#sec-zusammenfassung]
+== Zusammenfassung
+
+* Ein Cluster macht aus mehreren Geräten ein großes; Regelfunktionen werden nur einmal eingerichtet.
+* Speicher-Cluster sind am weitesten entwickelt: Werte werden sinnvoll zusammengefasst, die Leistungsverteilung kennt mehrere Strategien, Doppelzählung wird vermieden.
+* Über Edge-2-Edge lassen sich Speicher an eigenen OpenEMS-Geräten einbinden; dann hängt die Regelung von der Netzverbindung ab, und PV oder Zähler an den Slaves fehlen im Monitoring des Masters.
+* PV-Cluster teilen Grenzen nur zu gleichen Teilen; bei unterschiedlich großen Wechselrichtern wird mehr abgeregelt als nötig.
+* Für mehrere Ladepunkte gibt es je nach Anbindung den Ladepunkt-Cluster oder das Multiladepunkt Management.

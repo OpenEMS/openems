@@ -1,0 +1,141 @@
+= OpenEMS: Fremdsysteme an OpenEMS
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/third-party/overview.adoc[OpenEMS: Third-party systems on OpenEMS]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite vergleicht drei verbreitete Systeme, die mit OpenEMS zusammenarbeiten: **Home Assistant**, **evcc** und **openWB**. Alle drei sind eigenständige Projekte und nicht Teil von OpenEMS. Einzelheiten stehen auf den Seiten xref:user/de/third-party/home-assistant.adoc[Home Assistant], xref:user/de/third-party/evcc.adoc[evcc] und xref:user/de/third-party/openwb.adoc[openWB]. Grundlage ist jeweils deren Quellcode und der OpenEMS-Quellcode; ausprobiert wurde nichts davon.
+
+[#sec-auf-einen-blick]
+== Auf einen Blick
+
+[cols="4*",options="header"]
+|===
+| 
+| Home Assistant
+| evcc
+| openWB
+
+| Zweck
+| Hausautomation, Anzeige, Automationen
+| PV-Überschussladen, Netzladen bei günstigem Tarif
+| Wallbox mit eigenem Überschussladen
+| Weg zu OpenEMS
+| xref:user/de/external-interfaces/websocket.adoc[Websocket] (Port 8085), für Steuerwerte zusätzlich REST
+| REST (Port 8084) oder Modbus/TCP (Port 502)
+| REST (Port 8084, fest)
+| nötige App in OpenEMS
+| keine (Websocket ist Standard); für Steuerwerte REST-Schreib-App
+| REST- oder Modbus-App; Schreib-App für Speichersteuerung
+| REST-Lese-App
+| Anmeldung
+| Passwort, bestimmt die Rolle
+| REST: Passwort; Modbus: keine
+| Passwort
+| Aktualisierung
+| etwa jede Sekunde (Abonnement)
+| alle 30 Sekunden (evcc-Regelzyklus)
+| alle 10 Sekunden (openWB-Regelzyklus)
+| Umfang der Werte
+| alle Kanäle aller Komponenten, wählbar
+| nur Summenwerte (Netz, PV, Speicher)
+| Netzzähler `+meter0+`, Summenwerte, Speicher `+ess0+`
+| Einstellungen ändern
+| ja (dauerhaft gespeichert)
+| nein
+| nein
+| Speicher steuern
+| ja, über REST-Steuerwerte (beliebiger Wert)
+| ja: Halten, Laden, Normal
+| nein
+| Gegenrichtung (OpenEMS liest das System)
+| nein (aber OpenEMS kann Werte an einen MQTT-Broker senden, siehe unten)
+| nein
+| ja: OpenEMS liest einen openWB-Ladepunkt über MQTT, ohne ihn zu steuern
+| Verschlüsselung im Heimnetz
+| nein (lokal ws)
+| nein
+| nein
+|===
+
+[#sec-welche-schnittstelle-wofuer]
+== Welche Schnittstelle wofür
+
+[cols="3*",options="header"]
+|===
+| Schnittstelle
+| Eigenschaften
+| genutzt von
+
+| xref:user/de/external-interfaces/websocket.adoc[Websocket]
+| Dauerverbindung, Werte kommen von selbst jede Sekunde, Einstellungen ändern möglich; aufwendiger
+| Home Assistant, Weboberfläche
+| xref:user/de/external-interfaces/rest-control.adoc[REST/JSON]
+| einzelne Abfragen; Muster für mehrere Werte; Steuerwerte mit Api-Timeout
+| evcc, openWB, Home Assistant (nur Steuerwerte)
+| Modbus/TCP
+| Registertabelle, keine Anmeldung; Adressen hängen von der Konfiguration ab
+| evcc (wahlweise)
+| MQTT (Richtung OpenEMS ← openWB)
+| OpenEMS abonniert Nachrichten der openWB
+| OpenEMS-Komponente „EVCS OpenWB“
+| MQTT (Richtung OpenEMS → Broker)
+| OpenEMS sendet Werte an einen MQTT-Broker
+| Komponente „Controller Api MQTT“, siehe unten
+|===
+
+[#sec-openems-sendet-werte-per-mqtt]
+=== OpenEMS sendet Werte per MQTT
+
+Unabhängig von den drei Systemen hat OpenEMS die Komponente **„Controller Api MQTT“**. Sie sendet Kanalwerte an einen MQTT-Broker, z. B. den Broker von Home Assistant. Laut Beschreibung werden geänderte Werte sofort und alle Werte zusätzlich alle 5 Minuten gesendet, unter Themen wie `+edge/edge0/channel/_sum/GridActivePower+`. Mit Themenfiltern und der Speicherpriorität lässt sich eingrenzen, was gesendet wird; die Verbindung kann verschlüsselt sein.
+
+Die Beschreibung der Komponente spricht auch davon, Steuer-Themen zu abonnieren. Im Code der Komponente wurde dafür nichts gefunden; nach dem Code **sendet** sie nur und nimmt keine Befehle an.
+
+[#sec-steuern-einstellungen-oder-steuerwerte]
+== Steuern: Einstellungen oder Steuerwerte
+
+Für alle drei gilt dieselbe Unterscheidung (siehe xref:user/de/external-interfaces/rest-control.adoc#sec-steuern-zwei-grundverschiedene-wege[Steuern: zwei grundverschiedene Wege]):
+
+[cols="3*",options="header"]
+|===
+| 
+| Einstellung
+| Steuerwert
+
+| Beispiel
+| Notstromreserve, Lademodus, Betriebsart
+| Speicherleistung, Relais
+| Dauer
+| dauerhaft gespeichert
+| nur solange alle < 60 s erneuert
+| häufig schreiben?
+| **nein**, nutzt den Speicher der Anlage ab
+| ja, unbedenklich
+| Home Assistant
+| Schalter, Auswahl, Zahl, Uhrzeit
+| Aktion „REST-Wert schreiben“ (wiederholt alle 30 s)
+| evcc
+| –
+| Obergrenze der Speicherleistung (wiederholt alle 30 s)
+| openWB
+| –
+| –
+|===
+
+Einen Vergleich der Wallbox-Steuerung mit evcc und openWB gibt die Seite xref:user/de/ev-charging-control/wallbox-comparison.adoc[Wallbox-Steuerung im Vergleich].
+
+[#sec-was-man-beim-kombinieren-beachten-sollte]
+== Was man beim Kombinieren beachten sollte
+
+* **Nur ein System steuert den Speicher.** Wenn Home Assistant, evcc und eine Steuerfunktion in OpenEMS (z. B. xref:user/de/storage-control/time-of-use-tariffs.adoc[dynamischer Stromtarif]) gleichzeitig Vorgaben machen, gilt jeweils die strengste Grenze. Das Ergebnis ist dann schwer nachzuvollziehen.
+* **Nur ein System regelt das Überschussladen.** evcc, openWB und das xref:user/de/ev-charging-control/surplus-charging.adoc[Überschussladen in OpenEMS] sehen denselben Überschuss. Laufen zwei davon auf dieselbe Wallbox oder auf verschiedene Wallboxen ohne Absprache, regeln sie gegeneinander.
+* **Grenzen von OpenEMS gelten immer.** Notstromreserve, Batterie- und Netzgrenzen, xref:user/de/storage-control/section-14a-enwg.adoc[§ 14a] schränken jede Vorgabe von außen ein (siehe xref:user/de/systems/fenecon-home-battery.adoc[FENECON-Home-Batterie]).
+* **Feste Namen.** evcc und openWB lesen vor allem `+_sum+`, openWB zusätzlich fest `+meter0+` und `+ess0+`. Bei abweichender Benennung stimmen die Werte nicht.
+* **Ports nicht ins Internet freigeben.** Alle drei nutzen im Heimnetz unverschlüsselte Verbindungen; Modbus ganz ohne Anmeldung.
+* **Lasten durch Abfragen.** Jede Anbindung fragt regelmäßig ab. Das ist bei den hier beschriebenen Takten unkritisch; viele zusätzliche Skripte mit kurzen Takten erhöhen die Last der Anlage.

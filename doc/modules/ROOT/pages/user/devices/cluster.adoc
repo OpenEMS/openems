@@ -1,0 +1,232 @@
+= OpenEMS: Cluster
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/devices/cluster.adoc[OpenEMS: Cluster]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+A **cluster** combines several devices of the same type into **one** device. The control functions then see, for example, not three storage systems but one large storage system with the sum of the power values and capacities. The cluster then distributes the specifications to the individual devices.
+
+This page describes which clusters exist in OpenEMS, what they require and where their limits are. It is based on a review of the code. No tests were carried out with real systems.
+
+[#sec-which-clusters-exist]
+== Which clusters exist
+
+[cols="4*",options="header"]
+|===
+| Cluster
+| Combines
+| In the configuration
+| Set up via
+
+| **Storage cluster**
+| several storage systems on one system
+| “ESS Cluster” (`+Ess.Cluster+`), usually with the ID `+ess0+`
+| System apps, e.g. “FENECON Pro 9-12” as a cluster of 2–3 devices or “FENECON Commercial 92 Cluster”
+| **Group of several OpenEMS devices** (master/slave)
+| Storage systems controlled by their **own** OpenEMS device
+| “Edge-2-Edge Bridge” and “Edge-2-Edge ESS Websocket” on the master, above them a storage cluster
+| App “FENECON Commercial 92 Cluster” (master) and “… Cluster Slave” (per slave)
+| **PV inverter cluster**
+| several controllable PV inverters
+| “PV-Inverter Cluster” (`+PvInverter.Cluster+`)
+| Configuration of the component
+| **Charge point cluster** (new charge point control)
+| several charge points with surplus charging
+| “EVSE Controller Cluster of Charge-Points”, app “Chargepoint Cluster”
+| created automatically with the first charge point app (Alfen, KEBA, Mennekes)
+| **Multi-charging point management** (older charging stations)
+| several charging stations on one grid connection
+| “EVCS Cluster Peak Shaving” (`+Evcs.Cluster.PeakShaving+`)
+| App “Multi-charging point management”
+|===
+
+Battery “clusters” within a device (e.g. several battery towers on one inverter) and the “Profile Clustering” forecast have nothing to do with these clusters.
+
+[#sec-storage-cluster]
+== Storage cluster
+
+[#sec-what-it-does]
+=== What it does
+
+* All control functions (self-consumption optimization, grid-optimized charge, time-of-use tariffs, emergency reserve, etc.) work with the cluster as with a single storage system. They are set up once for the cluster, not for each storage system.
+* The cluster forms its values from its members:
+
+[cols="2*",options="header"]
+|===
+| Value
+| Calculation in the cluster
+
+| Power, reactive power, maximum apparent power
+| Sum
+| Capacity
+| Sum
+| Permitted charging and discharging power
+| Sum
+| Charged and discharged energy
+| Sum
+| State of charge (SoC)
+| Average, weighted by capacity. If the capacity of a member is missing, simple average.
+| Cell voltage and cell temperature
+| smallest or largest value of all members
+| Power per phase
+| Sum; for storage systems without phase values, one third of the total power per phase is assumed
+| Grid mode (grid mode/island mode)
+| combined from all members
+|===
+
+* **Start/stop**: The cluster starts or stops all members together. It only reports “started” if all members are started.
+* **No double counting**: Only the individual storage systems are included in the total values of the system (live view, history), not the cluster in addition. The storage view of the interface shows the members individually.
+
+[#sec-how-the-power-is-distributed]
+=== How the power is distributed
+
+The cluster does not pass on specifications to the storage systems itself. This is done by the central power distribution “ESS Power” (`+_power+`), which is present on every system. The type of distribution is set there as a **strategy** and determined during setup.
+
+[cols="2*",options="header"]
+|===
+| Strategy
+| Behavior
+
+| __Optimize By Moving Towards Target__ (default in the code)
+| Distributes according to state of charge: when discharging, the fuller storage bears more, when charging the emptier one. The division approaches the target gradually (10 % of the distance per second) so that there are no jumps.
+| __Optimize By Keeping All Inverters Nearly Equal__
+| Also weighted according to state of charge, but immediately in each cycle. If a storage system reaches its limit, the others take over the rest. Storage systems with a fault remain at 0 W. This strategy is set by the app “FENECON Commercial 92 Cluster”.
+| __Optimize By Keeping All Inverters Equal__
+| All storage systems receive the same power, regardless of the state of charge. If this is not possible, the distribution falls back on “Nearly Equal”.
+| __Optimize By Keeping Target Direction And Maximizing In Order__
+| One storage system after the other is fully utilized: when discharging the fullest first, when charging the emptiest.
+| __Optimize by Keeping ESS in Balance__
+| Newer method for clusters: distributes the cluster specification in proportion to the available margin of the storage systems.
+|===
+
+If a strategy does not find a solution, the power distribution tries others in sequence. If none succeeds, all storage systems receive 0 W for this cycle and the message “NotSolved” appears.
+
+[#sec-prerequisites]
+=== Prerequisites
+
+* All members are **controllable** storage systems. Storage systems that OpenEMS only reads out cannot be included in the cluster.
+* The members are **activated** and entered in the cluster setting “ESS-IDs”. A deactivated storage system drops out of the cluster; the cluster then only calculates with the others.
+* All storage systems are connected to the **same grid connection** and are controlled via **one** grid meter.
+* The control functions are set to the cluster ID (usually `+ess0+`), not to individual members. The system apps set this up accordingly.
+
+[#sec-limits]
+=== Limits
+
+* **No nested clusters**: A storage cluster cannot include another storage cluster as a member. The selection of members explicitly excludes clusters.
+* **Missing values count as 0**: If a member does not supply a permitted charging power, for example (e.g. if the connection is lost), it is included in the total with 0. The cluster then appears smaller, but does not report its own error; the error message comes from the affected storage system.
+* **State of charge is an average**: A cluster SoC of 50 % can mean that one storage system is full and one is empty. Limits such as the emergency reserve refer to the cluster value.
+* **Same limits for all**: Settings such as the minimum state of charge apply to the entire cluster, not per storage system (unless the system app creates them per device).
+* **Members can be addressed individually**: The individual storage systems remain separate components. If a control function is additionally set to a member, specifications for cluster and member mix. This is possible but difficult to keep track of.
+
+[#sec-group-of-several-openems-devices-master-slave]
+== Group of several OpenEMS devices (master/slave)
+
+In larger systems, each storage system has its own OpenEMS device (slave). Another device (master) measures at the grid connection, controls the entire system and specifies power values to the slaves. In OpenEMS this is called **Edge-2-Edge**.
+
+[#sec-how-it-is-structured]
+=== How it is structured
+
+* On the master, an “Edge-2-Edge Bridge” per slave establishes the connection, via the same websocket interface that the web interface also uses (port 8085).
+* For each slave there is a component “Edge-2-Edge ESS Websocket” on the master. It mirrors the storage of the slave and passes on specifications to it. The battery and battery inverter of the slave also appear on the master as pure read components.
+* The master puts a storage cluster `+ess0+` over these mirrored storage systems. Everything from the “Storage cluster” section therefore also applies here.
+* The app “FENECON Commercial 92 Cluster” sets this up for 1–5 slaves. It creates its own network for the slaves on the master (master 10.5.0.1, slaves 10.5.0.11, 10.5.0.12 …). According to the code, the slaves receive their address via a preconfigured router. The slave app only sets up the battery, inverter and storage on the slave, no separate control functions.
+* Both apps can only be seen and installed by the **installer**.
+
+There is an older variant via Modbus/TCP (“Edge-2-Edge ESS”, “Edge-2-Edge Meter”). For this, the Modbus/TCP interface with write access must be active on the slave.
+
+[#sec-prerequisites-2]
+=== Prerequisites
+
+* Master and slaves are connected via a local network.
+* The master logs on to the slave with its own access. According to the code, a user with administrator rights is created on the slave for this purpose during initial setup; the master stores the password in the bridge setting.
+* For the master to be able to control, the access in “Edge-2-Edge ESS Websocket” is set to “Read-Write”. With “Read-Only” (default setting of the component), the master only reads.
+
+[#sec-limits-2]
+=== Limits
+
+* **Dependent on the connection**: The master sends the specification anew every second. If the connection is lost, according to the code the slave retains the last specification for up to **60 seconds** (setting “API Timeout” of the websocket interface of the slave), after which it lapses. On the master, the values of this slave are missing during this time; the cluster continues to calculate without it.
+* **Delay**: Measured values and specifications run via the network. As a result, control reacts somewhat more slowly than with storage systems directly connected to the master. How large the difference is has not been measured.
+* **Only storage systems are controlled**: Other devices of the slave are read at most.
+* **Monitoring of the master is incomplete**: The live view and history of the master only count components that are created on the master as storage, meter or PV producer. With the websocket variant, only the **storage** arrives from each slave (power, state of charge, energy). The battery and battery inverter appear as pure read components; their values are only in the channel view, not in the energy flow. Consequences according to the code:
+* **PV systems, meters and PV inputs (DC) of a slave are missing** from the production and consumption of the master. In the websocket variant, there is no component that mirrors them to the master.
+* **Hybrid inverter as slave**: The mirrored storage on the master is not a hybrid device. Its alternating current power then also contains the solar power of the slave; the master records it as **discharging of the storage**. Production appears too low, storage discharge too high.
+* PV connected **directly to the master** (own meter or PV inverter on the master) is recorded correctly. The grid meter on the master measures the entire exchange with the grid anyway.
+* Way out according to the code (not tested on systems): The Modbus variant has “Edge-2-Edge Meter” with meter type “Production”. This allows a meter of the slave to be mirrored on the master if the Modbus/TCP interface with this meter is enabled on the slave. Alternatively, the PV meter is integrated directly on the master.
+* **Updates**: The master offers “Systemupdates for Cluster Slaves” (from the Owner role). The slaves are updated one after the other, not at the same time. Whether the update itself works depends on the installation on the slaves; it has not been tried out.
+
+[#sec-pv-inverter-cluster]
+== PV inverter cluster
+
+[#sec-what-it-does-2]
+=== What it does
+
+* Several controllable PV inverters appear as one: power, current and energy are added, voltage and frequency are averaged.
+* A power limit for the cluster (e.g. from a feed-in limitation) is divided **in equal parts** among the inverters. An inverter that cannot manage its share is limited to its maximum power.
+* If no control function specifies a limit, the cluster removes the limits of all inverters.
+
+[#sec-prerequisites-3]
+=== Prerequisites
+
+* All members are PV inverters whose power OpenEMS can limit (see xref:user/devices/controllable-inverters.adoc[Controllable inverters]).
+* Each inverter reports its maximum power.
+
+[#sec-limits-3]
+=== Limits
+
+* **Equal parts, no compensation**: According to the code, the remainder that a weaker inverter cannot take over is **not** redistributed to the others. With inverters of different sizes, the total then remains below the limit; so there is more curtailment than necessary.
+* **A failure stops the division**: If an inverter or its maximum power is missing, the cluster sets the message “Execution failed” and does not distribute a limit in this cycle.
+* **Leave “Add to Sum?” switched off**: The individual inverters are included in total production anyway. If the setting is switched on for the cluster, production is counted twice according to the code.
+
+[#sec-several-charge-points]
+== Several charge points
+
+[#sec-charge-point-cluster-new-charge-point-control]
+=== Charge point cluster (new charge point control)
+
+For charge points with the new charge point control (Alfen, KEBA, Mennekes), there is always a cluster, even with only one charge point. It is created with the first charge point app and distributes the available power during surplus charging: **evenly** (default) or **by priority** in the order of the charge points. Details are on the page xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and phase switching].
+
+[#sec-multi-charging-point-management-older-charging-stations]
+=== Multi-charging point management (older charging stations)
+
+For charging stations with the older connection, there is “Multi-charging point management”. It protects the grid connection from overload when several vehicles are charging at the same time.
+
+* **Available power**: The cluster calculates how much the charging stations may use together: free power at the grid connection (limit per phase × 3 minus currently most heavily loaded phase × 3) plus, if a storage system is entered, its remaining free discharge power plus the power with which the vehicles are already charging.
+* **Grid limit**: In the app it is called “Max. grid draw” and is entered for all phases together, e.g. 22,000 W for a house connection of 22 kW. The app divides the value by three and stores it as a limit per phase. Only the installer may change it.
+* **Order**: The charging stations are served in the entered order. Each charging vehicle first receives a minimum power (default 4,500 W), then the front charging stations receive as much as possible.
+* **Waiting**: If the power is not sufficient for a new vehicle, the charging station shows “Waiting for power”.
+* **Limits**: The cluster calculates single-phase charging vehicles as if they occupied all three phases. According to the code, a rotated phase assignment of the charging stations is not yet taken into account. After each change, the cluster waits until the vehicles have reacted; only if the grid limit is exceeded does it adjust immediately.
+
+[#sec-typical-questions]
+== Typical questions
+
+[cols="2*",options="header"]
+|===
+| Question
+| Answer
+
+| Can I combine storage systems from different manufacturers in one cluster?
+| According to the code yes, as long as both are controllable. OpenEMS does not check whether the devices work well together (response time, accuracy).
+| Can I still see the storage systems individually?
+| Yes. The live view shows the members, and each member has its own measured values and messages.
+| What happens if a storage system fails?
+| The cluster continues to calculate with the others. Its capacity and permitted power decrease accordingly. Whether the failed storage is safely kept at 0 W depends on the strategy (“Nearly Equal” does this explicitly).
+| Can I connect two separate systems with their own grid connection to a cluster?
+| Technically, the storage systems can be connected, but the control only measures at **one** grid meter. The cluster is not intended for two grid connections.
+| Can a device be master for several groups or can a slave itself be a master again?
+| According to the app, a master can control up to 5 slaves. Nested storage clusters are not possible (see limits above).
+|===
+
+[#sec-summary]
+== Summary
+
+* A cluster turns several devices into one large one; control functions are only set up once.
+* Storage clusters are the most developed: values are combined sensibly, power distribution has several strategies, and double counting is avoided.
+* Via Edge-2-Edge, storage systems can be integrated on their own OpenEMS devices; control then depends on the network connection, and PV or meters on the slaves are missing from the monitoring of the master.
+* PV clusters only divide limits in equal parts; with inverters of different sizes, more is curtailed than necessary.
+* For several charge points, depending on the connection, there is the charge point cluster or multi-charge-point management.

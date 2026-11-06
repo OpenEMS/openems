@@ -1,0 +1,71 @@
+= OpenEMS: Fahrplan
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:user/schedule/overview.adoc[OpenEMS: Schedule]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+**OpenEMS hat einen Fahrplan.** Er zeigt, was das System für den heutigen und den nächsten Tag plant, in Viertelstunden:
+
+* welcher **Strompreis** gilt,
+* wie viel **Solarertrag** und **Verbrauch** erwartet werden,
+* was der **Speicher** tun soll (z. B. „Entladung verzögern“ oder „Beladung aus dem Netz“),
+* und wie sich daraus **Netzbezug** und **Ladezustand** entwickeln.
+
+Für vergangene Abschnitte des Tages zeigt der Fahrplan die **gemessenen Werte**. So sieht man in einer Grafik, was war und was geplant ist.
+
+Der Fahrplan ist mehr als die Prognose: Er nutzt die xref:user/de/schedule/forecasts.adoc[Prognosen] und zeigt, was OpenEMS daraus macht.
+
+[#sec-wo-man-ihn-sieht]
+== Wo man ihn sieht
+
+In der Weboberfläche gibt es eine eigene **Fahrplan-Seite**. Seit Oktober 2026 aktualisiert sie sich von selbst, sobald neu geplant wurde. Man sieht auch, ob gerade geplant wird oder ob die Planung abgeschlossen ist.
+
+[#sec-wie-er-entsteht]
+== Wie er entsteht
+
+. OpenEMS sammelt Prognosen, Strompreise (xref:user/de/storage-control/time-of-use-tariffs.adoc[Tarife]), den Zustand des Speichers und die Netzgrenzen.
+. Ein Optimierer probiert viele mögliche Abläufe durch und wählt den günstigsten, der alle Grenzen einhält.
+. Die nahe Zukunft wird in Viertelstunden geplant, weiter entfernte Zeiten in Stunden.
+. Die Planung wird regelmäßig erneuert, etwa jede Viertelstunde, und sofort, wenn Einstellungen geändert werden.
+
+[#sec-was-alles-eingeplant-wird]
+== Was alles eingeplant wird
+
+[cols="2*",options="header"]
+|===
+| Funktion
+| Rolle im Fahrplan
+
+| xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung]
+| entscheidet, wann der Speicher geschont, geladen oder entladen wird
+| xref:user/de/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung]
+| verzögert oder drosselt die Beladung (zusammen mit der Preissteuerung)
+| Ladepunkte (Wallbox)
+| planen das Laden von Fahrzeugen
+| Heizstäbe (Askoma, my-PV)
+| planen die Heizleistung
+| Notstromreserve, Entladebegrenzung, feste Speicherleistung
+| werden als Rahmen für den Speicher berücksichtigt
+|===
+
+Seit Oktober 2026 wird der Fahrplan auch dann berechnet, wenn keine dieser steuernden Funktionen aktiv ist.
+
+[#sec-fahrplan-richtig-lesen]
+== Fahrplan richtig lesen
+
+* **Vergangenheit:** Messwerte in 5-Minuten-Schritten.
+* **Zukunft:** Planung in Viertelstunden. Sie beruht auf Prognosen und kann sich mit jeder neuen Planung ändern.
+* Weicht die Wirklichkeit von der Prognose ab (z. B. Wolken, unerwarteter Verbrauch), passt OpenEMS den Plan bei der nächsten Planung an.
+* Der Zeitraum umfasst den heutigen Tag und, sobald verfügbar, den nächsten.
+* Ohne Strompreise und Prognosen kann kein sinnvoller Fahrplan entstehen.
+
+[#sec-fuer-fortgeschrittene]
+== Für Fortgeschrittene
+
+Der Fahrplan lässt sich auch über die Schnittstelle abrufen, z. B. für eigene Auswertungen. Dazu dient die Anfrage „getSchedule“ an die Komponente `+_energy+` (siehe xref:user/de/external-interfaces/json-rpc.adoc[JSON-RPC]). Die Antwort enthält je Viertelstunde Preise, Erzeugung, Verbrauch, Netz, Speicher und Ladezustand sowie den geplanten Zustand jeder beteiligten Funktion.
