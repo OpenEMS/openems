@@ -23,7 +23,7 @@ public interface IoGen2ShellyBase extends OpenemsComponent {
 		 * <li>Type: State
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)), //
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.WARNING)), //
 
 		/**
 		 * Indicates if an update is available.

@@ -31,7 +31,7 @@ public interface IoShellyPlusPmMini extends SinglePhaseMeter, ElectricityMeter, 
 		 * <li>Level: FAULT
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.WARNING)); //
 
 		private final Doc doc;
 

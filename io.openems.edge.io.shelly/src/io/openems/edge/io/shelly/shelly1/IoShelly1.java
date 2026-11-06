@@ -47,7 +47,7 @@ public interface IoShelly1 extends DigitalOutput, OpenemsComponent, EventHandler
 		 * <li>Type: State
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.WARNING)); //
 
 		private final Doc doc;
 
