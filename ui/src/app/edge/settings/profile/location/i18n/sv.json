@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "ADRESS_IS_VALIDATED": "Platsen är redan validerad",
+        "EDIT": "Redigera",
+        "EDIT_CARD_INFO": "Endast longitud och latitud lagras för platsvalideringen av ditt system.",
+        "EDIT_CARD_SUBTITLE": "Platsdata valideras i service- och garantisyfte.",
+        "EDIT_CARD_TITLE": "Validering av ditt systems plats",
+        "LATITUDE": "Latitud",
+        "LOCATION": "Plats",
+        "LONGITUDE": "Longitud",
+        "NOT_VALIDATED": "Validera ditt systems plats.",
+        "SUCCESSFULL_VALIDATION": "Valideringen lyckades!",
+        "SYSTEM_LOCATION": "Systemplats",
+        "TO_VALIDATION": "Till valideringen",
+        "VALIDATED": "validerad"
+    }
+}

@@ -1,12 +1,14 @@
 package io.openems.edge.predictor.api.mlcore.smoothing;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class GaussianSmootherTest {
 
@@ -124,5 +126,53 @@ class GaussianSmootherTest {
 		double[] result = smoother.smooth(input);
 
 		assertEquals(input.length, result.length);
+	}
+
+	@ParameterizedTest
+	@CsvSource({ //
+			"0, 3, 2.25, 3.375, 3.375", //
+			"9, 3, 4.090909090909091, 2.4545454545454546, 2.4545454545454546", //
+			"9, 0, 0, 0, 0" //
+	})
+	void testSmooth_shouldPreserveForecastSumWithHistory(double historicValue, double forecastValue, double firstValue,
+			double secondValue, double thirdValue) {
+		var smoother = new GaussianSmoother(new double[] { 1, 1, 1 });
+		double[] values = { forecastValue, forecastValue, forecastValue };
+		double[] history = { historicValue };
+
+		var result = smoother.smooth(values, history);
+
+		assertArrayEquals(new double[] { firstValue, secondValue, thirdValue }, result, 1e-10);
+		assertEquals(Arrays.stream(values).sum(), Arrays.stream(result).sum(), 1e-10);
+		assertArrayEquals(new double[] { historicValue }, history);
+		assertArrayEquals(new double[] { forecastValue, forecastValue, forecastValue }, values);
+	}
+
+	@Test
+	void testSmooth_shouldExtendShortHistoryAndKeepChronologicalOrder() {
+		var smoother = new GaussianSmoother(GaussianKernels.SIZE_9);
+		double[] values = { 100, 100, 100, 100, 100, 100 };
+
+		var result = smoother.smooth(values, new double[] { 20, 40 });
+
+		double factor = 600.0 / 544;
+		assertArrayEquals(
+				new double[] { 71.2 * factor, 83.2 * factor, 92 * factor, 97.6 * factor, 100 * factor, 100 * factor },
+				result, 1e-10);
+	}
+
+	@Test
+	void testSmooth_shouldKeepExistingBehaviorWithEmptyHistory() {
+		var smoother = new GaussianSmoother(GaussianKernels.SIZE_9);
+		double[] values = { 10, 50, 30, 0, 0 };
+
+		assertArrayEquals(smoother.smooth(values), smoother.smooth(values, new double[0]), 1e-10);
+	}
+
+	@Test
+	void testSmooth_shouldRejectNullHistory() {
+		var smoother = new GaussianSmoother(GaussianKernels.SIZE_9);
+
+		assertThrows(IllegalArgumentException.class, () -> smoother.smooth(new double[] { 1 }, null));
 	}
 }

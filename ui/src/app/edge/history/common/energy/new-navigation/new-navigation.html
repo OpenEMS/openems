@@ -1,14 +1,15 @@
 @if (edge() !== null) {
   <oe-navigation-view>
     <ng-container header #header>
-      <ion-toolbar>
-        <ion-title class="ion-no-padding">
-          <ion-buttons class="ion-justify-content-center">
-            <ion-button>
-              <pickdate></pickdate>
-            </ion-button>
-          </ion-buttons>
-        </ion-title>
+      <ion-item lines="none">
+        <ion-label class="ion-text-center"> {{ "GENERAL.HISTORY" | translate }} </ion-label>
+      </ion-item>
+    </ng-container>
+    <ng-container header>
+      <ion-toolbar style="--background: var(--ion-background-color)">
+        <ion-buttons class="ion-justify-content-center">
+          <pickdate></pickdate>
+        </ion-buttons>
       </ion-toolbar>
     </ng-container>
     <energychart [isOnlyChart]="true"></energychart>

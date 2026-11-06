@@ -240,7 +240,17 @@
                 "STORAGE_DISCHARGE": "Stockage-Décharge",
                 "TITLE": "Moniteur d'énergie"
             },
+            "GRID": {
+                "CHARGE_FROM_GRID_ACTIVATE": "Autoriser la charge active depuis le réseau",
+                "CHARGE_FROM_GRID_DESCRIPTION": "<b>ATTENTION :</b> La charge active de la batterie depuis le réseau au-delà de la charge d'entretien techniquement nécessaire nécessite un enregistrement approprié du système de stockage. En cas de doute, veuillez vérifier auprès de votre installateur. En appuyant sur le bouton bleu « Enregistrer », vous confirmez que cette vérification a été effectuée.<br/><br/><b>Sachez-le :</b> la condition préalable au bénéfice de la subvention selon la loi allemande sur l'expansion des énergies renouvelables (EEG 2023) est que seule l'énergie issue de sources renouvelables et/ou de gaz de mine soit stockée dans la batterie. En activant cette fonction, la batterie est chargée avec de l'énergie du réseau. Selon le contrat d'approvisionnement individuel, cette énergie est probablement produite à partir de sources fossiles et/ou de centrales nucléaires. C'est pourquoi nous ne pouvons pas garantir que la batterie ne soit chargée qu'avec de l'énergie issue de sources renouvelables et/ou de gaz de mine.",
+                "CHARGE_ONCE_GRID_PERMISSION_REQUIRED": "La charge active depuis le réseau n'est pas autorisée. Vous pouvez modifier cette autorisation dans les paramètres du réseau.",
+                "DISCHARGE_ONCE_GRID_PERMISSION_REQUIRED": "La décharge active vers le réseau n'est pas autorisée. Vous pouvez modifier cette autorisation dans les paramètres du réseau.",
+                "DISCHARGE_TO_GRID_ACTIVATE": "Autoriser la décharge active dans le réseau",
+                "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATTENTION :</b> La décharge active de la batterie dans le réseau au-delà des états de fonctionnement nécessaires pour des raisons techniques nécessite un enregistrement formel du système de stockage. En cas de doute, veuillez consulter votre installateur. En cliquant sur le bouton bleu « Enregistrer », vous confirmez que cette vérification a été effectuée.<br/><br/><b>Remarque :</b> l'activation de cette fonction permet l'injection d'énergie du système de stockage par batterie dans le réseau public. Selon le programme de subvention, le modèle de rémunération, le concept de comptage et les exigences réglementaires applicables, cela peut affecter des droits existants relatifs aux subventions, rémunérations ou justificatifs d'origine.<br/><br/>En particulier, il peut être nécessaire d'attribuer clairement l'électricité injectée et de prouver son origine par des mesures. Nous ne pouvons pas garantir que l'utilisation de cette fonction soit compatible avec les exigences de votre modèle spécifique de subvention ou de rémunération.<br/><br/>Veuillez examiner les conséquences avec votre installateur, votre commercialisateur direct, votre gestionnaire de réseau ou un conseiller qualifié avant l'activation.",
+                "SETTINGS_LINK": "Aller aux paramètres du réseau"
+            },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Fonctionnement du système limité - Préparation de l'extension de capacité en cours",
                 "INFORMATION_FOR_INSTANT_START": "La batterie est chargée ou déchargée à puissance maximale afin d'atteindre le plus rapidement possible un état de charge de {{targetSoc}} % pour une extension. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "La batterie devrait être chargée/déchargée à partir de {{targetTime}} le {{targetDate}} afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "La batterie devrait être chargée/déchargée afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue.",
@@ -258,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Veuillez sélectionner une date",
                 "TARGET_TIME_SPECIFIED": "L'extension de capacité sera effectuée le {{targetDate}} à {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Pour pouvoir utiliser la fonction d'extension de la batterie, une mise à jour vers la version la plus récente est nécessaire."
+                "UPDATE_TO_NEW_VERSION": "Pour pouvoir utiliser la fonction d'extension de la batterie, une mise à jour vers la version la plus récente est nécessaire.",
+                "WARNING_CHECK": "Je confirme avoir pris connaissance de cette information",
+                "WARNING_MESSAGE": "En préparation de l'extension de capacité, les applications du système en cours d'exécution seront temporairement suspendues. Cela concerne, entre autres, l'écrêtage des pointes, l'optimisation de l'autoconsommation et d'autres applications du système. Une fois la préparation terminée, elles seront à nouveau disponibles comme d'habitude."
             },
             "SYSTEMUPDATE": "Mise à jour du système",
             "WIDGETS": {
@@ -337,8 +349,7 @@
                     "FORCE_THREE_PHASE": "Triphasé",
                     "HYSTERESIS": "Temps minimal de commutation de la borne de recharge actif",
                     "HYSTERESIS_INFO": "Pour éviter les interruptions de charge dues à des démarrages/pauses trop fréquents du processus de charge, le mode de charge actuellement sélectionné se poursuivra pendant les prochaines minutes.",
-                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée.",
-                    "LINK_TO_DOCUMENTATION": "Plus d'informations",
+                    "KEBA_WARNING": "Remarque : Actuellement, une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode temporairement et de choisir plutôt le mode « Automatique » avec l'option « Garantir une charge minimale » activée. <a class=\"ion-link\" href={{link}} target=\"_blank\">Plus d'informations</a>",
                     "MAX_ENERGY_RESTRICTION": "Energie maximum par recharge",
                     "MINIMUM": "Surplus photovoltaïque avec charge garantie",
                     "NOT_AUTHORIZED": "Pas Authorisé",
@@ -380,7 +391,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Mode de base",
-                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ».",
+                    "KEBA_WARNING": "Remarque : Une erreur peut survenir lors de l'utilisation de ce mode en combinaison avec la KEBA P40. Nous recommandons donc de ne pas utiliser ce mode pour le moment et d'utiliser temporairement le mode « Surplus photovoltaïque avec charge garantie » ou « Charge rapide ». <a class=\"ion-link\" href={{link}} target=\"_blank\">Plus d'informations</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Ajouter une tâche",
                         "SCHEDULE": "Planification"
@@ -563,6 +574,8 @@
                     "AMBIENT_TEMPERATURE": "Température ambiante",
                     "BATTERY_DC": "Batterie - DC",
                     "GRID_CHARGE": "Activer la maintenance de la réserve de secours depuis le réseau",
+                    "GRID_CHARGE_ALLOWED_INFO": "Votre réserve de secours est maintenue par une recharge depuis le réseau. Si vous ne le souhaitez pas, vous pouvez désactiver l'autorisation dans les paramètres du réseau.",
+                    "GRID_CHARGE_NOT_ALLOWED_INFO": "Votre réserve de secours n'est pas maintenue par une charge depuis le réseau. Si vous le souhaitez, vous pouvez activer l'autorisation dans les paramètres du réseau.",
                     "GRID_CHARGE_WARNING": "Le système de stockage peut se recharger activement depuis le réseau afin de maintenir la réserve de secours définie et ainsi compenser les pertes dues à la consommation propre interne en cas d'absence prolongée de production. <br/><br/>ATTENTION : La charge active de la batterie depuis le réseau au-delà de la charge d'entretien techniquement nécessaire nécessite un enregistrement approprié du système de stockage. En cas de doute, veuillez vérifier auprès de votre installateur. En appuyant sur le bouton bleu « Enregistrer », vous confirmez que cette vérification a été effectuée.<br/><br/>Sachez-le : la condition préalable au bénéfice de la subvention selon la loi allemande sur l'expansion des énergies renouvelables (EEG) est que seule l'énergie issue de sources renouvelables et/ou de gaz de mine soit stockée dans la batterie. En activant cette fonction, la batterie est chargée avec de l'énergie du réseau. Selon le contrat d'approvisionnement individuel, cette énergie est probablement produite à partir de sources fossiles et/ou de centrales nucléaires. C'est pourquoi nous ne pouvons pas garantir que la batterie ne soit chargée qu'avec de l'énergie issue de sources renouvelables et/ou de gaz de mine.",
                     "INVERTER": "Onduleur",
                     "TOTAL_AC": "Total AC",

@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.openems.edge.common.jsonrpc.response.ExecuteSystemCommandResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +20,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.edge.common.jsonrpc.base.ExecuteSystemCommand;
+import io.openems.edge.common.jsonrpc.base.GetSystemUpdateState.UpdateState;
 import io.openems.edge.common.jsonrpc.request.ExecuteSystemCommandRequest;
 import io.openems.edge.common.jsonrpc.request.ExecuteSystemUpdateRequest;
 import io.openems.edge.common.jsonrpc.request.GetSystemUpdateStateRequest;
-import io.openems.edge.common.jsonrpc.response.ExecuteSystemCommandResponse;
-import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse;
-import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse.UpdateState;
+import io.openems.edge.common.jsonrpc.response.GetSystemUpdateStateResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
