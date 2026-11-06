@@ -105,13 +105,13 @@ class ControllerEssFixActivePowerImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum() //
 						.withGridActivePower(0)) //
-				.addReference("meta", new DummyMeta()//
-						.withGridSellHardLimit(10_000) //
-						.withGridBuyLimit(b -> b //
-								.setHard(new GridBuyLimit.Hard(10000)) //
-								.setSoft(JSCalendar.Tasks.empty())) //
-						.withIsEssChargeFromGridAllowed(true) //
-						.withIsEssDischargeToGridAllowed(true)) //
+				.addReference("meta", new DummyMeta() //
+						.withGridLimit(l -> l //
+								.setGridSellHardLimit(10_000) //
+								.setGridBuyHardLimit(10_000) //
+								.setFuseCurrent(32) //
+								.setEssChargeFromGridAllowed(true) //
+								.setEssDischargeToGridAllowed(true))) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(this.baseConfig(Mode.MANUAL_ON) //
 						.setPower(0) //
