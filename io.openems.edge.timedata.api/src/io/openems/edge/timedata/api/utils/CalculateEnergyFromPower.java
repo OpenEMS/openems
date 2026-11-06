@@ -168,8 +168,12 @@ public class CalculateEnergyFromPower {
 							return;
 						}
 
-						this.state = State.CALCULATE_ENERGY_OPERATION;
-						this.baseCumulatedEnergy = 0L;
+						// GIVE-UP after the retry window: do NOT fall back to 0. Resetting the
+						// base to 0 corrupts the monotonic cumulated-energy counter (the value
+						// jumps down), which produces negative day-values in the history. Leave
+						// the base undefined (channel stays null = harmless gap) and keep
+						// retrying on later cycles so it self-heals once Timedata is readable.
+						this.state = State.TIMEDATA_QUERY_NOT_STARTED;
 						return;
 					}
 
@@ -178,9 +182,14 @@ public class CalculateEnergyFromPower {
 
 					if (cumulatedEnergyOpt.isPresent()) {
 						try {
-							this.baseCumulatedEnergy = TypeUtils.getAsType(OpenemsType.LONG, cumulatedEnergyOpt.get());
+							final var queried = TypeUtils.getAsType(OpenemsType.LONG, cumulatedEnergyOpt.get());
+							// Cumulated energy is monotonic: never lower an already established base
+							// (defense-in-depth against a regressing or garbled stored value).
+							this.baseCumulatedEnergy = this.baseCumulatedEnergy == null //
+								? queried //
+								: Math.max(this.baseCumulatedEnergy, queried);
 						} catch (IllegalArgumentException e) {
-							this.baseCumulatedEnergy = 0L;
+							// keep an established base; otherwise leave undefined (do NOT reset to 0)
 						}
 					} else {
 						this.baseCumulatedEnergy = 0L;

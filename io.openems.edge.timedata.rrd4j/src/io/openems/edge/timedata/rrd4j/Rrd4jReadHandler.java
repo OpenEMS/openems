@@ -427,6 +427,12 @@ public class Rrd4jReadHandler {
 						if (Double.isNaN(first) || Double.isNaN(last)) {
 							return JsonNull.INSTANCE;
 						}
+						if (last - first < 0) {
+							// A cumulated energy channel must be monotonic; a negative period value
+							// indicates a corrupted (reset) base value in the stored series.
+							this.log.warn("Non-monotonic cumulated channel [" + channelAddress + "]: last=" + last
+								+ " < first=" + first + " => data corruption suspected");
+						}
 						return new JsonPrimitive(last - first);
 					} catch (Exception e) {
 						if (debugMode) {
@@ -575,7 +581,12 @@ public class Rrd4jReadHandler {
 
 				return Optional.empty();
 			} catch (Exception e) {
-				return Optional.empty();
+				// Do NOT swallow transient DB/I-O errors into Optional.empty(): the caller
+				// (CalculateEnergyFromPower) cannot distinguish "no history" from "query
+				// failed" and resets the cumulated-energy base to 0, corrupting the counter.
+				// Propagate instead, so the caller's retry logic can handle it.
+				this.log.warn("Unable to query [" + channelAddress + "] from RRD4j: " + e.getMessage());
+				throw new CompletionException("Unable to query [" + channelAddress + "] from RRD4j", e);
 			}
 		});
 	}
