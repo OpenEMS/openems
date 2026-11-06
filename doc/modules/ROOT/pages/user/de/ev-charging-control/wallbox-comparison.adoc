@@ -110,7 +110,7 @@ OpenEMS hat zwei Ladepunkt-Anbindungen nebeneinander:
 | Steuerfunktion „Controller Electric Vehicle Charging Station“, Multiladepunkt Management
 |===
 
-Einige Hersteller gibt es in beiden Anbindungen. Neue Apps im App-Center nutzen für Alfen, KEBA und Mennekes die EVSE-Steuerung (siehe xref:user/de/devices/cluster.adoc[Cluster]).
+Einige Hersteller gibt es in beiden Anbindungen. Neue Apps im App Center nutzen für Alfen, KEBA und Mennekes die EVSE-Steuerung (siehe xref:user/de/devices/cluster.adoc[Cluster]).
 
 [#sec-evcc]
 === evcc

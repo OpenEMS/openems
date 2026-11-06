@@ -86,7 +86,7 @@ Die Verbindung stellt die Funktion **Controller.Api.Backend** her (meist `+ctrlB
 | die laufenden Protokollzeilen der Anlage
 | **Antworten**
 | auf Anfrage
-| Antworten auf Anfragen aus der Weboberfläche, z. B. Verläufe, Einstellungen, App-Center
+| Antworten auf Anfragen aus der Weboberfläche, z. B. Verläufe, Einstellungen, App Center
 |===
 
 Die zufällige Verzögerung bei den 5-Minuten-Werten sorgt dafür, dass nicht alle Anlagen zur selben Sekunde senden.

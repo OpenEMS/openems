@@ -17,7 +17,7 @@ Das FENECON Home ist ein Heimspeichersystem aus Hybrid-Wechselrichter, Batterie 
 [#sec-modelle]
 == Modelle
 
-OpenEMS kennt folgende Home-Varianten, jeweils als eigene App im App-Center:
+OpenEMS kennt folgende Home-Varianten, jeweils als eigene App im App Center:
 
 [cols="5*",options="header"]
 |===

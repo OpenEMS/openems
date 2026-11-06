@@ -79,7 +79,7 @@ Beide Werte werden mit hoher Priorität in der xref:user/de/data/history-rrd4j.a
 [#sec-einrichtung]
 === Einrichtung
 
-* **Als App:** „App.Ess.Limiter14a“ im App-Center. Man wählt den Speicher und einen Eingangskontakt. Es kann nur eine solche App geben.
+* **Als App:** „App.Ess.Limiter14a“ im App Center. Man wählt den Speicher und einen Eingangskontakt. Es kann nur eine solche App geben.
 * **Bei FENECON-Home- und Commercial-Systemen:** In der System-App gibt es die Option „Hat Limitierer für §14a“. Ist sie gesetzt, wird die Begrenzung automatisch eingerichtet; als Eingang wird der erste digitale Eingang des Steuerrechners verwendet (`+…/DigitalInput1+`). Die Option ist nur wählbar, wenn der Steuerrechner eigene Schaltein- und -ausgänge hat (CM3, CM4, CM4S, CM4S Gen2 oder Gen3); sonst ist sie ausgegraut.
 
 [#sec-was-es-noch-nicht-gibt]

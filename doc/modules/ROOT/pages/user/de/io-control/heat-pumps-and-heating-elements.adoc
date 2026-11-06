@@ -34,7 +34,7 @@ Wärmepumpen und Heizstäbe sind gute Abnehmer für Solarstrom: Wärme lässt si
 | Controller.IO.Heating.Room
 |===
 
-Wärmepumpe und Heizstäbe lassen sich auch über das App-Center einrichten (Apps für Wärmepumpe, Heizstab, Askoma, my-PV und Blockheizkraftwerk). Für die Raumheizung gibt es keine App.
+Wärmepumpe und Heizstäbe lassen sich auch über das App Center einrichten (Apps für Wärmepumpe, Heizstab, Askoma, my-PV und Blockheizkraftwerk). Für die Raumheizung gibt es keine App.
 
 [#sec-waermepumpe-mit-sg-ready]
 == Wärmepumpe mit SG-Ready

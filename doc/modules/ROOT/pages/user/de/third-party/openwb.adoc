@@ -167,7 +167,7 @@ Der Ladepunkt erscheint in OpenEMS als **gemessener Verbraucher** und geht damit
 * **Nur lesen:** Die Komponente ist ein reiner Messwert-Ladepunkt. OpenEMS kann die openWB damit **nicht steuern** (kein Überschussladen durch OpenEMS, keine Leistungsvorgabe). Überschussladen macht in dieser Kombination die openWB selbst, mit den Werten aus dem ersten Abschnitt.
 * Nur **interne** Ladepunkte der openWB, keine weiteren Ladepunkte, die die openWB verwaltet.
 * Der Energiezähler der openWB wird als absoluter Zählerstand übernommen.
-* In OpenEMS gibt es für die openWB keine App im App-Center; Bridge und Komponente werden als Komponenten angelegt.
+* In OpenEMS gibt es für die openWB keine App im App Center; Bridge und Komponente werden als Komponenten angelegt.
 
 [#sec-typische-fragen]
 == Typische Fragen
