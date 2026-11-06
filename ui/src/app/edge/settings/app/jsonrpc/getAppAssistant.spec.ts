@@ -1,6 +1,5 @@
-// @ts-strict-ignore
 import { FormlyFieldConfig } from "@ngx-formly/core";
-import { GetAppAssistant } from "./getAppAssistant";
+import { FormlyFieldConfigWithInitialModel, GetAppAssistant } from "./getAppAssistant";
 
 describe("GetAppAssistant", () => {
     let fields: FormlyFieldConfig[];
@@ -40,13 +39,13 @@ describe("GetAppAssistant", () => {
     });
 
     it("#setInitialModel should set the initial model on every field", () => {
-        expect(GetAppAssistant.findField(fields, ["a"])["initialModel"]).toBeUndefined();
-        expect(GetAppAssistant.findField(fields, ["a", "b"])["initialModel"]).toBeUndefined();
-        expect(GetAppAssistant.findField(fields, ["c"])["initialModel"]).toBeUndefined();
+        expect((GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
+        expect((GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
+        expect((GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
         GetAppAssistant.getInitialFields(fields, {});
-        expect(GetAppAssistant.findField(fields, ["a"])["initialModel"]).toBeDefined();
-        expect(GetAppAssistant.findField(fields, ["a", "b"])["initialModel"]).toBeDefined();
-        expect(GetAppAssistant.findField(fields, ["c"])["initialModel"]).toBeDefined();
+        expect((GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
+        expect((GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
+        expect((GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
     });
 
     it("#convertStringExpressions should parse number inputs to numbers", () => {
