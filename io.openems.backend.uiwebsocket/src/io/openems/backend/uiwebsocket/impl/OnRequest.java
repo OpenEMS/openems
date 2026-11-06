@@ -124,6 +124,12 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return CompletableFuture.failedFuture(RATE_LIMIT_EXCEPTION);
 		}
 
+		// neutrava: public unauthenticated requests (e.g. password reset),
+		// delegated to the Metadata implementation if it supports it.
+		if (request.getMethod() != null && request.getMethod().startsWith("neutravaPublic")) {
+			return this.handleNeutravaPublicRequest(request);
+		}
+
 		return this.assertUserToken(wsData).thenCompose(user -> {
 			try {
 				var response = this.handleAuthenticatedRequest(user, wsData, request);
@@ -212,6 +218,30 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 					"OAuth authentication is not supported by this OpenEMS instance");
 		}
 		return OAuthAuthenticationHandler.handleRequest(this.parent.metadata, authService, request, wsData);
+	}
+
+	/**
+	 * neutrava: delegates 'neutravaPublic*' requests to the Metadata
+	 * implementation, if it provides a public
+	 * 'handlePublicRpc(JsonrpcRequest)' method.
+	 */
+	@SuppressWarnings("unchecked")
+	private CompletableFuture<JsonrpcResponseSuccess> handleNeutravaPublicRequest(JsonrpcRequest request)
+			throws OpenemsNamedException {
+		try {
+			var m = this.parent.metadata.getClass().getMethod("handlePublicRpc", JsonrpcRequest.class);
+			return (CompletableFuture<JsonrpcResponseSuccess>) m.invoke(this.parent.metadata, request);
+		} catch (NoSuchMethodException e) {
+			throw new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod());
+		} catch (java.lang.reflect.InvocationTargetException e) {
+			var cause = e.getCause();
+			if (cause instanceof OpenemsNamedException ne) {
+				throw ne;
+			}
+			throw OpenemsError.GENERIC.exception(cause != null ? cause.getMessage() : e.getMessage());
+		} catch (Exception e) {
+			throw OpenemsError.GENERIC.exception(e.getMessage());
+		}
 	}
 
 	private CompletableFuture<User> assertUserToken(WsData wsData) throws OpenemsNamedException {
