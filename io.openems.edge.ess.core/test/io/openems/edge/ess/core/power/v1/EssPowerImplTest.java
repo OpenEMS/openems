@@ -975,4 +975,92 @@ public class EssPowerImplTest {
 			assertEquals(description + " for " + ess.id(), qL3, record.reactivePowerL3());
 		});
 	}
+
+	/**
+	 * Verifies power distribution when a sub-ESS is temporarily removed from an
+	 * EssCluster — a scenario seen intermittently in production FEMS, e.g. when a
+	 * battery inverter restarts or loses communication while the cluster controller
+	 * is still active.
+	 *
+	 * <p>
+	 * Without fix: removing ess3 from EssPower leaves its LP coefficients (ess3_P,
+	 * ess3_Q) unconstrained. The solver objective becomes unbounded,
+	 * {@code setActivePowerEqualsWithoutFilter()} short-circuits (getMinPower /
+	 * getMaxPower both return 0), the 30 kW target is never set, and
+	 * NOT_SOLVED=true.
+	 *
+	 * <p>
+	 * With fix: {@code createZeroConstraintsForOrphanedMetaEssMembers()} pins
+	 * ess3_P=0 and ess3_Q=0, the LP stays bounded, and the 30 kW target is split
+	 * equally between the two remaining inverters (ess1=15 kW, ess2=15 kW).
+	 */
+	@Test
+	public void testClusterWithOneSubEssDeactivated() throws Exception {
+		var powerComponent = new EssPowerImpl();
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(20000) //
+				.withSoc(50);
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2, ess3) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.addReference("addEss", ess3) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build());
+
+		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+
+		expect("#1", ess1, 10000, 0);
+		expect("#1", ess2, 10000, 0);
+		expect("#1", ess3, 10000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#1") //
+		);
+
+		componentTest.removeReference("removeEss", ess3);
+
+		expect("#2", ess1, 15000, 0);
+		expect("#2", ess2, 15000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#2") //
+				.output("_power", EssPower.ChannelId.NOT_SOLVED, false) //
+		);
+
+		componentTest.addReference("addEss", ess3);
+
+		assertEquals(60000, powerComponent.getMaxPower(ess0, ALL, ACTIVE));
+
+		expect("#3", ess1, 10000, 0);
+		expect("#3", ess2, 10000, 0);
+		expect("#3", ess3, 10000, 0);
+		ess0.setActivePowerEqualsWithoutFilter(30000);
+		componentTest.next(new TestCase("#3") //
+		);
+	}
 }
