@@ -5,6 +5,8 @@
 :experimental:
 :icons: font
 :page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
 
 This page in English: xref:user/third-party/home-assistant.adoc[OpenEMS: Home Assistant integration]
 

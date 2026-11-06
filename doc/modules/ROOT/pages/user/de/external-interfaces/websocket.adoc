@@ -5,6 +5,8 @@
 :experimental:
 :icons: font
 :page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
 
 This page in English: xref:user/external-interfaces/websocket.adoc[OpenEMS: Websocket]
 

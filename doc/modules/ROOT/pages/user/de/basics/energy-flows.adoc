@@ -5,6 +5,8 @@
 :experimental:
 :icons: font
 :page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
 
 This page in English: xref:user/basics/energy-flows.adoc[OpenEMS: Production, consumption, grid and storage]
 
