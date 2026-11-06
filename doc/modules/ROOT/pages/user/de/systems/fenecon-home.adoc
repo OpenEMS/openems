@@ -324,7 +324,6 @@ Der Wechselrichter-Baustein enthält umfangreiche Einstellungen für die Netzans
 * Der **Notstromausgang** kann ein- oder ausgeschaltet werden („Off-Grid outlet“).
 * Ein eigener Zähler (`+meter2+`) misst die Leistung am Notstromausgang.
 * Im Inselbetrieb zeigt OpenEMS den Netzzustand „Off-Grid“ an und zählt die Zeit im Inselbetrieb mit.
-* Für Notstromaggregate gibt es eine Anbindung über eine STS-Box.
 
 [#sec-dc-ueberschuss]
 === DC-Überschuss

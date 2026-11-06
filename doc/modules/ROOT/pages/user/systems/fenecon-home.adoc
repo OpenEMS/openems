@@ -324,7 +324,6 @@ The inverter component contains extensive settings for the grid connection rules
 * The **emergency power output** can be switched on or off (“Off-Grid outlet”).
 * A separate meter (`+meter2+`) measures the power at the emergency power output.
 * In island mode, OpenEMS shows the grid state “Off-Grid” and counts the time in island mode.
-* There is a connection via an STS box for emergency generators.
 
 [#sec-dc-surplus]
 === DC surplus
