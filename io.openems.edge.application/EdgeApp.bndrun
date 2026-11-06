@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
+-runfw: org.apache.felix.framework;version='[8.0.0,8.0.0]'
 -runee: JavaSE-25
 -runprovidedcapabilities: ${native_capability}
 
