@@ -74,7 +74,7 @@
 	io.prometheus.metrics-tracer-otel;version='[1.10.0,1.10.1)',\
 	io.prometheus.metrics-tracer-otel-agent;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
-	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
+	org.apache.felix.configadmin;version='[1.10.0,1.10.1)';startlevel=11,\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
 	org.apache.felix.http.jetty12;version='[2.0.8,2.0.9)',\
