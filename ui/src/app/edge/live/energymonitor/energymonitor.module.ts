@@ -8,6 +8,7 @@ import { GridSectionComponent } from "./chart/section/grid.component";
 import { ProductionSectionComponent } from "./chart/section/production.component";
 import { StorageSectionComponent } from "./chart/section/storage.component";
 import { EnergymonitorComponent } from "./energymonitor.component";
+import { EnergyflowComponent } from "./flow/flow.component";
 
 @NgModule({
     imports: [
@@ -18,12 +19,14 @@ import { EnergymonitorComponent } from "./energymonitor.component";
     declarations: [
         ConsumptionSectionComponent,
         EnergymonitorChartComponent,
+        EnergyflowComponent,
         EnergymonitorComponent,
         GridSectionComponent,
         ProductionSectionComponent,
         StorageSectionComponent,
     ],
     exports: [
+        EnergyflowComponent,
         EnergymonitorComponent,
     ],
 })

@@ -148,7 +148,15 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             sum.grid.gridBuyPrice !== null
                 ? Utils.CONVERT_PRICE_TO_CENT_PER_KWH(0, currencyLabel)(sum.grid.gridBuyPrice)
                 : null;
+        const hadGridBuyPrice = this.gridBuyPrice !== null;
         this.gridBuyPrice = this.calculateSubValueProperties(value);
+
+        // The price arrives asynchronously (after getConfig), i.e. after the layout has
+        // already been calculated. If the price appears or disappears, recalculate the
+        // layout so that icon and price text do not overlap.
+        if (hadGridBuyPrice !== (this.gridBuyPrice !== null) && this.square) {
+            this.updateOnWindowResize(this.outerRadius, this.innerRadius, this.height, this.width);
+        }
 
         if (this.square) {
             // Set Grid-Mode
@@ -206,11 +214,15 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected setElementHeight() {
         this.square.valueText.y = this.square.valueText.y - this.square.valueText.y * 0.3;
-        this.square.image.y =
-            this.square.image.y -
-            this.square.image.y * 0.3 +
-            // Move down for grid-buy-price
-            (this.gridBuyPrice !== null ? 12 : 0);
+        this.square.image.y = this.square.image.y - this.square.image.y * 0.3;
+
+        if (this.gridBuyPrice !== null) {
+            // Recalculate the grid-buy-price position from the moved value text and place the
+            // icon below the price line (a fixed offset was too small and the price overlapped the icon)
+            const price = this.calculateSubValueProperties(this.gridBuyPrice.value);
+            this.gridBuyPrice = price;
+            this.square.image.y = Math.max(this.square.image.y, price.yPosition + price.fontsize * 0.35);
+        }
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {

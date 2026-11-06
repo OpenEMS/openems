@@ -1,0 +1,15 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "本日の再生可能エネルギー率",
+                "CONSUMPTION_TODAY": "本日の消費",
+                "EMPTY_AT": "~{{value}}まで持続",
+                "FULL_AT": "満充電 ~{{value}}",
+                "GRID_BUY_TODAY": "本日の買電",
+                "GRID_SELL_TODAY": "本日の売電",
+                "PRODUCTION_TODAY": "本日の発電"
+            }
+        }
+    }
+}

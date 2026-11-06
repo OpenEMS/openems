@@ -9,6 +9,7 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment } from "src/environments";
 
 @Component({
     selector: "live",
@@ -33,6 +34,7 @@ export class LiveComponent implements OnDestroy, OnInit {
     protected showRefreshDragDown: boolean = false;
     protected showNewFooter: boolean = false;
     protected isTablet: boolean = false;
+    protected readonly energyMonitor = environment.energyMonitor ?? "ring";
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private interval: ReturnType<typeof setInterval> | undefined;
