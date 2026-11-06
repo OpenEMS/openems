@@ -53,4 +53,5 @@ Preserve intentional trailing `//` markers in fluent `ComponentTest` chains.
 
 - Java: use the Gradle wrapper and prefer single-bundle tasks, for example `.\gradlew.bat :bundle.name:test` and `.\gradlew.bat :bundle.name:checkstyleMain` on Windows PowerShell.
 - Java pre-PR checks: `.\gradlew.bat checkstyleAll`; use `.\gradlew.bat buildEdge` or `.\gradlew.bat buildBackend` when app assembly/resolve behavior is affected.
+- App `.bndrun` files (`EdgeApp`, `BackendApp`, `BackendEdgeApp`) must keep their `buildpath`-style lists (`-runrequires`, `-runbundles`) sorted (`LC_ALL=C`, by bundle name). `tools/prepare-commit.sh` re-sorts and re-resolves them; after running a `resolve.*` task directly, check `git diff` for entries appended out of order and re-sort them.
 - Avoid blocking long-running/watch commands unless explicitly requested.
