@@ -20,8 +20,8 @@ export class IndexComponent implements OnInit {
     private static readonly SELECTOR = "indexComponentInstall";
 
     public components: CategorizedComponents[] | null = null;
-    public list: MyCategorizedFactories[] = [];
     public showAllFactories = false;
+    private list: MyCategorizedFactories[] = [];
 
     private edge!: Edge;
 

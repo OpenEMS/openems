@@ -9,7 +9,7 @@ import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    protected selfconsumptionValue: number | null = null;
+    private selfconsumptionValue: number | null = null;
 
     protected override onCurrentData(currentData: CurrentData) {
         this.selfconsumptionValue = Utils.calculateSelfConsumption(

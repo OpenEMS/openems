@@ -22,7 +22,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     standalone: false,
 })
 export class HistoryDataErrorComponent {
-    protected type: ErrorType = null;
+    private type: ErrorType = null;
 
     @Input()
     set response(response: JsonrpcResponseError | null) {

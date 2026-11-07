@@ -18,7 +18,7 @@ export class FormlySafeInputModalComponent implements OnInit {
     protected model!: {};
 
     protected form: FormGroup = new FormGroup({});
-    protected myModel: {} = {};
+    private myModel: {} = {};
 
     constructor(protected modalCtrl: ModalController) {}
 

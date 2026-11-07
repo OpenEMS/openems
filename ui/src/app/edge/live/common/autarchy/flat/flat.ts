@@ -11,8 +11,8 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    public percentageValue: number | null = null;
     protected modalComponent: Modal | null = null;
+    private percentageValue: number | null = null;
 
     protected getModalComponent(): Modal {
         return { component: ModalComponent };
