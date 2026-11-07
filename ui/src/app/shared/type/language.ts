@@ -4,10 +4,12 @@ import localEN from "@angular/common/locales/en";
 import localES from "@angular/common/locales/es";
 import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
+import localLT from "@angular/common/locales/lt";
 import localNL from "@angular/common/locales/nl";
+import localSV from "@angular/common/locales/sv";
 import { TranslateLoader } from "@ngx-translate/core";
 import { Locale } from "date-fns";
-import { cs as dateFnsLocaleCs, de as dateFnsLocaleDe, enUS as dateFnsLocaleEn, es as dateFnsLocaleEs, fr as dateFnsLocaleFr, ja as dateFnsLocaleJa, nl as dateFnsLocaleNl, } from "date-fns/locale";
+import { cs as dateFnsLocaleCs, de as dateFnsLocaleDe, enUS as dateFnsLocaleEn, es as dateFnsLocaleEs, fr as dateFnsLocaleFr, ja as dateFnsLocaleJa, lt as dateFnsLocaleLt, nl as dateFnsLocaleNl, sv as dateFnsLocaleSv, } from "date-fns/locale";
 import { Observable, of } from "rxjs";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
@@ -16,7 +18,9 @@ import en from "src/assets/i18n/en.json";
 import es from "src/assets/i18n/es.json";
 import fr from "src/assets/i18n/fr.json";
 import ja from "src/assets/i18n/ja.json";
+import lt from "src/assets/i18n/lt.json";
 import nl from "src/assets/i18n/nl.json";
+import sv from "src/assets/i18n/sv.json";
 
 export interface Translation {
     [key: string]: string | Translation;
@@ -48,6 +52,8 @@ export class Language {
     public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES, dateFnsLocaleEs);
     public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR, dateFnsLocaleFr);
     public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA, dateFnsLocaleJa);
+    public static readonly LT: Language = new Language("Lithuanian", "lt", "lt", lt, localLT, dateFnsLocaleLt);
+    public static readonly SV: Language = new Language("Swedish", "sv", "sv", sv, localSV, dateFnsLocaleSv);
 
     public static readonly ALL = [
         Language.DE,
@@ -57,12 +63,15 @@ export class Language {
         Language.ES,
         Language.FR,
         Language.JA,
+        Language.LT,
+        Language.SV,
     ];
     public static readonly DEFAULT = Language.EN;
 
     constructor(
         public readonly title: string,
         public readonly key: string,
+        /** The i18n locale key used for translations, */
         public readonly i18nLocaleKey: string,
         public readonly json: any,
         // Angular is not providing common type for locale.
@@ -112,6 +121,10 @@ export class Language {
                 return Language.FR;
             case "ja":
                 return Language.JA;
+            case "lt":
+                return Language.LT;
+            case "sv":
+                return Language.SV;
             default:
                 return null;
         }
@@ -133,6 +146,10 @@ export class Language {
                 return Language.FR.locale;
             case Language.JA.key:
                 return Language.JA.locale;
+            case Language.LT.key:
+                return Language.LT.locale;
+            case Language.SV.key:
+                return Language.SV.locale;
             default:
                 return Language.DEFAULT.locale;
         }

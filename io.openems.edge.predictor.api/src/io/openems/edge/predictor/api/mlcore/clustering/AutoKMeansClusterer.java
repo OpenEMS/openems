@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 public class AutoKMeansClusterer implements Clusterer {
 
@@ -65,9 +66,10 @@ public class AutoKMeansClusterer implements Clusterer {
 	 * This allows bypassing the automatic selection of cluster count (k) and
 	 * directly using the given centroids as cluster centers.
 	 *
-	 * @param centroids the list of centroid vectors to initialize the clusterer
-	 *                  with
-	 * @param upperQuantileCentroids the list of quantile centroids (75th percentile)
+	 * @param centroids              the list of centroid vectors to initialize the
+	 *                               clusterer with
+	 * @param upperQuantileCentroids the list of quantile centroids (75th
+	 *                               percentile)
 	 * @return an AutoKMeansClusterer initialized with the specified centroids
 	 * @throws IllegalArgumentException if centroids are invalid (e.g. null or
 	 *                                  inconsistent dimensions)

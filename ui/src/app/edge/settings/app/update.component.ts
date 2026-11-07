@@ -20,6 +20,7 @@ import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
 import { QueryAppInstancesByFilter } from "./jsonrpc/queryAppInstancesByFilter";
+import { prepareProperties } from "./jsonrpc/shared";
 import { SwitchArchitecture } from "./jsonrpc/switchArchitecture";
 import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
@@ -288,14 +289,8 @@ export class UpdateAppComponent implements OnInit {
         }
         this.service.startSpinnerTransparentBackground(instance.instanceId);
         instance.isUpdating = true;
-        // remove alias field from properties
         const alias = instance.form.value["ALIAS"];
-        const clonedFields: Record<string, any> = {};
-        for (const item in instance.form.value) {
-            if (item != "ALIAS") {
-                clonedFields[item] = instance.form.value[item];
-            }
-        }
+        const properties = prepareProperties(instance.form.value, instance.fields);
         instance.form.markAsPristine();
         this.edge
             .sendRequest(
@@ -305,7 +300,7 @@ export class UpdateAppComponent implements OnInit {
                     payload: new UpdateAppInstance.Request({
                         instanceId: instance.instanceId,
                         alias: alias,
-                        properties: clonedFields,
+                        properties: properties,
                     }),
                 }),
             )

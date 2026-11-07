@@ -1,11 +1,8 @@
 package io.openems.backend.timedata.influx;
 
-import static java.util.Arrays.stream;
-
 import com.google.common.collect.ImmutableSet;
 
 public class ChannelFilter {
-
 	/**
 	 * Creates a new {@link ChannelFilter} from the provided arguments.
 	 * 
@@ -15,10 +12,8 @@ public class ChannelFilter {
 	 */
 	public static ChannelFilter from(String[] blacklistedChannelAddresses, String[] blacklistedChannelIds) {
 		return new ChannelFilter(//
-				stream(blacklistedChannelAddresses) //
-						.collect(ImmutableSet.toImmutableSet()), //
-				stream(blacklistedChannelIds) //
-						.collect(ImmutableSet.toImmutableSet()));
+				ImmutableSet.copyOf(blacklistedChannelAddresses), //
+				ImmutableSet.copyOf(blacklistedChannelIds));
 	}
 
 	private final ImmutableSet<String> blacklistedChannelAddresses;
@@ -53,18 +48,18 @@ public class ChannelFilter {
 		}
 
 		// Valid Component-ID
-		final var componentId = channelAddress.substring(0, indexOfDelimiter);
-		if (!isValidComponentId(componentId)) {
+		if (!isValidComponentId(channelAddress, 0, indexOfDelimiter)) {
 			return false;
 		}
 
 		// Blacklisted ChannelIds.
-		final var channelId = channelAddress.substring(indexOfDelimiter + 1);
-		if (channelId.isEmpty() || this.blacklistedChannelIds.contains(channelId)) {
+		final var channelIdStart = indexOfDelimiter + 1;
+		if (channelIdStart == channelAddress.length()) {
 			return false;
 		}
 
-		return true;
+		return this.blacklistedChannelIds.isEmpty() //
+				|| !this.blacklistedChannelIds.contains(channelAddress.substring(channelIdStart));
 	}
 
 	/**
@@ -92,52 +87,42 @@ public class ChannelFilter {
 	 * @return true if it is a valid id; else false
 	 */
 	public static boolean isValidComponentId(String componentId) {
-		if (componentId == null || componentId.length() < 2) {
+		return componentId != null && isValidComponentId(componentId, 0, componentId.length());
+	}
+
+	/**
+	 * Checks if the Component-ID in the range [from, to) of the given String is
+	 * valid.
+	 *
+	 * @param s    the String containing the Component-ID
+	 * @param from the inclusive start index of the Component-ID
+	 * @param to   the exclusive end index of the Component-ID
+	 * @return true if it is a valid id; else false
+	 */
+	private static boolean isValidComponentId(String s, int from, int to) {
+		if (to - from < 2) {
 			return false;
 		}
+
 		// core/singleton component
-		if (componentId.startsWith("_")) {
-			if (!isLatinLowerCaseLetter(componentId.charAt(1))) {
-				return false;
-			}
-
-			for (int i = 2; i < componentId.length() - 1; i++) {
-				if (!isValidChar(componentId.charAt(i))) {
-					return false;
-				}
-			}
-
-			if (!isLatinLetter(componentId.charAt(componentId.length() - 1))) {
-				return false;
-			}
-
-			return true;
+		if (s.charAt(from) == '_') {
+			return isLatinLowerCaseLetter(s.charAt(from + 1)) //
+					&& isLatinLetter(s.charAt(to - 1)) //
+					&& hasOnlyValidChars(s, from + 2, to);
 		}
 
 		// factory component
-		if (!isLatinLowerCaseLetter(componentId.charAt(0))) {
-			return false;
-		}
+		return isLatinLowerCaseLetter(s.charAt(from)) //
+				&& isDecimalNumber(s.charAt(to - 1)) //
+				&& hasOnlyValidChars(s, from + 1, to);
+	}
 
-		var lastDigitIndex = -1;
-		for (int i = componentId.length() - 1; i >= 0; i--) {
-			final var c = componentId.charAt(i);
-			if (!isDecimalNumber(c)) {
-				break;
-			}
-			lastDigitIndex = i;
-		}
-
-		if (lastDigitIndex == -1) {
-			return false;
-		}
-
-		for (int i = 1; i < lastDigitIndex; i++) {
-			if (!isValidChar(componentId.charAt(i))) {
+	private static boolean hasOnlyValidChars(String s, int from, int to) {
+		for (int i = from; i < to; i++) {
+			if (!isValidChar(s.charAt(i))) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 

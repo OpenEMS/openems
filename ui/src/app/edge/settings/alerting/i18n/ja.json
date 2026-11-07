@@ -1,7 +1,7 @@
 {
     "ALERTING": {
-        "DELAY": "遅延",
         "CHECKBOX_HELP": "イベントが発生すると、設定された遅延時間の経過後にEメールが届きます。",
+        "DELAY": "遅延",
         "FAULT": "故障",
         "ONLINE_STATUS": "オンライン状態",
         "OTHER_USERS": "他のユーザー"
