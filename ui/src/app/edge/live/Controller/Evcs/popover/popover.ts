@@ -8,5 +8,5 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
     standalone: false,
 })
 export class PopoverComponent extends AbstractModal {
-    public chargeMode!: ChargeMode;
+    public chargeMode: ChargeMode | null = null;
 }
