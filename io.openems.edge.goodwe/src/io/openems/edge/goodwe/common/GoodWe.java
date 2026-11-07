@@ -2034,7 +2034,14 @@ public interface GoodWe extends OpenemsComponent {
 
 		GRID_MODE_FAULT(Doc.of(Level.WARNING)//
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
-				.translationKey(GoodWe.class, "GoodWe.GridMode.Fault"));
+				.translationKey(GoodWe.class, "GoodWe.GridMode.Fault")), //
+
+		/**
+		 * Diagnostic channel: unchanged raw value of register 35136, exposed before
+		 * model-specific mapping and filtering.
+		 */
+		RAW_GRID_MODE(Doc.of(OpenemsType.INTEGER)//
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

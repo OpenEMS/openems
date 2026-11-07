@@ -13,9 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Nested;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.osgi.service.event.Event;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -42,6 +45,7 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -68,6 +72,7 @@ import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.GoodWePowerSetting;
+import io.openems.edge.goodwe.common.GridModeTestHelper;
 import io.openems.edge.goodwe.common.enums.BatteryPort;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
@@ -927,6 +932,119 @@ class GoodWeBatteryInverterImplTest {
 		// Values should be updated
 		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 456));
 		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
+	}
+
+	@ParameterizedTest
+	@CsvSource({ //
+			"FENECON_100K, false, 0, OFF_GRID", //
+			"FENECON_GEN2_10K, false, 2, OFF_GRID", //
+			"FENECON_100K, true, 1, OFF_GRID_GENSET", //
+	})
+	void testGridModeRegisterArrivalAfterCapturePublishesInSameCycle(GoodWeType type, boolean genset, int raw,
+			GridMode expected) throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var afterCapture = new AtomicReference<Runnable>();
+		var test = new ComponentTest(sut) {
+			@Override
+			protected void handleEvent(String topic) throws Exception {
+				super.handleEvent(topic);
+				if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
+					var callback = afterCapture.getAndSet(null);
+					if (callback != null) {
+						callback.run();
+					}
+				}
+			}
+		};
+		var bridge = new DummyModbusBridge("modbus0") {
+			@Override
+			public void handleEvent(Event event) {
+			}
+		};
+		activateGridModeInverter(test, bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, type);
+		GridModeTestHelper.receiveGridMode(sut, 1);
+		test.next(new TestCase() //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GENSET_OPERATING_MODE, genset);
+		afterCapture.set(() -> GridModeTestHelper.receiveGridMode(sut, raw));
+		test.next(new TestCase() //
+				.outputReadValue(GoodWe.ChannelId.RAW_GRID_MODE, raw) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected)) //
+				.next(new TestCase() //
+						.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected)) //
+				.deactivate();
+	}
+
+	@Test
+	void testC50MeterStatusConfirmsOffGrid() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var clock = createDummyClock();
+		GridModeTestHelper.setGridModeClock(sut, clock);
+		var bridge = new DummyModbusBridge("modbus0") //
+				.withRegister(35136, 0) //
+				.withRegister(36004, MeterCommunicateStatus.NG.getValue());
+		var test = activateGridModeInverter(new ComponentTest(sut), bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K);
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> GridModeTestHelper.receiveGridMode(sut, 0)) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		for (var cycle = 0; cycle < 100 && sut.channel(SymmetricBatteryInverter.ChannelId.GRID_MODE).value()
+				.asEnum() != GridMode.OFF_GRID; cycle++) {
+			test.next(new TestCase());
+		}
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID)) //
+				.deactivate();
+	}
+
+	@Test
+	void testC50DeadlineWithPendingMeterReadAndNoNewGridMode() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var clock = createDummyClock();
+		GridModeTestHelper.setGridModeClock(sut, clock);
+		var bridge = new DummyModbusBridge("modbus0") {
+			@Override
+			public void handleEvent(Event event) {
+			}
+		};
+		var test = activateGridModeInverter(new ComponentTest(sut), bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K);
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> GridModeTestHelper.receiveGridMode(sut, 0)) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		clock.leap(29, ChronoUnit.SECONDS);
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		clock.leap(1, ChronoUnit.SECONDS);
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID)) //
+				.deactivate();
+	}
+
+	private static ComponentTest activateGridModeInverter(ComponentTest test, DummyModbusBridge bridge)
+			throws Exception {
+		return test //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", bridge) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build());
 	}
 
 	@Test
