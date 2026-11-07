@@ -1,5 +1,6 @@
 package io.openems.edge.fronius.gen24.batteryinverter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
@@ -157,14 +158,14 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER,
-				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S103.W);
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, DIRECT_1_TO_1,
+				DefaultSunSpecModel.S103.W);
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
-				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, DIRECT_1_TO_1,
+				DefaultSunSpecModel.S103.V_AR);
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, DIRECT_1_TO_1,
+				DefaultSunSpecModel.S121.W_MAX);
 
 		this.mapFirstPointToChannel(BatteryInverterFroniusGen24.ChannelId.OPERATING_STATE,
 				enumConverter(DefaultSunSpecModel.S103_St.values()), DefaultSunSpecModel.S103.ST);
@@ -253,9 +254,7 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 	private void installListeners() {
 
-		final Consumer<Value<Float>> calculateFloat = ignore -> {
-			this.recalculateDcDischargePower();
-		};
+		final Consumer<Value<Float>> calculateFloat = _ -> this.recalculateDcDischargePower();
 
 		try {
 

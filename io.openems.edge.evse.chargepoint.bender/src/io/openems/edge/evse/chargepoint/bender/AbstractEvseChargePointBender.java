@@ -1,5 +1,6 @@
 package io.openems.edge.evse.chargepoint.bender;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
@@ -13,7 +14,6 @@ import org.osgi.service.event.Event;
 
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -87,12 +87,9 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(214)), //
 						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(216)), //
 						new DummyRegisterElement(218, 221),
-						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(222),
-								ElementToChannelConverters.SCALE_FACTOR_3), //
-						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(224),
-								ElementToChannelConverters.SCALE_FACTOR_3), //
-						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(226),
-								ElementToChannelConverters.SCALE_FACTOR_3)));
+						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(222), SCALE_FACTOR_3), //
+						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(224), SCALE_FACTOR_3), //
+						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(226), SCALE_FACTOR_3)));
 	}
 
 	/**

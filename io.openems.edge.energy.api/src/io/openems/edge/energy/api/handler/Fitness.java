@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import io.openems.edge.energy.api.handler.Fitness.CustomConstraint;
-
 public record Fitness(//
 		int hardConstraintViolations, //
 		List<AppliedCustomConstraint> constraintsAfterHardConstraintViolations, //
@@ -86,7 +84,7 @@ public record Fitness(//
 
 		/**
 		 * Compares this constraint value to another, respecting the
-		 * {@link CustomConstraint.Direction} defined.
+		 * {@link Fitness.CustomConstraint.Direction} defined.
 		 *
 		 * @param o the other {@link AppliedCustomConstraint} to compare to; must have
 		 *          the same {@link CustomConstraint} definition

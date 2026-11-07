@@ -1,5 +1,6 @@
 package io.openems.edge.fronius.gen24.battery;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -154,11 +155,9 @@ public class FroniusGen24BatteryImpl extends AbstractOpenemsSunSpecComponent
 
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.mapFirstPointToChannel(Battery.ChannelId.SOC, //
-				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S124.CHA_STATE);
+		this.mapFirstPointToChannel(Battery.ChannelId.SOC, DIRECT_1_TO_1, DefaultSunSpecModel.S124.CHA_STATE);
 
-		this.mapFirstPointToChannel(Battery.ChannelId.CAPACITY, //
-				ElementToChannelConverters.DIRECT_1_TO_1, DefaultSunSpecModel.S120.W_H_RTG);
+		this.mapFirstPointToChannel(Battery.ChannelId.CAPACITY, DIRECT_1_TO_1, DefaultSunSpecModel.S120.W_H_RTG);
 
 		this.mapFirstPointToChannel(FroniusGen24Battery.ChannelId.BAT_STATUS, //
 				enumConverter(io.openems.edge.fronius.enums.BatteryState.values()), DefaultSunSpecModel.S124.CHA_ST);
@@ -201,19 +200,19 @@ public class FroniusGen24BatteryImpl extends AbstractOpenemsSunSpecComponent
 	private void installListeners() {
 
 		try {
-			final Consumer<Value<Float>> recalcCurrentAndVoltage = ignore -> this.recalculateCurrentAndVoltage();
+			final Consumer<Value<Float>> recalcCurrentAndVoltage = _ -> this.recalculateCurrentAndVoltage();
 
 			this.getModule3DcaChannel().onSetNextValue(recalcCurrentAndVoltage);
 			this.getModule4DcaChannel().onSetNextValue(recalcCurrentAndVoltage);
 			this.getModule3DcVChannel().onSetNextValue(recalcCurrentAndVoltage);
 			this.getModule4DcVChannel().onSetNextValue(recalcCurrentAndVoltage);
 
-			final Consumer<Value<Float>> recalcChargeDischargePower = ignore -> this.recalculateChargeDischargePower();
+			final Consumer<Value<Float>> recalcChargeDischargePower = _ -> this.recalculateChargeDischargePower();
 
 			this.getModule3DcwChannel().onSetNextValue(recalcChargeDischargePower);
 			this.getModule4DcwChannel().onSetNextValue(recalcChargeDischargePower);
 
-			final Consumer<Value<Float>> recalcLimits = ignore -> this.updatePowerLimits();
+			final Consumer<Value<Float>> recalcLimits = _ -> this.updatePowerLimits();
 
 			this.getStorageWChaMaxChannel().onSetNextValue(recalcLimits);
 			this.getModule3DcVChannel().onSetNextValue(recalcLimits);

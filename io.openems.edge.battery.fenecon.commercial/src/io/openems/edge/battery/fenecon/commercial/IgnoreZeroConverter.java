@@ -1,7 +1,8 @@
 package io.openems.edge.battery.fenecon.commercial;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverters;
 
 /**
  * Before the battery is started, values are wrongly received as 'zero' via
@@ -24,7 +25,7 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 	 */
 	public static ElementToChannelConverter from(BatteryFeneconCommercialImpl parent,
 			ElementToChannelConverter converter) {
-		if (converter == ElementToChannelConverters.DIRECT_1_TO_1) {
+		if (converter == DIRECT_1_TO_1) {
 			return new IgnoreZeroConverter(parent);
 		}
 		return ElementToChannelConverter.chain(new IgnoreZeroConverter(parent), converter);
