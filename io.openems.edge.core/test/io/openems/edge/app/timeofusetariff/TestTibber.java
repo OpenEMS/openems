@@ -2,11 +2,11 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -193,7 +193,7 @@ class TestTibber {
 		final var existingAddresses = this.getChannelsInPredictor();
 		final var expectedChannels = Stream.of(channels).collect(toSet());
 		expectedChannels.removeAll(existingAddresses);
-		assertTrue("Missing channels [" + String.join(", ", existingAddresses) + "]", expectedChannels.isEmpty());
+		assertTrue(expectedChannels.isEmpty(), "Missing channels [" + String.join(", ", existingAddresses) + "]");
 	}
 
 	private Set<String> getChannelsInPredictor() throws OpenemsNamedException {

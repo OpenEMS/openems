@@ -7,6 +7,7 @@ import { FieldWrapper } from "@ngx-formly/core";
         <ion-input
             labelPlacement="floating"
             [label]="props.label"
+            [helperText]="props.description"
             [formControl]="formControl"
             [formlyAttributes]="field"
         >

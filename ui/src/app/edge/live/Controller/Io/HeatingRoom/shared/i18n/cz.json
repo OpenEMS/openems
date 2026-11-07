@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "HOME": {
+            "AMBIENT_ACTUAL": "Teplota okolí (skutečná)",
+            "AMBIENT_TARGET": "Teplota okolí (cílová)",
+            "FLOOR_ACTUAL": "Teplota podlahy (skutečná)",
+            "FLOOR_TARGET": "Teplota podlahy (cílová)",
+            "POWER_CONSUMPTION": "Příkon",
+            "UPCOMING_EVENTS": "Nadcházející události"
+        },
+        "MODE": {
+            "MANUAL_HIGH": "Vysoký",
+            "MANUAL_LOW": "Nízký",
+            "TITLE": "Režim topení"
+        }
+    }
+}

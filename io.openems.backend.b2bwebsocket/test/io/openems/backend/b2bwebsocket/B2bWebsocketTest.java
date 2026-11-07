@@ -24,7 +24,7 @@ import io.openems.common.types.ChannelAddress;
  */
 @Ignore("Not a test, but a test application for B2B Websocket API; Only works if OpenEMS Backend is running")
 public class B2bWebsocketTest {
-	
+
 	private static Logger log = LoggerFactory.getLogger(B2bWebsocketTest.class);
 
 	private static final String URI = "ws://localhost:8076";

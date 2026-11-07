@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "選択されたモード"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "読み取り専用モードでは利用できません。"
+        },
+        "SCHEDULE": {
+            "END_TEMPERATURE": "終了温度",
+            "MANUAL_EVENTS": "手動イベント",
+            "MODE": "暖房モード",
+            "MODE_SELECTION_PLACEHOLDER": "選択",
+            "SCHEDULE": "スケジュール",
+            "SMART_EVENT": "スマートイベント",
+            "SMART_EVENTS": "スマートイベント",
+            "SMART_EVENT_END": "明日 7:00"
+        },
+        "SETTINGS": {
+            "MODE": {
+                "FAST_HEAT": {
+                    "DESCRIPTION": "加熱ヒーターは、自動的に対応する加熱レベルを選択します。\n最大出力時間は10時間です。\nその後、1時間休止します。",
+                    "TITLE": "急速加熱"
+                },
+                "OFF": {
+                    "TITLE": "加熱なし"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "異なる貯湯タンクを均等に加熱できます。起動は自動的に行われ、余剰および利用可能なPVエネルギーに完璧に適応します。",
+                    "TITLE": "PV余剰"
+                }
+            },
+            "NO_SETTINGS_AVAILABLE": "利用できる設定はありません。"
+        }
+    }
+}

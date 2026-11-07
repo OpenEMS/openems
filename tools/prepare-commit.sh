@@ -78,7 +78,7 @@ EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -194,6 +194,10 @@ update_bndrun() {
 		)
 	;;
 	esac
+	if [[ "$1" != "EdgeApp" ]]; then
+		# Backend only: registers the Prometheus Tracer for 'io.openems.backend.metrics.prometheus'
+		entries+=('io.prometheus.metrics-tracer-initializer')
+	fi
 	printf "%s\n" "${entries[@]}" | LC_ALL=C sort -u | while IFS= read -r D; do
 		echo -e "\tbnd.identity;id='$D',\\" >> "$bndrun.new"
 	done

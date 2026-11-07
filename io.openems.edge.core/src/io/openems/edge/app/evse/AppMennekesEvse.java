@@ -57,7 +57,6 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
-import io.openems.edge.energy.api.Version;
 
 @Component(name = AppMennekesEvse.APP_EVSE_MENNEKES)
 public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse, Property, Parameter.BundleParameter>
@@ -206,7 +205,6 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 			var appConfig = AppConfiguration.create();
 			dependencies.addAll(AppEvseCluster.dependency());
 			appConfig.addTask(Tasks.cluster(ctrlSingleId));
-			appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 			appConfig.addDependencies(dependencies);
 			appConfig.addTask(Tasks.componentFromComponentConfig(components));
 

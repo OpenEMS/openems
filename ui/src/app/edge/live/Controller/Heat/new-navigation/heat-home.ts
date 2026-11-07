@@ -9,7 +9,7 @@ import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/s
 import { ChannelAddress, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
-import { EnergySchedulerV2 } from "../../../../../shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "../../../../../shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "../../../../../shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "../../../../../shared/components/shared/converter";
 import { LiveDataService } from "../../../livedataservice";
@@ -33,7 +33,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         translate: TranslateService,
         component: EdgeConfig.Component,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
     ): OeFormlyView {
         return {
             title: component.alias,
@@ -49,7 +49,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         translate: TranslateService,
         component: EdgeConfig.Component,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
     ): OeFormlyField[] {
         if (energyScheduler.schedule === GetSchedule.Response.empty) {
             return SharedControllerHeat.getLegacyViewLines(translate, component);
@@ -155,7 +155,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(config);
         const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
-        const energyScheduler = new EnergySchedulerV2(config);
+        const energyScheduler = new EnergyScheduler(config);
         await energyScheduler.updateSchedule(edge, this.service.websocket);
 
         return ControllerHeatHomeComponent.generateView(this.translate, component, edge, energyScheduler);

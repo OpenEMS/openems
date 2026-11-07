@@ -15,7 +15,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testBalancingAndCharge() throws Exception {
+	public void testBalancingAndCharge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 200, //
@@ -34,7 +34,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndAddConsumption() throws Exception {
+	public void testBalancingAndAddConsumption() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 200, //
@@ -53,7 +53,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndChargeFull() throws Exception {
+	public void testBalancingAndChargeFull() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -71,7 +71,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndDischarge() throws Exception {
+	public void testBalancingAndDischarge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -89,7 +89,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndDischargeEmpty() throws Exception {
+	public void testBalancingAndDischargeEmpty() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 4500, //
@@ -107,7 +107,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndChargeMoreThanEssMaxEnergy() throws Exception {
+	public void testBalancingAndChargeMoreThanEssMaxEnergy() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -125,7 +125,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndDischargeAboveEssMaxEnergy() throws Exception {
+	public void testBalancingAndDischargeAboveEssMaxEnergy() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -143,7 +143,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testBalancingAndAboveGridMaxEnergy() throws Exception {
+	public void testBalancingAndAboveGridMaxEnergy() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 1000, //
 				/* consumption */ 4900, //
@@ -165,7 +165,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testDelayDischargeAndCharge() throws Exception {
+	public void testDelayDischargeAndCharge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -183,7 +183,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testDelayDischargeAndChargeFull() throws Exception {
+	public void testDelayDischargeAndChargeFull() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -201,7 +201,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testDelayDischargeAndWouldDischarge() throws Exception {
+	public void testDelayDischargeAndWouldDischarge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -223,7 +223,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testChargeGridAndCharge() throws Exception {
+	public void testChargeGridAndCharge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -241,7 +241,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testChargeGridAndChargeFull() throws Exception {
+	public void testChargeGridAndChargeFull() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -260,7 +260,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testChargeGridAndAboveGridMaxEnergy() throws Exception {
+	public void testChargeGridAndAboveGridMaxEnergy() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 1000, //
 				/* consumption */ 2000, //
@@ -278,7 +278,7 @@ public class EnergyFlowTest {
 	}
 
 	@Test
-	public void testChargeGridAndAboveGridMaxEnergy2() throws Exception {
+	public void testChargeGridAndAboveGridMaxEnergy2() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 0, //
 				/* consumption */ 7000, //
@@ -286,7 +286,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 5000, //
 				/* gridMaxSell */ 10000);
-		var actualGridMaxBuy = m.setGridMaxBuy(1000 /* gridBuySoftLimit */);
+		var actualGridMaxBuy = m.setGridLessOrEquals(1000 /* gridBuySoftLimit */);
 		assertEquals(2000, actualGridMaxBuy);
 
 		applyChargeGrid(m, 2500);
@@ -303,7 +303,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testDischargeGridAndCharge() throws Exception {
+	public void testDischargeGridAndCharge() {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //

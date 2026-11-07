@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -6,8 +6,15 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
 import { ChartTypes } from "src/app/shared/components/chart/chart.types";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 @Component({
     selector: "enerixControl-overview",
@@ -31,7 +38,17 @@ export class ControllerEnerixOverviewComponent extends AbstractHistoryChartOverv
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

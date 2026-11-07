@@ -9,6 +9,7 @@ Bundle-Description: Manager for connections from Backend Edge Applications
 	io.openems.backend.common,\
 	io.openems.backend.metrics.prometheus,\
 	io.openems.backend.oauthregistry,\
+	io.openems.backend.tariff,\
 	io.openems.common,\
 	io.openems.wrapper.Java-WebSocket,\
 	io.prometheus.metrics-config,\

@@ -1,12 +1,10 @@
 package io.openems.edge.controller.api.backend;
 
-import static io.openems.common.utils.CollectorUtils.toTreeBasedTable;
 import static java.util.stream.Collectors.toSet;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -15,7 +13,6 @@ import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +25,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
@@ -36,6 +32,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.DataTable;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.component.ComponentManager;
@@ -241,15 +238,15 @@ public final class ResendHistoricDataWorker extends AbstractWorker {
 		}
 	}
 
-	protected static TreeBasedTable<Long, String, JsonElement> mapResendData(//
+	protected static DataTable mapResendData(//
 			final SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> resendData //
 	) {
-		return resendData.entrySet().stream() //
-				.collect(Collectors.toMap(Entry::getKey,
-						entry -> entry.getValue().entrySet().stream()
-								.collect(Collectors.<Entry<ChannelAddress, JsonElement>, String, JsonElement>toMap(
-										t -> t.getKey().toString(), Entry::getValue)))) //
-				.entrySet().stream().collect(toTreeBasedTable());
+		final var table = new DataTable();
+		resendData.forEach((timestamp, row) -> {
+			table.reserveRow(timestamp, row.size());
+			row.forEach((channelAddress, value) -> table.put(timestamp, channelAddress.toString(), value));
+		});
+		return table;
 	}
 
 }

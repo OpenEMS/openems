@@ -9,9 +9,18 @@ import { Role } from "../../type/role";
 import { AbstractService } from "../abstractservice";
 
 export class DummyService extends AbstractService {
-
-    public readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date(), {});
+    public readonly edge = new Edge(
+        "edge0",
+        "comment",
+        "productype",
+        "1234.56.78",
+        Role.ADMIN,
+        true,
+        new Date(),
+        SumState.OK,
+        new Date(),
+        {},
+    );
 
     public currentEdge: WritableSignal<Edge> = signal(this.edge);
 
@@ -43,7 +52,11 @@ export class DummyService extends AbstractService {
     getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
         throw new Error("Method not implemented.");
     }
-    queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    queryEnergy(
+        fromDate: Date,
+        toDate: Date,
+        channels: ChannelAddress[],
+    ): Promise<QueryHistoricTimeseriesEnergyResponse> {
         throw new Error("Method not implemented.");
     }
     startSpinnerTransparentBackground(selector: string) {
@@ -55,7 +68,7 @@ export class DummyService extends AbstractService {
     stopSpinner(selector: string) {
         throw new Error("Method not implemented.");
     }
-    toast(message: string, level: "success" | "warning" | "danger") {
+    toast(message: string, level: "success" | "warning" | "danger"): Promise<void> {
         throw new Error("Method not implemented.");
     }
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler
@@ -63,5 +76,4 @@ export class DummyService extends AbstractService {
     override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }
-
 }

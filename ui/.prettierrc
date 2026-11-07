@@ -21,6 +21,14 @@
         },
         {
             "files": [
+                "**/i18n/*.json"
+            ],
+            "options": {
+                "jsonRecursiveSort": true
+            }
+        },
+        {
+            "files": [
                 "*.ts",
                 "*.mjs",
                 "*.scss"

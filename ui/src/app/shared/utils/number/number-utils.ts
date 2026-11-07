@@ -229,30 +229,30 @@ export namespace NumberUtils {
     }
 
     /**
-     * Converts a number to a boolean.
+     * Converts 0 or 1 to a boolean, preserving boolean inputs.
      *
      * @param value The value to convert
-     * @param orElse The value to return if the input is not 0 or 1
-     * @returns False for 0, true for 1, else orElse
+     * @param orElse The value to return if the input is not 0, 1, or a boolean
+     * @returns False for 0 or false, true for 1 or true, else orElse
      */
-    export function numberToBooleanOrElse(value: 0 | 1, orElse: boolean): boolean {
-        if (value === 0) {
+    export function numberToBooleanOrElse(value: number | boolean | null | undefined, orElse: boolean): boolean {
+        if (value === 0 || value === false) {
             return false;
         }
-        if (value === 1) {
+        if (value === 1 || value === true) {
             return true;
         }
         return orElse;
     }
 
-    export function isNumberHigherThan(params: {value: number | null, valueToBeHigher: number | null}): boolean {
+    export function isNumberHigherThan(params: { value: number | null; valueToBeHigher: number | null }): boolean {
         if (params == null || params.value == null || params.valueToBeHigher == null) {
             return false;
         }
         return params.value > params.valueToBeHigher;
     }
 
-    export function isNumberLowerThan(params: {value: number | null, valueToBeSmaller: number | null}): boolean {
+    export function isNumberLowerThan(params: { value: number | null; valueToBeSmaller: number | null }): boolean {
         if (params == null || params.value == null || params.valueToBeSmaller == null) {
             return false;
         }

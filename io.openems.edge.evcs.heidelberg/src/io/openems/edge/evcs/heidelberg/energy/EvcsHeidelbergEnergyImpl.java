@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.heidelberg.energy;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 

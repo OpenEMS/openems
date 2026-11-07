@@ -1,0 +1,145 @@
+= EPEX SPOT
+
+An Spot Tariff component provides day-ahead electricity prices for bidding zones. It can be used in both Edge and Backend versions of OpenEMS.
+
+== Time-Of-Use price components depending on spot prices
+
+- *`Tariff.BySpotTariff.GridBuy`*: Provides an grid buy price based on spot price, ancillary costs and a calculation formula
+- *`Tariff.BySpotTariff.GridSell`*: Provides an grid sell price based on spot price and a calculation formula
+- *`Tariff.Manual.EEG2025.GridSell`*: Provides a static sell price, but returns zero if the spot price is negative
+
+== Components that provide the day-ahead epex spot prices
+
+- *`Tariff.SpotTariff.ENTSOE`*: Retrieves prices from the ENTSO-E Transparency Platform, available in edge & backend
+- *`Tariff.SpotTariff.SMARD`*: Retrieves prices from the SMARD platform, available in edge & backend
+- *`Tariff.SpotTariff.FromBackend`*: Retrieves prices from backend provider, available in edge only
+
+=== Spot price aggregation
+
+When multiple components are configured, the system will summarize the prices in the following matter:
+1. Always fetch all prices from all configured components.
+2. Identify the period for which we have prices.
+3. Iterate through all spot tariff components (sorted by service_ranking - highest first) and use the first available price for each 15min time slot.
+4. The price is always converted to the same currency. In Edge systems, that's the configured currency in the `Core.Meta` component. In Backend systems, that's the default currency of the Bidding Zone.
+
+If no currency exchange rate is available, the price is ignored.
+
+In Edge, the `PriceManagerImpl` class is responsible for aggregating the prices. You can get the spot prices by injecting the `PriceManager` service.
+In Backend, the `BackendTariffManagerImpl` class is responsible for aggregating the prices. You can get the spot prices by injecting the `TariffManager` service.
+The `SpotTariffSyncManager` service is responsible to synchronize the backend prices to all edge systems.
+
+=== Currency Conversion
+
+Currency conversion is done using the `CurrencyExchange` service. The exchange rates from https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml[ECB Exchange Rates API] are used.
+Edge tries to fetch the exchange rates from Backend. If no backend is available, the exchange rates are directly fetched.
+
+== Tariff.BySpotTariff.GridBuy component
+
+This component provides an grid buy price based on spot price, ancillary costs and a calculation formula.
+If a specific time slot does not have a spot price, the system will use the last known price for the previous time slot.
+
+== Ancillary costs
+
+Ancillary costs can be provided in the `Tariff.BySpotTariff.GridBuy` component configuration. It's a JSON string defining additional costs on top of the day-ahead price.
+
+You can configure ancillary costs in two ways: by using a predefined German Distribution System Operator (DSO) or by providing a custom schedule.
+
+=== Using a Predefined DSO
+
+For convenience, several German DSOs are already predefined in the implementation. For example:
+
+[source,json]
+----
+{
+  "dso": "BAYERNWERK"
+}
+----
+
+Configuration example:
+
+* `biddingZone`: `GERMANY`
+* `ancillaryCosts`: `{"dso":"BAYERNWERK"}`
+
+For a list of predefined DSOs see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.api/src/io/openems/edge/timeofusetariff/api/GermanDSO.java[`GermanDSO.java`].
+
+'''
+
+=== Using Custom Ancillary Costs (DSO = "OTHER")
+
+If your DSO is not on the predefined list, or if you need to define a custom time-of-use tariff structure, you can provide your own schedule.
+
+In this case, set `"dso": "OTHER"` and provide a `schedule` array with quarterly definitions.
+
+Each entry in the schedule contains:
+
+* `year`: calendar year (e.g., `2025`)
+* `tariffs`: fixed additional costs (per kWh) for each tariff level (`low`, `standard`, `high`)
+* `quarters`: quarterly schedules (Q1–Q4) with `dailySchedule` definitions
+
+Example configuration:
+
+[source,json]
+----
+{
+  "dso": "OTHER",
+  "schedule": [
+    {
+      "year": 2025,
+      "tariffs": {
+        "low": 0.10,
+        "standard": 0.20,
+        "high": 0.30
+      },
+      "quarters": [
+        {
+          "quarter": 1,
+          "dailySchedule": [
+            { "tariff": "low", "from": "00:00", "to": "06:00" },
+            { "tariff": "standard", "from": "06:00", "to": "18:00" },
+            { "tariff": "high", "from": "18:00", "to": "23:59" }
+          ]
+        },
+        {
+          "quarter": 2,
+          "dailySchedule": []
+        },
+        {
+          "quarter": 3,
+          "dailySchedule": []
+        },
+        {
+          "quarter": 4,
+          "dailySchedule": [
+            { "tariff": "low", "from": "00:00", "to": "06:00" },
+            { "tariff": "standard", "from": "06:00", "to": "18:00" },
+            { "tariff": "high", "from": "18:00", "to": "23:59" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+----
+
+==== Custom Schedule JSON Structure Explained
+
+The `schedule` is a JSON array where each object defines the tariffs for a specific year.
+
+* `year`:: The year for which this schedule is valid (e.g., `2025`).
+* `tariffs`:: An object defining the named price levels. You can define your own names (e.g., `low`, `standard`, `high`) and assign a cost to each.
+  The name *`standard`* is special and is used as a fallback if no time slot applies.
+* `quarters`:: An array defining the schedule for each quarter of the year.
+** `quarter`:: The quarter number (`1` to `4`).
+** `dailySchedule`:: An array specifying the time slots and their corresponding tariffs for each day in that quarter.
+*** `tariff`:: The tariff name, which must match one of the keys defined in the `tariffs` object.
+*** `from`:: The start time of the slot in `HH:mm` format.
+*** `to`:: The end time of the slot in `HH:mm` format.
+
+==== Notes
+
+* If the `dailySchedule` for a quarter is empty (`[]`), the system will default to using the price defined for the *`standard`* tariff for that entire quarter. This is useful for seasons with flat ancillary costs.
+* Tariff boundaries (`from`/`to`) must not overlap and must follow chronological order.
+* Multiple years can be defined by adding more entries to the `schedule` array.
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.spottariff[Source Code icon:github[]]

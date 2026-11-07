@@ -100,4 +100,13 @@ public class RampFilter {
 		this.lastValue = result;
 		return result;
 	}
+
+	/**
+	 * Sets the starting value for the next ramp calculation.
+	 *
+	 * @param value the starting value, or null to reinitialize the filter
+	 */
+	public void resetTo(Float value) {
+		this.lastValue = value;
+	}
 }

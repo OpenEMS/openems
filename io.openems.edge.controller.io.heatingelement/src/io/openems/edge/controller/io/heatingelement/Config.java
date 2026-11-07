@@ -3,8 +3,10 @@ package io.openems.edge.controller.io.heatingelement;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.controller.io.heatingelement.enums.Distribution;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.NumberOfHeatingElements;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 
 @ObjectClassDefinition(//
@@ -46,6 +48,24 @@ import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 
 	@AttributeDefinition(name = "Power per Phase", description = "Power of one single phase of the heating element in [W]")
 	int powerPerPhase() default 2000;
+
+	@AttributeDefinition(name = "Number of Heating Elements", description = "Set to 'TWO' to control a second heating element with its own three relays")
+	NumberOfHeatingElements numberOfHeatingElements() default NumberOfHeatingElements.ONE;
+
+	@AttributeDefinition(name = "Power per Phase of Heating Element B", description = "Power of one single phase of the second heating element in [W]. Only used if 'Number of Heating Elements' is 'TWO'")
+	int powerPerPhaseHeatingElementB() default 2000;
+
+	@AttributeDefinition(name = "Output Channel Phase L1 of Heating Element B", description = "Channel address of the Digital Output for Phase L1 of the second heating element. Only used if 'Number of Heating Elements' is 'TWO'")
+	String outputChannelPhaseL1HeatingElementB();
+
+	@AttributeDefinition(name = "Output Channel Phase L2 of Heating Element B", description = "Channel address of the Digital Output for Phase L2 of the second heating element. Only used if 'Number of Heating Elements' is 'TWO'")
+	String outputChannelPhaseL2HeatingElementB();
+
+	@AttributeDefinition(name = "Output Channel Phase L3 of Heating Element B", description = "Channel address of the Digital Output for Phase L3 of the second heating element. Only used if 'Number of Heating Elements' is 'TWO'")
+	String outputChannelPhaseL3HeatingElementB();
+
+	@AttributeDefinition(name = "Distribution", description = "Defines the switching order of the Levels of both heating elements. Only used if 'Number of Heating Elements' is 'TWO'")
+	Distribution distribution() default Distribution.SEQUENTIAL;
 
 	@AttributeDefinition(name = "Minimum switching time between two states", description = "Minimum time (Seconds) is applied to avoid continuous switching on threshold")
 	int minimumSwitchingTime() default 60;

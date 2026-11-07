@@ -76,9 +76,8 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
-					field.setInputType(PASSWORD);
-				}) //
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> field //
+						.setInputType(PASSWORD)) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",
 						ComponentManagerSupplier::getComponentManager, t -> {
 							return JsonUtils.getAsOptionalString(t) //
@@ -86,7 +85,7 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 										if (s.isEmpty()) {
 											return null;
 										}
-										return new JsonPrimitive("xxx");
+										return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 									})//
 									.orElse(null);
 						})));
@@ -135,9 +134,10 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Ews",
 							JsonUtils.buildJsonObject() //
-									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
-										b.addProperty("accessToken", accessToken);
-									}) //
+									.onlyIf(accessToken != null && !accessToken.equals(CommonProps.MASKED_PASSWORD),
+											b -> {
+												b.addProperty("accessToken", accessToken);
+											}) //
 									.build())//
 			);
 
