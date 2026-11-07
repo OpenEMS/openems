@@ -1,0 +1,138 @@
+= OpenEMS: Time-of-use tariffs
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/storage-control/time-of-use-tariffs.adoc[OpenEMS: Dynamische Stromtarife]
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+With a time-variable (dynamic) electricity tariff, the price changes over the day, usually every quarter of an hour, linked to the exchange electricity price. OpenEMS can align the storage accordingly: **avoid expensive grid power, use cheap power**.
+
+[#sec-what-openems-does]
+== What OpenEMS does
+
+* **Save the storage for expensive hours:** In cheap hours, the power comes from the grid and the storage is conserved. In expensive hours, the storage supplies the house.
+* **Charge from the grid** (optional): In particularly cheap hours, the storage is charged from the grid to bridge expensive hours later.
+* **Sell to the grid** (optional): In particularly expensive hours, the storage can discharge into the grid.
+* **Comply with limits:** The maximum grid purchase power and the feed-in limit of the system are always taken into account.
+
+Charging from the grid is only worthwhile if the price difference is large enough. Energy is lost during charging and discharging, and OpenEMS takes this into account. It therefore rates power that takes the detour via the storage as around 17 % more expensive.
+
+[#sec-where-the-prices-come-from]
+== Where the prices come from
+
+There are three sources for exchange prices (day-ahead). They can be set up at the same time:
+
+[cols="3*",options="header"]
+|===
+| Source
+| Priority
+| Notes
+
+| OpenEMS backend
+| 1
+| requires a connection to the backend
+| SMARD (German Federal Network Agency)
+| 2
+| freely usable, only for Germany, Austria, Belgium, the Netherlands and the Czech Republic
+| ENTSO-E
+| 3
+| Europe-wide, requires your own free access key (token)
+|===
+
+A price source is set up via the app **“Spot Tariff Vendor”** (backend, ENTSO-E or SMARD); the tariff apps require it. Older ENTSO-E components are converted automatically. The former setting “Maximum grid purchase through storage charging” no longer exists; the grid purchase limit from the system settings applies.
+
+OpenEMS takes the prices from the source with the highest priority. **If values are missing there, it fills the gaps with the next source**. All prices are converted into the currency stored in the system settings.
+
+In addition to exchange prices, there are ready-made connections to individual electricity providers, e.g. Tibber, aWATTar, Rabot Charge, Corrently, Octopus, Groupe E, Swisspower, LUOX or Stadtwerke Haßfurt.
+
+[#sec-from-the-exchange-price-to-your-own-electricity-price]
+== From the exchange price to your own electricity price
+
+The exchange price is not the price you actually pay. The following are therefore specified for purchase:
+
+* the **bidding zone** (e.g. Germany/Luxembourg),
+* the **additional costs** such as grid fees, taxes and levies, also staggered by time of day,
+* optionally a **formula** for how the exchange price and additional costs are offset. Default: exchange price {plus} additional costs.
+
+For feed-in, an exchange price or a fixed remuneration (e.g. according to the German EEG) can also be stored.
+
+[#sec-setting-up-price-control]
+== Setting up price control
+
+The function is called **Controller.Ess.Time-Of-Use-Tariff**.
+
+[#sec-operating-mode]
+=== Operating mode
+
+* **Automatic** (default): OpenEMS plans by itself.
+* **Manual:** A permanently selected behavior is applied continuously.
+* **Off:** normal self-consumption optimization without reference to prices.
+
+[#sec-how-far-control-may-go]
+=== How far control may go
+
+[cols="2*",options="header"]
+|===
+| Setting
+| Permitted behavior
+
+| Delay discharge (default)
+| Save the storage for expensive hours
+| Charge from grid
+| additionally charge from the grid in cheap hours
+| Discharge to grid
+| additionally sell to the grid in expensive hours
+|===
+
+[#sec-the-states-you-see]
+=== The states you see
+
+[cols="2*",options="header"]
+|===
+| State
+| Meaning
+
+| Self-consumption optimization
+| normal operation: charge surplus, cover demand from the storage
+| Delayed discharge
+| Storage is conserved for more expensive times, the house draws grid power
+| Charge from grid
+| Storage is charged at a low price
+| Discharge to grid
+| Storage sells power at a high price
+| Peak shaving
+| Storage helps not to exceed the maximum grid purchase power
+| Avoid feed-in limit
+| Storage absorbs surplus so that the feed-in limit is complied with
+| Delayed / limited charging, discharge for consumption
+| only together with xref:user/storage-control/grid-optimized-charge.adoc[grid-optimized charge]
+|===
+
+“Peak shaving” and “Avoid feed-in limit” are not planned. They occur at short notice if the planned state would otherwise violate a limit.
+
+[#sec-how-openems-plans]
+== How OpenEMS plans
+
+For the next few hours, an optimizer tries out many possible sequences: which state should apply when. It calculates each sequence with the xref:user/schedule/forecasts.adoc[forecasts] for solar yield and consumption and with the electricity prices. It selects the sequence that performs best in this order:
+
+. All limits are complied with and consumption is covered.
+. **Electricity costs** are as low as possible.
+. Grid purchase is as low as possible.
+. Feed-in revenues are as high as possible.
+. There are as few changes between states as possible.
+
+The plan is renewed regularly (about every quarter of an hour) so that new prices and more accurate forecasts are included. The result is the xref:user/schedule/overview.adoc[schedule].
+
+[#sec-good-to-know]
+== Good to know
+
+* The plan is only as good as the forecasts. If the day differs greatly (e.g. unexpectedly high consumption), it may in hindsight not have been optimal.
+* Without prices, for example if no source can be reached, price-optimized planning is not possible.
+* With price control in “Automatic” mode, the optimizer also takes over the task of grid-optimized charge.
+* The optimizer does not plan for a xref:user/storage-control/section-14a-enwg.adoc[§ 14a limitation] of the storage (maximum 4.2 kW charging power). It is nevertheless complied with during operation: during an intervention, the storage charges correspondingly less than planned.
+* The level of a xref:user/storage-control/ripple-control-receiver.adoc[ripple control receiver] (0/30/60 %) is **not** taken into account by price control, neither in the schedule nor during operation. Only the feed-in limit from the system settings is taken into account. The inverter still complies with the ripple control limitation. During a limitation, however, PV power may be curtailed even though the storage could have absorbed it.

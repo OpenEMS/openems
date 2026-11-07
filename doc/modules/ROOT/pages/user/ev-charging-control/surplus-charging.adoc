@@ -1,0 +1,219 @@
+= OpenEMS: Surplus charging and phase switching (EVSE)
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/ev-charging-control/surplus-charging.adoc[OpenEMS: Überschussladen und Phasenumschaltung (EVSE)]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+With surplus charging, the electric car charges as far as possible with **solar power that would otherwise be fed into the grid**. To make this work even with little sun, the wallbox can **switch between single-phase and three-phase charging**. This page explains how OpenEMS proceeds. It describes the new charge point control “EVSE” (functions **Evse.Controller.Single** per charge point and **Evse.Controller.Cluster** for all charge points together).
+
+[#sec-the-charging-modes]
+== The charging modes
+
+[cols="2*",options="header"]
+|===
+| Mode
+| Behavior
+
+| **PV Surplus** (“Surplus” in the configuration)
+| Only charges with surplus. If it is not sufficient for the minimum power of the car, charging pauses.
+| **PV Surplus with guaranteed charge** (“Minimum” in the configuration)
+| Always charges at least at the lowest possible power, from the grid or storage if necessary. Additional surplus is used on top.
+| **Fast Charging** (“Force” in the configuration)
+| Charges immediately at full power, regardless of the surplus.
+| **No Charge** (“Zero” in the configuration)
+| Does not charge.
+|===
+
+The mode can be permanently set, changed via a time schedule (“Schedule” in the web interface) or specified once for the current charging session (“One-Shot”, applies until the cable is unplugged). Optionally, an energy limit can be set per charging session, e.g. “at most 20 kWh”.
+
+[#sec-what-counts-as-surplus]
+== What counts as surplus
+
+OpenEMS calculates the available surplus every second as follows:
+
+[source]
+----
+Surplus = current charging power of the cars
+        + feed-in to the grid
+        + charging power of the home storage
+        − purchase from the grid
+        − discharge power of the home storage
+----
+
+It follows that:
+
+* **The car has priority over the home storage.** Power currently flowing into the home storage counts as surplus and can go to the car.
+* **The home storage is not discharged into the car during surplus charging.** If the storage discharges, this reduces the surplus.
+* Purchase from the grid reduces the surplus. If grid purchase is greater than the current charging power, no surplus remains.
+
+[#sec-sequence-of-surplus-charging]
+== Sequence of surplus charging
+
+[#sec-starting-charging]
+=== Starting charging
+
+A paused charging session only starts when
+
+* there was enough surplus for the minimum power for at least 90 % of the time in the last 20 seconds
+* and continuously in the last 10 seconds.
+
+[#sec-pausing-charging]
+=== Pausing charging
+
+A running charging session is only paused when
+
+* there was insufficient surplus for at least 90 % of the time in the last minute
+* and continuously none in the last 10 seconds.
+
+Until then, the car continues charging at minimum power.
+
+[#sec-lock-time-after-start-or-pause]
+=== Lock time after start or pause
+
+After each start or pause triggered by the surplus, a **lock time of 5 minutes** applies. No further change takes place during this time. This protects the car and wallbox when clouds pass by.
+
+**Consequence:** Shortly after a start, the car can continue charging at minimum power for up to 5 minutes even though the surplus has already gone. This energy then comes from the grid or the home storage.
+
+[#sec-adjusting-the-power]
+=== Adjusting the power
+
+* More power is released **gently**, at most about 3 % per second. Going from 6 A to 32 A takes about one minute.
+* Less power is implemented immediately.
+* The power is rounded to the levels that the wallbox can do (e.g. whole amperes).
+
+[#sec-car-is-full]
+=== Car is full
+
+If the car charges at less than 500 W for 5 minutes even though power is released, OpenEMS assumes that it is full. It is then no longer allocated any surplus until it absorbs power again.
+
+[#sec-several-charge-points]
+== Several charge points
+
+With several charge points, the cluster distributes the surplus:
+
+. First, each car in surplus mode receives its **minimum power**, as long as the surplus is sufficient.
+. It distributes the rest according to the set strategy.
+
+[cols="2*",options="header"]
+|===
+| Strategy
+| Distribution of the rest
+
+| **Even** (default)
+| All cars receive the same additional amount.
+| **By priority**
+| The order of the charge points in the cluster setting decides. The first receives as much as possible, then the next.
+|===
+
+Cars in “PV Surplus with guaranteed charge” or “Fast Charging” mode receive their power regardless of the surplus.
+
+[#sec-phase-switching]
+== Phase switching
+
+[#sec-why-switch]
+=== Why switch?
+
+A car needs a minimum power, typically 6 A per phase:
+
+[cols="3*",options="header"]
+|===
+| Charging with
+| Minimum power (6 A)
+| Maximum power (16 A)
+
+| 1 phase
+| approx. 1.4 kW
+| approx. 3.7 kW
+| 3 phases
+| approx. 4.1 kW
+| approx. 11 kW
+|===
+
+Three-phase charging therefore needs at least around 4.1 kW of surplus. **Single-phase charging with solar power is possible from around 1.4 kW.** With plenty of sun, on the other hand, three-phase is faster.
+
+[#sec-prerequisites]
+=== Prerequisites
+
+* The **wallbox** must support phase switching. In the code, this is provided for Alfen, Hardy Barth, KEBA and Mennekes, among others, depending on the model and equipment. Exception: The Mennekes Professional is controlled via the charging current and does not switch phases automatically.
+* The **car** must be able to tolerate a charging interruption (setting “Does this EV support interrupting a charging session?” on the vehicle, default: yes). Otherwise, some older vehicles abort the charging process. If this is switched off, switching only takes place while not charging.
+* Phase switching must be switched on in the charge point control (default: off).
+
+[#sec-settings]
+=== Settings
+
+[cols="2*",options="header"]
+|===
+| Setting
+| Behavior
+
+| **Off** (default)
+| no switching, the wallbox stays as it is
+| **1-phase**
+| switches to 1 phase as soon as charging starts and 3 phases are currently active
+| **3-phase**
+| switches to 3 phases as soon as charging starts and 1 phase is currently active
+| **Automatic Phase Switching**
+| selects by itself depending on the surplus and charging mode
+|===
+
+[#sec-manual-switching]
+=== Manual switching
+
+With “1-phase” or “3-phase” you set the number of phases. OpenEMS switches once as soon as the car charges and then stays there. This is suitable, for example, for vehicles that only charge single-phase or if you always want to charge three-phase at full power.
+
+[#sec-automatic-switching]
+=== Automatic switching
+
+In automatic mode, OpenEMS decides based on the power that it **would like to give** the car:
+
+[cols="2*",options="header"]
+|===
+| Direction
+| Condition
+
+| 1 → 3 phases
+| Over the last **2 minutes**, the possible power was at least **4,100 W**. Short upward peaks are not counted.
+| 3 → 1 phase
+| Over the last **2 minutes**, the possible power was at most **3,700 W**, and in the last 20 seconds it would have been sufficient for single-phase charging. Short downward dips are not counted.
+|===
+
+* The gap between 4,100 W and 3,700 W prevents constant switching back and forth.
+* A **lock time of 5 minutes** applies after each automatic switch.
+* **Start charging single-phase:** If charging is paused and the wallbox is set to 3 phases, but the surplus is sufficient for single-phase charging (for 10 seconds), OpenEMS switches to 1 phase and starts charging.
+* **In “PV Surplus” mode**, OpenEMS switches between 1 and 3 phases depending on the surplus.
+* **In “PV Surplus with guaranteed charge” mode**, it charges single-phase at the lowest power without surplus, and with surplus as with surplus charging.
+* **In “Fast Charging” mode**, it charges three-phase at full power.
+* If a switch is imminent, OpenEMS provides the expected time (about 100 seconds in advance) as a value of the charge point control.
+
+[#sec-what-happens-when-switching]
+=== What happens when switching
+
+. **Stop charging:** The power is set to 0 until the car no longer draws any power.
+. **Wait:** 30-second pause so that the car and wallbox are safely at rest.
+. **Switch:** The wallbox changes the number of phases.
+. **Restart:** Charging starts at minimum power and is then ramped up again.
+
+If switching does not succeed within **10 minutes**, OpenEMS aborts and reports a phase switching error.
+
+A switch therefore takes at least about half a minute without charging. For this reason, OpenEMS only switches if the situation proves stable over a longer period of time.
+
+[#sec-together-with-time-schedules-and-electricity-prices]
+== Together with time schedules and electricity prices
+
+In addition to fixed modes, the time schedule of a charge point can also contain “smart” entries with a **minimum charging amount**. For such charge points, the energy optimizer itself plans when to charge in which mode. It primarily uses surplus and, with a xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariff], cheap times. The result can be seen in the xref:user/schedule/overview.adoc[schedule]. Without such entries, the set mode simply applies.
+
+The page xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control compared] compares wallbox control with evcc and openWB.
+
+[#sec-frequently-asked-questions]
+== Frequently asked questions
+
+* **Why does the car charge even though there is no surplus?** Either “PV Surplus with guaranteed charge” or “Fast Charging” mode is active, or charging is still in the pause delay (1 minute) or the lock time (5 minutes).
+* **Why does charging not start even though the sun is shining?** The surplus must be sufficient for the minimum power, i.e. around 4.1 kW for three-phase. Remedy: automatic phase switching. In addition, the lock time may still be running after a pause.
+* **Why does the home storage not charge?** The car has priority during surplus charging.
+* **Why does the wallbox not switch?** Phase switching is off, the wallbox or car does not support it, the lock time is still running, or the power has not yet been stably above or below the threshold for 2 minutes.

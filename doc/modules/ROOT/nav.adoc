@@ -95,4 +95,6 @@ include::pages/backend/service.d/_nav.adoc[]
 ** xref:development/coding-guidelines.adoc[Coding Guidelines]
 ** xref:development/documentation.adoc[Documentation]
 
+include::pages/user/_nav.adoc[]
+
 * https://openems.github.io/openems.io/javadoc/[Javadoc]
