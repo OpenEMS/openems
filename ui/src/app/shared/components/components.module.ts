@@ -16,7 +16,6 @@ import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal
 import { FlatWidgetLineComponent } from "./flat/flat-widget-line/flat-widget-line";
 import { FlatWidgetLineItemComponent } from "./flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item";
 
-import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/flat-widget-line-divider";
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
 import { FooterContentComponent } from "./footer/content/content";
 import { FooterComponent } from "./footer/footer";
@@ -59,7 +58,6 @@ import { NotificationComponent } from "./shared/notification/notification";
         FlatWidgetComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetLineComponent,
-        FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
 
         // Others
@@ -73,7 +71,6 @@ import { NotificationComponent } from "./shared/notification/notification";
         FlatWidgetComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetLineComponent,
-        FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
         FlatWidgetPercentagebarComponent,
 
