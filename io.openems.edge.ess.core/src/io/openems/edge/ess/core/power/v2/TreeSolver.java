@@ -193,6 +193,51 @@ public final class TreeSolver {
 
 		// Pass 2: proportional among free entries
 		distributeProportional(free, remaining, isActive);
+
+		// Preserve the original result whenever the achievable target is met.
+		if (isActive) {
+			long actual = 0;
+			for (var child : children) {
+				actual += activeSetpoint(child);
+			}
+			if (actual != target) {
+				redistributeActiveResidual(children, (long) target - actual);
+			}
+		}
+	}
+
+	private static long activeSetpoint(Entry entry) {
+		if (entry instanceof Entry.Actual a) {
+			return a.activePowerSetPoint;
+		}
+		long result = 0;
+		for (var child : ((Entry.Virtual) entry).children) {
+			result += activeSetpoint(child);
+		}
+		return result;
+	}
+
+	private static void redistributeActiveResidual(List<Entry> children, long remaining) {
+		var headrooms = new long[children.size()];
+		long totalHeadroom = 0;
+		for (int i = 0; i < children.size(); i++) {
+			var child = children.get(i);
+			var current = activeSetpoint(child);
+			headrooms[i] = Math.max(0L, remaining > 0 //
+					? (long) child.ownActiveMax() - current
+					: current - (long) child.ownActiveMin());
+			totalHeadroom += headrooms[i];
+		}
+		for (int i = 0; i < children.size() && remaining != 0 && totalHeadroom > 0; i++) {
+			var current = activeSetpoint(children.get(i));
+			var adjustment = remaining * headrooms[i] / totalHeadroom;
+			adjustment = Math.max(-headrooms[i], Math.min(headrooms[i], adjustment));
+			if (adjustment != 0) {
+				applySetpoint(children.get(i), (int) (current + adjustment), true);
+				remaining -= activeSetpoint(children.get(i)) - current;
+			}
+			totalHeadroom -= headrooms[i];
+		}
 	}
 
 	/**
