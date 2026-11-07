@@ -654,11 +654,24 @@
                 "STANDARD": "Standard tariff"
             },
             "TITLE": "{{ year }} Ancillary Costs"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
+            "INVALID_ZIPCODE": "Invalid zip code format",
+            "MANDATORY_FIELD": "This is a mandatory field",
+            "MAX": "Please enter a value less than {{ max }}.",
+            "MIN": "Please enter a value greater than {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Active",
         "ACTUAL_POWER": "EV charging power",
+        "ADDRESS": {
+            "CITY": "City",
+            "COUNTRY": "Country",
+            "STREET_ADDRESS": "Street adress",
+            "ZIP": "ZIP code"
+        },
         "ALL": "All",
         "APPLY": "Apply",
         "AUTARCHY": "Autarchy",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Successfully connected to {{ value }}.",
         "DEVICE_OFFLINE": "The device is not connected!",
         "FIRST_SETUP_PROTOCOL": "Initial commissioning",
+        "INSTALLATION_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS is offline!",
         "LOGGED_IN_AS": "Logged in as",
         "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",

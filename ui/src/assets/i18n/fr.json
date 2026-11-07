@@ -654,11 +654,24 @@
                 "STANDARD": "Tarif standard"
             },
             "TITLE": "Coûts annexes de {{ year }}"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} n'est pas une adresse e-mail valide.",
+            "INVALID_ZIPCODE": "Format de code postal non valide",
+            "MANDATORY_FIELD": "Ceci est un champ obligatoire",
+            "MAX": "Veuillez saisir une valeur inférieure à {{ max }}.",
+            "MIN": "Veuillez saisir une valeur supérieure à {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Activé",
         "ACTUAL_POWER": "Puissance de décharge VE",
+        "ADDRESS": {
+            "CITY": "Ville",
+            "COUNTRY": "Pays",
+            "STREET_ADDRESS": "Rue / numéro",
+            "ZIP": "Code postal"
+        },
         "ALL": "Tous",
         "APPLY": "Apply",
         "AUTARCHY": "Autarcie",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Connecté avec succès à {{ value }}.",
         "DEVICE_OFFLINE": "Ld'appareil n d'est pas connecté!",
         "FIRST_SETUP_PROTOCOL": "Mise en service initiale",
+        "INSTALLATION_RECOMMENDATION": "Veuillez cliquer sur le bouton « Ajouter » ci-dessous si vous souhaitez mettre en service un {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS est hors ligne!",
         "LOGGED_IN_AS": "Enregistré en tant que",
         "NO_EDGE_AVAILABLE": "Vous n'avez encore ajouté aucun {{edgeShortName}}.",

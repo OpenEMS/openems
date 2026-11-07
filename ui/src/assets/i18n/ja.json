@@ -654,11 +654,24 @@
                 "STANDARD": "標準料金"
             },
             "TITLE": "{{ year }}年 補助費用"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{email}}は有効な電子メールアドレスではありません。",
+            "INVALID_ZIPCODE": "郵便番号の形式が無効です",
+            "MANDATORY_FIELD": "これは必須のフィールドです",
+            "MAX": "{{max}}以下の値のみが許可されます。",
+            "MIN": "{{min}}以上の値のみが許可されます。"
         }
     },
     "GENERAL": {
         "ACTIVE": "有効",
         "ACTUAL_POWER": "e-car充電",
+        "ADDRESS": {
+            "CITY": "街",
+            "COUNTRY": "国",
+            "STREET_ADDRESS": "住所",
+            "ZIP": "郵便番号"
+        },
         "ALL": "すべて",
         "APPLY": "適用",
         "AUTARCHY": "再生可能エネルギー率",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "{{value}}に正常に接続されています。",
         "DEVICE_OFFLINE": "デバイスが接続されていません！",
         "FIRST_SETUP_PROTOCOL": "初期試運転",
+        "INSTALLATION_RECOMMENDATION": "{{ edgeShortName }}を運転開始したい場合は、下の「追加」ボタンをクリックしてください。",
         "IS_OFFLINE": "Openemsはオフラインです！",
         "LOGGED_IN_AS": "ログイン権限",
         "NO_EDGE_AVAILABLE": "まだ{{edgeShortName}}が追加されていません。",

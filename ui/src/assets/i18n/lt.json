@@ -654,11 +654,24 @@
                 "STANDARD": "Standartinis tarifas"
             },
             "TITLE": "{{ year }} papildomos išlaidos"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} nėra galiojantis el. pašto adresas.",
+            "INVALID_ZIPCODE": "Neteisingas pašto kodo formatas",
+            "MANDATORY_FIELD": "Tai privalomas laukas",
+            "MAX": "Įveskite reikšmę, mažesnę nei {{ max }}.",
+            "MIN": "Įveskite reikšmę, didesnę nei {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Aktyvus",
         "ACTUAL_POWER": "EV krovinimo galia",
+        "ADDRESS": {
+            "CITY": "Miestas",
+            "COUNTRY": "Šalis",
+            "STREET_ADDRESS": "Gatvės adresas",
+            "ZIP": "Pašto kodas"
+        },
         "ALL": "Visi",
         "APPLY": "Taikyti",
         "AUTARCHY": "Autarkija",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Sėkmingai prisijungta prie {{ value }}.",
         "DEVICE_OFFLINE": "Įrenginys neprijungtas!",
         "FIRST_SETUP_PROTOCOL": "Pradinis paleidimas",
+        "INSTALLATION_RECOMMENDATION": "Jei norite paleisti {{ edgeShortName }}, spustelėkite žemiau esantį mygtuką \"Pridėti\".",
         "IS_OFFLINE": "OpenEMS neprisijungęs!",
         "LOGGED_IN_AS": "Prisijungta kaip",
         "NO_EDGE_AVAILABLE": "Dar nepridėjote nė vieno {{edgeShortName}}.",

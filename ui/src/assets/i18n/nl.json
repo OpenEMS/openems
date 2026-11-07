@@ -654,11 +654,24 @@
                 "STANDARD": "Standaardtarief"
             },
             "TITLE": "{{ year }} bijkomende kosten"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} is geen geldig e-mailadres.",
+            "INVALID_ZIPCODE": "Ongeldig postcodeformaat",
+            "MANDATORY_FIELD": "Dit is een verplicht veld",
+            "MAX": "Voer een waarde in die kleiner is dan {{ max }}.",
+            "MIN": "Voer een waarde in die groter is dan {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Actief",
         "ACTUAL_POWER": "e-car Laad vermogen",
+        "ADDRESS": {
+            "CITY": "Plaats",
+            "COUNTRY": "Land",
+            "STREET_ADDRESS": "Straat / huisnummer",
+            "ZIP": "Postcode"
+        },
         "ALL": "Alle",
         "APPLY": "Toepassen",
         "AUTARCHY": "Autarkie",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Succesvol verbonden met {{ value }}.",
         "DEVICE_OFFLINE": "Het apparaat is niet aangesloten!",
         "FIRST_SETUP_PROTOCOL": "Eerste installatie",
+        "INSTALLATION_RECOMMENDATION": "Klik hieronder op de knop „Toevoegen” als je een {{ edgeShortName }} in bedrijf wilt nemen.",
         "IS_OFFLINE": "OpenEMS is offline!",
         "LOGGED_IN_AS": "Geregistreerd als",
         "NO_EDGE_AVAILABLE": "U heeft nog geen {{edgeShortName}} toegevoegd.",

@@ -140,6 +140,14 @@ export function checkboxRequiredValidator(control: FormControl): ValidationError
     return control.value === true ? null : { "checkbox-required-checked": true };
 }
 
+/** Postal code formats of the countries in which systems are installed (e.g. DE, AT, CH, NL, SE, CZ). */
+export const COUNTRY_PARTNER_ZIP_CODE_REGEX: RegExp =
+    /^((\d{5}(-\d{4})?)|([1-9]\d{3}\s?[A-Z]{2})|(\d{3}\s?\d{2})|(\d{4}))$/;
+
+export function ZipCodeValidator(control: FormControl): ValidationErrors {
+    return COUNTRY_PARTNER_ZIP_CODE_REGEX.test(control.value) ? null : { zip: true };
+}
+
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
     // https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/userprofile/validator/PersonNameProhibitedCharactersValidator.java
     const INVALID_CHARACTERS: string[] = [
@@ -310,6 +318,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                     name: "checkbox-required-checked",
                     validation: checkboxRequiredValidator,
                 },
+                { name: "zip", validation: ZipCodeValidator },
             ],
             validationMessages: [
                 { name: "ip", message: IpValidatorMessage },

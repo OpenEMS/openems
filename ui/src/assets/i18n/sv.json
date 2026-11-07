@@ -654,11 +654,24 @@
                 "STANDARD": "Standardtariff"
             },
             "TITLE": "{{ year }} Bikostnader"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} är inte en giltig e-postadress.",
+            "INVALID_ZIPCODE": "Ogiltigt format för postnummer",
+            "MANDATORY_FIELD": "Detta är ett obligatoriskt fält",
+            "MAX": "Ange ett värde lägre än {{ max }}.",
+            "MIN": "Ange ett värde större än {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Aktiv",
         "ACTUAL_POWER": "Laddningseffekt för elfordon",
+        "ADDRESS": {
+            "CITY": "Ort",
+            "COUNTRY": "Land",
+            "STREET_ADDRESS": "Gatuadress",
+            "ZIP": "Postnummer"
+        },
         "ALL": "Alla",
         "APPLY": "Använd",
         "AUTARCHY": "Självförsörjningsgrad",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Ansluten till {{ value }}.",
         "DEVICE_OFFLINE": "Enheten är inte ansluten!",
         "FIRST_SETUP_PROTOCOL": "Initial idrifttagning",
+        "INSTALLATION_RECOMMENDATION": "Klicka på knappen \"Lägg till\" nedan om du vill idriftsätta en {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS är offline!",
         "LOGGED_IN_AS": "Inloggad som",
         "NO_EDGE_AVAILABLE": "Du har inte lagt till någon {{edgeShortName}} ännu.",

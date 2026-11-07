@@ -654,11 +654,24 @@
                 "STANDARD": "Standardní tarif"
             },
             "TITLE": "{{ year }} vedlejší náklady"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} není platná e-mailová adresa.",
+            "INVALID_ZIPCODE": "Neplatný formát PSČ",
+            "MANDATORY_FIELD": "Toto je povinné pole",
+            "MAX": "Zadejte prosím hodnotu menší než {{ max }}.",
+            "MIN": "Zadejte prosím hodnotu větší než {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "aktivně",
         "ACTUAL_POWER": "E-Car Nabíjecí výkon",
+        "ADDRESS": {
+            "CITY": "Místo",
+            "COUNTRY": "Země",
+            "STREET_ADDRESS": "Ulice / číslo domu",
+            "ZIP": "PSČ"
+        },
         "ALL": "Vše",
         "APPLY": "Aplikovat",
         "AUTARCHY": "Soběstačnost",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Úspěšně připojeno k {{ value }}.",
         "DEVICE_OFFLINE": "Zařízení není připojeno!",
         "FIRST_SETUP_PROTOCOL": "První uvedení do provozu",
+        "INSTALLATION_RECOMMENDATION": "Pokud chcete uvést {{ edgeShortName }} do provozu, klikněte prosím níže na tlačítko „Přidat“.",
         "IS_OFFLINE": "OpenEMS je ve stavu offline!",
         "LOGGED_IN_AS": "Registrováno jako",
         "NO_EDGE_AVAILABLE": "Zatím jste nepřidali žádný {{edgeShortName}}.",

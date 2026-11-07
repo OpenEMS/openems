@@ -654,11 +654,24 @@
                 "STANDARD": "Tarifa estándar"
             },
             "TITLE": "Costes accesorios de {{ year }}"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} no es una dirección de correo electrónico válida.",
+            "INVALID_ZIPCODE": "Formato de código postal no válido",
+            "MANDATORY_FIELD": "Este es un campo obligatorio",
+            "MAX": "Introduce un valor menor que {{ max }}.",
+            "MIN": "Introduce un valor mayor que {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Activo",
         "ACTUAL_POWER": "e-car Carga",
+        "ADDRESS": {
+            "CITY": "Localidad",
+            "COUNTRY": "País",
+            "STREET_ADDRESS": "Calle / número",
+            "ZIP": "Código postal"
+        },
         "ALL": "Todos",
         "APPLY": "Aplicar",
         "AUTARCHY": "Autosuficiencia",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Conexión a {{ value }} hecho.",
         "DEVICE_OFFLINE": "El aparato no está conectado!",
         "FIRST_SETUP_PROTOCOL": "Puesta en servicio inicial",
+        "INSTALLATION_RECOMMENDATION": "Haz clic en el botón «Añadir» de abajo si quieres poner en servicio un {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS está fuera de línea!",
         "LOGGED_IN_AS": "Conectado como",
         "NO_EDGE_AVAILABLE": "Todavía no ha añadido ningún {{edgeShortName}}.",

@@ -654,11 +654,24 @@
                 "STANDARD": "Standardtarifstufe"
             },
             "TITLE": "{{ year }} Netzentgelte"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
+            "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat",
+            "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
+            "MAX": "Bitte gib einen Wert kleiner als {{ max }} ein.",
+            "MIN": "Bitte gib einen Wert größer als {{ min }} ein."
         }
     },
     "GENERAL": {
         "ACTIVE": "Aktiv",
         "ACTUAL_POWER": "E-Auto-Beladung",
+        "ADDRESS": {
+            "CITY": "Ort",
+            "COUNTRY": "Land",
+            "STREET_ADDRESS": "Straße / Hausnummer",
+            "ZIP": "PLZ"
+        },
         "ALL": "Alle",
         "APPLY": "Übernehmen",
         "AUTARCHY": "Autarkie",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Verbindung zu {{ value }} hergestellt.",
         "DEVICE_OFFLINE": "Das Gerät ist nicht verbunden!",
         "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme",
+        "INSTALLATION_RECOMMENDATION": "Bitte klicke unten auf den \"Hinzufügen\"-Button wenn du ein {{ edgeShortName }} in Betrieb nehmen möchtest.",
         "IS_OFFLINE": "OpenEMS ist offline!",
         "LOGGED_IN_AS": "Angemeldet als",
         "NO_EDGE_AVAILABLE": "Es wurde noch kein {{edgeShortName}} hinzugefügt.",
