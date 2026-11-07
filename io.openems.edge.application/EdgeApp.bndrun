@@ -4,11 +4,11 @@
 
 -resolve.effective: active
 
--runproperties: \
+-runproperties:\
 	java.awt.headless=true,\
-	felix.cm.dir=/Users/stefan/Projekte/Fems/config,\
-	openems.data.dir=/Users/stefan/Projekte/Fems/data,\
 	org.osgi.service.http.port=8080,\
+	felix.cm.dir=c:/openems/config,\
+	openems.data.dir=c:/openems/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=WARN
 
@@ -234,10 +234,12 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.luox',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.manual',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.spottariff',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.victron',\
-	bnd.identity;id='io.openems.edge.weather.openmeteo'
+	bnd.identity;id='io.openems.edge.weather.openmeteo',\
+
 -runbundles: \
 	bcpkix;version='[1.86.0,1.86.1)',\
 	bcprov;version='[1.86.0,1.86.1)',\
@@ -257,6 +259,7 @@
 	io.openems.common.bridge.http;version=snapshot,\
 	io.openems.common.tariff.api;version=snapshot,\
 	io.openems.common.tariff.entsoe;version=snapshot,\
+	io.openems.common.tariff.smard;version=snapshot,\
 	io.openems.core.logger;version=snapshot;startlevel=18,\
 	io.openems.core.referencetarget;version=snapshot;startlevel=17,\
 	io.openems.edge.aircooling.blueeplus;version=snapshot,\
@@ -465,6 +468,7 @@
 	io.openems.edge.timeofusetariff.luox;version=snapshot,\
 	io.openems.edge.timeofusetariff.manual;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
+	io.openems.edge.timeofusetariff.spottariff;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
 	io.openems.edge.victron;version=snapshot,\
