@@ -6,7 +6,7 @@
     "scripts": {
         "capacitor-assets": "capacitor-assets",
         "lint": "ng lint && npm run lint:i18n",
-        "lint:i18n": "node scripts/lint-translation-keys.js",
+        "lint:i18n": "node eslint-rules/lint-translation-keys.js",
         "test": "ng test"
     },
     "dependencies": {

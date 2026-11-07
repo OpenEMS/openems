@@ -13,6 +13,7 @@ import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route/route.service";
 import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
+import { TutorialTargetId } from "./shared/tour/tutorial-target-id";
 import { Language } from "./shared/type/language";
 
 @Component({
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     protected isSmartphone: boolean = false;
 
+    private readonly tutorialTargetId = TutorialTargetId;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private readonly userService: UserService = inject(UserService);
     private subscription: Subscription = new Subscription();

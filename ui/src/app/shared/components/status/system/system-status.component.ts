@@ -4,6 +4,7 @@ import { filter } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { ChannelAddress } from "src/app/shared/type/channeladdress";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { environment } from "src/environments";
@@ -31,6 +32,7 @@ export class SystemStatusComponent implements OnDestroy {
 
     private subscribed = false;
     private liveDataService = inject(DataService);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     constructor(
         public service: Service,
