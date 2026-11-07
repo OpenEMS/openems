@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -20,34 +19,34 @@ export class FlatComponent extends AbstractFlatWidget {
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
-    protected controller: EdgeConfig.Component;
+    protected controller: EdgeConfig.Component | null = null;
     protected evcsComponent: EdgeConfig.Component | null = null;
     protected isConnectionSuccessful: boolean = false;
     protected isEnergySinceBeginningAllowed: boolean = false;
-    protected mode: string;
+    protected mode: string = "-";
     protected isChargingEnabled: boolean = false;
-    protected defaultChargeMinPower: number;
-    protected prioritization: string;
-    protected phases: number;
-    protected maxChargingValue: number;
-    protected energySessionLimit: number;
+    protected defaultChargeMinPower: number = 0;
+    protected prioritization: string = "-";
+    protected phases: number = 0;
+    protected maxChargingValue: number = 0;
+    protected energySessionLimit: number = 0;
     protected state: string = "";
-    protected minChargePower: number;
-    protected maxChargePower: number;
-    protected forceChargeMinPower: string;
+    protected minChargePower: number = 0;
+    protected maxChargePower: number = 0;
+    protected forceChargeMinPower: string = "-";
     protected chargeMode: ChargeMode | null = null;
     protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
     protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
     protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
-    protected chargeTarget: string;
-    protected energySession: string;
-    protected chargeDischargePower: { name: string; value: number };
+    protected chargeTarget: string = "-";
+    protected energySession: string = "-";
+    protected chargeDischargePower: { name: string; value: number } = { name: "", value: 0 };
     protected propertyMode: DefaultTypes.ManualOnOff | null = null;
-    protected status: string;
-    protected isReadWrite: boolean;
+    protected status: string = "-";
+    protected isReadWrite: boolean = false;
     protected modalComponent: Modal | null = null;
 
-    private chargePoint: EvcsComponent;
+    private chargePoint: EvcsComponent | null = null;
 
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
@@ -63,22 +62,33 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
+        const component = this.component;
+        const edge = this.edge;
+        const config = this.config;
+        if (component == null || edge == null || config == null) {
+            return [];
+        }
+
+        const chargePoint = EvcsComponent.from(component, edge.getCurrentConfig(), edge);
+        this.chargePoint = chargePoint;
+        if (chargePoint == null) {
+            return [];
+        }
 
         const result = [
-            this.chargePoint.powerChannel,
-            new ChannelAddress(this.component.id, "Phases"),
-            new ChannelAddress(this.component.id, "Plug"),
-            new ChannelAddress(this.component.id, "Status"),
-            new ChannelAddress(this.component.id, "State"),
-            new ChannelAddress(this.component.id, "EnergySession"),
+            chargePoint.powerChannel,
+            new ChannelAddress(component.id, "Phases"),
+            new ChannelAddress(component.id, "Plug"),
+            new ChannelAddress(component.id, "Status"),
+            new ChannelAddress(component.id, "State"),
+            new ChannelAddress(component.id, "EnergySession"),
             // channels for modal component, subscribe here for better UX
-            new ChannelAddress(this.component.id, "MinimumHardwarePower"),
-            new ChannelAddress(this.component.id, "MaximumHardwarePower"),
-            new ChannelAddress(this.component.id, "SetChargePowerLimit"),
+            new ChannelAddress(component.id, "MinimumHardwarePower"),
+            new ChannelAddress(component.id, "MaximumHardwarePower"),
+            new ChannelAddress(component.id, "SetChargePowerLimit"),
         ];
 
-        const controllers = this.config.getComponentsByFactory("Controller.Evcs");
+        const controllers = config.getComponentsByFactory("Controller.Evcs");
         for (const controller of controllers) {
             const properties = controller.properties;
             if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
@@ -90,15 +100,25 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.evcsComponent = this.config.getComponent(this.component.id);
-        this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
-        this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
+        const component = this.component;
+        const config = this.config;
+        const chargePoint = this.chargePoint;
+        if (component == null || config == null || chargePoint == null) {
+            return;
+        }
+
+        this.evcsComponent = config.getComponentSafely(component.id);
+        if (this.evcsComponent == null) {
+            return;
+        }
+        this.isConnectionSuccessful = currentData.allComponents[component.id + "/State"] != 3;
+        this.isReadWrite = component.hasPropertyValue<boolean>("readOnly", true) === false;
 
         // Check if Energy since beginning is allowed
         if (
-            currentData.allComponents[this.chargePoint.powerChannel.toString()] > 0 ||
-            currentData.allComponents[this.component.id + "/Status"] == 2 ||
-            currentData.allComponents[this.component.id + "/Status"] == 7
+            currentData.allComponents[chargePoint.powerChannel.toString()] > 0 ||
+            currentData.allComponents[component.id + "/Status"] == 2 ||
+            currentData.allComponents[component.id + "/Status"] == 7
         ) {
             this.isEnergySinceBeginningAllowed = true;
         }
@@ -117,8 +137,7 @@ export class FlatComponent extends AbstractFlatWidget {
             // ChargeMode
             this.chargeMode = this.controller.properties["chargeMode"];
             // Check if Charging is enabled
-            this.isChargingEnabled =
-                currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 ? true : false;
+            this.isChargingEnabled = currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1;
             // DefaultChargeMinPower
             this.defaultChargeMinPower = this.controller.properties["defaultChargeMinPower"];
             // Prioritization
@@ -143,24 +162,26 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.status = this.getState(
             this.isChargingEnabled,
-            currentData.allComponents[this.component.id + "/Status"],
-            currentData.allComponents[this.component.id + "/Plug"],
+            currentData.allComponents[component.id + "/Status"],
+            currentData.allComponents[component.id + "/Plug"],
         );
         // Phases
         this.phases = currentData.allComponents[this.componentId + "/Phases"];
 
         this.chargeDischargePower = Utils.convertChargeDischargePower(
             this.translate,
-            currentData.allComponents[this.chargePoint.powerChannel.toString()],
+            currentData.allComponents[chargePoint.powerChannel.toString()],
         );
         this.chargeTarget = Utils.CONVERT_TO_WATT(
-            this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]),
+            this.formatNumber(currentData.allComponents[component.id + "/SetChargePowerLimit"]),
         );
-        this.energySession = Utils.CONVERT_TO_WATT(currentData.allComponents[this.component.id + "/EnergySession"]);
+        this.energySession = this.Converter.CONVERT_TO_WATTHOURS()(
+            currentData.allComponents[component.id + "/EnergySession"],
+        );
 
-        this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
-        this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
-        this.state = currentData.allComponents[this.component.id + "/Status"];
+        this.minChargePower = this.formatNumber(currentData.allComponents[component.id + "/MinimumHardwarePower"]);
+        this.maxChargePower = this.formatNumber(currentData.allComponents[component.id + "/MaximumHardwarePower"]);
+        this.state = currentData.allComponents[component.id + "/Status"];
     }
 
     /**
@@ -200,6 +221,7 @@ export class FlatComponent extends AbstractFlatWidget {
             case ChargeState.CHARGING_FINISHED:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
         }
+        return "";
     }
 
     private formatNumber(i: number) {
