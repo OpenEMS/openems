@@ -13,23 +13,27 @@ import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.LogVerbosity.TRACE;
-import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jsonrpc.type.ScheduleUpdate;
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.meta.GridBuyLimit;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -60,6 +64,33 @@ public class EnergySchedulerImplTest {
 		create(createDummyClock());
 	}
 
+	@Test
+	void testDeactivate_shouldPublishInactiveScheduleUpdate_whenDeactivated() throws Exception {
+		final var sut = create(createDummyClock());
+
+		final var updateCounter = new AtomicInteger();
+		final var latestUpdate = new AtomicReference<ScheduleUpdate>();
+
+		sut.subscribeSchedule(update -> {
+			updateCounter.incrementAndGet();
+			latestUpdate.set(update);
+		});
+
+		// BehaviorSubject immediately publishes its current value on subscribe
+		assertEquals(1, updateCounter.get());
+
+		sut.deactivate();
+
+		// Deactivation publishes another INACTIVE update
+		assertEquals(2, updateCounter.get());
+
+		final var actual = latestUpdate.get();
+
+		assertEquals(ScheduleUpdate.OptimizationStatus.INACTIVE, actual.status());
+		assertNull(actual.startedAt());
+		assertNull(actual.reason());
+	}
+
 	/**
 	 * Creates a {@link EnergySchedulerImplTest} instance.
 	 * 
@@ -88,21 +119,20 @@ public class EnergySchedulerImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("meta", new DummyMeta()//
-						.withGridBuyLimit(l -> l //
-								.setHard(new GridBuyLimit.Hard(0))
-								.setSoft(JSCalendar.Tasks.<GridBuyLimit.Soft>create(clock)//
+						.withGridLimit(l -> l //
+								.setGridBuyHardLimit(0) //
+								.setGridBuySoftLimit(JSCalendar.Tasks.<GridLimit.Power>create(clock)//
 										.add(t -> t//
 												.setStart("08:00") //
 												.setDuration(Duration.ofHours(12)) //
 												.addRecurrenceRule(b -> b //
 														.setFrequency(DAILY)) //
-												.setPayload(new GridBuyLimit.Soft(2000))) //
+												.setPayload(new GridLimit.Power(2000))) //
 										.add(t -> t//
-												.setPayload(new GridBuyLimit.Soft(6000))) //
+												.setPayload(new GridLimit.Power(6000))) //
 										.build()))) //
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("timeOfUseTariff", timeOfUseTariff) //
 				.addReference("tariffManager", tariffManager) //
 				.addReference("scheduler", new DummyScheduler("scheduler0")) //
 				.addReference("addSchedulable", dummyEssEmergencyCapacityReserve("ctrlEmergencyCapacityReserve0", 20)) //
@@ -139,7 +169,6 @@ public class EnergySchedulerImplTest {
 						.setId("_energy") //
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
-						.setVersion(V2_ENERGY_SCHEDULABLE) //
 						.setEnvironment(PRODUCTION) //
 						.build()) //
 				.next(new TestCase());

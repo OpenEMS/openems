@@ -12,7 +12,6 @@ import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.host.NetworkInterface;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfig.Request;
 
 /**
  * Updates the current network configuration.
@@ -39,7 +38,7 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfig.Request;
  * }
  * </pre>
  */
-public class SetNetworkConfig implements EndpointRequestType<Request, EmptyObject> {
+public class SetNetworkConfig implements EndpointRequestType<SetNetworkConfig.Request, EmptyObject> {
 
 	@Override
 	public String getMethod() {
@@ -59,16 +58,17 @@ public class SetNetworkConfig implements EndpointRequestType<Request, EmptyObjec
 	public record Request(List<NetworkInterface<?>> networkInterfaces) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link SetNetworkConfig.Request}.
+		 * Returns a {@link JsonSerializer} for a {@link Request}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<SetNetworkConfig.Request> serializer() {
-			return jsonObjectSerializer(SetNetworkConfig.Request.class, json -> {
-				return new SetNetworkConfig.Request(
-						json.getJsonObjectPath("interfaces").collectStringKeys(mapping(t -> {
-							return NetworkInterface.serializer(t.getKey()).deserializePath(t.getValue());
-						}, toList())));
+		public static JsonSerializer<Request> serializer() {
+			return jsonObjectSerializer(Request.class, json -> {
+				return new Request(json.getJsonObjectPath("interfaces") //
+						.collectStringKeys(mapping(//
+								t -> {
+									return NetworkInterface.serializer(t.getKey()).deserializePath(t.getValue());
+								}, toList())));
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.add("interfaces", obj.networkInterfaces().stream() //

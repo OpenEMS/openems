@@ -3,7 +3,7 @@ import { FormlyExtension, FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 
 export class TranslateExtension implements FormlyExtension {
-    constructor(private translate: TranslateService) { }
+    constructor(private translate: TranslateService) {}
     prePopulate(field: FormlyFieldConfig) {
         const props = field.props || {};
         if (!props.translate || props._translated) {
@@ -20,7 +20,38 @@ export class TranslateExtension implements FormlyExtension {
 
 export function registerTranslateExtension(translate: TranslateService) {
     return {
-        validationMessages: [],
+        validationMessages: [
+            {
+                name: "required",
+                message() {
+                    return translate.stream("FORMLY_FORM.VALIDATION.MANDATORY_FIELD");
+                },
+            },
+            {
+                name: "min",
+                message(err, field: FormlyFieldConfig) {
+                    return translate.stream("FORMLY_FORM.VALIDATION.MIN", { min: field.props.min - 1 });
+                },
+            },
+            {
+                name: "email",
+                message(err, field: FormlyFieldConfig) {
+                    return translate.stream("FORMLY_FORM.VALIDATION.EMAIL", { email: field.formControl.value });
+                },
+            },
+            {
+                name: "zip",
+                message() {
+                    return translate.stream("FORMLY_FORM.VALIDATION.INVALID_ZIPCODE");
+                },
+            },
+            {
+                name: "max",
+                message(err, field: FormlyFieldConfig) {
+                    return translate.stream("FORMLY_FORM.VALIDATION.MAX", { max: field.props.max + 1 });
+                },
+            },
+        ],
         extensions: [
             {
                 name: "translate",
@@ -28,16 +59,4 @@ export function registerTranslateExtension(translate: TranslateService) {
             },
         ],
     };
-}
-
-/**
- * Generic function for serial number validation error message.
- *
- * @param translate the translate service.
- * @param field the FormlyFieldConfig.
- * @param length length of the specific serial number.
- * @returns the validation error message.
- */
-export function serialNumber(translate: TranslateService, field: FormlyFieldConfig, length: number) {
-    return translate.stream("INSTALLATION.FORM.BATTERY_SERIAL_NUMBER", { serialNumber: ((field.props.prefix ?? "") + field.formControl.value), length: length });
 }

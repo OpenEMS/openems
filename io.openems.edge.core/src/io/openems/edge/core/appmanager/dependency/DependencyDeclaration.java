@@ -238,7 +238,7 @@ public class DependencyDeclaration {
 		 * Always creates the dependent app except an {@link OpenemsAppInstance} is
 		 * already created and not a dependency of another app.
 		 */
-		ALWAYS((instances, app) -> true), //
+		ALWAYS((_, _) -> true), //
 
 		/**
 		 * lazy singleton.
@@ -248,7 +248,7 @@ public class DependencyDeclaration {
 		/**
 		 * Never allowed to create the app.
 		 */
-		NEVER((instances, app) -> false), //
+		NEVER((_, _) -> false), //
 		;
 
 		private final BiFunction<List<OpenemsAppInstance>, String, Boolean> isAllowedToCreateFunction;
@@ -274,12 +274,12 @@ public class DependencyDeclaration {
 	 * Defines if the dependency should get updated when updating the parent app.
 	 */
 	public static enum UpdatePolicy {
-		ALWAYS(v -> true), //
+		ALWAYS(_ -> true), //
 		IF_MINE(v -> !v.allInstances.stream()//
 				.filter(i -> !i.equals(v.parent))//
 				.anyMatch(a -> a.dependencies != null
 						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
-		NEVER(v -> false), //
+		NEVER(_ -> false), //
 		;
 
 		private final Function<AllowedToValues, Boolean> isAllowedToUpdateFunction;
@@ -307,10 +307,12 @@ public class DependencyDeclaration {
 	 * Defines if the dependency app gets deleted when deleting its parent.
 	 */
 	public static enum DeletePolicy {
-		ALWAYS(v -> true), //
-		IF_MINE(v -> !v.allInstances.stream().filter(a -> !a.equals(v.parent) && a.dependencies != null)
-				.anyMatch(a -> a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
-		NEVER(v -> false), //
+		ALWAYS(_ -> true), //
+		IF_MINE(v -> !v.allInstances.stream()//
+				.filter(a -> !a.equals(v.parent) && a.dependencies != null)//
+				.anyMatch(a -> a.dependencies.stream()//
+						.anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
+		NEVER(_ -> false), //
 		;
 
 		private final Function<AllowedToValues, Boolean> isAllowedToDeleteFunction;

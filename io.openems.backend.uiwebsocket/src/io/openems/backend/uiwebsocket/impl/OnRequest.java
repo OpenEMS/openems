@@ -50,6 +50,7 @@ import io.openems.common.jsonrpc.request.GetEdgeRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateEdgeSettingsRequest;
 import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
@@ -329,6 +330,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 		case SubscribeSystemLogRequest.METHOD ->
 			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
+		case SubscribeScheduleRequest.METHOD ->
+			this.handleSubscribeScheduleRequest(wsData, edgeId, user, SubscribeScheduleRequest.from(request));
 		case SimulationRequest.METHOD -> this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
 		default -> {
 			// unable to handle; try generic handler
@@ -474,6 +477,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Forward to Edge
 		return this.parent.edgeManager.handleSubscribeSystemLogRequest(edgeId, user, role, wsData.getId(), request);
+	}
+
+	/**
+	 * Handles a {@link SubscribeScheduleRequest}.
+	 *
+	 * @param wsData  the WebSocket attachment
+	 * @param edgeId  the Edge-ID
+	 * @param user    the {@link User}
+	 * @param request the {@link SubscribeScheduleRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeScheduleRequest(WsData wsData, String edgeId,
+			User user, SubscribeScheduleRequest request) throws OpenemsNamedException {
+		final var role = this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST,
+				SubscribeScheduleRequest.METHOD);
+
+		// Forward to Edge
+		return this.parent.edgeManager.handleSubscribeScheduleRequest(edgeId, user, role, wsData.getId(), request);
 	}
 
 	/**

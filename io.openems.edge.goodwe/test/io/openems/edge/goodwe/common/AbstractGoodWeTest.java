@@ -1,13 +1,13 @@
 package io.openems.edge.goodwe.common;
 
 import static io.openems.edge.goodwe.common.AbstractGoodWe.mapGridMode;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.goodwe.common.enums.GoodWeType;

@@ -3,6 +3,8 @@
     <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
       <!-- SoH Status Banner Component -->
       <soh-status-banner></soh-status-banner>
+      <!-- Capacity Extension Running Component -->
+      <capacity-extension-status-banner></capacity-extension-status-banner>
 
       <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
@@ -17,7 +19,7 @@
             On small and below: [12] / [12]
             -->
             <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding ion-justify-content-center">
-              <energymonitor tabindex="0"></energymonitor>
+              <energymonitor tabindex="0" [attr.data-tutorial-id]="tutorialTargetId.ENERGY_MONITOR"></energymonitor>
             </ion-col>
           </ion-row>
         } @else {

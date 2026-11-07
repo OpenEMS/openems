@@ -1,3 +1,4 @@
+import { Injector } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Role } from "../../type/role";
 import { OeSet } from "../../type/set";
@@ -9,6 +10,7 @@ import { EdgeConfig } from "../edge/edgeconfig";
 import { Name } from "../shared/name";
 
 export enum NavigationId {
+    SCHEDULE = "schedule",
     LIVE = "live",
     HISTORY = "history",
     FORECAST = "forecast",
@@ -66,7 +68,9 @@ export type NavigationTreeOptions = {
     customLink?: string | null;
     isCommonWidget?: boolean;
     accordionOpenedOnDefault?: boolean;
+    tourId?: string | null;
     hideFavorite?: boolean;
+    callback?: (this: NavigationTree, injector: Injector) => Promise<unknown>;
 };
 
 export class NavigationTree {
@@ -76,7 +80,9 @@ export class NavigationTree {
     public customLink: NavigationTreeOptions["customLink"];
     public isCommonWidget: NavigationTreeOptions["isCommonWidget"];
     public accordionOpenedOnDefault: NavigationTreeOptions["accordionOpenedOnDefault"];
+    public tourId: NavigationTreeOptions["tourId"];
     public hideFavorite: NavigationTreeOptions["hideFavorite"];
+    public callback: NavigationTreeOptions["callback"];
 
     constructor(
         // Ids must be unique across the entire navigation tree, including children
@@ -97,8 +103,10 @@ export class NavigationTree {
         this.pageFilter = options.pageFilter ?? null;
         this.customLink = options.customLink ?? null;
         this.isCommonWidget = options.isCommonWidget ?? false;
+        this.tourId = options.tourId ?? id;
         this.accordionOpenedOnDefault = options.accordionOpenedOnDefault ?? false;
         this.hideFavorite = options.hideFavorite ?? false;
+        this.callback = options.callback ?? (async (injector: Injector) => this);
     }
 
     /**
@@ -125,8 +133,10 @@ export class NavigationTree {
                 pageFilter: navigationTree.pageFilter,
                 customLink: navigationTree.customLink,
                 isCommonWidget: navigationTree.isCommonWidget,
+                tourId: navigationTree.tourId,
                 accordionOpenedOnDefault: navigationTree.accordionOpenedOnDefault,
                 hideFavorite: navigationTree.hideFavorite,
+                callback: navigationTree.callback,
             },
         );
     }
@@ -185,7 +195,7 @@ export class NavigationTree {
 
     public getAbsoluteNavigations(): NavigationTree[] {
         const ids: NavigationTree[] = [];
-        this.buildAbsoluteNavigationTreeIds(structuredClone(this), ids);
+        this.buildAbsoluteNavigationTreeIds(this, ids);
         return ids;
     }
 
@@ -274,8 +284,7 @@ export class NavigationTree {
                 if (node == null) {
                     return;
                 }
-                const _node = structuredClone(node);
-                node.routerLink = buildAbsoluteLink(_node).routerLink;
+                node.routerLink = buildAbsoluteLink(node).routerLink;
 
                 if (node.children) {
                     for (const child of node.children) {
@@ -443,6 +452,7 @@ export class NavigationTree {
                 pageFilter: this.pageFilter,
                 isCommonWidget: this.isCommonWidget,
                 customLink: this.customLink,
+                tourId: this.tourId,
                 accordionOpenedOnDefault: this.accordionOpenedOnDefault,
                 hideFavorite: this.hideFavorite,
             },
@@ -779,6 +789,7 @@ export namespace GroupedNavigationTreeUtility {
             label: string,
             baseString: string,
             translate: TranslateService,
+            config: EdgeConfig,
         ) => NavigationTree,
     ): NavigationTree | null {
         const component = config.getComponentSafely(componentId);
@@ -787,6 +798,6 @@ export namespace GroupedNavigationTreeUtility {
         }
 
         const label = Name.METER_ALIAS_OR_ID(component);
-        return createComponentNavigationTree(componentId, label, componentId, translate);
+        return createComponentNavigationTree(componentId, label, componentId, translate, config);
     }
 }

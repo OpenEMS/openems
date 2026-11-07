@@ -43,7 +43,6 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.energy.api.Version;
 
 /**
  * Describes an App for a writable my-PV heating element.
@@ -87,30 +86,30 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".maxHeatPower.label") //
 				.setTranslatedDescriptionWithAppPrefix(".maxHeatPower.description"))
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
-								.setMin(0)//
-								.setMax(9000)//
-								.setUnit(Unit.WATT, l))), //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> field//
+						.setInputType(NUMBER)//
+						.setMin(0)//
+						.setMax(9000)//
+						.setUnit(Unit.WATT, l))), //
 		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(HEAT_ID)), //
 
 		STORAGE_VOLUME(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".storageVolume.label") //
 				.setTranslatedDescriptionWithAppPrefix(".storageVolume.description"))
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
-								.setMin(1))), //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field//
+						.setInputType(NUMBER)//
+						.setMin(1))), //
 		HEATED_SHARE(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
 				.setDefaultValue(100) //
 				.setRequired(true) //
 				.setTranslatedLabelWithAppPrefix(".heatedShare.label") //
 				.setTranslatedDescriptionWithAppPrefix(".heatedShare.description"))
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
-								.setMin(0)//
-								.setMax(100)//
-								.setUnit(Unit.PERCENT, l)));
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> field//
+						.setInputType(NUMBER)//
+						.setMin(0)//
+						.setMax(100)//
+						.setUnit(Unit.PERCENT, l)));
 
 		private final AppDef<? super AppHeatMyPv, ? super Property, ? super BundleParameter> def;
 
@@ -181,7 +180,6 @@ public class AppHeatMyPv extends AbstractOpenemsAppWithProps<AppHeatMyPv, AppHea
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)) //
 					.build();
 		};
 	}

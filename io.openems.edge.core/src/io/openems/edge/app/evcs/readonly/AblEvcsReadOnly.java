@@ -83,11 +83,9 @@ public class AblEvcsReadOnly extends AbstractOpenemsAppWithProps<AblEvcsReadOnly
 		TYPE(AppDef.copyOfGeneric(type())), //
 		ALIAS(alias()), //
 		ALIAS_2(alias() //
-				.wrapField(((app, property, l, parameter, field) -> //
-				field.onlyShowIf(Exp.currentModelValue(TYPE).equal(Exp.staticValue(AblType.EM_4_CONTROLLER_TWIN))//
-						.or(Exp.currentModelValue(TYPE)//
-								.equal(Exp.staticValue(AblType.EM_4_EXTENDER_TWIN)))//
-				)//
+				.wrapField(((_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(TYPE).equal(Exp.staticValue(AblType.EM_4_CONTROLLER_TWIN))//
+								.or(Exp.currentModelValue(TYPE).equal(Exp.staticValue(AblType.EM_4_EXTENDER_TWIN))))//
 				))), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
 				.setDefaultValue("192.168.25.11")//
@@ -153,7 +151,7 @@ public class AblEvcsReadOnly extends AbstractOpenemsAppWithProps<AblEvcsReadOnly
 					new EdgeConfig.Component(modbusId, modbusAlias, "Bridge.Modbus.Tcp", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("ip", ip) //
-									.build()) ////
+									.build()) //
 			);
 			if (prodType == AblType.EM_4_CONTROLLER_TWIN || prodType == AblType.EM_4_EXTENDER_TWIN) {
 				final var alias2 = this.getString(p, l, Property.ALIAS_2);

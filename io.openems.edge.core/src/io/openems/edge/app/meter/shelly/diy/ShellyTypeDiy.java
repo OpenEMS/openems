@@ -6,6 +6,7 @@ import io.openems.edge.app.enums.TranslatableEnum;
 public enum ShellyTypeDiy implements TranslatableEnum {
 	PLUS_PLUG_S("Plus Plug S", "IO.Shelly.Plus.PlugS"), //
 	PLUG_S_GEN_3("Plug S Gen3", "IO.Shelly.PlugSG3"), //
+	PLUG_M_GEN_3("Plug M Gen3", "IO.Shelly.PlugMG3"), //
 	OUTDOOR_PLUG_S_GEN_3("Outdoor Plug S Gen3", "IO.Shelly.OutdoorPlugSG3"), //
 	;
 

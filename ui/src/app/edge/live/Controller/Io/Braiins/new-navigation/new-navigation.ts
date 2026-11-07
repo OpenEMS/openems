@@ -5,7 +5,7 @@ import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -41,7 +41,7 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(component);
         this.component = component;
 
-        const energyScheduler = new EnergySchedulerV2(config);
+        const energyScheduler = new EnergyScheduler(config);
         const lines = await this.getLines(component, edge, energyScheduler);
 
         return {
@@ -89,7 +89,7 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
     private async getLines(
         component: EdgeConfig.Component,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
     ): Promise<OeFormlyField[]> {
         await energyScheduler?.updateSchedule(edge, this.service.websocket);
         const user = this.userService.currentUser();

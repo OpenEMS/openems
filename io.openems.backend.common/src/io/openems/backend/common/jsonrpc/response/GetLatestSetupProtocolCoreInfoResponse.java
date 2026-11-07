@@ -12,7 +12,8 @@ import io.openems.backend.common.metadata.Metadata.SetupProtocolCoreInfo;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 /**
- * Represents a JSON-RPC Response for {@link GetLatestSetupProtocolCoreInfoRequest}.
+ * Represents a JSON-RPC Response for
+ * {@link GetLatestSetupProtocolCoreInfoRequest}.
  *
  * <pre>
  * {

@@ -5,7 +5,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.Version;
 
 @ObjectClassDefinition(//
 		name = "Core Energy Scheduler", //
@@ -17,9 +16,6 @@ import io.openems.edge.energy.api.Version;
 
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity")
 	LogVerbosity logVerbosity() default LogVerbosity.DEBUG_LOG;
-
-	@AttributeDefinition(name = "Version", description = "Select version of implementation")
-	Version version() default Version.V1_ESS_ONLY;
 
 	@AttributeDefinition(name = "Environment", description = "")
 	Environment environment() default Environment.PRODUCTION;

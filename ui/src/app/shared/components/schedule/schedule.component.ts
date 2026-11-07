@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectorRef, Component, ContentChild, effect, Inject, input, model, output, TemplateRef, ChangeDetectionStrategy, inject, } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ContentChild, effect, Inject, inject, input, model, output, TemplateRef, } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -20,8 +20,15 @@ import { Language } from "../../type/language";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { ComponentsBaseModule } from "../components.module";
 import { FlatWidgetButtonComponent } from "../flat/flat-widget-button/flat-widget-button";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { JsCalendar } from "./js-calendar-task";
 
 @Component({
@@ -56,7 +63,17 @@ export class ScheduleComponent extends AbstractModal {
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

@@ -1,3 +1,4 @@
+import { ChartOptions } from "chart.js";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { NavigationService } from "../../service/navigation.service";
@@ -53,28 +54,22 @@ export namespace ViewUtils {
     export function getViewHeightInPx(position: TSignalValue<NavigationService["position"]> | null) {
         const { header, footer } = ViewUtils.getTotalHeaderFooterHeight();
 
+        const parentPaddingTopAndBottom =
+            NumberUtils.multiplySafely(
+                NumberUtils.parseNumberSafelyOrElse(
+                    getComputedStyle(document.documentElement).getPropertyValue("--ion-padding"),
+                    0,
+                ),
+                2,
+            ) ?? 0;
         if (position == null || position == "disabled") {
             return getWindowVisualViewPort() - header - footer;
         }
-        return getWindowVisualViewPort() - header - footer;
+        return getWindowVisualViewPort() - header - footer - parentPaddingTopAndBottom;
     }
 
     export function getActionSheetModalHeightInPx() {
         return getWindowVisualViewPort();
-    }
-
-    export function getConfirmButtonHeight() {
-        // button has fixed size of 56 px
-        // TODO: get actual height of the button
-        return 72;
-    }
-
-    export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
-        if (position == "bottom") {
-            const combinedHeight = getConfirmButtonHeight() + getActionSheetModalHeightInPx();
-            return (combinedHeight / getWindowVisualViewPort()) * 100;
-        }
-        return 0;
     }
 
     /**
@@ -99,6 +94,13 @@ export namespace ViewUtils {
         }
         return NumberUtils.multiplySafely(
             NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()),
+            100,
+        );
+    }
+
+    export function getChartOptionsPadding(options: ChartOptions<any>) {
+        return NumberUtils.multiplySafely(
+            NumberUtils.divideSafely(options?.layout?.padding?.["top"], getWindowVisualViewPort()) ?? 0,
             100,
         );
     }

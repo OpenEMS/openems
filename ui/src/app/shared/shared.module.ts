@@ -29,6 +29,7 @@ import { FormlyWrapperComponent } from "./components/formly/formly-field-navigat
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlyReorderGroupComponent } from "./components/formly/formly-reorder-group/formly-reorder-group";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 
@@ -60,8 +61,15 @@ import { HelpPopoverButtonComponent } from "./components/shared/view-component/h
 import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
@@ -69,6 +77,15 @@ import { RouteService } from "./service/route/route.service";
 import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
 import { AppStateTracker } from "./states/app-state-tracker";
+import tourCz from "./tour/i18n/cz.json";
+import tourDe from "./tour/i18n/de.json";
+import tourEn from "./tour/i18n/en.json";
+import tourEs from "./tour/i18n/es.json";
+import tourFr from "./tour/i18n/fr.json";
+import tourJa from "./tour/i18n/ja.json";
+import tourLt from "./tour/i18n/lt.json";
+import tourNl from "./tour/i18n/nl.json";
+import tourSv from "./tour/i18n/sv.json";
 import { Language } from "./type/language";
 
 export function registerTranslateExtension(translate: TranslateService) {
@@ -130,6 +147,14 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
  */
 export function checkboxRequiredValidator(control: FormControl): ValidationErrors {
     return control.value === true ? null : { "checkbox-required-checked": true };
+}
+
+/** Postal code formats of the countries in which systems are installed (e.g. DE, AT, CH, NL, SE, CZ). */
+export const COUNTRY_PARTNER_ZIP_CODE_REGEX: RegExp =
+    /^((\d{5}(-\d{4})?)|([1-9]\d{3}\s?[A-Z]{2})|(\d{3}\s?\d{2})|(\d{4}))$/;
+
+export function ZipCodeValidator(control: FormControl): ValidationErrors {
+    return COUNTRY_PARTNER_ZIP_CODE_REGEX.test(control.value) ? null : { zip: true };
 }
 
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
@@ -302,6 +327,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                     name: "checkbox-required-checked",
                     validation: checkboxRequiredValidator,
                 },
+                { name: "zip", validation: ZipCodeValidator },
             ],
             validationMessages: [
                 { name: "ip", message: IpValidatorMessage },
@@ -330,6 +356,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DateTimeLineComponent,
         StatsComponent,
         FavoriteButtonComponent,
+        FormlyReorderGroupComponent,
         FormlyWrapperComponent,
     ],
     declarations: [
@@ -369,6 +396,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         ComponentsModule,
         DirectiveModule,
         FormlyFieldWithLoadingAnimationComponent,
+        FormlyReorderGroupComponent,
         FormlyIonicModule,
         FormlyModule,
         FormsModule,
@@ -412,7 +440,17 @@ export class SharedModule {
     ) {
         SharedModule.injector = injector;
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: { ...cz, ...tourCz },
+            de: { ...de, ...tourDe },
+            en: { ...en, ...tourEn },
+            es: { ...es, ...tourEs },
+            fr: { ...fr, ...tourFr },
+            ja: { ...ja, ...tourJa },
+            lt: { ...lt, ...tourLt },
+            nl: { ...nl, ...tourNl },
+            sv: { ...sv, ...tourSv },
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

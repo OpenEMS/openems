@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Realizar de nuevo",
+                "START": "Realizar"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Midiendo la capacidad",
+                "ENABLED_INFO": "El controlador ESS SoH Cycle está activado",
+                "ERROR": "Se ha producido un error durante el ciclo de SoH. Compruebe los registros del sistema para más detalles.",
+                "INFO": "Mide la capacidad de la batería realizando un ciclo de prueba y calcula así el estado de salud (SoH). El proceso puede tardar varias horas, dependiendo del tipo y el tamaño de la batería. Se recomienda realizar el ciclo de prueba solo cuando la batería no está en uso.",
+                "MEASURED_CAPACITY": "Capacidad medida",
+                "PV_OFF_CONFIRMATION": "Por la presente confirmo que la instalación fotovoltaica del inversor se ha apagado mediante el interruptor de CC integrado.",
+                "RESTART_CONFIRMATION_TITLE": "Confirmar repetición",
+                "RESTART_WARNING": "Reiniciar el ciclo de SoH restablecerá las mediciones actuales e iniciará un ciclo nuevo. ¿Está seguro de que desea reiniciar?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "Estado",
+                "TITLE": "Determinación de la capacidad",
+                "TITLE_TIP": "visible solo para administradores"
+            }
+        }
+    }
+}

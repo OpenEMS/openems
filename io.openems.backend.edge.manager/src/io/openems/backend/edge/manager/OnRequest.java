@@ -1,30 +1,32 @@
 package io.openems.backend.edge.manager;
 
-import java.util.Optional;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.common.jsonrpc.syncable.SyncableSubscriptionKey;
+import io.openems.backend.common.jsonrpc.syncable.SyncableUtils;
 import io.openems.backend.common.metadata.AppCenterHandler;
-import io.openems.backend.common.metadata.AppCenterMetadata;
-import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metrics.prometheus.PrometheusMetrics;
-import io.openems.backend.oauthregistry.OAuthRegistry;
 import io.openems.backend.oauthregistry.OAuthRegistryRequestHandler;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AppCenterRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.OAuthRegistryRequest;
+import io.openems.common.jsonrpc.request.SyncableSubscribeRequest;
+import io.openems.common.jsonrpc.request.SyncableUnsubscribeRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.SyncableSubscribeResponse;
+import io.openems.common.jsonrpc.syncable.SyncableProviderType;
 import io.openems.common.jsonrpc.type.CheckSetupPassword;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
@@ -32,23 +34,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 
 	private final String name;
-	private final Supplier<AppCenterMetadata.EdgeData> appCenterMetadata;
-	private final Supplier<OAuthRegistry> oauthRegistry;
-	private final Function<String, Optional<Edge>> getEdgeIdBySetupPassword;
+	private final EdgeManagerImpl edgeManager;
 	private final BiConsumer<Logger, String> logWarn;
 
 	public OnRequest(//
 			String name, //
-			Supplier<AppCenterMetadata.EdgeData> appCenterMetadata, //
-			Supplier<OAuthRegistry> oauthRegistry, //
-			Function<String, Optional<String>> getEdgeIdForApikey, //
-			Function<String, Optional<Edge>> getEdgeIdBySetupPassword, //
-			Function<String, Optional<Edge>> getEdge, //
+			EdgeManagerImpl edgeManager, //
 			BiConsumer<Logger, String> logWarn) {
 		this.name = name;
-		this.appCenterMetadata = appCenterMetadata;
-		this.oauthRegistry = oauthRegistry;
-		this.getEdgeIdBySetupPassword = getEdgeIdBySetupPassword;
+		this.edgeManager = edgeManager;
 		this.logWarn = logWarn;
 	}
 
@@ -88,10 +82,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture = switch (request.getMethod()) {
 		case AppCenterRequest.METHOD -> //
-			AppCenterHandler.handleEdgeRequest(this.appCenterMetadata.get(), AppCenterRequest.from(request), edgeId);
-		case CheckSetupPassword.METHOD -> this.handleCheckSetupPasswordRequest(edgeId, request);
-		case OAuthRegistryRequest.METHOD ->
-			OAuthRegistryRequestHandler.handleRequest(this.oauthRegistry.get(), OAuthRegistryRequest.from(request));
+			AppCenterHandler.handleEdgeRequest(this.edgeManager.appCenterMetadata, AppCenterRequest.from(request),
+					edgeId);
+		case CheckSetupPassword.METHOD -> //
+			this.handleCheckSetupPasswordRequest(edgeId, request);
+		case OAuthRegistryRequest.METHOD -> //
+			OAuthRegistryRequestHandler.handleRequest(this.edgeManager.oAuthRegistry,
+					OAuthRegistryRequest.from(request));
+		case SyncableSubscribeRequest.METHOD -> //
+			this.handleSyncableSubscribe(SyncableSubscribeRequest.from(request), edgeId);
+		case SyncableUnsubscribeRequest.METHOD -> //
+			this.handleSyncableUnsubscribe(SyncableUnsubscribeRequest.from(request), edgeId);
+
 		default -> {
 			this.logWarn.accept(this.log, "Unhandled Request: " + request);
 			yield CompletableFuture.failedFuture(OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod()));
@@ -117,7 +119,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			JsonrpcRequest requestRaw) {
 		final var request = CheckSetupPassword.Request.serializer().deserialize(requestRaw.getParams());
 
-		return this.getEdgeIdBySetupPassword.apply(request.setupPassword()) //
+		return this.edgeManager.metadata.getEdgeBySetupPassword(request.setupPassword()) //
 				.map(t -> {
 					if (!t.getId().equals(edgeId)) {
 						return null;
@@ -127,6 +129,46 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				}) //
 				.orElseGet(() -> CompletableFuture.failedFuture(
 						new OpenemsNamedException(OpenemsError.COMMON_AUTHENTICATION_FAILED, requestRaw.getMethod())));
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSyncableSubscribe(
+			SyncableSubscribeRequest request, String edgeId) throws OpenemsException {
+
+		if (request.getKey().getProviderType() != SyncableProviderType.BACKEND) {
+			throw new OpenemsException("SyncableSubscribeRequest is only allowed for providerType BACKEND, but got: "
+					+ request.getKey().getProviderType());
+		}
+
+		final var edgeClient = this.edgeManager.getEdgeClientForEdgeId(edgeId);
+		if (edgeClient == null) {
+			throw new OpenemsException("Can't find edge client for edgeid " + edgeId);
+		}
+
+		var subscription = this.edgeManager.subscriptionManager.subscribe(new SyncableSubscriptionKey(request.getKey()),
+				edgeClient);
+		var entry = SyncableUtils.getSyncableEntryBySubscription(subscription);
+		if (entry == null) {
+			return CompletableFuture.completedFuture(new SyncableSubscribeResponse(request.getId(), null));
+		}
+
+		return entry.waitForNonNullValue(Duration.ofSeconds(60))
+				.thenApply(e -> new SyncableSubscribeResponse(request.getId(), e));
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSyncableUnsubscribe(
+			SyncableUnsubscribeRequest request, String edgeId) throws OpenemsException {
+
+		if (request.getKey().getProviderType() != SyncableProviderType.BACKEND) {
+			throw new OpenemsException("SyncableUnsubscribeRequest is only allowed for providerType BACKEND, but got: "
+					+ request.getKey().getProviderType());
+		}
+
+		final var edgeClient = this.edgeManager.getEdgeClientForEdgeId(edgeId);
+		if (edgeClient != null) {
+			this.edgeManager.subscriptionManager.unsubscribe(new SyncableSubscriptionKey(request.getKey()), edgeClient);
+		}
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 }

@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from "@angular/core";
 import { RouterModule } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UserService } from "src/app/shared/service/user.service";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { Edge, Service, Utils } from "../../shared/shared";
@@ -17,7 +19,7 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonUiModule, RouterModule, FlatWidgetButtonComponent, ComponentsBaseModule],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
     public edge: Edge | null = null;
     public environment = environment;
 
@@ -28,6 +30,10 @@ export class SettingsComponent implements OnInit {
     public canSeeJsonrpcTest: boolean = false;
 
     protected isEdgeBackend = signal(environment.backend === "OpenEMS Edge");
+
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly translate = inject(TranslateService);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     constructor(
         protected utils: Utils,
@@ -50,5 +56,15 @@ export class SettingsComponent implements OnInit {
                 ),
             );
         });
+    }
+
+    ngAfterViewInit() {
+        this.navigationService.headerTitle.set({ text: this.translate.instant("MENU.EDGE_SYSTEM_SETTINGS") });
+    }
+
+    ngOnDestroy() {
+        if (this.navigationService.headerTitle()?.text == this.translate.instant("MENU.EDGE_SYSTEM_SETTINGS")) {
+            this.navigationService.headerTitle.set({ text: null });
+        }
     }
 }

@@ -21,7 +21,10 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 				if (!date.isAfter(LocalDate.of(2025, 5, 30))) {
 					return "519110001918";
 				}
-				return "519110002567";
+				if (!date.isAfter(LocalDate.of(2026, 6, 11))) {
+					return "519110002567";
+				}
+				return "519111002959";
 			}); //
 
 	/**

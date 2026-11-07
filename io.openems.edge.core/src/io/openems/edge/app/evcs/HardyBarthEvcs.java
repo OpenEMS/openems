@@ -75,7 +75,6 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
-import io.openems.edge.energy.api.Version;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -453,7 +452,6 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 						.addTask(Tasks.component(components)); //
 			}
 			case EVSE -> {
-				appConfigBuilder.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var vehicleId = UUID.fromString(this.getString(p, SubPropertyFirstChargepoint.ELECTRIC_VEHICLE_ID));
 				final var components = Lists.newArrayList(//
 						new EdgeConfig.Component(evcsId, alias, "Evse.ChargePoint.HardyBarth",

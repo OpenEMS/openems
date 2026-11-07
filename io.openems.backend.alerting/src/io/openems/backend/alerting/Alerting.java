@@ -28,11 +28,11 @@ import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.handler.SumStateHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 

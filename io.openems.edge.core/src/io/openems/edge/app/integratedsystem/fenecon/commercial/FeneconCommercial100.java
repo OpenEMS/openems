@@ -16,6 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMet
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -25,6 +26,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predict
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
@@ -137,17 +139,15 @@ public class FeneconCommercial100
 				.setRequired(true))), //
 
 		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
-							.equal(Exp.staticValue(AppSafetyCountry.GERMANY)));
-				}))),
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
+								.equal(Exp.staticValue(AppSafetyCountry.GERMANY)))))),
 
 		CONNECTED_BATTERY_SYSTEMS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef//
 				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
 				.setDefaultValue(ConnectedBatterySystems.ONE) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
-				}))),
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field//
+						.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l)))),
 
 		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
@@ -165,9 +165,8 @@ public class FeneconCommercial100
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
 		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)), //
 		GENSET_ID(AppDef.componentId("meter1") //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull());
-				})), //
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull()))), //
 		GENSET_RATED_POWER(gensetRatedPower(IS_GENSET_INSTALLED)), //
 		GENSET_PREHEATING_TIME(gensetPreheatingTime(IS_GENSET_INSTALLED)), //
 		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
@@ -239,11 +238,10 @@ public class FeneconCommercial100
 			final var pvAlias = new ParentPropertyImpl(MPPT_ALIAS.apply(i),
 					AppDef.copyOfGeneric(defaultDef(), def -> def //
 							.setTranslatedLabel("App.IntegratedSystem.mpptAlias.label", oneBased) //
-							.setDefaultValueString((app, property, l, parameter) -> TranslationUtil.getTranslation(
+							.setDefaultValueString((_, _, _, parameter) -> TranslationUtil.getTranslation(
 									parameter.bundle(), "App.IntegratedSystem.mpptAlias.alias", oneBased)) //
-							.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-								field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
-							}) //
+							.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+									.onlyShowIf(Exp.currentModelValue(hasPv).notNull())) //
 					));
 
 			this.pvDefs.put(hasPv.name(), hasPv);
@@ -420,6 +418,10 @@ public class FeneconCommercial100
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();

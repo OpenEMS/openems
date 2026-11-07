@@ -2,8 +2,8 @@ package io.openems.edge.common.channel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnUpdate(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId1, //
 			final ChannelId channelId2, //
 			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
@@ -97,7 +97,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V> Disposable subscribeOnUpdate(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId, //
 			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
 	) {
@@ -144,7 +144,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnSetNextValue(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId1, //
 			final ChannelId channelId2, //
 			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
@@ -192,7 +192,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V> Disposable subscribeOnSetNextValue(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId, //
 			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
 	) {

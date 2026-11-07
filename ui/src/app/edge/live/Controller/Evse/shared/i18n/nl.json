@@ -1,0 +1,73 @@
+{
+    "EVSE_SINGLE": {
+        "HOME": {
+            "ACTUAL_MODE": {
+                "LABEL": "Actuele modus"
+            },
+            "ENERGY_SINCE_START": "Energie sinds de laatste laadstart",
+            "MODE": {
+                "FORCE": "Snel",
+                "LABEL": "Basismodus",
+                "MINIMUM": "Minimaal",
+                "SURPLUS": "PV",
+                "ZERO": "Uit"
+            },
+            "POWER": "Vermogen",
+            "STATE_MACHINE": {
+                "CHARGING": "Aan het laden",
+                "EV_CONNECTED": "EV aangesloten",
+                "EV_NOT_CONNECTED": "EV niet aangesloten",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Laden beëindigd door energielimiet",
+                "FINISHED_EV_STOP": "Laden beëindigd door EV",
+                "LABEL": "Status",
+                "PHASE_SWITCH": "Handmatige fase-omschakeling",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Omschakelen naar 1-fase",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Omschakelen naar 3-fase"
+            },
+            "VEHICLES": "App Center voertuigen"
+        },
+        "SCHEDULE": {
+            "ACCEPT": "Accepteren",
+            "ADD": "Toevoegen",
+            "ADD_ERROR": "Taak kon niet worden toegevoegd",
+            "ADD_SUCCESS": "Taak succesvol toegevoegd",
+            "DAY": {
+                "FRIDAY": "Vrijdag",
+                "MONDAY": "Maandag",
+                "SATURDAY": "Zaterdag",
+                "SUNDAY": "Zondag",
+                "THURSDAY": "Donderdag",
+                "TUESDAY": "Dinsdag",
+                "WEDNESDAY": "Woensdag"
+            },
+            "DELETE": "Verwijderen",
+            "DELETE_ERROR": "Taak kon niet worden verwijderd",
+            "DELETE_SUCCESS": "Taak succesvol verwijderd",
+            "DURATION": "Duur",
+            "EDIT": "Bewerken",
+            "EDIT_ERROR": "Taak kon niet worden aangepast",
+            "EDIT_SUCCESS": "Taak succesvol aangepast",
+            "END": "Einde",
+            "FREQ": {
+                "DAILY": "Dagelijks",
+                "MONTHLY": "Maandelijks",
+                "WEEKLY": "Wekelijks",
+                "YEARLY": "Jaarlijks"
+            },
+            "FREQUENCY": "Herhalen",
+            "MODE": "Laadmodus",
+            "MODE_SELECTION_PLACEHOLDER": "Selecteren",
+            "SMART_EVENT_TITLE": "Slim laden van {{kwh}} kWh",
+            "START": "Start",
+            "VALIDATION_ERROR_1": "Specificeer de starttijd",
+            "VALIDATION_ERROR_2": "Specificeer de eindtijd",
+            "VALIDATION_ERROR_3": "Selecteer de laadmodus",
+            "VALIDATION_ERROR_4": "Specificeer de starttijd in HH:mm-formaat en alleen in kwartieren (00, 15, 30 of 45 minuten)",
+            "VALIDATION_ERROR_5": "Specificeer de eindtijd in HH:mm-formaat en alleen in kwartieren (00, 15, 30 of 45 minuten)",
+            "VALIDATION_ERROR_6": "De eindtijd moet na de starttijd liggen"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Energielimiet"
+        }
+    }
+}

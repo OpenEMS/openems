@@ -1,6 +1,6 @@
 package io.openems.edge.fenecon.dess.ess;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
 
 import java.util.ArrayList;
 import java.util.List;

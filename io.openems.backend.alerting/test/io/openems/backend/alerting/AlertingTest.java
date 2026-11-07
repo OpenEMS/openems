@@ -1,5 +1,8 @@
 package io.openems.backend.alerting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
@@ -7,9 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.backend.common.test.DummyMetadata;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class AlertingTest {
 
@@ -93,7 +93,7 @@ class AlertingTest {
 
 		alerting.activate(testConf);
 
-        assertNull(alerting.lastEvent);
+		assertNull(alerting.lastEvent);
 
 		alerting.handleEvent(event);
 
