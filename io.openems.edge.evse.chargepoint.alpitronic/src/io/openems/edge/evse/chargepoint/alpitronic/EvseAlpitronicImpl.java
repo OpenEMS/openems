@@ -3,7 +3,6 @@ package io.openems.edge.evse.chargepoint.alpitronic;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.evse.chargepoint.alpitronic.enums.AvailableState.UNDEFINED;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
