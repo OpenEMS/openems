@@ -1,0 +1,136 @@
+= OpenEMS: Websocket
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/external-interfaces/websocket.adoc[OpenEMS: Websocket]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+The websocket is the connection through which the **web interface** talks to the system. Unlike with individual queries, the connection remains open. The system sends the current values **every second**, so the display is always live.
+
+[#sec-setup]
+== Setup
+
+The function is called **Controller.Api.Websocket** and is usually already set up.
+
+[cols="3*",options="header"]
+|===
+| Setting
+| Default
+| Meaning
+
+| Port
+| 8085
+| Port for the web interface in the local network
+| Api-Timeout
+| 60 s
+| how long a control value applies without being renewed
+|===
+
+[#sec-local-or-via-the-internet]
+== Local or via the internet
+
+* **In the local network**, the web interface connects directly to the system.
+* **When on the move**, the web interface connects to the backend (central server). The system itself maintains a connection to it. The backend passes on the messages.
+
+For the user, both look almost the same. What the system sends to the backend is described on the page xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend].
+
+[#sec-what-happens-after-opening-the-web-interface]
+== What happens after opening the web interface
+
+. The connection is established.
+. You log in with a password. The interface then remembers a login token.
+. The interface loads the configuration: which devices and functions exist.
+. It registers which values it currently wants to display.
+. From then on, these values arrive automatically **every second**.
+. If required, histories, settings, the app center, the xref:user/schedule/overview.adoc[schedule] or the system log are also retrieved.
+
+[#sec-functions-and-user-roles]
+== Functions and user roles
+
+What a user may do depends on their **role**. A higher role may do everything that a lower one may do.
+
+[cols="2*",options="header"]
+|===
+| Role
+| for
+
+| Guest (GUEST)
+| view only
+| Owner (OWNER)
+| System operators
+| Installer (INSTALLER)
+| Specialist companies
+| Admin (ADMIN)
+| Manufacturer / developer
+|===
+
+The following table applies to **direct access in the local network**:
+
+[cols="2*",options="header"]
+|===
+| Function
+| Required role
+
+| Log in
+| – (password)
+| View live values
+| none
+| View configuration
+| Guest
+| View histories and energy amounts
+| none
+| Excel export
+| logged in
+| View schedule
+| none
+| Follow system log
+| none
+| Change settings
+| Owner
+| App center, heat pump, charge points etc.
+| varies by function
+|===
+
+Only make port 8085 accessible in your own home network and never expose it to the internet.
+
+[#sec-note-do-not-write-the-configuration-frequently]
+=== Note: Do not write the configuration frequently
+
+Every change to a setting, whether in the web interface, via the websocket or via xref:user/external-interfaces/rest-control.adoc[REST], is **written permanently to the memory of the device**. On a Debian installation, the files are located in `+/etc/openems.d/+`. In addition, the function concerned starts working with the new values, in some cases restarting.
+
+Many energy management devices use **flash memory** (SD card, eMMC). Flash can only withstand a limited number of write operations. **If the configuration is written frequently, for example every minute by a script or a home automation system, this can in the long term lead to wear, data errors and ultimately failure of the storage medium.** In the worst case, the system will then no longer start properly.
+
+Therefore:
+
+* Use **settings** only for rare, permanent changes, e.g. to change an operating mode.
+* Use control values for **ongoing control** (e.g. charging/discharging power). They are only held in RAM, see xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON].
+* Do not send unchanged values again as a setting.
+
+The xref:user/data/history-rrd4j.adoc[history] also writes regularly. The more values are stored, the higher the load.
+
+[#sec-websocket-or-rest]
+== Websocket or REST?
+
+[cols="3*",options="header"]
+|===
+| 
+| Websocket
+| REST
+
+| Live values
+| automatically every second
+| only through repeated queries
+| Effort
+| higher (connection, login, registering the desired values)
+| low (one call)
+| Typical for
+| Web interface
+| Home automation, scripts
+|===
+
+The Home Assistant integration “Fenecon FEMS & OpenEMS” uses both routes, see xref:user/third-party/home-assistant.adoc[Home Assistant].

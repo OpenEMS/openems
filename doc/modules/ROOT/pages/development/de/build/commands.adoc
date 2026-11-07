@@ -1,0 +1,150 @@
+= OpenEMS-Entwicklung: Build- und Startbefehle
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:development/build/commands.adoc[Build and run commands]
+
+__Stand: 06.11.2026 · OpenEMS-Version 2026.12.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite ist die Kurzreferenz der Befehle. Sie ergänzt xref:development/overview.adoc[Overview], xref:edge/build.adoc[Build OpenEMS Edge] und xref:ui/build.adoc[Build OpenEMS UI]. Wer OSGi, bnd und Gradle noch nicht kennt, beginnt mit xref:development/de/fundamentals/osgi-and-tools.adoc[OSGi und Werkzeuge].
+
+[#sec-aufbau-des-repositorys]
+== Aufbau des Repositorys
+
+[cols="2*",options="header"]
+|===
+| Pfad
+| Inhalt
+
+| `+io.openems.edge.*+`
+| Bundles der Edge (Geräte, Controller, Kern)
+| `+io.openems.backend.*+`
+| Bundles des Backends
+| `+io.openems.common*+`, `+io.openems.core.*+`, `+io.openems.shared.*+`
+| gemeinsamer Code
+| `+cnf/+`
+| bnd-Workspace-Konfiguration: Abhängigkeiten (`+build.bnd+`), Checkstyle (`+checkstyle.xml+`)
+| `+io.openems.edge.application/EdgeApp.bndrun+`
+| Startbeschreibung der Edge: Framework, Bundles, Laufzeit-Parameter
+| `+ui/+`
+| Angular/Ionic-Oberfläche
+| `+doc/+`
+| diese Dokumentation (Antora/AsciiDoc)
+|===
+
+Jedes Bundle hat dieselbe Struktur: `+bnd.bnd+` (Name, `+-buildpath+`, `+-testpath+`), `+src/+`, `+test/+` und `+readme.adoc+`.
+
+[#sec-edge-und-backend-bauen]
+== Edge und Backend bauen
+
+Alle Befehle im Wurzelverzeichnis des Repositorys:
+
+[source]
+----
+./gradlew buildEdge          # Fat-JAR der Edge nach build/openems-edge.jar
+./gradlew buildBackend       # Fat-JAR des Backends nach build/openems-backend.jar
+./gradlew buildBackendEdge   # Fat-JAR der Backend-Edge nach build/openems-backend-edge.jar
+./gradlew buildComponents    # alle Bundles übersetzen, ohne JAR zu packen
+./gradlew :io.openems.edge.meter.janitza:jar             # JAR eines einzelnen Bundles nach <Bundle>/generated/
+./gradlew :io.openems.edge.meter.janitza:test            # Tests eines Bundles
+./gradlew :io.openems.edge.meter.janitza:checkstyleMain  # Checkstyle eines Bundles
+./gradlew checkstyleAll      # Checkstyle über alle Bundles
+----
+
+* Der Zielpfad der JARs lässt sich über die Gradle-Property `+oems.edge.output+` bzw. die Umgebungsvariable `+OEMS_EDGE_OUTPUT+` ändern (entsprechend `+…backend…+`).
+* Checkstyle läuft mit null erlaubten Warnungen. Vor einem Pull Request sollte `+checkstyleMain+` für jedes geänderte Bundle fehlerfrei sein; siehe auch die xref:development/coding-guidelines.adoc[Coding Guidelines].
+* Ein neues Bundle muss nicht in eine Liste eingetragen werden; Gradle findet alle Verzeichnisse mit `+bnd.bnd+`. Damit es in der Edge-JAR landet, muss es aber in `+EdgeApp.bndrun+` unter `+-runrequires+` stehen.
+
+[#sec-edge-lokal-starten]
+== Edge lokal starten
+
+[source]
+----
+java -jar build/openems-edge.jar
+----
+
+Ohne Konfiguration meldet die Edge jede Sekunde „There are no Schedulers configured!“. Das ist normal.
+
+**Wo die Konfiguration liegt:** Die Komponenten-Konfiguration speichert der OSGi Configuration Admin als Textdateien im Verzeichnis `+felix.cm.dir+`. In `+EdgeApp.bndrun+` ist dafür `+c:/openems/config+` eingetragen, für Daten (z. B. rrd4j-Historie) `+openems.data.dir=c:/openems/data+`. Unter macOS oder Linux sind das relative Pfade; es entsteht dann ein Ordner mit dem Namen `+c:+` im Arbeitsverzeichnis. Eigene Pfade setzt man beim Start:
+
+[source]
+----
+java -Dfelix.cm.dir=$HOME/openems/config \
+     -Dopenems.data.dir=$HOME/openems/data \
+     -jar build/openems-edge.jar
+----
+
+**Erste Konfiguration:** siehe xref:gettingstarted.adoc[Getting Started]. Die Apache Felix Web Console läuft unter `+http://localhost:8080/system/console/configMgr+` (Port aus `+org.osgi.service.http.port+`). Für Versuche ohne Hardware gibt es Simulator-Bundles (`+io.openems.edge.simulator+`).
+
+[#sec-oberflaeche-im-entwicklungsmodus]
+== Oberfläche im Entwicklungsmodus
+
+Im Verzeichnis `+ui/+`:
+
+[source]
+----
+npm ci
+npx ng serve -c openems-edge-dev       # verbindet mit ws://<host>:8085 (Edge direkt)
+npx ng serve -c openems-backend-dev    # verbindet mit dem lokalen Backend
+----
+
+Die Ziel-URLs stehen in `+ui/src/themes/openems/environments/edge-dev.ts+` bzw. `+backend-dev.ts+`. Tests und Lint:
+
+[source]
+----
+npm test -- --watch=false --browsers=ChromeHeadlessCI
+npm run lint
+----
+
+Geänderte Texte in der Oberfläche müssen in `+ui/src/app/shared/i18n/+` nachgetragen werden; `+npm run lint+` prüft die Übersetzungsschlüssel.
+
+[#sec-oberflaeche-bauen]
+== Oberfläche bauen
+
+Im Verzeichnis `+ui/+`:
+
+[source]
+----
+npm ci
+npx ng build -c "openems,openems-edge-prod,prod"
+----
+
+Das Ergebnis liegt in `+ui/target/+`: statische Dateien für einen Webserver. Die Konfigurationen in `+ui/angular.json+` werden kombiniert:
+
+[cols="2*",options="header"]
+|===
+| Konfiguration
+| Wirkung
+
+| `+openems+`
+| Theme aus `+src/themes/openems/+`
+| `+prod+`
+| Produktions-Build: AOT, minimiert, Dateinamen mit Hash, ohne Source-Maps, mit Lizenzdatei
+| `+openems-edge-prod+`
+| Edge direkt über `+ws(s)://<Host>:8075+`. Standard-Port von `+Controller.Api.Websocket+` ist 8085, also dort umstellen.
+| `+openems-edge-docker+`
+| Edge über `+ws(s)://<Host>/openems-edge+`; braucht den nginx-Proxy des UI-Images
+| `+openems-backend-prod+`
+| Backend über `+ws(s)://<Host>:8082+`
+| `+openems-backend-docker+`
+| Backend über `+ws(s)://<Host>/openems-backend+`
+|===
+
+Die Adressen stehen in `+ui/src/themes/openems/environments/*.ts+`. Ein Build mit `+-c "openems,openems-edge-dev,prod"+` ist optimiert und verbindet sich mit Port 8085. Für neue Apps im App Center ist kein UI-Build nötig (siehe xref:development/de/implementing/apps.adoc[Apps für das App Center]).
+
+Als Docker-Image, aus dem Wurzelverzeichnis des Repositorys (Standard-Konfiguration `+openems,openems-edge-docker,prod+`, siehe xref:ui/deploy/docker.adoc[Deploy UI to Docker]):
+
+[source]
+----
+docker build -f tools/docker/ui/Dockerfile.edge -t openems_ui_edge:custom .
+----
+
+[#sec-hinweise]
+== Hinweise
+
+* Die Edge zielt auf schwache Hardware (etwa 1 GB RAM, 2 Kerne). Rechenintensive Logik gehört nicht in jeden Zyklus.
+* Das Repository enthält `+CLAUDE.md+` und `+AGENTS.md+` mit Kurzregeln für Code-Stil und Tests.

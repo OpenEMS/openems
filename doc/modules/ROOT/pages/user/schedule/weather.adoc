@@ -1,0 +1,65 @@
+= OpenEMS: Weather
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/schedule/weather.adoc[OpenEMS: Wetter]
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+OpenEMS gets weather data from the **Open-Meteo** service. The data is mainly needed for the xref:user/schedule/forecasts.adoc[solar yield forecast]. The web interface also uses it to show the current weather and a forecast.
+
+[#sec-setup]
+== Setup
+
+The function is called **Weather.OpenMeteo** and has **no settings of its own**.
+
+* The **location** comes from the system settings (Meta). It must be correct there, otherwise the solar forecast will not match.
+* An **access key** is not required. Without a key, the freely usable Open-Meteo access is used. The commercial access is only used if a manufacturer supplies its own key.
+* The system needs internet access.
+
+[#sec-which-data]
+== Which data
+
+* **Forecast for 7 days**, in quarter hours: solar irradiation (total, direct, diffuse), temperature, snowfall and snow depth.
+* Hourly and daily: weather condition (symbol), temperature, minimum and maximum values, sunshine duration.
+* **Past weather:** To train the solar forecast, weather data of past days at the location is also retrieved.
+
+[#sec-how-often-it-is-updated]
+== How often it is updated
+
+* Immediately at startup.
+* After that **every 3 hours**, with a random delay of up to 5 minutes. The random delay prevents all systems from sending requests at the same time.
+* If a request fails, it is retried after about 10 to 70 seconds.
+* If the forecast is outdated, it is no longer used. The basis for the solar forecast is then also missing.
+
+[#sec-what-you-see-in-openems]
+== What you see in OpenEMS
+
+[cols="2*",options="header"]
+|===
+| Value
+| Meaning
+
+| Current temperature
+| in °C
+| Current weather condition
+| as a weather code (symbol)
+| Sunshine duration today
+| in seconds
+| Minimum/maximum temperature today
+| in °C
+| HTTP status
+| Result of the last request (helps with troubleshooting)
+|===
+
+In addition, forecast values are stored every hour, so they can be seen later in the history.
+
+[#sec-if-something-is-wrong]
+== If something is wrong
+
+* **Solar forecast does not match at all:** First check the location in the system settings.
+* **No weather data:** Check the internet connection and the HTTP status.

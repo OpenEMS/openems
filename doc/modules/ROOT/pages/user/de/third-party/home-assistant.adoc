@@ -1,0 +1,271 @@
+= OpenEMS: Home-Assistant-Integration
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/third-party/home-assistant.adoc[OpenEMS: Home Assistant integration]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite beschreibt die Home-Assistant-Integration **„Fenecon FEMS & OpenEMS“** (ha_openems, Version 1.8.0, Installation über HACS, mindestens Home Assistant 2026.8.0). Sie ist ein Projekt eines Dritten und **nicht** Teil von OpenEMS oder von FENECON. Grundlage ist der Quellcode der Integration und der OpenEMS-Quellcode; ausprobiert wurde sie hier nicht.
+
+Einen Vergleich mit evcc und openWB gibt die Seite xref:user/de/third-party/overview.adoc[Fremdsysteme an OpenEMS].
+
+Kurz gesagt: Die Integration verbindet sich wie die Weboberfläche über den xref:user/de/external-interfaces/websocket.adoc[Websocket] mit der Anlage, macht Komponenten zu Geräten und Werte („Kanäle“) zu Entitäten in Home Assistant, empfängt die Werte live und kann **Einstellungen** ändern. **Steuerwerte** (z. B. „Speicher jetzt mit 2 kW laden“) setzt sie nur über einen Zusatzdienst, der die xref:user/de/external-interfaces/rest-control.adoc[REST-Schnittstelle] benutzt.
+
+[#sec-verbindung-einrichten]
+== Verbindung einrichten
+
+Beim Hinzufügen der Integration gibt man Adresse, Benutzername und Passwort an. Bei einer lokalen Anlage ist der Benutzername beliebig (die Anleitung nennt „x“), entscheidend ist das Passwort; es bestimmt die Rolle (siehe xref:user/de/external-interfaces/websocket.adoc#sec-funktionen-und-benutzerrollen[Benutzerrollen]). Unter „Weitere Optionen“ wird die Verbindungsart gewählt:
+
+[cols="3*",options="header"]
+|===
+| Verbindungsart
+| Adresse
+| Gegenstelle
+
+| Direkte Verbindung zur Anlage (Voreinstellung)
+| ws://Anlage:8085/
+| Websocket-Schnittstelle der Edge (Controller.Api.Websocket)
+| FEMS lokal
+| ws://Anlage:80/websocket
+| Weboberfläche des FEMS, die an den Websocket weiterleitet
+| OpenEMS lokal
+| ws://Rechner:8082/
+| ein eigenes OpenEMS-Backend (Port 8082 ist dessen Standard für die Oberfläche)
+| FENECON-Online-Monitoring
+| wss://portal.fenecon.de/…
+| FENECON-Backend über das Internet
+| Eigene Adresse
+| frei
+| z. B. hinter einem Proxy
+|===
+
+Bei allen lokalen Arten ist die Verbindung **unverschlüsselt** (ws, nicht wss). Passwort und Daten gehen also im Klartext durch das Heimnetz. Home Assistant speichert die Zugangsdaten in seiner eigenen Konfiguration.
+
+Bei einem Backend mit mehreren Anlagen fragt die Integration die Liste der Anlagen ab (höchstens 20) und legt je Anlage einen Eintrag an.
+
+[#sec-wie-die-kommunikation-ablaeuft]
+== Wie die Kommunikation abläuft
+
+Die Integration spricht dieselben Befehle wie die Weboberfläche (siehe xref:user/de/external-interfaces/websocket.adoc#sec-was-nach-dem-oeffnen-der-weboberflaeche-passiert[Was nach dem Öffnen der Weboberfläche passiert]). Alle Anfragen an die Anlage werden in einen Umschlag „edgeRpc“ mit der Anlagen-ID gepackt. Das funktioniert auch bei der direkten Verbindung, weil die Edge diesen Umschlag ebenfalls versteht.
+
+[#sec-beim-einrichten]
+=== Beim Einrichten
+
+. Verbindung öffnen und mit Benutzername und Passwort anmelden. Die Integration meldet sich bei jeder Verbindung neu mit dem Passwort an; ein Anmelde-Token wird nicht verwendet.
+. Die Konfiguration der Anlage lesen: welche Komponenten es gibt.
+. Für **jede** Komponente einzeln die Liste ihrer Kanäle abfragen (mit Typ, Einheit, Lese-/Schreibrecht). Bei 20 bis 50 Komponenten sind das ebenso viele Anfragen.
+. Über eine zweite, kurze Verbindung einmal den Hostnamen der Anlage und die Namen (Aliase) der Komponenten lesen. Daraus entstehen die Gerätenamen.
+. Das Ergebnis der Schritte 2 bis 4 im Eintrag der Integration in Home Assistant speichern.
+. Für jede Komponente ein Gerät und für jeden Kanal eine Entität anlegen.
+
+[#sec-bei-jedem-start-von-home-assistant]
+=== Bei jedem Start von Home Assistant
+
+. Verbindung öffnen und anmelden wie oben.
+. Die Komponenten, Kanäle und Namen werden **nicht** neu von der Anlage gelesen. Die Integration verwendet die beim Einrichten oder beim letzten Neuladen gespeicherte Liste.
+. Aus dieser Liste Geräte und Entitäten anlegen; bereits vorhandene werden wiederverwendet.
+
+[#sec-beim-neuladen]
+=== Beim Neuladen
+
+Die Schritte 2 bis 5 des Einrichtens laufen erneut, wenn
+
+* man den Eintrag in Home Assistant „neu lädt“ oder neu konfiguriert, oder
+* die gespeicherte Liste leer ist.
+
+Dasselbe gilt, wenn die Anlage beim Start von Home Assistant nicht erreichbar war. Home Assistant wiederholt den Versuch dann erst, wenn es vollständig hochgefahren ist. Gelingt die Verbindung, liest die Integration die Liste neu wie beim Neuladen.
+
+Nicht neu gelesen wird die Liste bei einem Verbindungsabbruch mit Wiederverbindung (siehe unten) und beim Ändern der Optionen, also beim Aktivieren oder Deaktivieren von Komponenten.
+
+[#sec-im-laufenden-betrieb]
+=== Im laufenden Betrieb
+
+. Die Integration meldet die Anlage und die Liste der **aktivierten** Entitäten an („abonnieren“). Nur aktivierte Entitäten werden abonniert; alle anderen kosten im Betrieb nichts.
+. Die Anlage schickt die Werte dieser Kanäle etwa **jede Sekunde**.
+. Werden Entitäten aktiviert oder deaktiviert, passt die Integration das Abonnement innerhalb von etwa 5 Sekunden an.
+. Optional („Datenaktualisierung begrenzen“) gibt sie die Werte nur alle N Sekunden an Home Assistant weiter. Das verringert die Datenmenge in der Home-Assistant-Datenbank; die Anlage sendet trotzdem jede Sekunde.
+
+[#sec-verbindungsabbruch]
+=== Verbindungsabbruch
+
+* Kommen **60 Sekunden** lang keine Werte, gilt die Verbindung als verloren.
+* Alle Entitäten werden dann „nicht verfügbar“.
+* Die Integration versucht alle 10 Sekunden, die Verbindung neu aufzubauen, meldet sich neu an und abonniert erneut.
+
+[#sec-was-nicht-uebertragen-wird]
+=== Was nicht übertragen wird
+
+* **Keine Historie aus der Anlage.** Die Integration liest keine gespeicherten Verläufe (siehe xref:user/de/data/history-rrd4j.adoc[Historie]). Home Assistant baut seine eigene Historie aus den Live-Werten auf. Läuft Home Assistant nicht, entsteht dort eine Lücke, obwohl die Anlage weiter aufzeichnet.
+* **Konfigurationsänderungen in der Anlage** (neue Komponente, neue App) werden nicht automatisch übernommen. Dazu muss man den Eintrag in Home Assistant „neu laden“. Die Nachricht der Anlage über eine geänderte Konfiguration wird laut Code derzeit nicht ausgewertet.
+
+[#sec-was-in-home-assistant-erscheint]
+== Was in Home Assistant erscheint
+
+[cols="2*",options="header"]
+|===
+| OpenEMS
+| Home Assistant
+
+| Anlage
+| Eintrag der Integration (Name aus dem Hostnamen)
+| Komponente (z. B. ess0, meter0, ctrlEvcs0)
+| Gerät
+| Messwert (z. B. Leistung, Ladezustand)
+| Sensor
+| Ja/Nein-Wert (z. B. Warnungen)
+| Binärsensor
+| Einstellung vom Typ Ja/Nein
+| Schalter
+| Einstellung mit Auswahlliste
+| Auswahl
+| Einstellung mit Zahl
+| Zahl (nur bei hinterlegten Einstellungen, siehe unten)
+| Einstellung mit Uhrzeit
+| Uhrzeit (nur bei hinterlegten Einstellungen)
+| Systemupdate der Anlage
+| Update-Entität
+|===
+
+**Voreinstellung:** Nach dem Einrichten sind nur einige Komponenten und darin nur wenige Kanäle aktiv, u. a. die Summenwerte (`+_sum+`: Verbrauch, Erzeugung, Netz, Speicher), Ladezustand und Energiezähler des Speichers, Leistung von Zählern und PV-Wechselrichtern, die Notstromreserve, die Ladepunkt-Einstellungen, die netzdienliche Beladung, die Batterie-Erweiterung, § 14a und die Freigabe zum Laden aus dem Netz. Weitere Komponenten lassen sich in den Optionen der Integration zuschalten, weitere Entitäten in der Entitätenliste aktivieren. Die Anleitung rät davon ab, mehrere hundert Kanäle gleichzeitig zu aktivieren.
+
+Für das **Energie-Dashboard** von Home Assistant eignen sich die Energiezähler aus `+_sum+` (Netzbezug, Einspeisung, Erzeugung, Speicher-Ladung und -Entladung, siehe xref:user/de/basics/energy-flows.adoc[Energieflüsse]).
+
+[#sec-zusaetzliche-berechnete-werte]
+=== Zusätzliche, berechnete Werte
+
+Für Batterien berechnet die Integration selbst die **Spannungsdifferenz** zwischen höchster und niedrigster Zelle, für die Gesamtbatterie und je Modul. Diese Werte liefert OpenEMS nicht direkt; sie entstehen aus den Zellspannungen (siehe xref:user/de/systems/fenecon-home-battery.adoc[FENECON-Home-Batterie]). Dafür müssen die Zellspannungs-Kanäle aktiviert sein.
+
+[#sec-fertige-karten]
+=== Fertige Karten
+
+Die Integration bringt Vorlagen für Dashboard-Karten mit: Ladepunkt, netzdienliche Beladung, Notstromreserve, Heizstab sowie ein Batterie-Diagnose-Dashboard. Sie brauchen zusätzliche Karten-Erweiterungen aus HACS.
+
+[#sec-was-gesteuert-werden-kann]
+== Was gesteuert werden kann
+
+Die Integration hat drei Schreibwege. Sie unterscheiden sich grundlegend:
+
+[cols="5*",options="header"]
+|===
+| Weg
+| Was
+| Wie
+| Dauer
+| nötige Rolle
+
+| Einstellung ändern
+| Schalter, Auswahl, Zahl, Uhrzeit; Aktion „Komponenten-Konfiguration ändern“
+| updateComponentConfig über den Websocket
+| **dauerhaft**, wird gespeichert
+| Eigentümer
+| Steuerwert setzen
+| Aktion „REST-Wert schreiben“ an einem Sensor
+| POST an die REST-Schnittstelle der Anlage
+| vorübergehend, nur solange wiederholt
+| laut REST-Seite Eigentümer; REST-Schreib-App nötig
+| Systemupdate
+| Update-Entität „Installieren“
+| Aufruf an `+_host+` über den Websocket
+| –
+| Eigentümer
+|===
+
+Den Websocket-Befehl zum Setzen von Steuerwerten (setChannelValue) benutzt die Integration nicht; er ist in OpenEMS dem Admin vorbehalten.
+
+[#sec-einstellungen]
+=== Einstellungen
+
+Jede Einstellung einer Komponente (Kanäle, die mit „_Property“ beginnen) wird zur Entität:
+
+* **Ja/Nein-Einstellungen** werden immer zu Schaltern, bei **jeder** Komponente. Dazu gehört auch „aktiviert“ (`+_PropertyEnabled+`), mit dem sich eine Komponente ganz abschalten lässt. Diese Schalter sind standardmäßig deaktiviert, aber vorhanden.
+* **Auswahllisten** entstehen, wenn die Anlage die Optionen liefert oder die Integration sie kennt, z. B. Lademodus und Priorität am Ladepunkt, Modus der netzdienlichen Beladung, Modus des Heizstabs, Strategie der Leistungsverteilung (`+_power+`), Risikobereitschaft des Energie-Optimierers.
+* **Zahlen** nur für Einstellungen, für die die Integration Grenzen hinterlegt hat: Notstromreserve (Prozent), Energielimit und Mindestleistungen am Ladepunkt, Energielimit am EVSE-Ladepunkt, Mindestlaufzeit des Heizstabs.
+* **Uhrzeiten**: Zielzeit der netzdienlichen Beladung, Endzeit des Heizstabs.
+
+Mit der Aktion **„Komponenten-Konfiguration ändern“** („update_component_config“) lassen sich mehrere Einstellungen einer Komponente in **einer** Anfrage ändern. Die Integration prüft dabei nur, ob ein Wert eine Zahl, ein Schaltwert, eine Uhrzeit oder eine gültige Auswahl ist; Mindest- und Höchstwerte von Zahlen prüft sie nicht. Bei Ladepunkten (ctrlEvcs) schickt die Integration beim Ändern des Lademodus und beim Einschalten von „Laden freigegeben“ jeweils beide Einstellungen gemeinsam.
+
+**Wichtig – Speicherverschleiß:** Jede Änderung einer Einstellung wird in der Anlage **dauerhaft gespeichert** und startet die betroffene Funktion neu. Automationen, die Einstellungen häufig umschalten (etwa minütlich), können den Flash-Speicher der Anlage auf Dauer abnutzen. Siehe xref:user/de/external-interfaces/websocket.adoc#sec-hinweis-konfiguration-nicht-haeufig-schreiben[Hinweis: Konfiguration nicht häufig schreiben]. Einstellungen in Automationen daher nur selten und nur bei echter Änderung schreiben.
+
+[#sec-steuerwerte-ueber-rest]
+=== Steuerwerte über REST
+
+Für laufende Steuerung, z. B. eine Speicherleistung vorgeben oder ein Relais schalten, gibt es die Aktion **„REST-Wert schreiben“** (für Sensoren und Binärsensoren). Sie funktioniert nur, wenn in der Anlage die App bzw. Komponente **„REST/JSON-API Lese-/Schreibzugriff“** (Controller.Api.Rest.ReadWrite) eingerichtet ist; die Integration erkennt das beim Einrichten.
+
+* Die Integration sendet den Wert per HTTP an `+/rest/channel/Komponente/Kanal+` der Anlage, mit denselben Zugangsdaten wie beim Websocket (siehe xref:user/de/external-interfaces/rest-control.adoc#sec-steuerwert-setzen[Steuerwert setzen]).
+* Weil die Anlage einen Steuerwert nach dem Api-Timeout (Standard 60 Sekunden) verwirft, **wiederholt** die Integration den Wert standardmäßig alle 30 Sekunden. Mit „Timeout“ lässt sich festlegen, wie lange; 0 bedeutet „bis zum nächsten Aufruf für diese Entität“. „Update-Zyklus 0“ sendet nur einmal.
+* Ein Steuerwert wird nur im Arbeitsspeicher gehalten; das ist der richtige Weg für häufige Änderungen.
+* Ob der Wert angekommen ist, sieht man in Home Assistant **nicht**: Die Anlage meldet geschriebene Steuerwerte nicht zurück. Nur Fehler (z. B. falsches Passwort, „is not a Write Channel“) erscheinen im Protokoll von Home Assistant.
+* Die REST-Adresse bildet die Integration immer als unverschlüsselte Adresse (http) aus dem Rechnernamen der Websocket-Adresse und dem Port, der in der REST-App eingestellt ist (Standard 8084). Eine Adresse, die man selbst angibt, gibt es dafür nicht. Steht die Anlage hinter einem Proxy, der unter diesem Rechnernamen nur den Websocket weiterleitet und nicht auch den REST-Port, erreicht die Integration die REST-App nicht. Beim FENECON-Online-Monitoring gibt es diesen Weg nicht.
+
+[#sec-systemupdate]
+=== Systemupdate
+
+Die Update-Entität fragt alle 12 Stunden den Update-Stand der Anlage ab und kann ein Update starten. Das setzt die Rolle Eigentümer voraus und wirkt nur dort, wo die Anlage selbst ein Systemupdate anbietet.
+
+[#sec-grenzen]
+== Grenzen
+
+[cols="2*",options="header"]
+|===
+| Grenze
+| Folge
+
+| Drittprojekt, nicht vom Hersteller
+| Änderungen an OpenEMS oder FEMS können die Integration jederzeit beeinträchtigen. Getestet ist laut Anleitung nur ein FENECON Home 10 mit wenigen Zusatzgeräten.
+| Rolle Gast
+| Nur lesen. Schalter, Auswahl usw. erscheinen zwar, das Ändern schlägt aber fehl.
+| Einstellungen werden dauerhaft gespeichert
+| Häufiges Schalten nutzt den Speicher der Anlage ab; für laufende Steuerung REST-Steuerwerte verwenden.
+| Steuerwerte nur über REST
+| REST-Schreib-App nötig, keine Rückmeldung in Home Assistant, Wert muss wiederholt werden.
+| Gefährliche Schalter vorhanden
+| Z. B. „aktiviert“ jeder Komponente. Wer solche Entitäten aktiviert, kann Speicher, Zähler oder Schutzfunktionen abschalten.
+| Keine Historie aus der Anlage
+| Lücken in Home Assistant, wenn es nicht läuft.
+| Konfiguration wird nicht automatisch nachgeführt
+| Nach Änderungen an der Anlage „neu laden“.
+| Unverschlüsselte Verbindung im Heimnetz
+| Port 8085 bzw. 8084 nicht ins Internet freigeben.
+| Viele Entitäten
+| Last und Datenmenge in Home Assistant; Abo nur für aktivierte Entitäten.
+| Zählerstände nach Neustart der Anlage
+| Laut Code der Integration meldet die Anlage kurz nach einem Neustart manchmal zu kleine Energie-Zählerstände. Die Option „Abnehmende Werte ignorieren“ verwirft solche Werte, damit die Statistik in Home Assistant nicht springt.
+| Mehrere Anlagen an einem Backend
+| Höchstens 20 werden aufgelistet.
+| Grenzen der Anlage gelten weiter
+| Notstromreserve, Batterie- und Netzgrenzen schränken Vorgaben ein; ein Steuerwert wird nicht immer vollständig umgesetzt.
+|===
+
+[#sec-typische-fragen]
+== Typische Fragen
+
+**Kann ich den Speicher aus Home Assistant laden oder entladen lassen?**
+
+Ja, über die Aktion „REST-Wert schreiben“ an der Entität für die Sollleistung des Speichers, z. B. `+ess0/SetActivePowerEquals+` (negativ = laden). Voraussetzung ist die REST-Schreib-App. Die Entität muss dafür in Home Assistant aktiviert sein. Die Integration wiederholt den Wert, bis der Timeout abläuft oder ein neuer Aufruf kommt.
+
+**Warum ändert sich in Home Assistant nichts, nachdem ich einen REST-Wert geschrieben habe?**
+
+Der Steuerwert selbst wird nicht zurückgemeldet. Sichtbar ist nur die Wirkung, z. B. an der tatsächlichen Speicherleistung.
+
+**Ich habe in der Anlage eine neue App eingerichtet, aber in Home Assistant fehlt sie.**
+
+Den Eintrag der Integration neu laden und die neue Komponente in den Optionen zuschalten.
+
+**Im Log der Anlage steht jede Sekunde „Unable to read value for Channel [meter1/ActivePower]“, obwohl der Zähler deaktiviert ist.**
+
+Die Meldung kommt nicht vom Zähler, sondern von der Websocket-Schnittstelle: Home Assistant fragt Werte einer Komponente ab, die in der Anlage deaktiviert ist. Die Integration bietet auch deaktivierte Komponenten an, die Anlage liefert für sie aber keine Werte und schreibt in jedem Zyklus diese Warnung. Abhilfe: in den Optionen der Integration die Komponente abwählen oder ihre Entitäten in Home Assistant deaktivieren. Wird die Komponente in der Anlage gar nicht mehr gebraucht, kann man sie dort auch löschen.
+
+**Darf ich die Notstromreserve per Automation täglich anpassen?**
+
+Gelegentlich ja. Jede Änderung wird dauerhaft gespeichert; mehrmals täglich ist noch unkritisch, minütlich nicht (siehe xref:user/de/external-interfaces/websocket.adoc#sec-hinweis-konfiguration-nicht-haeufig-schreiben[Hinweis]).
+
+**Websocket oder REST für Home Assistant?**
+
+Die Integration nutzt beides: den Websocket für Live-Werte und Einstellungen, REST nur für Steuerwerte. Zum Vergleich siehe xref:user/de/external-interfaces/websocket.adoc#sec-websocket-oder-rest[Websocket oder REST?].

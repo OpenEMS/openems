@@ -1,0 +1,407 @@
+= OpenEMS-Entwicklung: Apps für das App Center
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:development/implementing/apps.adoc[Apps for the App Center]
+
+__Stand: 04.11.2026 · OpenEMS-Version 2026.12.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Eine App ist die geführte Einrichtung einer Funktion im App Center. Sie zeigt ein Formular, legt aus den Eingaben Komponenten an und trägt Controller in den Scheduler ein. Die Regel-Logik selbst steckt nicht in der App, sondern in der Komponente, die sie anlegt (siehe xref:development/de/implementing/controller.adoc[Eigene Komponente oder Controller]). Als Vorlagen dienen `+FixActivePower+` (klein, ein Controller), `+AppWeatherPrediction+` (Prüfungen vor der Installation) und `+AppHeatMyPv+` (Zahlenfelder).
+
+[#sec-wo-apps-liegen]
+== Wo Apps liegen
+
+Apps sind OSGi-Komponenten im Bundle `+io.openems.edge.core+`, Quellcode unter `+src/io/openems/edge/app/<Bereich>/+`. Der Rahmen liegt in `+io.openems.edge.core.appmanager+`.
+
+* **Oberfläche:** Das Formular kommt als JSON-Beschreibung von der Edge (`+getAppAssistant+`). Für eine neue App ist in `+ui/+` nichts zu ändern und kein neuer UI-Build nötig.
+* **Kein eigenes Bundle:** Das Core-Bundle gibt nur das Paket `+io.openems.edge.core.price+` frei (`+Export-Package+` im Manifest). Die Klassen unter `+appmanager+` kann ein anderes Bundle deshalb nicht importieren. Eine neue App bedeutet also ein neues Edge-JAR; sie lässt sich nicht einzeln nachinstallieren, etwa über FileInstall.
+* **Keine Registrierung:** Der `+AppManagerImpl+` bindet alle OSGi-Dienste vom Typ `+OpenemsApp+` dynamisch (`+bindApp+`). Eine App-Liste gibt es nicht.
+* **Komponente:** Die App nennt die Komponente nur über ihre Factory-ID als Text. Das Bundle der Komponente muss zusätzlich in `+EdgeApp.bndrun+` stehen, sonst fehlt es im JAR.
+
+[#sec-was-zu-einer-app-gehoert]
+== Was zu einer App gehört
+
+[cols="2*",options="header"]
+|===
+| Was
+| Wo
+
+| App-Klasse
+| `+io.openems.edge.core/src/io/openems/edge/app/<Bereich>/+`
+| Übersetzungen
+| `+…/core/appmanager/translation_de.properties+` und `+translation_en.properties+`
+| Scheduler-Reihenfolge, falls die App einen Controller anlegt
+| `+ProductionSchedulerOrderDefinition+` in `+…/appmanager/dependency/aggregatetask/SchedulerByCentralOrderAggregateTaskImpl.java+`
+| Website-Link
+| `+io.openems.common/src/io/openems/common/oem/DummyOpenemsEdgeOem.java+`
+| Bild (optional)
+| `+<Klassenname>.png+` neben der App-Klasse
+| Test-Helfer und Tests
+| `+test/…/core/appmanager/Apps.java+`, `+TestTranslations.java+`, eigener Test
+|===
+
+[#sec-grundgeruest]
+== Grundgerüst
+
+Gekürzte Form von `+FixActivePower+`. Der Name in `+@Component+` ist die App-ID (`+getAppId()+` liest `+COMPONENT_NAME+`):
+
+[source]
+----
+@Component(name = "App.Ess.FixActivePower")
+public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, BundleParameter>
+		implements OpenemsApp {
+
+	public enum Property implements Type<Property, FixActivePower, BundleParameter>, Nameable {
+		// Components
+		CTRL_FIX_ACTIVE_POWER_ID(AppDef.componentId("ctrlFixActivePower0")), //
+
+		// Properties
+		ALIAS(alias()), //
+		ESS_ID(ComponentProps.pickManagedSymmetricEssId()), //
+		;
+
+		private final AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def;
+
+		private Property(AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, FixActivePower, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<FixActivePower>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
+	}
+
+	@Activate
+	public FixActivePower(@Reference ComponentManager componentManager, ComponentContext componentContext,
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+		super(componentManager, componentContext, cm, componentUtil);
+	}
+
+	@Override
+	public OpenemsAppCategory[] getCategories() {
+		return new OpenemsAppCategory[] { OpenemsAppCategory.ESS };
+	}
+
+	@Override
+	public OpenemsAppCardinality getCardinality() {
+		return OpenemsAppCardinality.SINGLE;
+	}
+
+	@Override
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
+		return (t, p, l) -> {
+			final var id = this.getId(t, p, Property.CTRL_FIX_ACTIVE_POWER_ID);
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var essId = this.getString(p, Property.ESS_ID);
+
+			final var components = Lists.newArrayList(//
+					new EdgeConfig.Component(id, alias, "Controller.Ess.FixActivePower", //
+							JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", essId) //
+									.build()));
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
+							new SchedulerComponent(id, "Controller.Ess.FixActivePower", this.getAppId()))) //
+					.build();
+		};
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	@Override
+	protected FixActivePower getApp() {
+		return this;
+	}
+}
+----
+
+[#sec-eigenschaften-und-formularfelder]
+== Eigenschaften und Formularfelder
+
+Jeder Wert des Enums `+Property+` ist eine Eigenschaft der App. Der Name des Enum-Werts ist zugleich der Schlüssel im JSON (`+"ESS_ID": "ess0"+`). Das Verhalten beschreibt ein `+AppDef+`:
+
+[cols="2*",options="header"]
+|===
+| Aufruf
+| Wirkung
+
+| `+AppDef.componentId("ctrl0")+`
+| Eigenschaft für eine Komponenten-ID mit diesem Standardwert. `+getId(t, p, Property.X)+` liefert den gespeicherten Wert oder den Standardwert. Ohne Feld, erscheint also nicht im Formular.
+| `+CommonProps.alias()+`
+| Feld für den Alias
+| `+AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> …)+`
+| Ausgangspunkt für eine eigene Eigenschaft
+| `+setTranslatedLabel("schlüssel")+`, `+setTranslatedDescription("schlüssel")+`
+| Text aus den Übersetzungsdateien
+| `+setTranslatedLabelWithAppPrefix(".x.label")+`, `+setTranslatedDescriptionWithAppPrefix(".x.description")+`
+| wie oben, der Schlüssel beginnt mit der App-ID
+| `+setDefaultValue(…)+`
+| Standardwert
+| `+setRequired(true)+`
+| Pflichtfeld
+| `+setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> …)+`
+| Art des Feldes und seine Einstellungen
+| `+wrapField(…)+`
+| ergänzt ein vorhandenes Feld, z. B. `+field.onlyShowIf(…)+`
+| `+setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))+`
+| Feld nur ab dieser Rolle sichtbar
+| `+setAllowedToSave(false)+`
+| Wert wird nicht in der App-Instanz gespeichert
+| `+bidirectional(CONTROLLER_ID, "url", ComponentManagerSupplier::getComponentManager)+`
+| Wert liegt nur in der Komponente, nicht in der App-Instanz. Fehlt er in der Anfrage, wird er aus der Komponente gelesen.
+|===
+
+Fertige Eigenschaften zur Auswahl von Komponenten stehen in `+ComponentProps+`, z. B. `+pickManagedSymmetricEssId()+`, `+pickElectricityMeterId()+` und `+pickElectricityGridMeterId()+`. Sie listen die aktivierten Komponenten und nehmen die erste als Standardwert.
+
+**Feldarten** aus `+JsonFormlyUtil+`, unter anderem: `+buildInputFromNameable+`, `+buildSelectFromNameable+`, `+buildCheckboxFromNameable+`, `+buildRangeFromNameable+`, `+buildDateTimeFromNameable+`, `+buildRepeatFromNameable+`, `+buildFieldGroupFromNameable+`.
+
+**Zahlenfeld** (aus `+AppHeatMyPv+`):
+
+[source]
+----
+MAX_HEAT_POWER(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+		.setDefaultValue(3000) //
+		.setRequired(true) //
+		.setTranslatedLabelWithAppPrefix(".maxHeatPower.label") //
+		.setTranslatedDescriptionWithAppPrefix(".maxHeatPower.description"))
+		.setField(JsonFormlyUtil::buildInputFromNameable,
+				(app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+						.setMin(0)//
+						.setMax(9000)//
+						.setUnit(Unit.WATT, l))), //
+----
+
+`+setMin+` und `+setMax+` nehmen nur ganze Zahlen; eine Einstellung für die Schrittweite bietet `+InputBuilder+` nicht. Eingaben lassen sich mit `+setValidation(muster, meldung)+` über einen regulären Ausdruck prüfen. Diese Prüfung gehört zum Formular; Werte aus einer direkten JSON-RPC-Anfrage durchlaufen sie nicht.
+
+**Auswahl mit eigenen Einträgen:** Die Einträge sind ein JSON-Array mit `+label+` und `+value+`; `+SelectBuilder.setOptions+` setzt es:
+
+[source]
+----
+.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+	final var options = JsonUtils.buildJsonArray() //
+			.add(JsonUtils.buildJsonObject() //
+					.addProperty("label", translate(parameter.bundle(), "App.X.Y.default")) //
+					.addProperty("value", "") //
+					.build());
+	for (var meter : app.getComponentUtil().getEnabledComponentsOfType(ElectricityMeter.class)) {
+		options.add(JsonUtils.buildJsonObject() //
+				.add("label", DEFAULT_COMPONENT_2_LABEL.apply(meter)) //
+				.addProperty("value", meter.id()) //
+				.build());
+	}
+	field.setOptions(options.build());
+})
+----
+
+**Hinweis mit Pflicht-Haken** bei der Installation: `+CommonProps.installationHint(…)+` zeigt einen Text mit Checkbox und speichert den Wert nicht. Mit `+field.requireTrue(l)+` und `+field.onlyShowIf(Exp.currentModelValue(CONTROLLER_ID).isNull())+` erscheint er nur, solange die App noch keine Komponenten-ID hat (Beispiel: `+CleverPvProps.privacyPolicy+`).
+
+[#sec-konfiguration-erzeugen]
+== Konfiguration erzeugen
+
+`+appPropertyConfigurationFactory()+` wandelt die Eigenschaften in Aufgaben um. Die Funktion erhält das Ziel `+t+`, die Werte `+p+` und die Sprache `+l+`.
+
+* **`+ConfigurationTarget+`:** `+ADD+`, `+UPDATE+`, `+VALIDATE+`, `+DELETE+`, `+TEST+`. Werte, die nur bei der Installation gesetzt werden sollen, begrenzt man mit `+.onlyIf(t == ConfigurationTarget.ADD, b -> …)+`; so überschreibt ein späteres Ändern der App sie nicht.
+* **Werte lesen:** `+getString+`, `+getStringOrNull+`, `+getInt+`, `+getDouble+`, `+getBoolean+`, `+getEnum+`, `+getJsonArray+`. Sie liefern den übergebenen Wert oder den Standardwert des `+AppDef+`.
+* **Property-Namen der Komponente:** Die Schlüssel sind die OSGi-Namen: aus `+meter_id()+` in der `+Config+` wird `+"meter.id"+`.
+* **Aufgaben** (`+Tasks+`): `+component+`, `+schedulerByCentralOrder+`, `+scheduler+`, `+staticIp+`, `+cluster+`, `+persistencePredictor+`, `+predictorManagerByCentralOrder+`.
+
+[#sec-scheduler-reihenfolge]
+=== Scheduler-Reihenfolge
+
+Legt die App einen Controller mit `+Tasks.schedulerByCentralOrder+` an, muss seine Factory-ID in `+ProductionSchedulerOrderDefinition+` stehen:
+
+[source]
+----
+.thenByFactoryId("Controller.Ess.FixActivePower") //
+----
+
+Fehlt der Eintrag, bricht die Installation mit `+Unhandled component+` ab. Die Position in der Liste legt die Reihenfolge fest, in der die Controller laufen (siehe xref:development/de/fundamentals/cycle-and-ess-power.adoc[Zyklus, Scheduler und Leistungsverteilung]).
+
+[#sec-abhaengigkeiten-zu-anderen-apps]
+=== Abhängigkeiten zu anderen Apps
+
+Braucht eine App eine andere, trägt sie eine `+DependencyDeclaration+` ein (`+.addDependencies(…)+` am `+AppConfiguration.create()+`; Beispiele: `+HeatPump+`, `+HeatingElement+`). `+CreatePolicy+` legt fest, wann die abhängige App angelegt wird: `+ALWAYS+`, `+IF_NOT_EXISTING+` oder `+NEVER+`. Dazu kommen `+UpdatePolicy+`, `+DeletePolicy+`, `+DependencyUpdatePolicy+` und `+DependencyDeletePolicy+`.
+
+[#sec-kategorie-anzahl-rechte-pruefungen]
+== Kategorie, Anzahl, Rechte, Prüfungen
+
+* **`+getCategories()+`:** Rubrik im App Center, Werte aus `+OpenemsAppCategory+`, z. B. `+API+`, `+ESS+`, `+HEAT+`, `+METER+`, `+PREDICTION+`.
+* **`+getCardinality()+`:** `+SINGLE+` (eine Instanz dieser App), `+SINGLE_IN_CATEGORY+` (eine Instanz je Kategorie), `+MULTIPLE+` (beliebig viele).
+* **`+getAppPermissions()+`:** Ohne Überschreiben gilt `+canSee+` und `+canDelete+` ab `+OWNER+`, `+canInstall+` für `+OWNER+`, `+INSTALLER+` und `+ADMIN+`. `+FixActivePower+` zeigt die App nur Admins (`+setCanSee(Role.ADMIN)+`).
+
+**Prüfungen** setzt `+getValidateBuilder()+`, Bausteine stehen in `+Checkables+`:
+
+[source]
+----
+@Override
+protected ValidatorConfig.Builder getValidateBuilder() {
+	return ValidatorConfig.create() //
+			.setInstallableCheckableConfigs(Checkables.check3rdPartyAccessAccepted()) //
+			.setCompatibleCheckableConfigs(Checkables.checkCoordinatesSet());
+}
+----
+
+Daraus berechnet `+Validator+` den Status der App:
+
+[cols="3*",options="header"]
+|===
+| Status
+| Bedeutung
+| Anzeige im App Center
+
+| `+INCOMPATIBLE+`
+| Eine `+Compatible+`-Prüfung schlägt fehl.
+| Liste „Inkompatibel“, **nur für Admins sichtbar** (`+index.component.ts+`)
+| `+COMPATIBLE+`
+| Nur eine `+Installable+`-Prüfung schlägt fehl.
+| verfügbar, Installation wird abgelehnt
+| `+INSTALLABLE+`
+| Alle Prüfungen bestanden.
+| verfügbar
+|===
+
+Eine fehlgeschlagene `+Compatible+`-Prüfung lässt die App also für Owner verschwinden. Prüfungen, die der Benutzer selbst lösen kann, passen deshalb eher zu `+Installable+`.
+
+[#sec-texte-link-und-bild]
+== Texte, Link und Bild
+
+In `+translation_de.properties+` und `+translation_en.properties+` unter `+…/core/appmanager/+`; Umlaute stehen dort direkt in UTF-8:
+
+[source]
+----
+App.Cloud.Clever-PV.Name = clever-PV
+App.Cloud.Clever-PV.Name.short = clever-PV
+----
+
+Der Name kommt aus `+<App-ID>.Name+`, die Kurzform aus `+<App-ID>.Name.short+`. Fehlende Schlüssel findet der Test `+TestTranslations+`, wenn die App dort eingetragen ist.
+
+**Website-Link:** `+getAppDescriptor+` holt ihn über `+OpenemsEdgeOem.getAppWebsiteUrl+`. Für OpenEMS erbt `+OpenemsEdgeOemImpl+` die Tabelle aus `+DummyOpenemsEdgeOem+`. `+TestTranslations.testOemWebsiteUrl+` verlangt für jede dort eingetragene App einen Eintrag; ein leerer Link genügt:
+
+[source]
+----
+.put("App.Cloud.Clever-PV", AppLink.create() //
+		.emptyLink(Language.DE) //
+		.emptyLink(Language.EN) //
+) //
+----
+
+**Bild:** `+getImage()+` sucht `+<Klassenname>.png+` im Paket der Klasse. Fehlt die Datei, liefert es `+null+`.
+
+[#sec-tests]
+== Tests
+
+Drei Stellen im Bundle `+io.openems.edge.core+`:
+
+**1. Helfer in `+Apps.java+`:**
+
+[source]
+----
+public static final AppCleverPv cleverPv(AppManagerTestBundle t) {
+	return app(t, AppCleverPv::new, "App.Cloud.Clever-PV");
+}
+----
+
+**2. Eintrag in `+TestTranslations+`**, Parameter: App, Formular prüfen, Eigenschaften:
+
+[source]
+----
+this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
+----
+
+**3. Eigener Test** (Vorlage `+AppCleverPvTest+`):
+
+[source]
+----
+@BeforeEach
+void beforeEach() throws Exception {
+	this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> List.of(//
+			this.cleverPv = Apps.cleverPv(t) //
+	), null, new PseudoComponentManagerFactory());
+
+	final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
+	this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+}
+
+@Test
+void testInstall() throws Exception {
+	this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+			new AddAppInstance.Request(this.cleverPv.getAppId(), "key", "alias", properties));
+
+	this.appManagerTestBundle.assertComponentExist(new EdgeConfig.Component("ctrl0", "alias", "Controller.X", //
+			JsonUtils.buildJsonObject().build()));
+}
+----
+
+* `+withApp(app).hasOnlyProperties(…)+` prüft die Liste der Eigenschaften.
+* Das Formular liefert `+app.getAppAssistant(DUMMY_ADMIN).fields+`; so lassen sich Auswahl-Einträge prüfen (Vorlage: `+EvcsPropsArchitectureTypeTest+`).
+* Zusätzliche Komponenten kommen über `+((DummyPseudoComponentManager) appManagerTestBundle.componentManger).addComponent(…)+` in den Test.
+
+Ausführen:
+
+[source]
+----
+./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.app.api.AppCleverPvTest'
+./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.core.appmanager.TestTranslations'
+----
+
+[#sec-installation-und-backend]
+== Installation und Backend
+
+Die Installation meldet die Edge beim Backend an (`+AppManagerImpl.handleAddAppInstanceRequest+` → `+addInstallAppInstanceHistory+`). Ist kein Backend verbunden, bricht sie mit `+Backend not connected!+` ab. Ausgenommen sind Installationen ohne Schlüssel von Apps, die eine installierte App als Abhängigkeit mit `+CreatePolicy.NEVER+` führt (`+getFreeApps+`).
+
+**Ohne Backend** lässt sich das Formular trotzdem im App Center ansehen. Eine Instanz kann man außerdem direkt in die Eigenschaft `+apps+` der Komponente `+Core.AppManager+` eintragen, ein JSON-Array:
+
+[source]
+----
+[{"appId":"App.Ess.FixActivePower","alias":"Leistungsvorgabe","instanceId":"<UUID>","properties":{"CTRL_FIX_ACTIVE_POWER_ID":"ctrlFixActivePower0","ESS_ID":"ess0"}}]
+----
+
+Laut Beschreibung dieser Eigenschaft wirken solche Änderungen erst auf die Komponenten, wenn die App über die Oberfläche oder per JSON-RPC aktualisiert wird. Vorhandene Einträge müssen im Array bleiben.
+
+[#sec-checkliste]
+== Checkliste
+
+. App-Klasse unter `+io.openems.edge.core/src/io/openems/edge/app/<Bereich>/+` anlegen.
+. `+<App-ID>.Name+`, `+.Name.short+` und alle Feldtexte in beide Übersetzungsdateien eintragen.
+. Factory-ID in `+ProductionSchedulerOrderDefinition+` eintragen, falls ein Controller über `+schedulerByCentralOrder+` eingereiht wird.
+. Link in `+DummyOpenemsEdgeOem+` ergänzen.
+. Bundle der Komponente in `+EdgeApp.bndrun+` prüfen.
+. `+Apps.java+`, `+TestTranslations+` und einen eigenen Test ergänzen.
+. Tests und Checkstyle ausführen.
+. `+./gradlew buildEdge+`; das neue JAR muss auf der Edge laufen, damit die App erscheint.
+
+[#sec-wenn-die-app-nicht-erscheint]
+== Wenn die App nicht erscheint
+
+[cols="2*",options="header"]
+|===
+| Ursache
+| Prüfung
+
+| Die Edge läuft mit einem JAR ohne die App, z. B. dem offiziellen Docker-Image.
+| Prüfsumme des JARs vergleichen (siehe xref:development/de/deployment/docker.adoc[Betrieb in Docker]) oder `+getApps+` abfragen.
+| Status `+INCOMPATIBLE+` und Anmeldung ohne Admin-Rolle.
+| Als Admin anmelden und die Liste „Inkompatibel“ ansehen.
+| `+canSee+` verlangt eine höhere Rolle.
+| `+getAppPermissions()+` prüfen.
+|===

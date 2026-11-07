@@ -1,0 +1,397 @@
+= OpenEMS: Production, consumption, grid and storage
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/basics/energy-flows.adoc[OpenEMS: Erzeugung, Verbrauch, Netz und Speicher]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+This page explains the basic terms that appear everywhere in the web interface and in the history, and where the values come from: **What is measured and what does OpenEMS calculate?** This is particularly helpful when values seem implausible.
+
+[#sec-the-basic-terms]
+== The basic terms
+
+[cols="2*",options="header"]
+|===
+| Term
+| Meaning
+
+| **Production** (generation)
+| Electricity supplied by your own producers, usually the PV system. Includes AC producers (PV inverters, production meters) and DC producers (PV modules directly on the hybrid inverter).
+| **Grid purchase** (buy)
+| Electricity flowing from the public grid into the house.
+| **Grid feed-in** (sell)
+| Electricity flowing from the house into the public grid.
+| **Charging**
+| Electricity flowing into the home storage (battery).
+| **Discharging**
+| Electricity coming from the home storage.
+| **Consumption**
+| Electricity needed by all consumers in the house together: household, heat pump, wallbox, etc.
+| **State of charge** (SoC)
+| Charge level of the home storage in percent.
+|===
+
+[#sec-power-and-energy]
+=== Power and energy
+
+* **Power** (watts, W / kW) is the instantaneous value: “3 kW are flowing right now”.
+* **Energy** (watt hours, Wh / kWh) is the amount over a period of time: “12 kWh were purchased today”.
+
+OpenEMS stores energy as a running **meter reading**, like the electricity meter in the basement. The energy of a day is the difference between the meter readings (see xref:user/data/history-rrd4j.adoc[History]).
+
+[#sec-signs]
+=== Signs
+
+Some values have a sign that indicates the direction:
+
+[cols="3*",options="header"]
+|===
+| Value
+| positive ({plus})
+| negative (−)
+
+| Grid power
+| Purchase from the grid
+| Feed-in to the grid
+| Storage power
+| Discharging
+| Charging
+| Production, consumption
+| always positive
+| –
+|===
+
+[#sec-the-energy-balance]
+== The energy balance
+
+Everything that comes into the house must also go somewhere. This results in:
+
+[source]
+----
+Consumption = production + grid purchase − grid feed-in + discharging − charging
+----
+
+or with signs:
+
+[source]
+----
+Consumption = production + grid power + storage power
+----
+
+Example: PV delivers 5 kW, the storage charges with 2 kW (−2 kW), 1 kW goes into the grid (−1 kW). Consumption = 5 − 1 − 2 = 2 kW.
+
+[#sec-where-the-values-come-from]
+== Where the values come from
+
+[#sec-what-is-measured]
+=== What is measured
+
+Measurements are only taken at a few points:
+
+[cols="2*",options="header"]
+|===
+| Measuring point
+| delivers
+
+| **Grid meter** (at the house connection)
+| Grid power per phase, meter readings for purchase and feed-in
+| **Production meter** or PV inverter
+| AC production per phase, production meter reading
+| **Hybrid inverter** or DC charge controller
+| DC production (PV directly on the storage system)
+| **Storage system**
+| Charging/discharging power, state of charge, capacity
+| other meters (e.g. wallbox, heat pump)
+| Power and energy of these individual consumers
+|===
+
+**Important:** Whether a device measures its meter readings (energy) itself or whether OpenEMS calculates them from the power depends on the device or its connection. Many storage systems and some meters only supply power. OpenEMS then counts up the energy itself. These self-counted values are prone to jumps on restart (see xref:user/data/history-rrd4j.adoc[History]).
+
+[#sec-what-is-never-measured-consumption]
+=== What is never measured: consumption
+
+**The total consumption of the house is not measured in OpenEMS, but always calculated**, according to the energy balance above:
+
+[source]
+----
+Consumption = grid power + AC production + AC power of the storage system
+----
+
+Even an existing consumption meter is currently not used for this total.
+
+It follows that: **Any measurement error in grid, production or storage ends up in consumption.** If, for example, a production meter is missing in the configuration or the grid meter measures a phase incorrectly, the consumption is wrong, in extreme cases even negative.
+
+[#sec-the-total-values-sum]
+== The total values (_sum)
+
+OpenEMS combines the values of all devices in the component `+_sum+`. The web interface displays these values and they are stored in the history. They are recalculated every second.
+
+Explanation of the origin:
+
+* **Sum of the devices:** The values of all matching devices are added up. The measurement therefore takes place in the device; OpenEMS only adds.
+* **Calculated:** The value is only created in `+_sum+` from other values. No device measures it.
+
+[#sec-power-values]
+=== Power values
+
+[cols="3*",options="header"]
+|===
+| Channel
+| Meaning
+| Origin
+
+| `+GridActivePower+` (and L1–L3)
+| Grid power ({plus} purchase / − feed-in)
+| Sum of the grid meters
+| `+ProductionAcActivePower+` (and L1–L3)
+| AC production
+| Sum of the production meters / PV inverters
+| `+ProductionDcActualPower+`
+| DC production
+| Sum of the DC charge controllers
+| `+ProductionActivePower+`
+| Total production
+| calculated: AC {plus} DC
+| `+EssActivePower+`
+| Storage power at the inverter (AC; {plus} discharging / − charging)
+| Sum of the storage systems
+| `+EssActivePowerL1+`–`+L3+`
+| Storage power per phase
+| Sum; for storage systems without phase values **calculated** (total power ÷ 3)
+| `+EssDischargePower+`
+| Battery power ({plus} discharging / − charging); for hybrid systems on the battery side (DC)
+| Sum of the storage systems
+| `+EssSoc+`
+| State of charge
+| calculated: with several storage systems weighted by capacity; if a capacity is unknown, simple average
+| `+ConsumptionActivePower+` (and L1–L3)
+| Consumption
+| **calculated:** grid {plus} AC production {plus} AC storage power
+| `+UnmanagedConsumptionActivePower+`
+| Consumption without controlled consumers (e.g. wallboxes)
+| **calculated:** consumption − metered controlled consumers
+| `+GridGensetActivePower+`
+| Power of an emergency generator
+| Sum of the corresponding meters
+|===
+
+[#sec-energy-flows-where-does-the-electricity-go]
+=== Energy flows (“where does the electricity go?”)
+
+For the energy flow chart, OpenEMS divides the power values: how much solar power goes into the house, how much into the storage, how much into the grid? **These values are completely calculated**, there is no measurement for them.
+
+[cols="2*",options="header"]
+|===
+| Channel
+| Meaning
+
+| `+ProductionToConsumptionPower+`
+| Solar → house
+| `+ProductionToEssPower+`
+| Solar → storage
+| `+ProductionToGridPower+`
+| Solar → grid
+| `+GridToConsumptionPower+`
+| Grid → house
+| `+EssToConsumptionPower+`
+| Storage → house
+| `+GridToEssPower+`
+| Grid → storage ({plus}) or storage → grid (−)
+|===
+
+The division follows fixed rules:
+
+. If the storage is discharging, it supplies the house first.
+. If the storage is charging, the charge comes from production first.
+. The remaining production supplies the house; whatever is left goes into the grid.
+. The grid covers the rest of the consumption.
+. Any grid power still remaining is counted as grid ↔ storage.
+
+[#sec-energy-values-meter-readings]
+=== Energy values (meter readings)
+
+[cols="3*",options="header"]
+|===
+| Channel
+| Meaning
+| Origin
+
+| `+GridBuyActiveEnergy+`
+| Grid purchase
+| Sum of the grid meters
+| `+GridSellActiveEnergy+`
+| Grid feed-in
+| Sum of the grid meters
+| `+ProductionAcActiveEnergy+`
+| AC production
+| Sum of the production meters
+| `+ProductionDcActiveEnergy+`
+| DC production
+| Sum of the DC charge controllers
+| `+ProductionActiveEnergy+`
+| Total production
+| calculated: AC {plus} DC
+| `+EssActiveChargeEnergy+` / `+EssActiveDischargeEnergy+`
+| Storage charging / discharging at the inverter (AC)
+| Sum of the storage systems
+| `+EssDcChargeEnergy+` / `+EssDcDischargeEnergy+`
+| Charging / discharging on the battery side (for hybrid systems)
+| Sum of the storage systems
+| `+ConsumptionActiveEnergy+`
+| Consumption
+| **calculated:** (discharging {plus} purchase {plus} production) − (charging {plus} feed-in {plus} self-consumption of the producers)
+| `+ProductionToConsumptionEnergy+`, `+ProductionToGridEnergy+`, `+ProductionToEssEnergy+`, `+GridToConsumptionEnergy+`, `+EssToConsumptionEnergy+`, `+GridToEssEnergy+`, `+EssToGridEnergy+`
+| Energy flows
+| **calculated:** counted up by OpenEMS from the calculated flow power values
+|===
+
+Note: For grid meters, the purchase is internally called “ProductionEnergy” in OpenEMS and the feed-in “ConsumptionEnergy”, from the meter's point of view. In `+_sum+` the names are unambiguous (Buy/Sell).
+
+[#sec-other-values]
+=== Other values
+
+[cols="3*",options="header"]
+|===
+| Channel
+| Meaning
+| Origin
+
+| `+GridMode+`
+| Grid mode or island mode (emergency power)
+| from the storage system
+| `+GridBuyPrice+` / `+GridSellPrice+`
+| Current purchase / feed-in price
+| from the xref:user/storage-control/time-of-use-tariffs.adoc[tariff]
+| `+EssCapacity+`
+| Capacity of all storage systems
+| Sum of the storage systems
+| `+State+`
+| Most severe current fault state of all components
+| calculated
+|===
+
+[#sec-when-consumption-can-become-negative]
+== When consumption can become negative
+
+Physically, a house cannot have negative consumption. However, because consumption is **calculated** (grid {plus} AC production {plus} AC storage power), negative values arise as soon as one of these values is missing, too small or included with the wrong sign. Typical cases:
+
+[cols="3*",options="header"]
+|===
+| Case
+| What happens
+| Effect
+
+| **Producer missing in the configuration**
+| A PV system feeds in but is not set up as a producer in OpenEMS. The grid meter sees the feed-in (negative), the production is missing from the calculation.
+| Consumption too low; negative during feed-in
+| **Measured value fails**
+| A device temporarily does not supply a value, e.g. due to a communication fault. Missing values count as 0 in the total. If, for example, the PV inverter fails during feed-in, only the negative grid power remains.
+| briefly or permanently negative
+| **Wrong direction at the grid meter**
+| Current transformer mounted the wrong way round, phases swapped or meter set incorrectly. Purchase and feed-in are (partly) measured swapped.
+| Consumption too low or negative, often only on individual phases
+| **Grid meter in the wrong place**
+| The grid meter is located so that it does not capture part of the house, e.g. behind a sub-distribution board with PV feed-in.
+| Balance is not correct, consumption wrong
+| **Time offset between devices**
+| The devices are queried one after the other; their values do not come from exactly the same moment. With rapid changes (cloud, wallbox switching, storage adjusting), the values do not match for seconds.
+| brief negative peaks in the live view, usually without significance for the daily values
+| **Self-consumption of the inverter**
+| At night, a PV inverter draws a little power. A production meter then measures a small negative production.
+| Consumption too low by this amount (usually only a few watts)
+| **Storage power wrong**
+| The storage system reports a wrong AC power or a wrong sign.
+| Consumption wrong by this amount
+|===
+
+**Negative consumption energy** in the history is also possible. In this case, a meter reading of grid, production or storage has usually jumped back, e.g. after a restart (see xref:user/data/history-rrd4j.adoc[History]).
+
+**Procedure for negative consumption:** Look at grid power, production and storage power individually. Does each value on its own match reality, e.g. grid power compared with the electricity meter of the grid operator? If the error only occurs on one phase, it is almost always due to a current transformer.
+
+[#sec-cascaded-meters]
+== Cascaded meters
+
+[#sec-what-does-cascaded-mean]
+=== What does “cascaded” mean?
+
+Meters are **cascaded** (connected in series) if one meter is located behind another in the electrical circuit. The front meter then **also** measures the electricity flowing through the rear one.
+
+[source]
+----
+Grid ── Meter A ──┬── House consumption
+                  └── Meter B ── PV system 2
+----
+
+Meter A measures everything that flows through it, including the share of meter B. Meter B only measures its branch.
+
+Typical examples:
+
+* a **sub-meter** in a sub-distribution board behind the grid meter,
+* two PV systems whose **production meters** are in series (e.g. PV 2 is connected via the line of PV 1),
+* a PV inverter that is connected to OpenEMS **itself** and is additionally measured via its own **production meter**.
+
+[#sec-how-openems-adds-up]
+=== How OpenEMS adds up
+
+OpenEMS does not know how the meters are wired. It simply adds up **all meters of one type**:
+
+[cols="2*",options="header"]
+|===
+| Meter type (setting “Type”)
+| is included in the total as
+
+| Grid (GRID)
+| Grid power, purchase, feed-in
+| Production (PRODUCTION); PV inverters automatically count as production
+| Production
+| Controlled consumer (MANAGED_CONSUMPTION_METERED), e.g. wallbox
+| only for calculating consumption without controlled consumers
+| Consumer (CONSUMPTION_METERED, CONSUMPTION_NOT_METERED)
+| **not at all** (only displayed)
+| Production and consumption (PRODUCTION_AND_CONSUMPTION)
+| **not at all** (currently not taken into account in the total)
+|===
+
+[#sec-effect-on-the-total-values]
+=== Effect on the total values
+
+If two meters **of the same type** are cascaded, the shared portion is **counted twice**:
+
+[cols="2*",options="header"]
+|===
+| Situation
+| Consequence
+
+| Two production meters in series, or PV inverter plus production meter for the same system
+| Production too high → consumption too high, energy flows wrong, self-consumption and self-sufficiency values too good
+| Grid meter plus a sub-meter that is also set as grid
+| Grid power, purchase and feed-in too high → consumption wrong, possibly negative during feed-in
+| Sub-meter set as consumer
+| no problem: consumer meters are not included in the total
+| Wallbox meter as controlled consumer
+| no problem for the total values; it is only subtracted from consumption to determine consumption without wallbox
+|===
+
+[#sec-how-to-avoid-double-counting]
+=== How to avoid double counting
+
+* Set **only one meter per energy flow** as grid or production. Set other meters in the same branch as consumers (then they do not count) or omit them in OpenEMS.
+* A PV inverter that is directly connected does not need an additional production meter, or vice versa.
+* Use **virtual meters**: With a “subtracting virtual meter” (`+Meter.Virtual.Subtract+`) a branch can be calculated out, e.g. “meter A minus meter B”. With an “adding virtual meter” (`+Meter.Virtual.Add+`) several meters can be combined. Virtual meters have the setting “Add to Sum”, which is **off** by default: they are then not included in the total and do not change the total values. If “Add to Sum” is switched on, the virtual meter counts in addition to the real meters. If it is to replace the real meters in the total, these must not also be set as grid or production, otherwise there is double counting again.
+* Likewise, **storage clusters** (several storage systems combined into one) are not counted additionally. Only the individual storage systems are included in the total.
+
+**Check:** Compare the production displayed by OpenEMS with the display of the inverter or production meter. If it is significantly higher, go through the points above. The equation “production = consumption {plus} feed-in” does not help here: OpenEMS calculates the consumption itself from grid, production and storage, so it always balances, even if there is double counting.
+
+[#sec-good-to-know]
+== Good to know
+
+* **Consumption and energy flows are calculation results.** If they seem implausible, the cause is almost always in the grid, production or storage values or in a missing or incorrectly set measuring point.
+* **The total meter readings should only rise.** At startup, OpenEMS adopts the last stored reading. If a device meter jumps back (e.g. after a restart), this is transferred to the total. Negative values then appear in the history (see xref:user/data/history-rrd4j.adoc[History]).
+* **The seven energy flow meters** are counted up exclusively by OpenEMS. If OpenEMS is not running, this energy is completely missing there. The grid, production and storage meters, on the other hand, catch up if the devices supply their own meter readings.
+* **Excluding devices from the total:** Some devices have a setting that prevents them from being included in `+_sum+`, e.g. a meter whose power is already included in another. This prevents values from being counted twice.
+* **Querying values yourself:** All channels mentioned here can be read via xref:user/external-interfaces/rest-control.adoc[REST], for example `+_sum/ConsumptionActivePower+`.

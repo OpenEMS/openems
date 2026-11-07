@@ -1,0 +1,67 @@
+= OpenEMS: Overview
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/overview.adoc[OpenEMS: Übersicht]
+
+__As of: 2026-11-02 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+These pages give insight into **how selected OpenEMS functions work**: what they do, when they intervene, what can be set and what to watch out for. They are aimed at users and operators, not at developers. They are based on the current OpenEMS source code (as of the end of October 2026).
+
+[#sec-pages]
+== Pages
+
+* xref:user/basics/energy-flows.adoc[Basics] – production, consumption, grid, storage: what is measured and what is calculated
+* xref:user/systems/fenecon-home.adoc[FENECON Home] – structure, settings and protective functions of the home storage system
+* xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery] – communication with the BMS, when the battery is full or empty, limits, emergency reserve, startup and shutdown
+* xref:user/devices/controllable-inverters.adoc[Controllable inverters] – which inverters from other manufacturers OpenEMS can control and what has to be set for this
+* xref:user/devices/cluster.adoc[Cluster] – combining several storage systems, PV inverters, charge points or OpenEMS devices into one
+* xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] – complying with the feed-in limit and not filling the storage too early
+* xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs] – using cheap electricity, avoiding expensive electricity
+* xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and phase switching] – charging an electric car with solar power
+* xref:user/io-control/heat-pumps-and-heating-elements.adoc[Controlling heat pumps and heating elements] – using solar power as heat
+* xref:user/storage-control/section-14a-enwg.adoc[§ 14a EnWG] – storage limitation by the grid operator and time-variable grid fees
+* xref:user/storage-control/ripple-control-receiver.adoc[Ripple control receiver] – feed-in limitation by the grid operator (0/30/60 %)
+* xref:user/schedule/forecasts.adoc[Forecasts for consumption and production]
+* xref:user/schedule/weather.adoc[Weather] – where the weather data comes from
+* xref:user/schedule/overview.adoc[Schedule] – what the system plans for today and tomorrow
+* xref:user/external-interfaces/json-rpc.adoc[JSON-RPC] – the common “language” of the interfaces
+* xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON] – e.g. from a home automation system
+* xref:user/external-interfaces/websocket.adoc[Websocket] – the connection of the web interface, user roles
+* xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] – comparison of Home Assistant, evcc and openWB
+* xref:user/third-party/home-assistant.adoc[Home Assistant] – integration “Fenecon FEMS & OpenEMS”: communication, control and limits
+* xref:user/third-party/evcc.adoc[evcc] – templates for REST and Modbus, storage control and limits
+* xref:user/third-party/openwb.adoc[openWB] – openWB reads OpenEMS (REST), OpenEMS reads openWB (MQTT)
+* xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control compared] – OpenEMS, evcc and openWB: wallboxes, charging modes, home storage, load management
+* xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend] – what the system sends to the central server and when
+* xref:user/data/history-rrd4j.adoc[History] – how histories are stored and why values are sometimes wrong
+* xref:user/data/export.adoc[Exporting data] – what the Excel export contains and how else to get data out
+* xref:user/troubleshooting/log-entries.adoc[Understanding log entries] – what is in the log and how to tell whether it matters
+
+[#sec-terms]
+== Terms
+
+[cols="2*",options="header"]
+|===
+| Term
+| Meaning
+
+| Edge
+| The OpenEMS software on the energy management device on site.
+| Backend
+| Central server through which systems can be monitored remotely.
+| UI
+| The web interface (online monitoring).
+| Component
+| A building block of the system in OpenEMS, e.g. a meter, the storage or a control function. Each component has an ID such as `+ess0+` (storage) or `+meter0+` (grid meter).
+| Channel
+| A single measured value or control value, e.g. `+_sum/EssSoc+` (state of charge of the storage).
+| Controller
+| A control function that decides anew every second, e.g. grid-optimized charge.
+| Meta
+| The general system settings: location, currency, grid connection limits.
+|===

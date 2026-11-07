@@ -1,0 +1,214 @@
+= OpenEMS-Entwicklung: Modbus-Gerätetreiber
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:development/implementing/modbus-device-drivers.adoc[Modbus device drivers]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+xref:edge/implement.adoc[Implementing a Device] führt Schritt für Schritt durch ein erstes Modbus-Gerät. Diese Seite ist die Referenz für Tasks, Elemente und Converter. Ein Treiber beschreibt nur, **welche Register zu welchem Channel gehören**. Verbindung, Zeitplanung, Fehlerbehandlung und Umrechnung übernimmt die Modbus-Bridge (Bundle `+io.openems.edge.bridge.modbus+`). Als Vorlage dient hier der Zähler Janitza UMG 96RM-E (`+io.openems.edge.meter.janitza+`, Klasse `+MeterJanitzaUmg96rmeImpl+`).
+
+[#sec-bridge-und-geraet]
+== Bridge und Gerät
+
+* Die **Bridge** ist eine eigene Komponente: `+Bridge.Modbus.Tcp+` (IP-Adresse, Port) oder `+Bridge.Modbus.Serial+` (RS485). Sie hält die Verbindung und arbeitet die Tasks aller angeschlossenen Geräte ab. Mehrere Geräte können eine Bridge teilen (z. B. mehrere Zähler an einem RS485-Bus).
+* Das **Gerät** erbt von `+AbstractOpenemsModbusComponent+`, implementiert `+ModbusComponent+` und bekommt in der Config `+modbus_id+` (ID der Bridge) und `+modbusUnitId+` (Slave-Adresse).
+* Gelingt die Kommunikation nicht, setzt die Basisklasse den State-Channel `+ModbusCommunicationFailed+` (Level WARNING) des Geräts.
+
+[#sec-grundgeruest]
+== Grundgerüst
+
+[source]
+----
+@Designate(ocd = Config.class, factory = true)
+@Component(name = "Meter.Janitza.UMG96RME", immediate = true, configurationPolicy = REQUIRE)
+@GenerateTargetsFromReferences("Modbus")
+public class MeterJanitzaUmg96rmeImpl extends AbstractOpenemsModbusComponent
+        implements MeterJanitzaUmg96rme, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+
+    @Override
+    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,
+            target = "(&(id=${config.modbus_id})(enabled=true))")
+    protected void setModbus(BridgeModbus modbus) {
+        super.setModbus(modbus);
+    }
+
+    public MeterJanitzaUmg96rmeImpl() {
+        super(OpenemsComponent.ChannelId.values(),
+              ModbusComponent.ChannelId.values(),
+              ElectricityMeter.ChannelId.values(),
+              MeterJanitzaUmg96rme.ChannelId.values());
+        ElectricityMeter.calculateAverageVoltageFromPhases(this);
+    }
+
+    @Activate
+    private void activate(ComponentContext context, Config config) throws OpenemsException {
+        this.meterType = config.type();
+        this.invert = config.invert();
+        super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+    }
+
+    @Override
+    protected ModbusProtocol defineModbusProtocol() {
+        return new ModbusProtocol(this,
+            new FC3ReadRegistersTask(19000, Priority.HIGH,
+                m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(19000), SCALE_FACTOR_3),
+                m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002), SCALE_FACTOR_3),
+                m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004), SCALE_FACTOR_3),
+                new DummyRegisterElement(19006, 19011),
+                ...
+                m(ElectricityMeter.ChannelId.ACTIVE_POWER,
+                        new FloatDoublewordElement(19026), INVERT_IF_TRUE(this.invert)),
+                ...));
+    }
+}
+----
+
+* Die Referenz auf die Bridge ist eine **Setter-Methode** `+setModbus+`; daher steht in `+@GenerateTargetsFromReferences+` der Referenzname `+"Modbus"+`.
+* `+super.activate(…, config.modbusUnitId())+` meldet das Gerät bei der Bridge an. Das Protokoll erzeugt die Basisklasse einmalig beim ersten Zugriff über `+defineModbusProtocol()+` und behält es danach. Werte aus der Config, die das Protokoll beeinflussen (hier `+invert+`), müssen deshalb **vor** `+super.activate+` gesetzt sein.
+* `+ElectricityMeter.calculateAverageVoltageFromPhases(this)+` ist ein Beispiel für berechnete Channels: Liefert das Gerät nur Phasenwerte, entstehen Summen- oder Mittelwerte per Callback.
+
+[#sec-tasks]
+== Tasks
+
+Ein Task ist eine Modbus-Anfrage über einen zusammenhängenden Registerbereich.
+
+[cols="3*",options="header"]
+|===
+| Klasse
+| Funktionscode
+| Zweck
+
+| `+FC3ReadRegistersTask+`
+| 3
+| Holding-Register lesen (häufigster Fall)
+| `+FC4ReadInputRegistersTask+`
+| 4
+| Input-Register lesen
+| `+FC1ReadCoilsTask+`, `+FC2ReadInputsTask+`
+| 1, 2
+| Coils bzw. digitale Eingänge lesen
+| `+FC6WriteRegisterTask+`
+| 6
+| ein Register schreiben
+| `+FC16WriteRegistersTask+`
+| 16
+| mehrere Register schreiben
+| `+FC5WriteCoilTask+`
+| 5
+| eine Coil schreiben
+|===
+
+Die Elemente eines Tasks müssen **lückenlos** aufeinander folgen. Nicht benötigte Register füllt man mit `+new DummyRegisterElement(von, bis)+` auf. Ein Leseauftrag über einen größeren Bereich ist meist schneller als viele kleine; manche Geräte begrenzen aber die Anzahl Register je Anfrage oder lehnen Bereiche mit undefinierten Registern ab.
+
+[#sec-prioritaet-und-zeitplanung]
+=== Priorität und Zeitplanung
+
+Die Bridge plant die Tasks pro Zyklus (`+ModbusWorker+`, `+TasksSupplierImpl+`):
+
+* **Schreib-Tasks** laufen so früh wie möglich, direkt nach `+TOPIC_CYCLE_EXECUTE_WRITE+`.
+* **Lese-Tasks** laufen so spät wie möglich, damit die Werte zu `+TOPIC_CYCLE_BEFORE_PROCESS_IMAGE+` frisch sind.
+* `+Priority.HIGH+`: Lese-Task läuft in **jedem** Zyklus.
+* `+Priority.LOW+`: pro Zyklus läuft **ein** LOW-Task der ganzen Bridge, reihum. Bei vielen LOW-Tasks dauert es also entsprechend viele Zyklen, bis ein Wert erneuert ist. Geeignet für Zählerstände, Seriennummern, Grenzwerte.
+* Reicht die Zykluszeit nicht für alle Tasks, setzt die Bridge den Channel `+CycleTimeIsTooShort+`; `+CycleDelay+` zeigt die Verzögerung.
+* Ein Gerät, das wiederholt nicht antwortet, gilt als defekt. Von ihm wird dann nur ab und zu ein einzelner zufälliger Task versucht, damit es den Bus für die anderen Geräte nicht blockiert.
+* Nach wie vielen Lesefehlern die Werte ungültig (`+null+`) werden, stellt man an der Bridge ein („Invalidate elements after how many read Errors?“).
+
+[#sec-elemente]
+== Elemente
+
+[cols="3*",options="header"]
+|===
+| Element
+| Register
+| Typ
+
+| `+UnsignedWordElement+`, `+SignedWordElement+`
+| 1
+| 16 Bit ganzzahlig
+| `+UnsignedDoublewordElement+`, `+SignedDoublewordElement+`
+| 2
+| 32 Bit ganzzahlig
+| `+UnsignedQuadruplewordElement+`, `+SignedQuadruplewordElement+`
+| 4
+| 64 Bit ganzzahlig
+| `+FloatDoublewordElement+`, `+FloatQuadruplewordElement+`
+| 2 / 4
+| IEEE-754 float / double
+| `+StringWordElement+`
+| n
+| Zeichenkette
+| `+BitsWordElement+`
+| 1
+| einzelne Bits auf Boolean- oder State-Channels
+| `+CoilElement+`
+| –
+| Coil (für FC1/FC5)
+| `+DummyRegisterElement+`
+| n
+| Lücke, wird ignoriert
+|===
+
+Die Wortreihenfolge mehrteiliger Werte (`+WordOrder+`) ist einstellbar, z. B. `+.wordOrder(WordOrder.LSWMSW)+`, falls das Gerät das niederwertige Wort zuerst sendet.
+
+Bits auf State-Channels abbilden:
+
+[source]
+----
+m(new BitsWordElement(32, this)
+        .bit(0, BatteryInverterSinexcel.ChannelId.FAULT_STATUS)
+        .bit(1, BatteryInverterSinexcel.ChannelId.ALERT_STATUS)
+        ...)
+----
+
+[#sec-umrechnung-converter]
+== Umrechnung (Converter)
+
+Der dritte Parameter von `+m(channel, element, converter)+` rechnet Register- in Channel-Werte um und beim Schreiben zurück (`+ElementToChannelConverter+`).
+
+[cols="2*",options="header"]
+|===
+| Converter
+| Wirkung beim Lesen
+
+| `+DIRECT_1_TO_1+` (Standard)
+| unverändert
+| `+SCALE_FACTOR_1+`, `+_2+`, `+_3+`
+| × 10, × 100, × 1000 (z. B. kV → V oder kW → W)
+| `+SCALE_FACTOR_MINUS_1+`, `+_2+`, `+_3+`
+| ÷ 10, ÷ 100, ÷ 1000
+| `+INVERT+`, `+INVERT_IF_TRUE(bool)+`
+| Vorzeichen umkehren (immer bzw. abhängig von der Config)
+| `+KEEP_POSITIVE+`, `+KEEP_NEGATIVE_AND_INVERT+`
+| nur positive Werte durchlassen bzw. nur negative und dabei invertieren, sonst 0; nützlich, um eine vorzeichenbehaftete Leistung auf zwei Channels zu verteilen
+| `+SET_NULL_FOR_DEFAULT(wert)+`
+| einen „ungültig“-Wert des Geräts (z. B. 0xFFFF) als `+null+` übernehmen
+| `+chain(…)+`
+| mehrere Converter hintereinander
+|===
+
+Die Einheit des Channels steht in seinem `+Doc+` (z. B. `+Unit.WATT+`). Der Converter muss vom Gerätewert auf genau diese Einheit führen. Beispiel: Gerät liefert Spannung in V als float, Channel `+VOLTAGE_L1+` ist in mV → `+SCALE_FACTOR_3+`.
+
+[#sec-schreiben]
+== Schreiben
+
+[source]
+----
+new FC6WriteRegisterTask(135,
+        m(BatteryInverterSinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135), SCALE_FACTOR_2))
+----
+
+* Der Channel muss ein Write-Channel sein (`+accessMode+` WRITE_ONLY oder READ_WRITE).
+* `+setNextWriteValue(v)+` auf dem Channel gibt den Wert sofort an das Element weiter (mit Umrechnung über den Converter). Der Schreib-Task holt ihn im nächsten Schreibschritt ab und **setzt ihn danach zurück**.
+* Folge: Ein Wert wird genau einmal geschrieben. Soll das Gerät einen Sollwert dauerhaft erhalten (viele Wechselrichter verlangen das als Lebenszeichen), muss der Treiber ihn in jedem Zyklus neu setzen, typischerweise in `+applyPower()+` oder einem Zyklus-Ereignis.
+
+[#sec-treiber-pruefen]
+== Treiber prüfen
+
+* Mit `+DummyModbusBridge+` lassen sich Registerinhalte im Test vorgeben und die Channel-Werte prüfen; siehe xref:development/de/testing/component-tests.adoc[Tests].
+* An der echten Bridge zeigt die Einstellung „Log-Verbosity“ die Modbus-Anfragen im Log.
+* Über `+ModbusSlave+`/`+getModbusSlaveTable()+` stellt der Treiber seine Channels zusätzlich in der Modbus/TCP-API der Edge bereit.

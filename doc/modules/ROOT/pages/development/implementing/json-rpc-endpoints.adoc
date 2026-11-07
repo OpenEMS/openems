@@ -1,0 +1,126 @@
+= JSON-RPC endpoints
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:development/de/implementing/json-rpc-endpoints.adoc[OpenEMS-Entwicklung: JSON-RPC-Endpunkte]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+The UI, Backend and external programs communicate with the Edge via JSON-RPC (Websocket, REST `+/jsonrpc+`, forwarded via the Backend). The protocol is described in xref:component-communication/index.adoc[Component Communication]. A component can offer its own methods, e.g. the Controller for time-of-use tariffs offers the method `+getSchedule+`. How to call such requests from outside is described on the user page xref:user/external-interfaces/json-rpc.adoc[JSON-RPC].
+
+[#sec-route-of-a-request]
+== Route of a request
+
+Methods of a component are not called directly, but wrapped in `+componentJsonApi+`:
+
+[source]
+----
+{
+  "jsonrpc": "2.0", "id": "UUID", "method": "componentJsonApi",
+  "params": {
+    "componentId": "ctrlEssTimeOfUseTariff0",
+    "payload": {
+      "jsonrpc": "2.0", "id": "UUID", "method": "getSchedule", "params": {}
+    }
+  }
+}
+----
+
+The `+ComponentRequestHandler+` (`+io.openems.edge.controller.api.common+`) binds **all** components that offer the interface `+ComponentJsonApi+` via OSGi reference (dynamic, any number). It looks for the component via `+componentId+` and passes `+payload+` on to its routes. If the ID is unknown, “Component with id '…' was not found” is returned.
+
+[#sec-offering-an-endpoint]
+== Offering an endpoint
+
+. The component implements `+ComponentJsonApi+` and names the interface in the `+implements+` list (otherwise it is not found as a service).
+. It overrides `+buildJsonApiRoutes(JsonApiBuilder builder)+` and registers its methods there.
+
+Simple form (from `+TimeOfUseTariffControllerImpl+`):
+
+[source]
+----
+@Override
+public void buildJsonApiRoutes(JsonApiBuilder builder) {
+    builder.handleRequest(GetScheduleRequest.METHOD, call -> {
+        return GetScheduleResponse.from(call.getRequest().getId(), this.id(),
+                this.componentManager.getClock(), this.ess, this.timedata, this.energyScheduleHandler);
+    });
+}
+----
+
+Here the handler works with the raw `+JsonrpcRequest+`; the request class has a constant `+METHOD+` and a method `+from(JsonrpcRequest)+` that reads the parameters.
+
+[#sec-typed-form]
+=== Typed form
+
+Newer endpoints describe request and response as a type (`+EndpointRequestType+`) with serializers. Example `+DisconnectOAuthConnection+`:
+
+[source]
+----
+public class DisconnectOAuthConnection
+        implements EndpointRequestType<DisconnectOAuthConnection.Request, EmptyObject> {
+
+    public String getMethod() { return "disconnectOAuthConnection"; }
+    public JsonSerializer<Request> getRequestSerializer() { return Request.serializer(); }
+    public JsonSerializer<EmptyObject> getResponseSerializer() { return EmptyObject.serializer(); }
+
+    public record Request(String identifier) {
+        public static JsonSerializer<Request> serializer() {
+            return jsonObjectSerializer(Request.class,
+                    json -> new Request(json.getString("identifier")),
+                    obj -> JsonUtils.buildJsonObject().addProperty("identifier", obj.identifier()).build());
+        }
+    }
+}
+----
+
+Registration with description and role check:
+
+[source]
+----
+builder.handleRequest(new DisconnectOAuthConnection(),
+        endpoint -> endpoint.setDescription("Disconnects an OAuth connection.")
+                .setGuards(EdgeGuards.roleIsAtleast(Role.OWNER)),
+        call -> {
+            var request = call.getRequest();       // already as a record
+            ...
+            return EmptyObject.INSTANCE;
+        });
+----
+
+(The registration is an example; the role required by the original endpoint is in its component.)
+
+Advantage: reading the parameters is in one place, the handler receives finished objects, and the description appears in the endpoint overview.
+
+[#sec-roles-and-guards]
+== Roles and guards
+
+An endpoint only checks roles if it sets **guards**. `+EndpointDefinitionBuilder+` starts with an empty guard list, and `+componentJsonApi+` itself does not set any.
+
+[cols="2*",options="header"]
+|===
+| Guard (`+EdgeGuards+`)
+| Effect
+
+| `+roleIsAtleast(role)+`
+| User needs at least this role.
+| `+roleIsAtleastFromBackend(role)+`
+| only for requests coming via the Backend: at least this role
+| `+roleIsAtleastNotFromBackend(role)+`
+| only for local requests: at least this role
+|===
+
+Roles from low to high: GUEST, OWNER, INSTALLER, ADMIN. Example from the `+ComponentManager+`: `+getEdgeConfig+` requires GUEST; `+createComponentConfig+` requires INSTALLER via the Backend, ADMIN locally (both guards set at the same time).
+
+**Recommendation:** Every endpoint sets a guard, at least `+roleIsAtleast(Role.GUEST)+`; endpoints that change something or provide confidential data accordingly higher.
+
+[#sec-other-building-blocks]
+== Other building blocks
+
+* `+call.get(EdgeKeys.USER_KEY)+` returns the logged-in user, e.g. for logging or your own checks.
+* `+builder.delegate(…)+` forwards sub-requests to another builder; `+componentJsonApi+` itself is built this way.
+* Errors are reported as an exception (`+OpenemsNamedException+`, `+OpenemsException+`); it becomes the JSON-RPC error response.
+* Requests with a long runtime block the caller until the response. It is better to prepare or cache computationally intensive work.

@@ -1,0 +1,141 @@
+= OpenEMS: Third-party systems on OpenEMS
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/third-party/overview.adoc[OpenEMS: Fremdsysteme an OpenEMS]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+This page compares three widely used systems that work together with OpenEMS: **Home Assistant**, **evcc** and **openWB**. All three are independent projects and not part of OpenEMS. Details are on the pages xref:user/third-party/home-assistant.adoc[Home Assistant], xref:user/third-party/evcc.adoc[evcc] and xref:user/third-party/openwb.adoc[openWB]. The basis in each case is their source code and the OpenEMS source code; none of this has been tried out.
+
+[#sec-at-a-glance]
+== At a glance
+
+[cols="4*",options="header"]
+|===
+| 
+| Home Assistant
+| evcc
+| openWB
+
+| Purpose
+| Home automation, display, automations
+| PV surplus charging, grid charging at low tariffs
+| Wallbox with its own surplus charging
+| Route to OpenEMS
+| xref:user/external-interfaces/websocket.adoc[Websocket] (port 8085), additionally REST for control values
+| REST (port 8084) or Modbus/TCP (port 502)
+| REST (port 8084, fixed)
+| Required app in OpenEMS
+| none (websocket is standard); REST write app for control values
+| REST or Modbus app; write app for storage control
+| REST read app
+| Login
+| Password, determines the role
+| REST: password; Modbus: none
+| Password
+| Update
+| about every second (subscription)
+| every 30 seconds (evcc control cycle)
+| every 10 seconds (openWB control cycle)
+| Range of values
+| all channels of all components, selectable
+| only total values (grid, PV, storage)
+| Grid meter `+meter0+`, total values, storage `+ess0+`
+| Changing settings
+| yes (stored permanently)
+| no
+| no
+| Controlling the storage
+| yes, via REST control values (any value)
+| yes: hold, charge, normal
+| no
+| Opposite direction (OpenEMS reads the system)
+| no (but OpenEMS can send values to an MQTT broker, see below)
+| no
+| yes: OpenEMS reads an openWB charge point via MQTT without controlling it
+| Encryption in the home network
+| no (local ws)
+| no
+| no
+|===
+
+[#sec-which-interface-for-what]
+== Which interface for what
+
+[cols="3*",options="header"]
+|===
+| Interface
+| Properties
+| used by
+
+| xref:user/external-interfaces/websocket.adoc[Websocket]
+| Permanent connection, values arrive by themselves every second, settings can be changed; more complex
+| Home Assistant, web interface
+| xref:user/external-interfaces/rest-control.adoc[REST/JSON]
+| Individual queries; patterns for several values; control values with Api-Timeout
+| evcc, openWB, Home Assistant (control values only)
+| Modbus/TCP
+| Register table, no login; addresses depend on the configuration
+| evcc (optional)
+| MQTT (direction OpenEMS ← openWB)
+| OpenEMS subscribes to messages from openWB
+| OpenEMS component “EVCS OpenWB”
+| MQTT (direction OpenEMS → broker)
+| OpenEMS sends values to an MQTT broker
+| Component “Controller Api MQTT”, see below
+|===
+
+[#sec-openems-sends-values-via-mqtt]
+=== OpenEMS sends values via MQTT
+
+Independently of the three systems, OpenEMS has the component **“Controller Api MQTT”**. It sends channel values to an MQTT broker, e.g. the Home Assistant broker. According to its description, changed values are sent immediately and all values additionally every 5 minutes, under topics such as `+edge/edge0/channel/_sum/GridActivePower+`. Topic filters and the persistence priority can be used to limit what is sent; the connection can be encrypted.
+
+The description of the component also mentions subscribing to control topics. Nothing was found for this in the code of the component; according to the code it only **sends** and does not accept any commands.
+
+[#sec-control-settings-or-control-values]
+== Control: settings or control values
+
+The same distinction applies to all three (see xref:user/external-interfaces/rest-control.adoc#sec-controlling-two-fundamentally-different-routes[Controlling: two fundamentally different routes]):
+
+[cols="3*",options="header"]
+|===
+| 
+| Setting
+| Control value
+
+| Example
+| Emergency reserve, charging mode, operating mode
+| Storage power, relay
+| Duration
+| stored permanently
+| only as long as renewed every < 60 s
+| Write frequently?
+| **no**, wears out the memory of the system
+| yes, harmless
+| Home Assistant
+| Switch, select, number, time
+| Action “write REST value” (repeated every 30 s)
+| evcc
+| –
+| Upper limit of the storage power (repeated every 30 s)
+| openWB
+| –
+| –
+|===
+
+The page xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control compared] compares wallbox control with evcc and openWB.
+
+[#sec-what-to-consider-when-combining]
+== What to consider when combining
+
+* **Only one system controls the storage.** If Home Assistant, evcc and a control function in OpenEMS (e.g. xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariff]) issue specifications at the same time, the strictest limit applies in each case. The result is then difficult to understand.
+* **Only one system controls surplus charging.** evcc, openWB and xref:user/ev-charging-control/surplus-charging.adoc[surplus charging in OpenEMS] see the same surplus. If two of them run on the same wallbox or on different wallboxes without coordination, they work against each other.
+* **OpenEMS limits always apply.** Emergency reserve, battery and grid limits, and xref:user/storage-control/section-14a-enwg.adoc[§ 14a] restrict any external specification (see xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery]).
+* **Fixed names.** evcc and openWB mainly read `+_sum+`, openWB additionally the fixed `+meter0+` and `+ess0+`. If the naming differs, the values are not correct.
+* **Do not expose ports to the internet.** All three use unencrypted connections in the home network; Modbus has no login at all.
+* **Load from queries.** Each connection queries regularly. This is not critical at the intervals described here; many additional scripts with short intervals increase the load on the system.

@@ -1,0 +1,143 @@
+= OpenEMS: evcc
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/third-party/evcc.adoc[OpenEMS: evcc]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+evcc is software for PV surplus charging of electric cars. It controls wallboxes itself and needs grid, PV and storage values for this. For OpenEMS (and FENECON FEMS), evcc comes with **two templates** for meters: one via the REST interface, one via Modbus/TCP. With both, evcc can additionally **control the OpenEMS storage to a certain extent**.
+
+There is no connection in the opposite direction (OpenEMS reads or controls evcc) in the OpenEMS code.
+
+The basis is the templates and source code of evcc as well as the OpenEMS source code. Nothing has been tried out here. The page xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] gives a comparison with Home Assistant and openWB.
+
+[#sec-the-two-templates]
+== The two templates
+
+[cols="3*",options="header"]
+|===
+| 
+| “OpenEMS / FENECON – REST-API”
+| “OpenEMS / FENECON – Modbus-API”
+
+| Route
+| HTTP to `+/rest/channel/…+`
+| Modbus/TCP
+| Prerequisite in OpenEMS (read only)
+| REST/JSON API read access
+| Modbus/TCP interface read access
+| Prerequisite (controlling the storage)
+| REST/JSON API read/write access
+| Modbus/TCP interface read/write access
+| Login
+| User “x” and password (basic authentication)
+| none
+| Address
+| Host name; without a port the request goes to port 80
+| Host name and port
+|===
+
+**Note on the port:** The REST template appends `+/rest/…+` directly to the entered host name. Without a port, evcc therefore queries port 80. On OpenEMS, the REST interface is on port 8084 by default; the address must then be entered with `+:8084+`. The template also specifies a default password, which must match your own system.
+
+For FENECON systems, evcc points out that a paid write app is required for storage control.
+
+In evcc, you create a separate meter with the same template for each use: **grid**, **PV** and **battery**.
+
+[#sec-which-values-are-read]
+== Which values are read
+
+Both templates only read total values (`+_sum+`):
+
+[cols="4*",options="header"]
+|===
+| Use in evcc
+| Value
+| Channel in OpenEMS
+| Modbus register (default)
+
+.2+| Grid
+| Power
+| `+_sum/GridActivePower+`
+| 315
+| Purchase meter reading
+| `+_sum/GridBuyActiveEnergy+`
+| 359
+.2+| PV
+| Power
+| `+_sum/ProductionActivePower+`
+| 327
+| Meter reading
+| `+_sum/ProductionActiveEnergy+`
+| 367
+.2+| Battery
+| Power
+| `+_sum/EssDischargePower+`
+| 415
+| State of charge
+| `+_sum/EssSoc+`
+| 302
+|===
+
+* evcc queries the values in its control cycle (default 30 seconds); the REST template keeps each value in the cache for 1 second. Each value is a separate request.
+* For the grid, only the purchase is read, not the feed-in.
+* **Modbus registers:** The register numbers are defaults. In OpenEMS, the addresses depend on which components are entered in the Modbus interface and in what order; the Modbus app offers its register table as an Excel file. Recalculated from the code: The defaults match if `+_sum+` is entered as the first component and `+ess0+` as the second component in the Modbus interface. The registers for grid, PV and storage power and the state of charge are then in `+_sum+`. The control register 710 only hits “discharge power at most” of `+ess0+` if its table begins with the usual sections, e.g. with the FENECON Home. With storage systems with an additional section for separate three-phase values (e.g. FENECON Pro, Victron), it is located elsewhere. Therefore compare with your own register table before use.
+
+[#sec-what-evcc-can-control]
+== What evcc can control
+
+If the controllable battery is specified in the battery use (REST: component ID, e.g. `+ess0+`; Modbus: switch “controls battery component”), evcc can put the storage into three operating modes. The same control value is always written, the **upper limit of the storage power** (`+SetActivePowerLessOrEquals+`, see xref:user/external-interfaces/rest-control.adoc#sec-setting-a-control-value[Setting a control value]):
+
+[cols="3*",options="header"]
+|===
+| evcc operating mode
+| Written value
+| Effect in OpenEMS
+
+| Normal
+| 0, once
+| see peculiarity below
+| Hold
+| 0, repeated every 30 seconds
+| Storage may **not discharge**; charging from PV surplus remains possible
+| Charge
+| minus maximum charging power, repeated every 30 seconds
+| Storage is charged with at least this power, from the grid if necessary; only if a maximum charging power is entered in evcc
+|===
+
+**Repetition:** OpenEMS discards a control value that is not renewed within the Api-Timeout (default 60 seconds). evcc therefore repeats it every half timeout period in the Hold and Charge operating modes. The timeout can be set in the template (“watchdog”, default 60 s) and should match the Api-Timeout of the OpenEMS app.
+
+**When evcc uses the operating modes:** e.g. “Hold” so that the home storage is not discharged into the car during fast charging (setting “lock battery discharge”), or “Charge” with a low dynamic electricity price (grid charging of the home storage). Without such settings, evcc stays on “Normal”.
+
+**Peculiarity (from the code of evcc and OpenEMS, not tried out):** For “Normal”, the template writes the value 0 once and does not repeat it. In OpenEMS, the value 0 means “do not discharge”. According to the code, when switching back to “Normal”, discharging therefore remains locked until the Api-Timeout expires (up to 60 seconds) before OpenEMS returns to normal control. According to the OpenEMS code, an empty value, on the other hand, cancels the control value immediately.
+
+**Not covered:** evcc also has the operating modes “Discharge to grid” and “Hold and charge”. The OpenEMS templates have no entry for these.
+
+[#sec-limits]
+== Limits
+
+* **Total values only:** Individual meters, inverters or storage systems are not distinguished.
+* **Control via one value only:** evcc only specifies an upper limit. All OpenEMS limits continue to apply, e.g. emergency reserve, battery limits and other control functions. Charging at the specified power only succeeds if the battery and inverter allow it (see xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery]).
+* **Interaction with control functions in OpenEMS:** A time-of-use tariff or grid-optimized charge in OpenEMS work independently of evcc. If evcc specifies “Charge” and OpenEMS something else at the same time, the stricter limit applies in each case. It is best if only one of the two systems controls the storage.
+* **No memory wear:** Control values are only held in RAM in OpenEMS; frequent writing is harmless (unlike with settings, see xref:user/external-interfaces/websocket.adoc#sec-note-do-not-write-the-configuration-frequently[Note]).
+* **Unencrypted:** REST with basic authentication in plain text; Modbus/TCP with no login at all. Do not expose ports to the internet.
+* **Modbus without login:** Anyone who activates the Modbus write app allows every device on the network to control the storage.
+
+[#sec-typical-questions]
+== Typical questions
+
+**REST or Modbus?**
+
+REST is easier to set up because the channels are addressed by name. Modbus does not need a login, but the register numbers must match your own system.
+
+**Why does the storage not discharge again immediately after car charging ends?**
+
+See peculiarity above: the last “do not discharge” specification can still apply for up to 60 seconds.
+
+**evcc reports no values, error 401 or connection refused.**
+
+Check the password (401) and the port: with OpenEMS, usually append `+:8084+` to the address.

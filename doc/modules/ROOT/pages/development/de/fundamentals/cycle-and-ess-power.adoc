@@ -1,0 +1,159 @@
+= OpenEMS-Entwicklung: Zyklus, Scheduler und Leistungsverteilung
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+
+This page in English: xref:development/fundamentals/cycle-and-ess-power.adoc[Cycle, Scheduler and ESS Power]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+xref:edge/architecture.adoc[Edge Architecture] erklärt das Input-Process-Output-Modell, den Scheduler und das Prozessabbild (Process Image). Diese Seite ergänzt die Einzelheiten aus dem Code. Zuständig ist die Singleton-Komponente `+_cycle+` (`+io.openems.edge.core+`, Klassen `+CycleImpl+` und `+CycleWorker+`).
+
+[#sec-zykluszeit]
+== Zykluszeit
+
+* Standard: **1000 ms** (`+Cycle.DEFAULT_CYCLE_TIME+`), einstellbar in der Komponente „Core Cycle“ (Feld `+cycleTime+`).
+* `+_cycle/MeasuredCycleTime+` enthält die tatsächlich gebrauchte Zeit eines Zyklus.
+* Für die Fehlersuche gibt es eine Log-Ausführlichkeit (`+CycleLogVerbosity+`): Zusammenfassung, Phasen oder einzelne Komponenten, jeweils mit Zeitmessung.
+* Zu Beginn jedes Zyklus wird der Watchdog des Betriebssystems (systemd) benachrichtigt. Hängt der Zyklus, kann systemd den Dienst neu starten, sofern der Watchdog in der Service-Datei aktiv ist.
+
+[#sec-ablauf-eines-zyklus]
+== Ablauf eines Zyklus
+
+Die Reihenfolge steht in `+CycleWorker.forever()+`. Alle Ereignisse werden synchron über den EventAdmin verschickt (`+EdgeEventConstants+`); der nächste Schritt beginnt erst, wenn alle Empfänger fertig sind.
+
+[cols="3*",options="header"]
+|===
+| Nr.
+| Schritt
+| Typische Nutzung
+
+| 1
+| Ereignis `+TOPIC_CYCLE_BEFORE_PROCESS_IMAGE+`
+| Treiber übergeben gelesene Werte; Modbus-Bridge schließt Lese-Tasks ab
+| 2
+| **Prozessabbild wechseln**: für jede aktivierte Komponente (außer `+_sum+`) `+channel.nextProcessImage()+`
+| ab hier liefert `+value()+` die neuen Werte
+| 3
+| `+_sum+` berechnen (`+updateChannelsBeforeProcessImage()+`) und dessen Prozessabbild wechseln
+| Summen passen zu den eben übernommenen Gerätewerten
+| 4
+| Ereignis `+TOPIC_CYCLE_AFTER_PROCESS_IMAGE+`
+| Komponenten berechnen abgeleitete Werte; bei Strategie `+BALANCE+` baut `+_power+` hier das Modell neu auf
+| 5
+| Ereignis `+TOPIC_CYCLE_BEFORE_CONTROLLERS+`
+| Vorbereitungen vor den Controllern
+| 6
+| **Scheduler und Controller ausführen**
+| `+Controller.run()+` in Scheduler-Reihenfolge
+| 7
+| Ereignis `+TOPIC_CYCLE_AFTER_CONTROLLERS+`
+| Auswertung der Controller-Ergebnisse
+| 8
+| Ereignis `+TOPIC_CYCLE_BEFORE_WRITE+`
+| `+_power+` löst die Leistungsverteilung und ruft `+applyPower()+` der Speicher auf
+| 9
+| Ereignis `+TOPIC_CYCLE_EXECUTE_WRITE+`
+| Treiber schreiben Sollwerte an die Geräte
+| 10
+| Ereignis `+TOPIC_CYCLE_AFTER_WRITE+`
+| Aufräumen; `+_power+` (Solver v1) verwirft die Bedingungen dieses Zyklus
+|===
+
+Eine Ausnahme irgendwo in diesem Ablauf bricht nur den aktuellen Zyklus ab; sie wird als „Error in Scheduler …“ geloggt (bei `+NullPointerException+` und `+ClassCastException+` mit Stacktrace). Der nächste Zyklus beginnt normal.
+
+[#sec-scheduler-und-controller]
+== Scheduler und Controller
+
+* Ohne Scheduler laufen keine Controller; das Log meldet dann „There are no Schedulers configured!“.
+* Mehrere Scheduler sind möglich; sie laufen nach ihrer Komponenten-ID sortiert. Jeder Scheduler liefert über `+getControllers()+` eine geordnete Liste von Controller-IDs.
+* Vorhandene Scheduler: `+allalphabetically+` (optional eine feste Liste zuerst, danach alle übrigen Controller alphabetisch nach ID), `+fixedorder+` (feste Liste), `+daily+` (nach Uhrzeit), `+jscalendar+` (nach Kalenderregeln).
+* Fehlt ein Controller oder ist die ID kein Controller, setzt der Scheduler seinen State-Channel `+ControllerIsMissing+`.
+* Ein deaktivierter Controller wird übersprungen; `+_cycle/IgnoreDisabledController+` wird gesetzt.
+* Wirft `+run()+` eine Ausnahme, wird sie geloggt, der State-Channel `+RunFailed+` (Level FAULT) des Controllers gesetzt und der nächste Controller ausgeführt.
+
+[#sec-bedeutung-der-reihenfolge]
+=== Bedeutung der Reihenfolge
+
+Controller, die Speicher-Sollwerte setzen, arbeiten über **Grenzen** (Constraints) der Leistungsverteilung. Ein früherer Controller kann Grenzen setzen, die spätere einhalten müssen. Beispiel: Ein Controller für §14a setzt eine Höchstladeleistung; ein später laufender Eigenverbrauchs-Controller erhält dann höchstens diesen Wert. Daher stehen begrenzende Controller in der Reihenfolge **vor** optimierenden. Einzelheiten zu §14a beschreibt die Anwenderseite xref:user/de/storage-control/section-14a-enwg.adoc[§14a].
+
+[#sec-leistungsverteilung-power]
+== Leistungsverteilung (`+_power+`)
+
+Speicher (`+ManagedSymmetricEss+`) bekommen keine Sollwerte direkt geschrieben. Controller setzen Bedingungen, die Komponente `+_power+` (Bundle `+io.openems.edge.ess.core+`, „ESS Power“) löst sie gemeinsam für alle Speicher.
+
+[#sec-bedingungen-setzen]
+=== Bedingungen setzen
+
+[cols="3*",options="header"]
+|===
+| Methode am Speicher
+| Channel
+| Bedingung
+
+| `+setActivePowerEqualsWithFilter(p)+`
+| `+SetActivePowerEquals+`
+| Leistung = p, mit Regelfilter
+| `+setActivePowerEqualsWithoutFilter(p)+`
+| `+SetActivePowerEquals+`
+| Leistung = p, ohne Filter
+| `+setActivePowerLessOrEquals(p)+`
+| `+SetActivePowerLessOrEquals+`
+| Leistung ≤ p
+| `+setActivePowerGreaterOrEquals(p)+`
+| `+SetActivePowerGreaterOrEquals+`
+| Leistung ≥ p
+| entsprechend `+…ReactivePower…+`
+| 
+| Blindleistung
+|===
+
+Vorzeichen: **negativ = Laden, positiv = Entladen**. Das Schreiben in einen dieser Channels legt über `+onChannelSetNextWrite+` sofort eine Bedingung beim Solver an.
+
+* **Mit Filter** für geschlossene Regelkreise, die auf einen Netzzähler reagieren (z. B. Eigenverbrauchsoptimierung). Der Filter verhindert Schwingen.
+* **Ohne Filter**, wenn der Wert direkt von einem übergeordneten Controller oder vom Benutzer kommt.
+* Für eigene Bedingungen gibt es `+addPowerConstraint(…)+` bzw. `+addPowerConstraintAndValidate(…)+`; letzteres wirft eine Ausnahme, wenn die Bedingung mit den bisherigen nicht vereinbar ist.
+* `+getPower().getMaxPower(…)+` und `+getMinPower(…)+` liefern den Spielraum, der nach den bisherigen Bedingungen noch bleibt.
+
+[#sec-loesen-und-anwenden]
+=== Lösen und Anwenden
+
+* Bedingungen gelten nur für einen Zyklus. Solver v1 verwirft sie nach dem Schreiben (Schritt 10) und legt die statischen Grenzen der Speicher (`+getStaticConstraints()+`, z. B. erlaubte Lade-/Entladeleistung) neu an; Solver v2 baut sein Modell nach dem Wechsel des Prozessabbilds (Schritt 4) neu auf. Ein Controller muss seine Sollwerte also in jedem Zyklus neu setzen.
+* Vor dem Schreiben (Schritt 8) wird gelöst. Jeder Speicher erhält das Ergebnis über `+applyPower(activePower, reactivePower)+`; der Treiber setzt es in Geräte-Register um. Gerundet wird auf `+getPowerPrecision()+`.
+* Ist keine Lösung möglich, wird der State-Channel `+_power/NotSolved+` (Level WARNING) gesetzt.
+
+[#sec-strategien-und-filter]
+=== Strategien und Filter
+
+[cols="3*",options="header"]
+|===
+| Einstellung
+| Standard
+| Bedeutung
+
+| `+strategy+`
+| `+OPTIMIZE_BY_MOVING_TOWARDS_TARGET+`
+| Verteilung auf mehrere Speicher. Alle Strategien außer `+BALANCE+` nutzen den Solver v1 (lineare Optimierung); `+BALANCE+` nutzt den neueren Solver v2 (`+TreeSolver+`).
+| `+enablePid+`
+| an
+| PID-Filter für „mit Filter“-Sollwerte; Parameter `+p+`, `+i+`, `+d+`
+| `+enablePT1Filter+`
+| aus
+| PT1-Filter statt PID (nur wenn PID aus), Zeitkonstante `+pt1TimeConstant+`
+| `+symmetricMode+`
+| an
+| hält asymmetrische Speicher symmetrisch
+| `+debugMode+`
+| aus
+| zusätzliche Log-Ausgaben des Solvers
+|===
+
+[#sec-hinweise-fuer-eigenen-code]
+== Hinweise für eigenen Code
+
+* In `+run()+` nur mit `+value()+` arbeiten, nicht mit `+getNextValue()+`; sonst sieht der Controller einen Wert, den andere Controller im selben Zyklus noch nicht sehen.
+* Ein Wert, den ein Controller in einen Channel schreibt (`+_setNextValue+`), ist erst im nächsten Zyklus über `+value()+` lesbar.
+* Langsame Arbeit (Netzwerk, Berechnungen über viele Sekunden) gehört in einen eigenen Thread oder Worker (`+AbstractWorker+`, `+AbstractCycleWorker+`), nicht in `+run()+` oder ein Zyklus-Ereignis. Alle Ereignisse laufen synchron und verlängern den Zyklus.
