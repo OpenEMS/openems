@@ -21,6 +21,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.NumberOfHeatingElements;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
@@ -83,8 +84,17 @@ public class ControllerHeatingElementImplTest11 {
 						.setScheduler("") //
 						.setHasWaterThermometer(false) //
 						.build())
-				// The 90 °C of the thermometer are ignored
+				// The 90 °C of the thermometer are ignored. The Level is raised by one step per
+				// minimum switching time.
 				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -6500) //
+						.output(LEVEL, Level.LEVEL_1)) //
+				.next(new TestCase() //
+						.timeleap(clock, 61, SECONDS) //
+						.input(GRID_ACTIVE_POWER, -6500) //
+						.output(LEVEL, Level.LEVEL_2)) //
+				.next(new TestCase() //
+						.timeleap(clock, 61, SECONDS) //
 						.input(GRID_ACTIVE_POWER, -6500) //
 						.output(LEVEL, Level.LEVEL_3)) //
 				.deactivate();
@@ -102,7 +112,13 @@ public class ControllerHeatingElementImplTest11 {
 						.output(LEVEL, Level.LEVEL_1) //
 						.output(WATER_ACTUAL, 50) //
 						.output(WATER_THERMOMETER_NOT_AVAILABLE, false)) //
-				// Below low: heating with all phases without excess power
+				// Below low: heating up to all phases without excess power; the Level is raised
+				// by one step per minimum switching time
+				.next(new TestCase() //
+						.timeleap(clock, 61, SECONDS) //
+						.input(THERMOMETER_ID, TEMPERATURE, 400) //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output(LEVEL, Level.LEVEL_2)) //
 				.next(new TestCase() //
 						.timeleap(clock, 61, SECONDS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 400) //
@@ -129,7 +145,7 @@ public class ControllerHeatingElementImplTest11 {
 	 * @throws Exception on error
 	 */
 	@ParameterizedTest
-	@EnumSource(Level.class)
+	@EnumSource(value = Level.class, names = { "LEVEL_0", "LEVEL_1", "LEVEL_2", "LEVEL_3" })
 	public void testSensorError(Level sensorErrorLevel) throws Exception {
 		final var clock = createDummyClock();
 		// The thermometer has no temperature
@@ -154,27 +170,28 @@ public class ControllerHeatingElementImplTest11 {
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.output(LEVEL, Level.LEVEL_0)) //
-				// Interval is over: heating with all phases without excess power
+				// Interval is over: heating up to all phases without excess power. The Level
+				// is raised by one step per minimum switching time.
 				.next(new TestCase() //
 						.timeleap(clock, 25, HOURS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3)) //
+						.output(LEVEL, Level.LEVEL_1)) //
 				// Legionella temperature is reached, but not held for the minimum time yet
 				.next(new TestCase() //
 						.input(THERMOMETER_ID, TEMPERATURE, 660) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3)) //
+						.output(LEVEL, Level.LEVEL_1)) //
 				// Temperature drops below the Legionella temperature: the time starts again
 				.next(new TestCase() //
 						.timeleap(clock, 30, MINUTES) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3)) //
+						.output(LEVEL, Level.LEVEL_2)) //
 				.next(new TestCase() //
 						.input(THERMOMETER_ID, TEMPERATURE, 660) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3)) //
+						.output(LEVEL, Level.LEVEL_2)) //
 				.next(new TestCase() //
 						.timeleap(clock, 45, MINUTES) //
 						.input(THERMOMETER_ID, TEMPERATURE, 660) //
@@ -201,7 +218,7 @@ public class ControllerHeatingElementImplTest11 {
 						.timeleap(clock, 25, HOURS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3)) //
+						.output(LEVEL, Level.LEVEL_1)) //
 				// More than 2 K above the Legionella temperature: no further heating
 				.next(new TestCase() //
 						.timeleap(clock, 61, SECONDS) //
@@ -222,11 +239,10 @@ public class ControllerHeatingElementImplTest11 {
 						.timeleap(clock, 25, HOURS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3) //
+						.output(LEVEL, Level.LEVEL_1) //
 						.output(LEGIONELLEN_PROTECTION_FAILED, false)) //
 				// The temperature was not reached in time: heating is aborted. The 6000 W
-				// grid consumption are caused by the heating element itself, i.e. there is no
-				// excess power.
+				// grid consumption mean that there is no excess power.
 				.next(new TestCase() //
 						.timeleap(clock, 3, HOURS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
@@ -238,7 +254,7 @@ public class ControllerHeatingElementImplTest11 {
 						.timeleap(clock, 25, HOURS) //
 						.input(THERMOMETER_ID, TEMPERATURE, 550) //
 						.input(GRID_ACTIVE_POWER, 0) //
-						.output(LEVEL, Level.LEVEL_3) //
+						.output(LEVEL, Level.LEVEL_1) //
 						.output(LEGIONELLEN_PROTECTION_FAILED, false)) //
 				.deactivate();
 	}
@@ -256,6 +272,55 @@ public class ControllerHeatingElementImplTest11 {
 						.input(THERMOMETER_ID, TEMPERATURE, 650) //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.output(LEVEL, Level.LEVEL_0)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testFastHeat() throws Exception {
+		final var clock = createDummyClock();
+		prepareTest(clock, MyConfig.create().setMode(Mode.FAST_HEAT).setWaterTemperatures(45, 60, 85),
+				new DummyThermometer(THERMOMETER_ID)) //
+				// All phases are switched on immediately
+				.next(new TestCase() //
+						.input(THERMOMETER_ID, TEMPERATURE, 500) //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output(LEVEL, Level.LEVEL_3)) //
+				// The water temperature limit is stronger than fast heating
+				.next(new TestCase() //
+						.input(THERMOMETER_ID, TEMPERATURE, 860) //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output(LEVEL, Level.LEVEL_0)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testSensorErrorLevelIsLimitedToAvailableLevels() throws Exception {
+		final var clock = createDummyClock();
+		// One heating element only provides Level 0 to 3
+		prepareTest(clock, MyConfig.create().setMode(Mode.AUTOMATIC).setSensorErrorLevel(Level.LEVEL_5),
+				new DummyThermometer(THERMOMETER_ID)) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output(LEVEL, Level.LEVEL_3) //
+						.output(WATER_THERMOMETER_NOT_AVAILABLE, true)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testSensorErrorWithTwoHeatingElements() throws Exception {
+		final var clock = createDummyClock();
+		// Two heating elements provide Level 0 to 6
+		prepareTest(clock, MyConfig.create().setMode(Mode.AUTOMATIC).setSensorErrorLevel(Level.LEVEL_5) //
+				.setNumberOfHeatingElements(NumberOfHeatingElements.TWO) //
+				.setPowerPerPhaseHeatingElementB(1000) //
+				.setOutputChannelPhaseL1HeatingElementB("io0/InputOutput3") //
+				.setOutputChannelPhaseL2HeatingElementB("io0/InputOutput4") //
+				.setOutputChannelPhaseL3HeatingElementB("io0/InputOutput5"), //
+				new DummyThermometer(THERMOMETER_ID)) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, 0) //
+						.output(LEVEL, Level.LEVEL_5) //
+						.output(WATER_THERMOMETER_NOT_AVAILABLE, true)) //
 				.deactivate();
 	}
 }

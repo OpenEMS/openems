@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "グリッド設定へ移動"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "システム運転が制限されています - 容量拡張が可能になりました",
                 "EXPANSION_RUNNING": "システム運転が制限されています - 容量拡張を準備しています",
                 "INFORMATION_FOR_INSTANT_START": "拡張のために、電荷状態をできるだけ速く{{targetSoc}} %に到達させるため、電池は最大出力で充電または放電されます。これにより、系統からの受電や系統への送電が発生する場合があります。この電荷状態は{{targetTimeBuffer}}分間維持され、その後または容量拡張後に、蓄電システムは通常の運転状態に戻ります。",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "計画された拡張のために、電池は{{targetDate}}の{{targetTime}}以降に充電/放電され、{{targetSoc}} %の電荷状態に到達すると見込まれています。この過程で、系統からの受電や系統への送電が発生する場合があります。この電荷状態は{{targetTimeBuffer}}分間維持され、その後または容量拡張後に、蓄電システムは通常の運転状態に戻ります。",
@@ -673,11 +674,24 @@
                 "STANDARD": "標準料金"
             },
             "TITLE": "{{ year }}年 補助費用"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{email}}は有効な電子メールアドレスではありません。",
+            "INVALID_ZIPCODE": "郵便番号の形式が無効です",
+            "MANDATORY_FIELD": "これは必須のフィールドです",
+            "MAX": "{{max}}以下の値のみが許可されます。",
+            "MIN": "{{min}}以上の値のみが許可されます。"
         }
     },
     "GENERAL": {
         "ACTIVE": "有効",
         "ACTUAL_POWER": "e-car充電",
+        "ADDRESS": {
+            "CITY": "街",
+            "COUNTRY": "国",
+            "STREET_ADDRESS": "住所",
+            "ZIP": "郵便番号"
+        },
         "ALL": "すべて",
         "APPLY": "適用",
         "AUTARCHY": "再生可能エネルギー率",
@@ -811,7 +825,6 @@
         },
         "SUM_STATE": "システム状態",
         "SURVEY": "ベータテストに関するフィードバックはこちらからお寄せください：",
-        "SURVEY_LINK": "ベータテストのアンケートに参加する",
         "SYSTEM": "システム",
         "SYSTEM_OUTAGE": "メンテナンス作業のため、オンラインモニタリングが一時的に利用できない状況です。後でもう一度お試しください。詳細については、以下を参照してください。",
         "SYSTEM_STATE": "システムの状態",
@@ -867,6 +880,7 @@
         "CONNECTION_SUCCESSFUL": "{{value}}に正常に接続されています。",
         "DEVICE_OFFLINE": "デバイスが接続されていません！",
         "FIRST_SETUP_PROTOCOL": "初期試運転",
+        "INSTALLATION_RECOMMENDATION": "{{ edgeShortName }}を運転開始したい場合は、下の「追加」ボタンをクリックしてください。",
         "IS_OFFLINE": "Openemsはオフラインです！",
         "LOGGED_IN_AS": "ログイン権限",
         "NO_EDGE_AVAILABLE": "まだ{{edgeShortName}}が追加されていません。",

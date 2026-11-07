@@ -5,6 +5,7 @@ import { ComponentsBaseModule } from "src/app/shared/components/components.modul
 
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { Service } from "src/app/shared/shared";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { ChartComponent } from "../chart/chart";
 
 @Component({
@@ -18,6 +19,7 @@ export class HistoryChartComponent implements AfterViewInit, OnDestroy {
     protected readonly translate = inject(TranslateService);
     protected edge = computed(() => this.service.currentEdge());
     private navigationService: NavigationService = inject(NavigationService);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     ngAfterViewInit() {
         this.navigationService.headerTitle.set({ text: this.translate.instant("GENERAL.HISTORY") });

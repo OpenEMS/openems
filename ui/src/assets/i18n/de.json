@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Zu den Netzeinstellungen"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Eingeschränkter Speicherbetrieb - Speicher kann jetzt erweitert werden",
                 "EXPANSION_RUNNING": "Eingeschränkter Speicherbetrieb - Kapazitätserweiterung wird vorbereitet",
                 "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
@@ -673,11 +674,24 @@
                 "STANDARD": "Standardtarifstufe"
             },
             "TITLE": "{{ year }} Netzentgelte"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
+            "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat",
+            "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
+            "MAX": "Bitte gib einen Wert kleiner als {{ max }} ein.",
+            "MIN": "Bitte gib einen Wert größer als {{ min }} ein."
         }
     },
     "GENERAL": {
         "ACTIVE": "Aktiv",
         "ACTUAL_POWER": "E-Auto-Beladung",
+        "ADDRESS": {
+            "CITY": "Ort",
+            "COUNTRY": "Land",
+            "STREET_ADDRESS": "Straße / Hausnummer",
+            "ZIP": "PLZ"
+        },
         "ALL": "Alle",
         "APPLY": "Übernehmen",
         "AUTARCHY": "Autarkie",
@@ -811,7 +825,6 @@
         },
         "SUM_STATE": "Systemzustand",
         "SURVEY": "Hier kannst du uns dein Feedback zum Beta-Test mitteilen:",
-        "SURVEY_LINK": "An der Beta-Test-Umfrage teilnehmen",
         "SYSTEM": "System",
         "SYSTEM_OUTAGE": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuche es später noch einmal. Mehr Informationen findest du unter",
         "SYSTEM_STATE": "Systemstatus",
@@ -867,6 +880,7 @@
         "CONNECTION_SUCCESSFUL": "Verbindung zu {{ value }} hergestellt.",
         "DEVICE_OFFLINE": "Das Gerät ist nicht verbunden!",
         "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme",
+        "INSTALLATION_RECOMMENDATION": "Bitte klicke unten auf den \"Hinzufügen\"-Button wenn du ein {{ edgeShortName }} in Betrieb nehmen möchtest.",
         "IS_OFFLINE": "OpenEMS ist offline!",
         "LOGGED_IN_AS": "Angemeldet als",
         "NO_EDGE_AVAILABLE": "Es wurde noch kein {{edgeShortName}} hinzugefügt.",

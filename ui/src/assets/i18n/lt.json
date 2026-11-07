@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Eiti į tinklo nustatymus"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Apribotas sistemos veikimas - Talpos didinimą dabar galima atlikti",
                 "EXPANSION_RUNNING": "Apribotas sistemos veikimas - ruošiamas talpos didinimas",
                 "INFORMATION_FOR_INSTANT_START": "Akumuliatorius yra kraunamas arba iškraunamas maksimalia galia, kad plėtimui kuo greičiau būtų pasiektas {{targetSoc}} % įkrovos lygis. Dėl to gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po to, kai talpa bus išplėsta, kaupimo sistema grįžta į įprastinę darbo būseną.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Numatoma, kad akumuliatorius bus kraunamas/iškraunamas nuo {{targetTime}} {{targetDate}}, kad planuojamam plėtimui būtų pasiektas {{targetSoc}} % įkrovos lygis. Šio proceso metu gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po talpos plėtimo, kaupimo sistema grįžta į įprastinę darbo būseną.",
@@ -673,11 +674,24 @@
                 "STANDARD": "Standartinis tarifas"
             },
             "TITLE": "{{ year }} papildomos išlaidos"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} nėra galiojantis el. pašto adresas.",
+            "INVALID_ZIPCODE": "Neteisingas pašto kodo formatas",
+            "MANDATORY_FIELD": "Tai privalomas laukas",
+            "MAX": "Įveskite reikšmę, mažesnę nei {{ max }}.",
+            "MIN": "Įveskite reikšmę, didesnę nei {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Aktyvus",
         "ACTUAL_POWER": "EV krovinimo galia",
+        "ADDRESS": {
+            "CITY": "Miestas",
+            "COUNTRY": "Šalis",
+            "STREET_ADDRESS": "Gatvės adresas",
+            "ZIP": "Pašto kodas"
+        },
         "ALL": "Visi",
         "APPLY": "Taikyti",
         "AUTARCHY": "Autarkija",
@@ -811,7 +825,6 @@
         },
         "SUM_STATE": "Sistemos būsena",
         "SURVEY": "Čia galite pasidalinti su mumis savo atsiliepimu apie beta testavimą:",
-        "SURVEY_LINK": "Dalyvauti beta testavimo apklausoje",
         "SYSTEM": "sistema",
         "SYSTEM_OUTAGE": "Dėl techninės priežiūros darbų internetinis stebėjimas laikinai neprieinamas. Prašome pabandyti vėliau. Daugiau informacijos rasite",
         "SYSTEM_STATE": "Sistemos būsena",
@@ -867,6 +880,7 @@
         "CONNECTION_SUCCESSFUL": "Sėkmingai prisijungta prie {{ value }}.",
         "DEVICE_OFFLINE": "Įrenginys neprijungtas!",
         "FIRST_SETUP_PROTOCOL": "Pradinis paleidimas",
+        "INSTALLATION_RECOMMENDATION": "Jei norite paleisti {{ edgeShortName }}, spustelėkite žemiau esantį mygtuką \"Pridėti\".",
         "IS_OFFLINE": "OpenEMS neprisijungęs!",
         "LOGGED_IN_AS": "Prisijungta kaip",
         "NO_EDGE_AVAILABLE": "Dar nepridėjote nė vieno {{edgeShortName}}.",

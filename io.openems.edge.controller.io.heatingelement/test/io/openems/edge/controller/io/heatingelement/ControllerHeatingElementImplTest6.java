@@ -6,9 +6,8 @@ import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingEl
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -25,11 +24,11 @@ import io.openems.edge.meter.test.DummyElectricityMeter;
  * A test to check if the controller has the correct behavior with different
  * grid power values and a reference to a meter.
  */
-public class ControllerHeatingElementImplTest6 {
+class ControllerHeatingElementImplTest6 {
 
 	private static final TimeLeapClock CLOCK = createDummyClock();
 
-	private static ControllerTest prepareTest() throws OpenemsNamedException, Exception {
+	private static ControllerTest prepareTest() throws Exception {
 		return new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
 				.addReference("sum", new DummySum()) //
@@ -55,7 +54,7 @@ public class ControllerHeatingElementImplTest6 {
 	}
 
 	@Test
-	public void testWithFixedValues() throws Exception {
+	void testWithFixedValues() throws Exception {
 		prepareTest() //
 				.next(new TestCase() //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 5200) //
@@ -116,14 +115,14 @@ public class ControllerHeatingElementImplTest6 {
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1700) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1800) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-						.output(LEVEL, Level.LEVEL_0)) //
+						.output(LEVEL, Level.LEVEL_1)) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-						.output(LEVEL, Level.LEVEL_0)) //
+						.output(LEVEL, Level.LEVEL_1)) //
 				.deactivate();
 
 	}

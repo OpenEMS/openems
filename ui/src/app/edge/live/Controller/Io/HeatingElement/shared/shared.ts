@@ -196,10 +196,10 @@ export namespace SharedControllerIoHeatingElement {
     /**
      * Creates the lines for the optional water temperature control.
      *
-     * @param translate the {@link TranslateService}
-     * @param component the heating element component
-     * @param edge the current {@link Edge}
-     * @returns the formly lines
+     * @param translate The {@link TranslateService}
+     * @param component The heating element component
+     * @param edge The current {@link Edge}
+     * @returns The formly lines
      */
     export const getFormlyTemperatureView = (
         translate: TranslateService,
@@ -358,17 +358,35 @@ export namespace SharedControllerIoHeatingElement {
 
     /** Config properties of the temperature control: form control name, channel and OSGi property name. */
     export const TEMPERATURE_PROPERTIES: { control: string; channel: string; property: string; boolean?: true }[] = [
-        { control: "hasWaterThermometer", channel: "_PropertyHasWaterThermometer", property: "hasWaterThermometer", boolean: true },
+        {
+            control: "hasWaterThermometer",
+            channel: "_PropertyHasWaterThermometer",
+            property: "hasWaterThermometer",
+            boolean: true,
+        },
         { control: "waterThermometerId", channel: "_PropertyWaterThermometerId", property: "waterThermometer.id" },
         { control: "sensorErrorLevel", channel: "_PropertySensorErrorLevel", property: "sensorErrorLevel" },
         { control: "lowWaterTemperature", channel: "_PropertyLowWaterTemperature", property: "lowWaterTemperature" },
         { control: "highWaterTemperature", channel: "_PropertyHighWaterTemperature", property: "highWaterTemperature" },
         { control: "maxWaterTemperature", channel: "_PropertyMaxWaterTemperature", property: "maxWaterTemperature" },
-        { control: "enableLegionellenProtection", channel: "_PropertyEnableLegionellenProtection", property: "enableLegionellenProtection", boolean: true },
-        { control: "legionellenWaterTemperature", channel: "_PropertyLegionellenWaterTemperature", property: "legionellenWaterTemperature" },
+        {
+            control: "enableLegionellenProtection",
+            channel: "_PropertyEnableLegionellenProtection",
+            property: "enableLegionellenProtection",
+            boolean: true,
+        },
+        {
+            control: "legionellenWaterTemperature",
+            channel: "_PropertyLegionellenWaterTemperature",
+            property: "legionellenWaterTemperature",
+        },
         { control: "legionellenInterval", channel: "_PropertyLegionellenInterval", property: "legionellenInterval" },
         { control: "minLegionellenTime", channel: "_PropertyMinLegionellenTime", property: "minLegionellenTime" },
-        { control: "legionellenMaxHeatingTime", channel: "_PropertyLegionellenMaxHeatingTime", property: "legionellenMaxHeatingTime" },
+        {
+            control: "legionellenMaxHeatingTime",
+            channel: "_PropertyLegionellenMaxHeatingTime",
+            property: "legionellenMaxHeatingTime",
+        },
     ];
 
     export function getChannelAddresses(component: EdgeConfig.Component): Promise<ChannelAddress[]> {

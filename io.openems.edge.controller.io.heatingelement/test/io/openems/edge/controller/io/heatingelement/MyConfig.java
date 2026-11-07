@@ -1,8 +1,10 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.io.heatingelement.enums.Distribution;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.NumberOfHeatingElements;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 
 @SuppressWarnings("all")
@@ -35,6 +37,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int legionellenInterval = 7;
 		private int minLegionellenTime = 1;
 		private int legionellenMaxHeatingTime = 6;
+		private NumberOfHeatingElements numberOfHeatingElements = NumberOfHeatingElements.ONE;
+		private int powerPerPhaseHeatingElementB;
+		private String outputChannelPhaseL1HeatingElementB = "io0/Relay4";
+		private String outputChannelPhaseL2HeatingElementB = "io0/Relay5";
+		private String outputChannelPhaseL3HeatingElementB = "io0/Relay6";
+		private Distribution distribution = Distribution.SEQUENTIAL;
 
 		private Builder() {
 
@@ -144,6 +152,36 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.legionellenInterval = interval;
 			this.minLegionellenTime = minTime;
 			this.legionellenMaxHeatingTime = maxHeatingTime;
+			return this;
+		}
+
+		public Builder setNumberOfHeatingElements(NumberOfHeatingElements numberOfHeatingElements) {
+			this.numberOfHeatingElements = numberOfHeatingElements;
+			return this;
+		}
+
+		public Builder setPowerPerPhaseHeatingElementB(int powerPerPhaseHeatingElementB) {
+			this.powerPerPhaseHeatingElementB = powerPerPhaseHeatingElementB;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL1HeatingElementB(String outputChannelPhaseL1HeatingElementB) {
+			this.outputChannelPhaseL1HeatingElementB = outputChannelPhaseL1HeatingElementB;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL2HeatingElementB(String outputChannelPhaseL2HeatingElementB) {
+			this.outputChannelPhaseL2HeatingElementB = outputChannelPhaseL2HeatingElementB;
+			return this;
+		}
+
+		public Builder setOutputChannelPhaseL3HeatingElementB(String outputChannelPhaseL3HeatingElementB) {
+			this.outputChannelPhaseL3HeatingElementB = outputChannelPhaseL3HeatingElementB;
+			return this;
+		}
+
+		public Builder setDistribution(Distribution distribution) {
+			this.distribution = distribution;
 			return this;
 		}
 
@@ -291,5 +329,35 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int legionellenMaxHeatingTime() {
 		return this.builder.legionellenMaxHeatingTime;
+	}
+
+	@Override
+	public NumberOfHeatingElements numberOfHeatingElements() {
+		return this.builder.numberOfHeatingElements;
+	}
+
+	@Override
+	public int powerPerPhaseHeatingElementB() {
+		return this.builder.powerPerPhaseHeatingElementB;
+	}
+
+	@Override
+	public String outputChannelPhaseL1HeatingElementB() {
+		return this.builder.outputChannelPhaseL1HeatingElementB;
+	}
+
+	@Override
+	public String outputChannelPhaseL2HeatingElementB() {
+		return this.builder.outputChannelPhaseL2HeatingElementB;
+	}
+
+	@Override
+	public String outputChannelPhaseL3HeatingElementB() {
+		return this.builder.outputChannelPhaseL3HeatingElementB;
+	}
+
+	@Override
+	public Distribution distribution() {
+		return this.builder.distribution;
 	}
 }

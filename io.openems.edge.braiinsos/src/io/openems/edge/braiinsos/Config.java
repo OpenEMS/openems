@@ -1,6 +1,7 @@
 package io.openems.edge.braiinsos;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.types.MeterType;
@@ -35,7 +36,7 @@ import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 	@AttributeDefinition(name = "Username", description = "The username. Defaults to 'root'")
 	String username() default "root";
 
-	@AttributeDefinition(name = "Password", description = "The password. Default is empty")
+	@AttributeDefinition(name = "Password", description = "The password. Default is empty", type = AttributeType.PASSWORD)
 	String password() default "";
 
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Miner connected to?")
