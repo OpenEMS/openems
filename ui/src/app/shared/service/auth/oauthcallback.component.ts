@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, model } from "@angular/core";
 import { Mode } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { LiveDataService } from "src/app/edge/live/livedataservice";

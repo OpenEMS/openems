@@ -8,7 +8,7 @@ export class DummyWebsocket implements WebsocketInterface {
         return Promise.resolve(new JsonrpcResponseSuccess(request.id, {}) as T);
     }
 
-    public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest) {
+    public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
         throw new Error("Method not implemented.");
     }
 

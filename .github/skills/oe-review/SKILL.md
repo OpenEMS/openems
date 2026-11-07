@@ -16,6 +16,8 @@ git --no-pager diff develop...
 
 Before starting, read `AGENTS.md` and `.github/skills/oe-review/CLEAN_CODE.md` (background: the published coding guidelines at https://openems.github.io/openems.io/openems/latest/development/coding-guidelines.html), then the language guide per changed file: `.java` -> `JAVA.md` (Java 21/25 features, Optional/Stream, concurrency, exceptions, checklist); `.ts`/`.tsx`/`.js`/`.jsx` -> `TYPESCRIPT.md` (type safety, strictness, async, immutability, lint/tests). Apply all relevant guides for multi-language changes.
 
+If any changed file is under `ui/`, additionally read `ui/AGENTS.md` and verify every changed UI file against it, running the checks it prescribes and reporting any violation.
+
 ---
 
 # OpenEMS Base Review Skill
