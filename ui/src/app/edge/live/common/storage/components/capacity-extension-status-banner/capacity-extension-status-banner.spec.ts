@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -9,17 +10,24 @@ import { CapacityExtensionStatusBannerComponent } from "./capacity-extension-sta
 
 describe("CapacityExtensionStatusBannerComponent", () => {
     let fixture: ComponentFixture<CapacityExtensionStatusBannerComponent>;
+
+    const isRunning = signal(false);
+    const isExpansionAvailable = signal(false);
+
+    const translationKeyRunning = "EDGE.INDEX.RETROFITTING.EXPANSION_RUNNING";
+    const translationKeyExpansionAvailable = "EDGE.INDEX.RETROFITTING.EXPANSION_AVAILABLE";
+
     let capacityExtensionDeterminationServiceSpy: jasmine.SpyObj<CapacityExtensionDeterminationService>;
 
-    const translationKey = "EDGE.INDEX.RETROFITTING.EXPANSION_RUNNING";
-
     beforeEach(async () => {
-        capacityExtensionDeterminationServiceSpy = jasmine.createSpyObj<CapacityExtensionDeterminationService>(
+        capacityExtensionDeterminationServiceSpy = jasmine.createSpyObj(
             "CapacityExtensionDeterminationService",
-            ["anyCapacityExtensionRunning", "initializeCapacityExtensionTracking"],
+            ["initializeCapacityExtensionTracking"],
+            {
+                anyCapacityExtensionRunning: isRunning,
+                anyExpansionAvailable: isExpansionAvailable,
+            },
         );
-
-        capacityExtensionDeterminationServiceSpy.anyCapacityExtensionRunning.and.returnValue(false);
 
         await TestBed.configureTestingModule({
             imports: [CapacityExtensionStatusBannerComponent, TranslateModule.forRoot()],
@@ -37,16 +45,9 @@ describe("CapacityExtensionStatusBannerComponent", () => {
         fixture = TestBed.createComponent(CapacityExtensionStatusBannerComponent);
     });
 
-    it("delegates getter to CapacityExtensionDeterminationService", () => {
-        capacityExtensionDeterminationServiceSpy.anyCapacityExtensionRunning.and.returnValue(true);
-
-        fixture.detectChanges();
-
-        expect(capacityExtensionDeterminationServiceSpy.anyCapacityExtensionRunning).toHaveBeenCalled();
-    });
-
-    it("renders info banner when capacity extension is running", () => {
-        capacityExtensionDeterminationServiceSpy.anyCapacityExtensionRunning.and.returnValue(true);
+    it("renders the running banner when capacity extension is running", () => {
+        isRunning.set(true);
+        isExpansionAvailable.set(false);
 
         fixture.detectChanges();
 
@@ -54,11 +55,26 @@ describe("CapacityExtensionStatusBannerComponent", () => {
 
         expect(nativeElement.querySelector("#CAPACITY_EXTENSION_STATUS_BANNER")).not.toBeNull();
         expect(nativeElement.querySelector("#CAPACITY_EXTENSION_INFO_TEXT")).not.toBeNull();
-        expect(nativeElement.textContent).toContain(translationKey);
+        expect(nativeElement.textContent).toContain(translationKeyRunning);
+        expect(nativeElement.textContent).not.toContain(translationKeyExpansionAvailable);
     });
 
-    it("renders no banner when no capacity extension is running", () => {
-        capacityExtensionDeterminationServiceSpy.anyCapacityExtensionRunning.and.returnValue(false);
+    it("renders the expansion-available message when running and state machine is at target SoC", () => {
+        isRunning.set(true);
+        isExpansionAvailable.set(true);
+
+        fixture.detectChanges();
+
+        const nativeElement = fixture.nativeElement as HTMLElement;
+
+        expect(nativeElement.querySelector("#CAPACITY_EXTENSION_STATUS_BANNER")).not.toBeNull();
+        expect(nativeElement.textContent).toContain(translationKeyExpansionAvailable);
+        expect(nativeElement.textContent).not.toContain(translationKeyRunning);
+    });
+
+    it("renders no banner when capacity extension is not running", () => {
+        isRunning.set(false);
+        isExpansionAvailable.set(false);
 
         fixture.detectChanges();
 
@@ -66,6 +82,5 @@ describe("CapacityExtensionStatusBannerComponent", () => {
 
         expect(nativeElement.querySelector("#CAPACITY_EXTENSION_STATUS_BANNER")).toBeNull();
         expect(nativeElement.querySelector("#CAPACITY_EXTENSION_INFO_TEXT")).toBeNull();
-        expect(nativeElement.textContent).not.toContain(translationKey);
     });
 });

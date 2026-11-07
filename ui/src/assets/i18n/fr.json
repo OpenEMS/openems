@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Aller aux paramètres du réseau"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Fonctionnement du système limité - La capacité peut désormais être étendue",
                 "EXPANSION_RUNNING": "Fonctionnement du système limité - Préparation de l'extension de capacité en cours",
                 "INFORMATION_FOR_INSTANT_START": "La batterie est chargée ou déchargée à puissance maximale afin d'atteindre le plus rapidement possible un état de charge de {{targetSoc}} % pour une extension. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "La batterie devrait être chargée/déchargée à partir de {{targetTime}} le {{targetDate}} afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
@@ -654,11 +655,24 @@
                 "STANDARD": "Tarif standard"
             },
             "TITLE": "Coûts annexes de {{ year }}"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} n'est pas une adresse e-mail valide.",
+            "INVALID_ZIPCODE": "Format de code postal non valide",
+            "MANDATORY_FIELD": "Ceci est un champ obligatoire",
+            "MAX": "Veuillez saisir une valeur inférieure à {{ max }}.",
+            "MIN": "Veuillez saisir une valeur supérieure à {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Activé",
         "ACTUAL_POWER": "Puissance de décharge VE",
+        "ADDRESS": {
+            "CITY": "Ville",
+            "COUNTRY": "Pays",
+            "STREET_ADDRESS": "Rue / numéro",
+            "ZIP": "Code postal"
+        },
         "ALL": "Tous",
         "APPLY": "Apply",
         "AUTARCHY": "Autarcie",
@@ -792,7 +806,6 @@
         },
         "SUM_STATE": "État du système",
         "SURVEY": "Vous pouvez nous partager ici votre retour sur la version bêta :",
-        "SURVEY_LINK": "Participer à l'enquête sur la version bêta",
         "SYSTEM": "système",
         "SYSTEM_OUTAGE": "En raison de travaux de maintenance, le monitoring en ligne est temporairement indisponible. Veuillez réessayer plus tard. Pour plus d'informations, voir",
         "SYSTEM_STATE": "État du système",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Connecté avec succès à {{ value }}.",
         "DEVICE_OFFLINE": "Ld'appareil n d'est pas connecté!",
         "FIRST_SETUP_PROTOCOL": "Mise en service initiale",
+        "INSTALLATION_RECOMMENDATION": "Veuillez cliquer sur le bouton « Ajouter » ci-dessous si vous souhaitez mettre en service un {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS est hors ligne!",
         "LOGGED_IN_AS": "Enregistré en tant que",
         "NO_EDGE_AVAILABLE": "Vous n'avez encore ajouté aucun {{edgeShortName}}.",

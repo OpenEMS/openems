@@ -204,6 +204,16 @@ describe("NavigationService", () => {
                     node.routerLink.baseString.split("/").includes(NavigationId.FAVORITES),
             );
             expect(favoriteNode).toBeDefined();
+            // Favorites must not reuse the tour id of their original entry, otherwise the tour highlights the copy
+            expect(favoriteNode?.tourId).toBe(NavigationId.FAVORITES + "-" + favoriteNode?.id);
+            expect(
+                updatedTrees.some(
+                    (node) =>
+                        node.id === favoriteNode?.id &&
+                        node.tourId === node.id &&
+                        !node.routerLink.baseString.split("/").includes(NavigationId.FAVORITES),
+                ),
+            ).toBeTrue();
             expect(
                 updatedTrees.some(
                     (node) =>

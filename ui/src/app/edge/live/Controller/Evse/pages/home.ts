@@ -1,4 +1,4 @@
-import { Component, model, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";

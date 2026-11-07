@@ -1,0 +1,114 @@
+@if (tourService.isActive()) {
+  <div class="tour-interaction-blocker"></div>
+}
+
+@let step = tourService.activeStep();
+@if (tourService.isActive() && step != null) {
+  @if ((step.targets?.length ?? 0) === 0) {
+    <div class="tour-backdrop"></div>
+  }
+
+  @if (highlightRects().length > 0 && step.highlight !== false) {
+    <svg class="tour-multi-backdrop" [attr.viewBox]="'0 0 ' + viewportSize().width + ' ' + viewportSize().height" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <mask id="tour-highlight-mask" maskUnits="userSpaceOnUse" [attr.x]="0" [attr.y]="0" [attr.width]="viewportSize().width" [attr.height]="viewportSize().height">
+          <rect [attr.width]="viewportSize().width" [attr.height]="viewportSize().height" fill="white"></rect>
+          @for (rect of paddedHighlightRects(); track $index) {
+            <rect [attr.x]="rect.left" [attr.y]="rect.top" [attr.width]="rect.width" [attr.height]="rect.height" [attr.rx]="highlightPadding * 2" fill="black"></rect>
+          }
+        </mask>
+      </defs>
+      <rect [attr.width]="viewportSize().width" [attr.height]="viewportSize().height" fill="rgb(0 0 0 / 55%)" mask="url(#tour-highlight-mask)"></rect>
+    </svg>
+
+    @for (style of highlightStyles(); track $index) {
+      <div class="tour-highlight" [style]="style"></div>
+    }
+  }
+
+  <div #tooltip class="tour-tooltip" [class.visible]="tooltipPosition() != null" [style.left.px]="tooltipPosition()?.left" [style.top.px]="tooltipPosition()?.top">
+    <ion-card class="ion-no-margin ion-no-padding tour-tooltip-card">
+      <ion-card-header class="ion-no-padding">
+        <ion-item lines="none" class="ion-no-padding">
+          <ion-note color="medium">
+            {{ tourService.stepNumber() }}
+            /
+            {{ tourService.stepCount() }}
+          </ion-note>
+          <ion-button type="button" fill="clear" size="small" slot="end" [attr.aria-label]="'TOUR.CLOSE' | translate" (click)="tourService.skip()">
+            <ion-icon slot="icon-only" name="close-outline" color="primary" aria-hidden="true" size="large"></ion-icon>
+          </ion-button>
+        </ion-item>
+
+        @if (step.title != null) {
+          <ion-card-title [style.color]="'var(--ion-color-primary)'" style="font-weight: bold" class="ion-padding-bottom">{{ step.title }}</ion-card-title>
+        }
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding tour-content">
+        <div class="tour-text-layout">
+          @if (avatar != null) {
+            <ion-icon [name]="avatar.name" class="tour-avatar" aria-hidden="true"></ion-icon>
+          }
+          <div class="tour-text" [class.tour-bubble]="avatar != null">
+            @if ((step.contentBlocks?.length ?? 0) > 0) {
+              @for (block of step.contentBlocks; track $index) {
+                @if (block.heading != null) {
+                  <ion-card-subtitle style="font-weight: bold">{{ block.heading }}</ion-card-subtitle>
+                }
+                @if (block.text != null) {
+                  <p class="ion-no-margin-bottom" [innerHTML]="block.text"></p>
+                }
+                @if ((block.items?.length ?? 0) > 0) {
+                  <ul class="tour-legend">
+                    @for (item of block.items; track item.text) {
+                      <li class="tour-legend-item">
+                        <span class="tour-legend-dot" [style.background-color]="item.color" aria-hidden="true"></span>
+                        <span [innerHTML]="item.text"></span>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+            } @else if (step.text != null) {
+              <span [innerHTML]="step.text"></span>
+            }
+
+            @if (step.handbookUrl != null) {
+              <a class="tour-handbook-link" [href]="step.handbookUrl" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="book-outline" aria-hidden="true"></ion-icon>
+                <span>{{ "TOUR.HANDBOOK_LINK" | translate }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      </ion-card-content>
+
+      <ion-grid class="ion-padding-top-double">
+        <ion-row class="ion-align-items-center">
+          <ion-col size="auto">
+            @if (!tourService.isFirstStep()) {
+              <ion-button type="button" fill="clear" (click)="tourService.previous()">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+                {{ "TOUR.BACK" | translate }}</ion-button
+              >
+            } @else {
+              <ion-button type="button" fill="clear" (click)="tourService.cancel()" style="text-decoration: underline"> {{ "TOUR.WATCH_LATER" | translate }}</ion-button>
+            }
+          </ion-col>
+          <ion-col></ion-col>
+          <ion-col size="auto">
+            <ion-button type="button" color="primary" fill="solid" (click)="tourService.next()">
+              @if (tourService.isLastStep()) {
+                {{ "TOUR.FINISH" | translate }}
+              } @else {
+                {{ "TOUR.NEXT" | translate }}
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              }
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card>
+  </div>
+}
