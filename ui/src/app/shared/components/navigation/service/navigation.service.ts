@@ -530,7 +530,7 @@ export class NavigationService {
         const user = this.userService.currentUser();
         const edge = this.service.currentEdge();
         const config = await untracked(() => edge?.getFirstValidConfig(this.service.websocket));
-        if (edge != null && edge.isOnline && NavigationService.isNewNavigation(user, config)) {
+        if (edge != null && NavigationService.isNewNavigation(user, config)) {
             const device = this.platFormService.getDevice();
             this.position.set(device.isSmartphone() ? "bottom" : "left");
         } else {
