@@ -1,4 +1,3 @@
-
 ---
 name: oe-review
 description: Base review skill for FEMS/OpenEMS code reviews. Always apply CLEAN_CODE and add language-specific checks from JAVA.md and TYPESCRIPT.md.
