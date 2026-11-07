@@ -1150,6 +1150,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				this.handleGensetOperatingMode(protocol);
 				this.handleExtendedMaxApparentPower(protocol);
 				this.handleBattery2Protocol(protocol);
+				this.handlePvConnectMode(protocol);
 			}
 
 			case FENECON_FHI_29_9_DAH -> {
@@ -1261,6 +1262,15 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))), //
 				new FC16WriteRegistersTask(47618, //
 						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))) //
+		);
+	}
+
+	private void handlePvConnectMode(ModbusProtocol protocol) {
+		protocol.addTasks(//
+				new FC3ReadRegistersTask(45291, Priority.LOW, //
+						m(GoodWe.ChannelId.PV_CONNECT_MODE, new UnsignedWordElement(45291))), //
+				new FC16WriteRegistersTask(45291, //
+						m(GoodWe.ChannelId.PV_CONNECT_MODE, new UnsignedWordElement(45291))) //
 		);
 	}
 

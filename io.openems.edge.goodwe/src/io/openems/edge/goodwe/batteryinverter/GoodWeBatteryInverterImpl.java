@@ -113,6 +113,7 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
+import io.openems.edge.goodwe.common.enums.PvConnectMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
@@ -446,6 +447,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Waveform Detection high precision / disabled
 		if (this.isGoodWeType50Or100k()) {
 			this.applyWaveFormDetection();
+		}
+		if (this.isGoodWeType100k()) {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.THREE_PHASE_UNBALANCED_OUTPUT), 0);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.PV_CONNECT_MODE), PvConnectMode.EACH_MPPT);
 		}
 
 		// Power settings

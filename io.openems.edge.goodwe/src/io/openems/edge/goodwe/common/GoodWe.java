@@ -47,6 +47,7 @@ import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
+import io.openems.edge.goodwe.common.enums.PvConnectMode;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.UpsStandartVoltType;
@@ -835,6 +836,8 @@ public interface GoodWe extends OpenemsComponent {
 		BATTERY_MODE_PV_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		DCV_CHECK_OFF(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		PV_CONNECT_MODE(Doc.of(PvConnectMode.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		DEVICE_LICENCE(Doc.of(OpenemsType.STRING)//
