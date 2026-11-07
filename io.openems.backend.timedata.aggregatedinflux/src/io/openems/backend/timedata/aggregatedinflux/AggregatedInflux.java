@@ -40,7 +40,6 @@ import com.influxdb.client.write.Point;
 import com.influxdb.client.write.WriteParameters;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
@@ -50,6 +49,7 @@ import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.timedata.DbDataUtils;
 import io.openems.common.timedata.DurationUnit;

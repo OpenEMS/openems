@@ -40,6 +40,7 @@ import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.bender.EvseChargePointBender;
 import io.openems.edge.evse.chargepoint.mennekes.common.AbstractMennekes;
+import io.openems.edge.evse.chargepoint.mennekes.common.DeviceID;
 import io.openems.edge.evse.chargepoint.mennekes.common.Mennekes;
 import io.openems.edge.evse.chargepoint.mennekes.enums.PhaseSwitchMode;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -120,13 +121,21 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 		}
 		final var phaseAbility = this.getPhaseAbility();
 
-		final var minPower = convertMilliAmpereToWatt(phaseAbility, MIN_CURRENT);
-		final var maxPower = convertMilliAmpereToWatt(phaseAbility, MAX_CURRENT);
+		final ApplySetPoint.Ability setPointAbility;
+		if (this.isProfessional()) {
+			setPointAbility = new ApplySetPoint.Ability.Ampere(//
+					phaseAbility, //
+					MIN_CURRENT / 1000, //
+					MAX_CURRENT / 1000);
+		} else {
+			final var minPower = convertMilliAmpereToWatt(phaseAbility, MIN_CURRENT);
+			final var maxPower = convertMilliAmpereToWatt(phaseAbility, MAX_CURRENT);
 
-		var setPointAbility = new ApplySetPoint.Ability.Watt(//
-				phaseAbility, //
-				minPower, //
-				maxPower);
+			setPointAbility = new ApplySetPoint.Ability.Watt(//
+					phaseAbility, //
+					minPower, //
+					maxPower);
+		}
 
 		var abilities = ChargePointAbilities.create() //
 				.setApplySetPoint(setPointAbility) //
@@ -176,24 +185,29 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 	}
 
 	private boolean isDynamicPhaseSwitchSupported() {
-		return PhaseSwitchMode.DYNAMIC_PHASE_SWITCH.equals(this.getPhaseSwitchMode());
+		return !this.isProfessional() && PhaseSwitchMode.DYNAMIC_PHASE_SWITCH.equals(this.getPhaseSwitchMode());
+	}
+
+	private boolean isProfessional() {
+		return DeviceID.PROFESSIONAL == this.getMennekesDeviceId();
 	}
 
 	@Override
 	public void apply(ChargePointActions actions) {
 		final var ps = actions.phaseSwitch();
-		if (ps != null) {
+		if (ps != null && this.isDynamicPhaseSwitchSupported()) {
 			this.lastSetPhase = switch (ps.direction()) {
 			case TO_SINGLE_PHASE -> SingleOrThreePhase.SINGLE_PHASE;
 			case TO_THREE_PHASE -> SingleOrThreePhase.THREE_PHASE;
 			};
 		}
 
-		// Set ApplySetPoint
-		final var power = actions.getApplySetPointInWatt().value();
-
 		try {
-			this.getApplyPowerLimitChannel().setNextWriteValue(power);
+			if (this.isProfessional()) {
+				this.getApplyCurrentLimitChannel().setNextWriteValue(actions.getApplySetPointInAmpere().value());
+			} else {
+				this.getApplyPowerLimitChannel().setNextWriteValue(actions.getApplySetPointInWatt().value());
+			}
 		} catch (OpenemsNamedException e) {
 			doNothing();
 		}

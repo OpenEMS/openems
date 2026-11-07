@@ -48,15 +48,15 @@ export namespace SharedControllerIoHeatpump {
             icon: { name: "settings-outline", color: "medium", size: "large" },
             lines: [
                 {
+                    type: "name-line",
+                    name: translate.instant("GENERAL.AUTOMATIC"),
+                    style: {
+                        name: { fontSize: "large", fontWeight: "bold" },
+                    },
+                },
+                {
                     type: "info-line",
-                    name: [
-                        {
-                            text: translate.instant("GENERAL.AUTOMATIC"),
-                        },
-                        {
-                            text: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP"),
-                        },
-                    ],
+                    name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.AUTOMATIC_DESCRIPTION"),
                 },
                 ...getFormlyAutomaticView(translate, () => false),
             ],

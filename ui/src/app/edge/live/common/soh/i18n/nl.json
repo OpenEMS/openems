@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Opnieuw uitvoeren",
+                "START": "Uitvoeren"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Capaciteit wordt gemeten",
+                "ENABLED_INFO": "ESS SoH Cycle-regelaar is actief",
+                "ERROR": "Er is een fout opgetreden tijdens de SoH-cyclus. Raadpleeg de systeemlogboeken voor meer details.",
+                "INFO": "Meet de accucapaciteit door een testcyclus uit te voeren en berekent zo de state of health (SoH). Het proces kan, afhankelijk van het type en de grootte van de accu, enkele uren duren. Het wordt aanbevolen de testcyclus alleen uit te voeren wanneer de accu niet in gebruik is.",
+                "MEASURED_CAPACITY": "Gemeten capaciteit",
+                "PV_OFF_CONFIRMATION": "Hierbij bevestig ik dat het PV-systeem op de omvormer is uitgeschakeld via de geïntegreerde DC-schakelaar.",
+                "RESTART_CONFIRMATION_TITLE": "Opnieuw uitvoeren bevestigen",
+                "RESTART_WARNING": "Het herstarten van de SoH-cyclus zet de huidige metingen terug en start een nieuwe cyclus. Weet u zeker dat u opnieuw wilt starten?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "Status",
+                "TITLE": "Capaciteitsbepaling",
+                "TITLE_TIP": "alleen zichtbaar voor beheerders"
+            }
+        }
+    }
+}

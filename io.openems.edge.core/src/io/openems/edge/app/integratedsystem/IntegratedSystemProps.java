@@ -7,6 +7,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -14,6 +15,7 @@ import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.ArrayUtils;
@@ -23,6 +25,7 @@ import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
@@ -48,9 +51,9 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> safetyCountry() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.safetyCountry.label") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(AppSafetyCountry.optionsFactory(), l);
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(AppSafetyCountry.optionsFactory(), l) //
+				));
 	}
 
 	/**
@@ -62,9 +65,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.IntegratedSystem.gridCode.label") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(GridCode.class), l);
-				})); //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(OptionsFactory.of(GridCode.class), l) //
+				));
 	}
 
 	/**
@@ -79,15 +82,13 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.externalLimitationType.label") //
 				.setDefaultValue(ExternalLimitationType.NO_LIMITATION) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					final var excludeCombinedArray = ArrayUtils.concat(exclude,
 							new ExternalLimitationType[] { ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION,
 									ExternalLimitationType.DYNAMIC_LIMITATION });
-
 					field.setOptions(OptionsFactory.of(ExternalLimitationType.class, excludeCombinedArray), l);
 				}) //
-				.valueMapper((app, property, l, parameter, props) -> {
+				.valueMapper((_, property, _, _, props) -> {
 					final var currentValue = props.get(property.name());
 					return JsonUtils.getAsOptionalEnum(ExternalLimitationType.class, currentValue) //
 							.map(externalLimitationType -> {
@@ -133,7 +134,7 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.feedInLimit.label") //
 				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(NUMBER) //
 							.onlyPositiveNumbers() //
 							.setMin(0);
@@ -171,9 +172,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.feedInSettings.label") //
 				.setDefaultValue("UNDEFINED") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptionsFromEntries(getFeedInSettingsOptions(l));
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptionsFromEntries(getFeedInSettingsOptions(l)) //
+				));
 	}
 
 	/**
@@ -199,12 +200,13 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> dcPvAlias(int number, Nameable hasDcPv) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.FENECON.Home.dcPv" + number + ".alias.label") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, _) -> {
 					return new JsonPrimitive("DC-PV" + number);
 				}) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(hasDcPv).notNull());
-				}));
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.onlyShowIf(Exp.currentModelValue(hasDcPv).notNull()) //
+				));
+
 	}
 
 	/**
@@ -217,9 +219,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.gridMeterType.label") //
 				.setDefaultValue(GoodWeGridMeterCategory.SMART_METER) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class, exclude), l);
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field
+						.setOptions(OptionsFactory.of(GoodWeGridMeterCategory.class, exclude), l) //
+				));
 	}
 
 	private static final AppDef<OpenemsApp, Nameable, BundleProvider> ctRatio(//
@@ -227,7 +229,7 @@ public final class IntegratedSystemProps {
 			final Consumer<InputBuilder> fieldSettings //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					if (gridMeterType != null) {
 						field.onlyShowIf(Exp.currentModelValue(gridMeterType)
 								.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
@@ -291,10 +293,10 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.emergencyPowerEnergy.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable,
-						nameableToBeChecked == null ? null : (app, property, l, parameter, field) -> {
-							field.onlyShowIf(Exp.currentModelValue(nameableToBeChecked).notNull());
-						}));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, nameableToBeChecked == null //
+						? null
+						: (_, _, _, _, field) -> field.onlyShowIf(Exp.currentModelValue(nameableToBeChecked).notNull()) //
+				));
 	}
 
 	/**
@@ -335,7 +337,7 @@ public final class IntegratedSystemProps {
 			final Nameable isGenSetInstalled, //
 			final Nameable genSetEnableCharge //
 	) {
-		return createEmergencyReserveSocBase(nameableToBeChecked).wrapField((app, property, l, parameter, field) -> {
+		return createEmergencyReserveSocBase(nameableToBeChecked).wrapField((_, property, _, parameter, field) -> {
 			if (genSetSocStart != null) {
 				final var validationText = TranslationUtil.getTranslation(parameter.bundle(),
 						"App.FENECON.Commercial.reserveEnergy.validation.error");
@@ -356,7 +358,7 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.reserveEnergy.label") //
 				.setDefaultValue(10) //
-				.setField(JsonFormlyUtil::buildRangeFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildRangeFromNameable, (_, _, _, _, field) -> {
 					field.setMin(5) //
 							.setMax(100);
 					if (nameableToBeChecked != null) {
@@ -414,9 +416,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasAcMeter.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(property).notNull());
-				}));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (_, property, _, _, field) -> field //
+						.onlyShowIf(Exp.currentModelValue(property).notNull()) //
+				));
 	}
 
 	/**
@@ -431,10 +433,10 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.acMeterType.label") //
 				.setDefaultValue(AcMeterType.SOCOMEC.name()) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(AcMeterType.values()), l) //
-							.onlyShowIf(Exp.currentModelValue(isAcMeterSelected).notNull());
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(OptionsFactory.of(AcMeterType.values()), l) //
+						.onlyShowIf(Exp.currentModelValue(isAcMeterSelected).notNull()) //
+				));
 	}
 
 	/**
@@ -449,7 +451,7 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, _, _, _, field) -> {
 					final var hardwareType = app.getAppManagerUtil()
 							.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
@@ -468,9 +470,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.IntegratedSystem.feedInLink.label") //
 				.setTranslatedDescription("App.IntegratedSystem.feedInLink.description") //
-				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
-					field.setLink(new LinkBuilder.AppUpdateLink("App.Core.Meta"));
-				}));
+				.setField(JsonFormlyUtil::buildLink, (_, _, _, _, field) -> field //
+						.setLink(new LinkBuilder.AppUpdateLink("App.Core.Meta")) //
+				));
 	}
 
 	/**
@@ -486,9 +488,9 @@ public final class IntegratedSystemProps {
 				.setTranslatedLabel("App.IntegratedSystem.ess.capacity.label") //
 				.setTranslatedDescription("App.IntegratedSystem.ess.capacity.description") //
 				.setDefaultValue(defaultValue) //
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setInputType(NUMBER) //
-								.onlyPositiveNumbers() //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(NUMBER) //
+						.onlyPositiveNumbers() //
 				) //
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 		);
@@ -509,11 +511,165 @@ public final class IntegratedSystemProps {
 				.setTranslatedDescription("App.IntegratedSystem.ess.maxBatteryPower.description") //
 				.setRequired(true) //
 				.setDefaultValue(defaultValue) //
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, prop, l, params, field) -> field.setInputType(InputType.NUMBER) //
-				) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(InputType.NUMBER)) //
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a checkbox, if charging and discharging can be
+	 * forced depending on the Soc.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> hasTotalLimitDischarge() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.HasTotalLimitDischarge.label") //
+				.setRequired(true) //
+				.setDefaultValue(true) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the Soc in which charging can be forced.
+	 *
+	 * @param hasTotalLimitDischarge the {@link Nameable} to check if the field
+	 *                               should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> forceChargeSoc(//
+			Nameable hasTotalLimitDischarge) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.ForceChargeSoc.label") //
+				.setTranslatedDescription("App.FENECON.Pro.9.12.ForceChargeSoc.description") //
+				.setDefaultValue(10) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> field //
+						.setUnit(Unit.PERCENT, l) //
+						.onlyShowIf(Exp.currentModelValue(hasTotalLimitDischarge).notNull()))//
+		);
+	}
+
+	/**
+	 * Creates an {@link AppDef} for the SoC with discharging disabled.
+	 *
+	 * @param hasTotalLimitDischarge the {@link Nameable} to check if the field
+	 *                               should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> minSoc(//
+			Nameable hasTotalLimitDischarge) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.MinSoc.label") //
+				.setTranslatedDescription("App.FENECON.Pro.9.12.MinSoc.description") //
+				.setDefaultValue(13) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> field //
+						.setUnit(Unit.PERCENT, l) //
+						.onlyShowIf(Exp.currentModelValue(hasTotalLimitDischarge).notNull()))//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a checkbox, if the Pro 9-12 has a third ess.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> hasThirdEss() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.Cluster.HasThirdEss.label") //
+				.setRequired(true) //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a selection of the grid meter type for Pro 9-12.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterTypeForPro912() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.Meter.gridMeter") //
+				.setRequired(true) //
+				.setDefaultValue(FeneconPro912.GridMeterType.CARLO_GAVAZZI) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field
+						.setOptions(OptionsFactory.of(FeneconPro912.GridMeterType.class), l))//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for an accordion of the ess settings of a Pro 9-12
+	 * Cluster.
+	 *
+	 * @param essNumber     the number of the ess (1-3)
+	 * @param hideCondition the {@link Nameable} to check if the field should be
+	 *                      shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> essSettings(//
+			int essNumber, //
+			Nameable hideCondition //
+	) {
+		final var accordionName = "ESS_" + essNumber + "_SETTINGS";
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef
+				.setField(JsonFormlyUtil::buildAccordionGroupFromNameable, (app, _, l, parameter, field) -> {
+					final var essSettingsAppDefs = getEssSettingsAppDefs(essNumber);
+
+					final var jsonAccordions = JsonUtils.buildJsonArray();
+
+					final var accordion = essSettingsAppDefs.entrySet().stream() //
+							.map(entry -> entry.getValue() //
+									.getField() //
+									.get(app, Nameable.of(entry.getKey()), l, parameter) //
+									.build()) //
+							.collect(JsonUtils.toJsonArray());
+					var singleAccordion = FeneconCommercialProps.accordion(
+							"App.FENECON.Pro.9.12.Cluster.Ess.Settings.label", (_, _, _, _, f) -> f //
+									.setFieldGroup(accordion) //
+									.hideKey(), //
+							essNumber //
+					);
+
+					jsonAccordions.add(singleAccordion.getField() //
+							.get(app, Nameable.of(accordionName), l, parameter).build());
+					field.setFieldGroup(jsonAccordions.build()) //
+							.setMulti(false);
+
+					if (hideCondition != null) {
+						field.onlyShowIf(Exp.currentModelValue(hideCondition).notNull());
+					}
+					field.hideKey();
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for an accordion of the ess settings of a Pro 9-12
+	 * Cluster.
+	 *
+	 * @param essNumber the number of the ess (1-3)
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> essSettings(int essNumber) {
+		return essSettings(essNumber, null);
+	}
+
+	/**
+	 * Creates a {@link Map} of the ess settings app defs of a Pro 9-12 Cluster.
+	 * 
+	 * @param essNumber the number of the ess (1-3)
+	 * @return the created {@link Map} of the ess settings app defs
+	 */
+	public static Map<String, AppDef<OpenemsApp, Nameable, BundleProvider>> getEssSettingsAppDefs(int essNumber) {
+		final var essSettingsProperties = new HashMap<String, AppDef<OpenemsApp, Nameable, BundleProvider>>();
+		final var hasTotalLimitDischargeName = "HAS_TOTAL_LIMIT_DISCHARGE_" + essNumber;
+		final var forceChargeSocName = "FORCE_CHARGE_SOC_" + essNumber;
+		final var minSocName = "MIN_SOC_" + essNumber;
+		essSettingsProperties.put(hasTotalLimitDischargeName, hasTotalLimitDischarge());
+		essSettingsProperties.put(forceChargeSocName, forceChargeSoc(Nameable.of(hasTotalLimitDischargeName)));
+		essSettingsProperties.put(minSocName, minSoc(Nameable.of(hasTotalLimitDischargeName)));
+		return essSettingsProperties;
 	}
 
 	private IntegratedSystemProps() {

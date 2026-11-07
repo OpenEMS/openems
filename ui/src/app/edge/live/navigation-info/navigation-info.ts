@@ -10,8 +10,15 @@ import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { Icon } from "src/app/shared/type/widget";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 type IconWithRequiredName = Required<Pick<Icon, "name">> & Partial<Omit<Icon, "name">>;
 
@@ -19,6 +26,12 @@ type NavigationCardFooter = {
     text: string;
     link: string;
     linkText: string;
+};
+
+export type DocsMapValue = {
+    displayName: string;
+    icon: IconWithRequiredName;
+    link: NonNullable<HelpButtonComponent["key"]>;
 };
 
 export type NavigationCard = {
@@ -31,12 +44,35 @@ export type NavigationCard = {
     footer?: NavigationCardFooter;
 };
 
+const EVSE_DOC_LINKS = {
+    "Evse.ChargePoint.Keba.UDP": "REDIRECT.EVCS_KEBA",
+    "Evse.ChargePoint.Keba.Modbus": "REDIRECT.EVCS_KEBA",
+    "Evse.ChargePoint.HardyBarth": "REDIRECT.EVCS_HARDY_BARTH",
+    "Evse.ChargePoint.Alpitronic": "REDIRECT.EVCS_ALPITRONIC_HYPER",
+    "Evse.ChargePoint.Mennekes": "REDIRECT.EVCS_MENNEKES",
+    "Evse.ChargePoint.Alfen": "REDIRECT.EVSE_ALFEN",
+} as const;
+
 function initializeNavigationInfoTranslations(translate: TranslateService): void {
-    void Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+    void Language.normalizeAdditionalTranslationFiles({
+        cs: cz,
+        de: de,
+        en: en,
+        es: es,
+        fr: fr,
+        ja: ja,
+        lt: lt,
+        nl: nl,
+        sv: sv,
+    }).then((translations) => {
         for (const { lang, translation, shouldMerge } of translations) {
             translate.setTranslation(lang, translation, shouldMerge);
         }
     });
+}
+
+function isEvseDocLink(factoryId: string | null): factoryId is keyof typeof EVSE_DOC_LINKS {
+    return factoryId != null && factoryId in EVSE_DOC_LINKS;
 }
 
 @Component({
@@ -71,6 +107,7 @@ export class NavigationInfoComponent extends AbstractModal {
         ];
         return cards;
     });
+
     protected docs: {
         link: string | null;
         displayName: string;
@@ -94,12 +131,10 @@ export class NavigationInfoComponent extends AbstractModal {
         initializeNavigationInfoTranslations(translate);
     }
 
-    public static readonly DOCS_LINKS: (
-        translate: TranslateService,
-    ) => Map<
-        string,
-        { displayName: string; icon: IconWithRequiredName; link: NonNullable<HelpButtonComponent["key"]> }
-    > = (translate) =>
+    public static readonly DOCS_LINKS: (translate: TranslateService, factoryId: string) => Map<string, DocsMapValue> = (
+        translate,
+        factoryId,
+    ) =>
         new Map([
             [
                 "grid",
@@ -161,13 +196,24 @@ export class NavigationInfoComponent extends AbstractModal {
                     icon: { name: "oe-selfconsumption" },
                 },
             ],
+            ...(isEvseDocLink(factoryId)
+                ? [
+                      [
+                          factoryId,
+                          {
+                              displayName: translate.instant("NAVIGATION_INFO_MANUAL", {
+                                  source: translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION"),
+                              }),
+                              link: EVSE_DOC_LINKS[factoryId],
+                              icon: { name: "oe-consumption" },
+                          },
+                      ] as const,
+                  ]
+                : []),
         ]);
 
-    ionViewWillLeave() {
-        this.ngOnDestroy();
-    }
-
-    ionViewWillEnter() {
+    override ngOnInit() {
+        super.ngOnInit();
         this.resolveSourceAndMode();
         this.setHeaderTitle();
     }
@@ -181,7 +227,7 @@ export class NavigationInfoComponent extends AbstractModal {
         this.isGlobalInfo.set(source === "global");
 
         if (source && source !== "global") {
-            const page = NavigationInfoComponent.DOCS_LINKS(this.translate).get(source);
+            const page = NavigationInfoComponent.DOCS_LINKS(this.translate, source).get(source);
             if (page != null) {
                 this.docs = {
                     displayName: page.displayName,
@@ -193,8 +239,8 @@ export class NavigationInfoComponent extends AbstractModal {
     }
 
     private setHeaderTitle(): void {
-        this.navigationService.headerTitle.set(
-            this.translate.instant(this.isGlobalInfo() ? "GENERAL.HELP" : "GENERAL.INFO"),
-        );
+        this.navigationService.headerTitle.set({
+            text: this.translate.instant(this.isGlobalInfo() ? "GENERAL.HELP" : "GENERAL.INFO"),
+        });
     }
 }

@@ -130,16 +130,11 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
-	/**
-	 * Gets the OEM Token for TimeOfUseTariff.ENTSO-E.
-	 * 
-	 * @return the value
-	 */
-	public default String getEntsoeToken() {
-		return null;
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
 	}
 
-	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	public default String getEntsoeToken() {
+		return null;
 	}
 
 	public default OAuthClientRegistration getRabotChargeCredentials() {

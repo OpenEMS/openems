@@ -1,5 +1,7 @@
 package io.openems.edge.controller.evse.single;
 
+import io.openems.edge.common.type.Phase;
+
 public enum PhaseSwitching {
 	/**
 	 * Phase-Switching is disabled.
@@ -24,4 +26,18 @@ public enum PhaseSwitching {
 	 * </ul>
 	 */
 	AUTOMATIC, //
+
+	;
+
+	public static final int AUTOMATIC_SINGLE_TO_THREE_PHASE_SWITCH_POWER = 4100;
+	public static final int AUTOMATIC_THREE_TO_SINGLE_PHASE_SWITCH_POWER = 3700;
+
+	public Phase.SingleOrThreePhase getForcePhase() {
+		return switch (this) {
+		case DISABLE -> null;
+		case FORCE_SINGLE_PHASE -> Phase.SingleOrThreePhase.SINGLE_PHASE;
+		case FORCE_THREE_PHASE -> Phase.SingleOrThreePhase.THREE_PHASE;
+		case AUTOMATIC -> null;
+		};
+	}
 }

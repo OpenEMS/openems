@@ -1,0 +1,3 @@
+= Hekatron Fire Alarm System
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.firealarmsystem.hekatron[Source Code icon:github[]]

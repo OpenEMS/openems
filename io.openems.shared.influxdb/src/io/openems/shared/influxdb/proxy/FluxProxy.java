@@ -45,7 +45,7 @@ public class FluxProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyQuery(bucket, measurement, influxEdgeId, fromDate, toDate, channels);
 		var queryResult = this.executeQuery(influxConnection, query);
@@ -55,7 +55,7 @@ public class FluxProxy extends QueryProxy {
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergySingleValueInDay(InfluxConnection influxConnection,
 			String bucket, String measurement, Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+			ZonedDateTime toDate, QueryChannels channels) throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -68,7 +68,7 @@ public class FluxProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricDataQuery(bucket, measurement, influxEdgeId, fromDate, toDate, channels,
@@ -84,7 +84,7 @@ public class FluxProxy extends QueryProxy {
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException {
 		var query = this.buildHistoricEnergyPerPeriodQuery(bucket, measurement, influxEdgeId, fromDate, toDate,
@@ -96,7 +96,7 @@ public class FluxProxy extends QueryProxy {
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryRawHistoricEnergyPerPeriodSingleValueInDay(
 			InfluxConnection influxConnection, String bucket, String measurement, Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, QueryChannels channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		return null;
@@ -105,10 +105,10 @@ public class FluxProxy extends QueryProxy {
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryFirstValueBefore(String bucket,
 			InfluxConnection influxConnection, String measurement, Optional<Integer> influxEdgeId, ZonedDateTime date,
-			Set<ChannelAddress> channels) throws OpenemsNamedException {
+			QueryChannels channels) throws OpenemsNamedException {
 		final var query = this.buildFetchFirstValueBefore(bucket, measurement, influxEdgeId, date, channels);
 		final var queryResult = this.executeQuery(influxConnection, query);
-		return convertFirstValueBeforeQueryResult(queryResult, channels);
+		return convertFirstValueBeforeQueryResult(queryResult, channels.toSet());
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class FluxProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) {
 		// remove 5 minutes to prevent shifted timeline
@@ -146,7 +146,7 @@ public class FluxProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) {
 		// prepare query
 		var builder = new StringBuilder() //
@@ -174,7 +174,7 @@ public class FluxProxy extends QueryProxy {
 
 	@Override
 	protected String buildHistoricEnergyQuerySingleValueInDay(String bucket, String measurement,
-			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, QueryChannels channels)
 			throws OpenemsException {
 		// TODO Auto-generated method stub
 		return null;
@@ -187,7 +187,7 @@ public class FluxProxy extends QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) {
 		if (resolution.getUnit().equals(ChronoUnit.MONTHS)) {
@@ -215,7 +215,7 @@ public class FluxProxy extends QueryProxy {
 
 	@Override
 	protected String buildHistoricEnergyPerPeriodQuerySingleValueInDay(String bucket, String measurement,
-			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, QueryChannels channels,
 			Resolution resolution) throws OpenemsException {
 		// TODO Auto-generated method stub
 		return null;
@@ -223,7 +223,7 @@ public class FluxProxy extends QueryProxy {
 
 	@Override
 	protected String buildFetchFirstValueBefore(String bucket, String measurement, Optional<Integer> influxEdgeId,
-			ZonedDateTime date, Set<ChannelAddress> channels) {
+			ZonedDateTime date, QueryChannels channels) {
 		// Calculates actual system date -100 days
 		ZonedDateTime hundredDaysAgo = date.minusDays(100);
 
@@ -245,13 +245,12 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	/**
-	 * Converts given {@link Set} of {@link ChannelAddress} to {@link Restrictions}
-	 * separated by or.
+	 * Converts given {@link QueryChannels} to {@link Restrictions} separated by or.
 	 *
-	 * @param channels {@link Set} of {@link ChannelAddress}
+	 * @param channels {@link QueryChannels}
 	 * @return {@link Restrictions} separated by or
 	 */
-	private static Restrictions toChannelAddressFieldList(Set<ChannelAddress> channels) {
+	private static Restrictions toChannelAddressFieldList(QueryChannels channels) {
 		var restrictions = channels.stream() //
 				.map(channel -> Restrictions.field().equal(channel.toString())) //
 				.toArray(restriction -> new Restrictions[restriction]);

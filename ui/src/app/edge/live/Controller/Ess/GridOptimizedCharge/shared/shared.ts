@@ -61,7 +61,7 @@ export namespace SharedGridOptimizedCharge {
                     isDisabledByTimeOfUse,
                     isEeg2025Installed,
                     isEeg2025Supported,
-                    edge.id,
+                    edge,
                 ),
             ],
             component: component,
@@ -396,9 +396,9 @@ export namespace SharedGridOptimizedCharge {
         isDisabledByTimeOfUse: boolean,
         isEeg2025Installed: boolean,
         isEeg2025Supported: boolean,
-        edgeId: string,
+        edge: Edge,
     ): OeFormlyView<GridOptimizedChargeViewModel>["lines"] => {
-        if (isEeg2025Supported == false) {
+        if (isEeg2025Supported == false || edge.roleIsAtLeast(Role.ADMIN) == false) {
             return [];
         }
 
@@ -406,7 +406,7 @@ export namespace SharedGridOptimizedCharge {
         const hideWhenNotInstalled = (el: { mode: Mode }) => hideWhenBaseConditionFails(el) || isEeg2025Installed;
         const hideWhenInstalled = (el: { mode: Mode }) => hideWhenBaseConditionFails(el) || !isEeg2025Installed;
 
-        const eeg2025AppUrl = `/device/${edgeId}/settings/app/single/App.Tariff.Manual.EEG2025.GridSell?name=EEG%202025`;
+        const eeg2025AppUrl = `/device/${edge.id}/settings/app/single/App.Tariff.Manual.EEG2025.GridSell?name=EEG%202025`;
 
         return [
             {
@@ -465,21 +465,21 @@ export namespace SharedGridOptimizedCharge {
         ]);
     }
 
-    export function getFormGroup(): FormGroup {
+    export function getFormGroup(component: EdgeConfig.Component): FormGroup {
         return new FormGroup({
             mode: new FormControl(null),
-            manualTargetTime: new FormControl(null),
+            manualTargetTime: new FormControl(component.getPropertyFromComponent("manualTargetTime")),
             delayChargeRiskLevel: new FormControl(null),
             delayChargeState: new FormControl(null),
         });
     }
 
-    export function isEnergySchedulerV2Enabled(config: EdgeConfig): boolean {
-        return config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V2_ENERGY_SCHEDULABLE";
+    export function isEnergySchedulerV1Enabled(config: EdgeConfig): boolean {
+        return config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V1_ESS_ONLY";
     }
 
     export function isDisabledByTimeOfUse(config: EdgeConfig, component: EdgeConfig.Component): boolean {
-        if (isEnergySchedulerV2Enabled(config) == false) {
+        if (isEnergySchedulerV1Enabled(config) === true) {
             return false;
         }
 
@@ -500,7 +500,7 @@ export namespace SharedGridOptimizedCharge {
     }
 
     export function isEeg2025Supported(config: EdgeConfig): boolean {
-        if (isEnergySchedulerV2Enabled(config) == false) {
+        if (isEnergySchedulerV1Enabled(config) === true) {
             return false;
         }
 

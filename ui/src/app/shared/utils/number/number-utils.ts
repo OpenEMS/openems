@@ -132,6 +132,20 @@ export namespace NumberUtils {
     }
 
     /**
+     * Ceils a value safely.
+     *
+     * @param value The value
+     * @returns The smallest integer greater than or equal to its numeric argument, if valid, else null
+     */
+    export function ceilSafelyOrElse(value: number | null, orElse: number): number {
+        const result = ceilSafely(value);
+        if (result === null) {
+            return orElse;
+        }
+        return result;
+    }
+
+    /**
      * Floors a value safely.
      *
      * @param value The value
@@ -159,6 +173,50 @@ export namespace NumberUtils {
     }
 
     /**
+     * Converts the number to have a max value or returns a default if null
+     *
+     * @param value The value
+     * @param atMost The max number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtMostOrElse(value: number | null, atMost: number, orElse: number): number {
+        const result = NumberUtils.convertNumberToBeAtMost(value, atMost);
+        if (result == null) {
+            return orElse;
+        }
+        return result;
+    }
+
+    /**
+     * Converts the number to have a max value
+     *
+     * @param value The value
+     * @param atMost The max number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtLeast(value: number | null, atLeast: number): number | null {
+        if (value == null) {
+            return value;
+        }
+        return Math.max(value, atLeast);
+    }
+
+    /**
+     * Converts the number to have a min value
+     *
+     * @param value The value
+     * @param atLeast The min number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtLeastOrElse(value: number | null, atLeast: number, orElse: number): number {
+        const result = NumberUtils.convertNumberToBeAtLeast(value, atLeast);
+        if (result == null) {
+            return orElse;
+        }
+        return result;
+    }
+
+    /**
      * Checks whether a value is a finite number (not NaN/Infinity).
      *
      * Useful as a type guard before numeric calculations on unknown input.
@@ -171,19 +229,33 @@ export namespace NumberUtils {
     }
 
     /**
-     * Converts a number to a boolean.
+     * Converts 0 or 1 to a boolean, preserving boolean inputs.
      *
      * @param value The value to convert
-     * @param orElse The value to return if the input is not 0 or 1
-     * @returns False for 0, true for 1, else orElse
+     * @param orElse The value to return if the input is not 0, 1, or a boolean
+     * @returns False for 0 or false, true for 1 or true, else orElse
      */
-    export function numberToBooleanOrElse(value: 0 | 1, orElse: boolean): boolean {
-        if (value === 0) {
+    export function numberToBooleanOrElse(value: number | boolean | null | undefined, orElse: boolean): boolean {
+        if (value === 0 || value === false) {
             return false;
         }
-        if (value === 1) {
+        if (value === 1 || value === true) {
             return true;
         }
         return orElse;
+    }
+
+    export function isNumberHigherThan(params: { value: number | null; valueToBeHigher: number | null }): boolean {
+        if (params == null || params.value == null || params.valueToBeHigher == null) {
+            return false;
+        }
+        return params.value > params.valueToBeHigher;
+    }
+
+    export function isNumberLowerThan(params: { value: number | null; valueToBeSmaller: number | null }): boolean {
+        if (params == null || params.value == null || params.valueToBeSmaller == null) {
+            return false;
+        }
+        return params.value > params.valueToBeSmaller;
     }
 }

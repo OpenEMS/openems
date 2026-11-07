@@ -55,24 +55,24 @@ class CheckCountryTest {
 	}
 
 	@Test
-	void testGetErrorMessage_shouldBeAvailable() {
+	void testGetValidationError_shouldBeAvailable() {
 		when(this.meta.getCountryCode()).thenReturn(CountryCode.AT);
 		final var sut = new CheckCountry(this.componentContext, this.meta);
 
-		final var errorMessage = sut.getErrorMessage(Language.EN);
+		final var errorMessage = sut.getValidationError(Language.EN);
 
 		assertNotNull(errorMessage);
-		assertFalse(errorMessage.isBlank());
+		assertFalse(errorMessage.getMessage().isBlank());
 	}
 
 	@Test
-	void testGetInvertedErrorMessage_shouldBeAvailable() {
+	void testGetInvertedValidationError_shouldBeAvailable() {
 		when(this.meta.getCountryCode()).thenReturn(CountryCode.AT);
 		final var sut = new CheckCountry(this.componentContext, this.meta);
 
-		final var errorMessage = sut.getInvertedErrorMessage(Language.EN);
+		final var errorMessage = sut.getInvertedValidationError(Language.EN);
 
 		assertNotNull(errorMessage);
-		assertFalse(errorMessage.isBlank());
+		assertFalse(errorMessage.getMessage().isBlank());
 	}
 }

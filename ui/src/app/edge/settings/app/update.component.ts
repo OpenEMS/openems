@@ -20,6 +20,7 @@ import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
 import { QueryAppInstancesByFilter } from "./jsonrpc/queryAppInstancesByFilter";
+import { prepareProperties } from "./jsonrpc/shared";
 import { SwitchArchitecture } from "./jsonrpc/switchArchitecture";
 import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
@@ -54,7 +55,7 @@ export class UpdateAppComponent implements OnInit {
     private static readonly SELECTOR = "app-update";
     public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
-    protected showSwitchArchitecture = false;
+    protected showSwitchArchitecture = signal<boolean>(false);
     protected currentArchitecture: string | null = null;
     protected instances = signal<MyInstance[]>([]);
     protected appName: string | null = null;
@@ -216,7 +217,7 @@ export class UpdateAppComponent implements OnInit {
             return;
         }
         if (!EdgePermission.hasSwitchArchitecture(this.edge)) {
-            this.showSwitchArchitecture = false;
+            this.showSwitchArchitecture.set(false);
             return;
         }
         this.edge
@@ -231,7 +232,7 @@ export class UpdateAppComponent implements OnInit {
                 const result = (response as CanSwitchArchitecture.Response).result;
                 this.switchMethod = flag.switchMethod;
                 this.handlerId = flag.handlerId;
-                this.showSwitchArchitecture = result.canSwitch;
+                this.showSwitchArchitecture.set(result.canSwitch);
                 this.currentArchitecture = result.current ?? null;
                 this.header = result.header;
                 this.info = result.info;
@@ -288,14 +289,8 @@ export class UpdateAppComponent implements OnInit {
         }
         this.service.startSpinnerTransparentBackground(instance.instanceId);
         instance.isUpdating = true;
-        // remove alias field from properties
         const alias = instance.form.value["ALIAS"];
-        const clonedFields: Record<string, any> = {};
-        for (const item in instance.form.value) {
-            if (item != "ALIAS") {
-                clonedFields[item] = instance.form.value[item];
-            }
-        }
+        const properties = prepareProperties(instance.form.value, instance.fields);
         instance.form.markAsPristine();
         this.edge
             .sendRequest(
@@ -305,7 +300,7 @@ export class UpdateAppComponent implements OnInit {
                     payload: new UpdateAppInstance.Request({
                         instanceId: instance.instanceId,
                         alias: alias,
-                        properties: clonedFields,
+                        properties: properties,
                     }),
                 }),
             )
@@ -379,8 +374,15 @@ export class UpdateAppComponent implements OnInit {
                     state: { appInstanceChange: true },
                     relativeTo: this.route,
                 };
+                const appId = this.routeService.getQueryParam<string>("appId");
 
-                this.router.navigate(["../"], navigationExtras);
+                this.router.navigate(["../"], {
+                    ...navigationExtras,
+                    queryParams: {
+                        name: this.appName,
+                        appId: appId,
+                    },
+                });
             })
             .catch(
                 InstallAppComponent.errorToast(this.service, (error) =>

@@ -1,6 +1,7 @@
 package io.openems.edge.battery.test;
 
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.api.BatteryErrorAcknowledge;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.protection.BatteryVoltageProtection;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -11,7 +12,7 @@ import io.openems.edge.common.startstop.StartStoppable;
  * together with the OpenEMS Component test framework.
  */
 public class DummyBattery extends AbstractDummyBattery<DummyBattery>
-		implements Battery, OpenemsComponent, StartStoppable, BatteryVoltageProtection {
+		implements Battery, OpenemsComponent, StartStoppable, BatteryVoltageProtection, BatteryErrorAcknowledge {
 
 	public DummyBattery(String id) {
 		super(id, //
@@ -19,6 +20,7 @@ public class DummyBattery extends AbstractDummyBattery<DummyBattery>
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				BatteryProtection.ChannelId.values(), //
+				BatteryErrorAcknowledge.ChannelId.values(), //
 				BatteryVoltageProtection.ChannelId.values() //
 		);
 	}

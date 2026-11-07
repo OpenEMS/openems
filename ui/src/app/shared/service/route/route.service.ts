@@ -1,16 +1,26 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { ObjectUtils } from "../../utils/object/object-utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { OAuthCallBackComponent } from "../auth/oauthcallback.component";
+export class OeURLSearchParams extends URLSearchParams {
+    toNavigatableQueryParams(): Record<string, string> {
+        const obj: Record<string, string> = {};
+        for (const [key, value] of this.entries()) {
+            obj[key] = value;
+        }
+        return obj;
+    }
+}
 
 @Injectable()
 export class RouteService {
     public currentUrl: WritableSignal<string | null> = signal(null);
 
     private previousUrl: string | null = null;
-    private queryParams: WritableSignal<URLSearchParams | null> = signal(null);
+    private queryParams: WritableSignal<OeURLSearchParams | null> = signal(null);
     private cookieService = inject(CookieService);
     private router: Router = inject(Router);
 
@@ -23,6 +33,7 @@ export class RouteService {
                 }
 
                 this.setQueryParams(event.urlAfterRedirects);
+
                 this.previousUrl = this.currentUrl();
                 this.currentUrl.set(event.urlAfterRedirects);
             }
@@ -45,6 +56,27 @@ export class RouteService {
      */
     public getPreviousUrl() {
         return this.previousUrl;
+    }
+
+    /**
+     * Gets the previous route/navigation from a given key by splitting array at key.
+     *
+     * @param arr The array
+     * @param key The key to find
+     * @returns The shortened array, split by given key
+     */
+    public getPrevRoute(arr: string[], key: string): string[] {
+        const keySegments = key.split("/").filter(Boolean);
+        if (keySegments.length === 0) {
+            return arr;
+        }
+
+        const startIndex = arr.findIndex((segment) => segment === keySegments[0]);
+        if (startIndex < 0) {
+            return arr;
+        }
+
+        return arr.slice(0, startIndex + keySegments.length);
     }
 
     /**
@@ -122,24 +154,33 @@ export class RouteService {
     public navigateAfterAuthentication() {
         const oauthredirectstate = this.cookieService.get("oauthredirectstate");
         const oauthRedirectStateHref = ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
+        const oauthRedirectStateQueryParams =
+            ObjectUtils.parseFromString<{ queryParams: Record<string, string> }>(oauthredirectstate)?.queryParams ??
+            null;
+        const queryParamsFromRoute = this.getQueryParams()()?.toNavigatableQueryParams();
+
         if (oauthRedirectStateHref != null && oauthRedirectStateHref != OAuthCallBackComponent.ID) {
-            this.router.navigate([oauthRedirectStateHref]);
+            this.router.navigate([oauthRedirectStateHref], {
+                queryParams: { ...oauthRedirectStateQueryParams, ...queryParamsFromRoute },
+            });
             return;
         }
 
-        const initialUrl = this.router.lastSuccessfulNavigation()?.initialUrl ?? null;
-        const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
+        const initialUrl = this.router.url ?? null;
+        const isAuthenticatedNavi = (this.getCurrentUrlRouteSegments()?.length ?? 0) > 2;
         if (isAuthenticatedNavi && initialUrl != null) {
-            this.router.navigate([initialUrl.toString()]);
+            this.router.navigateByUrl(initialUrl);
             return;
         }
 
-        // Fallback
-        this.router.navigate(["/overview"]);
+        // Make exceptional handling of login url
+        if (ArrayUtils.containsAll({ arr: this.getCurrentUrlRouteSegments(), strings: ["login"] })) {
+            this.router.navigate(["/overview"]);
+        }
     }
 
     public getCurrentUrlRouteSegments(): string[] {
-        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading();
+        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading()?.split("?")[0];
         return (
             cleanedCurrentUrl?.split("/")?.reduce((acc: string[], curr) => {
                 const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
@@ -166,7 +207,7 @@ export class RouteService {
     private setQueryParams(url: string) {
         const queryParams = url.split("?")?.[1] ?? null;
         if (queryParams != null) {
-            this.queryParams.set(new URLSearchParams(queryParams));
+            this.queryParams.set(new OeURLSearchParams(queryParams));
         }
     }
 }

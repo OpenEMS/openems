@@ -158,8 +158,8 @@ class EnergySchedulerTest {
 		var firstPeriodLimit = new OneMode.Builder<Void, Void>("Controller.Dummy", "limit0") //
 				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
 					if (period.time().equals(gsc.goc.periods().getFirst().time())) {
-						ef.setEssMaxDischarge(0);
-						ef.setGridMaxBuy(400 - ef.getSurplus());
+						ef.setEssLessOrEquals(0);
+						ef.setGridLessOrEquals(400 - ef.getSurplus());
 					}
 				}) //
 				.build();

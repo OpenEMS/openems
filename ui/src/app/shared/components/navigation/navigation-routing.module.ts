@@ -13,6 +13,7 @@ import { CommonGridExternalLimitationOverviewComponent } from "src/app/edge/live
 import { CommonGridPhaseAccurateOverviewComponent } from "src/app/edge/live/common/grid/history/details/phase-accurate/new-navigation/new-navigation";
 import { CommonGridHistoryComponent } from "src/app/edge/live/common/grid/history/new-navigation/new-navigation";
 import { CommonGridHomeComponent } from "src/app/edge/live/common/grid/new-navigation/new-navigation";
+import { CommonGridSettingsComponent } from "src/app/edge/live/common/grid/settings/settings";
 import { CommonProductionDetailsComponent } from "src/app/edge/live/common/production/details/details";
 import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
 import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
@@ -40,6 +41,8 @@ import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/
 import { ControllerEssTimeOfUseTariffHistoryComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/history/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffHomeComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffSettingsComponent } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/settings/settings";
+import { EvcsHomeComponent } from "src/app/edge/live/Controller/Evcs/new-navigation/new-navigation";
+import { EvcsSettingsComponent } from "src/app/edge/live/Controller/Evcs/settings/settings";
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { ModalComponent as EvseForecastComponent } from "src/app/edge/live/Controller/Evse/pages/forecast/forecast";
@@ -50,7 +53,6 @@ import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/s
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { UpdateAppConfigComponent } from "src/app/edge/live/Controller/Evse/pages/update-app-config/update-app-config";
-import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/heat-home";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
@@ -72,8 +74,12 @@ import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Contr
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
 import { ControllerIoHeatingRoomHomeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/new-navigation/new-navigation";
 import { ControllerIoHeatingRoomModeComponent } from "src/app/edge/live/Controller/Io/HeatingRoom/pages/mode/mode";
+import { ControllerIoHeatpumpBaseModeComponent } from "src/app/edge/live/Controller/Io/Heatpump/basemode/basemode";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
+import { ControllerIoHeatpumpScheduleComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/schedule.component";
+import { ControllerIoHeatpumpAddTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/add/add";
+import { ControllerIoHeatpumpEditTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/edit/edit";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
 import { ControllerModbusTcpApiDetailsComponent } from "src/app/edge/live/Controller/ModbusTcpApi/details/details";
 import { ControllerModbusTcpApiHistoryComponent } from "src/app/edge/live/Controller/ModbusTcpApi/history/new-navigation/new-navigation";
@@ -89,13 +95,14 @@ import { ControllerPeakShavingSymmetricTimeSlotHomeComponent } from "src/app/edg
 import { ControllerPeakShavingSymmetricTimeSlotSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/settings/settings";
 import { ControllerEssFixReactivePowerComponent } from "src/app/edge/live/Controller/symmetric/FixReactivePower/new-navigation/new-navigation";
 import { LiveComponent as EdgeLiveComponent } from "src/app/edge/live/live.component";
+import { EvcsApiClusterHomeComponent } from "src/app/edge/live/Multiple/evcs-api-cluster/new-navigation/new-navigation";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
 import { SchedulerJsCalendarAddTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/add/add";
 import { SchedulerJsCalendarEditTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
-import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
+import { hasEdgeRole, redirectToParentOnReload } from "src/app/shared/guards/functional-guards";
 import { suffixMatcher } from "src/app/shared/guards/url-matcher";
 import { Role } from "src/app/shared/type/role";
 
@@ -103,31 +110,52 @@ import { ControllerGroupListComponent } from "./groups/group";
 
 const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | null = null) =>
     [
-        { path: "evse/:componentId", component: EvseSingleComponent },
-        { path: "evse/:componentId/history", component: EvseHistoryComponent },
         {
-            path: "evse/:componentId/energy-limit",
-            component: EvseEnergyLimitComponent,
-        },
-        { path: "evse/:componentId/forecast", component: EvseForecastComponent },
-        {
-            path: "evse/:componentId/phase-switching",
-            component: EvsePhaseSwitchingComponent,
-        },
-        { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
-        {
-            path: "evse/:componentId/schedule/edit-task",
-            component: EvseEditTaskComponent,
-        },
-        { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
-        {
-            path: "evse/:componentId/schedule/add-task",
-            component: EvseAddTaskComponent,
-        },
-        {
-            path: "evse/:componentId/car/update",
-            component: UpdateAppConfigComponent,
-            canActivate: [hasEdgeRole(Role.OWNER)],
+            path: "evse/:componentId",
+            children: [
+                {
+                    path: "",
+                    component: EvseSingleComponent,
+                },
+                {
+                    path: "history",
+                    component: EvseHistoryComponent,
+                },
+                {
+                    path: "energy-limit",
+                    component: EvseEnergyLimitComponent,
+                },
+                {
+                    path: "forecast",
+                    component: EvseForecastComponent,
+                },
+                {
+                    path: "phase-switching",
+                    component: EvsePhaseSwitchingComponent,
+                    canActivate: [redirectToParentOnReload],
+                },
+                {
+                    path: "schedule",
+                    component: EvseScheduleComponent,
+                },
+                {
+                    path: "schedule/edit-task",
+                    component: EvseEditTaskComponent,
+                },
+                {
+                    path: "schedule/add-task",
+                    component: EvseAddTaskComponent,
+                },
+                {
+                    path: "charge-mode",
+                    component: ChargeModeComponent,
+                },
+                {
+                    path: "car/update",
+                    component: UpdateAppConfigComponent,
+                    canActivate: [hasEdgeRole(Role.OWNER)],
+                },
+            ],
         },
         {
             path: "io-heating-room",
@@ -182,6 +210,22 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
             component: ControllerIoHeatpumpHomeComponent,
         },
         {
+            path: "controller/heatpump/:componentId/schedule",
+            component: ControllerIoHeatpumpScheduleComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/schedule/add-task",
+            component: ControllerIoHeatpumpAddTaskComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/schedule/edit-task",
+            component: ControllerIoHeatpumpEditTaskComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/baseMode",
+            component: ControllerIoHeatpumpBaseModeComponent,
+        },
+        {
             path: "controller/heatpump/:componentId/settings",
             component: ControllerIoHeatpumpSettingsComponent,
         },
@@ -220,10 +264,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heat/:componentId",
             component: ControllerHeatHomeComponent,
-        },
-        {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
         },
         {
             path: "controller/heat/:componentId/history",
@@ -402,10 +442,6 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
             component: ControllerHeatHomeComponent,
         },
         {
-            path: "controller/heat/:componentId/forecast",
-            component: HeatForecastComponent,
-        },
-        {
             path: "controller/heat/:componentId/history",
             component: ControllerHeatHistoryComponent,
         },
@@ -465,6 +501,34 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
             path: "controller/chp/:componentId/history",
             component: ControllerChpHistoryComponent,
         },
+        {
+            path: "controller/evcs-cluster",
+            component: EvcsApiClusterHomeComponent,
+        },
+        {
+            path: "controller/evcs-cluster/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs-cluster/:componentId/settings",
+            component: EvcsSettingsComponent,
+        },
+        {
+            path: "controller/evcs-cluster/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId",
+            component: EvcsHomeComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/history",
+            component: CommonConsumptionSingleHistoryOverviewComponent,
+        },
+        {
+            path: "controller/evcs/:componentId/settings",
+            component: EvcsSettingsComponent,
+        },
     ].map((el) => ({ ...el, path: prefix != null ? prefix + "/" + el.path : el.path }));
 
 export const commonRoutes: Routes = [
@@ -495,6 +559,7 @@ export const commonRoutes: Routes = [
     },
     ...controllerRoutes("common/consumption"),
     { path: "common/grid", component: CommonGridHomeComponent },
+    { path: "common/grid/settings", component: CommonGridSettingsComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
     {
         path: "common/grid/history/external-limitation",

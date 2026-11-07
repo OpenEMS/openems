@@ -1,16 +1,16 @@
 package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -79,7 +79,7 @@ public class AppManagerImplSynchronizationTest {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void testSimulateLockWaitingForModification() throws Exception {
 		this.appManager.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.PvInverter.SolarEdge", "key", "alias", JsonUtils.buildJsonObject() //

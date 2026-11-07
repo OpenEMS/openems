@@ -1,21 +1,21 @@
 package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
@@ -26,16 +26,14 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class ResolveOpenemsHardwareTest {
 
-	@Rule
-	public TemporaryFolder folder = TemporaryFolder.builder() //
-			.assureDeletion() //
-			.build();
+	@TempDir
+	private Path folder;
 
 	private AppManagerTestBundle appManagerTestBundle;
 	private OpenemsApp dummyHardwareApp;
 	private OpenemsApp dummyHardwareApp2;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -43,7 +41,7 @@ public class ResolveOpenemsHardwareTest {
 					this.dummyHardwareApp2 = Apps.techbaseCm3(t) //
 			);
 		});
-		System.setProperty("felix.cm.dir", this.folder.getRoot().getPath());
+		System.setProperty("felix.cm.dir", this.folder.toString());
 	}
 
 	@Test
@@ -140,7 +138,9 @@ public class ResolveOpenemsHardwareTest {
 	}
 
 	private void setHardwareApp(String appId) throws Exception {
-		final var hardwareInfoFile = this.folder.newFile(ResolveOpenemsHardware.OPENEMS_HARDWARE_FILE_NAME);
+		final var hardwareInfoFile = this.folder //
+				.resolve(ResolveOpenemsHardware.OPENEMS_HARDWARE_FILE_NAME) //
+				.toFile();
 		try (final var fw = new FileWriter(hardwareInfoFile)) {
 			fw.write(ResolveOpenemsHardware.OPENEMS_HARDWARE_APP_KEY + "=" + appId);
 		}

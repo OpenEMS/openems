@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy, signal, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -24,19 +23,19 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Input() public filter: Filter = Filter.NO_FILTER;
 
     /** DisplayValue is the displayed @Input value in html */
-    public displayValue: string | null = null;
+    public displayValue = signal<string | null>(null);
 
-    protected displayName: string = null;
+    protected displayName = signal<string | null>(null);
     protected show: boolean = true;
 
-    private _name: string | ((value: any) => string);
+    private _name: string | ((value: any) => string) | undefined;
     private _channelAddress: ChannelAddress | null = null;
 
     /** Selector used for subscribe */
     private selector: string = uuidv4();
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge | null = null;
-    private subscription: EffectRef;
+    private subscription: EffectRef | undefined;
     private injector = inject(Injector);
 
     constructor(
@@ -86,11 +85,11 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
     protected setValue(value: any) {
         if (typeof this._name == "function") {
-            this.displayName = this._name(value);
+            this.displayName.set(this._name(value));
         } else {
-            this.displayName = this._name;
+            this.displayName.set(this._name ?? null);
         }
-        this.displayValue = this.converter(value);
+        this.displayValue.set(this.converter(value));
 
         if (this.filter) {
             this.show = this.filter(value);

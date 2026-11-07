@@ -11,8 +11,9 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.controller.evse.single.EvseSingleState;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Types.History;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -28,13 +29,14 @@ public class StateMachineTest {
 		final var actions = new AtomicReference<ChargePointActions>(null);
 		final Consumer<ChargePointActions> callback = a -> actions.set(a);
 
-		var sm = new StateMachine(State.UNDEFINED);
-		assertEquals(State.UNDEFINED, sm.getCurrentState());
+		var sm = new StateMachine(EvseSingleState.UNDEFINED);
+		assertEquals(EvseSingleState.UNDEFINED, sm.getCurrentState());
 		assertEquals("Undefined", sm.debugLog());
 
-		sm.run(new Context(null, clock, ChargePointActions.from(ability).setApplySetPointInAmpere(0).build(), null,
-				new History(), callback, setPhaseSwitchFailed -> FunctionUtils.doNothing()));
-		assertEquals(State.EV_NOT_CONNECTED, sm.getCurrentState());
+		sm.run(new Context(null, clock, Mode.FORCE,
+				ChargePointActions.from(ability).setApplySetPointInAmpere(0).build(), null, new History(), null, false,
+				callback, setPhaseSwitchFailed -> FunctionUtils.doNothing()));
+		assertEquals(EvseSingleState.EV_NOT_CONNECTED, sm.getCurrentState());
 		assertEquals("EvNotConnected", sm.debugLog());
 	}
 }

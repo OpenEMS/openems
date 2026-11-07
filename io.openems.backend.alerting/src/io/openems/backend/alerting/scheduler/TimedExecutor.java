@@ -26,8 +26,7 @@ public interface TimedExecutor {
 
 		@Override
 		public boolean equals(Object obj) {
-			return obj instanceof TimedTask other
-					&& this.executeAt.equals(other.executeAt)
+			return obj instanceof TimedTask other && this.executeAt.equals(other.executeAt)
 					&& this.task.equals(other.task);
 		}
 
@@ -35,7 +34,7 @@ public interface TimedExecutor {
 		public int hashCode() {
 			return Objects.hash(this.executeAt, this.task);
 		}
-		
+
 		/**
 		 * Execute the task and mark it as done.
 		 * 
@@ -44,9 +43,10 @@ public interface TimedExecutor {
 		public boolean isDone() {
 			return this.done;
 		}
-		
+
 		/**
-		 * Execute the task if it is not done yet. Mark the task as done after execution.
+		 * Execute the task if it is not done yet. Mark the task as done after
+		 * execution.
 		 * 
 		 * @param now current time
 		 */

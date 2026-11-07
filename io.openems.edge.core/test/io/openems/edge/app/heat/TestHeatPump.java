@@ -2,8 +2,8 @@ package io.openems.edge.app.heat;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 

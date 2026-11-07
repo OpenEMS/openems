@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
+import { EvseChargepoint } from "src/app/edge/live/Controller/Evse/shared/evse-chargepoint";
 import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
@@ -7,7 +8,7 @@ import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 import { environment } from "src/environments";
-import { EvseChargepoint } from "./evse-chargepoint";
+import { Mode } from "../pages/chargemode/chargemode";
 
 export namespace ControllerEvseSingleShared {
     export function hasAutomaticPhaseSwitching(edge: Edge): boolean {
@@ -26,6 +27,34 @@ export namespace ControllerEvseSingleShared {
         if (component == null) {
             return null;
         }
+
+        const chargePointComponent =
+            config.getComponentFromOtherComponentsProperty(component.id, "chargePoint.id") ?? null;
+
+        const phaseSwitchingNode = new NavigationTree(
+            component.id + "-phase-switching",
+            { baseString: "phase-switching" },
+            { name: "oe-phase-switching-3", color: "medium" },
+            translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
+            "label",
+            [],
+            null,
+            {
+                showOrder: "HIDE",
+                callback: async function (injector) {
+                    if (chargePointComponent == null) {
+                        return;
+                    }
+
+                    const evseChargePoint = EvseChargepoint.getEvseChargepoint(chargePointComponent);
+                    if (evseChargePoint == null) {
+                        return;
+                    }
+
+                    this.showOrder = (await evseChargePoint.showPhaseSwitching(injector)) ? "HIGH" : "HIDE";
+                },
+            },
+        );
 
         return new NavigationTree(
             componentId,
@@ -53,18 +82,7 @@ export namespace ControllerEvseSingleShared {
                     [],
                     null,
                 ),
-                new NavigationTree(
-                    component.id + "-phase-switching",
-                    { baseString: "phase-switching" },
-                    { name: "oe-phase-switching-3", color: "medium" },
-                    translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
-                    "label",
-                    [],
-                    null,
-                    {
-                        showOrder: getPhaseSwitchingShowOrder(componentId, edge, config),
-                    },
-                ),
+                phaseSwitchingNode,
                 new NavigationTree(
                     component.id + "-schedule",
                     { baseString: "schedule" },
@@ -123,37 +141,6 @@ export namespace ControllerEvseSingleShared {
             ],
             null,
         ).toConstructorParams();
-    }
-
-    /**
-     * Gets the phase switching showOrder.
-     *
-     * @param componentId The component id
-     * @param edge The current edge
-     * @param config The edge config
-     * @returns HIDE if phase-switching is disabled, else "LOW"
-     */
-    export function getPhaseSwitchingShowOrder(
-        componentId: string,
-        edge: Edge,
-        config: EdgeConfig,
-    ): NavigationTree["showOrder"] {
-        if (edge == null || config == null) {
-            return "HIDE";
-        }
-
-        const component = config.getComponentFromOtherComponentsProperty(componentId, "chargePoint.id") ?? null;
-
-        if (component == null) {
-            return "HIDE";
-        }
-
-        const chargePointComponent = EvseChargepoint.getEvseChargepoint(component);
-        if (!chargePointComponent?.hasPhaseSwitchingAbility()) {
-            return "HIDE";
-        }
-
-        return "LOW";
     }
 
     /**
@@ -257,8 +244,16 @@ export namespace ControllerEvseSingleShared {
             switch (value) {
                 case StateMachine.EV_NOT_CONNECTED:
                     return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED");
+                case StateMachine.NOT_READY:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.NOT_READY");
                 case StateMachine.EV_CONNECTED:
                     return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED");
+                case StateMachine.CHARGE_RESUMING:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGE_RESUMING");
+                case StateMachine.CHARGE_PAUSED:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGE_PAUSED");
+                case StateMachine.CHARGE_DISABLED:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGE_DISABLED");
                 case StateMachine.CHARGING:
                     return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING");
                 case StateMachine.FINISHED_EV_STOP:
@@ -278,7 +273,11 @@ export namespace ControllerEvseSingleShared {
     export enum StateMachine {
         UNDEFINED = -1,
         EV_NOT_CONNECTED = 10,
+        NOT_READY = 11,
         EV_CONNECTED = 20,
+        CHARGE_PAUSED = 40,
+        CHARGE_DISABLED = 41,
+        CHARGE_RESUMING = 42,
         CHARGING = 50,
         FINISHED_EV_STOP = 60,
         FINISHED_ENERGY_SESSION_LIMIT = 61,
@@ -418,3 +417,7 @@ export namespace ControllerEvseSingleShared {
         return scheduleChartData;
     }
 }
+
+export type EvcsChargeModeViewModel = {
+    mode: Mode | null;
+};

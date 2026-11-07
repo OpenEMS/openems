@@ -5,11 +5,16 @@ import static io.openems.edge.core.appmanager.AbstractOpenemsApp.getTranslationB
 
 import java.util.UUID;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.types.MeterType;
 import io.openems.edge.app.meter.EastronMeter;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen3;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 
 public class CommonComponents {
 
@@ -44,6 +49,35 @@ public class CommonComponents {
 						.setInitialProperties(buildJsonObject(meterProperties.deepCopy()) //
 								.addProperty(EastronMeter.Property.METER_ID.name(), meterId).build())
 						.setProperties(meterProperties) //
+						.build());
+	}
+
+	/**
+	 * Creates a {@link DependencyDeclaration} for an internal meter with the
+	 * {@link TechbaseCm4sGen3} hardware installed.
+	 * 
+	 * @param componentManager the component manager
+	 * @param meterId          the internal meter id of the masterbox
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static final DependencyDeclaration internMeterWithGen3(//
+			ComponentManager componentManager, //
+			String meterId //
+	) throws OpenemsError.OpenemsNamedException {
+		final var masterboxAppId = DependencyUtil.getInstanceIdOfAppWhichHasComponent(componentManager, meterId);
+
+		if (masterboxAppId == null) {
+			throw new OpenemsException("Could not find masterbox app for internal meter with id: " + meterId);
+		}
+
+		return new DependencyDeclaration("INTERN_METER", //
+				DependencyDeclaration.CreatePolicy.NEVER, //
+				DependencyDeclaration.UpdatePolicy.NEVER, //
+				DependencyDeclaration.DeletePolicy.NEVER, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_NONE, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setSpecificInstanceId(masterboxAppId) //
 						.build());
 	}
 

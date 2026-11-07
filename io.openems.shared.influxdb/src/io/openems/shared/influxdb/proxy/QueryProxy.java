@@ -81,7 +81,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException;
 
 	/**
@@ -106,7 +106,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException;
 
 	/**
@@ -131,7 +131,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException;
 
@@ -157,7 +157,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException;
 
@@ -185,7 +185,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsNamedException;
 
@@ -207,7 +207,7 @@ public abstract class QueryProxy {
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime date, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsNamedException;
 
 	public static final class RandomLimit {
@@ -265,7 +265,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException;
 
@@ -275,7 +275,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsException;
 
 	protected abstract String buildHistoricEnergyQuerySingleValueInDay(//
@@ -284,7 +284,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	) throws OpenemsException;
 
 	protected abstract String buildHistoricEnergyPerPeriodQuery(//
@@ -293,7 +293,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException;
 
@@ -303,7 +303,7 @@ public abstract class QueryProxy {
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate, //
-			Set<ChannelAddress> channels, //
+			QueryChannels channels, //
 			Resolution resolution //
 	) throws OpenemsException;
 
@@ -312,7 +312,7 @@ public abstract class QueryProxy {
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
 			ZonedDateTime date, //
-			Set<ChannelAddress> channels //
+			QueryChannels channels //
 	);
 
 }

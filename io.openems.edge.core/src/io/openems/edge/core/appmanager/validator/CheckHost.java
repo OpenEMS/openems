@@ -10,6 +10,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.InetAddressUtils;
 
@@ -66,19 +68,19 @@ public class CheckHost extends AbstractCheckable implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
+	public OpenemsNamedException getValidationError(Language language) {
 		var address = this.host.getHostAddress();
 		if (this.port != null) {
 			address += ":" + this.port;
 		}
 		if (this.host == null) {
-			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHost.WrongIp", address);
+			return OpenemsError.EDGE_APP_VALIDATION_CHECK_HOST_WRONG_IP.exception(language, address);
 		}
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHost.NotReachable", address);
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_HOST_NOT_REACHABLE.exception(language, address);
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 

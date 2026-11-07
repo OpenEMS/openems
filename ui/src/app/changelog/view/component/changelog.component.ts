@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, effect, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { firstValueFrom } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
@@ -12,8 +12,15 @@ import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { environment } from "src/environments";
 import { Service } from "../../../shared/shared";
 import { Role } from "../../../shared/type/role";
+import cz from "../../i18n/cz.json";
 import de from "../../i18n/de.json";
 import en from "../../i18n/en.json";
+import es from "../../i18n/es.json";
+import fr from "../../i18n/fr.json";
+import ja from "../../i18n/ja.json";
+import lt from "../../i18n/lt.json";
+import nl from "../../i18n/nl.json";
+import sv from "../../i18n/sv.json";
 
 @Component({
     selector: "changelog",
@@ -56,7 +63,17 @@ export class ChangelogComponent {
             await this.setChangelogs(user);
         });
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
             }

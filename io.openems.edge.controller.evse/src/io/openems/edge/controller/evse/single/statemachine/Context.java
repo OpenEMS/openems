@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import io.openems.common.function.BooleanConsumer;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.evse.single.ControllerEvseSingleImpl;
+import io.openems.edge.controller.evse.single.Mode;
+import io.openems.edge.controller.evse.single.PhaseSwitching;
 import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile;
@@ -14,20 +16,26 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 public class Context extends AbstractContext<ControllerEvseSingleImpl> {
 
 	protected final Clock clock;
+	protected final Mode mode;
 	protected final ChargePointActions actions;
 	protected final EvseChargePoint chargePoint;
 	protected final History history;
+	protected final PhaseSwitching phaseSwitching;
+	protected final boolean reachedSessionLimit;
 	protected final Consumer<ChargePointActions> callback;
 	protected final BooleanConsumer setPhaseSwitchFailed;
 
-	public Context(ControllerEvseSingleImpl parent, Clock clock, ChargePointActions actions,
-			EvseChargePoint chargePoint, History history, Consumer<ChargePointActions> callback,
-			BooleanConsumer setPhaseSwitchFailed) {
+	public Context(ControllerEvseSingleImpl parent, Clock clock, Mode mode, ChargePointActions actions,
+			EvseChargePoint chargePoint, History history, PhaseSwitching phaseSwitching, boolean reachedSessionLimit,
+			Consumer<ChargePointActions> callback, BooleanConsumer setPhaseSwitchFailed) {
 		super(parent);
 		this.clock = clock;
+		this.mode = mode;
 		this.actions = actions;
 		this.chargePoint = chargePoint;
 		this.history = history;
+		this.phaseSwitching = phaseSwitching;
+		this.reachedSessionLimit = reachedSessionLimit;
 		this.callback = callback;
 		this.setPhaseSwitchFailed = setPhaseSwitchFailed;
 	}

@@ -1,9 +1,11 @@
 package io.openems.common.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -35,5 +37,9 @@ public class TimeSpanTests {
 
 		assertTrue(span2.isContainedIn(span1));
 		assertFalse(span1.isContainedIn(span2));
+
+		final var ranged = TimeSpan.rangeByTimeSpans(List.of(span1, span2, span3, span4, span5, span6));
+		assertEquals(span1.getStartInclusive(), ranged.getStartInclusive());
+		assertEquals(span5.getEndExclusive(), ranged.getEndExclusive());
 	}
 }

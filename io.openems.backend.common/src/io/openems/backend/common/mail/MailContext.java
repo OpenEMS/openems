@@ -30,8 +30,9 @@ public abstract class MailContext {
 	 * sending a mail.
 	 * 
 	 * <p>
-	 * The default implementation only contains the edgeId and the recipients, which are common for all mail contexts. 
-	 * Specific mail contexts should override this method
+	 * The default implementation only contains the edgeId and the recipients, which
+	 * are common for all mail contexts. Specific mail contexts should override this
+	 * method
 	 * 
 	 * @return this context as JsonObject
 	 */
@@ -41,7 +42,7 @@ public abstract class MailContext {
 				.addProperty("edgeId", this.edgeId) //
 				.build();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "MailContext" + this.toJson().toString();
