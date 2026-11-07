@@ -1,5 +1,6 @@
 import { Utils } from "../../shared";
 import { ObjectUtils } from "../object/object-utils";
+import { StringUtils } from "../string/string.utils";
 import { HistoryUtils } from "../utils";
 
 export namespace ArrayUtils {
@@ -51,14 +52,14 @@ export namespace ArrayUtils {
     }
 
     /**
-     * Sort arrays alphabetically, according to the string returned by fn. Elements for which fn returns null or
+     * Sorts an array alphabetically, according to the string returned by fn. Elements for which fn returns null or
      * undefined are sorted to the end in an undefined order.
      *
      * @param array To sort
      * @param fn To get a string to sort by
      * @returns Sorted array
      */
-    export function sortedAlphabetically<T>(array: T[], fn: (arg: T) => string | null | undefined = () => ""): T[] {
+    export function sortAlphabetically<T>(array: T[], fn: (arg: T) => string | null | undefined = () => ""): T[] {
         return array.sort((a: T, b: T) => {
             const aVal = fn(a);
             const bVal = fn(b);
@@ -70,6 +71,39 @@ export namespace ArrayUtils {
             return aVal.localeCompare(bVal, undefined, {
                 sensitivity: "accent",
             });
+        });
+    }
+
+    /**
+     * Sorts an array by its elements' trailing numbers in ascending order. The given function provides the string to
+     * extract the number from. Null and undefined are sorted to the end in an undefined order.
+     *
+     * Example: A list of batteries `[battery10, battery2, battery5, ...]` becomes `[battery1, battery2, ...,
+     * battery10]` when provided the batteries' IDs.
+     *
+     * @param array An array, e.g. a list of batteries
+     * @param stringOf A function that provides an element's string to compare, e.g. a component ID
+     * @returns The sorted array
+     */
+    export function sortByTrailingNumber<T>(array: T[], stringOf: (e: T) => string | null | undefined): T[] {
+        return array.sort((a, b) => {
+            const stringA = stringOf(a);
+            if (stringA === null || stringA === undefined) {
+                return 1;
+            }
+            const stringB = stringOf(b);
+            if (stringB === null || stringB === undefined) {
+                return -1;
+            }
+            const aNum = StringUtils.getTrailingNumber(stringA);
+            const bNum = StringUtils.getTrailingNumber(stringB);
+            if (aNum === null) {
+                return 1;
+            }
+            if (bNum === null) {
+                return -1;
+            }
+            return aNum - bNum;
         });
     }
 

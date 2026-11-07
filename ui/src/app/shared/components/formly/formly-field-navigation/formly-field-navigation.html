@@ -1,7 +1,7 @@
 <formly-form [form]="form" [fields]="field.fieldGroup" [model]="model"></formly-form>
 
 @if (field && field.props && field.props.options[0].component) {
-  <oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)">
+  <oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)" [attr.data-tutorial-id]="props.options[0].tourId">
     @if ((props.attributes.title || props.attributes.helpKey) && !props.options[0].useCiFont) {
       <ion-toolbar color="transparent">
         <ion-grid class="ion-no-padding">

@@ -236,6 +236,10 @@ class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.thresholdControl(t), true, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.braiinsOsMeterDiy(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("IP", "192.168.178.100") //
+					.addProperty("USERNAME", "root") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.shellyMeterDiy(t), true, JsonUtils.buildJsonObject() //
 					.add("DEVICE", JsonUtils.buildJsonObject() //
 							.addProperty("name", "dummyName") //

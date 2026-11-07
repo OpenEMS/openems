@@ -21,30 +21,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.DebugMode;
 import io.openems.common.types.HttpStatus;
 import io.openems.common.types.MeterType;
@@ -59,14 +50,10 @@ import io.openems.edge.controller.ortsnetzauslastung.Types.GridStatus;
 import io.openems.edge.controller.ortsnetzauslastung.Types.StorageRecommendation;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.meter.test.DummyElectricityMeter;
-import io.openems.edge.predictor.api.prediction.Prediction;
-import io.openems.edge.predictor.api.test.DummyPredictorManager;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class ControllerOrtsnetzAuslastungImplTest {
 
 	private static final String COMPONENT_ID = "ctrlOrtsnetzAuslastung0";
-	private static final String URL = "https://www.ortsnetz-auslastung.de/v1/measurements";
 	private static final String RESPONSE = """
 			{"accepted":true,"created":true,
 			 "status":{"l1":"yellow","l2":"green","l3":"green","overall":"yellow"},
@@ -74,47 +61,7 @@ public class ControllerOrtsnetzAuslastungImplTest {
 			 "redispatch":{"active":true,"affected_units":3,"active_measures":2,"data_updated_at":null}}
 			""";
 
-	private static final JsonElement PRODUCED_TODAY_WH = new JsonPrimitive(5000);
-
-	private static class TestTimedata extends DummyTimedata {
-
-		private final JsonElement producedTodayWh;
-
-		private TestTimedata(JsonElement producedTodayWh) {
-			super("timedata0");
-			this.producedTodayWh = producedTodayWh;
-		}
-
-		@Override
-		public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
-				ZonedDateTime toDate, Set<ChannelAddress> channels) {
-			final var result = new TreeMap<ChannelAddress, JsonElement>();
-			channels.forEach(channel -> result.put(channel, this.producedTodayWh));
-			return result;
-		}
-	}
-
-	private static class TestPredictorManager extends DummyPredictorManager {
-
-		private final Prediction prediction;
-
-		private TestPredictorManager(Prediction prediction) {
-			this.prediction = prediction;
-		}
-
-		@Override
-		public Prediction getPrediction(ChannelAddress channelAddress) {
-			return this.prediction;
-		}
-	}
-
-	private static Prediction predictionOf(ZonedDateTime time, int quarters, int power) {
-		final var values = new Integer[quarters];
-		Arrays.fill(values, power);
-		return Prediction.from(time.toInstant(), values);
-	}
-
-	private record Setup(ControllerOrtsnetzAuslastungImpl sut, TimeLeapClock clock, DummyElectricityMeter meter, DummyMeta meta, DummySum sum,
+	private record Setup(TimeLeapClock clock, DummyElectricityMeter meter, DummyMeta meta,
 			DummyEndpointFetcher fetcher, List<JsonObject> requests, ControllerTest test) {
 	}
 
@@ -149,24 +96,18 @@ public class ControllerOrtsnetzAuslastungImplTest {
 		});
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
-		final var sut = new ControllerOrtsnetzAuslastungImpl();
-		final var today = ZonedDateTime.now(clock);
-		final var test = new ControllerTest(sut) //
+		final var test = new ControllerTest(new ControllerOrtsnetzAuslastungImpl()) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofBridgeImpl(() -> fetcher, () -> executor)) //
 				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("meta", meta) //
 				.addReference("sum", sum) //
 				.addReference("componentManager", new DummyComponentManager(clock).addComponent(meter)) //
-				.addReference("predictorManager", new TestPredictorManager(predictionOf(today, 96, 1000))) //
-				.addReference("timedata", new TestTimedata(PRODUCED_TODAY_WH)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
-						.setUrl(URL) //
 						.setMeterId(meterId) //
-						.setPlantCapacityKwp(9.8) //
 						.setDebugMode(DebugMode.OFF) //
 						.build());
-		return new Setup(sut, clock, meter, meta, sum, fetcher, requests, test);
+		return new Setup(clock, meter, meta, fetcher, requests, test);
 	}
 
 	@Test
@@ -206,13 +147,11 @@ public class ControllerOrtsnetzAuslastungImplTest {
 		assertEquals(-1., first.get("l2_a").getAsDouble(), 0.000001);
 		assertEquals(2.5, first.get("l3_a").getAsDouble(), 0.000001);
 		assertEquals(62, first.get("battery_soc_percent").getAsInt());
-		assertEquals(9.8, first.get("plant_capacity_kwp").getAsDouble(), 0.000001);
 		assertEquals(10.2, first.get("battery_capacity").getAsDouble(), 0.000001);
 		assertTrue(first.get("observed_at").getAsString().matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"));
 
 		// Static values are only sent again if they change
 		final var second = s.requests().get(1);
-		assertFalse(second.has("plant_capacity_kwp"));
 		assertFalse(second.has("battery_capacity"));
 	}
 
@@ -359,124 +298,6 @@ public class ControllerOrtsnetzAuslastungImplTest {
 						.output(COMPONENT_ID, NO_GRID_METER, true) //
 						.onAfterControllersCallbacks(() -> assertEquals(0, s.requests().size()))) //
 				.deactivate();
-	}
-
-	@Test
-	public void testPvForecastIsSentWithSecondMeasurement() throws Exception {
-		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE));
-		s.test() //
-				.next(new TestCase()) //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> {
-							// Wait for the update in the background thread
-							for (var i = 0; i < 100 && s.sut().getPvForecastKwh(s.clock().instant()) == null; i++) {
-								Thread.sleep(50);
-							}
-						}) //
-						.timeleap(s.clock(), 5, MINUTES)) //
-				.deactivate();
-
-		assertFalse(s.requests().get(0).has("pv_forecast_kwh"));
-		// 5 kWh produced + 95 remaining quarters with 1 kW
-		assertEquals(28.75, s.requests().get(1).get("pv_forecast_kwh").getAsDouble(), 0.000001);
-	}
-
-	@Test
-	public void testPvForecastDisabled() throws Exception {
-		final var requests = new ArrayList<JsonObject>();
-		final var clock = createDummyClock();
-		final var fetcher = dummyEndpointFetcher();
-		fetcher.addEndpointHandler(endpoint -> {
-			requests.add(JsonParser.parseString(endpoint.body()).getAsJsonObject());
-			return new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE);
-		});
-		final var executor = dummyBridgeHttpExecutor(clock, true);
-		final var meter = new DummyElectricityMeter("meter0") //
-				.withMeterType(MeterType.GRID) //
-				.withVoltageL1(230100);
-		final var now = ZonedDateTime.now(clock);
-		final var sut = new ControllerOrtsnetzAuslastungImpl();
-		new ControllerTest(sut) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofBridgeImpl(() -> fetcher, () -> executor)) //
-				.addReference("oem", new DummyOpenemsEdgeOem()) //
-				.addReference("meta", new DummyMeta() //
-						.withCoordinates(Coordinates.of(52.520008, 13.404954)) //
-						.withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance.ACCEPTED)) //
-				.addReference("sum", new DummySum()) //
-				.addReference("componentManager", new DummyComponentManager(clock).addComponent(meter)) //
-				.addReference("predictorManager", new TestPredictorManager(predictionOf(now, 96, 1000))) //
-				.addReference("timedata", new TestTimedata(PRODUCED_TODAY_WH)) //
-				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setUrl(URL) //
-						.setPlantCapacityKwp(9.8) //
-						.setSendPvForecast(false) //
-						.setDebugMode(DebugMode.OFF) //
-						.build()) //
-				.next(new TestCase()) //
-				.next(new TestCase() //
-						.onBeforeProcessImage(() -> Thread.sleep(200)) //
-						.timeleap(clock, 5, MINUTES)) //
-				.deactivate();
-
-		assertEquals(2, requests.size());
-		assertFalse(requests.get(1).has("pv_forecast_kwh"));
-		assertEquals(null, sut.getPvForecastKwh(clock.instant()));
-	}
-
-	@Test
-	public void testCalculatePvForecast() {
-		final var midnight = ZonedDateTime.parse("2026-11-04T00:00:00+01:00[Europe/Berlin]");
-		final var noon = midnight.plusHours(12).plusMinutes(5);
-		final var prediction = predictionOf(noon.minusMinutes(5), 192, 1000);
-
-		// 3 kWh produced + 47 remaining quarters with 1 kW
-		assertEquals(14.75, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, 3000., prediction));
-
-		// Last quarter of the day: nothing remains
-		final var lastQuarter = midnight.plusHours(23).plusMinutes(50);
-		assertEquals(20., ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, lastQuarter, 20_000.,
-				Prediction.EMPTY_PREDICTION));
-
-		// Negative predicted values do not reduce the forecast
-		assertEquals(3., ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, 3000.,
-				predictionOf(noon.minusMinutes(5), 192, -1000)));
-
-		// Not available: no capacity, unknown or negative energy, no prediction
-		assertEquals(null, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(0, noon, 3000., prediction));
-		assertEquals(null, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, null, prediction));
-		assertEquals(null, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, -1., prediction));
-		assertEquals(null,
-				ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, 3000., Prediction.EMPTY_PREDICTION));
-
-		// Prediction ends before midnight
-		assertEquals(null, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(9.8, noon, 3000.,
-				predictionOf(noon.minusMinutes(5), 4, 1000)));
-
-		// More than 10 kWh per kWp would be rejected by the API
-		assertEquals(null, ControllerOrtsnetzAuslastungImpl.calculatePvForecastKwh(1, noon, 3000., prediction));
-	}
-
-	@Test
-	public void testPvForecastWithoutProducedEnergy() throws Exception {
-		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE));
-		final var sut = new ControllerOrtsnetzAuslastungImpl();
-		final var now = ZonedDateTime.now(s.clock());
-		new ControllerTest(sut) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
-				.addReference("oem", new DummyOpenemsEdgeOem()) //
-				.addReference("meta", s.meta()) //
-				.addReference("sum", s.sum()) //
-				.addReference("componentManager", new DummyComponentManager(s.clock())) //
-				.addReference("predictorManager", new TestPredictorManager(predictionOf(now, 96, 1000))) //
-				.addReference("timedata", new TestTimedata(JsonNull.INSTANCE)) //
-				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setUrl(URL) //
-						.setPlantCapacityKwp(9.8) //
-						.setDebugMode(DebugMode.OFF) //
-						.build());
-		assertEquals(null, sut.calculatePvForecastKwh(now));
 	}
 
 	@Test

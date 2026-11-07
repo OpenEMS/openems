@@ -3,11 +3,11 @@ package io.openems.edge.goodwe.batteryinverter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.MapUtils.mapValue;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
@@ -113,6 +113,7 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
+import io.openems.edge.goodwe.common.enums.PvConnectMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
@@ -125,6 +126,7 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 @GenerateTargetsFromReferences("Modbus")
@@ -145,6 +147,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	// Register FEED_POWER_PARA_SET (47510) is written as SignedWordElement
 	// (16-bit).
 	private static final int MAX_LEGACY_FEED_POWER = Short.MAX_VALUE;
+	private static final int MAX_HOME_30_FEED_POWER = 60_000;
 	private static final Logger LOG = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
@@ -445,6 +448,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (this.isGoodWeType50Or100k()) {
 			this.applyWaveFormDetection();
 		}
+		if (this.isGoodWeType100k()) {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.THREE_PHASE_UNBALANCED_OUTPUT), 0);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.PV_CONNECT_MODE), PvConnectMode.EACH_MPPT);
+		}
 
 		// Power settings
 		this.setPowerSettings();
@@ -499,15 +506,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
-		case FENECON_50K, FENECON_100K -> {
-			// Feed-in limitation on / off
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
-			// Feed-in limitation
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
-			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
-		}
-		case FENECON_FHI_29_9_DAH -> {
+		case FENECON_50K, FENECON_100K, FENECON_FHI_29_9_DAH -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
@@ -1061,6 +1060,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void handleGridFeedForFeneconFhi299Dah() throws OpenemsNamedException {
 		if (this.rcr != null && this.rcr.essRestrictionLevel() != EssRestrictionLevel.NO_RESTRICTION
 				&& !this.getMaxApparentPower().isDefined()) {
+			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
 			return;
 		}
 		var limit = this.meta.getGridLimit().gridSellHardLimit();
@@ -1068,7 +1068,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (rcrLimit.isPresent()) {
 			limit = min(limit, rcrLimit.getAsInt());
 		}
+		var exceedsMaximum = this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION
+				&& limit > MAX_HOME_30_FEED_POWER;
+		if (exceedsMaximum) {
+			limit = MAX_HOME_30_FEED_POWER;
+		}
 		this.handleFeedInSetting(true, limit, this.getGoodweType());
+		setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum);
 	}
 
 	private void handleGridFeedForOther() throws OpenemsNamedException {

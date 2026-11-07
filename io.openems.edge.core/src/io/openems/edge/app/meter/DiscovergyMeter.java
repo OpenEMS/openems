@@ -63,9 +63,8 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				.setTranslatedLabelWithAppPrefix(".password.label") //
 				.setTranslatedDescriptionWithAppPrefix(".password.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
-					field.setInputType(io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD);
-				}) //
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> field //
+						.setInputType(io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD)) //
 				.bidirectional(METER_ID, "password", ComponentManagerSupplier::getComponentManager, t -> {
 					return JsonUtils.getAsOptionalString(t) //
 							.map(s -> {
@@ -78,7 +77,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				}))), //
 		SERIAL_NUMBER_TYPE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".serialType.label")
-				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildSelect, (_, _, _, _, field) -> {
 					final var options = new ArrayList<String>();
 					options.add("SERIAL_NUMBER");
 					options.add("FULL_SERIAL_NUMBER");
@@ -91,26 +90,22 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				.setDefaultValue("")//
 				.setTranslatedDescriptionWithAppPrefix(".serialNumber.description") //
 				.setField(JsonFormlyUtil::buildInputFromNameable) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("SERIAL_NUMBER")));//
-				}))), //
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(
+								Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("SERIAL_NUMBER")))))), //
 		FULL_SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".fullSerialNumber.label") //
 				.setDefaultValue("")//
 				.setTranslatedDescriptionWithAppPrefix(".fullSerialNumber.description") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					//
-					field.onlyShowIf(
-							Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("FULL_SERIAL_NUMBER")));//
-				}))), //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE)
+								.equal(Exp.staticValue("FULL_SERIAL_NUMBER")))))), //
 		DISCOVERGY_METER_ID(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".meterId.description") //
 				.setTranslatedLabelWithAppPrefix(".meterId.label")//
 				.setDefaultValue("")//
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					//
-					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID")));//
-				}))), //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID")))))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		;
 

@@ -185,6 +185,9 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlIoHeatingElement, "Level1CumulatedTime", DataType.LONG)) //
 				.putAll(multiChannels(ctrlIoHeatingElement, "Level2CumulatedTime", DataType.LONG)) //
 				.putAll(multiChannels(ctrlIoHeatingElement, "Level3CumulatedTime", DataType.LONG)) //
+				.putAll(multiChannels(ctrlIoHeatingElement, "Level4CumulatedTime", DataType.LONG)) //
+				.putAll(multiChannels(ctrlIoHeatingElement, "Level5CumulatedTime", DataType.LONG)) //
+				.putAll(multiChannels(ctrlIoHeatingElement, "Level6CumulatedTime", DataType.LONG)) //
 				.put("ctrlChpSoc0/CumulatedActiveTime", DataType.LONG) //
 				.put("ctrlFixActivePower0/CumulatedActiveTime", DataType.LONG) //
 				.putAll(multiChannels("ctrlChannelThreshold", 0, 5, "CumulatedActiveTime", DataType.LONG)) //

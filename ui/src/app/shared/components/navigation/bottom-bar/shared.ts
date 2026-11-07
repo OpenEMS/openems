@@ -27,13 +27,17 @@ export namespace SharedBottomNavigationBar {
             OverViewComponent.getNavigationTree(user, translate, service),
             getCockpitNavigationTree(edge, config, translate),
             getScheduleNavigationTree(translate, edge, config),
-            getFavoritesNavigationTree(translate),
+            getFavoritesNavigationTree(edge, translate),
             EnergyJourneyShared.getNavigationTree(edge, config, translate),
             getProfileNavigationTree(user, translate),
         ].filter((e) => e !== null);
     }
 
-    export function getFavoritesNavigationTree(translate: TranslateService): NavigationTree {
+    export function getFavoritesNavigationTree(edge: Edge, translate: TranslateService): NavigationTree | null {
+        if (edge == null || !edge.isOnline) {
+            return null;
+        }
+
         return new NavigationTree(
             NavigationId.FAVORITES,
             { baseString: "favorites" },
@@ -82,10 +86,6 @@ export namespace SharedBottomNavigationBar {
         config: EdgeConfig,
         translate: TranslateService,
     ): NavigationTree | null {
-        if (!edge.isOnline) {
-            return null;
-        }
-
         const weatherComponent = config.getFirstComponentByFactoryId("Weather.OpenMeteo");
         const storage = SharedStorage.getNavigationTree(edge, translate, config);
         const grid = SharedGrid.getNavigationTree(edge, config, translate);
@@ -99,9 +99,11 @@ export namespace SharedBottomNavigationBar {
             { name: "oe-cockpit" },
             translate.instant("MENU.COCKPIT"),
             "icon",
-            [production, consumption, storage, grid, weather]
-                .filter((el) => el !== null)
-                .map((el) => new NavigationTree(...el)),
+            edge.isOnline
+                ? [production, consumption, storage, grid, weather]
+                      .filter((el) => el !== null)
+                      .map((el) => new NavigationTree(...el))
+                : [],
             null,
             { accordionOpenedOnDefault: true, hideFavorite: true },
         );

@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ortsnetzauslastung;
 
-import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
@@ -21,13 +20,9 @@ import static io.openems.edge.controller.ortsnetzauslastung.ControllerOrtsnetzAu
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,9 +33,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +44,6 @@ import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
@@ -69,9 +60,6 @@ import io.openems.edge.controller.ortsnetzauslastung.Types.SendData;
 import io.openems.edge.controller.ortsnetzauslastung.Types.StaticData;
 import io.openems.edge.controller.ortsnetzauslastung.Types.StorageRecommendation;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.predictor.api.manager.PredictorManager;
-import io.openems.edge.predictor.api.prediction.Prediction;
-import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -81,6 +69,9 @@ import io.openems.edge.timedata.api.Timedata;
 )
 public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ControllerOrtsnetzAuslastung {
+
+	/** URL of the measurements API. */
+	private static final String URL = "https://www.ortsnetz-auslastung.de/v1/measurements";
 
 	/** Send interval as defined by the API. */
 	protected static final Duration SEND_INTERVAL = Duration.ofMinutes(5);
@@ -92,11 +83,6 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	private static final int MAX_VOLTAGE = 500_000; // [mV]
 	private static final int MIN_FREQUENCY = 45_000; // [mHz]
 	private static final int MAX_FREQUENCY = 55_000; // [mHz]
-	private static final double MAX_PLANT_CAPACITY = 1000; // [kWp]
-	private static final double MAX_PV_FORECAST_PER_KWP = 10; // [kWh/kWp]
-
-	private static final ChannelAddress PRODUCTION_ENERGY = new ChannelAddress("_sum", "ProductionActiveEnergy");
-	private static final ChannelAddress PRODUCTION_POWER = new ChannelAddress("_sum", "ProductionActivePower");
 
 	private static final int HTTP_FORBIDDEN = 403;
 	private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
@@ -119,21 +105,11 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference
-	private PredictorManager predictorManager;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
 	private Config config;
 
 	/** Result of the last request; set by the HTTP thread, applied in run(). */
 	private final AtomicReference<SendResult> pendingResult = new AtomicReference<>();
 	private final AtomicBoolean requestRunning = new AtomicBoolean(false);
-
-	/** Latest PV forecast; set by a background thread, read in run(). */
-	private final AtomicReference<PvForecast> pvForecast = new AtomicReference<>();
-	private final AtomicBoolean pvForecastUpdateRunning = new AtomicBoolean(false);
 
 	private final IntervalStatistics l1VStatistics = new IntervalStatistics();
 	private final IntervalStatistics l2VStatistics = new IntervalStatistics();
@@ -147,9 +123,6 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	private String lastHttpResult = "HTTP:WAITING";
 
 	private record SendResult(HttpResponse<String> response, Throwable error, StaticData staticData) {
-	}
-
-	private record PvForecast(LocalDate date, Double kwh) {
 	}
 
 	public ControllerOrtsnetzAuslastungImpl() {
@@ -220,9 +193,6 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 			this.resetStatistics();
 		}
 		this.send(data);
-		if (this.config.sendPvForecast()) {
-			this.updatePvForecast();
-		}
 	}
 
 	/**
@@ -295,7 +265,6 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 				l2V == null ? null : currentInAmpere(meter.getCurrentL2().get()), //
 				l3V == null ? null : currentInAmpere(meter.getCurrentL3().get()), //
 				validSoc(this.sum.getEssSoc().get()), //
-				this.getPvForecastKwh(now), //
 				Objects.equals(staticData, this.lastSentStaticData) ? null : staticData, //
 				getIntegrationVersion(this.oem.getManufacturerModel(), OpenemsConstants.VERSION.toString()));
 	}
@@ -307,10 +276,8 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	 * @return the {@link StaticData}
 	 */
 	private StaticData getStaticData(ElectricityMeter meter) {
-		final var plantCapacity = this.config.plantCapacityKwp();
 		final var batteryCapacity = this.sum.getEssCapacity().get();
 		return new StaticData(//
-				plantCapacity > 0 && plantCapacity <= MAX_PLANT_CAPACITY ? plantCapacity : null, //
 				batteryCapacity != null && batteryCapacity > 0 ? batteryCapacity / 1000. : null, //
 				this.getSmartmeterModel(meter));
 	}
@@ -337,108 +304,13 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Gets the latest PV forecast. It is only valid for the day it was calculated
-	 * for.
-	 *
-	 * @param now the current time
-	 * @return the total PV forecast for today in [kWh] or null
-	 */
-	protected Double getPvForecastKwh(Instant now) {
-		final var forecast = this.pvForecast.get();
-		final var today = now.atZone(this.componentManager.getClock().getZone()).toLocalDate();
-		if (forecast == null || !forecast.date().equals(today)) {
-			return null;
-		}
-		return forecast.kwh();
-	}
-
-	/**
-	 * Updates the PV forecast in a background thread, because reading Timedata and
-	 * Predictions must not block the Cycle.
-	 */
-	private void updatePvForecast() {
-		if (!this.pvForecastUpdateRunning.compareAndSet(false, true)) {
-			return;
-		}
-		final var now = ZonedDateTime.now(this.componentManager.getClock());
-		CompletableFuture.supplyAsync(() -> this.calculatePvForecastKwh(now)).whenComplete((kwh, error) -> {
-			if (error != null) {
-				this.logWarn(this.log, "Unable to calculate PV forecast: " + error.getMessage());
-			}
-			this.pvForecast.set(new PvForecast(now.toLocalDate(), kwh));
-			this.pvForecastUpdateRunning.set(false);
-		});
-	}
-
-	/**
-	 * Calculates the total PV forecast for today from Timedata and Predictor.
-	 *
-	 * @param now the current time
-	 * @return the forecast in [kWh] or null if it is not available
-	 */
-	protected Double calculatePvForecastKwh(ZonedDateTime now) {
-		final var currentTimedata = this.timedata;
-		if (currentTimedata == null) {
-			return null;
-		}
-		final Double producedTodayWh;
-		try {
-			final var energy = currentTimedata.queryHistoricEnergy(null, now.truncatedTo(ChronoUnit.DAYS), now,
-					Set.of(PRODUCTION_ENERGY));
-			producedTodayWh = energy == null ? null
-					: JsonUtils.getAsOptionalDouble(energy.get(PRODUCTION_ENERGY)).orElse(null);
-		} catch (OpenemsNamedException e) {
-			this.logWarn(this.log, "Unable to query produced energy: " + e.getMessage());
-			return null;
-		}
-		return calculatePvForecastKwh(this.config.plantCapacityKwp(), now, producedTodayWh,
-				this.predictorManager.getPrediction(PRODUCTION_POWER));
-	}
-
-	/**
-	 * Calculates the total PV forecast for today: the energy produced until now
-	 * plus the prediction of the remaining quarters of the day.
-	 *
-	 * <p>
-	 * The API rejects the whole measurement if the plant capacity is unknown or if
-	 * the forecast exceeds {@link #MAX_PV_FORECAST_PER_KWP}. An incomplete forecast
-	 * would be too low. In these cases the value is not sent.
-	 *
-	 * @param plantCapacityKwp the plant capacity in [kWp]
-	 * @param now              the current time
-	 * @param producedTodayWh  the energy produced today in [Wh] or null
-	 * @param prediction       the {@link Prediction} of the production in [W]
-	 * @return the forecast in [kWh] or null if it is not available
-	 */
-	protected static Double calculatePvForecastKwh(double plantCapacityKwp, ZonedDateTime now, Double producedTodayWh,
-			Prediction prediction) {
-		if (plantCapacityKwp <= 0 || plantCapacityKwp > MAX_PLANT_CAPACITY //
-				|| producedTodayWh == null || producedTodayWh < 0) {
-			return null;
-		}
-		final var endOfDay = now.toLocalDate().plusDays(1).atStartOfDay(now.getZone());
-		var energyWh = producedTodayWh;
-		// The current quarter is already partly included in the produced energy
-		for (var quarter = roundDownToQuarter(now).plusMinutes(15); quarter.isBefore(endOfDay); //
-				quarter = quarter.plusMinutes(15)) {
-			final var power = prediction.getAt(quarter);
-			if (power == null) {
-				return null;
-			}
-			energyWh += Math.max(0, power) / 4.;
-		}
-		final var energyKwh = Math.round(energyWh) / 1000.;
-		return energyKwh > plantCapacityKwp * MAX_PV_FORECAST_PER_KWP ? null : energyKwh;
-	}
-
-	/**
 	 * Sends the data asynchronously. The result is applied in the next
 	 * {@link #run()}.
 	 *
 	 * @param data the {@link SendData}
 	 */
 	private void send(SendData data) {
-		final var endpoint = BridgeHttp.create(this.config.url()) //
+		final var endpoint = BridgeHttp.create(URL) //
 				.setBodyJson(data.toJson()) //
 				.build();
 		this.requestRunning.set(true);
