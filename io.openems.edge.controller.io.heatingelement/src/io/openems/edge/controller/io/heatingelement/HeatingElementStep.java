@@ -1,6 +1,7 @@
 package io.openems.edge.controller.io.heatingelement;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 /**
  * Represents one generic relay output step of the heating element.

@@ -1,6 +1,6 @@
 package io.openems.edge.bridge.modbus.api;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
 
 import java.util.HashMap;
 import java.util.List;
