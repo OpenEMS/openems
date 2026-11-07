@@ -6,7 +6,7 @@
     "scripts": {
         "capacitor-assets": "capacitor-assets",
         "lint": "ng lint && npm run lint:i18n",
-        "lint:i18n": "node scripts/lint-translation-keys.js",
+        "lint:i18n": "node eslint-rules/lint-translation-keys.js",
         "test": "ng test"
     },
     "dependencies": {
@@ -32,7 +32,7 @@
         "@date-fns/tz": "^1.5.0",
         "@ionic/angular": "^8.8.19",
         "@ionic/core": "^8.8.19",
-        "@ngx-formly/core": "^8.0.0",
+        "@ngx-formly/core": "^10.0.1",
         "@ngx-formly/ionic": "^8.0.0",
         "@ngx-formly/schematics": "^8.0.0",
         "@ngx-translate/core": "^17.0.0",

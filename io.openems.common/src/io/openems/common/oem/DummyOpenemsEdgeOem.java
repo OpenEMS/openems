@@ -410,6 +410,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.LoadControl.BraiinsOs", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Meter.Shelly", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //

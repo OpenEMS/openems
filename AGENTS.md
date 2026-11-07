@@ -49,6 +49,10 @@ Use dedicated skills for detailed test-writing patterns:
 
 Preserve intentional trailing `//` markers in fluent `ComponentTest` chains.
 
+## Reviews
+
+- Use `.github/skills/oe-review/SKILL.md` for code review tasks (base review process plus the language guides `JAVA.md` and `TYPESCRIPT.md`).
+
 ## Validation
 
 - Java: use the Gradle wrapper and prefer single-bundle tasks, for example `.\gradlew.bat :bundle.name:test` and `.\gradlew.bat :bundle.name:checkstyleMain` on Windows PowerShell.
