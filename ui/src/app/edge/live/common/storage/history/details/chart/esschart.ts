@@ -235,7 +235,8 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
         };
     }
 
-    public ionViewDidEnter() {
+    public override ngOnInit() {
+        super.ngOnInit();
         setTimeout(() => {
             this.chart?.chart?.resize();
             this.chart?.update();

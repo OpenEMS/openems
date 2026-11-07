@@ -37,7 +37,7 @@ import { UpdateableCardComponent } from "./updateable-card.component";
 })
 export class SystemComponent {
     private static readonly SELECTOR = "system";
-    private static readonly REFRESH_UPDATE_STATE_INTERVAL: number = 5_000; // 5s
+    private static readonly REFRESH_UPDATE_STATE_INTERVAL: number = 2_000; // 2s
 
     protected readonly environment = environment;
     protected readonly spinnerId: string = SystemComponent.SELECTOR;

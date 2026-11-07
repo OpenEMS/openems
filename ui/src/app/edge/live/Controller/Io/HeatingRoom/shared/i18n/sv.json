@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "HOME": {
+            "AMBIENT_ACTUAL": "Rumstemperatur",
+            "AMBIENT_TARGET": "Önskad rumstemperatur",
+            "FLOOR_ACTUAL": "Golvtemperatur",
+            "FLOOR_TARGET": "Önskad golvtemperatur",
+            "POWER_CONSUMPTION": "Energiförbrukning",
+            "UPCOMING_EVENTS": "Kommande händelser"
+        },
+        "MODE": {
+            "MANUAL_HIGH": "Hög",
+            "MANUAL_LOW": "Låg",
+            "TITLE": "Värmeläge"
+        }
+    }
+}

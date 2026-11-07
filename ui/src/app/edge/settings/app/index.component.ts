@@ -10,6 +10,8 @@ import { ChosenFilter, Filter, FilterComponent, FilterOption } from "src/app/ind
 import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { TourService } from "src/app/shared/tour/tour.service";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
@@ -23,7 +25,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { InstallAppComponent } from "./install.component";
 import { Flags } from "./jsonrpc/flag/flags";
 import { GetApps } from "./jsonrpc/getApps";
@@ -104,7 +108,9 @@ export class IndexComponent implements OnInit, OnDestroy {
     private inputValue: string;
 
     private readonly cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
+    private readonly tourService = inject(TourService);
     private readonly areTranslationsLoaded = signal<boolean>(false);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     public constructor(
         private route: ActivatedRoute,
@@ -114,14 +120,22 @@ export class IndexComponent implements OnInit, OnDestroy {
         private router: Router,
         private modalController: ModalController,
     ) {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-                this.areTranslationsLoaded.set(true);
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+            this.areTranslationsLoaded.set(true);
+        });
     }
 
     public ngOnInit() {
@@ -374,6 +388,11 @@ export class IndexComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.numberOfUnusedRegisteredKeys() === 0) {
+            return;
+        }
+
+        // The popover overlays the tour and would block it; show it on a later visit instead
+        if (this.tourService.isActive()) {
             return;
         }
 

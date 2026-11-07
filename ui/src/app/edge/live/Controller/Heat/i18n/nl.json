@@ -7,30 +7,30 @@
             "NOT_AVAILABLE": "Niet beschikbaar in alleen-lezen modus."
         },
         "SCHEDULE": {
-            "SCHEDULE": "Tijdschema",
+            "END_TEMPERATURE": "Eindtemperatuur",
+            "MANUAL_EVENTS": "Handmatige events",
             "MODE": "Verwarmingsmodus",
             "MODE_SELECTION_PLACEHOLDER": "Selecteren",
-            "MANUAL_EVENTS": "Handmatige events",
-            "SMART_EVENTS": "Slimme events",
+            "SCHEDULE": "Tijdschema",
             "SMART_EVENT": "Slim event",
-            "SMART_EVENT_END": "Morgen 7:00",
-            "END_TEMPERATURE": "Eindtemperatuur"
+            "SMART_EVENTS": "Slimme events",
+            "SMART_EVENT_END": "Morgen 7:00"
         },
         "SETTINGS": {
-            "NO_SETTINGS_AVAILABLE": "Geen instellingen beschikbaar.",
             "MODE": {
                 "FAST_HEAT": {
-                    "TITLE": "Snel verwarmen",
-                    "DESCRIPTION": "De verwarmingsstaaf kiest automatisch het bijbehorende verwarmingsniveau.\nDe maximale duur van het vermogen is 10 uur.\nDaarna volgt een pauze van 1 uur."
-                },
-                "SURPLUS": {
-                    "TITLE": "PV-overschot",
-                    "DESCRIPTION": "Maakt gelijkmatige verwarming van verschillende buffervaten mogelijk. De activering gebeurt automatisch, perfect afgestemd op uw overtollige en beschikbare PV-energie."
+                    "DESCRIPTION": "De verwarmingsstaaf kiest automatisch het bijbehorende verwarmingsniveau.\nDe maximale duur van het vermogen is 10 uur.\nDaarna volgt een pauze van 1 uur.",
+                    "TITLE": "Snel verwarmen"
                 },
                 "OFF": {
                     "TITLE": "Geen verwarming"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "Maakt gelijkmatige verwarming van verschillende buffervaten mogelijk. De activering gebeurt automatisch, perfect afgestemd op uw overtollige en beschikbare PV-energie.",
+                    "TITLE": "PV-overschot"
                 }
-            }
+            },
+            "NO_SETTINGS_AVAILABLE": "Geen instellingen beschikbaar."
         }
     }
 }

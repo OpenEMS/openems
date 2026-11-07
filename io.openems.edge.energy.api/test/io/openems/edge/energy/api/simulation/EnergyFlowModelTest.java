@@ -1,19 +1,21 @@
 package io.openems.edge.energy.api.simulation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static io.openems.edge.energy.api.simulation.EnergyFlow.Curtailment.ALLOW;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-import io.openems.common.exceptions.OpenemsException;
+class EnergyFlowModelTest {
 
-public class EnergyFlowModelTest {
+	@Nested
+	class ConstructorTest {
 
-	@Test
-	public void testConstructor_ShouldThrowException_WhenNotSolvable() {
-		// Too much consumption
-		var exception2 = assertThrows(OpenemsException.class, () -> {
-			new EnergyFlow.Model(//
+		@Test
+		void shouldClampConsumptionToMaximumSupply_whenPredictionExceedsAvailableSupply() {
+			final var model = new EnergyFlow.Model(//
 					200, // production
 					1200, // unmanagedConsumption
 					10_000, // essMaxCharge
@@ -21,489 +23,706 @@ public class EnergyFlowModelTest {
 					100, // gridMaxBuy
 					10_000 // gridMaxSell
 			);
-		});
-		assertEquals("Initial setup not solvable", exception2.getMessage());
+			assertEquals(400, model.getConsumption());
+			assertEquals(0, model.getManagedConsumption());
+			assertEquals(0, model.addManagedConsumption("cons1", 100));
+
+			final var flow = model.solve();
+			assertEquals(400, flow.getUnmanagedConsumption());
+			assertEquals(400, flow.getConsumption());
+			assertEquals(200, flow.getProduction());
+			assertEquals(0, flow.getExcessProduction());
+			assertEquals(100, flow.getEss());
+			assertEquals(100, flow.getGrid());
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "400, 100, 100", "300, 100, 0" })
+		void shouldPreserveConsumption_whenPredictionDoesNotExceedAvailableSupply(final int consumption,
+				final int expectedEss, final int expectedGrid) {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					consumption, // unmanagedConsumption
+					10_000, // essMaxCharge
+					100, // essMaxDischarge
+					100, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+
+			final var flow = model.solve();
+			assertEquals(consumption, model.getConsumption());
+			assertEquals(consumption, flow.getUnmanagedConsumption());
+			assertEquals(0, model.getManagedConsumption());
+			assertEquals(200, flow.getProduction());
+			assertEquals(expectedEss, flow.getEss());
+			assertEquals(expectedGrid, flow.getGrid());
+		}
+
+		@Test
+		void shouldPreserveConsumption_whenMaximumSupplyExceedsIntegerRange() {
+			final var model = new EnergyFlow.Model(//
+					Integer.MAX_VALUE, // production
+					Integer.MAX_VALUE, // unmanagedConsumption
+					10_000, // essMaxCharge
+					Integer.MAX_VALUE, // essMaxDischarge
+					Integer.MAX_VALUE, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+
+			final var flow = model.solve();
+			assertEquals(Integer.MAX_VALUE, model.getConsumption());
+			assertEquals(Integer.MAX_VALUE, flow.getUnmanagedConsumption());
+			assertEquals(Integer.MAX_VALUE, flow.getProduction());
+			assertEquals(0, flow.getEss());
+			assertEquals(0, flow.getGrid());
+		}
 	}
 
-	@Test
-	public void testSetEssMaxCharge() throws Exception {
-		// Case 1: state = UNSET, minRequiredCharge = 300
-		var m1 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				500 // gridMaxSell
-		);
-		assertEquals(1_000, m1.setEssMaxCharge(1_000));
-		assertEquals(1_000, m1.setEssMaxCharge(3_000));
-		assertEquals(300, m1.setEssMaxCharge(50));
+	@Nested
+	class SetEssGreaterOrEqualsTest {
 
-		// Case 2: state = UNSET, minRequiredCharge = 0
-		var m2 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(0, m2.setEssMaxCharge(0));
-		assertEquals(0, m2.setEssMaxCharge(200));
+		@Test
+		void shouldPreservePvUse_whenRaisingLowerBound() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					500 // gridMaxSell
+			);
+			assertEquals(-1_000, model.setEssGreaterOrEquals(-1_000));
+			assertEquals(-1_000, model.setEssGreaterOrEquals(-3_000));
+			assertEquals(-300, model.setEssGreaterOrEquals(-50));
+		}
 
-		// Case 3: state = UNSET, minRequiredCharge >= essMaxCharge (excess production)
-		var m3 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				100, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				100 // gridMaxSell
-		);
-		assertEquals(100, m3.setEssMaxCharge(50));
-		assertEquals(100, m3.setEssMaxCharge(0));
+		@Test
+		void shouldDisableCharging_whenExportCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setEssGreaterOrEquals(0));
+			assertEquals(0, model.setEssGreaterOrEquals(-200));
+		}
 
-		// Case 4: state = ESS_SET, minRequiredCharge = 50
-		var m4 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				300, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m4.setEss(-50);
-		assertEquals(300, m4.setEssMaxCharge(600));
-		assertEquals(200, m4.setEssMaxCharge(200));
-		assertEquals(50, m4.setEssMaxCharge(0));
+		@Test
+		void shouldNotIncreaseCurtailment_whenCurtailmentIsUnavoidable() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			assertEquals(-100, model.setEssGreaterOrEquals(-50));
+			assertEquals(-100, model.setEssGreaterOrEquals(0));
+		}
 
-		// Case 5: state = GRID_SET, minRequiredCharge = 600
-		var m5 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				800, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m5.setGrid(-200);
-		assertEquals(800, m5.setEssMaxCharge(1_000));
-		assertEquals(600, m5.setEssMaxCharge(600));
-		assertEquals(600, m5.setEssMaxCharge(0));
+		@Test
+		void shouldDisableChargingAndIncreaseCurtailment_whenCurtailmentIsAllowed() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			assertEquals(0, model.setEssGreaterOrEquals(0, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(0, flow.getEss());
+			assertEquals(-100, flow.getGrid());
+			assertEquals(300, flow.getProduction());
+			assertEquals(700, flow.getExcessProduction());
+		}
+
+		@Test
+		void shouldPreservePvUse_whenCurtailmentIsAllowedButExportCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setEssGreaterOrEquals(0, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(0, flow.getEss());
+			assertEquals(-800, flow.getGrid());
+			assertEquals(1_000, flow.getProduction());
+			assertEquals(0, flow.getExcessProduction());
+		}
+
+		@Test
+		void shouldPreserveEssCommitment_whenChangingLowerBound() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					300, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitEss(-50);
+			assertEquals(-50, model.setEssGreaterOrEquals(-600));
+			assertEquals(-50, model.setEssGreaterOrEquals(-200));
+			assertEquals(-50, model.setEssGreaterOrEquals(0));
+			assertEquals(-50, model.setEssGreaterOrEquals(0, ALLOW));
+		}
+
+		@Test
+		void shouldKeepEssIntervalFlexible_whenGridIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					800, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitGrid(-200);
+			assertEquals(-800, model.setEssGreaterOrEquals(-1_000));
+			assertEquals(-600, model.setEssGreaterOrEquals(-600));
+			assertEquals(-600, model.setEssGreaterOrEquals(0));
+		}
 	}
 
-	@Test
-	public void testSetEssMaxDischarge() throws Exception {
-		// Case 1: state = UNSET, minRequiredDischarge = 300
-		var m1 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				500, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(1000, m1.setEssMaxDischarge(1000));
-		assertEquals(1000, m1.setEssMaxDischarge(3000));
-		assertEquals(300, m1.setEssMaxDischarge(50));
+	@Nested
+	class SetEssLessOrEqualsTest {
 
-		// Case 2: state = UNSET, minRequiredDischarge = 0
-		var m2 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(0, m2.setEssMaxDischarge(0));
-		assertEquals(0, m2.setEssMaxDischarge(200));
+		@Test
+		void shouldSupplyConsumption_whenLoweringUpperBound() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					500, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(1000, model.setEssLessOrEquals(1000));
+			assertEquals(1000, model.setEssLessOrEquals(3000));
+			assertEquals(300, model.setEssLessOrEquals(50));
+		}
 
-		// Case 3: state = ESS_SET, minRequiredDischarge = 50
-		var m3 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				300, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m3.setEss(50);
-		assertEquals(300, m3.setEssMaxDischarge(600));
-		assertEquals(200, m3.setEssMaxDischarge(200));
-		assertEquals(50, m3.setEssMaxDischarge(0));
+		@Test
+		void shouldDisableDischarging_whenImportCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setEssLessOrEquals(0));
+			assertEquals(0, model.setEssLessOrEquals(200));
+		}
 
-		// Case 4: state = GRID_SET, minRequiredDischarge = 600
-		var m4 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				800, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m4.setGrid(200);
-		assertEquals(800, m4.setEssMaxDischarge(1_000));
-		assertEquals(600, m4.setEssMaxDischarge(600));
-		assertEquals(600, m4.setEssMaxDischarge(0));
+		@Test
+		void shouldPreserveEssCommitment_whenChangingUpperBound() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					300, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitEss(50);
+			assertEquals(50, model.setEssLessOrEquals(600));
+			assertEquals(50, model.setEssLessOrEquals(200));
+			assertEquals(50, model.setEssLessOrEquals(0));
+		}
+
+		@Test
+		void shouldKeepEssIntervalFlexible_whenGridIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					800, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitGrid(200);
+			assertEquals(800, model.setEssLessOrEquals(1_000));
+			assertEquals(600, model.setEssLessOrEquals(600));
+			assertEquals(600, model.setEssLessOrEquals(0));
+		}
 	}
 
-	@Test
-	public void testSetGridMaxSell() throws Exception {
-		// Case 1: state = UNSET, minRequiredSell = 300
-		var m1 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				500, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(1000, m1.setGridMaxSell(1000));
-		assertEquals(1000, m1.setGridMaxSell(3000));
-		assertEquals(300, m1.setGridMaxSell(50));
+	@Nested
+	class SetGridGreaterOrEqualsTest {
 
-		// Case 2: state = UNSET, minRequiredSell = 0
-		var m2 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(0, m2.setGridMaxSell(0));
-		assertEquals(0, m2.setGridMaxSell(200));
+		@Test
+		void shouldPreservePvUse_whenRaisingLowerBound() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					500, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(-1000, model.setGridGreaterOrEquals(-1000));
+			assertEquals(-1000, model.setGridGreaterOrEquals(-3000));
+			assertEquals(-300, model.setGridGreaterOrEquals(-50));
+		}
 
-		// Case 3: state = UNSET, minRequiredSell >= gridMaxSell (excess production)
-		var m3 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				100, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				100 // gridMaxSell
-		);
-		assertEquals(100, m3.setGridMaxSell(50));
-		assertEquals(100, m3.setGridMaxSell(0));
+		@Test
+		void shouldDisableExport_whenChargingCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setGridGreaterOrEquals(0));
+			assertEquals(0, model.setGridGreaterOrEquals(-200));
+		}
 
-		// Case 4: state = GRID_SET, minRequiredSell = 50
-		var m4 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				1_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				300 // gridMaxSell
-		);
-		m4.setGrid(-50);
-		assertEquals(300, m4.setGridMaxSell(600));
-		assertEquals(200, m4.setGridMaxSell(200));
-		assertEquals(50, m4.setGridMaxSell(0));
+		@Test
+		void shouldNotIncreaseCurtailment_whenCurtailmentIsUnavoidable() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			assertEquals(-100, model.setGridGreaterOrEquals(-50));
+			assertEquals(-100, model.setGridGreaterOrEquals(0));
+		}
 
-		// Case 5: state = ESS_SET, minRequiredSell = 600
-		var m5 = new EnergyFlow.Model(//
-				1_000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				800 // gridMaxSell
-		);
-		m5.setEss(-200);
-		assertEquals(800, m5.setGridMaxSell(1_000));
-		assertEquals(600, m5.setGridMaxSell(600));
-		assertEquals(600, m5.setGridMaxSell(0));
+		@Test
+		void shouldDisableExportAndIncreaseCurtailment_whenCurtailmentIsAllowed() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			assertEquals(0, model.setGridGreaterOrEquals(0, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(-100, flow.getEss());
+			assertEquals(0, flow.getGrid());
+			assertEquals(300, flow.getProduction());
+			assertEquals(700, flow.getExcessProduction());
+		}
+
+		@Test
+		void shouldPreservePvUse_whenCurtailmentIsAllowedButChargingCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setGridGreaterOrEquals(0, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(-800, flow.getEss());
+			assertEquals(0, flow.getGrid());
+			assertEquals(1_000, flow.getProduction());
+			assertEquals(0, flow.getExcessProduction());
+		}
+
+		@Test
+		void shouldPreserveGridCommitment_whenChangingLowerBound() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					1_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					300 // gridMaxSell
+			);
+			model.commitGrid(-50);
+			assertEquals(-50, model.setGridGreaterOrEquals(-600));
+			assertEquals(-50, model.setGridGreaterOrEquals(-200));
+			assertEquals(-50, model.setGridGreaterOrEquals(0));
+			assertEquals(-50, model.setGridGreaterOrEquals(0, ALLOW));
+		}
+
+		@Test
+		void shouldKeepGridIntervalFlexible_whenEssIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1_000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					800 // gridMaxSell
+			);
+			model.commitEss(-200);
+			assertEquals(-800, model.setGridGreaterOrEquals(-1_000));
+			assertEquals(-600, model.setGridGreaterOrEquals(-600));
+			assertEquals(-600, model.setGridGreaterOrEquals(0));
+		}
 	}
 
-	@Test
-	public void setGridMaxBuy() throws Exception {
-		// Case 1: state = UNSET, minRequiredBuy = 300
-		var m1 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				500, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(1000, m1.setGridMaxBuy(1000));
-		assertEquals(1000, m1.setGridMaxBuy(3000));
-		assertEquals(300, m1.setGridMaxBuy(50));
+	@Nested
+	class SetGridLessOrEqualsTest {
 
-		// Case 2: state = UNSET, minRequiredBuy = 0
-		var m2 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(0, m2.setGridMaxBuy(0));
-		assertEquals(0, m2.setGridMaxBuy(200));
+		@Test
+		void shouldSupplyConsumption_whenLoweringUpperBound() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					500, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(1000, model.setGridLessOrEquals(1000));
+			assertEquals(1000, model.setGridLessOrEquals(3000));
+			assertEquals(300, model.setGridLessOrEquals(50));
+		}
 
-		// Case 3: state = GRID_SET, minRequiredBuy = 50
-		var m3 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				300, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m3.setGrid(50);
-		assertEquals(300, m3.setGridMaxBuy(600));
-		assertEquals(200, m3.setGridMaxBuy(200));
-		assertEquals(50, m3.setGridMaxBuy(0));
+		@Test
+		void shouldDisableImport_whenDischargeCapacityIsSufficient() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(0, model.setGridLessOrEquals(0));
+			assertEquals(0, model.setGridLessOrEquals(200));
+		}
 
-		// Case 4: state = ESS_SET, minRequiredBuy = 600
-		var m4 = new EnergyFlow.Model(//
-				200, // production
-				1_000, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				800, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m4.setEss(200);
-		assertEquals(800, m4.setGridMaxBuy(1_000));
-		assertEquals(600, m4.setGridMaxBuy(600));
-		assertEquals(600, m4.setGridMaxBuy(0));
+		@Test
+		void shouldPreserveGridCommitment_whenChangingUpperBound() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					300, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitGrid(50);
+			assertEquals(50, model.setGridLessOrEquals(600));
+			assertEquals(50, model.setGridLessOrEquals(200));
+			assertEquals(50, model.setGridLessOrEquals(0));
+		}
+
+		@Test
+		void shouldKeepGridIntervalFlexible_whenEssIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1_000, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					800, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitEss(200);
+			assertEquals(800, model.setGridLessOrEquals(1_000));
+			assertEquals(600, model.setGridLessOrEquals(600));
+			assertEquals(600, model.setGridLessOrEquals(0));
+		}
 	}
 
-	@Test
-	public void testAddManagedConsumption() throws Exception {
-		// Case 1: state = UNSET, maxPossibleManagedConsumption = 4000
-		var m1 = new EnergyFlow.Model(//
-				1000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				2000, // essMaxDischarge
-				1200, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(2000, m1.addManagedConsumption("cons1", 2000));
-		assertEquals(1800, m1.addManagedConsumption("cons2", 1800));
-		assertEquals(200, m1.addManagedConsumption("cons3", 1000));
-		assertEquals(4200, m1.getConsumption());
-		assertEquals(4000, m1.getManagedConsumption());
-		assertEquals(-3200, m1.getSurplus());
+	@Nested
+	class AddManagedConsumptionTest {
 
-		// Case 2: state = ESS_SET, maxPossibleManagedConsumption = 4000
-		var m2 = new EnergyFlow.Model(//
-				1000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				2200, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m2.setEss(1000);
-		assertEquals(2000, m2.addManagedConsumption("cons1", 2000));
-		assertEquals(1800, m2.addManagedConsumption("cons2", 1800));
-		assertEquals(200, m2.addManagedConsumption("cons3", 1000));
-		assertEquals(2200, m2.getGrid());
-		assertEquals(4200, m2.getConsumption());
-		assertEquals(4000, m2.getManagedConsumption());
-		assertEquals(-3200, m2.getSurplus());
+		@Test
+		void shouldLimitConsumptionToAvailableSupply_whenEssAndGridAreUncommitted() {
+			final var model = new EnergyFlow.Model(//
+					1000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					2000, // essMaxDischarge
+					1200, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(2000, model.addManagedConsumption("cons1", 2000));
+			assertEquals(1800, model.addManagedConsumption("cons2", 1800));
+			assertEquals(200, model.addManagedConsumption("cons3", 1000));
+			assertEquals(4200, model.getConsumption());
+			assertEquals(4000, model.getManagedConsumption());
+			assertEquals(-3200, model.getSurplus());
+		}
 
-		// Case 3: state = ESS_SET (excess production)
-		var m3 = new EnergyFlow.Model(//
-				1000, // production
-				200, // unmanagedConsumption
-				100, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				100 // gridMaxSell
-		);
-		m3.setEss(100);
-		assertEquals(200, m3.addManagedConsumption("cons1", 200));
-		assertEquals(-100, m3.getGrid());
-		assertEquals(400, m3.getConsumption());
-		assertEquals(200, m3.getManagedConsumption());
-		assertEquals(600, m3.getSurplus());
+		@Test
+		void shouldLimitConsumptionToAvailableSupply_whenEssIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					2200, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitEss(1000);
+			assertEquals(2000, model.addManagedConsumption("cons1", 2000));
+			assertEquals(1800, model.addManagedConsumption("cons2", 1800));
+			assertEquals(200, model.addManagedConsumption("cons3", 1000));
+			assertEquals(2200, model.getGrid());
+			assertEquals(4200, model.getConsumption());
+			assertEquals(4000, model.getManagedConsumption());
+			assertEquals(-3200, model.getSurplus());
+		}
 
-		// Case 4: state = GRID_SET, maxPossibleManagedConsumption = 4000
-		var m4 = new EnergyFlow.Model(//
-				1000, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				2200, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		m4.setGrid(1000);
-		assertEquals(2000, m4.addManagedConsumption("cons1", 2000));
-		assertEquals(1800, m4.addManagedConsumption("cons2", 1800));
-		assertEquals(200, m4.addManagedConsumption("cons3", 1000));
-		assertEquals(2200, m4.getEss());
-		assertEquals(4200, m4.getConsumption());
-		assertEquals(4000, m4.getManagedConsumption());
-		assertEquals(-3200, m4.getSurplus());
+		@Test
+		void shouldUseOtherwiseCurtailedPv_whenEssIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			model.commitEss(100);
+			assertEquals(200, model.addManagedConsumption("cons1", 200));
+			assertEquals(-100, model.getGrid());
+			assertEquals(400, model.getConsumption());
+			assertEquals(200, model.getManagedConsumption());
+			assertEquals(600, model.getSurplus());
+		}
 
-		// Case 5: state = GRID_SET (excess production)
-		var m5 = new EnergyFlow.Model(//
-				1000, // production
-				200, // unmanagedConsumption
-				100, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				100 // gridMaxSell
-		);
-		m5.setGrid(100);
-		assertEquals(200, m5.addManagedConsumption("cons1", 200));
-		assertEquals(-100, m5.getEss());
-		assertEquals(400, m5.getConsumption());
-		assertEquals(200, m5.getManagedConsumption());
-		assertEquals(600, m5.getSurplus());
+		@Test
+		void shouldLimitConsumptionToAvailableSupply_whenGridIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1000, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					2200, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			model.commitGrid(1000);
+			assertEquals(2000, model.addManagedConsumption("cons1", 2000));
+			assertEquals(1800, model.addManagedConsumption("cons2", 1800));
+			assertEquals(200, model.addManagedConsumption("cons3", 1000));
+			assertEquals(2200, model.getEss());
+			assertEquals(4200, model.getConsumption());
+			assertEquals(4000, model.getManagedConsumption());
+			assertEquals(-3200, model.getSurplus());
+		}
+
+		@Test
+		void shouldUseOtherwiseCurtailedPv_whenGridIsCommitted() {
+			final var model = new EnergyFlow.Model(//
+					1000, // production
+					200, // unmanagedConsumption
+					100, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					100 // gridMaxSell
+			);
+			model.commitGrid(100);
+			assertEquals(200, model.addManagedConsumption("cons1", 200));
+			assertEquals(-100, model.getEss());
+			assertEquals(400, model.getConsumption());
+			assertEquals(200, model.getManagedConsumption());
+			assertEquals(600, model.getSurplus());
+		}
 	}
 
-	@Test
-	public void testSetEss() throws Exception {
-		// Case 1: Try charge 1000
-		var m1 = new EnergyFlow.Model(//
-				1200, // production
-				200, // unmanagedConsumption
-				800, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(-800, m1.setEss(-1000));
-		assertEquals(-800, m1.setEss(0));
-		assertEquals(-200, m1.getGrid());
+	@Nested
+	class CommitEssTest {
 
-		// Case 2: Try charge 1000, but only discharge possible
-		var m2 = new EnergyFlow.Model(//
-				200, // production
-				1200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				400, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(600, m2.setEss(-1000));
-		assertEquals(400, m2.getGrid());
+		@Test
+		void shouldLimitChargingAndPreserveCommitment_whenTargetExceedsChargeCapacity() {
+			final var model = new EnergyFlow.Model(//
+					1200, // production
+					200, // unmanagedConsumption
+					800, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(-800, model.commitEss(-1000));
+			assertEquals(-800, model.commitEss(0));
+			assertEquals(-200, model.getGrid());
+		}
 
-		// Case 3: Try discharge 1000
-		var m3 = new EnergyFlow.Model(//
-				200, // production
-				1200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				800, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(800, m3.setEss(1000));
-		assertEquals(800, m3.setEss(0));
-		assertEquals(200, m3.getGrid());
+		@Test
+		void shouldDischarge_whenChargingIsRequestedButOnlyDischargingIsFeasible() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					400, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(600, model.commitEss(-1000));
+			assertEquals(400, model.getGrid());
+		}
 
-		// Case 4: Try discharge 1000, but only charge possible (excess production)
-		var m4 = new EnergyFlow.Model(//
-				2200, // production
-				200, // unmanagedConsumption
-				600, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				400 // gridMaxSell
-		);
-		assertEquals(-600, m4.setEss(1000));
-		assertEquals(-400, m4.getGrid());
+		@Test
+		void shouldLimitDischargingAndPreserveCommitment_whenTargetExceedsDischargeCapacity() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					800, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(800, model.commitEss(1000));
+			assertEquals(800, model.commitEss(0));
+			assertEquals(800, model.commitEss(0, ALLOW));
+			assertEquals(200, model.getGrid());
+		}
 
-		// Case 5: Try charge 1000 (excess production)
-		var m5 = new EnergyFlow.Model(//
-				2200, // production
-				200, // unmanagedConsumption
-				600, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				400 // gridMaxSell
-		);
-		assertEquals(-600, m5.setEss(1000));
-		assertEquals(-400, m5.getGrid());
+		@Test
+		void shouldCharge_whenDischargingIsRequestedButOnlyChargingPreservesPvUse() {
+			final var model = new EnergyFlow.Model(//
+					2200, // production
+					200, // unmanagedConsumption
+					600, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					400 // gridMaxSell
+			);
+			assertEquals(-600, model.commitEss(1000));
+			assertEquals(-400, model.getGrid());
+		}
+
+		@Test
+		void shouldLimitDischargingToConsumptionAndExportCapacity_whenCurtailmentIsAllowed() {
+			final var model = new EnergyFlow.Model(//
+					2200, // production
+					200, // unmanagedConsumption
+					600, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					400 // gridMaxSell
+			);
+			assertEquals(600, model.commitEss(1000, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(600, flow.getEss());
+			assertEquals(-400, flow.getGrid());
+			assertEquals(0, flow.getProduction());
+			assertEquals(2200, flow.getExcessProduction());
+		}
 	}
 
-	@Test
-	public void testSetGrid() throws Exception {
-		// Case 1: Try sell 1000
-		var m1 = new EnergyFlow.Model(//
-				1200, // production
-				200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				800 // gridMaxSell
-		);
-		assertEquals(-800, m1.setGrid(-1000));
-		assertEquals(-800, m1.setGrid(0));
-		assertEquals(-200, m1.getEss());
+	@Nested
+	class CommitGridTest {
 
-		// Case 2: Try sell 1000, but only buying possible
-		var m2 = new EnergyFlow.Model(//
-				200, // production
-				1200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				400, // essMaxDischarge
-				10_000, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(600, m2.setGrid(-1000));
-		assertEquals(400, m2.getEss());
+		@Test
+		void shouldLimitExportAndPreserveCommitment_whenTargetExceedsExportCapacity() {
+			final var model = new EnergyFlow.Model(//
+					1200, // production
+					200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					800 // gridMaxSell
+			);
+			assertEquals(-800, model.commitGrid(-1000));
+			assertEquals(-800, model.commitGrid(0));
+			assertEquals(-200, model.getEss());
+		}
 
-		// Case 3: Try buy 1000
-		var m3 = new EnergyFlow.Model(//
-				200, // production
-				1200, // unmanagedConsumption
-				10_000, // essMaxCharge
-				10_000, // essMaxDischarge
-				800, // gridMaxBuy
-				10_000 // gridMaxSell
-		);
-		assertEquals(800, m3.setGrid(1000));
-		assertEquals(800, m3.setGrid(0));
-		assertEquals(200, m3.getEss());
+		@Test
+		void shouldImport_whenExportIsRequestedButOnlyImportIsFeasible() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					400, // essMaxDischarge
+					10_000, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(600, model.commitGrid(-1000));
+			assertEquals(400, model.getEss());
+		}
 
-		// Case 4: Try buy 1000, but only sell possible (excess production)
-		var m4 = new EnergyFlow.Model(//
-				2200, // production
-				200, // unmanagedConsumption
-				400, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				600 // gridMaxSell
-		);
-		assertEquals(-600, m4.setGrid(1000));
-		assertEquals(-400, m4.getEss());
+		@Test
+		void shouldLimitImportAndPreserveCommitment_whenTargetExceedsImportCapacity() {
+			final var model = new EnergyFlow.Model(//
+					200, // production
+					1200, // unmanagedConsumption
+					10_000, // essMaxCharge
+					10_000, // essMaxDischarge
+					800, // gridMaxBuy
+					10_000 // gridMaxSell
+			);
+			assertEquals(800, model.commitGrid(1000));
+			assertEquals(800, model.commitGrid(0));
+			assertEquals(800, model.commitGrid(0, ALLOW));
+			assertEquals(200, model.getEss());
+		}
 
-		// Case 5: Try sell 1000 (excess production)
-		var m5 = new EnergyFlow.Model(//
-				2200, // production
-				200, // unmanagedConsumption
-				400, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				600 // gridMaxSell
-		);
-		assertEquals(-600, m5.setGrid(1000));
-		assertEquals(-400, m5.getEss());
+		@Test
+		void shouldExport_whenImportIsRequestedButOnlyExportPreservesPvUse() {
+			final var model = new EnergyFlow.Model(//
+					2200, // production
+					200, // unmanagedConsumption
+					400, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					600 // gridMaxSell
+			);
+			assertEquals(-600, model.commitGrid(1000));
+			assertEquals(-400, model.getEss());
+		}
+
+		@Test
+		void shouldLimitImportToConsumptionAndChargingCapacity_whenCurtailmentIsAllowed() {
+			final var model = new EnergyFlow.Model(//
+					2200, // production
+					200, // unmanagedConsumption
+					400, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					600 // gridMaxSell
+			);
+			assertEquals(600, model.commitGrid(1000, ALLOW));
+
+			final var flow = model.solve();
+			assertEquals(-400, flow.getEss());
+			assertEquals(600, flow.getGrid());
+			assertEquals(0, flow.getProduction());
+			assertEquals(2200, flow.getExcessProduction());
+		}
 	}
 
-	@Test
-	public void testSolve() throws Exception {
-		// Excess Production
-		var m1 = new EnergyFlow.Model(//
-				2200, // production
-				200, // unmanagedConsumption
-				400, // essMaxCharge
-				10_000, // essMaxDischarge
-				10_000, // gridMaxBuy
-				600 // gridMaxSell
-		);
-		m1.setEss(1000);
-		var ef = m1.solve();
-		assertEquals(1200, ef.getProduction());
-		assertEquals(1000, ef.getExcessProduction());
+	@Nested
+	class SolveTest {
+
+		@Test
+		void shouldCurtailExcessProduction_whenChargingAndExportCapacityAreInsufficient() {
+			final var model = new EnergyFlow.Model(//
+					2200, // production
+					200, // unmanagedConsumption
+					400, // essMaxCharge
+					10_000, // essMaxDischarge
+					10_000, // gridMaxBuy
+					600 // gridMaxSell
+			);
+			model.commitEss(1000);
+			final var ef = model.solve();
+			assertEquals(1200, ef.getProduction());
+			assertEquals(1000, ef.getExcessProduction());
+		}
 	}
 }

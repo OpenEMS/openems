@@ -1,0 +1,9 @@
+{
+    "ALERTING": {
+        "CHECKBOX_HELP": "Įvykus įvykiui, po nustatyto atidėjimo laiko gausite el. laišką.",
+        "DELAY": "Atidėjimas",
+        "FAULT": "Gedimas",
+        "ONLINE_STATUS": "Prisijungimo būsena",
+        "OTHER_USERS": "Kiti naudotojai"
+    }
+}

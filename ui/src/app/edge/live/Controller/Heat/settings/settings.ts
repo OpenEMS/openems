@@ -92,9 +92,3 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         return this.component == null || this.component?.properties?.readOnly === true;
     }
 }
-
-export enum Mode {
-    OFF = "OFF",
-    FAST_HEAT = "FAST_HEAT",
-    SURPLUS = "SURPLUS",
-}
