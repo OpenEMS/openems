@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Aller aux paramètres du réseau"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Fonctionnement du système limité - La capacité peut désormais être étendue",
                 "EXPANSION_RUNNING": "Fonctionnement du système limité - Préparation de l'extension de capacité en cours",
                 "INFORMATION_FOR_INSTANT_START": "La batterie est chargée ou déchargée à puissance maximale afin d'atteindre le plus rapidement possible un état de charge de {{targetSoc}} % pour une extension. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "La batterie devrait être chargée/déchargée à partir de {{targetTime}} le {{targetDate}} afin d'atteindre un état de charge de {{targetSoc}} % pour l'extension prévue. Cela peut entraîner une consommation réseau ou une injection dans le réseau. Cet état de charge est maintenu pendant {{targetTimeBuffer}} minutes, après quoi, ou après l'extension de la capacité, le système de stockage revient à son état de fonctionnement normal.",

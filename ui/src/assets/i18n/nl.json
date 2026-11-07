@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Naar de netinstellingen"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Beperkte systeemwerking - De capaciteit kan nu worden uitgebreid",
                 "EXPANSION_RUNNING": "Beperkte systeemwerking - Uitbreiding van de capaciteit wordt voorbereid",
                 "INFORMATION_FOR_INSTANT_START": "De accu wordt met maximaal vermogen geladen of gelost om zo snel mogelijk een laadtoestand van {{targetSoc}} % te bereiken voor een uitbreiding. Hierdoor kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na het uitbreiden van de capaciteit, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Verwacht wordt dat de accu vanaf {{targetTime}} op {{targetDate}} wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken. Hierbij kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na de capaciteitsuitbreiding, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",

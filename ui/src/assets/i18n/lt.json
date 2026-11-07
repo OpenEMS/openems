@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Eiti į tinklo nustatymus"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Apribotas sistemos veikimas - Talpos didinimą dabar galima atlikti",
                 "EXPANSION_RUNNING": "Apribotas sistemos veikimas - ruošiamas talpos didinimas",
                 "INFORMATION_FOR_INSTANT_START": "Akumuliatorius yra kraunamas arba iškraunamas maksimalia galia, kad plėtimui kuo greičiau būtų pasiektas {{targetSoc}} % įkrovos lygis. Dėl to gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po to, kai talpa bus išplėsta, kaupimo sistema grįžta į įprastinę darbo būseną.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Numatoma, kad akumuliatorius bus kraunamas/iškraunamas nuo {{targetTime}} {{targetDate}}, kad planuojamam plėtimui būtų pasiektas {{targetSoc}} % įkrovos lygis. Šio proceso metu gali kilti suvartojimas iš tinklo arba tiekimas į tinklą. Šis įkrovos lygis palaikomas {{targetTimeBuffer}} minučių, o po to arba po talpos plėtimo, kaupimo sistema grįžta į įprastinę darbo būseną.",

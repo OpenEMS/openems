@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Zu den Netzeinstellungen"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Eingeschränkter Speicherbetrieb - Speicher kann jetzt erweitert werden",
                 "EXPANSION_RUNNING": "Eingeschränkter Speicherbetrieb - Kapazitätserweiterung wird vorbereitet",
                 "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",

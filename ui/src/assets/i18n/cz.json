@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Přejít do nastavení sítě"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Omezený provoz úložného systému - rozšíření kapacity je nyní možné",
                 "EXPANSION_RUNNING": "Omezený provoz úložného systému - připravuje se rozšíření kapacity",
                 "INFORMATION_FOR_INSTANT_START": "Baterie se nabíjí nebo vybíjí maximálním výkonem, aby co nejrychleji dosáhla stavu nabití {{targetSoc}} % pro rozšíření. Může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Očekává se, že baterie bude od {{targetTime}} dne {{targetDate}} nabíjena/vybíjena, aby dosáhla stavu nabití {{targetSoc}} % pro plánované rozšíření. Přitom může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",

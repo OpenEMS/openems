@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Ir a los ajustes de red"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Operación del sistema limitada - Ahora se puede ampliar la capacidad",
                 "EXPANSION_RUNNING": "Operación del sistema limitada - Se está preparando la ampliación de capacidad",
                 "INFORMATION_FOR_INSTANT_START": "La batería se carga o descarga con la máxima potencia para alcanzar lo antes posible un estado de carga del {{targetSoc}} % para una ampliación. Esto puede provocar consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras ampliarse la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Se espera que la batería se cargue/descargue a partir de las {{targetTime}} del {{targetDate}} para alcanzar un estado de carga del {{targetSoc}} % para la ampliación prevista. En el proceso puede haber consumo de red o vertido a la red. Este estado de carga se mantiene durante {{targetTimeBuffer}} minutos, tras lo cual, o tras la ampliación de la capacidad, el sistema de almacenamiento vuelve a su estado de funcionamiento normal.",

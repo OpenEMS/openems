@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Go to grid settings"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "System operation limited - Capacity can be expanded now",
                 "EXPANSION_RUNNING": "System operation limited - Capacity expansion is being prepared",
                 "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}} % as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}} % state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
