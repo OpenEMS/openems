@@ -11,7 +11,7 @@ export type InfoLineLink = { text: string; href?: string; callback?: () => void 
     standalone: false,
 })
 export class ModalInfoLineComponent {
-    protected readonly info = input.required<{ text: string; lineStyle?: string }[] | string>();
+    protected readonly info = input<{ text: string; lineStyle?: string }[] | string>();
     protected readonly html = input<string>();
     protected readonly link = input<InfoLineLink>();
 
