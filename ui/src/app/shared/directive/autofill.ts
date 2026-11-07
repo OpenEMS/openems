@@ -7,11 +7,15 @@ import { Logger } from "../shared";
     standalone: false,
 })
 export class AutofillDirective implements OnInit {
-
-    constructor(private el: ElementRef, private logger: Logger) { }
+    constructor(
+        private el: ElementRef,
+        private logger: Logger,
+    ) {}
 
     ngOnInit(): void {
-        if (Capacitor.getPlatform() !== "ios") { return; }
+        if (Capacitor.getPlatform() !== "ios") {
+            return;
+        }
         setTimeout(() => {
             try {
                 this.el.nativeElement.children[0].addEventListener("change", (e: Event) => {

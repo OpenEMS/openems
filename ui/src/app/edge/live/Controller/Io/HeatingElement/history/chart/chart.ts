@@ -35,7 +35,9 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
         phaseColors: string[],
         chartType: "line" | "bar",
     ): HistoryUtils.ChartData {
-        const consumptionMeter: EdgeConfig.Component | null = config.getComponentSafely(component.properties["meter.id"]);
+        const consumptionMeter: EdgeConfig.Component | null = config.getComponentSafely(
+            component.properties["meter.id"],
+        );
 
         const input: HistoryUtils.InputChannel[] = [
             { name: component.id, powerChannel: new ChannelAddress(component.id, "Level") },

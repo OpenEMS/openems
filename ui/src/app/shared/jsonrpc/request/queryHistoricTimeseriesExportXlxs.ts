@@ -2,34 +2,18 @@ import { format } from "date-fns";
 import { JsonrpcRequest } from "../base";
 
 /**
- * Queries historic timeseries data; exports to Xlsx (Excel) file.
- *
- * <pre>
- * {
- *   "jsonrpc": "2.0",
- *   "id": "UUID",
- *   "method": "queryHistoricTimeseriesExportXlxs",
- *   "params": {
- *     "timezone": Number,
- *     "fromDate": YYYY-MM-DD,
- *     "toDate": YYYY-MM-DD
- *   }
- * }
+ * Queries historic timeseries data; exports to Xlsx (Excel) file.<pre> { "jsonrpc": "2.0", "id": "UUID", "method":
+ * "queryHistoricTimeseriesExportXlxs", "params": { "timezone": Number, "fromDate": YYYY-MM-DD, "toDate": YYYY-MM-DD } }
  * </pre>
  */
 export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
-
     private static METHOD: string = "queryHistoricTimeseriesExportXlxs";
 
-    public constructor(
-        fromDate: Date,
-        toDate: Date,
-    ) {
+    public constructor(fromDate: Date, toDate: Date) {
         super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
             toDate: format(toDate, "yyyy-MM-dd"),
         });
     }
-
 }
