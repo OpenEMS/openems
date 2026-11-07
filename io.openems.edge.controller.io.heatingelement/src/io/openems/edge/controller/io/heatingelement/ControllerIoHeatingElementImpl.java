@@ -1017,9 +1017,9 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		}
 		var maxHeatingTime = Duration.ofHours(this.config.legionellenMaxHeatingTime());
 		if (Duration.between(this.legionellenHeatingStart, now).compareTo(maxHeatingTime) > 0) {
-			this.log.warn(
-					"Legionella protection aborted: the temperature of " + this.config.legionellenWaterTemperature()
-							+ " °C was not held in time. Retry in " + LEGIONELLEN_RETRY_PAUSE.toHours() + " h.");
+			this.log.warn("Legionella protection aborted: the temperature of "
+					+ this.config.legionellenWaterTemperature() + " °C was not held in time. Retry in "
+					+ LEGIONELLEN_RETRY_PAUSE.toHours() + " h.");
 			this.legionellenAbortTime = now;
 			this.legionellenHeatingStart = null;
 			this.legionellenHoldStart = null;
