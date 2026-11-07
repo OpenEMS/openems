@@ -6,8 +6,7 @@ import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/s
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { ModalComponent } from "../modal/modal";
-
-type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
+import { SharedEvcs } from "../shared/shared";
 
 @Component({
     selector: "Controller_Evcs",
@@ -34,7 +33,7 @@ export class FlatComponent extends AbstractFlatWidget {
     protected minChargePower: number = 0;
     protected maxChargePower: number = 0;
     protected forceChargeMinPower: string = "-";
-    protected chargeMode: ChargeMode | null = null;
+    protected chargeMode: SharedEvcs.ChargeMode | null = null;
     protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
     protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
     protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
@@ -125,9 +124,9 @@ export class FlatComponent extends AbstractFlatWidget {
 
         // Mode
         if (this.isChargingEnabled) {
-            if (this.chargeMode == "FORCE_CHARGE") {
+            if (this.chargeMode == SharedEvcs.ChargeMode.FORCE_CHARGE) {
                 this.mode = this.translate.instant("GENERAL.MANUALLY");
-            } else if (this.chargeMode == "EXCESS_POWER") {
+            } else if (this.chargeMode == SharedEvcs.ChargeMode.EXCESS_POWER) {
                 this.mode = this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.SHORT_NAME");
             }
         }
@@ -203,22 +202,22 @@ export class FlatComponent extends AbstractFlatWidget {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
         }
         switch (state) {
-            case ChargeState.STARTING:
+            case SharedEvcs.ChargeState.STARTING:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.STARTING");
-            case ChargeState.UNDEFINED:
-            case ChargeState.ERROR:
+            case SharedEvcs.ChargeState.UNDEFINED:
+            case SharedEvcs.ChargeState.ERROR:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.ERROR");
-            case ChargeState.READY_FOR_CHARGING:
+            case SharedEvcs.ChargeState.READY_FOR_CHARGING:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING");
-            case ChargeState.NOT_READY_FOR_CHARGING:
+            case SharedEvcs.ChargeState.NOT_READY_FOR_CHARGING:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING");
-            case ChargeState.AUTHORIZATION_REJECTED:
+            case SharedEvcs.ChargeState.AUTHORIZATION_REJECTED:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
-            case ChargeState.CHARGING:
+            case SharedEvcs.ChargeState.CHARGING:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
-            case ChargeState.ENERGY_LIMIT_REACHED:
+            case SharedEvcs.ChargeState.ENERGY_LIMIT_REACHED:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED");
-            case ChargeState.CHARGING_FINISHED:
+            case SharedEvcs.ChargeState.CHARGING_FINISHED:
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
         }
         return "";
@@ -228,18 +227,6 @@ export class FlatComponent extends AbstractFlatWidget {
         const round = Math.ceil(i / 100) * 100;
         return round;
     }
-}
-
-enum ChargeState {
-    UNDEFINED = -1, //Undefined
-    STARTING, //Starting
-    NOT_READY_FOR_CHARGING, //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
-    READY_FOR_CHARGING, //Ready for Charging waiting for EV charging request
-    CHARGING, //Charging
-    ERROR, //Error
-    AUTHORIZATION_REJECTED, //Authorization rejected
-    ENERGY_LIMIT_REACHED, //Energy limit reached
-    CHARGING_FINISHED, //Charging has finished
 }
 
 enum ChargePlug {
