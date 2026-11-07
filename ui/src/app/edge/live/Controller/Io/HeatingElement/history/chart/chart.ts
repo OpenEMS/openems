@@ -50,6 +50,14 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
             });
         }
 
+        const hasWaterThermometer = chartType === "line" && component.properties["hasWaterThermometer"] === true;
+        if (hasWaterThermometer) {
+            input.push(
+                { name: component.id + "/WaterActual", powerChannel: new ChannelAddress(component.id, "WaterActual") },
+                { name: component.id + "/WaterTarget", powerChannel: new ChannelAddress(component.id, "WaterTarget") },
+            );
+        }
+
         for (const level of [1, 2, 3]) {
             input.push({
                 name: component.id + level,
@@ -103,32 +111,55 @@ export class ControllerIoHeatingElementChartComponent extends AbstractHistoryCha
                     });
                 }
 
+                if (hasWaterThermometer) {
+                    output.push(
+                        {
+                            name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_ACTUAL"),
+                            // powerChannel values are converted from W to kW, so scale back to °C
+                            converter: () => data[component.id + "/WaterActual"]?.map((val) => Utils.multiplySafely(val, 1000)) ?? null,
+                            color: ChartConstants.Colors.BLUE,
+                            yAxisId: ChartAxis.RIGHT_2,
+                        },
+                        {
+                            name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_TARGET"),
+                            // powerChannel values are converted from W to kW, so scale back to °C
+                            converter: () => data[component.id + "/WaterTarget"]?.map((val) => Utils.multiplySafely(val, 1000)) ?? null,
+                            color: ChartConstants.Colors.ORANGE,
+                            yAxisId: ChartAxis.RIGHT_2,
+                        },
+                    );
+                }
+
                 return output;
             },
             tooltip: {
                 formatNumber: "1.0-2",
             },
-            yAxes:
-                consumptionMeter && consumptionMeter.isEnabled
+            yAxes: [
+                ...(consumptionMeter && consumptionMeter.isEnabled
                     ? [
                           {
                               unit: YAxisType.ENERGY,
-                              position: "right",
+                              position: "right" as const,
                               yAxisId: ChartAxis.RIGHT,
                           },
                           {
                               unit: chartType === "line" ? YAxisType.HEATING_ELEMENT : YAxisType.TIME,
-                              position: "left",
+                              position: "left" as const,
                               yAxisId: ChartAxis.LEFT,
                           },
                       ]
                     : [
                           {
                               unit: chartType === "line" ? YAxisType.HEATING_ELEMENT : YAxisType.TIME,
-                              position: "left",
+                              position: "left" as const,
                               yAxisId: ChartAxis.LEFT,
                           },
-                      ],
+                      ]),
+                ...(hasWaterThermometer
+                    ? [{ unit: YAxisType.TEMPERATURE, position: "right" as const, yAxisId: ChartAxis.RIGHT_2 }]
+                    : []),
+            ],
         };
     }
 

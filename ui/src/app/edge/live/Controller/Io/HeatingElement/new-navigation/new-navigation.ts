@@ -72,6 +72,23 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
             });
         }
 
+        if (component.properties["hasWaterThermometer"] === true) {
+            lines.push(
+                {
+                    type: "channel-line",
+                    name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_ACTUAL"),
+                    channel: component.id + "/WaterActual",
+                    converter: Converter.TEMPERATURE_IN_DEGREES,
+                },
+                {
+                    type: "channel-line",
+                    name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_TARGET"),
+                    channel: component.id + "/WaterTarget",
+                    converter: Converter.TEMPERATURE_IN_DEGREES,
+                },
+            );
+        }
+
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",

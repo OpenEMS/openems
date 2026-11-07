@@ -90,6 +90,14 @@ export class ControllerIoHeatingElementSettingsComponent extends AbstractFormlyC
             currentData,
             new ChannelAddress(component.id, "_PropertyMinEnergyLimitInKwh"),
         );
+        for (const p of SharedControllerIoHeatingElement.TEMPERATURE_PROPERTIES) {
+            const channel = new ChannelAddress(component.id, p.channel);
+            if (p.boolean) {
+                this.setFormControlSafelyWithBooleanChannel(this.form(), p.control, currentData, channel);
+            } else {
+                this.setFormControlSafelyWithChannel(this.form(), p.control, currentData, channel);
+            }
+        }
         let maxPower = 0;
         const avgPowerPhase1 = currentData.allComponents[component.id + "/Phase1AvgPower"];
         const avgPowerPhase2 = currentData.allComponents[component.id + "/Phase2AvgPower"];
@@ -118,6 +126,19 @@ export class ControllerIoHeatingElementSettingsComponent extends AbstractFormlyC
 
         this.setFormControlSafelyWithValue(this.form(), "isUnreachable", isUnreachable);
     }
+
+    /** Maps form control names to OSGi property names (e.g. waterThermometerId -> waterThermometer.id) and numbers. */
+    protected override buildUpdateComponentArr(fg: FormGroup): { name: string; value: any }[] {
+        return super.buildUpdateComponentArr(fg).map((entry) => {
+            const p = SharedControllerIoHeatingElement.TEMPERATURE_PROPERTIES.find((x) => x.control === entry.name);
+            if (!p) {
+                return entry;
+            }
+            const isNumber = !p.boolean && !["waterThermometerId", "sensorErrorLevel"].includes(p.control);
+            return { name: p.property, value: isNumber ? Number(entry.value) : entry.value };
+        });
+    }
+
     private getRequiredPower(
         endTimeWithMeter: string | null,
         minEnergyLimitInKwh: number | null,
