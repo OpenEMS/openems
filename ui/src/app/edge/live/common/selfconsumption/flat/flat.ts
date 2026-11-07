@@ -12,7 +12,7 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    public calculatedSelfConsumption!: number;
+    public calculatedSelfConsumption: number | null = null;
     protected modalComponent: Modal | null = null;
 
     protected override afterIsInitialized(): void {
