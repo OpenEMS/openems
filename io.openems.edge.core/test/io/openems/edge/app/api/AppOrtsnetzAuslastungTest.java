@@ -23,9 +23,6 @@ import io.openems.edge.meter.test.DummyElectricityMeter;
 
 class AppOrtsnetzAuslastungTest {
 
-	private static final String DEFAULT_URL = "https://www.ortsnetz-auslastung.de/v1/measurements";
-	private static final String CUSTOM_URL = "http://192.168.178.10:8099/v1/measurements";
-
 	private AppManagerTestBundle appManagerTestBundle;
 	private AppOrtsnetzAuslastung ortsnetzAuslastung;
 
@@ -46,10 +43,7 @@ class AppOrtsnetzAuslastungTest {
 				.hasOnlyProperties(//
 						AppOrtsnetzAuslastung.Property.CONTROLLER_ID, //
 						AppOrtsnetzAuslastung.Property.ALIAS, //
-						AppOrtsnetzAuslastung.Property.URL, //
 						AppOrtsnetzAuslastung.Property.METER_ID, //
-						AppOrtsnetzAuslastung.Property.PLANT_CAPACITY_KWP, //
-						AppOrtsnetzAuslastung.Property.SEND_PV_FORECAST, //
 						AppOrtsnetzAuslastung.Property.DATA_PROTECTION_HINT);
 	}
 
@@ -61,7 +55,7 @@ class AppOrtsnetzAuslastungTest {
 								.addProperty("DATA_PROTECTION_HINT", true) //
 								.build()));
 
-		this.assertController(DEFAULT_URL, "", 0, false);
+		this.assertController("");
 	}
 
 	@Test
@@ -69,23 +63,17 @@ class AppOrtsnetzAuslastungTest {
 		final var instance = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.ortsnetzAuslastung.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
-								.addProperty("URL", CUSTOM_URL) //
 								.addProperty("METER_ID", "meter1") //
-								.addProperty("PLANT_CAPACITY_KWP", 9.8) //
-								.addProperty("SEND_PV_FORECAST", true) //
 								.addProperty("DATA_PROTECTION_HINT", true) //
 								.build()))
 				.instance();
-		this.assertController(CUSTOM_URL, "meter1", 9.8, true);
+		this.assertController("meter1");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(instance.instanceId, "alias", JsonUtils.buildJsonObject() //
-						.addProperty("URL", DEFAULT_URL) //
 						.addProperty("METER_ID", "") //
-						.addProperty("PLANT_CAPACITY_KWP", 9.8) //
-						.addProperty("SEND_PV_FORECAST", false) //
 						.build()));
-		this.assertController(DEFAULT_URL, "", 9.8, false);
+		this.assertController("");
 	}
 
 	@Test
@@ -120,14 +108,11 @@ class AppOrtsnetzAuslastungTest {
 		throw new AssertionError("METER_ID field not found");
 	}
 
-	private void assertController(String url, String meterId, double plantCapacityKwp, boolean sendPvForecast) throws Exception {
+	private void assertController(String meterId) throws Exception {
 		this.appManagerTestBundle.assertComponentExist(//
 				new EdgeConfig.Component("ctrlOrtsnetzAuslastung0", "alias", "Controller.Ortsnetz-Auslastung", //
 						JsonUtils.buildJsonObject() //
-								.addProperty("url", url) //
 								.addProperty("meter.id", meterId) //
-								.addProperty("plantCapacityKwp", plantCapacityKwp) //
-								.addProperty("sendPvForecast", sendPvForecast) //
 								.build()));
 	}
 }

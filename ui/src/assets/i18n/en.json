@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Go to grid settings"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "System operation limited - Capacity can be expanded now",
                 "EXPANSION_RUNNING": "System operation limited - Capacity expansion is being prepared",
                 "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}} % as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}} % state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
@@ -675,11 +676,24 @@
                 "STANDARD": "Standard tariff"
             },
             "TITLE": "{{ year }} Ancillary Costs"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
+            "INVALID_ZIPCODE": "Invalid zip code format",
+            "MANDATORY_FIELD": "This is a mandatory field",
+            "MAX": "Please enter a value less than {{ max }}.",
+            "MIN": "Please enter a value greater than {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Active",
         "ACTUAL_POWER": "EV charging power",
+        "ADDRESS": {
+            "CITY": "City",
+            "COUNTRY": "Country",
+            "STREET_ADDRESS": "Street adress",
+            "ZIP": "ZIP code"
+        },
         "ALL": "All",
         "APPLY": "Apply",
         "AUTARCHY": "Autarchy",
@@ -813,7 +827,6 @@
         },
         "SUM_STATE": "System state",
         "SURVEY": "You can share your feedback on the beta test with us here:",
-        "SURVEY_LINK": "Take part in the beta test survey",
         "SYSTEM": "system",
         "SYSTEM_OUTAGE": "Due to maintenance work the online monitoring is temporarily unavailable. Please try again later. For more information see",
         "SYSTEM_STATE": "System state",
@@ -869,6 +882,7 @@
         "CONNECTION_SUCCESSFUL": "Successfully connected to {{ value }}.",
         "DEVICE_OFFLINE": "The device is not connected!",
         "FIRST_SETUP_PROTOCOL": "Initial commissioning",
+        "INSTALLATION_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
         "IS_OFFLINE": "OpenEMS is offline!",
         "LOGGED_IN_AS": "Logged in as",
         "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",

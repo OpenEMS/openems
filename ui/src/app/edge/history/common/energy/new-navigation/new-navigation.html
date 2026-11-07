@@ -8,10 +8,10 @@
     <ng-container header>
       <ion-toolbar style="--background: var(--ion-background-color)">
         <ion-buttons class="ion-justify-content-center">
-          <pickdate></pickdate>
+          <pickdate [attr.data-tutorial-id]="tutorialTargetId.HISTORY_VIEW_DATE_PICKER"></pickdate>
         </ion-buttons>
       </ion-toolbar>
     </ng-container>
-    <energychart [isOnlyChart]="true"></energychart>
+    <energychart [attr.data-tutorial-id]="tutorialTargetId.HISTORY_VIEW" [isOnlyChart]="true"></energychart>
   </oe-navigation-view>
 }

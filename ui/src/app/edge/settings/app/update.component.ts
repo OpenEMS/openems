@@ -55,7 +55,7 @@ export class UpdateAppComponent implements OnInit {
     private static readonly SELECTOR = "app-update";
     public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
-    protected showSwitchArchitecture = false;
+    protected showSwitchArchitecture = signal<boolean>(false);
     protected currentArchitecture: string | null = null;
     protected instances = signal<MyInstance[]>([]);
     protected appName: string | null = null;
@@ -217,7 +217,7 @@ export class UpdateAppComponent implements OnInit {
             return;
         }
         if (!EdgePermission.hasSwitchArchitecture(this.edge)) {
-            this.showSwitchArchitecture = false;
+            this.showSwitchArchitecture.set(false);
             return;
         }
         this.edge
@@ -232,7 +232,7 @@ export class UpdateAppComponent implements OnInit {
                 const result = (response as CanSwitchArchitecture.Response).result;
                 this.switchMethod = flag.switchMethod;
                 this.handlerId = flag.handlerId;
-                this.showSwitchArchitecture = result.canSwitch;
+                this.showSwitchArchitecture.set(result.canSwitch);
                 this.currentArchitecture = result.current ?? null;
                 this.header = result.header;
                 this.info = result.info;

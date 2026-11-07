@@ -1,5 +1,6 @@
 import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { EdgeConfig } from "src/app/shared/shared";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
 export { environment } from "./dummy";
@@ -143,8 +144,6 @@ export interface Environment {
             };
         };
         readonly REDIRECT: {
-            readonly BETA_CHANGE_LOG: string | null;
-            readonly BETA_SURVEY: string | null;
             readonly COMMON_STORAGE: string | null;
             readonly COMMON_AUTARCHY: string | null;
             readonly COMMON_CONSUMPTION: string | null;
@@ -289,6 +288,7 @@ export interface Environment {
     };
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null;
     readonly ENVIRONMENT_PROVIDERS: EnvironmentProviders[];
+    readonly CLEANED_FACTORIES: (config: EdgeConfig) => EdgeConfig["factories"];
 }
 
 /*

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -29,9 +28,9 @@ export class FlatComponent extends AbstractFlatWidget {
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
 
-        const config = this.edge.getCurrentConfig();
+        const config = this.edge!.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
-        this.isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component);
+        this.isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component!);
     }
 
     protected getModalComponent(): Modal {
@@ -45,15 +44,24 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override getChannelAddresses() {
+        if (this.component == null) {
+            return [];
+        }
+
         return [
-            new ChannelAddress(this.componentId, "DelayChargeState"),
-            new ChannelAddress(this.componentId, "SellToGridLimitState"),
-            new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
-            new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.componentId, "_PropertyMode"),
+            new ChannelAddress(this.component.id, "DelayChargeState"),
+            new ChannelAddress(this.component.id, "SellToGridLimitState"),
+            new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
+            new ChannelAddress(this.component.id, "SellToGridLimitMinimumChargeLimit"),
+            new ChannelAddress(this.component.id, "_PropertyMode"),
         ];
     }
+
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null) {
+            return;
+        }
+
         this.mode = currentData.allComponents[this.component.id + "/_PropertyMode"];
 
         // Check if Grid feed in limitation is avoided
