@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -7,7 +6,8 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-common-production-history-sum",
@@ -43,9 +43,12 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
             });
 
             converter = (data: HistoryUtils.ChannelData, phase: string) =>
-                data[component.id + "ActualPower"]?.reduce((arr, el, index) => {
+                data[component.id + "ActualPower"]?.reduce<(number | null)[]>((arr, el, index) => {
                     arr.push(
-                        Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]),
+                        NumberUtils.addSafely(
+                            NumberUtils.divideSafely(el, 3),
+                            data["ProductionAcActivePower" + phase]?.[index] ?? null,
+                        ),
                     );
                     return arr;
                 }, []);

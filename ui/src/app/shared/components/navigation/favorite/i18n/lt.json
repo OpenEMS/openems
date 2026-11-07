@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Pridėta",
+        "DESCRIPTION_OTHERS": "Sistemos savininkas gali širdies piktograma pažymėti turinį kaip mėgstamą. Taip jį vėliau bus lengva vėl rasti čia.",
+        "DESCRIPTION_OWNER": "Pažymėkite turinį širdimi, kad vėliau galėtumėte jį lengvai rasti. Jūsų pasirinkimas bus rodomas čia.",
+        "INFO": "Sekite svarbius dalykus",
+        "REMOVED_FAVORITE": "Pašalinta"
+    }
+}

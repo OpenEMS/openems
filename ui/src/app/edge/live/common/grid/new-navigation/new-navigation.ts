@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -24,7 +24,13 @@ import { GridSellPriceChartComponent } from "./chart/price-sell-price-chart";
 export class CommonGridHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
-    public static async getFormlyGeneralView(translate: TranslateService, service: Service, edge: Edge, config: EdgeConfig, energyScheduler: EnergySchedulerV2): Promise<OeFormlyView> {
+    public static async getFormlyGeneralView(
+        translate: TranslateService,
+        service: Service,
+        edge: Edge,
+        config: EdgeConfig,
+        energyScheduler: EnergyScheduler,
+    ): Promise<OeFormlyView> {
         await energyScheduler?.updateSchedule(edge, service.websocket);
 
         const meta = config.getComponentSafely("_meta");
@@ -142,7 +148,7 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const energy = new EnergySchedulerV2(config);
+        const energy = new EnergyScheduler(config);
 
         return await CommonGridHomeComponent.getFormlyGeneralView(this.translate, this.service, edge, config, energy);
     }

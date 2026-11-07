@@ -1,9 +1,9 @@
 package io.openems.edge.bridge.modbus.sunspec.meter;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3_AND_INVERT_IF_TRUE;
 
 import java.util.Map;
 import java.util.Optional;

@@ -1,5 +1,5 @@
 import { TimeLineChartComponent } from "src/app/shared/components/chart/timeline-chart/timeline-chart";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { CHANNEL_LINE, CHART_LINE, DummyConfig, LINE_INFO } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
@@ -28,7 +28,7 @@ function expectView(
     viewContext: OeFormlyViewTester.Context,
     testContext: TestContext,
     view: OeFormlyViewTester.View,
-    energyScheduler: EnergySchedulerV2 = mockEnergySchedulerWithSchedule(),
+    energyScheduler: EnergyScheduler = mockEnergySchedulerWithSchedule(),
 ): void {
     expect(
         OeFormlyViewTester.apply(
@@ -38,10 +38,10 @@ function expectView(
     ).toEqual(view);
 }
 
-function mockEnergySchedulerWithSchedule(): EnergySchedulerV2 {
+function mockEnergySchedulerWithSchedule(): EnergyScheduler {
     return {
         schedule: {},
-    } as EnergySchedulerV2;
+    } as EnergyScheduler;
 }
 
 function createComponent(testContext: TestContext, component: EdgeConfig.Component): any {
@@ -152,7 +152,7 @@ describe("ControllerHeatHomeComponent", () => {
                 },
                 {
                     schedule: GetSchedule.Response.empty,
-                } as EnergySchedulerV2,
+                } as EnergyScheduler,
             );
         });
 

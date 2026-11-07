@@ -7,7 +7,7 @@ import globalEn from "src/assets/i18n/en.json";
 import { environment } from "src/environments";
 import heatEn from "../i18n/en.json";
 import { PropertyMode } from "../shared/shared";
-import { ControllerHeatSettingsComponent, Mode } from "./settings";
+import { ControllerHeatSettingsComponent } from "./settings";
 
 function createComponent(component: EdgeConfig.Component): any {
     const instance = Object.create(ControllerHeatSettingsComponent.prototype);
@@ -21,7 +21,7 @@ function createComponent(component: EdgeConfig.Component): any {
         }),
     };
     instance.settingsForm = new FormGroup({
-        [ControllerHeatSettingsComponent.FORM_CONTROL_NAME]: new FormControl<Mode | null>(null),
+        [ControllerHeatSettingsComponent.FORM_CONTROL_NAME]: new FormControl<PropertyMode | null>(null),
     });
     instance.form = signal(instance["getFormGroup"]());
     instance.component = null;
@@ -72,18 +72,18 @@ describe("ControllerHeatSettingsComponent", () => {
                     value: PropertyMode.FAST_HEAT,
                     name: "Fast heat",
                     description:
-                        "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
+                        "The heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause.",
                     icon: { color: "success", name: "oe-consumption", size: "medium" },
                 },
                 {
-                    value: Mode.SURPLUS,
+                    value: PropertyMode.SURPLUS,
                     name: "PV surplus",
                     description:
                         "Enables even heating of different buffer tanks. Activation happens automatically, perfectly adapted to your excess and available PV energy.",
                     icon: { color: "primary", name: "oe-production", size: "medium" },
                 },
                 {
-                    value: Mode.OFF,
+                    value: PropertyMode.OFF,
                     name: "No heating",
                 },
             ],
@@ -131,7 +131,7 @@ describe("ControllerHeatSettingsComponent", () => {
         instance.component = component;
         const currentData: CurrentData = {
             allComponents: {
-                "heat0/_PropertyMode": Mode.SURPLUS,
+                "heat0/_PropertyMode": PropertyMode.SURPLUS,
             },
         };
 

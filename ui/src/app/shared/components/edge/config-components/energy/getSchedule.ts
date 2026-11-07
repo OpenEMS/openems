@@ -1,4 +1,4 @@
-import { addDays, addHours, endOfToday, startOfToday, subHours } from "date-fns";
+import { addDays, addHours, endOfToday, isSameDay, startOfToday, subHours } from "date-fns";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";
@@ -129,21 +129,34 @@ export namespace GetSchedule {
             return this.data24h.some((e) => e._sum[channel] != null);
         }
 
-        public summarizeData24hForChannel(channel: keyof Data["_sum"] | null) {
+        public summarizeData24hForChannel(channel: keyof Data["_sum"] | null, date: Date = new Date()) {
             if (channel == null) {
                 throw new Error("Key must not be null");
             }
 
-            const entries = this.data24h.map((e) => ({
+            const isToday = isSameDay(date, new Date());
+
+            const entries = (isToday ? this.data24h : this.data).map((e) => ({
                 entry: e,
                 timestamp: new Date(e.timestamp),
                 value: this.convertByDataPoint(channel, e._sum[channel] ?? null),
             }));
             const labels = entries.map((e) => e.timestamp);
+            let history: (number | null)[] = [];
+            let prediction: (number | null)[] = [];
 
-            // Fill history and prediction arrays. Both share a value at lastHistoryIndex to avoid gaps in the chart line.
-            const history = entries.map((e, index) => (index <= this.data24hLastHistoryIndex ? e.value : null));
-            const prediction = entries.map((e, index) => (index >= this.data24hLastHistoryIndex ? e.value : null));
+            if (isToday) {
+                // Fill history and prediction arrays. Both share a value at lastHistoryIndex to avoid gaps in the chart line.
+                history = entries.map((e, index) => (index <= this.data24hLastHistoryIndex ? e.value : null));
+                prediction = entries.map((e, index) => (index >= this.data24hLastHistoryIndex ? e.value : null));
+                return {
+                    labels,
+                    history,
+                    prediction,
+                };
+            }
+
+            history = entries.filter((e) => isSameDay(e.timestamp, date)).map((e) => e.value);
 
             return {
                 labels,
@@ -233,7 +246,7 @@ export namespace GetSchedule {
                     return value;
                 case "GridBuyPrice":
                 case "GridSellPrice":
-                    return NumberUtils.divideSafely(value, 10);
+                    return NumberUtils.parseNumberSafely(NumberUtils.divideSafely(value, 10)?.toFixed(2) ?? null);
                 default:
                     return NumberUtils.divideSafely(value, 1000);
             }

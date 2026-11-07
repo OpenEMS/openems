@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "Står inte rätt adress i listan? Redigera dina uppgifter ovan och genomför valideringen igen.",
+        "ADDRESS_LIST_NOTE_PROFILE": "Står inte rätt adress i listan? Ändra vid behov dina uppgifter ovan och genomför valideringen igen.",
+        "ADDRESS_LIST_TITLE": "Vilken adress gäller för platsen för {{ edgeShortName }}{{ id }}?",
+        "APPLY_BUTTON_LABEL": "Använd",
+        "BUTTON_LABEL_INSTALLATION": "Genomför validering",
+        "BUTTON_LABEL_PROFILE": "Validera adress",
+        "GEO_CODE_RESULT_LABEL": "Välj den matchande adressen:",
+        "UNKNOWN_ADDRESS": "Koordinaterna anges manuellt i efterhand under systeminställningarna för att få tillgång till alla funktioner."
+    }
+}

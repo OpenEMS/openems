@@ -29,7 +29,7 @@
                     <ion-button style="width: 100%" disabled translate>EDGE.CONFIG.APP.BUY_APP</ion-button>
                   </div>
                 }
-                @if (!(isPreInstalledApp || isFreeApp)) {
+                @if (!(isPreInstalledApp || isFreeApp) && environment.backend === "OpenEMS Backend") {
                   <div>
                     <ion-button style="width: 100%" (click)="registerKey(app.appId)" translate> EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-button>
                   </div>
@@ -37,7 +37,7 @@
                 <div>
                   <ion-button style="width: 100%" [disabled]="app.instanceIds.length === 0" [routerLink]="['./update']" [queryParams]="{ name: app.name, appId: app.appId }" translate> EDGE.CONFIG.APP.MODIFY_APP</ion-button>
                 </div>
-                @if (!isPreInstalledApp) {
+                @if (!isPreInstalledApp && environment.backend === "OpenEMS Backend") {
                   <div>
                     <ion-button style="width: 100%" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) || app.status.name !== 'INSTALLABLE' || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)" translate>EDGE.CONFIG.APP.CREATE_APP </ion-button>
                   </div>

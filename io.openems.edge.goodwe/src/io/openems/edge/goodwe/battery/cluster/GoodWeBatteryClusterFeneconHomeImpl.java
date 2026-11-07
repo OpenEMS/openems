@@ -69,6 +69,7 @@ public class GoodWeBatteryClusterFeneconHomeImpl extends AbstractGoodWeBatteryCl
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.startStop());
+		this.updateConfiguredIds(List.of(config.battery_ids()));
 	}
 
 	@Override

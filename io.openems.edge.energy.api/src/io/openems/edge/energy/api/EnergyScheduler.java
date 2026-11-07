@@ -1,11 +1,11 @@
 package io.openems.edge.energy.api;
 
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import java.util.function.Consumer;
+
+import io.openems.common.jsonrpc.type.ScheduleUpdate;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.jsonapi.Call;
 
 /**
  * The global Energy Schedule optimizer singleton.
@@ -33,20 +33,24 @@ public interface EnergyScheduler extends OpenemsComponent {
 	}
 
 	/**
-	 * Handles a GetScheduleRequest.
-	 * 
-	 * @param call the JsonApi {@link Call}
-	 * @param id   the Component-ID of the Controller
-	 * @return the GetScheduleResponse
+	 * Subscribes to schedule updates.
+	 *
+	 * <p>
+	 * The given consumer is immediately called with the current
+	 * {@link ScheduleUpdate} and subsequently whenever the schedule changes.
+	 *
+	 * @param consumer the consumer to notify about schedule updates
 	 */
-	@Deprecated
-	public JsonrpcResponse handleGetScheduleRequestV1(Call<JsonrpcRequest, JsonrpcResponse> call, String id);
+	void subscribeSchedule(Consumer<ScheduleUpdate> consumer);
 
 	/**
-	 * Gets the configured implementation {@link Version}.
-	 * 
-	 * @return {@link Version} or null
+	 * Unsubscribes from schedule updates.
+	 *
+	 * <p>
+	 * The same consumer instance that was previously passed to
+	 * {@link #subscribeSchedule(Consumer)} must be provided.
+	 *
+	 * @param consumer the previously subscribed consumer
 	 */
-	@Deprecated
-	public Version getImplementationVersion();
+	void unsubscribeSchedule(Consumer<ScheduleUpdate> consumer);
 }

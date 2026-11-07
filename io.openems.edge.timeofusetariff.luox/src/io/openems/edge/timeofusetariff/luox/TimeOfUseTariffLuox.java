@@ -10,7 +10,7 @@ import io.openems.edge.common.oauth.ConnectionState;
 public interface TimeOfUseTariffLuox extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATUS_SERVER_ERROR(Doc.of(Level.WARNING) //
+		STATUS_SERVER_ERROR(Doc.of(Level.WARNING)//
 				.translationKey(TimeOfUseTariffLuox.class, "TimeOfUseTariffLuox.StatusServerError")), //
 		;
 

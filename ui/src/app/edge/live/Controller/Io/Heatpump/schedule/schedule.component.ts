@@ -17,7 +17,7 @@ import { HeatpumpPayload } from "./heatpump-payload";
     providers: [{ provide: DataService, useClass: LiveDataService }],
     imports: [ScheduleComponent, ComponentsBaseModule, CommonUiModule],
 })
-export class HeatPumpScheduleComponent extends AbstractModal {
+export class ControllerIoHeatpumpScheduleComponent extends AbstractModal {
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected payload = model(new HeatpumpPayload());
     private readonly routeService: RouteService = inject(RouteService);

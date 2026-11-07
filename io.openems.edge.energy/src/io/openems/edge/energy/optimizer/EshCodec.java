@@ -48,19 +48,19 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 	/**
 	 * Creates an {@link EshCodec}.
 	 *
-	 * @param goc                        the {@link GlobalOptimizationContext}
-	 * @param modeCombinations           the possible {@link ModeCombinations}
-	 * @param previousResultSupplier     supplies the previous
-	 *                                   {@link SimulationResult}
-	 * @param isFirstPeriodFixedSupplier supplies whether the first period is fixed
-	 *                                   to the value of the previous result
+	 * @param goc                          the {@link GlobalOptimizationContext}
+	 * @param modeCombinations             the possible {@link ModeCombinations}
+	 * @param previousResultSupplier       supplies the previous
+	 *                                     {@link SimulationResult}
+	 * @param isCurrentPeriodFixedSupplier supplies whether the current period is
+	 *                                     fixed to the value of the previous result
 	 * @return a new {@link EshCodec} or {@code null}
 	 */
 	public static EshCodec of(//
 			GlobalOptimizationContext goc, //
 			ModeCombinations modeCombinations, //
 			Supplier<SimulationResult> previousResultSupplier, //
-			BooleanSupplier isFirstPeriodFixedSupplier) {
+			BooleanSupplier isCurrentPeriodFixedSupplier) {
 		final var numberOfModeCombinations = modeCombinations.size();
 		final var numberOfPeriods = goc.periods().size();
 		final var genotype = Genotype.of(//
@@ -79,7 +79,7 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 				gt -> {
 					return IntStream.range(0, numberOfPeriods) //
 							.map(periodIndex -> {
-								if (isFirstPeriodFixedSupplier.getAsBoolean() && periodIndex == 0) {
+								if (isCurrentPeriodFixedSupplier.getAsBoolean() && periodIndex == 0) {
 									// Find ModeCombination that matches with previous result
 									var previousResult = previousResultSupplier.get();
 									var time = goc.periods().get(periodIndex).time();
@@ -116,7 +116,7 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 													0, numberOfModeCombinations)) //
 											.collect(toISeq())));
 				}, //
-				goc, previousResultSupplier, isFirstPeriodFixedSupplier);
+				goc, previousResultSupplier, isCurrentPeriodFixedSupplier);
 	}
 
 	private EshCodec(//

@@ -1,0 +1,17 @@
+Bundle-Name: OpenEMS Tariff Entso-E
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.squareup.okhttp3,\
+	com.squareup.okio,\
+	io.openems.common,\
+	io.openems.common.bridge.http,\
+	io.openems.common.tariff.api,\
+	
+-testpath: \
+	org.jetbrains.kotlin.osgi-bundle,\
+	org.hamcrest,\
+	${testpath}

@@ -1,0 +1,73 @@
+{
+    "EVSE_SINGLE": {
+        "HOME": {
+            "ACTUAL_MODE": {
+                "LABEL": "現在のモード"
+            },
+            "ENERGY_SINCE_START": "最後の充電開始からのエネルギー",
+            "MODE": {
+                "FORCE": "急速",
+                "LABEL": "基本モード",
+                "MINIMUM": "最小",
+                "SURPLUS": "PV",
+                "ZERO": "オフ"
+            },
+            "POWER": "電力",
+            "STATE_MACHINE": {
+                "CHARGING": "充電中",
+                "EV_CONNECTED": "EV接続済み",
+                "EV_NOT_CONNECTED": "EV未接続",
+                "FINISHED_ENERGY_SESSION_LIMIT": "エネルギー制限により充電終了",
+                "FINISHED_EV_STOP": "EVにより充電終了",
+                "LABEL": "状態",
+                "PHASE_SWITCH": "手動フェーズ切替",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "単相へ切替",
+                "PHASE_SWITCH_TO_THREE_PHASE": "三相へ切替"
+            },
+            "VEHICLES": "App Center車両"
+        },
+        "SCHEDULE": {
+            "ACCEPT": "適用",
+            "ADD": "追加",
+            "ADD_ERROR": "タスクを追加できませんでした",
+            "ADD_SUCCESS": "タスクが正常に追加されました",
+            "DAY": {
+                "FRIDAY": "金曜日",
+                "MONDAY": "月曜日",
+                "SATURDAY": "土曜日",
+                "SUNDAY": "日曜日",
+                "THURSDAY": "木曜日",
+                "TUESDAY": "火曜日",
+                "WEDNESDAY": "水曜日"
+            },
+            "DELETE": "削除",
+            "DELETE_ERROR": "タスクを削除できませんでした",
+            "DELETE_SUCCESS": "タスクが正常に削除されました",
+            "DURATION": "所要時間",
+            "EDIT": "編集",
+            "EDIT_ERROR": "タスクを調整できませんでした",
+            "EDIT_SUCCESS": "タスクが正常に調整されました",
+            "END": "終了",
+            "FREQ": {
+                "DAILY": "毎日",
+                "MONTHLY": "毎月",
+                "WEEKLY": "毎週",
+                "YEARLY": "毎年"
+            },
+            "FREQUENCY": "繰り返し",
+            "MODE": "充電モード",
+            "MODE_SELECTION_PLACEHOLDER": "選択",
+            "SMART_EVENT_TITLE": "{{kwh}} kWhのスマート充電",
+            "START": "開始",
+            "VALIDATION_ERROR_1": "開始時刻を指定してください",
+            "VALIDATION_ERROR_2": "終了時刻を指定してください",
+            "VALIDATION_ERROR_3": "充電モードを選択してください",
+            "VALIDATION_ERROR_4": "開始時刻はHH:mm形式で、15分刻み（00、15、30、45分）のみで指定してください",
+            "VALIDATION_ERROR_5": "終了時刻はHH:mm形式で、15分刻み（00、15、30、45分）のみで指定してください",
+            "VALIDATION_ERROR_6": "終了時刻は開始時刻より後でなければなりません"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "エネルギー制限"
+        }
+    }
+}

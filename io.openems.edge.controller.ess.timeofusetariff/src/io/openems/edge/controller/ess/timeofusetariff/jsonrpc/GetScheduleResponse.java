@@ -130,8 +130,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	 * @param timedata      the {@link Timedata}
 	 * @return {@link Stream} of {@link JsonObject}s
 	 */
-	// TODO protected is sufficient after v1
-	public static Stream<JsonObject> fromHistoricData(String componentId, ZonedDateTime firstSchedule,
+	private static Stream<JsonObject> fromHistoricData(String componentId, ZonedDateTime firstSchedule,
 			Timedata timedata) {
 		// Process last three hours of historic data
 		final var fromTime = firstSchedule.minusHours(3);

@@ -26,6 +26,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.TreeMultimap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -52,6 +53,11 @@ public class ControllerDebugLogImpl extends AbstractOpenemsComponent
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Controller.Debug.Log)))")
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE)
+	private volatile List<DebugLoggable> debugLoggables = new CopyOnWriteArrayList<>();
 
 	private Config config;
 
@@ -138,8 +144,7 @@ public class ControllerDebugLogImpl extends AbstractOpenemsComponent
 					final List<String> logs = new ArrayList<>();
 
 					// Should the default logs of this Component be ignored?
-					if (this.ignoreComponents.stream() //
-							.noneMatch(pattern -> StringUtils.matchWildcard(component.id(), pattern) >= 0)) {
+					if (this.shouldLogComponent(component)) {
 						// Component Debug-Log
 						var debugLog = component.debugLog();
 						if (debugLog != null) {
@@ -166,21 +171,46 @@ public class ControllerDebugLogImpl extends AbstractOpenemsComponent
 
 					// Any logs? Add them to the output
 					if (!logs.isEmpty()) {
-						var b = new StringBuilder();
-						b.append(component.id()).append("[");
-						if (this.config.showAlias() && !Objects.equal(component.id(), component.alias())) {
-							b.append(component.alias()).append("|");
-						}
-						b.append(String.join("|", logs));
-						b.append("]");
-						result.add(b.toString());
+						result.add(this.buildComponentMessage(component.id(), component.alias(), logs));
 					}
 				});
+
+		this.debugLoggables.forEach(loggable -> {
+			String loggableId = loggable.getClass().getSimpleName();
+			if (this.ignoreComponents.stream() //
+					.noneMatch(pattern -> StringUtils.matchWildcard(loggableId, pattern) >= 0)) {
+				var debugLog = loggable.debugLog();
+				if (debugLog != null) {
+					result.add(this.buildComponentMessage(loggableId, null, List.of(debugLog)));
+				}
+			}
+		});
+
 		if (this.config.condensedOutput()) {
 			// separate components by space; one line in total
 			return String.join(" ", result);
 		}
 		// separate components by newline
 		return String.join("\n", result);
+	}
+
+	private boolean shouldLogComponent(OpenemsComponent component) {
+		if (this.ignoreComponents.stream()
+				.anyMatch(pattern -> StringUtils.matchWildcard(component.id(), pattern) >= 0)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private String buildComponentMessage(String componentId, String componentAlias, List<String> logs) {
+		var b = new StringBuilder();
+		b.append(componentId).append("[");
+		if (this.config.showAlias() && componentAlias != null && !Objects.equal(componentId, componentAlias)) {
+			b.append(componentAlias).append("|");
+		}
+		b.append(String.join("|", logs));
+		b.append("]");
+		return b.toString();
 	}
 }

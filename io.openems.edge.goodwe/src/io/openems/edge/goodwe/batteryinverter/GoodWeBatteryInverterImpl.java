@@ -3,11 +3,12 @@ package io.openems.edge.goodwe.batteryinverter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.MapUtils.mapValue;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,6 +93,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.update.Updateable;
 import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.battery.cluster.AbstractGoodWeBatteryCluster;
 import io.openems.edge.goodwe.battery.cluster.GoodWeBatteryClusterFeneconHomeImpl;
@@ -110,6 +113,7 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
+import io.openems.edge.goodwe.common.enums.PvConnectMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
@@ -122,6 +126,7 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 @GenerateTargetsFromReferences("Modbus")
@@ -139,10 +144,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private static final long POWER_SETTINGS_DEBOUNCE_MS = 250;
 	private static final TwoPartVersion MINIMAL_DSP_VERSION_FOR_V3_TASKS = new TwoPartVersion(//
 			1, 212);
+	// Register FEED_POWER_PARA_SET (47510) is written as SignedWordElement
+	// (16-bit).
+	private static final int MAX_LEGACY_FEED_POWER = Short.MAX_VALUE;
+	private static final int MAX_HOME_30_FEED_POWER = 60_000;
+	private static final Logger LOG = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final AtomicReference<ScheduledFuture<?>> pendingPowerSettingsTask = new AtomicReference<>();
-	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final ScheduledExecutorService powerSettingExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -181,7 +190,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference
 	private Meta meta;
 
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL, //
+			target = "(enabled=true)")
 	protected volatile ControllerEssRippleControlReceiver rcr;
 
 	@Override
@@ -314,7 +324,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		} catch (OpenemsNamedException e) {
 			this.channel(GoodWeBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
-			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+			this.logError(LOG, "StateMachine failed: " + e.getMessage());
 		}
 	}
 
@@ -365,7 +375,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			if (properties.get("maximumGridFeedInLimit") != null
 					|| properties.get("gridFeedInLimitationType") != null) {
 				// Already migrated, do nothing
-				this.log.info(
+				LOG.info(
 						"Value is already migrated to Meta App, skipping migration. Set the value in the Meta Component instead.");
 				this.resetMaximumSellToGridPower();
 				return;
@@ -377,7 +387,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 			this.resetMaximumSellToGridPower();
 		} catch (IOException e) {
-			this.log.warn("Unable to update {} config", this.id(), e);
+			LOG.warn("Unable to update {} config", this.id(), e);
 		}
 	}
 
@@ -391,7 +401,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				properties.put("feedPowerPara", -1);
 				config.updateIfDifferent(properties);
 			} catch (IOException e) {
-				this.log.warn("Unable to reset maximumSellToGridPower in GoodWeBatteryInverter", e);
+				LOG.warn("Unable to reset maximumSellToGridPower in GoodWeBatteryInverter", e);
 			}
 		});
 	}
@@ -437,6 +447,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Waveform Detection high precision / disabled
 		if (this.isGoodWeType50Or100k()) {
 			this.applyWaveFormDetection();
+		}
+		if (this.isGoodWeType100k()) {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.THREE_PHASE_UNBALANCED_OUTPUT), 0);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.PV_CONNECT_MODE), PvConnectMode.EACH_MPPT);
 		}
 
 		// Power settings
@@ -492,21 +506,23 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
-		case FENECON_50K, FENECON_100K -> {
+		case FENECON_50K, FENECON_100K, FENECON_FHI_29_9_DAH -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
 			// Feed-in limitation
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
+			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
 		}
-		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
-				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
-				GOODWE_8K_ET -> {
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K, FENECON_GEN2_6K, GOODWE_10K_BT,
+				GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT, GOODWE_8K_ET -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
-
-			// Feed-in limitation
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), feedPowerPara);
+			// Feed-in limitation - register is a signed 16-bit value, clamp defensively.
+			var exceedsMaximum = feedPowerPara > MAX_LEGACY_FEED_POWER;
+			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum);
+			var clampedFeedPowerPara = min(feedPowerPara, MAX_LEGACY_FEED_POWER);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), clampedFeedPowerPara);
 		}
 		case UNDEFINED -> doNothing();
 		}
@@ -625,7 +641,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				|| bmsCapacity.isDefined() && !Objects.equals(bmsCapacity.get(), setCapacity)) {
 
 			// Update is required
-			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
+			this.logInfo(LOG, "Update for PV-Master BMS Registers is required." //
 					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
@@ -657,7 +673,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (doSetBmsVoltage(battery, bmsChargeMaxVoltage, setChargeMaxVoltage, bmsDischargeMinVoltage,
 				setDischargeMinVoltage)) {
 			// Update is required
-			this.logInfo(this.log, "Update for BMS Registers." //
+			this.logInfo(LOG, "Update for BMS Registers." //
 					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
@@ -847,7 +863,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				.anyMatch(b -> b.getDischargeMaxCurrent().orElse(0) < 0);
 		final var clusterInfo = new ClusterInfo(anyNegativeCharge, anyNegativeDischarge);
 
-		for (final var entry : this.mapBatteriesToPort(batteryCluster).entrySet()) {
+		for (final var entry : mapBatteriesToPort(batteryCluster).entrySet()) {
 			switch (entry.getKey()) {
 			case PORT_1 -> this.setBattery1Limits(entry.getValue(), clusterInfo);
 			case PORT_2 -> this.setBattery2Limits(entry.getValue(), clusterInfo);
@@ -863,11 +879,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this._setImpossibleFeneconHomeCombination(invalidCombination);
 	}
 
-	private Map<BatteryPort, Battery> mapBatteriesToPort(Battery battery) {
+	@VisibleForTesting
+	static Map<BatteryPort, Battery> mapBatteriesToPort(Battery battery) {
 		if (!(battery instanceof AbstractGoodWeBatteryCluster batteryCluster)) {
 			return Map.of(BatteryPort.PORT_1, battery);
 		}
 
+		final var isFeneconCluster = batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl;
 		final var batteriesByPort = new EnumMap<BatteryPort, Battery>(BatteryPort.class);
 
 		int index = 0;
@@ -875,14 +893,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			index++;
 
 			var batteryPort = BatteryPort.fromIndex(index);
-			if (batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl
-					&& battery instanceof BatteryFeneconHome homeBattery) {
+			if (isFeneconCluster && b instanceof BatteryFeneconHome homeBattery) {
 				batteryPort = BatteryPort.fromIndex(homeBattery.getBatteryInverterPort().port);
 			}
 
 			final var prev = batteriesByPort.put(batteryPort, b);
 			if (prev != null) {
-				this.log.error("Multiple Batteries on same port {}, battery {} and {}", batteryPort, prev, b);
+				LOG.error("Multiple Batteries on same port {}, battery {} and {}", batteryPort, prev, b);
 			}
 		}
 
@@ -973,13 +990,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// ApplyConfig
 		this.applyGoodWeConfigIfNotSet(this.config, ApplyEvent.ON_RUN);
 
-		final var batteryValues = mapValue(this.mapBatteriesToPort(battery),
+		final var batteryValues = mapValue(mapBatteriesToPort(battery),
 				b -> new BatteryValues(b.getSoc().get(), b.getCurrent().get()));
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels(batteryValues);
 		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), battery);
 
-		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType());
+		this.handleGridFeed();
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
@@ -1025,30 +1042,77 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
 
-	private void handleGridFeed(Config config, GridFeedInLimitationType limitType) throws OpenemsNamedException {
+	private void handleGridFeed() throws OpenemsNamedException {
 
+		switch (this.getGoodweType()) {
+		case GoodWeType.FENECON_FHI_29_9_DAH //
+			-> this.handleGridFeedForFeneconFhi299Dah();
+		case GoodWeType.FENECON_50K, GoodWeType.FENECON_100K, GoodWeType.FENECON_FHI_10_DAH,
+				GoodWeType.FENECON_FHI_20_DAH, GoodWeType.FENECON_GEN2_10K, GoodWeType.FENECON_GEN2_15K,
+				GoodWeType.FENECON_GEN2_6K, GoodWeType.GOODWE_10K_BT, GoodWeType.GOODWE_10K_ET, GoodWeType.GOODWE_5K_BT,
+				GoodWeType.GOODWE_5K_ET, GoodWeType.GOODWE_8K_BT, GoodWeType.GOODWE_8K_ET //
+			-> this.handleGridFeedForOther();
+		case GoodWeType.UNDEFINED //
+			-> doNothing();
+		}
+	}
+
+	private void handleGridFeedForFeneconFhi299Dah() throws OpenemsNamedException {
+		if (this.rcr != null && this.rcr.essRestrictionLevel() != EssRestrictionLevel.NO_RESTRICTION
+				&& !this.getMaxApparentPower().isDefined()) {
+			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
+			return;
+		}
+		var limit = this.meta.getGridLimit().gridSellHardLimit();
+		var rcrLimit = this.getRcrLimitation();
+		if (rcrLimit.isPresent()) {
+			limit = min(limit, rcrLimit.getAsInt());
+		}
+		var exceedsMaximum = this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION
+				&& limit > MAX_HOME_30_FEED_POWER;
+		if (exceedsMaximum) {
+			limit = MAX_HOME_30_FEED_POWER;
+		}
+		this.handleFeedInSetting(true, limit, this.getGoodweType());
+		setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum);
+	}
+
+	private void handleGridFeedForOther() throws OpenemsNamedException {
 		if (!this.getMaxApparentPower().isDefined()) {
 			return;
 		}
-
 		var maxApparentPower = this.getMaxApparentPower().get();
 		var enableFeedInLimit = false;
 		var gridFeedInLimit = maxApparentPower;
 
-		// Limit from general Feed-In Limitation
-		var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		// Limit from general Feed-In Limitation (Meta)
+		var gridSellHardLimit = this.meta.getGridLimit().gridSellHardLimit();
 		if (gridSellHardLimit < maxApparentPower) {
 			enableFeedInLimit = true;
 			gridFeedInLimit = gridSellHardLimit;
 		}
 
-		// Limit from Ripple Control Receiver (Minimum of both limits)
-		if (this.rcr != null && this.rcr.isEnabled()) {
+		// Limit from Ripple Control Receiver (minimum of both limits)
+		var rcrLimit = this.getRcrLimitation();
+		if (rcrLimit.isPresent()) {
 			enableFeedInLimit = true;
-			gridFeedInLimit = min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
+			gridFeedInLimit = min(gridFeedInLimit, rcrLimit.getAsInt());
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
+	}
+
+	private OptionalInt getRcrLimitation() {
+		if (this.rcr == null || this.rcr.essRestrictionLevel() == EssRestrictionLevel.NO_RESTRICTION) {
+			return OptionalInt.empty();
+		}
+
+		var maxApparentPower = this.getMaxApparentPower();
+		if (!maxApparentPower.isDefined()) {
+			return OptionalInt.of(0);
+		}
+
+		return OptionalInt.of(this.rcr.getDynamicGridFeedInLimit(maxApparentPower.get()));
 	}
 
 	private void setPowerSettings() throws OpenemsNamedException {
@@ -1128,7 +1192,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * <p>
 	 * A lot of individual power settings can be configured for each inverter. These
 	 * power settings are mapped here.
-	 * 
+	 *
 	 * @param safetyParameterSettingsTasks Tasks Builder
 	 */
 	private void appendDefaultPowerSettingsTasks(ImmutableList.Builder<Task> safetyParameterSettingsTasks) {
@@ -1449,7 +1513,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * A lot of individual power settings can be configured for each inverter. These
 	 * power settings are mapped here. Known models using this protocol version are
 	 * ET50 & ET100.
-	 * 
+	 *
 	 * @param safetyParameterSettingsTasks Tasks Builder
 	 */
 	private void appendPowerSettingsV2Tasks(ImmutableList.Builder<Task> safetyParameterSettingsTasks) {
@@ -2832,7 +2896,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@VisibleForTesting
 	protected void addPowerSettingTasks() {
-		this.log.info("Update GoodWe power settings tasks");
+		LOG.info("Update GoodWe power settings tasks");
 
 		var protocol = this.getModbusProtocol();
 		removeTasks(//

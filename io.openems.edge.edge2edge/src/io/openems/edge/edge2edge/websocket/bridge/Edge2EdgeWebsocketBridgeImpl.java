@@ -1,11 +1,13 @@
 package io.openems.edge.edge2edge.websocket.bridge;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -53,6 +56,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.PasswordUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.CreateAccountFromSetupKey;
@@ -62,6 +66,8 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.jsonapi.ReplaceUser;
 import io.openems.edge.common.jsonapi.Subrequest;
 import io.openems.edge.common.jsonapi.Subrequest.Subroute;
+import io.openems.edge.common.update.Updateable;
+import io.openems.edge.edge2edge.update.ClusterSlaveUpdateable;
 import io.openems.edge.edge2edge.websocket.bridge.jsonrpc.AuthenticateToRemoteEdge;
 import io.openems.edge.edge2edge.websocket.bridge.jsonrpc.GetConnectionState;
 
@@ -91,9 +97,15 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 	private List<Runnable> onChannelChangeListener = new ArrayList<>();
 	private List<BiConsumer<ConnectionState, ConnectionState>> onConnectionStateChangeListener = new CopyOnWriteArrayList<>();
 	private List<Subscriber> subscriber = new CopyOnWriteArrayList<>();
+	private ServiceRegistration<Updateable> updateableRegistration = null;
+	private ServiceRegistration<ClusterSlaveUpdateable> clusterSlaveUpdateableRegistration = null;
+	private ClusterSlaveUpdateable clusterSlaveUpdateable;
 
 	@Reference
 	private ConfigurationAdmin configurationAdmin;
+
+	@Reference
+	protected ComponentManager componentManager;
 
 	public Edge2EdgeWebsocketBridgeImpl() {
 		super(//
@@ -103,6 +115,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 
 		final var channelSubscriber = new ChannelSubscriber();
 		final var sumStateChannel = new ChannelAddress("_sum", "State");
+		final var remoteHostname = new ChannelAddress("_host", "Hostname");
 		this.onConnectionStateChangeListener.add((prev, curr) -> {
 			this._setConnectionState(curr.option);
 
@@ -110,6 +123,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 			case NOT_CONNECTED, CONNECTING -> {
 				this._setNoConnection(true);
 				this._setNotAuthenticated(false);
+				setValue(this, Edge2EdgeWebsocketBridge.ChannelId.REMOTE_HOSTNAME, null);
 				channelSubscriber.unsubscribeAll();
 			}
 			case AUTHENTICATING -> {
@@ -119,6 +133,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 			case CONNECTED -> {
 				this._setNotAuthenticated(false);
 				channelSubscriber.subscribeChannel(sumStateChannel);
+				channelSubscriber.subscribeChannel(remoteHostname);
 			}
 			}
 		});
@@ -144,13 +159,8 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		});
 
 		this.addChannelSubscriber(channelSubscriber, values -> {
-			final var remoteSumState = values.get(sumStateChannel);
-			if (remoteSumState == null || remoteSumState.isJsonNull()) {
-				this._setRemoteSumState(null);
-				return;
-			}
-
-			this._setRemoteSumState(Level.fromValue(remoteSumState.getAsInt()).orElse(null));
+			this.handleRemoteSumState(values, sumStateChannel);
+			this.handleRemoteHostname(values, remoteHostname);
 		});
 
 		this.getRemoteSumStateChannel().onChange((previousValue, newValue) -> {
@@ -166,9 +176,15 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.clusterSlaveUpdateable = new ClusterSlaveUpdateable(this, this.componentManager.getClock());
+		this.updateableRegistration = context.getBundleContext().registerService(Updateable.class,
+				this.clusterSlaveUpdateable, new Hashtable<>());
+
+		this.clusterSlaveUpdateableRegistration = context.getBundleContext()
+				.registerService(ClusterSlaveUpdateable.class, this.clusterSlaveUpdateable, new Hashtable<>());
 
 		this.client = new WebsocketClient(config.id(), URI.create("ws://" + config.ip() + ":" + config.port()),
 				emptyMap(), AbstractWebsocketClient.NO_PROXY, this::setConnectionState, this::onCurrentData,
@@ -182,6 +198,12 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.client.stop();
+		if (this.updateableRegistration != null) {
+			this.updateableRegistration.unregister();
+		}
+		if (this.clusterSlaveUpdateableRegistration != null) {
+			this.clusterSlaveUpdateableRegistration.unregister();
+		}
 	}
 
 	private synchronized void setConnectionState(ConnectionState connectionState) {
@@ -417,6 +439,34 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 			configuration.updateIfDifferent(properties);
 		} catch (IOException e) {
 			this.log.error("Unable to update configuration", e);
+		}
+	}
+
+	private void handleRemoteHostname(Map<ChannelAddress, JsonElement> values, ChannelAddress remoteHostname) {
+		final var remoteHostnameValue = values.get(remoteHostname);
+		if (remoteHostnameValue == null || remoteHostnameValue.isJsonNull()) {
+			setValue(this, Edge2EdgeWebsocketBridge.ChannelId.REMOTE_HOSTNAME, null);
+			return;
+		}
+		try {
+			setValue(this, Edge2EdgeWebsocketBridge.ChannelId.REMOTE_HOSTNAME, remoteHostnameValue.getAsString());
+		} catch (Exception e) {
+			this.log.warn("Invalid remote hostname value: {}", remoteHostnameValue, e);
+			setValue(this, Edge2EdgeWebsocketBridge.ChannelId.REMOTE_HOSTNAME, null);
+		}
+	}
+
+	private void handleRemoteSumState(Map<ChannelAddress, JsonElement> values, ChannelAddress sumStateChannel) {
+		final var remoteSumState = values.get(sumStateChannel);
+		if (remoteSumState == null || remoteSumState.isJsonNull()) {
+			this._setRemoteSumState(null);
+			return;
+		}
+		try {
+			this._setRemoteSumState(Level.fromValue(remoteSumState.getAsInt()).orElse(null));
+		} catch (Exception e) {
+			this.log.warn("Invalid remote sum state value: {}", remoteSumState, e);
+			this._setRemoteSumState(null);
 		}
 	}
 

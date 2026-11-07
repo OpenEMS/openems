@@ -1,4 +1,6 @@
+import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { EdgeConfig } from "src/app/shared/shared";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
 export { environment } from "./dummy";
@@ -30,6 +32,9 @@ export interface Environment {
     };
     readonly icons: {
         readonly COMMON: {
+            readonly USER: string;
+            readonly SETTINGS: string;
+            readonly COCKPIT: string;
             readonly FAVORITES: string;
             readonly FAVORITES_FILLED: string;
             readonly CONSUMPTION: string;
@@ -42,6 +47,7 @@ export interface Environment {
             readonly OFFGRID: string;
             readonly PRODUCTION: string;
             readonly STORAGE: string;
+            readonly SCHEDULE: string;
 
             readonly WEATHER: {
                 readonly CLEAR_DAY: string;
@@ -138,8 +144,6 @@ export interface Environment {
             };
         };
         readonly REDIRECT: {
-            readonly BETA_CHANGE_LOG: string | null;
-            readonly BETA_SURVEY: string | null;
             readonly COMMON_STORAGE: string | null;
             readonly COMMON_AUTARCHY: string | null;
             readonly COMMON_CONSUMPTION: string | null;
@@ -167,6 +171,7 @@ export interface Environment {
             readonly CONTROLLER_TIMESLOT_PEAKSHAVING: string | null;
 
             readonly EVCS_KEBA: string | null;
+            readonly EVCS_KEBA_HELP: string | null;
             readonly EVCS_HARDY_BARTH: string | null;
             readonly EVCS_MENNEKES: string | null;
             readonly EVSE_ALFEN: string | null;
@@ -202,6 +207,8 @@ export interface Environment {
             };
         };
         readonly DATA_PROTECTION: string | null;
+        /** Gets the link to the General Terms and Conditions (GTC) for the given language. */
+        GTC: (language: string) => string | null;
         readonly FORGET_PASSWORD: string;
         readonly EVCS: string | null;
 
@@ -216,14 +223,8 @@ export interface Environment {
             readonly SYSTEM: {
                 readonly HOME: {
                     readonly HOME_10: string;
-                    readonly HOME_20_30: {
-                        readonly DE: string;
-                        readonly EN: string;
-                    };
-                    readonly HOME_GEN_2: {
-                        readonly DE: string;
-                        readonly EN: string;
-                    };
+                    readonly HOME_20_30: string;
+                    readonly HOME_GEN_2: string;
                 };
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string;
@@ -231,7 +232,6 @@ export interface Environment {
                     readonly COMMERCIAL_50_GEN_3: string;
                     readonly COMMERCIAL_92: string;
                     readonly COMMERCIAL_92_CLUSTER: string;
-                    readonly COMMERCIAL_92_OVERVIEW: string;
                     readonly COMMERCIAL_100: string;
                 };
                 readonly INDUSTRIAL?: {
@@ -240,11 +240,10 @@ export interface Environment {
                 };
             };
 
-            readonly RUNDSTEUER: {
-                readonly HOME: string;
+            readonly RIPPLE_CONTROL: {
+                readonly HOME_10_GEN_1: string;
                 readonly HOME_GEN_2: string;
                 readonly HOME_20_30: string;
-                readonly HOME_6_10_15: string;
                 readonly COMMERCIAL_50_GEN_3: string;
             };
 
@@ -288,6 +287,8 @@ export interface Environment {
         };
     };
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null;
+    readonly ENVIRONMENT_PROVIDERS: EnvironmentProviders[];
+    readonly CLEANED_FACTORIES: (config: EdgeConfig) => EdgeConfig["factories"];
 }
 
 /*

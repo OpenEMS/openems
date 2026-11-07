@@ -1,7 +1,7 @@
 package io.openems.edge.fenecon.mini.ess;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;

@@ -72,10 +72,10 @@ public final class EvcsProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evcs.numberOfChargingStations.label") //
 				.setDefaultValue(1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
-				field.setOptions(IntStream.rangeClosed(1, maxValue) //
-						.<Integer>mapToObj(value -> value) //
-						.toList(), JsonPrimitive::new, JsonPrimitive::new)));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> field //
+						.setOptions(IntStream.rangeClosed(1, maxValue) //
+								.<Integer>mapToObj(value -> value) //
+								.toList(), JsonPrimitive::new, JsonPrimitive::new)));
 	}
 
 	private static <T extends OpenemsApp & MetaSupplier> void field(//
@@ -86,7 +86,7 @@ public final class EvcsProps {
 			BundleProvider parameter, //
 			FieldGroupBuilder field //
 	) {
-		final var gridConnectionPointFuseLimit = app.getMeta().getGridConnectionPointFuseLimit();
+		final var gridConnectionPointFuseLimit = app.getMeta().getGridLimit().fuseCurrent();
 
 		field.hideKey();
 		field.setPopupInput(property, DisplayType.NUMBER);
@@ -108,7 +108,8 @@ public final class EvcsProps {
 								"App.Evcs.Cluster.maxChargeFromGrid.short.label"))
 						.setInputType(NUMBER) //
 						.setMin(0) //
-						.setMax(gridConnectionPointFuseLimit * 230 * 3).isRequired(true) //
+						.setMax(gridConnectionPointFuseLimit * 230 * 3) //
+						.isRequired(true) //
 						.setDefaultValue(Math.round(gridConnectionPointFuseLimit * 0.9F) * 230 * 3)//
 						.setUnit(Unit.WATT, language) //
 						.build())
@@ -128,7 +129,7 @@ public final class EvcsProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evcs.Cluster.maxChargeFromGrid.label") //
 				.setAllowedToSave(false) //
-				.setIsAllowedToSee((app, property, l, parameter, user) -> {
+				.setIsAllowedToSee((app, _, _, _, _) -> {
 					final var componentManager = app.getComponentManager();
 					if (isClusterInstalled(componentManager)) {
 						return false;
@@ -155,14 +156,14 @@ public final class EvcsProps {
 			Nameable evcsIdProperty //
 	) {
 		return EvcsProps.<T>clusterMaxHardwarePower(acceptProperty) //
-				.setIsAllowedToSee((app, property, l, parameter, user) -> {
+				.setIsAllowedToSee((app, _, _, _, _) -> {
 					final var componentManager = app.getComponentManager();
 					if (isClusterInstalled(componentManager)) {
 						return false;
 					}
 					final var existingEvcs = getEvcsComponents(app.getComponentUtil());
 					return !existingEvcs.isEmpty();
-				}).wrapField((app, property, l, parameter, field) -> {
+				}).wrapField((app, _, _, _, field) -> {
 					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
 					if (existingEvcs.isEmpty()) {
 						return;
@@ -224,12 +225,10 @@ public final class EvcsProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hardwareType(Nameable evcsId) {
 		return AppDef.copyOfGeneric(defaultDef())//
 				.setTranslatedLabel("App.Evcs.Keba.hardwareType.label")
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(KebaHardwareType.class), l);
-				})//
-				.wrapField((app, property, l, parameter, field) -> {
-					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
-				})//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(OptionsFactory.of(KebaHardwareType.class), l))//
+				.wrapField((_, _, _, _, field) -> field //
+						.readonlyIf(Exp.currentModelValue(evcsId).notNull()))//
 				.setRequired(true) //
 				.setDefaultValue(KebaHardwareType.P30);
 	}
@@ -245,7 +244,7 @@ public final class EvcsProps {
 			Nameable evcsId) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Evcs.Keba.architectureType.label")//
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, _, l, _, field) -> {
 					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
 					var availableArchitectureTypes = getAvailableArchitectureTypes(app.supportedArchitectureTypes(),
 							getExistingArchitectureType(app));
@@ -253,7 +252,7 @@ public final class EvcsProps {
 							OptionsFactory.of(availableArchitectureTypes.toArray(EMobilityArchitectureType[]::new)), l);
 				})//
 				.setRequired(true)//
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((app, _, _, _) -> {
 					var supportedArchitectureTypes = app.supportedArchitectureTypes();
 					return new JsonPrimitive(
 							resolveArchitectureTypeDefault(supportedArchitectureTypes, getExistingArchitectureType(app))

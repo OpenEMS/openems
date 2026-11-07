@@ -22,6 +22,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.CountryCode;
+import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -225,14 +227,6 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
-	 * rating of the fuses.
-	 *
-	 * @return the limit in A
-	 */
-	public int getGridConnectionPointFuseLimit();
-
-	/**
 	 * Returns the ISO 3166-1 alpha-2 country code of the system location.
 	 * 
 	 * <p>
@@ -292,43 +286,11 @@ public interface Meta extends ModbusSlave {
 	public ZoneId getTimezone();
 
 	/**
-	 * Returns the continuous hard limit for Grid-Sell Power in [W].
-	 * 
-	 * <p>
-	 * This value is derived from GridConnectionPointFuseLimit.
-	 * 
-	 * @return the value
+	 * Returns the {@link GridLimit.Immutable}.
+	 *
+	 * @return the {@link GridLimit.Immutable}.
 	 */
-	public int getGridSellHardLimit();
-
-	/**
-	 * Returns the continuous hard limit for Grid-Sell Power in [W] minus a safety
-	 * buffer to reduce the risk of PV curtailment.
-	 *
-	 * <p>
-	 * This value is derived from GridConnectionPointFuseLimit.
-	 *
-	 * @return the value
-	 */
-	public int getGridSellHardLimitWithBuffer();
-
-	/**
-	 * Returns the continuous limit for ESS Discharge-to-Grid Power in [W].
-	 *
-	 * <p>
-	 * This value is derived from {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}
-	 * and gridSellHardLimit()
-	 *
-	 * @return the value
-	 */
-	public int getEssDischargeToGridLimit();
-
-	/**
-	 * Returns the {@link GridBuyLimit}.
-	 *
-	 * @return the {@link GridBuyLimit}.
-	 */
-	GridBuyLimit getGridBuyLimit();
+	GridLimit.Immutable getGridLimit();
 
 	/**
 	 * Returns whether the user has accepted, declined, or not yet decided on
@@ -337,4 +299,11 @@ public interface Meta extends ModbusSlave {
 	 * @return the third party usage acceptance status
 	 */
 	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
+
+	/**
+	 * Gets the environment this system is running on.
+	 *
+	 * @return the {@link Environment}
+	 */
+	Environment getEnvironment();
 }

@@ -1,17 +1,17 @@
-// @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal, AfterViewInit, AfterContentInit, } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, computed, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Subscription } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 
 import { calculateResolution, ChronoUnit, DEFAULT_NUMBER_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible, } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { DefaultTypes, RGBColor } from "src/app/shared/type/defaulttypes";
 import { JsonrpcResponseError } from "../../jsonrpc/base";
 import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { QueryHistoricTimeseriesDataRequest } from "../../jsonrpc/request/queryHistoricTimeseriesDataRequest";
@@ -31,6 +31,7 @@ import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { ObjectUtils } from "../../utils/object/object-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
+import { MetaComponent } from "../edge/config-components/meta/meta";
 import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { ViewUtils } from "../navigation/view/shared/shared";
@@ -65,27 +66,29 @@ Chart.Tooltip.positioners["bottom"] = function (elements, eventPosition) {
     };
 };
 
+type TooltipCallbacks = Chart.TooltipCallbacks<Chart.ChartType>;
+
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit, AfterContentInit {
+export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
     protected static readonly phaseColors: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
 
     /** Title for Chart, diplayed above the Chart */
     @Input() public chartTitle: string = "";
 
-    /** Optional chart height in percent (0–100) of the available view height. */
+    /** Optional chart height in percent (0-100) of the available view height. */
     @Input() public customChartHeightPercentage?: number;
 
     /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
-    @Input() public component: EdgeConfig.Component;
+    @Input() public component!: EdgeConfig.Component;
     @Input() public showPhases: boolean = false;
     @Input() public showTotal: boolean = false;
     @Input() public isOnlyChart: boolean = false;
     @Input() public xAxisScalingType: XAxisType = XAxisType.TIMESERIES;
     @Output() public setChartConfig: EventEmitter<ChartTypes.ChartConfig> = new EventEmitter();
     @ViewChild(FooterNavigationComponent, { static: true })
-    public footerNavigation: FooterNavigationComponent;
+    public footerNavigation!: FooterNavigationComponent;
 
     public edge: Edge | null = null;
     public loading: boolean = true;
@@ -98,11 +101,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected chartType: "line" | "bar" = "line";
     protected chartTypeSignal: WritableSignal<"line" | "bar"> = signal("line");
     protected isDataExisting: boolean = true;
-    protected config: EdgeConfig = null;
+    protected config!: EdgeConfig;
     protected errorResponse: JsonrpcResponseError | null = null;
     protected legendOptions: {
         label: string;
-        strokeThroughHidingStyle: boolean;
+        strokeThroughHidingStyle: boolean | null;
         hideLabelInLegend: boolean;
     }[] = [];
     protected channelData: { data: HistoryUtils.ChannelData } = {
@@ -110,6 +113,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     };
     protected viewHeight: string | null = null;
     protected routeService: RouteService = inject(RouteService);
+    protected chartHeight = computed(() => {
+        const _chartHeightRevision = this.chartHeightRevision();
+        return this.calculateViewHeight();
+    });
+    private historyPeriodSub: Subscription;
+    private readonly chartHeightRevision = signal(0);
+
     private layoutRefresh = inject(LayoutRefreshService);
 
     constructor(
@@ -120,7 +130,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         protected logger: Logger,
         protected navigationService: NavigationService,
     ) {
-        this.service.historyPeriod.subscribe(() => {
+        this.historyPeriodSub = this.service.historyPeriod.subscribe(() => {
             this.updateChart();
         });
     }
@@ -137,7 +147,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         chartType: "line" | "bar",
         chartObject: HistoryUtils.ChartData,
         energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
-        energyResponse?: QueryHistoricTimeseriesEnergyResponse,
+        energyResponse?: QueryHistoricTimeseriesEnergyResponse | null,
     ) {
         if (Utils.isDataEmpty(energyPeriodResponse)) {
             return {
@@ -147,7 +157,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             };
         }
 
-        const channelData: { data: { [name: string]: number[] } } = {
+        const channelData: { data: HistoryUtils.ChannelData } = {
             data: {},
         };
         const result = energyPeriodResponse.result;
@@ -157,28 +167,23 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         }
 
         chartObject.input?.forEach((element) => {
-            let channelAddress: ChannelAddress | null = null;
-            if (chartType == "bar" && element.energyChannel) {
-                channelAddress = element.energyChannel;
-            } else {
-                channelAddress = element.powerChannel;
-            }
+            const channelAddress: ChannelAddress | undefined =
+                chartType == "bar" && element.energyChannel ? element.energyChannel : element.powerChannel;
 
-            if (channelAddress?.toString() in result.data) {
-                channelData.data[element.name] =
-                    HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(
-                        (value) => {
-                            if (value == null) {
-                                return null;
-                            }
+            if (channelAddress != null && channelAddress.toString() in result.data) {
+                channelData.data[element.name] = HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(
+                    result.data[channelAddress.toString()],
+                )?.map((value) => {
+                    if (value == null) {
+                        return null;
+                    }
 
-                            if (element.converter) {
-                                return element.converter(value);
-                            }
+                    if (element.converter) {
+                        return element.converter(value);
+                    }
 
-                            return value;
-                        },
-                    ) ?? null;
+                    return value;
+                });
             }
         });
 
@@ -190,7 +195,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         );
         const legendOptions: {
             label: string;
-            strokeThroughHidingStyle: boolean;
+            strokeThroughHidingStyle: boolean | null;
             hideLabelInLegend: boolean;
         }[] = [];
         displayValues.forEach((displayValue, index) => {
@@ -233,18 +238,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         label: string,
         chartObject: HistoryUtils.ChartData,
         chartType: "line" | "bar",
-        data: number[] | null,
+        data: (number | null)[],
     ): {
         datasets: Chart.ChartDataset[];
         legendOptions: {
             label: string;
-            strokeThroughHidingStyle: boolean;
+            strokeThroughHidingStyle: boolean | null;
             hideLabelInLegend: boolean;
         }[];
     } {
         const legendOptions: {
             label: string;
-            strokeThroughHidingStyle: boolean;
+            strokeThroughHidingStyle: boolean | null;
             hideLabelInLegend: boolean;
         }[] = [];
         const datasets: Chart.ChartDataset[] = [];
@@ -301,12 +306,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         element: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>,
     ): {
         label: string;
-        strokeThroughHidingStyle: boolean;
+        strokeThroughHidingStyle: boolean | null;
         hideLabelInLegend: boolean;
     } {
         return {
             label: label,
-            strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden,
+            strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden ?? null,
             hideLabelInLegend: element.hideLabelInLegend ?? false,
         };
     }
@@ -321,13 +326,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         color: string,
         chartType: "line" | "bar",
     ): { backgroundColor: string; borderColor: string } {
+        const rgb = RGBColor.fromString(color);
         return {
-            backgroundColor:
-                "rgba(" +
-                (chartType == "bar"
-                    ? color.split("(").pop().split(")")[0] + ",0.7)"
-                    : color.split("(").pop().split(")")[0] + ",0.05)"),
-            borderColor: "rgba(" + color.split("(").pop().split(")")[0] + ",1)",
+            backgroundColor: rgb.toRgba(chartType == "bar" ? 0.7 : 0.05),
+            borderColor: rgb.toRgba(1),
         };
     }
 
@@ -343,11 +345,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         service: Service,
         chartObject: HistoryUtils.ChartData | null,
     ): Chart.ChartOptions {
+        const scales = (options.scales ??= {});
+        const tooltip = ((options.plugins ??= {}).tooltip ??= {});
+        const xScale = scales.x as Chart.TimeScaleOptions;
         switch (chartType) {
             case "bar": {
-                options.plugins.tooltip.mode = "x";
-                options.scales.x["offset"] = true;
-                options.scales.x.ticks["source"] = "data";
+                tooltip.mode = "x";
+                xScale.offset = true;
+                xScale.ticks.source = "data";
                 let barPercentage = 1;
                 switch (service.periodString) {
                     case DefaultTypes.PeriodString.CUSTOM: {
@@ -374,20 +379,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                         break;
                 }
 
-                options.datasets.bar = {
+                (options.datasets ??= {}).bar = {
                     barPercentage: barPercentage,
                 };
                 break;
             }
 
             case "line":
-                options.scales.x["offset"] = false;
-                options.scales.x.ticks["source"] = "data";
-                options.plugins.tooltip.mode = "index";
+                xScale.offset = false;
+                xScale.ticks.source = "data";
+                tooltip.mode = "index";
 
                 if (chartObject) {
                     for (const yAxis of chartObject.yAxes) {
-                        options.scales[yAxis.yAxisId]["stacked"] = false;
+                        (scales[yAxis.yAxisId] as Chart.CartesianScaleOptions).stacked = false;
                     }
                 }
                 break;
@@ -408,8 +413,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     public static getDataSet(
         element: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>,
         label: string,
-        data: number[],
-        stack: number,
+        data: (number | null)[],
+        stack: number | undefined,
         chartObject: HistoryUtils.ChartData,
         chartType: "line" | "bar",
     ): Chart.ChartDataset {
@@ -501,8 +506,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         chartType: "line" | "bar",
         service: Service,
         translate: TranslateService,
-        legendOptions: { label: string; strokeThroughHidingStyle: boolean }[],
-        channelData: { data: { [name: string]: number[] } },
+        legendOptions: { label: string; strokeThroughHidingStyle: boolean | null }[],
+        channelData: { data: HistoryUtils.ChannelData },
         config: EdgeConfig,
         datasets: Chart.ChartDataset[],
         chartOptionsType: XAxisType,
@@ -533,11 +538,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 );
             });
 
-        options.plugins.tooltip.callbacks.labelPointStyle = function (context: { dataset: Chart.ChartDataset }) {
+        const plugins = (options.plugins ??= {});
+        const tooltip = (plugins.tooltip ??= {});
+        const callbacks = (tooltip.callbacks ??= {});
+        const legend = (plugins.legend ??= {});
+
+        callbacks.labelPointStyle = function (context: { dataset: Chart.ChartDataset }) {
             return ChartConstants.Plugins.ToolTips.POINT_STYLE(context.dataset);
         };
 
-        options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
+        // Callbacks return null to suppress output: Chart.js falls back to its default callback on undefined
+        callbacks.title = ((tooltipItems: Chart.TooltipItem<any>[]): string | null => {
             if (tooltipItems?.length === 0) {
                 return null;
             }
@@ -548,20 +559,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 service,
                 chartOptionsType,
             );
-        };
+        }) as TooltipCallbacks["title"];
         options = AbstractHistoryChart.applyChartTypeSpecificOptionsChanges(chartType, options, service, chartObject);
 
-        options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
+        callbacks.label = ((item: Chart.TooltipItem<any>) => {
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
             const displayValue = displayValues.find((element) => element.name === label?.split(":")?.[0]);
 
-            if (displayValue.hiddenInTooltip) {
+            if (displayValue?.hiddenInTooltip) {
                 return null;
             }
             const unit =
-                chartObject.yAxes?.find((el) => el.yAxisId === displayValue.yAxisId)?.unit ??
+                chartObject.yAxes?.find((el) => el.yAxisId === displayValue?.yAxisId)?.unit ??
                 chartObject.yAxes[0]?.unit;
 
             if (value === null) {
@@ -575,15 +586,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             return AbstractHistoryChart.getToolTipsSuffix(
                 label,
                 value,
-                displayValue.custom?.formatNumber ?? chartObject.tooltip.formatNumber,
+                displayValue?.custom?.formatNumber ?? chartObject.tooltip.formatNumber,
                 unit,
                 chartType,
                 translate,
                 config,
             );
-        };
+        }) as TooltipCallbacks["label"];
 
-        options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+        callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
             let backgroundColor = item.dataset.backgroundColor;
 
             if (Array.isArray(backgroundColor)) {
@@ -600,7 +611,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             };
         };
 
-        options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
+        (legend.labels ??= {}).generateLabels = function (chart: Chart.Chart) {
             const chartLegendLabelItems: Chart.LegendItem[] = [];
             chart.data.datasets.forEach((dataset: Chart.ChartDataset, index) => {
                 const legendItem = legendOptions?.find((element) => element.label == dataset.label);
@@ -612,7 +623,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 const isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
                 const chartLegendLabelItem: Chart.LegendItem = {
-                    text: dataset.label,
+                    text: dataset.label ?? "",
                     datasetIndex: index,
                     fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
                     ...(dataset.backgroundColor != null && {
@@ -623,9 +634,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                     ...(dataset.borderColor != null && {
                         strokeStyle: dataset.borderColor.toString(),
                     }),
-                    ...(dataset["borderDash"] != null && {
-                        lineDash: dataset["borderDash"],
-                    }),
+                    ...("borderDash" in dataset &&
+                        Array.isArray(dataset.borderDash) && {
+                            lineDash: dataset.borderDash as number[],
+                        }),
                     ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                 };
 
@@ -647,17 +659,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 chartLegendLabelItems.push(chartLegendLabelItem);
             });
 
-            setTimeout(() => {
-                if (!(chart as any)._updated) {
-                    (chart as any)._updated = true; // Prevent multiple updates
-                    chart.update();
-                }
-            }, 0);
-
             return chartLegendLabelItems;
         };
 
-        options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
+        callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]): string | null {
             const locale: string = Language.geti18nLocale();
 
             if (items?.length === 0) {
@@ -707,12 +712,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             }
 
             return null;
-        };
+        } as TooltipCallbacks["afterTitle"];
 
-        options.plugins.tooltip.enabled = chartObject.tooltip.enabled ?? true;
+        tooltip.enabled = chartObject.tooltip.enabled ?? true;
 
         // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-        options.plugins.legend.onClick = function (
+        legend.onClick = function (
             event: Chart.ChartEvent,
             legendItem: Chart.LegendItem,
             legend: Chart.LegendElement<any>,
@@ -734,7 +739,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 });
             }
 
-            const legendItems = chart.data.datasets.reduce((arr, ds, i) => {
+            const legendItems = chart.data.datasets.reduce<{ label: string; index: number }[]>((arr, ds, i) => {
                 if (ds.label == legendItem.text) {
                     arr.push({ label: ds.label, index: i });
                 }
@@ -764,12 +769,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                     hasBeenChanged.set(label, isLabelHidden);
                 }
 
-                showOrHideLabel(item.label, chart, legendItem.datasetIndex);
+                showOrHideLabel(item.label, chart, legendItem.datasetIndex ?? item.index);
 
-                const meta = chart.getDatasetMeta(item.index);
+                // Chart.js types `hidden` as boolean, but null means "use the dataset's own hidden flag"
+                const meta: { hidden: boolean | null } = chart.getDatasetMeta(item.index);
                 const currentDisplayValue = displayValues.find((el) => el.name == legendItem.text.split(":")[0]);
 
-                if (currentDisplayValue.custom) {
+                if (currentDisplayValue?.custom) {
                     const hidden = !chart.data.datasets[item.index].hidden;
                     // Hide plugin features on click
                     chart.options = AbstractHistoryChart.activateOrDeactivatePlugin(
@@ -785,10 +791,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             });
 
             function showOrHideYAxis(datasets: Chart.ChartDataset[], chart: Chart.Chart) {
-                for (const key of Object.keys(ObjectUtils.excludeProperties(chart.options.scales, ["x"]))) {
-                    const axisDatasets = datasets.filter((d) => d["yAxisID"] === key);
-                    // It is important to update the options in the outer scope!
-                    options.scales[key].display = axisDatasets.some((d) => !d.hidden);
+                for (const key of Object.keys(
+                    ObjectUtils.excludeProperties(chart.options.scales ?? null, ["x"]) ?? {},
+                )) {
+                    const axisDatasets = datasets.filter((d) => "yAxisID" in d && d.yAxisID === key);
+                    const scale = options.scales?.[key];
+                    if (scale != null) {
+                        // It is important to update the options in the outer scope!
+                        scale.display = axisDatasets.some((d) => !d.hidden);
+                    }
                 }
             }
 
@@ -799,23 +810,22 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 }
                 return v;
             });
-
             rebuildScales(chart);
             showOrHideYAxis(_dataSets, chart);
             chart.update();
         };
 
-        options.scales.x.ticks["source"] = "auto";
-        options.scales.x.ticks.maxTicksLimit = 31;
-        options.scales.x["bounds"] = "ticks";
-        options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
+        const xScale = options.scales?.x as Chart.TimeScaleOptions;
+        xScale.ticks.source = "auto";
+        xScale.ticks.maxTicksLimit = 31;
+        xScale.bounds = "ticks";
+        xScale.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
             "--ion-color-chart-xAxis-ticks",
         );
         Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family");
 
-        options.plugins["syncChart"] = {
-            group: 1,
-        };
+        Object.assign(plugins, { syncChart: { group: 1 } });
+
         return options;
     }
 
@@ -847,10 +857,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             showYAxisType,
             formatNumber,
         );
+        const scales = (options.scales ??= {});
 
         switch (element.unit) {
             case YAxisType.RELAY:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     min: 0,
                     max: 1,
@@ -868,7 +879,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
             case YAxisType.RESTRICTION:
             case YAxisType.PERCENTAGE:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     stacked: false,
                     beginAtZero: true,
@@ -889,7 +900,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 };
                 break;
             case YAxisType.TEMPERATURE:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     stacked: false,
                     type: "linear",
@@ -901,7 +912,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
 
             case YAxisType.TIME:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     min: 0,
                     ticks: {
@@ -917,7 +928,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             case YAxisType.HEAT_PUMP:
                 {
                     const { callback, ...rest } = baseConfig.ticks;
-                    options.scales[element.yAxisId] = {
+                    scales[element.yAxisId] = {
                         ...baseConfig,
                         min: 1,
                         max: 4,
@@ -932,7 +943,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             case YAxisType.ENERIX_CONTROL:
                 {
                     const { callback, ...rest } = baseConfig.ticks;
-                    options.scales[element.yAxisId] = {
+                    scales[element.yAxisId] = {
                         ...baseConfig,
                         min: 1,
                         max: 3,
@@ -947,7 +958,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             case YAxisType.HEATING_ELEMENT:
                 {
                     const { callback, ...rest } = baseConfig.ticks;
-                    options.scales[element.yAxisId] = {
+                    scales[element.yAxisId] = {
                         ...baseConfig,
                         min: 0,
                         max: 3,
@@ -961,13 +972,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
             case YAxisType.VOLTAGE:
             case YAxisType.CURRENT:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     beginAtZero: false,
                 };
                 break;
             case YAxisType.CURRENCY:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     beginAtZero: false,
                     ticks: {
@@ -978,7 +989,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
             case YAxisType.POWER:
             case YAxisType.ENERGY:
-                options.scales[element.yAxisId] = {
+                scales[element.yAxisId] = {
                     ...baseConfig,
                     max:
                         baseConfig?.max && baseConfig?.min && baseConfig?.max === baseConfig?.min
@@ -988,7 +999,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
             case YAxisType.REACTIVE:
             case YAxisType.NONE:
-                options.scales[element.yAxisId] = baseConfig;
+                scales[element.yAxisId] = baseConfig;
                 break;
         }
         return options;
@@ -1002,7 +1013,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      * @param suffix The suffix, a number that will be added to the baseName
      * @returns A string, that is either the baseName, if no suffix is provided, or a baseName with a formatted number
      */
-    public static getTooltipsLabelName(baseName: string, unit: YAxisType, suffix?: number | string): string {
+    public static getTooltipsLabelName(
+        baseName: string,
+        unit: YAxisType | undefined,
+        suffix?: number | string | null,
+    ): string {
         const locale: string = Language.geti18nLocale();
         if (suffix != null) {
             if (typeof suffix === "string") {
@@ -1061,8 +1076,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 return prefix + ": " + pipe.transform(value, true);
             }
             case YAxisType.CURRENCY: {
-                const meta: EdgeConfig.Component = config?.getComponent("_meta");
-                const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+                const currency = new MetaComponent(config).getCurrency();
                 suffix = Currency.getCurrencyLabelByCurrency(currency);
                 break;
             }
@@ -1120,7 +1134,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 break;
             case XAxisType.TIMESERIES:
                 options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS());
-                options.scales.x["time"].unit = calculateResolution(
+                (options.scales?.x as Chart.TimeScaleOptions).time.unit = calculateResolution(
                     service,
                     service.historyPeriod.value.from,
                     service.historyPeriod.value.to,
@@ -1145,14 +1159,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         label: string,
         service: Service,
         chartOptionsType: XAxisType,
-    ): string {
+    ): string | null {
         const unit = calculateResolution(service, fromDate, toDate).resolution.unit;
 
         if (chartOptionsType === XAxisType.NUMBER) {
             return null;
         }
 
-        const date: Date = DateUtils.stringToDate(label);
+        const date = DateUtils.stringToDate(label);
+        if (date == null) {
+            return null;
+        }
 
         switch (unit) {
             case ChronoUnit.Type.YEARS:
@@ -1188,8 +1205,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      * @returns The chart options
      */
     protected static removePlugins(options: Chart.ChartOptions): Chart.ChartOptions {
-        options.plugins["annotation"] = {};
-        options.plugins["datalabels"] = {
+        const plugins = (options.plugins ??= {});
+        plugins["annotation"] = {};
+        plugins["datalabels"] = {
             display: false,
         };
         return options;
@@ -1254,10 +1272,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             return options;
         }
 
-        switch (displayValue.custom["pluginType"]) {
+        const plugins = (options.plugins ??= {});
+        switch ((displayValue.custom as HistoryUtils.PluginCustomOptions).pluginType) {
             case "box":
                 if ((displayValue.custom as HistoryUtils.BoxCustomOptions).annotations.length > 0) {
-                    options.plugins["annotation"] = {
+                    plugins["annotation"] = {
                         annotations: (displayValue.custom as HistoryUtils.BoxCustomOptions).annotations.map(
                             (annotation) => ({
                                 ...annotation,
@@ -1269,7 +1288,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 }
                 break;
             case "datalabels":
-                options.plugins["datalabels"] = ChartConstants.Plugins.BAR_CHART_DATALABELS(
+                plugins["datalabels"] = ChartConstants.Plugins.BAR_CHART_DATALABELS(
                     (displayValue.custom as HistoryUtils.DataLabelsCustomOptions).datalabels.displayUnit,
                     true,
                 );
@@ -1281,16 +1300,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
     @HostListener("window:resize", ["$event.target.innerHeight"])
     onResize(height: number) {
-        this.ngAfterViewInit();
+        this.chartHeightRevision.update((value) => value + 1);
+        this.chartHeight();
+        this.cdRef.markForCheck();
     }
 
-    ngAfterViewInit() {
-        this.viewHeight = this.calculateViewHeight();
-        this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
-    }
+    public calculateViewHeight(): string {
+        const availableHeight = ViewUtils.getChartContentHeightInVh(this.navigationService.position()) ?? 0;
+        const heightPercentage = Math.min(100, Math.max(0, this.customChartHeightPercentage ?? 100));
+        const padding = ViewUtils.getChartOptionsPadding(this.options) ?? 0;
 
-    calculateViewHeight(): string {
-        return ViewUtils.getChartContentHeightInVh(this.navigationService.position()) + "dvh";
+        return Math.max(0, (availableHeight * heightPercentage) / 100 - padding) + "dvh";
     }
 
     ngAfterContentInit() {
@@ -1306,6 +1326,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 counter++;
             });
         });
+    }
+
+    ngAfterViewInit() {
+        this.viewHeight = this.calculateViewHeight();
+        this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
     /**
@@ -1349,7 +1374,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     ngOnDestroy() {
-        this.options = AbstractHistoryChart.removePlugins(this.options);
+        if (this.options != null) {
+            this.options = AbstractHistoryChart.removePlugins(this.options);
+        }
+        this.chartHeightRevision.set(0);
+        this.labels = [];
+        this.datasets = [];
+        this.historyPeriodSub?.unsubscribe();
     }
 
     protected getChartHeight(): number | null {
@@ -1385,6 +1416,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             labels: this.labels,
             options: this.options,
         });
+
+        this.viewHeight = this.calculateViewHeight();
     }
 
     /**
@@ -1408,7 +1441,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 this.service.getConfig().then(async () => {
                     const channelAddresses = (await this.getChannelAddresses()).powerChannels;
                     const request = new QueryHistoricTimeseriesDataRequest(
-                        DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol),
+                        DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol ?? null) ?? fromDate,
                         toDate,
                         channelAddresses,
                         resolution,
@@ -1429,7 +1462,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                                 responseToReturn = new QueryHistoricTimeseriesDataResponse(response.id, {
                                     timestamps: [null],
                                     data: { null: null },
-                                });
+                                } as unknown as QueryHistoricTimeseriesDataResponse["result"]);
                             }
 
                             if (Utils.isDataEmpty(responseToReturn)) {
@@ -1464,7 +1497,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             fromDate,
             toDate,
         ).resolution,
-    ): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse | null> {
+    ): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
         this.isDataExisting = true;
         const result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> =
             new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
@@ -1474,7 +1507,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                             (element) => element != null,
                         );
                         const request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(
-                            DateUtils.maxDate(fromDate, edge?.firstSetupProtocol),
+                            DateUtils.maxDate(fromDate, edge?.firstSetupProtocol ?? null) ?? fromDate,
                             toDate,
                             channelAddresses,
                             resolution,
@@ -1513,6 +1546,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                     // load defaultchart
                     this.isDataExisting = false;
                     this.stopSpinner();
+                    this.chartHeightRevision.update((value) => value + 1);
                     this.initializeChart();
                 }
                 return response;
@@ -1530,18 +1564,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected queryHistoricTimeseriesEnergy(
         fromDate: Date,
         toDate: Date,
-    ): Promise<QueryHistoricTimeseriesEnergyResponse> {
+    ): Promise<QueryHistoricTimeseriesEnergyResponse | null> {
         this.isDataExisting = true;
 
-        const result: Promise<QueryHistoricTimeseriesEnergyResponse> =
-            new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+        const result: Promise<QueryHistoricTimeseriesEnergyResponse | null> =
+            new Promise<QueryHistoricTimeseriesEnergyResponse | null>((resolve, reject) => {
                 this.service.getCurrentEdge().then((edge) => {
                     this.service.getConfig().then(async () => {
                         const channelAddresses =
                             (await this.getChannelAddresses()).energyChannels?.filter((element) => element != null) ??
                             [];
                         const request = new QueryHistoricTimeseriesEnergyRequest(
-                            DateUtils.maxDate(fromDate, edge?.firstSetupProtocol),
+                            DateUtils.maxDate(fromDate, edge?.firstSetupProtocol ?? null) ?? fromDate,
                             toDate,
                             channelAddresses,
                         );
@@ -1579,6 +1613,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
     /** Sets the Labels of the Chart */
     protected setChartLabel() {
+        if (this.chartObject == null) {
+            this.initializeChart();
+            return;
+        }
         this.options = AbstractHistoryChart.getOptions(
             this.chartObject,
             this.chartType,
@@ -1593,6 +1631,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         );
         this.loading = false;
         this.stopSpinner();
+        this.chartHeight();
     }
 
     /**
@@ -1604,9 +1643,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         this.datasets = HistoryUtils.createEmptyDataset(this.translate);
         this.labels = [];
         this.loading = false;
-        this.options.scales["y"] = {
-            display: false,
-        };
+        if (this.options != null) {
+            (this.options.scales ??= {})["y"] = {
+                display: false,
+            };
+        }
 
         this.stopSpinner();
     }
@@ -1615,7 +1656,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected initializeChartWithBlankCanvas() {
         this.datasets = [];
         this.labels = [];
-        this.options.scales = {};
+        if (this.options != null) {
+            this.options.scales = {};
+        }
         this.loading = false;
         this.stopSpinner();
     }
@@ -1641,18 +1684,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                     this.chartType = "line";
                     dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
                     this.chartObject = this.getChartData();
-                    const displayValues = AbstractHistoryChart.fillChart(
-                        this.chartType,
-                        this.chartObject,
-                        dataResponse,
-                        energyResponse,
-                    );
-                    this.datasets = displayValues.datasets;
-                    this.legendOptions = displayValues.legendOptions;
-                    this.labels = displayValues.labels;
-                    this.channelData = displayValues.channelData;
-                    this.beforeSetChartLabel();
-                    this.setChartLabel();
+                    this.fillChartAndSetChartLabel(dataResponse, energyResponse);
                 })
                 .catch(() => {
                     this.initializeChart();
@@ -1678,22 +1710,16 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 .then(([energyPeriodResponse, energyResponse]) => {
                     this.chartType = "bar";
                     this.chartObject = this.getChartData();
+                    if (energyPeriodResponse == null) {
+                        this.initializeChart();
+                        resolve();
+                        return;
+                    }
                     // TODO after chartjs migration, look for config
-                    energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
-
-                    const displayValues = AbstractHistoryChart.fillChart(
-                        this.chartType,
-                        this.chartObject,
-                        energyPeriodResponse,
+                    this.fillChartAndSetChartLabel(
+                        DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse),
                         energyResponse,
                     );
-                    this.datasets = displayValues.datasets;
-                    this.legendOptions = displayValues.legendOptions;
-                    this.labels = displayValues.labels;
-                    this.channelData = displayValues.channelData;
-
-                    this.beforeSetChartLabel();
-                    this.setChartLabel();
                     resolve();
                 })
                 .catch(() => {
@@ -1717,20 +1743,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                     this.chartType = "bar";
                     this.chartObject = this.getChartData();
                     // TODO after chartjs migration, look for config
-                    energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
-
-                    const displayValues = AbstractHistoryChart.fillChart(
-                        this.chartType,
-                        this.chartObject,
-                        energyPeriodResponse,
-                    );
-                    this.datasets = displayValues.datasets;
-                    this.legendOptions = displayValues.legendOptions;
-                    this.labels = displayValues.labels;
-                    this.channelData = displayValues.channelData;
-
-                    this.beforeSetChartLabel();
-                    this.setChartLabel();
+                    this.fillChartAndSetChartLabel(DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse));
                     resolve();
                 })
                 .catch(() => {
@@ -1740,6 +1753,35 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 })
                 .finally(() => resolve());
         });
+    }
+
+    private fillChartAndSetChartLabel(
+        response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
+        energyResponse?: QueryHistoricTimeseriesEnergyResponse | null,
+    ): void {
+        if (this.chartObject == null) {
+            this.initializeChart();
+            return;
+        }
+
+        const displayValues = AbstractHistoryChart.fillChart(
+            this.chartType,
+            this.chartObject,
+            response,
+            energyResponse,
+        );
+        this.datasets = displayValues.datasets;
+        this.legendOptions = displayValues.legendOptions;
+        this.labels = displayValues.labels;
+        this.beforeSetChartLabel();
+
+        // fillChart returns no channelData for empty responses
+        if (displayValues.channelData == null) {
+            this.initializeChart();
+            return;
+        }
+        this.channelData = displayValues.channelData;
+        this.setChartLabel();
     }
 
     /** Gets the ChannelAddresses that should be queried. */
@@ -1753,8 +1795,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         }>((resolve) => {
             if (this.chartObject?.input) {
                 resolve({
-                    powerChannels: ArrayUtils.sanitize(this.chartObject.input.map((element) => element.powerChannel)),
-                    energyChannels: ArrayUtils.sanitize(this.chartObject.input.map((element) => element.energyChannel)),
+                    powerChannels: ArrayUtils.sanitize(
+                        this.chartObject.input.map((element) => element.powerChannel ?? null),
+                    ),
+                    energyChannels: ArrayUtils.sanitize(
+                        this.chartObject.input.map((element) => element.energyChannel ?? null),
+                    ),
                 });
             }
         });

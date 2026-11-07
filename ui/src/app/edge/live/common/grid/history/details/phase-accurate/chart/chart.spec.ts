@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ActivatedRoute } from "@angular/router";
 import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
@@ -31,7 +30,7 @@ describe("History Grid Details - _sum", () => {
                             DATA("Phase L2", [0.041, 0, null, 0, 0.058, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0.037, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.048, 0, 0, 0, 0, 0, 0, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, null, 0.038, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0.043, 0, 0, 0, 0, 0, null, null, null, null, 0, 0, 0, 0, 0, null, 0, null, 0.047, null, null, null, 0.709, 0.058, 0.059, null, 0.06, 0.06, 0.062, 0.06, null, 0.062, 0.063, 0.06, 0.06, 0.059, 0.059, 0.057, 0.058, 0.057, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
                             DATA("Phase L3", [0.041, 0, null, 0, 0.058, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0.037, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.048, 0, 0, 0, 0, 0, 0, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, null, 0.038, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0.043, 0, 0, 0, 0, 0, null, null, null, null, 0, 0, 0, 0, 0, null, 0, null, 0.047, null, null, null, 0.709, 0.058, 0.059, null, 0.06, 0.06, 0.062, 0.06, null, 0.062, 0.063, 0.06, 0.06, 0.059, 0.059, 0.057, 0.058, 0.057, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
                         ],
-                        labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
+                        labels: LABELS(History.DAY.dataChannelWithValues!.result.timestamps),
                         options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", { left: { scale: { beginAtZero: true } } },
                         ),
                     },
@@ -42,7 +41,7 @@ describe("History Grid Details - _sum", () => {
                 {
                     datasets: {
                         data: [],
-                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
+                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues!.result.timestamps),
                         options: OeTester.ChartOptions.BAR_CHART_OPTIONS("hour", "bar", {
                             [ChartAxis.LEFT]: { scale: { display: false } },
                         }),

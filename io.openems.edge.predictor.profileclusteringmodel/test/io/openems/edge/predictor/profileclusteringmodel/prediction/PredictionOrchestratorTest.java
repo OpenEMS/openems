@@ -144,7 +144,7 @@ public class PredictionOrchestratorTest {
 				this.classifier, //
 				this.oneHotEncoder, //
 				() -> SubdivisionCode.DE_BY, //
-				(a, b, c) -> this.profileSwitcher, //
+				(_, _, _) -> this.profileSwitcher, //
 				currentProfile);
 
 		var orchestrator = new PredictionOrchestrator(predictionContext);
@@ -199,7 +199,7 @@ public class PredictionOrchestratorTest {
 				this.classifier, //
 				this.oneHotEncoder, //
 				() -> SubdivisionCode.DE_BY, //
-				(a, b, c) -> this.profileSwitcher, //
+				(_, _, _) -> this.profileSwitcher, //
 				currentProfile);
 
 		var orchestrator = new PredictionOrchestrator(predictionContext);
@@ -255,7 +255,7 @@ public class PredictionOrchestratorTest {
 				this.classifier, //
 				this.oneHotEncoder, //
 				() -> SubdivisionCode.DE_BY, //
-				(a, b, c) -> this.profileSwitcher, //
+				(_, _, _) -> this.profileSwitcher, //
 				currentProfile);
 
 		var orchestrator = new PredictionOrchestrator(predictionContext);
@@ -310,7 +310,7 @@ public class PredictionOrchestratorTest {
 				this.classifier, //
 				this.oneHotEncoder, //
 				() -> SubdivisionCode.DE_BY, //
-				(a, b, c) -> this.profileSwitcher, //
+				(_, _, _) -> this.profileSwitcher, //
 				currentProfile);
 
 		var orchestrator = new PredictionOrchestrator(predictionContext);
@@ -366,7 +366,7 @@ public class PredictionOrchestratorTest {
 				this.classifier, //
 				this.oneHotEncoder, //
 				() -> SubdivisionCode.DE_BY, //
-				(a, b, c) -> this.profileSwitcher, //
+				(_, _, _) -> this.profileSwitcher, //
 				currentProfile);
 
 		var orchestrator = new PredictionOrchestrator(predictionContext);

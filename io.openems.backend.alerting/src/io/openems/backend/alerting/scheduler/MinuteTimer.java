@@ -47,7 +47,7 @@ public class MinuteTimer implements TimedExecutor {
 			this.subscriber.add(sub);
 			this.start();
 		}
-    }
+	}
 
 	/**
 	 * Remove subscriber from every minute execution.

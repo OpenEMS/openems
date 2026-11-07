@@ -75,8 +75,6 @@ public enum OpenemsError {
 	EDGE_APP_VALIDATION_CHECK_EVCS_NOT_INSTALLED(2127), //
 	EDGE_APP_VALIDATION_CHECK_EVCS_NOT_INSTALLED_INVERTED(2128), //
 	EDGE_APP_VALIDATION_CHECK_COUNTRY(2129), //
-	EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2(2130), //
-	EDGE_APP_VALIDATION_CHECK_ENERGY_SCHEDULER_V2_INVERTED(2131), //
 	EDGE_APP_VALIDATION_CHECK_RELAY_COUNT(2132), //
 	EDGE_APP_VALIDATION_CHECK_RELAY_COUNT_ADDITIONAL_RELAY(2133), //
 
@@ -343,7 +341,7 @@ public enum OpenemsError {
 		final var availableLanguage = switch (language) {
 		case null -> Language.DEFAULT;
 		// Translations are not available -> fall back to ENGLISH
-		case CS, ES, FR, NL, JA -> Language.EN;
+		case CS, ES, FR, NL, JA, LT, SV -> Language.EN;
 		case DE, EN -> language;
 		};
 

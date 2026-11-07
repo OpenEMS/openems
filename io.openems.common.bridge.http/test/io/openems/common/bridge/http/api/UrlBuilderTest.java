@@ -77,6 +77,19 @@ public class UrlBuilderTest {
 	}
 
 	@Test
+	void testPathManipulation() {
+		final var url = UrlBuilder.create() //
+				.withScheme("https") //
+				.withHost("openems.io") //
+				.withPath("/path/{id}") //
+				.withPathReplace("{id}", "5") //
+				.withAddedPath("/status") //
+				.withAddedPath("get");
+
+		assertEquals("https://openems.io/path/5/status/get", url.toEncodedString());
+	}
+
+	@Test
 	void testQueryParameter() {
 		final var url = UrlBuilder.create() //
 				.withScheme("https") //

@@ -112,15 +112,15 @@
       <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LambdaParameterName">
-      <property name="format" value="^[a-z][a-zA-Z0-9]*?$"/>
+      <property name="format" value="^(_|[a-z][a-zA-Z0-9]*?)$"/>
       <message key="name.invalidPattern" value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="CatchParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^(_|[a-z]([a-z0-9][a-zA-Z0-9]*)?)$"/>
       <message key="name.invalidPattern" value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LocalVariableName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^(_|[a-z]([a-zA-Z0-9]*)?)$"/>
       <message key="name.invalidPattern" value="Local variable name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ClassTypeParameterName">
@@ -203,8 +203,8 @@
     <module name="SummaryJavadoc"/>
     <module name="MissingJavadocMethod">
       <property name="allowMissingPropertyJavadoc" value="true"/>
-      <property name="allowedAnnotations" value="Before,BeforeEach,BeforeAll,Test,After,Override,Parameters,Activate,Deactivate,Modified"/>
-      <property name="ignoreMethodNamesRegex" value="doc|set.+|build|serializer|bind.+|unbind.+"/>
+      <property name="allowedAnnotations" value="Before,BeforeEach,BeforeAll,Test,After,Override,Parameters,Activate,Deactivate,Modified,ParameterizedTest"/>
+      <property name="ignoreMethodNamesRegex" value="doc|set.+|build|serializer|bind.+|unbind.+|update.+|activate|deactivate"/>
       <property name="tokens" value="METHOD_DEF"/>
     </module>
     <module name="VisibilityModifier">

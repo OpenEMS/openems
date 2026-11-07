@@ -3,7 +3,7 @@ package io.openems.edge.predictor.api.common;
 public class TrainingException extends Exception {
 
 	private static final long serialVersionUID = 42L;
-	
+
 	private final TrainingError error;
 
 	public TrainingException(TrainingError error, String message) {
