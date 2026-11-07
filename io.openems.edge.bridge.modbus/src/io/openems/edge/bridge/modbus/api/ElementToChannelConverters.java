@@ -4,8 +4,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.converter.StaticConverters;
 import io.openems.edge.common.type.TypeUtils;
 
-import java.util.Objects;
-
 // CHECKSTYLE:OFF: MethodName
 public final class ElementToChannelConverters {
 
@@ -222,9 +220,9 @@ public final class ElementToChannelConverters {
 		if (setZero) {
 			return new ElementToChannelConverter(//
 					// element -> channel
-					value -> 0, //
+					_ -> 0, //
 					// channel -> element
-					value -> 0);
+					_ -> 0);
 		}
 		return DIRECT_1_TO_1;
 	}

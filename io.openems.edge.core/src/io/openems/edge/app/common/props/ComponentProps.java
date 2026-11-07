@@ -115,10 +115,10 @@ public final class ComponentProps {
 	) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabel("component.id.singular") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(supplyComponents.apply(app), //
-							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE);
-				}).setDefaultValue((app, property, l, parameter) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, _, _, _, field) -> field //
+						.setOptions(supplyComponents.apply(app), //
+								DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE))
+				.setDefaultValue((app, _, _, _) -> {
 					final var components = supplyComponents.apply(app);
 					if (components.isEmpty()) {
 						return JsonNull.INSTANCE;
@@ -283,7 +283,7 @@ public final class ComponentProps {
 
 				return oldDefaultValue.get(app, property, l, parameter);
 			});
-			def.wrapField((app, property, l, parameter, field) -> {
+			def.wrapField((app, _, _, _, field) -> {
 				if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())
 						|| PropsUtil.isCommercial92Installed(app.getAppManagerUtil())) {
 					field.readonly(true);
@@ -425,7 +425,7 @@ public final class ComponentProps {
 	) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), de -> de //
 				.setTranslatedLabel("howMeasured") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, _, l, _, field) -> {
 					if (isHomeExceptGen1(app) || isTechbaseGen3AndHomeOrCommercial(app)) {
 						field.setOptions(OptionsFactory.of(MeterIntegration.class), l);
 					} else {
@@ -452,11 +452,11 @@ public final class ComponentProps {
 					Nameable howMeasured //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> MeterIntegrationUtil.getExternDefaultValue(app, l))//
+				.setDefaultValue((app, _, l, _) -> MeterIntegrationUtil.getExternDefaultValue(app, l))//
 				.setTranslatedLabel("meterId.label")//
 				.setTranslatedDescription("meterId.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectGroupFromNameable, (app, _, l, parameter, field) -> {
 					List<String> ignoreIds = new ArrayList<>(ComponentUtil.CORE_COMPONENT_IDS);
 					field.addOption(buildOptionGroup("Meter",
 							translate(parameter.bundle(), "App.Meter.consumptionMeter"))

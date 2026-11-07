@@ -44,9 +44,8 @@ public class BraiinsOsProps {
 				.setTranslatedLabel("phase.label") //
 				.setTranslatedDescription("phase.description") //
 				.setDefaultValue(Phase.L1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(Phase.values()), l);
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(OptionsFactory.of(Phase.values()), l)));
 	}
 
 	/**
@@ -59,10 +58,10 @@ public class BraiinsOsProps {
 				.setTranslatedLabelWithAppPrefix(".consumption.label") //
 				.setTranslatedDescriptionWithAppPrefix(".consumption.description") //
 				.setDefaultValue(3000) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(InputType.NUMBER);
-					field.setUnit(Unit.WATT, l);
-				}));
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> field //
+						.setInputType(InputType.NUMBER) //
+						.setUnit(Unit.WATT, l)//
+				));
 	}
 
 	/**
@@ -105,9 +104,9 @@ public class BraiinsOsProps {
 				.setTranslatedDescriptionWithAppPrefix(".password.description") //
 				.setRequired(false) //
 				.setDefaultValue("") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(InputType.PASSWORD);
-				}).bidirectional(prop, "password", ComponentManagerSupplier::getComponentManager, t -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(InputType.PASSWORD))
+				.bidirectional(prop, "password", ComponentManagerSupplier::getComponentManager, t -> {
 					return JsonUtils.getAsOptionalString(t) //
 							.map(s -> {
 								if (s.isEmpty()) {
@@ -128,14 +127,13 @@ public class BraiinsOsProps {
 	 */
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> disclaimerConfirmation(final Nameable prop) {
 		return AppDef.copyOfGeneric(//
-				CommonProps.installationHint((app, property, l, parameter) -> {
+				CommonProps.installationHint((_, _, _, parameter) -> {
 					return translate(parameter.bundle(), "App.LoadControl.BraiinsOs.installationHint");
 				})) //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.requireTrue(l); //
-					field.onlyShowIf(Exp.currentModelValue(prop).isNull());
-				});
+				.wrapField((_, _, l, _, field) -> field //
+						.requireTrue(l) //
+						.onlyShowIf(Exp.currentModelValue(prop).isNull()));
 	}
 
 }

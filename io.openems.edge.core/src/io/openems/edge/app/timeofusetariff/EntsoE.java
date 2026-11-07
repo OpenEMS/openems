@@ -78,10 +78,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		BIDDING_ZONE(AppDef.of(EntsoE.class)//
 				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
 				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //
-				.setRequired(true)
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(BiddingZone.optionsFactory(), l);
-				})),
+				.setRequired(true).setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field//
+						.setOptions(BiddingZone.optionsFactory(), l))),
 
 		@Deprecated
 		RESOLUTION(defaultDef()), //
