@@ -13,13 +13,12 @@ describe("History EnergyMonitor", () => {
     );
 
     let TEST_CONTEXT: TestContext;
-    beforeEach(async () =>
-        TEST_CONTEXT = await TestingUtils.sharedSetup(),
-    );
+    beforeEach(async () => (TEST_CONTEXT = await TestingUtils.sharedSetup()));
 
     it("getChartData()", () => {
         {
             // Line - Chart
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "line", History.DAY,
                 {
                     datasets: {
@@ -40,8 +39,8 @@ describe("History EnergyMonitor", () => {
                 });
         }
         {
-
             // Line-Chart
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "line", History.WEEK,
                 {
                     datasets: {
@@ -60,8 +59,8 @@ describe("History EnergyMonitor", () => {
                 });
         }
         {
-
             // Bar-Chart Year
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "bar", History.MONTH,
                 {
                     datasets: {
@@ -83,8 +82,8 @@ describe("History EnergyMonitor", () => {
                 });
         }
         {
-
             // Bar-Chart - Year
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {
@@ -108,6 +107,7 @@ describe("History EnergyMonitor", () => {
         {
             // Bar-Chart: no config
             const EMS = DummyConfig.from();
+            // prettier-ignore
             expectView(EMS, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {
@@ -126,6 +126,7 @@ describe("History EnergyMonitor", () => {
                 DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
             );
 
+            // prettier-ignore
             expectView(EMS, TEST_CONTEXT, "bar", History.YEAR,
 
                 {
@@ -145,10 +146,9 @@ describe("History EnergyMonitor", () => {
         {
             // Bar-Chart: only gridMeter
 
-            const EMS = DummyConfig.from(
-                DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-            );
+            const EMS = DummyConfig.from(DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"));
 
+            // prettier-ignore
             expectView(EMS, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {
@@ -165,10 +165,9 @@ describe("History EnergyMonitor", () => {
         {
             // Bar-Chart: only ess
 
-            const EMS = DummyConfig.from(
-                DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
-            );
+            const EMS = DummyConfig.from(DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"));
 
+            // prettier-ignore
             expectView(EMS, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {
@@ -184,4 +183,3 @@ describe("History EnergyMonitor", () => {
         }
     });
 });
-

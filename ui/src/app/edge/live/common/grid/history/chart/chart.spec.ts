@@ -8,7 +8,6 @@ import { ChartAxis } from "src/app/shared/utils/utils";
 import { expectView } from "./chart.constants.spec";
 
 describe("History Grid", () => {
-
     const edgeConfigWithOutController14a = DummyConfig.from(
         DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
     );
@@ -19,13 +18,12 @@ describe("History Grid", () => {
     );
 
     let TEST_CONTEXT: TestContext;
-    beforeEach(async () =>
-        TEST_CONTEXT = await TestingUtils.sharedSetup(),
-    );
+    beforeEach(async () => (TEST_CONTEXT = await TestingUtils.sharedSetup()));
 
     it("#getChartData()", () => {
         {
             // Line - Chart - without Controller 14a
+            // prettier-ignore
             expectView(edgeConfigWithOutController14a, TEST_CONTEXT, "line", History.DAY,
                 {
                     datasets: {
@@ -42,6 +40,7 @@ describe("History Grid", () => {
         }
         {
             // Line - Chart
+            // prettier-ignore
             expectView(edgeConfig, TEST_CONTEXT, "line", History.DAY,
                 {
                     datasets: {
@@ -59,6 +58,7 @@ describe("History Grid", () => {
         }
         {
             // Line - Chart
+            // prettier-ignore
             expectView(edgeConfig, TEST_CONTEXT, "line", History.WEEK,
                 {
                     datasets: {
@@ -75,6 +75,7 @@ describe("History Grid", () => {
         }
         {
             // Line - Chart
+            // prettier-ignore
             expectView(edgeConfig, TEST_CONTEXT, "bar", History.MONTH,
                 {
                     datasets: {
@@ -92,6 +93,7 @@ describe("History Grid", () => {
         }
         {
             // BAR - Chart
+            // prettier-ignore
             expectView(edgeConfig, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {

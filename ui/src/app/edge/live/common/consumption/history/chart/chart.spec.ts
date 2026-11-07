@@ -13,14 +13,12 @@ describe("History Consumption", () => {
     );
 
     let TEST_CONTEXT: TestContext;
-    beforeEach(async () =>
-        TEST_CONTEXT = await TestingUtils.sharedSetup(),
-    );
+    beforeEach(async () => (TEST_CONTEXT = await TestingUtils.sharedSetup()));
 
     it("#getChartData()", () => {
         {
-
             // Line-Chart, phases
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "line", History.DAY,
                 {
                     datasets: {
@@ -39,6 +37,7 @@ describe("History Consumption", () => {
 
         {
             // Line-Chart, no phases, no phasecolors
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "line", History.WEEK,
                 {
                     datasets: {
@@ -56,6 +55,7 @@ describe("History Consumption", () => {
 
         {
             // Bar-Chart, no phases, no phasecolors
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "bar", History.MONTH,
                 {
                     datasets: {
@@ -73,6 +73,7 @@ describe("History Consumption", () => {
 
         {
             // Bar-Chart, phases
+            // prettier-ignore
             expectView(defaultEMS, TEST_CONTEXT, "bar", History.YEAR,
                 {
                     datasets: {
