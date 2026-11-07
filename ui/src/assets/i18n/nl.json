@@ -250,6 +250,7 @@
                 "SETTINGS_LINK": "Naar de netinstellingen"
             },
             "RETROFITTING": {
+                "EXPANSION_AVAILABLE": "Beperkte systeemwerking - De capaciteit kan nu worden uitgebreid",
                 "EXPANSION_RUNNING": "Beperkte systeemwerking - Uitbreiding van de capaciteit wordt voorbereid",
                 "INFORMATION_FOR_INSTANT_START": "De accu wordt met maximaal vermogen geladen of gelost om zo snel mogelijk een laadtoestand van {{targetSoc}} % te bereiken voor een uitbreiding. Hierdoor kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na het uitbreiden van de capaciteit, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Verwacht wordt dat de accu vanaf {{targetTime}} op {{targetDate}} wordt geladen/gelost om voor de geplande uitbreiding een laadtoestand van {{targetSoc}} % te bereiken. Hierbij kan netafname of netvoeding optreden. Deze laadtoestand wordt {{targetTimeBuffer}} minuten gehandhaafd, waarna, of na de capaciteitsuitbreiding, het opslagsysteem terugkeert naar de normale bedrijfsstatus.",
@@ -654,11 +655,24 @@
                 "STANDARD": "Standaardtarief"
             },
             "TITLE": "{{ year }} bijkomende kosten"
+        },
+        "VALIDATION": {
+            "EMAIL": "{{ email }} is geen geldig e-mailadres.",
+            "INVALID_ZIPCODE": "Ongeldig postcodeformaat",
+            "MANDATORY_FIELD": "Dit is een verplicht veld",
+            "MAX": "Voer een waarde in die kleiner is dan {{ max }}.",
+            "MIN": "Voer een waarde in die groter is dan {{ min }}"
         }
     },
     "GENERAL": {
         "ACTIVE": "Actief",
         "ACTUAL_POWER": "e-car Laad vermogen",
+        "ADDRESS": {
+            "CITY": "Plaats",
+            "COUNTRY": "Land",
+            "STREET_ADDRESS": "Straat / huisnummer",
+            "ZIP": "Postcode"
+        },
         "ALL": "Alle",
         "APPLY": "Toepassen",
         "AUTARCHY": "Autarkie",
@@ -792,7 +806,6 @@
         },
         "SUM_STATE": "Systeemstatus",
         "SURVEY": "Hier kunt u uw feedback over de bètatest met ons delen:",
-        "SURVEY_LINK": "Deelnemen aan de bètatest-enquête",
         "SYSTEM": "systeem",
         "SYSTEM_OUTAGE": "Door onderhoudswerkzaamheden is online monitoring tijdelijk niet beschikbaar. Probeer het later opnieuw. Meer informatie vindt u op",
         "SYSTEM_STATE": "Systeemstatus",
@@ -848,6 +861,7 @@
         "CONNECTION_SUCCESSFUL": "Succesvol verbonden met {{ value }}.",
         "DEVICE_OFFLINE": "Het apparaat is niet aangesloten!",
         "FIRST_SETUP_PROTOCOL": "Eerste installatie",
+        "INSTALLATION_RECOMMENDATION": "Klik hieronder op de knop „Toevoegen” als je een {{ edgeShortName }} in bedrijf wilt nemen.",
         "IS_OFFLINE": "OpenEMS is offline!",
         "LOGGED_IN_AS": "Geregistreerd als",
         "NO_EDGE_AVAILABLE": "U heeft nog geen {{edgeShortName}} toegevoegd.",

@@ -6,6 +6,7 @@ import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.sumInt;
 import static io.openems.common.utils.IntUtils.sumInteger;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
@@ -14,7 +15,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SET_N
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -111,6 +112,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	protected final Set<GoodWeCharger> chargers = new HashSet<>();
 
 	protected final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
+	private final GridModeStabilityFilter gridModeStabilityFilter = new GridModeStabilityFilter(
+			this::readC50MeterCommunicateStatus);
 
 	protected ReadTask firmwareVersionReadTask;
 
@@ -137,6 +140,14 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				GoodWe.ChannelId.RATE_POWER, GoodWe.ChannelId.AC_RATE_POWER, //
 				values -> this.channel(SymmetricEss.ChannelId.MAX_APPARENT_POWER).setNextValue(//
 						calculateMaxApparentPower(values.a(), values.b())));
+	}
+
+	@Override
+	protected void deactivate() {
+		if (this.getGoodweType() == GoodWeType.FENECON_50K) {
+			this.gridModeStabilityFilter.applyC50(GridMode.UNDEFINED);
+		}
+		super.deactivate();
 	}
 
 	@Override
@@ -171,21 +182,19 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.P_PV4, new UnsignedDoublewordElement(35117),
 								chain(SET_NULL_FOR_DEFAULT(0xFFFFFFFFL), SCALE_FACTOR_MINUS_1)), //
 
-						m(GoodWe.ChannelId.PV_MODE, new UnsignedDoublewordElement(35119)), //
-						// Registers for Grid Smart-Meter (35121 to 35135) are read via GridMeter
-						// implementation
-						new DummyRegisterElement(35121, 35135),
-						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
-								new ElementToChannelConverter(value -> {
-									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-									final var goodWeType = this.getGoodweType();
-									final var isGensetActive = this.getGensetOperatingMode().isDefined()
-											&& this.getGensetOperatingMode().get();
+						m(GoodWe.ChannelId.PV_MODE, new UnsignedDoublewordElement(35119))), //
 
-									final var gridMode = mapGridMode(goodWeType, intValue, isGensetActive);
-									setValue(this, GoodWe.ChannelId.GRID_MODE_FAULT, gridMode == GridMode.UNDEFINED);
-									return gridMode;
-								}))), //
+				new FC3ReadRegistersTask(35136, Priority.HIGH, //
+						m(new UnsignedWordElement(35136).onUpdateCallback(value -> {
+							var gridMode = this.computeRawGridMode(value);
+							ChannelUtils.setValue(this, GoodWe.ChannelId.GRID_MODE_FAULT,
+									gridMode == GridMode.UNDEFINED);
+							if (this.getGoodweType() != GoodWeType.FENECON_50K) {
+								this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(gridMode);
+							}
+						})) //
+								.m(GoodWe.ChannelId.RAW_GRID_MODE, DIRECT_1_TO_1) //
+								.build()), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
 						m(GoodWe.ChannelId.TOTAL_INV_POWER, new SignedDoublewordElement(35137)), //
@@ -1142,6 +1151,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				this.handleGensetOperatingMode(protocol);
 				this.handleExtendedMaxApparentPower(protocol);
 				this.handleBattery2Protocol(protocol);
+				this.handlePvConnectMode(protocol);
 			}
 
 			case FENECON_FHI_29_9_DAH -> {
@@ -1170,7 +1180,31 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			// Set charger information for MPPTs having more than one PV e.g.
 			// GoodWeChargerTwoString.
 			this.setMultipleStringChannels();
+
+			this.handleGridModeBeforeProcessImage();
+			break;
 		}
+	}
+
+	private void handleGridModeBeforeProcessImage() {
+		if (this.getGoodweType() != GoodWeType.FENECON_50K) {
+			return;
+		}
+		IntegerReadChannel rawGridModeChannel = this.channel(GoodWe.ChannelId.RAW_GRID_MODE);
+		var rawGridMode = this.computeRawGridMode(rawGridModeChannel.getNextValue().get());
+		this.channel(SymmetricEss.ChannelId.GRID_MODE).setNextValue(this.gridModeStabilityFilter.applyC50(rawGridMode));
+	}
+
+	@VisibleForTesting
+	CompletableFuture<Integer> readC50MeterCommunicateStatus() {
+		return readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::doNotRetry, new UnsignedWordElement(36004)) //
+				.whenComplete((status, error) -> {
+					if (error != null) {
+						this.log.warn("C50 OFF_GRID meter communication status read failed", error);
+					} else if (status == null) {
+						this.log.warn("C50 OFF_GRID meter communication status read returned an undefined value");
+					}
+				});
 	}
 
 	/**
@@ -1229,6 +1263,15 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))), //
 				new FC16WriteRegistersTask(47618, //
 						m(GoodWe.ChannelId.BATTERY_2_PROTOCOL, new UnsignedWordElement(47618))) //
+		);
+	}
+
+	private void handlePvConnectMode(ModbusProtocol protocol) {
+		protocol.addTasks(//
+				new FC3ReadRegistersTask(45291, Priority.LOW, //
+						m(GoodWe.ChannelId.PV_CONNECT_MODE, new UnsignedWordElement(45291))), //
+				new FC16WriteRegistersTask(45291, //
+						m(GoodWe.ChannelId.PV_CONNECT_MODE, new UnsignedWordElement(45291))) //
 		);
 	}
 
@@ -2343,6 +2386,20 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			bitsElement.bit(state.bit(), channelId);
 		}
 		return bitsElement;
+	}
+
+	/**
+	 * Maps the raw register-35136 value to a {@link GridMode}, without applying the
+	 * {@link #gridModeStabilityFilter}.
+	 *
+	 * @param value the raw register value
+	 * @return the unfiltered {@link GridMode}
+	 */
+	private GridMode computeRawGridMode(Object value) {
+		Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+		final var goodWeType = this.getGoodweType();
+		final var isGensetActive = this.getGensetOperatingMode().isDefined() && this.getGensetOperatingMode().get();
+		return mapGridMode(goodWeType, intValue, isGensetActive);
 	}
 
 	@VisibleForTesting
