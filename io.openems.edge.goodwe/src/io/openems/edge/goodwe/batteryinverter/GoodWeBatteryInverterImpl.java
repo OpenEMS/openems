@@ -146,6 +146,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	// Register FEED_POWER_PARA_SET (47510) is written as SignedWordElement
 	// (16-bit).
 	private static final int MAX_LEGACY_FEED_POWER = Short.MAX_VALUE;
+	private static final int MAX_HOME_30_FEED_POWER = 60_000;
 	private static final Logger LOG = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
@@ -500,15 +501,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
-		case FENECON_50K, FENECON_100K -> {
-			// Feed-in limitation on / off
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
-			// Feed-in limitation
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
-			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
-		}
-		case FENECON_FHI_29_9_DAH -> {
+		case FENECON_50K, FENECON_100K, FENECON_FHI_29_9_DAH -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
@@ -1062,6 +1055,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void handleGridFeedForFeneconFhi299Dah() throws OpenemsNamedException {
 		if (this.rcr != null && this.rcr.essRestrictionLevel() != EssRestrictionLevel.NO_RESTRICTION
 				&& !this.getMaxApparentPower().isDefined()) {
+			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
 			return;
 		}
 		var limit = this.meta.getGridLimit().gridSellHardLimit();
@@ -1069,7 +1063,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (rcrLimit.isPresent()) {
 			limit = min(limit, rcrLimit.getAsInt());
 		}
+		var exceedsMaximum = this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION
+				&& limit > MAX_HOME_30_FEED_POWER;
+		if (exceedsMaximum) {
+			limit = MAX_HOME_30_FEED_POWER;
+		}
 		this.handleFeedInSetting(true, limit, this.getGoodweType());
+		setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum);
 	}
 
 	private void handleGridFeedForOther() throws OpenemsNamedException {
