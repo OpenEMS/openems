@@ -432,6 +432,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy,
                                   }
                                 : {}),
                             ...(view.useCiFont != null ? { useCiFont: view.useCiFont } : {}),
+                            ...(view.tourId != null ? { tourId: view.tourId } : {}),
                         },
                     ],
                     onSubmit: (fg: FormGroup) => {
@@ -463,6 +464,7 @@ export type OeFormlyView<T = unknown> = {
     lines: OeFormlyField<T>[];
     useCiFont?: boolean;
     helpKey?: string | null;
+    tourId?: string | null;
     icon?: Icon;
     component?: EdgeConfig.Component | null;
     edge?: Edge;

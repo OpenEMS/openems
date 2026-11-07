@@ -12,6 +12,7 @@
 
 * The OpenEMS Coding Guidelines are based on (and complement) the link:https://www.oracle.com/technetwork/java/codeconventions-150003.pdf[Java Coding Convention].
 * Limit pull requests to a small and closed topic.
+* For code reviews, use the `oe-review` skill in `.github/skills/oe-review/SKILL.md` in the repository (together with `AGENTS.md`).
 
 == OpenEMS Edge & Backend
 

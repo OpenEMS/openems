@@ -86,11 +86,10 @@ public class FeneconCommercial92ClusterMaster
 		NUMBER_OF_SLAVES(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".numberOfSlaves.label") //
 				.setDefaultValue(1) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(InputType.NUMBER);
-					field.setMin(1);
-					field.setMax(5);
-				}))), //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field//
+						.setInputType(InputType.NUMBER)//
+						.setMin(1)//
+						.setMax(5)))), //
 		;
 
 		private final AppDef<? super FeneconCommercial92ClusterMaster, ? super Property, ? super BundleParameter> def;

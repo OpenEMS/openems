@@ -55,16 +55,14 @@ public class AppShellyMeter
 
 		DEVICE(ShellyProps.mdnsDevice(DISCOVERY_TYPE, ShellyDiscoveryMeter.ID)), //
 
-		IP(MeterProps.ip().wrapField((app, property, l, parameter, field) -> {
-			field.onlyShowIf(Exp.currentModelValue(DISCOVERY_TYPE).equal(Exp.staticValue(DiscoveryType.STATIC)));
-		})), //
+		IP(MeterProps.ip().wrapField((_, _, _, _, field) -> field//
+				.onlyShowIf(Exp.currentModelValue(DISCOVERY_TYPE).equal(Exp.staticValue(DiscoveryType.STATIC))))), //
 		HARDWARE_TYPE(ShellyProps.hardwareType(DISCOVERY_TYPE, ShellyTypeMeter.class)), //
 		TYPE(MeterProps.type(MeterType.GRID)//
 				.setDefaultValue(MeterType.CONSUMPTION_METERED) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(
-							ShellyProps.buildShowConditionForShellyTypesWithNoTerminals(DEVICE, HARDWARE_TYPE));
-				})), //
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(
+								ShellyProps.buildShowConditionForShellyTypesWithNoTerminals(DEVICE, HARDWARE_TYPE)))), //
 
 		PHASE(MeterProps.singlePhase().wrapField((app, property, l, parameter, field) -> {
 			field.onlyShowIf(ShellyProps.buildShowConditionForShellyTypes(

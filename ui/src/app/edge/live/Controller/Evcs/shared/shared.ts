@@ -111,4 +111,51 @@ export namespace SharedEvcs {
             null,
         ).toConstructorParams();
     }
+
+    export enum ChargingType {
+        UNDEFINED = -1,
+        CCS = 0,
+        CHADEMO = 1,
+        AC = 2,
+    }
+
+    export enum ChargeMode {
+        /** Manually charge. */
+        FORCE_CHARGE = "FORCE_CHARGE",
+
+        /** Automatically charge. */
+        EXCESS_POWER = "EXCESS_POWER",
+
+        /** No charge. */
+        OFF = "OFF",
+    }
+
+    export enum ChargeState {
+        /** State is undefined or unknown. */
+        UNDEFINED = -1,
+
+        /** Charging station is starting up. */
+        STARTING = 0,
+
+        /** Charging is not possible yet, e.g. the EV is unplugged, X1 or "ena" is not enabled, or RFID is not enabled. */
+        NOT_READY_FOR_CHARGING = 1,
+
+        /** Charging station is ready and waiting for a charging request from the EV. */
+        READY_FOR_CHARGING = 2,
+
+        /** The EV is currently charging. */
+        CHARGING = 3,
+
+        /** An error has occurred. */
+        ERROR = 4,
+
+        /** Authorization to start charging was rejected. */
+        AUTHORIZATION_REJECTED = 5,
+
+        /** The configured energy limit has been reached. */
+        ENERGY_LIMIT_REACHED = 6,
+
+        /** Charging has finished. */
+        CHARGING_FINISHED = 7,
+    }
 }

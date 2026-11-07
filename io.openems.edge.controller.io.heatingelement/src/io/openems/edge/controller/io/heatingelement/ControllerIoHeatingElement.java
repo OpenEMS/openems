@@ -22,8 +22,8 @@ import io.openems.edge.controller.io.heatingelement.enums.Status;
 public interface ControllerIoHeatingElement extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		LEVEL(Doc.of(Level.values()) //
-				.text("Current Level") //
+		LEVEL(Doc.of(Level.values())//
+				.text("Current Level")//
 				.persistencePriority(HIGH)),
 		AWAITING_HYSTERESIS(Doc.of(INTEGER)), //
 		PHASE1_TIME(Doc.of(INTEGER)//
@@ -42,41 +42,61 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 				.unit(SECONDS)), //
 		LEVEL3_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
+		/*
+		 * LEVELx_TIME (x = 4..6) are the counterparts of LEVEL1_TIME..LEVEL3_TIME for
+		 * NumberOfHeatingElements.TWO. For NumberOfHeatingElements.ONE the Level never
+		 * exceeds LEVEL_3, so these Channels stay at 0.
+		 */
+		LEVEL4_TIME(Doc.of(INTEGER)//
+				.unit(SECONDS)), //
+		LEVEL5_TIME(Doc.of(INTEGER)//
+				.unit(SECONDS)), //
+		LEVEL6_TIME(Doc.of(INTEGER)//
+				.unit(SECONDS)), //
 
 		/*
 		 * Total active Time of each Level.
 		 */
 		LEVEL1_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		LEVEL2_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		LEVEL3_CUMULATED_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
+				.persistencePriority(HIGH)), //
+		LEVEL4_CUMULATED_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS)//
+				.persistencePriority(HIGH)), //
+		LEVEL5_CUMULATED_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS)//
+				.persistencePriority(HIGH)), //
+		LEVEL6_CUMULATED_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		TOTAL_PHASE_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
 		FORCE_START_AT_SECONDS_OF_DAY(Doc.of(INTEGER)//
-				.unit(SECONDS) //
+				.unit(SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)),
-		STATUS(Doc.of(Status.values()) //
+		STATUS(Doc.of(Status.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
-		PHASE1_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE1_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		PHASE2_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE2_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		PHASE3_AVG_POWER(Doc.of(INTEGER) //
-				.unit(Unit.WATT) //
+		PHASE3_AVG_POWER(Doc.of(INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		WAITING_FOR_CALIBRATION(Doc.of(OpenemsType.BOOLEAN)),
 
-		SESSION_ENERGY(Doc.of(LONG) //
-				.unit(Unit.WATT_HOURS) //
+		SESSION_ENERGY(Doc.of(LONG)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;

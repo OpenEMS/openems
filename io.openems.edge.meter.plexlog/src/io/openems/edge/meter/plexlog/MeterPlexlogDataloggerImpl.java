@@ -1,6 +1,6 @@
 package io.openems.edge.meter.plexlog;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT_IF_TRUE;
 
 import java.util.function.BiConsumer;
 

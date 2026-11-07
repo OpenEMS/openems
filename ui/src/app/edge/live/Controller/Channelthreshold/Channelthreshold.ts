@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Icon } from "src/app/shared/type/widget";
 
@@ -12,7 +11,7 @@ import { ChannelAddress, CurrentData } from "../../../../shared/shared";
     standalone: false,
 })
 export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
-    public outputChannel: ChannelAddress;
+    public outputChannel: ChannelAddress | null = null;
     public icon: Icon = {
         name: "",
         size: "large",
@@ -21,10 +20,18 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
     public state: string = "?";
 
     protected override getChannelAddresses() {
+        if (this.component == null) {
+            return [];
+        }
+
         this.outputChannel = ChannelAddress.fromString(this.component.properties["outputChannelAddress"]);
         return [this.outputChannel];
     }
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.outputChannel == null) {
+            return;
+        }
+
         const channel = currentData.allComponents[this.outputChannel.toString()];
         if (channel != null) {
             if (channel == 1) {

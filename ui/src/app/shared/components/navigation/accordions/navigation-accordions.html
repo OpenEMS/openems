@@ -4,7 +4,7 @@
       <ion-accordion-group [value]="openedAccordionIds()" expand="compact" multiple="true">
         @for (child of items; track i; let i = $index) {
           @if (child?.children?.length === 0) {
-            <ion-item button class="ion-no-padding ion-padding-left" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" detail="false">
+            <ion-item button class="ion-no-padding ion-padding-left" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" detail="false" [attr.data-tutorial-id]="child.tourId">
               <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"></ion-icon>
               <ion-label [style.font-weight]="(currentUrl() | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">
                 @for (line of child.label | labelToLines; track $index) {
@@ -13,7 +13,7 @@
               </ion-label>
             </ion-item>
           } @else {
-            <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end" [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline' : ''" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)">
+            <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end" [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline' : ''" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly($event, child)" [attr.data-tutorial-id]="child.tourId">
               <ion-item lines="none" [slot]="'header'" [detail]="false">
                 <ion-grid class="ion-no-padding" (click)="navigateAbsolutly($event, child)" (keydown.enter)="navigateAbsolutly($event, child)">
                   <ion-row class="ion-no-padding">
@@ -45,7 +45,7 @@
 
 @if (navigationService.position() === "bottom") {
   @for (child of children; track child) {
-    <ion-button tabindex="0" (keydown.enter)="navigateTo(child)" (click)="navigateTo(child)" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light" [class.with-label]="child.mode === 'label'">
+    <ion-button tabindex="0" (keydown.enter)="navigateTo(child)" (click)="navigateTo(child)" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light" [class.with-label]="child.mode === 'label'" [attr.data-tutorial-id]="child.tourId">
       <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img"></ion-icon>
       <ion-label slot="end" style="text-transform: none">
         @if (child.mode === "label") {

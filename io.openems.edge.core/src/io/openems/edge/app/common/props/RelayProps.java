@@ -347,8 +347,8 @@ public final class RelayProps {
 				case "Relay1" -> translate(bundle, "relay.harting10pole.description", 1, 3, 4, 230, 10);
 				case "Relay2" -> translate(bundle, "relay.harting10pole.description", 2, 5, 6, 230, 10);
 				case "Relay3" -> translate(bundle, "relay.harting10pole.description", 3, 7, 8, 230, 10);
-				case "Relay4" -> translate(bundle, "relay.harting10pole.description", 4, 9, 10, 24, 2);
-				case "Relay5" -> translate(bundle, "relay.harting10pole.description", 5, 1, 2, 24, 2);
+				case "Relay4" -> translate(bundle, "relay.harting16pole.description", 4, 5, 6, 24, 2);
+				case "Relay5" -> translate(bundle, "relay.harting16pole.description", 5, 7, 8, 24, 2);
 				default -> null;
 				};
 			default -> null;

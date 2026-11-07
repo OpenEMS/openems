@@ -77,6 +77,15 @@ import { RouteService } from "./service/route/route.service";
 import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
 import { AppStateTracker } from "./states/app-state-tracker";
+import tourCz from "./tour/i18n/cz.json";
+import tourDe from "./tour/i18n/de.json";
+import tourEn from "./tour/i18n/en.json";
+import tourEs from "./tour/i18n/es.json";
+import tourFr from "./tour/i18n/fr.json";
+import tourJa from "./tour/i18n/ja.json";
+import tourLt from "./tour/i18n/lt.json";
+import tourNl from "./tour/i18n/nl.json";
+import tourSv from "./tour/i18n/sv.json";
 import { Language } from "./type/language";
 
 export function registerTranslateExtension(translate: TranslateService) {
@@ -138,6 +147,14 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
  */
 export function checkboxRequiredValidator(control: FormControl): ValidationErrors {
     return control.value === true ? null : { "checkbox-required-checked": true };
+}
+
+/** Postal code formats of the countries in which systems are installed (e.g. DE, AT, CH, NL, SE, CZ). */
+export const COUNTRY_PARTNER_ZIP_CODE_REGEX: RegExp =
+    /^((\d{5}(-\d{4})?)|([1-9]\d{3}\s?[A-Z]{2})|(\d{3}\s?\d{2})|(\d{4}))$/;
+
+export function ZipCodeValidator(control: FormControl): ValidationErrors {
+    return COUNTRY_PARTNER_ZIP_CODE_REGEX.test(control.value) ? null : { zip: true };
 }
 
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
@@ -310,6 +327,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                     name: "checkbox-required-checked",
                     validation: checkboxRequiredValidator,
                 },
+                { name: "zip", validation: ZipCodeValidator },
             ],
             validationMessages: [
                 { name: "ip", message: IpValidatorMessage },
@@ -423,15 +441,15 @@ export class SharedModule {
         SharedModule.injector = injector;
 
         Language.normalizeAdditionalTranslationFiles({
-            cs: cz,
-            de: de,
-            en: en,
-            es: es,
-            fr: fr,
-            ja: ja,
-            lt: lt,
-            nl: nl,
-            sv: sv,
+            cs: { ...cz, ...tourCz },
+            de: { ...de, ...tourDe },
+            en: { ...en, ...tourEn },
+            es: { ...es, ...tourEs },
+            fr: { ...fr, ...tourFr },
+            ja: { ...ja, ...tourJa },
+            lt: { ...lt, ...tourLt },
+            nl: { ...nl, ...tourNl },
+            sv: { ...sv, ...tourSv },
         }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
