@@ -22,7 +22,7 @@ The single-controller implementation `Evse.Controller.Single` binds exactly one 
 `Evse.Controller.Cluster` then aggregates multiple `Evse.Controller.Single` instances and applies computed actions for each charge point.
 
 - The cluster controller obtains per-controller parameters via `ControllerEvseSingle.getParams()`.
-- It distributes power and phase-switch directives using `RunUtils.calculate(...)` and `RunUtils.handlePhaseSwitch(...)`.
+- It distributes power and phase-switch directives using the `PowerDistribution` classes.
 - Only controllers whose combined abilities include a valid `phaseSwitch` ability can receive a phase-switch action.
 
 == Notes

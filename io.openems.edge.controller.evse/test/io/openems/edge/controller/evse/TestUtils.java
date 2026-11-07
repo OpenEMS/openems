@@ -157,6 +157,9 @@ public class TestUtils {
 		private Long probableNextPhaseSwitchEpochSeconds = null;
 		private History history = new History();
 		private PhaseSwitching phaseSwitching = PhaseSwitching.DISABLE;
+		private Integer externalMinChargePower = null;
+		private Integer externalMaxChargePower = null;
+		private Integer externalStaticChargePower = null;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
 		private JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
 		private EvseSingleState state;
@@ -206,6 +209,21 @@ public class TestUtils {
 			return this;
 		}
 
+		public CtrlBuilder setExternalMinChargePower(Integer externalMinChargePower) {
+			this.externalMinChargePower = externalMinChargePower;
+			return this;
+		}
+
+		public CtrlBuilder setExternalMaxChargePower(Integer externalMaxChargePower) {
+			this.externalMaxChargePower = externalMaxChargePower;
+			return this;
+		}
+
+		public CtrlBuilder setExternalStaticChargePower(Integer externalStaticChargePower) {
+			this.externalStaticChargePower = externalStaticChargePower;
+			return this;
+		}
+
 		public CtrlBuilder setChargePointAbilities(Consumer<ChargePointAbilities.Builder> chargePointAbilities) {
 			chargePointAbilities.accept(this.chargePointAbilities);
 			return this;
@@ -240,7 +258,9 @@ public class TestUtils {
 			}
 			var params = new Params(this.ctrlSingleId, this.chargePointId, this.mode, this.activePower,
 					this.sessionEnergy, this.sessionEnergyLimit, this.history, this.state, this.phaseSwitching,
-					combinedAbilities.build(), this.tasks);
+					combinedAbilities.build(), this.externalMinChargePower, this.externalMaxChargePower,
+					this.externalStaticChargePower,
+					this.tasks);
 			var ctrl = new DummyControllerEvseSingle(this.ctrlSingleId) //
 					.withParams(params);
 			if (this.probableNextPhaseSwitchEpochSeconds != null) {
