@@ -7,11 +7,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.drafts.Draft;
-import org.java_websocket.exceptions.InvalidDataException;
-import org.java_websocket.framing.CloseFrame;
-import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 
 import io.openems.backend.edge.application.BackendEdgeServerApp;
@@ -21,7 +16,11 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.logger.ContextLogger;
 import io.openems.common.websocket.AbstractWebsocketServer;
+import io.openems.common.websocket.CloseCode;
 import io.openems.common.websocket.CommonHttpHeader;
+import io.openems.common.websocket.Handshake;
+import io.openems.common.websocket.HandshakeRejectedException;
+import io.openems.common.websocket.WebSocket;
 
 public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
@@ -48,14 +47,14 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+	protected WsData onHandshake(WebSocket ws, Handshake request) throws HandshakeRejectedException {
 		final var apikey = getAsOptionalString(request, CommonHttpHeader.APIKEY).orElse(null);
 		final var instanceId = getAsOptionalUuid(request, CommonHttpHeader.INSTANCE_ID).map(UUID::toString)
 				.orElse("N/A");
 		final var edgeId = this.app.getCache().authenticateApikey(apikey);
 		if (edgeId == null) {
 			this.log.error("Handshake rejected. Invalid Apikey [InstanceID={}]", instanceId);
-			throw new InvalidDataException(CloseFrame.POLICY_VALIDATION, "Handshake rejected. Invalid Apikey");
+			throw new HandshakeRejectedException("Handshake rejected. Invalid Apikey");
 		}
 		this.log.debug("Handshake accepted [InstanceID={}, EdgeID={}]", instanceId, edgeId);
 		final var wsData = this.createWsData(ws);

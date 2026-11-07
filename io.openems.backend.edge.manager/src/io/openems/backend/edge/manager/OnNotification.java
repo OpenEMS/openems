@@ -9,7 +9,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.java_websocket.WebSocket;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SemanticVersion;
+import io.openems.common.websocket.WebSocket;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 

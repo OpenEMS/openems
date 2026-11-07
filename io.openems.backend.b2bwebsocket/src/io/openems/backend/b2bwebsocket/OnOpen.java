@@ -10,8 +10,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +17,8 @@ import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationServi
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.websocket.Handshake;
+import io.openems.common.websocket.WebSocket;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
@@ -37,7 +37,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
 		var error = this.doApply(ws, handshakedata);
 		if (error != null) {
 			ws.close();
@@ -45,7 +45,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		return error;
 	}
 
-	private OpenemsError doApply(WebSocket ws, Handshakedata handshakedata) {
+	private OpenemsError doApply(WebSocket ws, Handshake handshakedata) {
 		// Read "Authorization" header for Simple HTTP authentication. Source:
 		// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
 		final var authorization = getAsString(handshakedata, "authorization");

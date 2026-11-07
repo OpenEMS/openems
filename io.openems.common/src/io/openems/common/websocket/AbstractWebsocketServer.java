@@ -2,8 +2,9 @@ package io.openems.common.websocket;
 
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 
+import java.io.IOException;
 import java.net.BindException;
-import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -11,15 +12,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.drafts.Draft;
-import org.java_websocket.exceptions.InvalidDataException;
-import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.handshake.ServerHandshakeBuilder;
-import org.java_websocket.server.WebSocketServer;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.websocket.core.FrameHandler;
+import org.eclipse.jetty.websocket.core.server.ServerUpgradeRequest;
+import org.eclipse.jetty.websocket.core.server.ServerUpgradeResponse;
+import org.eclipse.jetty.websocket.core.server.WebSocketNegotiator;
+import org.eclipse.jetty.websocket.core.server.WebSocketUpgradeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,125 +41,51 @@ import io.openems.common.utils.ThreadPoolUtils;
 public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket<T> {
 
 	/**
+	 * Interval for pings to detect lost connections.
+	 */
+	private static final Duration CONNECTION_LOST_TIMEOUT = Duration.ofSeconds(60);
+
+	/**
+	 * Allows large cookies, e.g. of OAuth sessions.
+	 */
+	private static final int MAX_REQUEST_HEADER_SIZE = 64 * 1024;
+
+	/**
+	 * Threads for Jetty I/O; message handling uses the {@link #executor}.
+	 */
+	private static final int MAX_JETTY_THREADS = Math.max(8, Runtime.getRuntime().availableProcessors() * 2);
+
+	/**
 	 * Shared {@link ExecutorService}.
 	 */
 	private final ThreadPoolExecutor executor;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 	private final int port;
-	private final WebSocketServer ws;
 	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
 
+	private Server server;
+	private ServerConnector connector;
+	private ScheduledExecutorService connectionLostChecker;
 	private boolean isStarted = false;
 
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
 	 * @param name     to identify this server
-	 * @param port     to listen on
+	 * @param port     to listen on; 0 to select a free port
 	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
 	protected AbstractWebsocketServer(String name, int port, int poolSize) {
 		super(name);
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
-
 		this.port = port;
-		this.ws = new WebSocketServer(new InetSocketAddress(port),
-				/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
-				/* drafts, no filter */ List.of(new MyDraft6455()), //
-				this.connections) {
-
-			@Override
-			public void onStart() {
-			}
-
-			@Override
-			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(//
-					WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
-				final T wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
-				ws.setAttachment(wsData);
-				return super.onWebsocketHandshakeReceivedAsServer(ws, draft, request);
-			}
-
-			@Override
-			public void onOpen(WebSocket ws, ClientHandshake handshake) {
-				AbstractWebsocketServer.this.execute(new OnOpenHandler(//
-						ws, handshake, //
-						AbstractWebsocketServer.this.getOnOpen(), //
-						AbstractWebsocketServer.this::logWarn, //
-						AbstractWebsocketServer.this::handleInternalError));
-			}
-
-			@Override
-			public void onMessage(WebSocket ws, String message) {
-				AbstractWebsocketServer.this.execute(new OnMessageHandler(//
-						ws, message, //
-						AbstractWebsocketServer.this.getOnRequest(), //
-						AbstractWebsocketServer.this.getOnNotification(), //
-						AbstractWebsocketServer.this::sendMessage, //
-						AbstractWebsocketServer.this::handleInternalError, //
-						AbstractWebsocketServer.this::logWarn));
-			}
-
-			@Override
-			public void onError(WebSocket ws, Exception ex) {
-				AbstractWebsocketServer.this.execute(new OnErrorHandler(//
-						ws, ex, //
-						AbstractWebsocketServer.this.getOnError(), //
-						AbstractWebsocketServer.this::handleInternalError));
-			}
-
-			@Override
-			public void onClose(WebSocket ws, int code, String reason, boolean remote) {
-				AbstractWebsocketServer.this.execute(new OnCloseHandler(//
-						ws, code, reason, remote, //
-						AbstractWebsocketServer.this.getOnClose(), //
-						AbstractWebsocketServer.this::handleInternalError));
-			}
-
-			@Override
-			protected boolean removeConnection(WebSocket ws) {
-				return AbstractWebsocketServer.this.connections.remove(ws);
-
-				// TODO overridden method also does:
-				// if (isclosed.get() && connections.isEmpty()) {
-				// selectorthread.interrupt();
-				// }
-			}
-
-			@Override
-			protected boolean addConnection(WebSocket ws) {
-				return AbstractWebsocketServer.this.connections.add(ws);
-
-				// TODO overridden method also does:
-				// if (!isclosed.get()) {
-				// synchronized (connections) {
-				// return this.connections.add(ws);
-				// }
-				// } else {
-				// // This case will happen when a new connection gets ready while the server is
-				// // already stopping.
-				// ws.close(CloseFrame.GOING_AWAY);
-				// return true;// for consistency sake we will make sure that both onOpen will
-				// be called
-				// }
-			}
-
-			@Override
-			public Collection<WebSocket> getConnections() {
-				return AbstractWebsocketServer.this.connections;
-			}
-		};
-
-		// Allow the port to be reused. See
-		// https://stackoverflow.com/questions/3229860/what-is-the-meaning-of-so-reuseaddr-setsockopt-option-linux
-		this.ws.setReuseAddr(true);
 	}
 
 	/**
 	 * Returns a debug log of the current websocket state.
-	 * 
+	 *
 	 * @return the debug log string
 	 */
 	public String debugLog() {
@@ -166,7 +102,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Returns debug metrics of the current websocket state.
-	 * 
+	 *
 	 * @return the debug metrics
 	 */
 	public Map<String, Number> debugMetrics() {
@@ -181,6 +117,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		return (t, wsDataString) -> {
 			switch (t) {
 			case BindException be //
+				-> this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
+			case IOException ioe when ioe.getCause() instanceof BindException //
 				-> this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
 			default //
 				-> this.logError(this.log, new StringBuilder() //
@@ -198,20 +136,19 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 *
 	 * <p>
 	 * Override this method to validate the incoming handshake request and reject it
-	 * by throwing an {@link InvalidDataException}.
+	 * by throwing a {@link HandshakeRejectedException}.
 	 *
-	 * @param ws      the current {@link WebSocket} connection
-	 * @param draft   the negotiated WebSocket {@link Draft}
-	 * @param request the incoming client handshake
+	 * @param ws        the current {@link WebSocket} connection
+	 * @param handshake the incoming client handshake
 	 * @return the {@link WsData} object that is attached to the WebSocket
-	 * @throws InvalidDataException if the handshake should be rejected
+	 * @throws HandshakeRejectedException if the handshake should be rejected
 	 */
-	protected T onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+	protected T onHandshake(WebSocket ws, Handshake handshake) throws HandshakeRejectedException {
 		return this.createWsData(ws);
 	}
 
 	public Collection<WebSocket> getConnections() {
-		return this.ws.getConnections();
+		return this.connections;
 	}
 
 	/**
@@ -248,11 +185,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @return The port number.
 	 */
 	public int getPort() {
-		return this.ws.getPort();
+		var connector = this.connector;
+		if (connector != null && connector.getLocalPort() > 0) {
+			return connector.getLocalPort();
+		}
+		return this.port;
 	}
 
 	/**
-	 * Starts the {@link WebSocketServer}.
+	 * Starts the websocket server.
 	 */
 	@Override
 	public synchronized void start() {
@@ -262,7 +203,93 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.isStarted = true;
 		super.start();
 		this.logInfo(this.log, "Starting websocket server [port=" + this.port + "]");
-		this.ws.start();
+
+		var threadPool = new QueuedThreadPool(MAX_JETTY_THREADS, 2);
+		threadPool.setName(this.getName() + "-jetty");
+		this.server = new Server(threadPool);
+
+		var httpConfig = new HttpConfiguration();
+		httpConfig.setRequestHeaderSize(MAX_REQUEST_HEADER_SIZE);
+		this.connector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+		this.connector.setPort(this.port);
+		this.connector.setReuseAddress(true);
+		this.server.addConnector(this.connector);
+
+		var upgradeHandler = new WebSocketUpgradeHandler(h -> h.addMapping("/*", WebSocketNegotiator.from(//
+				(request, response, callback) -> this.createFrameHandler(request, response, callback), //
+				(frameHandler, request, response) -> (FrameHandler) frameHandler)));
+		JettyConfiguration.apply(upgradeHandler.getConfiguration());
+		this.server.setHandler(upgradeHandler);
+
+		try {
+			this.server.start();
+		} catch (Exception e) {
+			this.handleInternalError(e, "");
+			this.stopJettyServer();
+			return;
+		}
+
+		this.connectionLostChecker = Executors.newSingleThreadScheduledExecutor(
+				new ThreadFactoryBuilder().setNameFormat(this.getName() + "-ConnectionLost").setDaemon(true).build());
+		this.connectionLostChecker.scheduleWithFixedDelay(() -> {
+			for (var ws : this.connections) {
+				((JettyWebSocket) ws).checkConnectionLost(CONNECTION_LOST_TIMEOUT);
+			}
+		}, 1, 1, TimeUnit.SECONDS);
+	}
+
+	private JettyFrameHandler createFrameHandler(ServerUpgradeRequest request, ServerUpgradeResponse response,
+			Callback callback) {
+		var handshake = JettyWebSocket.toHandshake(request.getHeaders());
+		var ws = new JettyWebSocket(request.getConnectionMetaData().getRemoteSocketAddress());
+		try {
+			ws.setAttachment(this.onHandshake(ws, handshake));
+		} catch (HandshakeRejectedException e) {
+			Response.writeError(request, response, callback, HttpStatus.FORBIDDEN_403, e.getMessage());
+			return null;
+		}
+		// Servers do not support permessage-deflate
+		response.setExtensions(List.of());
+		return new JettyFrameHandler(ws, new JettyFrameHandler.Listener() {
+
+			@Override
+			public void onOpen() {
+				AbstractWebsocketServer.this.connections.add(ws);
+				AbstractWebsocketServer.this.execute(new OnOpenHandler(//
+						ws, handshake, //
+						AbstractWebsocketServer.this.getOnOpen(), //
+						AbstractWebsocketServer.this::logWarn, //
+						AbstractWebsocketServer.this::handleInternalError));
+			}
+
+			@Override
+			public void onText(String text) {
+				AbstractWebsocketServer.this.execute(new OnMessageHandler(//
+						ws, text, //
+						AbstractWebsocketServer.this.getOnRequest(), //
+						AbstractWebsocketServer.this.getOnNotification(), //
+						AbstractWebsocketServer.this::sendMessage, //
+						AbstractWebsocketServer.this::handleInternalError, //
+						AbstractWebsocketServer.this::logWarn));
+			}
+
+			@Override
+			public void onError(Exception cause) {
+				AbstractWebsocketServer.this.execute(new OnErrorHandler(//
+						ws, cause, //
+						AbstractWebsocketServer.this.getOnError(), //
+						AbstractWebsocketServer.this::handleInternalError));
+			}
+
+			@Override
+			public void onClose(int code, String reason, boolean remote) {
+				AbstractWebsocketServer.this.connections.remove(ws);
+				AbstractWebsocketServer.this.execute(new OnCloseHandler(//
+						ws, code, reason, remote, //
+						AbstractWebsocketServer.this.getOnClose(), //
+						AbstractWebsocketServer.this::handleInternalError));
+			}
+		});
 	}
 
 	/**
@@ -281,7 +308,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Stops the {@link WebSocketServer}.
+	 * Stops the websocket server.
 	 */
 	@Override
 	public synchronized void stop() {
@@ -290,25 +317,31 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		}
 		this.isStarted = false;
 
+		if (this.connectionLostChecker != null) {
+			this.connectionLostChecker.shutdownNow();
+			this.connectionLostChecker = null;
+		}
+
 		// Shutdown executors
 		shutdownAndAwaitTermination(this.executor, 5);
 
-		var tries = 3;
-		while (tries-- > 0) {
-			try {
-				this.ws.stop();
-				return;
-			} catch (NullPointerException | InterruptedException e) {
-				this.logWarn(this.log,
-						"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e1) {
-					/* ignore */
-				}
-			}
-		}
-		this.logError(this.log, "Stopping websocket server failed too often.");
+		this.stopJettyServer();
 		super.stop();
+	}
+
+	private void stopJettyServer() {
+		var server = this.server;
+		if (server == null) {
+			return;
+		}
+		try {
+			server.stop();
+		} catch (Exception e) {
+			this.logWarn(this.log,
+					"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		this.server = null;
+		this.connector = null;
+		this.connections.clear();
 	}
 }

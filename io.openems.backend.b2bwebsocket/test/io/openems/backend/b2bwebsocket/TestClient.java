@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +16,7 @@ import io.openems.common.websocket.OnError;
 import io.openems.common.websocket.OnNotification;
 import io.openems.common.websocket.OnOpen;
 import io.openems.common.websocket.OnRequest;
+import io.openems.common.websocket.WebSocket;
 import io.openems.common.websocket.WsData;
 
 public class TestClient extends AbstractWebsocketClient<WsData> implements AutoCloseable {
