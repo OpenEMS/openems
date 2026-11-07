@@ -45,7 +45,6 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.validator.Checkables;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -61,10 +60,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
     "image": base64,
     "properties":{
       "CONTROLLER_ID": "ctrlOrtsnetzAuslastung0",
-      "URL": "https://www.ortsnetz-auslastung.de/v1/measurements",
-      "METER_ID": "",
-      "PLANT_CAPACITY_KWP": 0,
-      "SEND_PV_FORECAST": false
+      "METER_ID": ""
     },
     "appDescriptor": {}
   }
@@ -76,19 +72,10 @@ public class AppOrtsnetzAuslastung
 		implements OpenemsApp {
 
 	private static final String FACTORY_ID = "Controller.Ortsnetz-Auslastung";
-	private static final String DEFAULT_URL = "https://www.ortsnetz-auslastung.de/v1/measurements";
 
 	public static enum Property implements Type<Property, AppOrtsnetzAuslastung, BundleParameter>, Nameable {
 		CONTROLLER_ID(AppDef.componentId("ctrlOrtsnetzAuslastung0")), //
 		ALIAS(alias()), //
-		URL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".url.label") //
-				.setTranslatedDescriptionWithAppPrefix(".url.description") //
-				.setDefaultValue(DEFAULT_URL) //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setValidation("^https?://\\S+$",
-								translate(parameter.bundle(), "App.Cloud.OrtsnetzAuslastung.url.invalid"))))), //
 		METER_ID(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".meterId.label") //
 				.setTranslatedDescriptionWithAppPrefix(".meterId.description") //
@@ -118,21 +105,6 @@ public class AppOrtsnetzAuslastung
 					}
 					field.setOptions(options.build());
 				}))), //
-		PLANT_CAPACITY_KWP(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".plantCapacityKwp.label") //
-				.setTranslatedDescriptionWithAppPrefix(".plantCapacityKwp.description") //
-				.setDefaultValue(0) //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, property, l, parameter, field) -> field.setInputType(InputType.NUMBER) //
-								.setMin(0) //
-								.setMax(1000) //
-								.setUnit("kWp")))), //
-		SEND_PV_FORECAST(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".sendPvForecast.label") //
-				.setTranslatedDescriptionWithAppPrefix(".sendPvForecast.description") //
-				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DATA_PROTECTION_HINT(AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
 			return translate(parameter.bundle(), "App.Cloud.OrtsnetzAuslastung.dataProtectionHint");
 		}), def -> def //
@@ -198,18 +170,12 @@ public class AppOrtsnetzAuslastung
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var url = this.getString(p, l, Property.URL);
 			final var meterId = this.getString(p, l, Property.METER_ID);
-			final var plantCapacityKwp = this.getDouble(p, Property.PLANT_CAPACITY_KWP);
-			final var sendPvForecast = this.getBoolean(p, Property.SEND_PV_FORECAST);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, FACTORY_ID, //
 							JsonUtils.buildJsonObject() //
-									.addProperty("url", url) //
 									.addProperty("meter.id", meterId) //
-									.addProperty("plantCapacityKwp", plantCapacityKwp) //
-									.addProperty("sendPvForecast", sendPvForecast) //
 									.build()));
 
 			return AppConfiguration.create() //
