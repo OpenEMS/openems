@@ -23,6 +23,7 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
 import io.openems.edge.app.api.AppCleverPv;
 import io.openems.edge.app.api.AppEnerixControl;
+import io.openems.edge.app.api.AppOrtsnetzAuslastung;
 import io.openems.edge.app.api.ModbusRtuApiReadOnly;
 import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
@@ -693,6 +694,16 @@ public final class Apps {
 	 */
 	public static final AppCleverPv cleverPv(AppManagerTestBundle t) {
 		return app(t, AppCleverPv::new, "App.Cloud.Clever-PV");
+	}
+
+	/**
+	 * Test method for creating a {@link AppOrtsnetzAuslastung}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppOrtsnetzAuslastung ortsnetzAuslastung(AppManagerTestBundle t) {
+		return app(t, AppOrtsnetzAuslastung::new, "App.Cloud.OrtsnetzAuslastung");
 	}
 
 	/**

@@ -84,6 +84,7 @@ import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Control
 import { ControllerModbusTcpApiDetailsComponent } from "src/app/edge/live/Controller/ModbusTcpApi/details/details";
 import { ControllerModbusTcpApiHistoryComponent } from "src/app/edge/live/Controller/ModbusTcpApi/history/new-navigation/new-navigation";
 import { ControllerModbusTcpApiHomeComponent } from "src/app/edge/live/Controller/ModbusTcpApi/new-navigation/new-navigation";
+import { ControllerOrtsnetzAuslastungHomeComponent } from "src/app/edge/live/Controller/OrtsnetzAuslastung/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/history/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/settings/settings";
@@ -560,6 +561,7 @@ export const commonRoutes: Routes = [
     ...controllerRoutes("common/consumption"),
     { path: "common/grid", component: CommonGridHomeComponent },
     { path: "common/grid/settings", component: CommonGridSettingsComponent },
+    { path: "common/grid/controller/ortsnetz-auslastung/:componentId", component: ControllerOrtsnetzAuslastungHomeComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
     {
         path: "common/grid/history/external-limitation",
