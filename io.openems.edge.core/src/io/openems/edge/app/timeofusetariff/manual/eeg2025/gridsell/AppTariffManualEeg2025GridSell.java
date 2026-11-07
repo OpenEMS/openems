@@ -18,6 +18,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.timeofusetariff.SpotTariffVendor;
 import io.openems.edge.app.timeofusetariff.TimeOfUseProps;
 import io.openems.edge.app.timeofusetariff.manual.eeg2025.gridsell.AppTariffManualEeg2025GridSell.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -90,8 +91,9 @@ public class AppTariffManualEeg2025GridSell
 									.build())//
 			);
 
-			return AppConfiguration.create()//
-					.addTask(Tasks.component(components))//
+			return AppConfiguration.create() //
+					.addDependency(SpotTariffVendor.dependency()) //
+					.addTask(Tasks.component(components)) //
 					.build();
 		};
 	}

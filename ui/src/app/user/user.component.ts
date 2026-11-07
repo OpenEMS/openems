@@ -53,7 +53,7 @@ export class UserComponent implements OnInit {
     protected readonly environment = environment;
     protected readonly uiVersion = Changelog.UI_VERSION;
     protected readonly languages: Language[] = Language.ALL;
-    protected readonly isThemeSelectionAvailable = (["OpenEMS", "FENECON", "FENECONBeta"] as string[]).includes(environment.theme);
+    protected readonly isThemeSelectionAvailable = ["OpenEMS", "FENECON", "FENECONBeta"].includes(environment.theme);
     protected currentLanguage: Language;
     protected isEditModeDisabled: boolean = true;
     protected form: { formGroup: FormGroup; model: UserInformation | CompanyUserInformation };
@@ -125,16 +125,10 @@ export class UserComponent implements OnInit {
     } // Theme as of "Light","Dark" or "System" Themes.
 
     public static getNavigationTree(user: User): NavigationTree {
-        return new NavigationTree(
-            "user",
-            { baseString: "user" },
-            { name: "person-outline" },
-            user.name,
-            "label",
-            [],
-            null,
-            { showOrder: "LOW", hideFavorite: true },
-        );
+        return new NavigationTree("user", { baseString: "user" }, { name: "oe-user" }, user.name, "label", [], null, {
+            showOrder: "LOW",
+            hideFavorite: true,
+        });
     }
 
     ngOnInit() {
@@ -235,19 +229,6 @@ export class UserComponent implements OnInit {
         this.userService.currentUser.set(null);
         this.websocket.logout();
     }
-
-    // TODO redo when darkMode is applied
-    // protected toggleMode(key: string, event: CustomEvent) {
-    //   let userSettings = this.service.currentUser.settings;
-    //   userSettings[key] = event.detail['checked'];
-
-    //   this.websocket.sendRequest(
-    //     new UpdateUserSettingsRequest({ settings: userSettings })).then(() => {
-    //       this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
-    //     }).catch((reason) => {
-    //       this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
-    //     });
-    // }
 
     public navigateToChangelog(event: Event) {
         event.preventDefault();

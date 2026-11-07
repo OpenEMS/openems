@@ -240,7 +240,17 @@
                 "STORAGE_DISCHARGE": "baterie výtok",
                 "TITLE": "Monitoring energetických toků"
             },
+            "GRID": {
+                "CHARGE_FROM_GRID_ACTIVATE": "Povolit aktivní dobíjení ze sítě",
+                "CHARGE_FROM_GRID_DESCRIPTION": "<b>POZOR:</b> Aktivní nabíjení baterie ze sítě nad rámec technicky nezbytného udržovacího nabíjení vyžaduje odpovídající registraci úložného systému. V případě pochybností se obraťte na svého instalatéra. Stisknutím modrého tlačítka „Uložit“ potvrzujete, že toto ověření bylo provedeno.<br/><br/><b>Mějte na paměti:</b> předpokladem nároku na dotaci podle německého zákona o rozšíření obnovitelných zdrojů energie (EEG 2023) je, že se v baterii ukládá pouze energie z obnovitelných zdrojů a/nebo z důlního plynu. Aktivací této funkce se baterie nabíjí energií ze sítě. Tato energie může být v závislosti na individuální smlouvě o dodávce elektřiny pravděpodobně vyráběna z fosilních zdrojů a/nebo z jaderných elektráren. Proto nemůžeme zaručit, že se baterie nabíjí pouze energií z obnovitelných zdrojů a/nebo z důlního plynu.",
+                "CHARGE_ONCE_GRID_PERMISSION_REQUIRED": "Aktivní dobíjení ze sítě není povoleno. Oprávnění můžete změnit v nastavení sítě.",
+                "DISCHARGE_ONCE_GRID_PERMISSION_REQUIRED": "Aktivní vybíjení do sítě není povoleno. Oprávnění můžete změnit v nastavení sítě.",
+                "DISCHARGE_TO_GRID_ACTIVATE": "Povolit aktivní vybíjení do sítě",
+                "DISCHARGE_TO_GRID_DESCRIPTION": "<b>POZOR:</b> Aktivní vybíjení baterie do sítě nad rámec z technických důvodů potřebných provozních stavů vyžaduje formální registraci úložného systému. V případě pochybností se obraťte na svého instalatéra. Kliknutím na modré tlačítko „Uložit“ potvrzujete, že tato kontrola byla provedena.<br/><br/><b>Poznámka:</b> Aktivace této funkce umožňuje vkládat energii z bateriového úložného systému do veřejné sítě. V závislosti na dotačním programu, modelu odměňování, měřicím konceptu a platných regulatorních požadavcích to může ovlivnit stávající nároky týkající se dotací, odměňování nebo dokládání původu.<br/><br/>Zejména může být nutné jednoznačně přiřadit vyrobenou elektřinu a technicky doložit její původ. Nemůžeme zaručit, že používání této funkce je v souladu s požadavky vašeho konkrétního dotačního či odměňovacího modelu.<br/><br/>Před aktivací si prosím projednejte důsledky se svým instalatérem, přímým marketérem, provozovatelem sítě nebo kvalifikovaným poradcem.",
+                "SETTINGS_LINK": "Přejít do nastavení sítě"
+            },
             "RETROFITTING": {
+                "EXPANSION_RUNNING": "Omezený provoz úložného systému - připravuje se rozšíření kapacity",
                 "INFORMATION_FOR_INSTANT_START": "Baterie se nabíjí nebo vybíjí maximálním výkonem, aby co nejrychleji dosáhla stavu nabití {{targetSoc}} % pro rozšíření. Může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",
                 "INFORMATION_FOR_PLANNED_EXPANSION": "Očekává se, že baterie bude od {{targetTime}} dne {{targetDate}} nabíjena/vybíjena, aby dosáhla stavu nabití {{targetSoc}} % pro plánované rozšíření. Přitom může dojít k odběru ze sítě nebo k výkupu do sítě. Tento stav nabití je udržován po dobu {{targetTimeBuffer}} minut, poté, nebo po rozšíření kapacity, se úložný systém vrátí do běžného provozního stavu.",
                 "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Očekává se, že baterie bude nabíjena/vybíjena, aby dosáhla stavu nabití {{targetSoc}} % pro plánované rozšíření.",
@@ -258,7 +268,9 @@
                 },
                 "SELECT_A_DATE": "Vyberte prosím datum",
                 "TARGET_TIME_SPECIFIED": "Rozšíření kapacity bude provedeno dne {{targetDate}} v {{targetTime}}",
-                "UPDATE_TO_NEW_VERSION": "Pro využití funkce rozšíření baterie je vyžadována aktualizace na nejnovější verzi."
+                "UPDATE_TO_NEW_VERSION": "Pro využití funkce rozšíření baterie je vyžadována aktualizace na nejnovější verzi.",
+                "WARNING_CHECK": "Tuto informaci beru na vědomí",
+                "WARNING_MESSAGE": "Při přípravě rozšíření kapacity budou právě běžící aplikace úložného systému dočasně pozastaveny. To se týká mimo jiné omezování spotřebních špiček, optimalizace vlastní spotřeby a dalších aplikací úložného systému. Po dokončení přípravy budou opět k dispozici jako obvykle."
             },
             "SYSTEMUPDATE": "Aktualizace systému",
             "WIDGETS": {
@@ -337,8 +349,7 @@
                     "FORCE_THREE_PHASE": "3fázové",
                     "HYSTERESIS": "Minimální doba přepnutí nabíjecí stanice aktivní",
                     "HYSTERESIS_INFO": "Aby se zabránilo přerušení nabíjení v důsledku příliš častého spouštění/pozastavování nabíjení, bude aktuálně zvolený režim nabíjení po dalších několik minut pokračovat.",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“.",
-                    "LINK_TO_DOCUMENTATION": "Více informací",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v současné době dojít v kombinaci s KEBA P40 k chybě. Doporučujeme proto tento režim dočasně nepoužívat a místo toho zvolit režim „Automaticky“ s aktivovanou volbou „Zaručit minimální nabití“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Více informací</a>",
                     "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
                     "MINIMUM": "Přetok PV se zaručeným nabíjením",
                     "NOT_AUTHORIZED": "Neautorizovaný",
@@ -380,7 +391,7 @@
                 },
                 "EVSE": {
                     "CHARGE_MODE": "Základní režim",
-                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“.",
+                    "KEBA_WARNING": "Poznámka: Při používání tohoto režimu může v kombinaci s KEBA P40 dojít k chybě. Doporučujeme proto tento režim v současné době nepoužívat a místo toho dočasně využít režim „Přetok PV se zaručeným nabíjením“ nebo „Rychlé nabíjení“. <a class=\"ion-link\" href={{link}} target=\"_blank\">Více informací</a>",
                     "SCHEDULE": {
                         "ADD_TASK": "Přidat úlohu",
                         "SCHEDULE": "Časový plán"
@@ -563,6 +574,8 @@
                     "AMBIENT_TEMPERATURE": "Teplota okolí",
                     "BATTERY_DC": "Baterie - DC",
                     "GRID_CHARGE": "Aktivovat udržování zálohy pro výpadek napájení ze sítě",
+                    "GRID_CHARGE_ALLOWED_INFO": "Vaše záloha pro výpadek napájení se udržuje dobíjením ze sítě. Pokud to nechcete, můžete oprávnění v nastavení sítě deaktivovat.",
+                    "GRID_CHARGE_NOT_ALLOWED_INFO": "Vaše záloha pro výpadek napájení se dobíjením ze sítě neudržuje. Pokud to chcete, můžete oprávnění v nastavení sítě aktivovat.",
                     "GRID_CHARGE_WARNING": "Úložný systém může aktivně dobíjet ze sítě, aby udržel nastavenou zálohu pro výpadek napájení, a kompenzoval tak ztráty vznikající interní spotřebou při delší absenci výroby. <br/><br/>POZOR: Aktivní nabíjení baterie ze sítě nad rámec technicky nezbytného udržovacího nabíjení vyžaduje odpovídající registraci úložného systému. V případě pochybností se obraťte na svého instalatéra. Stisknutím modrého tlačítka „Uložit“ potvrzujete, že toto ověření bylo provedeno.<br/><br/>Mějte na paměti: předpokladem nároku na dotaci podle německého zákona o rozšíření obnovitelných zdrojů energie (EEG) je, že se v baterii ukládá pouze energie z obnovitelných zdrojů a/nebo z důlního plynu. Aktivací této funkce se baterie nabíjí energií ze sítě. Tato energie může být v závislosti na individuální smlouvě o dodávce elektřiny pravděpodobně vyráběna z fosilních zdrojů a/nebo z jaderných elektráren. Proto nemůžeme zaručit, že se baterie nabíjí pouze energií z obnovitelných zdrojů a/nebo z důlního plynu.",
                     "INVERTER": "Měnič",
                     "TOTAL_AC": "Celkem AC",

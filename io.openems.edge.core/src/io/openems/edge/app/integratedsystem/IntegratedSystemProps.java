@@ -7,6 +7,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -14,6 +15,7 @@ import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.ArrayUtils;
@@ -23,6 +25,7 @@ import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
@@ -514,6 +517,168 @@ public final class IntegratedSystemProps {
 				) //
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a checkbox, if charging and discharging can be
+	 * forced depending on the Soc.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> hasTotalLimitDischarge() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.HasTotalLimitDischarge.label") //
+				.setRequired(true) //
+				.setDefaultValue(true) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the Soc in which charging can be forced.
+	 *
+	 * @param hasTotalLimitDischarge the {@link Nameable} to check if the field
+	 *                               should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> forceChargeSoc(//
+			Nameable hasTotalLimitDischarge) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.ForceChargeSoc.label") //
+				.setTranslatedDescription("App.FENECON.Pro.9.12.ForceChargeSoc.description") //
+				.setDefaultValue(10) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field //
+							.setUnit(Unit.PERCENT, l) //
+							.onlyShowIf(Exp.currentModelValue(hasTotalLimitDischarge).notNull());
+				})//
+		);
+	}
+
+	/**
+	 * Creates an {@link AppDef} for the SoC with discharging disabled.
+	 *
+	 * @param hasTotalLimitDischarge the {@link Nameable} to check if the field
+	 *                               should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> minSoc(//
+			Nameable hasTotalLimitDischarge) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.MinSoc.label") //
+				.setTranslatedDescription("App.FENECON.Pro.9.12.MinSoc.description") //
+				.setDefaultValue(13) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field //
+							.setUnit(Unit.PERCENT, l) //
+							.onlyShowIf(Exp.currentModelValue(hasTotalLimitDischarge).notNull());
+				})//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a checkbox, if the Pro 9-12 has a third ess.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> hasThirdEss() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.FENECON.Pro.9.12.Cluster.HasThirdEss.label") //
+				.setRequired(true) //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a selection of the grid meter type for Pro 9-12.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gridMeterTypeForPro912() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.Meter.gridMeter") //
+				.setRequired(true) //
+				.setDefaultValue(FeneconPro912.GridMeterType.CARLO_GAVAZZI) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(FeneconPro912.GridMeterType.class), l);
+				})//
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for an accordion of the ess settings of a Pro 9-12
+	 * Cluster.
+	 *
+	 * @param essNumber     the number of the ess (1-3)
+	 * @param hideCondition the {@link Nameable} to check if the field should be
+	 *                      shown
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> essSettings(//
+			int essNumber, //
+			Nameable hideCondition //
+	) {
+		final var accordionName = "ESS_" + essNumber + "_SETTINGS";
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef
+				.setField(JsonFormlyUtil::buildAccordionGroupFromNameable, (app, property, l, parameter, field) -> {
+					final var essSettingsAppDefs = getEssSettingsAppDefs(essNumber);
+
+					final var jsonAccordions = JsonUtils.buildJsonArray();
+
+					final var accordion = essSettingsAppDefs.entrySet().stream() //
+							.map(entry -> entry.getValue() //
+									.getField() //
+									.get(app, Nameable.of(entry.getKey()), l, parameter) //
+									.build()) //
+							.collect(JsonUtils.toJsonArray());
+					var singleAccordion = FeneconCommercialProps.accordion(
+							"App.FENECON.Pro.9.12.Cluster.Ess.Settings.label", //
+							(aApp, aProp, aLang, aParam, f) -> {
+								f.setFieldGroup(accordion);
+								f.hideKey();
+							}, //
+							essNumber //
+					);
+
+					jsonAccordions.add(singleAccordion.getField() //
+							.get(app, Nameable.of(accordionName), l, parameter).build());
+					field.setFieldGroup(jsonAccordions.build()) //
+							.setMulti(false);
+
+					if (hideCondition != null) {
+						field.onlyShowIf(Exp.currentModelValue(hideCondition).notNull());
+					}
+					field.hideKey();
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for an accordion of the ess settings of a Pro 9-12
+	 * Cluster.
+	 *
+	 * @param essNumber the number of the ess (1-3)
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> essSettings(int essNumber) {
+		return essSettings(essNumber, null);
+	}
+
+	/**
+	 * Creates a {@link Map} of the ess settings app defs of a Pro 9-12 Cluster.
+	 * 
+	 * @param essNumber the number of the ess (1-3)
+	 * @return the created {@link Map} of the ess settings app defs
+	 */
+	public static Map<String, AppDef<OpenemsApp, Nameable, BundleProvider>> getEssSettingsAppDefs(int essNumber) {
+		final var essSettingsProperties = new HashMap<String, AppDef<OpenemsApp, Nameable, BundleProvider>>();
+		final var hasTotalLimitDischargeName = "HAS_TOTAL_LIMIT_DISCHARGE_" + essNumber;
+		final var forceChargeSocName = "FORCE_CHARGE_SOC_" + essNumber;
+		final var minSocName = "MIN_SOC_" + essNumber;
+		essSettingsProperties.put(hasTotalLimitDischargeName, hasTotalLimitDischarge());
+		essSettingsProperties.put(forceChargeSocName, forceChargeSoc(Nameable.of(hasTotalLimitDischargeName)));
+		essSettingsProperties.put(minSocName, minSoc(Nameable.of(hasTotalLimitDischargeName)));
+		return essSettingsProperties;
 	}
 
 	private IntegratedSystemProps() {

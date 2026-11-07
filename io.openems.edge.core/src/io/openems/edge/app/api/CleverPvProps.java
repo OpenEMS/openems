@@ -40,7 +40,7 @@ public final class CleverPvProps {
 								if (s.isEmpty()) {
 									return null;
 								}
-								return new JsonPrimitive("xxx");
+								return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 							}) //
 							.orElse(null);
 				}) //

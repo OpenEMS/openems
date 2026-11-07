@@ -266,10 +266,11 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		}
 
 		if (this.isEssChargeFromGridAllowed()) {
-			final int gridConnectionPointFuseLimit = this.meta.getGridConnectionPointFuseLimit(); // Ampere
+			final int gridConnectionPointFuseLimit = this.meta.getGridLimit().fuseCurrent(); // Ampere
 			final int essMaxPower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
 			final double safetyMargin = 0.1F; // 10% less than max for safety
 
+			// TODO refactor to use GridLimit - HardLimit
 			int maxGridFeedIn = Optional
 					.of((int) Math.round(gridConnectionPointFuseLimit * (1 - safetyMargin)) * VOLT_PER_AMPERE * 3)
 					.orElse(0);
