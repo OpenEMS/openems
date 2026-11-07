@@ -246,3 +246,4 @@ io.openems.edge.application/c:/
 
 ### Docker - for Dev UI under WSL ###
 docker-compose.override.yml
+CLAUDE.md
