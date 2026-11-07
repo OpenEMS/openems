@@ -1477,7 +1477,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterCo
             fromDate,
             toDate,
         ).resolution,
-    ): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse | null> {
+    ): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
         this.isDataExisting = true;
         const result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> =
             new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
