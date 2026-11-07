@@ -39,13 +39,25 @@ describe("GetAppAssistant", () => {
     });
 
     it("#setInitialModel should set the initial model on every field", () => {
-        expect((GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
-        expect((GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
-        expect((GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeUndefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeUndefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeUndefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeUndefined();
         GetAppAssistant.getInitialFields(fields, {});
-        expect((GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
-        expect((GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
-        expect((GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel).toBeDefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["a"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeDefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["a", "b"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeDefined();
+        expect(
+            (GetAppAssistant.findField(fields, ["c"]) as Partial<FormlyFieldConfigWithInitialModel>).initialModel,
+        ).toBeDefined();
     });
 
     it("#convertStringExpressions should parse number inputs to numbers", () => {
@@ -53,5 +65,4 @@ describe("GetAppAssistant", () => {
         const converted = GetAppAssistant.convertStringExpressions(fields, fields[0], expression);
         expect(converted).toBe("model.a < 1 || +model.a.b < 1 && [1,2].every(i => i < +initialModel.c)");
     });
-
 });

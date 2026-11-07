@@ -71,7 +71,17 @@ export namespace DummyConfig {
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
         const components = Object.values(edgeConfig?.components) ?? null;
 
-        const factories: Record<string, { componentIds: string[]; description: string; id: string; name: string; natureIds: string[]; properties: EdgeConfig.Factory["properties"] }> = {};
+        const factories: Record<
+            string,
+            {
+                componentIds: string[];
+                description: string;
+                id: string;
+                name: string;
+                natureIds: string[];
+                properties: EdgeConfig.Factory["properties"];
+            }
+        > = {};
         components.forEach((obj) => {
             if (factories[obj.factoryId]) {
                 factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];

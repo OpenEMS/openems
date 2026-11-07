@@ -29,10 +29,22 @@ describe("Chart constants", () => {
         // Empty datasets produce nullable fields despite the narrower production return type.
         type ScaleOptions = { min: number | null; max: number | null; stepSize: number | null } | null;
 
-        expect<ScaleOptions>(ChartConstants.getScaleOptions([], yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
+        expect<ScaleOptions>(ChartConstants.getScaleOptions([], yAxis, "line")).toEqual({
+            min: null,
+            max: null,
+            stepSize: null,
+        });
         expect(ChartConstants.getScaleOptions(datasets, yAxis, "line")).toEqual({ min: 0, max: 1892, stepSize: 378.4 });
         // Deliberately bypass the input types to exercise missing-dataset handling.
-        expect<ScaleOptions>(ChartConstants.getScaleOptions(null!, yAxis, "line")).toEqual({ min: null, max: null, stepSize: null });
-        expect<ScaleOptions>(ChartConstants.getScaleOptions(null!, null!, "line")).toEqual({ min: null, max: null, stepSize: null });
+        expect<ScaleOptions>(ChartConstants.getScaleOptions(null!, yAxis, "line")).toEqual({
+            min: null,
+            max: null,
+            stepSize: null,
+        });
+        expect<ScaleOptions>(ChartConstants.getScaleOptions(null!, null!, "line")).toEqual({
+            min: null,
+            max: null,
+            stepSize: null,
+        });
     });
 });

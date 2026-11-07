@@ -59,15 +59,15 @@ describe("Utils", () => {
     });
     it("+calculateOtherConsumption - only consumptionMeters", () => {
         const expectedResult2 = [null, null, null, 565, 214, 561, 473];
-        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents)).toEqual(
-            expectedResult2,
-        );
+        expect<(number | null)[]>(
+            Utils.calculateOtherConsumption(channelData, [], [], consumptionMeterComponents),
+        ).toEqual(expectedResult2);
     });
     it("+calculateOtherConsumption - only evcs", () => {
         const expectedResult3 = [null, null, null, 565, 560, 561, 473];
-        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, [])).toEqual(
-            expectedResult3,
-        );
+        expect<(number | null)[]>(
+            Utils.calculateOtherConsumption(channelData, evcsComponents, heatComponents, []),
+        ).toEqual(expectedResult3);
     });
     it("+calculateOtherConsumption - no evcs + no consumptionMeters", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];
@@ -75,13 +75,15 @@ describe("Utils", () => {
     });
     it("+calculateOtherConsumption - heat + consumptionMeters", () => {
         const expectedResult = [null, null, null, 565, 214, 561, 473];
-        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents)).toEqual(
-            expectedResult,
-        );
+        expect<(number | null)[]>(
+            Utils.calculateOtherConsumption(channelData, [], heatComponents, consumptionMeterComponents),
+        ).toEqual(expectedResult);
     });
     it("+calculateOtherConsumption - only heat", () => {
         const expectedResult4 = [null, null, null, 565, 560, 561, 573];
-        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], heatComponents, [])).toEqual(expectedResult4);
+        expect<(number | null)[]>(Utils.calculateOtherConsumption(channelData, [], heatComponents, [])).toEqual(
+            expectedResult4,
+        );
     });
 
     it("+CONVERT_PRICE_TO_CENT_PER_KWH", () => {
