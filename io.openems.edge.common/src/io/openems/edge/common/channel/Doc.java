@@ -1,7 +1,5 @@
 package io.openems.edge.common.channel;
 
-import java.util.List;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
@@ -31,6 +29,15 @@ import io.openems.edge.common.component.OpenemsComponent;
  * </ul>
  */
 public interface Doc {
+
+	public static sealed interface OptionsDoc<T> permits EnumDoc, StringEnumDoc {
+		/**
+		 * Gets the allowed options.
+		 *
+		 * @return the options
+		 */
+		public T[] getOptions();
+	}
 
 	/**
 	 * Create a Channel-Doc with a specific OpenemsType.
@@ -165,13 +172,6 @@ public interface Doc {
 	 * @return myself
 	 */
 	public Doc translationKey(Class<?> clazz, String channelKey);
-
-	/**
-	 * Gets the allowed string values.
-	 *
-	 * @return the options
-	 */
-	public List<String> getStringOptions();
 
 	/**
 	 * Is the more verbose debug mode activated?.

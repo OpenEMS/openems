@@ -29,12 +29,12 @@ public class GetChannelsOfComponentTest {
 
 	@Test
 	public void testResponseSerializer() {
-		// Create a sample channel record with string options
-		List<GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry> options = Arrays.asList(//
-				new GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry("Ok", 0), //
-				new GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry("Info", 1), //
-				new GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry("Warning", 2), //
-				new GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry("Fault", 3)//
+		// Create a sample channel record with enum options
+		List<GetChannelsOfComponent.ChannelRecord.OptionsEntry> enumOptions = Arrays.asList(//
+				new GetChannelsOfComponent.ChannelRecord.OptionsEntry.OptionsEnumEntry("Ok", 0), //
+				new GetChannelsOfComponent.ChannelRecord.OptionsEntry.OptionsEnumEntry("Info", 1), //
+				new GetChannelsOfComponent.ChannelRecord.OptionsEntry.OptionsEnumEntry("Warning", 2), //
+				new GetChannelsOfComponent.ChannelRecord.OptionsEntry.OptionsEnumEntry("Fault", 3)//
 		);
 		var plainChannelRecord = new GetChannelsOfComponent.ChannelRecord(//
 				"State", //
@@ -45,10 +45,10 @@ public class GetChannelsOfComponentTest {
 				Unit.NONE, //
 				ChannelCategory.ENUM, //
 				null, // level
-				null, // stringOptions
-				options //
+				enumOptions //
 		);
-		List<String> stringOptions = Arrays.asList("NONE", "DEBUG_LOG", "TRACE");
+		List<GetChannelsOfComponent.ChannelRecord.OptionsEntry> stringOptions = GetChannelsOfComponent.ChannelRecord.OptionsEntry
+				.fromStringEnums(new String[] { "NONE", "DEBUG_LOG", "TRACE" });
 		var attributedefinitionRecord = new GetChannelsOfComponent.ChannelRecord(//
 				"_PropertyLogVerbosity", //
 				AccessMode.READ_WRITE, //
@@ -58,8 +58,7 @@ public class GetChannelsOfComponentTest {
 				Unit.NONE, //
 				ChannelCategory.OPENEMS_TYPE, //
 				null, // level
-				stringOptions, //
-				null // options
+				stringOptions //
 		);
 
 		// Create a response with the channel record
@@ -78,7 +77,28 @@ public class GetChannelsOfComponentTest {
 		assertEquals(originalResponse, result);
 		assertEquals(2, result.channels().size());
 		assertEquals("State", result.channels().get(0).id());
-		assertEquals(stringOptions, result.channels().get(1).stringOptions());
+		assertEquals(stringOptions, result.channels().get(1).options());
+	}
+
+	@Test
+	public void testResponseSerializerEmptyOptions() {
+		// Empty options array must round-trip as empty list, not become null
+		var record = new GetChannelsOfComponent.ChannelRecord(//
+				"_PropertyLogVerbosity", //
+				AccessMode.READ_WRITE, //
+				PersistencePriority.HIGH, //
+				"", //
+				OpenemsType.STRING, //
+				Unit.NONE, //
+				ChannelCategory.OPENEMS_TYPE, //
+				null, //
+				List.of() //
+		);
+		var original = new GetChannelsOfComponent.Response(List.of(record));
+		var json = GetChannelsOfComponent.Response.serializer().serialize(original);
+		var result = GetChannelsOfComponent.Response.serializer().deserialize(JsonParser.parseString(json.toString()));
+		assertEquals(original, result);
+		assertEquals(List.of(), result.channels().get(0).options());
 	}
 
 }

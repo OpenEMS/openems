@@ -5,22 +5,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gson.JsonObject;
+import org.junit.jupiter.api.Test;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.openems.common.channel.PropertyChannel;
 import io.openems.common.types.EdgeConfig;
-import org.osgi.service.metatype.annotations.AttributeDefinition;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 public class AbstractOpenemsComponentTest {
 
@@ -83,15 +81,10 @@ public class AbstractOpenemsComponentTest {
 		templateOptions.add("options", options);
 		schemaJson.add("templateOptions", templateOptions);
 
-		// Create a mock Property with select schema
-		EdgeConfig.Factory.Property property = mock(EdgeConfig.Factory.Property.class);
-		when(property.getId()).thenReturn("priority");
-		when(property.isPassword()).thenReturn(false);
-		when(property.getType()).thenReturn(io.openems.common.types.OpenemsType.STRING);
-		when(property.getDefaultValue()).thenReturn(null);
-		JsonObject propertyJson = new JsonObject();
-		propertyJson.add("schema", schemaJson);
-		when(property.toJson()).thenReturn(propertyJson);
+		// Create a real Property with select schema
+		EdgeConfig.Factory.Property property = new EdgeConfig.Factory.Property(//
+				"priority", "Priority", "Priority level", io.openems.common.types.OpenemsType.STRING, //
+				false, false, null, schemaJson);
 
 		// Create component
 		DummyComponent comp = new DummyComponent("selectTest");
@@ -116,13 +109,14 @@ public class AbstractOpenemsComponentTest {
 		assertNotNull("Channel ID should not be null", channel.channelId());
 
 		// Verify that the channel was added to the component
-		// Validate channel structure, especially stringOptions via reflection
 		io.openems.edge.common.channel.Doc doc = channel.channelId().doc();
 		assertNotNull("Channel Doc should not be null", doc);
 
-		// Verify the option values match what we defined in the schema
-		List<String> stringOptions = doc.getStringOptions();
-		assertTrue("String options should be equal to initial values", optionValues.equals(stringOptions));
+		// Select-schema property becomes a real EnumDoc carrying the schema options
+		assertTrue("Doc should be a StringEnumDoc", doc instanceof io.openems.edge.common.channel.StringEnumDoc);
+		var enumDoc = (io.openems.edge.common.channel.StringEnumDoc) doc;
+		List<String> docOptionValues = Arrays.stream(enumDoc.getOptions()).toList();
+		assertTrue("Enum options should match the schema values", docOptionValues.containsAll(optionValues));
 	}
 
 }

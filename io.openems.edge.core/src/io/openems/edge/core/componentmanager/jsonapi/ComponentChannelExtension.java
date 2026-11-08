@@ -3,7 +3,6 @@ package io.openems.edge.core.componentmanager.jsonapi;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -14,8 +13,10 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.Doc.OptionsDoc;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
+import io.openems.edge.common.channel.StringEnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApiExtension;
 import io.openems.edge.common.jsonapi.EdgeGuards;
@@ -128,10 +129,14 @@ public class ComponentChannelExtension implements ComponentJsonApiExtension<Comp
 				channel.channelDoc().getUnit(), //
 				channel.channelDoc().getChannelCategory(), //
 				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
-				channel.channelDoc().getStringOptions(), //
-				channel.channelDoc() instanceof EnumDoc c ? Stream.of(c.getOptions()) //
-						.map(GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry::from) //
-						.toList() : null);
+				channel.channelDoc() instanceof OptionsDoc<?> c //
+						? switch (c) {
+						case EnumDoc e ->
+							GetChannelsOfComponent.ChannelRecord.OptionsEntry.fromOptionsEnums(e.getOptions());
+						case StringEnumDoc s ->
+							GetChannelsOfComponent.ChannelRecord.OptionsEntry.fromStringEnums(s.getOptions());
+						}
+						: null);
 	}
 
 }
