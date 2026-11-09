@@ -1,0 +1,650 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: #sec-read-on
+#: l10n/nav.adoc
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"xref:development/fundamentals/components-and-channels.adoc[Components and "
+"Channels in code]"
+msgstr ""
+
+#. type: #sec-read-on
+#: l10n/nav.adoc
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"xref:development/implementing/controller.adoc[Implementing a Controller]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "OSGi and tools"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"This page is for readers who know **Java** but not the tools around OpenEMS: "
+"OSGi, bnd, Bndtools, Gradle, Maven. It explains what OpenEMS Edge is built "
+"on, which tools are involved and how they work together. Terms such as "
+"OpenEMS Component, Channel and Nature are defined in "
+"xref:coreconcepts.adoc[Core concepts & terminology]. Setting up the "
+"environment is described in the xref:development/overview.adoc[Developer "
+"Guide overview]."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "What the Edge is built on: OSGi"
+msgstr ""
+
+#. type: #sec-what-the-edge-is-built-on-osgi
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"A normal Java program has a `+main()+` method, and all classes share the "
+"classpath. The Edge is built differently: it is an **OSGi application**. "
+"OSGi is a standard for modular Java programs."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "The terms"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| OSGi term\n"
+"| Explained for Java developers\n"
+"\n"
+"| **Bundle**\n"
+"| A normal JAR file with additional entries in `+META-INF/MANIFEST.MF+`: name, version, which packages it makes available to others (`+Export-Package+`) and which it needs (`+Import-Package+`). Without an export, a package stays invisible to other bundles, even if it is `+public+`. Every directory `+io.openems.*+` in the repository becomes a bundle.\n"
+"| **Framework**\n"
+"| The program that loads, starts and stops bundles and creates a separate class loader for each bundle. OpenEMS uses **Apache Felix** (version 7.0.5). The `+main()+` method belongs to the framework, not to OpenEMS.\n"
+"| **Service**\n"
+"| An object that a bundle registers under an interface in a central directory (service registry). Other bundles obtain it via the interface without knowing the implementation. Example: a meter driver registers as `+ElectricityMeter+`; a Controller asks for “an `+ElectricityMeter+` with the ID meter0”.\n"
+"| **Declarative Services (DS)**\n"
+"| Instead of registering services by hand, you write annotations: `+@Component+` on the class, `+@Reference+` on fields to be filled with other services, `+@Activate+`/`+@Deactivate+` on start and stop methods. The DS runtime (Apache Felix SCR) creates the objects, wires them and removes them again when a dependency disappears. This is similar to dependency injection in Spring, but dynamic at runtime.\n"
+"| **Configuration Admin**\n"
+"| A service that stores configurations (lists of keys and values) and passes them to components. If you create a configuration, a component is created; if you change it, the component is reconfigured; if you delete it, the component disappears. The entire Edge is configured this way.\n"
+"| **Metatype**\n"
+"| Describes which fields a configuration has (name, type, default value, description). Input forms are generated from it automatically.\n"
+"| **Event Admin**\n"
+"| A simple message bus within the program. The Edge uses it to send the Cycle Events.\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Why OSGi?"
+msgstr ""
+
+#. type: #sec-why-osgi
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Device drivers, Controllers and interfaces are independent modules. A "
+"manufacturer's driver only knows the API (e.g. `+ElectricityMeter+`), not "
+"the other drivers."
+msgstr ""
+
+#. type: #sec-why-osgi
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Components can be created, changed and removed at runtime, without a "
+"restart. An energy management system needs this because the hardware differs "
+"from site to site."
+msgstr ""
+
+#. type: #sec-why-osgi
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"The same class can be instantiated any number of times (two meters of the "
+"same type = two configurations)."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Additional bundles at runtime"
+msgstr ""
+
+#. type: #sec-additional-bundles-at-runtime
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"In addition to the OpenEMS bundles, the Edge contains third-party bundles. "
+"The list is in `+io.openems.edge.application/EdgeApp.bndrun+`. In this "
+"version of the code there are 296 bundles, 53 of them not from OpenEMS. The "
+"most important:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| Bundle\n"
+"| Version\n"
+"| Purpose\n"
+"\n"
+"| `+org.apache.felix.framework+`\n"
+"| 7.0.5\n"
+"| the OSGi framework\n"
+"| `+org.apache.felix.scr+`\n"
+"| 2.2.18\n"
+"| Declarative Services (`+@Component+`, `+@Reference+`)\n"
+"| `+org.apache.felix.configadmin+`\n"
+"| 1.9.26\n"
+"| Configuration Admin, stores the configuration as files\n"
+"| `+org.apache.felix.metatype+`\n"
+"| 1.2.4\n"
+"| description of the configuration fields\n"
+"| `+org.apache.felix.eventadmin+`\n"
+"| 1.6.4\n"
+"| events, e.g. for the Cycle\n"
+"| `+org.apache.felix.fileinstall+`\n"
+"| 3.7.4\n"
+"| can load bundles and configurations from a directory\n"
+"| `+org.apache.felix.http.jetty12+`, `+…servlet-api+`\n"
+"| 2.0.8 / 6.1.0\n"
+"| embedded web server (Jetty) for Apache Felix Web Console and REST\n"
+"| `+org.apache.felix.webconsole+`, `+…plugins.ds+`, `+org.apache.felix.inventory+`\n"
+"| 5.0.18 / 2.3.0 / 2.0.0\n"
+"| Apache Felix Web Console: view and change bundles, components and configurations in the browser\n"
+"| `+org.ops4j.pax.logging.pax-logging-api+`, `+…-log4j2+`\n"
+"| 2.3.5\n"
+"| logging (SLF4J API, output via Log4j 2)\n"
+"| `+com.google.gson+`, `+com.google.guava+`\n"
+"| 2.15.0 / 33.7.2\n"
+"| JSON processing and helper classes; used in almost every OpenEMS bundle\n"
+"| `+com.fazecast.jSerialComm+`\n"
+"| 2.11.4\n"
+"| serial interfaces (RS485 for Modbus RTU)\n"
+"| `+bcprov+`, `+bcpkix+`, `+bcutil+`\n"
+"| 1.86.0\n"
+"| cryptography (Bouncy Castle)\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"You do not need to download these bundles yourself; the build fetches them "
+"automatically (see next section)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "The tools and how they work together"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| Tool\n"
+"| Needed?\n"
+"| What it does\n"
+"\n"
+"| **JDK 25**\n"
+"| yes\n"
+"| Java compiler and runtime. The code is compiled for Java 25 (`+cnf/build.bnd+`, `+gradle.properties+`).\n"
+"| **Git**\n"
+"| yes\n"
+"| Get the source code and manage changes.\n"
+"| **Gradle**\n"
+"| yes, included\n"
+"| The build tool: compiles, tests, checks the code style and packs the JAR. It does **not** need to be installed; the repository contains the Gradle wrapper `+./gradlew+` (Windows: `+gradlew.bat+`), which downloads the matching Gradle version (9.8.1) itself on first use.\n"
+"| **bnd**\n"
+"| yes, included\n"
+"| The OSGi tool library. It generates the OSGi manifests and component descriptions from the `+bnd.bnd+` files and annotations, resolves which bundles are needed at runtime and builds the executable JAR from them. bnd (version 7.4.0) is loaded automatically as a Gradle plugin.\n"
+"| **Bndtools**\n"
+"| only with Eclipse\n"
+"| An Eclipse plugin that integrates bnd into the IDE: import projects, edit `+EdgeApp.bndrun+` graphically, “Resolve” and “Run OSGi” at the push of a button, templates for new bundles.\n"
+"| **Maven**\n"
+"| no\n"
+"| Maven is **not** used as a build tool. There is, however, the file `+cnf/pom.xml+`: it lists all third-party libraries (around 115 entries) with their version. bnd reads it and downloads the libraries from **Maven Central**, the public library server. New third-party library = entry in `+cnf/pom.xml+`. The version updates in the repository (“Bump … in /cnf”) concern this file.\n"
+"| **Eclipse** or **IntelliJ IDEA**\n"
+"| recommended\n"
+"| IDE, see xref:development/ide/eclipse.adoc[Eclipse] and xref:development/ide/intellij.adoc[IntelliJ]. According to the xref:development/coding-guidelines.adoc[Coding Guidelines], Eclipse is the officially supported development environment.\n"
+"| **Node.js/npm**, **Angular CLI**\n"
+"| only for the UI\n"
+"| Build and start the UI, see xref:ui/setup-ide.adoc[Setup IDE].\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "From source code to the running Edge"
+msgstr ""
+
+#. type: #sec-from-source-code-to-the-running-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Workspace settings** are in `+cnf/+`: `+build.bnd+` (Java version, default "
+"libraries `+${buildpath}+`/`+${testpath}+`, library sources), `+pom.xml+` "
+"(third-party libraries), `+checkstyle.xml+` (code style rules), "
+"`+formatter.properties+` (Eclipse formatter)."
+msgstr ""
+
+#. type: #sec-from-source-code-to-the-running-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Each bundle** has a `+bnd.bnd+`. Under `+-buildpath+` it states which "
+"other bundles and libraries the code may use. What is missing there is not "
+"found by the compiler, even if it is in the repository."
+msgstr ""
+
+#. type: #sec-from-source-code-to-the-running-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Gradle** finds all directories with `+bnd.bnd+` via the bnd plugin and "
+"treats them as subprojects. When building, it compiles the code; bnd "
+"generates the manifest and puts the finished bundle under `+<bundle>/"
+"generated/+`."
+msgstr ""
+
+#. type: #sec-from-source-code-to-the-running-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**`+EdgeApp.bndrun+`** in the project `+io.openems.edge.application+` "
+"describes the executable program (structure see table below)."
+msgstr ""
+
+#. type: #sec-from-source-code-to-the-running-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**`+./gradlew buildEdge+`** packs all `+-runbundles+` together with the "
+"framework into an executable Fat-JAR and copies it to `+build/openems-"
+"edge.jar+`."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| Entry in `+EdgeApp.bndrun+`\n"
+"| Content\n"
+"\n"
+"| `+-runfw+`\n"
+"| the framework (Apache Felix)\n"
+"| `+-runproperties+`\n"
+"| start parameters: web server port 8080, configuration directory `+felix.cm.dir+`, data directory `+openems.data.dir+`\n"
+"| `+-runrequires+`\n"
+"| the desired bundles (around 200 entries, maintained by hand)\n"
+"| `+-runbundles+`\n"
+"| the complete list with all dependencies and fixed versions. It is **not written by hand**, but determined by bnd (“Resolve”).\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"The Developer Guide describes the setup: xref:development/"
+"overview.adoc[Overview], xref:development/ide/eclipse.adoc[Eclipse], "
+"xref:development/ide/intellij.adoc[IntelliJ]. How to start the Edge for the "
+"first time and create a first configuration is described in "
+"xref:gettingstarted.adoc[Getting Started]."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Gradle explicitly requires Java 25 for compiling via a toolchain. Gradle "
+"looks for an installed JDK 25; an automatic download is not set up in the "
+"repository. If only a different JDK is installed, Gradle can start with it, "
+"but aborts when compiling. Several JDKs side by side are not a problem."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "How the Edge is configured"
+msgstr ""
+
+#. type: #sec-how-the-edge-is-configured
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"The Edge has **no** configuration file in the sense of "
+"`+application.properties+`. Everything that makes up a system (which "
+"devices, which addresses, which control algorithms) is a list of **component "
+"configurations** in the Configuration Admin. The ways of changing it are "
+"described in xref:edge/configuration.adoc[Configuration]."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Structure of a configuration"
+msgstr ""
+
+#. type: #sec-structure-of-a-configuration
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Each Factory has a **Factory-PID**, e.g. `+Meter.Janitza.UMG96RME+` or "
+"`+Controller.Debug.Log+`. In the code it is in `+@Component(name = …)+`."
+msgstr ""
+
+#. type: #sec-structure-of-a-configuration
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"An Instance has a **Component-ID** (field `+id+`, e.g. `+meter0+`) and "
+"further fields from the respective `+Config+` class (e.g. `+modbus.id+`, "
+"`+modbusUnitId+`, `+type+`)."
+msgstr ""
+
+#. type: #sec-structure-of-a-configuration
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Components refer to each other via IDs: the meter names its Modbus Bridge "
+"(`+modbus.id=modbus0+`), the Controller its ESS and meter."
+msgstr ""
+
+#. type: #sec-structure-of-a-configuration
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Some core components exist exactly once, with a fixed ID: `+_cycle+` (cycle "
+"time), `+_power+` (ESS Power), `+_meta+`, `+_sum+` etc."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Where the configuration is stored"
+msgstr ""
+
+#. type: #sec-where-the-configuration-is-stored
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"The Configuration Admin stores each configuration as a text file in the "
+"directory `+felix.cm.dir+`. The dots of the PID become subfolders (e.g. "
+"`+org/apache/felix/http.config+` for the PID `+org.apache.felix.http+`); "
+"values are stored as `+key=\"value\"+`, with a type identifier for non-text "
+"values. This behavior comes from Apache Felix and is not specific to OpenEMS."
+msgstr ""
+
+#. type: #sec-where-the-configuration-is-stored
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Default according to `+EdgeApp.bndrun+`: `+c:/openems/config+`. On macOS/"
+"Linux this creates a folder named `+c:+` in the working directory (for "
+"`+io.openems.edge.application+` it is in `+.gitignore+`). It is better to "
+"set `+-Dfelix.cm.dir=…+` at startup."
+msgstr ""
+
+#. type: #sec-where-the-configuration-is-stored
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"On a device following xref:edge/deploy/systemd.adoc[Deploy on Debian/"
+"Ubuntu]: `+/etc/openems.d+`, JAR in `+/usr/lib/openems+`."
+msgstr ""
+
+#. type: #sec-where-the-configuration-is-stored
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Data of the components (e.g. the local rrd4j history) is stored under "
+"`+openems.data.dir+`."
+msgstr ""
+
+#. type: #sec-where-the-configuration-is-stored
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"For an empty test environment, it is enough to delete the folder before "
+"starting."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Creating a new bundle"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "With Bndtools templates"
+msgstr ""
+
+#. type: #sec-with-bndtools-templates
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"OpenEMS provides project templates for Bndtools (defined in "
+"`+io.openems.common/bnd.bnd+`, files under `+io.openems.common/resources/"
+"templates+`):"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| Template\n"
+"| Result\n"
+"\n"
+"| OpenEMS Controller\n"
+"| Controller with `+Config+`, `+…Impl+`, test\n"
+"| OpenEMS Device\n"
+"| device without a specific protocol\n"
+"| OpenEMS Modbus Device\n"
+"| device with Modbus connection\n"
+"| OpenEMS Api\n"
+"| API bundle with its own Nature\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"xref:edge/implement.adoc[Implementing a Device] shows the steps in Eclipse. "
+"Without Eclipse, the easiest way is to copy a similar existing bundle and "
+"rename the package, classes and Factory-PID."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Adding the bundle to the Edge"
+msgstr ""
+
+#. type: #sec-adding-the-bundle-to-the-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid "A new bundle is built, but is **not yet** part of the Edge. To add it:"
+msgstr ""
+
+#. type: #sec-adding-the-bundle-to-the-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Enter it in `+EdgeApp.bndrun+` under `+-runrequires+` "
+"(`+bnd.identity;id='io.openems.edge.…'+`). In Bndtools: drag the bundle from "
+"the __Repositories__ list to __Run Requirements__ and save."
+msgstr ""
+
+#. type: #sec-adding-the-bundle-to-the-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"Run **Resolve** so that bnd recalculates the list `+-runbundles+`: in "
+"Bndtools with the __Resolve__ button (adopt the result with __Update__), on "
+"the command line with `+./"
+"gradlew :io.openems.edge.application:resolve.EdgeApp+`."
+msgstr ""
+
+#. type: #sec-adding-the-bundle-to-the-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid "Commit both changes to `+EdgeApp.bndrun+`."
+msgstr ""
+
+#. type: #sec-adding-the-bundle-to-the-edge
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"If a bundle is only entered in `+-runrequires+` and not resolved, it is "
+"missing from the JAR. If Resolve reports an error, a dependency is usually "
+"missing: a package that no bundle exports, or a third-party library that is "
+"not in `+cnf/pom.xml+`."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Typical pitfalls"
+msgstr ""
+
+#. type: #sec-typical-pitfalls
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Class not found when compiling**, even though it is in the repository: the "
+"bundle is missing from the `+-buildpath+` of your own `+bnd.bnd+`."
+msgstr ""
+
+#. type: #sec-typical-pitfalls
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Package not found at runtime**: the other bundle does not export the "
+"package. In OpenEMS, packages are usually exported via `+package-info.java+` "
+"with `+@org.osgi.annotation.versioning.Version+` and `+@Export+`."
+msgstr ""
+
+#. type: #sec-typical-pitfalls
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Component does not start**, even though it is configured: a mandatory "
+"reference (`+@Reference+` with `+MANDATORY+`) is not satisfied, e.g. wrong "
+"ID in `+ess.id+`. In the Apache Felix Web Console under __OSGi → "
+"Components__ you can see which reference is missing."
+msgstr ""
+
+#. type: #sec-typical-pitfalls
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**New component missing in the Apache Felix Web Console**: bundle not "
+"entered in `+EdgeApp.bndrun+` or not resolved again."
+msgstr ""
+
+#. type: #sec-typical-pitfalls
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Gradle aborts with a toolchain error**: JDK 25 is missing (see <<sec-"
+"setup,Setup>>)."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Eclipse after a git pull"
+msgstr ""
+
+#. type: #sec-eclipse-after-a-git-pull
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"A `+git pull+` changes the folders in the repository, but not the project "
+"list in Eclipse. Bundles that are added or removed must be updated in "
+"Eclipse by hand."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid ""
+"| Message in Eclipse\n"
+"| Cause\n"
+"| Remedy\n"
+"\n"
+"| “Project 'io.openems.edge.core' is missing required Java project: 'io.openems.common.tariff.api'”, followed by hundreds of consequential errors (“… cannot be resolved to a type”, also for `+org.osgi+` and `+org.junit+`)\n"
+"| A bundle from the `+-buildpath+` is in the repository, but not imported into Eclipse.\n"
+"| __File → Import → General → Existing Projects into Workspace__, select the repository as root, tick all projects that are not grayed out, do **not** tick “Copy projects into workspace”.\n"
+"| “The project does not have a bnd.bnd file” and almost everywhere “The container 'Bnd Bundle Path' references non existing library '…/generated/….jar'”\n"
+"| Eclipse still has a project whose `+bnd.bnd+` no longer exists (e.g. a removed bundle whose `+bin+` and `+generated+` folders were left behind). In one observed case, Bndtools built no JARs while it was in the workspace, not even for `+io.openems.wrapper+` and `+io.openems.common+`.\n"
+"| Delete the project in Eclipse (right-click → __Delete__, do **not** tick “Delete project contents on disk”). In that case, the workspace built again afterwards.\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"To check: every folder with `+bnd.bnd+` in the repository must exist as a "
+"project in Eclipse, plus `+cnf+`. Conversely, every Eclipse project except "
+"`+cnf+` needs a `+bnd.bnd+`."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid "Further notes:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Do not build with Gradle and Eclipse at the same time.** Both write to the "
+"same `+generated/+` folders. If you call `+./gradlew+` in between, select "
+"all projects in Eclipse afterwards and refresh them with F5."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Wait after “Clean all”.** Clean deletes all generated JARs. While around "
+"250 projects are rebuilt, the Problems view temporarily shows many errors. "
+"Only evaluate them after the build has finished (__Window → Show View → "
+"Progress__)."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"**Reading the error list:** The entries of type “Build Path Problem” and "
+"“Bndtools …” are important. The many “cannot be resolved” errors are almost "
+"always consequential errors."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#, no-wrap
+msgid "Read on"
+msgstr ""
+
+#. type: #sec-read-on
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"xref:development/fundamentals/cycle-and-ess-power.adoc[Cycle, Scheduler and "
+"ESS Power]: what happens every second"
+msgstr ""
+
+#. type: #sec-read-on
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"xref:edge/implement.adoc[Implementing a Device]: step-by-step example with a "
+"simulated meter"
+msgstr ""

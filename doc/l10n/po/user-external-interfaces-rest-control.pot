@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
 #: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
 #: modules/ROOT/pages/user/data/history-rrd4j.adoc
 #: modules/ROOT/pages/user/devices/controllable-inverters.adoc
@@ -33,6 +38,7 @@ msgid ""
 msgstr ""
 
 #. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
 #: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
 #: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
 #: modules/ROOT/pages/user/external-interfaces/websocket.adoc

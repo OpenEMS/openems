@@ -1,0 +1,171 @@
+= Component tests
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+xref:edge/implement.adoc[Implementing a Device] shows a first JUnit test. This page describes the test framework in more detail. Components are tested without running OSGi. The test framework in `+io.openems.edge.common+` (package `+io.openems.edge.common.test+`) creates the component, sets references by hand, activates it with a test configuration and replays Cycles.
+
+[#sec-running]
+== Running
+
+[source]
+----
+./gradlew :io.openems.edge.controller.ess.balancing:test
+----
+
+`+${testpath}+` (`+cnf/build.bnd+`) contains JUnit Jupiter and the Vintage engine; both styles run. Rule from `+CLAUDE.md+`: keep the existing style in existing files (many still use JUnit 4 with `+org.junit.Test+`), write new test classes with Jupiter only if the bundle already uses Jupiter, and never mix both in one file.
+
+[#sec-structure-of-a-test]
+== Structure of a test
+
+Example from `+BalancingImplTest+`:
+
+[source]
+----
+new ControllerTest(new ControllerEssBalancingImpl())
+        .addReference("ess", new DummyManagedSymmetricEss("ess0")
+                .setPower(new DummyPower(0.3, 0.3, 0.1)))
+        .addReference("meter", new DummyElectricityMeter("meter0"))
+        .activate(MyConfig.create()
+                .setId("ctrl0")
+                .setEssId("ess0")
+                .setMeterId("meter0")
+                .setTargetGridSetpoint(0)
+                .build())
+        .next(new TestCase()
+                .input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0)
+                .input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)
+                .output("ess0", SET_ACTIVE_POWER_EQUALS, 6000))
+        .next(new TestCase()
+                .input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0)
+                .input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)
+                .output("ess0", SET_ACTIVE_POWER_EQUALS, 12000));
+----
+
+[cols="2*",options="header"]
+|===
+| Step
+| Meaning
+
+| `+new ComponentTest(sut)+` / `+new ControllerTest(sut)+`
+| framework around the component under test (`+sut+`). `+ControllerTest+` additionally calls `+run()+` in the Controller step.
+| `+addReference("field", object)+`
+| sets a `+@Reference+` field via reflection. The name is the field name or, for setter references, the method name (e.g. `+"setModbus"+`).
+| `+addComponent(object)+`
+| registers another component without assigning it to a field; if a `+DummyComponentManager+` is set as a reference, it is also entered there
+| `+activate(config)+`
+| calls the `+@Activate+` method with the test configuration; if `+activate()+` changes the configuration (e.g. reference filter), the component is deactivated and reactivated as in OSGi
+| `+next(testCase)+`
+| runs through one Cycle; `+next(testCase, n)+` repeats it n times
+| `+deactivate()+`
+| calls `+@Deactivate+`
+|===
+
+In the example, the setpoint rises from Cycle to Cycle (6000, 12000 …) because the setpoint is set “with filter” and the PID filter of `+DummyPower(0.3, 0.3, 0.1)+` takes effect (p, i, d).
+
+[#sec-sequence-of-next]
+== Sequence of `+next()+`
+
+The order corresponds to the real Cycle (see xref:development/fundamentals/cycle-and-ess-power.adoc[Cycle]):
+
+. Apply time leap (`+timeleap+`)
+. Event BEFORE_PROCESS_IMAGE, then switch the Process Image of the component under test
+. **Set inputs**: the values from `+input(…)+` are set and immediately adopted into the Process Image. They are thus already visible via `+value()+` in the same test Cycle.
+. Events AFTER_PROCESS_IMAGE, BEFORE_CONTROLLERS, execute Controllers, AFTER_CONTROLLERS, BEFORE_WRITE, EXECUTE_WRITE, AFTER_WRITE
+. **Check outputs**
+
+How `+output(…)+` checks:
+
+* for write-channels the **next write value** (`+getNextWriteValueAndReset()+`),
+* for other Channels the **next value** (`+getNextValue()+`), i.e. the value that the component set in this Cycle,
+* `+outputReadValue(…)+` instead checks `+value()+` from the current Process Image.
+
+For your own checks, there are callbacks per phase, e.g. `+onBeforeProcessImage(…)+`, `+onAfterControllers…+`, `+onAfterWrite…+`.
+
+[#sec-controlling-time]
+== Controlling time
+
+Components that work with time get the clock via `+componentManager.getClock()+`. In the test:
+
+[source]
+----
+final var clock = createDummyClock();     // TimeLeapClock, start 2020-01-01 00:00 UTC
+new ControllerTest(new MyControllerImpl())
+        .addReference("componentManager", new DummyComponentManager(clock))
+        ...
+        .next(new TestCase()
+                .timeleap(clock, 15, ChronoUnit.MINUTES)
+                .output(...));
+----
+
+`+createDummyClock()+` is in `+io.openems.common.test.TestUtils+`. This allows delays, day changes or quarter-hour grids, for example, to be tested without waiting.
+
+[#sec-strict-mode]
+== Strict mode
+
+`+new TestCase().activateStrictMode()+` requires that all Channels of the tested component appear in inputs or outputs. Channels that you deliberately do not check are excluded with `+withIgnoredChannelsForStrictMode(…)+`. This finds forgotten or unexpectedly set Channels.
+
+[#sec-dummy-components]
+== Dummy components
+
+[cols="3*",options="header"]
+|===
+| Class
+| Bundle (package `+…test+`)
+| Purpose
+
+| `+DummyManagedSymmetricEss+`, `+DummySymmetricEss+`, `+DummyHybridEss+`, `+DummyMetaEss+`
+| `+io.openems.edge.ess.api+`
+| ESS
+| `+DummyPower+`
+| `+io.openems.edge.ess.api+`
+| ESS Power, optionally with PID parameters or maximum power
+| `+DummyElectricityMeter+`, `+DummySinglePhaseElectricityMeter+`
+| `+io.openems.edge.meter.api+`
+| meters
+| `+DummyComponentManager+`, `+DummyCycle+`, `+DummyMeta+`, `+DummyEventAdmin+`
+| `+io.openems.edge.common+`
+| core services
+| `+DummyConfigurationAdmin+`, `+TimeLeapClock+`
+| `+io.openems.common+`
+| Configuration Admin, controllable clock
+| `+DummyModbusBridge+`
+| `+io.openems.edge.bridge.modbus+`
+| Modbus Bridge with predefined registers
+| `+DummyScheduler+`
+| `+io.openems.edge.scheduler.api+`
+| Scheduler
+|===
+
+The dummy classes are in the `+src+` folder of the API bundles (package `+…test+`) so that other bundles can use them in tests. The API bundle must be in the `+-buildpath+` or `+-testpath+` for this.
+
+[#sec-testing-modbus-drivers]
+== Testing Modbus drivers
+
+[source]
+----
+new ComponentTest(new MeterJanitzaUmg96rmeImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0")
+                .withRegisters(19000,
+                        0x3F80, 0x0000,      // VOLTAGE_L1 = 1.0f
+                        0x3F80, 0x0000,      // VOLTAGE_L2
+                        ...))
+        .activate(MyConfig.create()
+                .setId("meter0")
+                .setModbusId("modbus0")
+                .setType(GRID)
+                .build())
+        .next(new TestCase()
+                .output(ElectricityMeter.ChannelId.VOLTAGE_L1, 1000));
+----
+
+`+DummyModbusBridge+` offers, among others, `+withRegister(address, value)+`, `+withRegisters(start, values…)+`, `+withRegistersFloat32(start, floats…)+` and `+withInputRegister(s)+` for FC4. This allows register assignment, word order and converters to be checked without a device.
+
+[#sec-myconfig]
+== MyConfig
+
+Each test has a class `+MyConfig extends AbstractComponentConfig implements Config+` with a builder. It implements all methods of the Config annotation and returns the values from the builder. `+AbstractComponentConfig+` (`+io.openems.common.test+`) provides the property structure that `+activate()+` expects. New Config fields must also be added to `+MyConfig+`, otherwise the test cannot be compiled.

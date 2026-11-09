@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,14 +15,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. type: Title =
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:1
-#, no-wrap
-msgid "OpenEMS: Production, consumption, grid and storage"
-msgstr "OpenEMS: Erzeugung, Verbrauch, Netz und Speicher"
-
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:9
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
 msgid ""
 "__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
 "version, branch develop)__"
@@ -30,8 +39,14 @@ msgstr ""
 "__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
 "Branch develop)__"
 
+#. type: Title =
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#, no-wrap
+msgid "OpenEMS: Production, consumption, grid and storage"
+msgstr "OpenEMS: Erzeugung, Verbrauch, Netz und Speicher"
+
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:11
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "This page explains the basic terms that appear everywhere in the web "
 "interface and in the history, and where the values come from: **What is "
@@ -44,13 +59,13 @@ msgstr ""
 "erscheinen."
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:13
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "The basic terms"
 msgstr "Die Grundbegriffe"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:34
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Term\n"
@@ -90,13 +105,13 @@ msgstr ""
 "| Füllstand des Hausspeichers in Prozent.\n"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:37
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Power and energy"
 msgstr "Leistung und Energie"
 
 #. type: #sec-power-and-energy
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:40
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Power** (watts, W / kW) is the instantaneous value: “3 kW are flowing "
 "right now”."
@@ -105,7 +120,7 @@ msgstr ""
 "kW“."
 
 #. type: #sec-power-and-energy
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:41
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Energy** (watt hours, Wh / kWh) is the amount over a period of time: “12 "
 "kWh were purchased today”."
@@ -114,7 +129,7 @@ msgstr ""
 "wurden 12 kWh bezogen“."
 
 #. type: #sec-power-and-energy
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:43
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "OpenEMS stores energy as a running **meter reading**, like the electricity "
 "meter in the basement. The energy of a day is the difference between the "
@@ -125,18 +140,18 @@ msgstr ""
 "Zählerstände (siehe xref:user/data/history-rrd4j.adoc[Historie])."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:45
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Signs"
 msgstr "Vorzeichen"
 
 #. type: #sec-signs
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:48
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "Some values have a sign that indicates the direction:"
 msgstr "Einige Werte haben ein Vorzeichen, das die Richtung angibt:"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:64
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Value\n"
@@ -168,37 +183,37 @@ msgstr ""
 "| –\n"
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:67
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "The energy balance"
 msgstr "Die Energiebilanz"
 
 #. type: #sec-the-energy-balance
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:70
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Everything that comes into the house must also go somewhere. This results in:"
 msgstr ""
 "Alles, was ins Haus hineinkommt, muss auch irgendwo hin. Daraus ergibt sich:"
 
 #. type: delimited block -
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:74
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Consumption = production + grid purchase − grid feed-in + discharging − charging\n"
 msgstr "Verbrauch = Erzeugung + Netzbezug − Netzeinspeisung + Entladung − Beladung\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:77
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "or with signs:"
 msgstr "oder mit Vorzeichen:"
 
 #. type: delimited block -
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:81
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Consumption = production + grid power + storage power\n"
 msgstr "Verbrauch = Erzeugung + Netzleistung + Speicherleistung\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:84
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Example: PV delivers 5 kW, the storage charges with 2 kW (−2 kW), 1 kW goes "
 "into the grid (−1 kW). Consumption = 5 − 1 − 2 = 2 kW."
@@ -207,24 +222,24 @@ msgstr ""
 "gehen 1 kW (−1 kW). Verbrauch = 5 − 1 − 2 = 2 kW."
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:86
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Where the values come from"
 msgstr "Woher die Werte kommen"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:89
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "What is measured"
 msgstr "Was gemessen wird"
 
 #. type: #sec-what-is-measured
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:92
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "Measurements are only taken at a few points:"
 msgstr "Gemessen wird nur an wenigen Stellen:"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:108
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Measuring point\n"
@@ -256,7 +271,7 @@ msgstr ""
 "| Leistung und Energie dieser einzelnen Verbraucher\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:111
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Important:** Whether a device measures its meter readings (energy) itself "
 "or whether OpenEMS calculates them from the power depends on the device or "
@@ -272,13 +287,13 @@ msgstr ""
 "rrd4j.adoc[Historie])."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:113
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "What is never measured: consumption"
 msgstr "Was nie gemessen wird: der Verbrauch"
 
 #. type: #sec-what-is-never-measured-consumption
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:116
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**The total consumption of the house is not measured in OpenEMS, but always "
 "calculated**, according to the energy balance above:"
@@ -287,13 +302,13 @@ msgstr ""
 "immer berechnet**, nach der Energiebilanz oben:"
 
 #. type: delimited block -
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:120
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Consumption = grid power + AC production + AC power of the storage system\n"
 msgstr "Verbrauch = Netzleistung + AC-Erzeugung + AC-Leistung des Speichersystems\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:123
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Even an existing consumption meter is currently not used for this total."
 msgstr ""
@@ -301,7 +316,7 @@ msgstr ""
 "verwendet."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:125
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "It follows that: **Any measurement error in grid, production or storage ends "
 "up in consumption.** If, for example, a production meter is missing in the "
@@ -314,13 +329,13 @@ msgstr ""
 "Extremfall sogar negativ."
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:127
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "The total values (_sum)"
 msgstr "Die Summenwerte (_sum)"
 
 #. type: #sec-the-total-values-sum
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:130
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "OpenEMS combines the values of all devices in the component `+_sum+`. The "
 "web interface displays these values and they are stored in the history. They "
@@ -331,12 +346,12 @@ msgstr ""
 "gespeichert. Jede Sekunde wird neu gerechnet."
 
 #. type: #sec-the-total-values-sum
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:132
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "Explanation of the origin:"
 msgstr "Erklärung der Herkunft:"
 
 #. type: #sec-the-total-values-sum
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:134
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Sum of the devices:** The values of all matching devices are added up. The "
 "measurement therefore takes place in the device; OpenEMS only adds."
@@ -345,7 +360,7 @@ msgstr ""
 "Gemessen wird also im Gerät; OpenEMS addiert nur."
 
 #. type: #sec-the-total-values-sum
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:135
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Calculated:** The value is only created in `+_sum+` from other values. No "
 "device measures it."
@@ -354,13 +369,13 @@ msgstr ""
 "Gerät misst ihn."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:137
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Power values"
 msgstr "Leistungen"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:178
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Channel\n"
@@ -440,13 +455,13 @@ msgstr ""
 "| Summe der entsprechenden Zähler\n"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:181
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Energy flows (“where does the electricity go?”)"
 msgstr "Energieflüsse („wohin geht der Strom?“)"
 
 #. type: #sec-energy-flows-where-does-the-electricity-go
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:184
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "For the energy flow chart, OpenEMS divides the power values: how much solar "
 "power goes into the house, how much into the storage, how much into the "
@@ -458,7 +473,7 @@ msgstr ""
 "**Diese Werte sind vollständig berechnet**, es gibt dafür keine Messung."
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:202
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Channel\n"
@@ -494,22 +509,22 @@ msgstr ""
 "| Netz → Speicher ({plus}) bzw. Speicher → Netz (−)\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:205
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "The division follows fixed rules:"
 msgstr "Die Aufteilung folgt festen Regeln:"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:207
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "If the storage is discharging, it supplies the house first."
 msgstr "Entlädt der Speicher, versorgt er zuerst das Haus."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:208
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "If the storage is charging, the charge comes from production first."
 msgstr "Lädt der Speicher, kommt die Ladung zuerst aus der Erzeugung."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:209
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "The remaining production supplies the house; whatever is left goes into the "
 "grid."
@@ -518,25 +533,25 @@ msgstr ""
 "Netz."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:210
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "The grid covers the rest of the consumption."
 msgstr "Den Rest des Verbrauchs deckt das Netz."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:211
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "Any grid power still remaining is counted as grid ↔ storage."
 msgstr ""
 "Was dann noch an Netzleistung übrig bleibt, wird als Netz ↔ Speicher "
 "gewertet."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:213
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Energy values (meter readings)"
 msgstr "Energien (Zählerstände)"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:248
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Channel\n"
@@ -604,7 +619,7 @@ msgstr ""
 "| **berechnet:** von OpenEMS aus den berechneten Flussleistungen hochgezählt\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:251
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Note: For grid meters, the purchase is internally called “ProductionEnergy” "
 "in OpenEMS and the feed-in “ConsumptionEnergy”, from the meter's point of "
@@ -615,13 +630,13 @@ msgstr ""
 "Zählers. In `+_sum+` sind die Namen eindeutig (Buy/Sell)."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:253
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Other values"
 msgstr "Sonstige Werte"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:273
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Channel\n"
@@ -659,13 +674,13 @@ msgstr ""
 "| berechnet\n"
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:276
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "When consumption can become negative"
 msgstr "Wann der Verbrauch negativ werden kann"
 
 #. type: #sec-when-consumption-can-become-negative
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:279
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Physically, a house cannot have negative consumption. However, because "
 "consumption is **calculated** (grid {plus} AC production {plus} AC storage "
@@ -678,7 +693,7 @@ msgstr ""
 "fehlt, zu klein oder mit falschem Vorzeichen eingeht. Typische Fälle:"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:307
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Case\n"
@@ -734,7 +749,7 @@ msgstr ""
 "| Verbrauch um diesen Betrag falsch\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:310
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Negative consumption energy** in the history is also possible. In this "
 "case, a meter reading of grid, production or storage has usually jumped "
@@ -745,7 +760,7 @@ msgstr ""
 "B. nach einem Neustart (siehe xref:user/data/history-rrd4j.adoc[Historie])."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:312
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Procedure for negative consumption:** Look at grid power, production and "
 "storage power individually. Does each value on its own match reality, e.g. "
@@ -760,19 +775,19 @@ msgstr ""
 "Stromwandler."
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:314
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Cascaded meters"
 msgstr "Kaskadierte Zähler"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:317
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "What does “cascaded” mean?"
 msgstr "Was bedeutet „kaskadiert“?"
 
 #. type: #sec-what-does-cascaded-mean
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:320
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Meters are **cascaded** (connected in series) if one meter is located behind "
 "another in the electrical circuit. The front meter then **also** measures "
@@ -783,7 +798,7 @@ msgstr ""
 "Strom, der durch den hinteren fließt, **mit**."
 
 #. type: delimited block -
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:325
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "Grid ── Meter A ──┬── House consumption\n"
@@ -793,7 +808,7 @@ msgstr ""
 "                   └── Zähler B ── PV-Anlage 2\n"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:328
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Meter A measures everything that flows through it, including the share of "
 "meter B. Meter B only measures its branch."
@@ -802,17 +817,17 @@ msgstr ""
 "B. Zähler B misst nur seinen Zweig."
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:330
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "Typical examples:"
 msgstr "Typische Beispiele:"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:332
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid "a **sub-meter** in a sub-distribution board behind the grid meter,"
 msgstr "ein **Unterzähler** in einer Unterverteilung hinter dem Netzzähler,"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:333
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "two PV systems whose **production meters** are in series (e.g. PV 2 is "
 "connected via the line of PV 1),"
@@ -821,7 +836,7 @@ msgstr ""
 "2 ist über die Leitung von PV 1 angeschlossen),"
 
 #. type: Plain text
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:334
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "a PV inverter that is connected to OpenEMS **itself** and is additionally "
 "measured via its own **production meter**."
@@ -830,13 +845,13 @@ msgstr ""
 "zusätzlich über einen eigenen **Erzeugungszähler** gemessen wird."
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:336
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "How OpenEMS adds up"
 msgstr "Wie OpenEMS summiert"
 
 #. type: #sec-how-openems-adds-up
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:339
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "OpenEMS does not know how the meters are wired. It simply adds up **all "
 "meters of one type**:"
@@ -845,7 +860,7 @@ msgstr ""
 "Zähler einer Art**:"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:355
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Meter type (setting “Type”)\n"
@@ -877,13 +892,13 @@ msgstr ""
 "| **gar nicht** (derzeit nicht in der Summe berücksichtigt)\n"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:358
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "Effect on the total values"
 msgstr "Auswirkung auf die Gesamtwerte"
 
 #. type: #sec-effect-on-the-total-values
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:361
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "If two meters **of the same type** are cascaded, the shared portion is "
 "**counted twice**:"
@@ -892,7 +907,7 @@ msgstr ""
 "**doppelt gezählt**:"
 
 #. type: Table
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:375
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid ""
 "| Situation\n"
@@ -920,13 +935,13 @@ msgstr ""
 "| kein Problem für die Gesamtwerte; er wird nur vom Verbrauch abgezogen, um den Verbrauch ohne Wallbox zu bestimmen\n"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:378
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 #, no-wrap
 msgid "How to avoid double counting"
 msgstr "So vermeidet man Doppelzählung"
 
 #. type: #sec-how-to-avoid-double-counting
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:381
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Set **only one meter per energy flow** as grid or production. Set other "
 "meters in the same branch as consumers (then they do not count) or omit them "
@@ -937,7 +952,7 @@ msgstr ""
 "nicht mit) oder in OpenEMS weglassen."
 
 #. type: #sec-how-to-avoid-double-counting
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:382
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "A PV inverter that is directly connected does not need an additional "
 "production meter, or vice versa."
@@ -946,7 +961,7 @@ msgstr ""
 "zusätzlichen Erzeugungszähler, oder umgekehrt."
 
 #. type: #sec-how-to-avoid-double-counting
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:383
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Use **virtual meters**: With a “subtracting virtual meter” "
 "(`+Meter.Virtual.Subtract+`) a branch can be calculated out, e.g. “meter A "
@@ -970,7 +985,7 @@ msgstr ""
 "doppelt gezählt."
 
 #. type: #sec-how-to-avoid-double-counting
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:384
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "Likewise, **storage clusters** (several storage systems combined into one) "
 "are not counted additionally. Only the individual storage systems are "
@@ -981,7 +996,7 @@ msgstr ""
 "einzelnen Speicher ein."
 
 #. type: #sec-how-to-avoid-double-counting
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:386
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Check:** Compare the production displayed by OpenEMS with the display of "
 "the inverter or production meter. If it is significantly higher, go through "
@@ -998,13 +1013,23 @@ msgstr ""
 "wenn doppelt gezählt wird."
 
 #. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:388
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
 #, no-wrap
 msgid "Good to know"
 msgstr "Gut zu wissen"
 
 #. type: #sec-good-to-know
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:391
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Consumption and energy flows are calculation results.** If they seem "
 "implausible, the cause is almost always in the grid, production or storage "
@@ -1015,7 +1040,7 @@ msgstr ""
 "Speicherwerten oder bei einer fehlenden bzw. falsch eingestellten Messstelle."
 
 #. type: #sec-good-to-know
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:392
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**The total meter readings should only rise.** At startup, OpenEMS adopts "
 "the last stored reading. If a device meter jumps back (e.g. after a "
@@ -1029,7 +1054,7 @@ msgstr ""
 "rrd4j.adoc[Historie])."
 
 #. type: #sec-good-to-know
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:393
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**The seven energy flow meters** are counted up exclusively by OpenEMS. If "
 "OpenEMS is not running, this energy is completely missing there. The grid, "
@@ -1042,7 +1067,7 @@ msgstr ""
 "eigene Zählerstände liefern."
 
 #. type: #sec-good-to-know
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:394
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Excluding devices from the total:** Some devices have a setting that "
 "prevents them from being included in `+_sum+`, e.g. a meter whose power is "
@@ -1054,7 +1079,7 @@ msgstr ""
 "gezählt."
 
 #. type: #sec-good-to-know
-#: modules/ROOT/pages/user/basics/energy-flows.adoc:394
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
 msgid ""
 "**Querying values yourself:** All channels mentioned here can be read via "
 "xref:user/external-interfaces/rest-control.adoc[REST], for example `+_sum/"

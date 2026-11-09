@@ -1,0 +1,1204 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title =
+#: modules/ROOT/pages/development/implementing/apps.adoc:1
+#, no-wrap
+msgid "Apps for the App Center"
+msgstr "OpenEMS-Entwicklung: Apps für das App Center"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:9
+msgid ""
+"__As of: 2026-11-04 · OpenEMS version 2026.12.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 04.11.2026 · OpenEMS-Version 2026.12.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:11
+msgid ""
+"An app is the guided setup of a function in the App Center. It shows a form, "
+"creates components from the inputs and enters Controllers in the Scheduler. "
+"The control logic itself is not in the app, but in the component it creates "
+"(see xref:development/implementing/controller.adoc[Implementing a "
+"Controller]). `+FixActivePower+` (small, one Controller), "
+"`+AppWeatherPrediction+` (checks before installation) and `+AppHeatMyPv+` "
+"(number fields) serve as templates."
+msgstr ""
+"Eine App ist die geführte Einrichtung einer Funktion im App Center. Sie "
+"zeigt ein Formular, legt aus den Eingaben Komponenten an und trägt "
+"Controller in den Scheduler ein. Die Regel-Logik selbst steckt nicht in der "
+"App, sondern in der Komponente, die sie anlegt (siehe xref:development/"
+"implementing/controller.adoc[Eigene Komponente oder Controller]). Als "
+"Vorlagen dienen `+FixActivePower+` (klein, ein Controller), "
+"`+AppWeatherPrediction+` (Prüfungen vor der Installation) und "
+"`+AppHeatMyPv+` (Zahlenfelder)."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:13
+#, no-wrap
+msgid "Where apps are located"
+msgstr "Wo Apps liegen"
+
+#. type: #sec-where-apps-are-located
+#: modules/ROOT/pages/development/implementing/apps.adoc:16
+msgid ""
+"Apps are OSGi components in the bundle `+io.openems.edge.core+`, source code "
+"under `+src/io/openems/edge/app/<area>/+`. The framework is in "
+"`+io.openems.edge.core.appmanager+`."
+msgstr ""
+"Apps sind OSGi-Komponenten im Bundle `+io.openems.edge.core+`, Quellcode "
+"unter `+src/io/openems/edge/app/<Bereich>/+`. Der Rahmen liegt in "
+"`+io.openems.edge.core.appmanager+`."
+
+#. type: #sec-where-apps-are-located
+#: modules/ROOT/pages/development/implementing/apps.adoc:18
+msgid ""
+"**UI:** The form comes as a JSON description from the Edge "
+"(`+getAppAssistant+`). For a new app, nothing needs to be changed in `+ui/+` "
+"and no new UI build is necessary."
+msgstr ""
+"**Oberfläche:** Das Formular kommt als JSON-Beschreibung von der Edge "
+"(`+getAppAssistant+`). Für eine neue App ist in `+ui/+` nichts zu ändern und "
+"kein neuer UI-Build nötig."
+
+#. type: #sec-where-apps-are-located
+#: modules/ROOT/pages/development/implementing/apps.adoc:19
+msgid ""
+"**No separate bundle:** The core bundle only releases the package "
+"`+io.openems.edge.core.price+` (`+Export-Package+` in the manifest). Another "
+"bundle therefore cannot import the classes under `+appmanager+`. A new app "
+"therefore means a new Edge JAR; it cannot be installed individually, for "
+"example via FileInstall."
+msgstr ""
+"**Kein eigenes Bundle:** Das Core-Bundle gibt nur das Paket "
+"`+io.openems.edge.core.price+` frei (`+Export-Package+` im Manifest). Die "
+"Klassen unter `+appmanager+` kann ein anderes Bundle deshalb nicht "
+"importieren. Eine neue App bedeutet also ein neues Edge-JAR; sie lässt sich "
+"nicht einzeln nachinstallieren, etwa über FileInstall."
+
+#. type: #sec-where-apps-are-located
+#: modules/ROOT/pages/development/implementing/apps.adoc:20
+msgid ""
+"**No registration:** The `+AppManagerImpl+` dynamically binds all OSGi "
+"services of type `+OpenemsApp+` (`+bindApp+`). There is no app list."
+msgstr ""
+"**Keine Registrierung:** Der `+AppManagerImpl+` bindet alle OSGi-Dienste vom "
+"Typ `+OpenemsApp+` dynamisch (`+bindApp+`). Eine App-Liste gibt es nicht."
+
+#. type: #sec-where-apps-are-located
+#: modules/ROOT/pages/development/implementing/apps.adoc:21
+msgid ""
+"**Component:** The app only names the component as text via its Factory-ID. "
+"The bundle of the component must also be in `+EdgeApp.bndrun+`, otherwise it "
+"is missing from the JAR."
+msgstr ""
+"**Komponente:** Die App nennt die Komponente nur über ihre Factory-ID als "
+"Text. Das Bundle der Komponente muss zusätzlich in `+EdgeApp.bndrun+` "
+"stehen, sonst fehlt es im JAR."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:23
+#, no-wrap
+msgid "What belongs to an app"
+msgstr "Was zu einer App gehört"
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/apps.adoc:42
+#, no-wrap
+msgid ""
+"| What\n"
+"| Where\n"
+"\n"
+"| App class\n"
+"| `+io.openems.edge.core/src/io/openems/edge/app/<area>/+`\n"
+"| Translations\n"
+"| `+…/core/appmanager/translation_de.properties+` and `+translation_en.properties+`\n"
+"| Scheduler order, if the app creates a Controller\n"
+"| `+ProductionSchedulerOrderDefinition+` in `+…/appmanager/dependency/aggregatetask/SchedulerByCentralOrderAggregateTaskImpl.java+`\n"
+"| Website link\n"
+"| `+io.openems.common/src/io/openems/common/oem/DummyOpenemsEdgeOem.java+`\n"
+"| Image (optional)\n"
+"| `+<ClassName>.png+` next to the app class\n"
+"| Test helpers and tests\n"
+"| `+test/…/core/appmanager/Apps.java+`, `+TestTranslations.java+`, own test\n"
+msgstr ""
+"| Was\n"
+"| Wo\n"
+"\n"
+"| App-Klasse\n"
+"| `+io.openems.edge.core/src/io/openems/edge/app/<Bereich>/+`\n"
+"| Übersetzungen\n"
+"| `+…/core/appmanager/translation_de.properties+` und `+translation_en.properties+`\n"
+"| Scheduler-Reihenfolge, falls die App einen Controller anlegt\n"
+"| `+ProductionSchedulerOrderDefinition+` in `+…/appmanager/dependency/aggregatetask/SchedulerByCentralOrderAggregateTaskImpl.java+`\n"
+"| Website-Link\n"
+"| `+io.openems.common/src/io/openems/common/oem/DummyOpenemsEdgeOem.java+`\n"
+"| Bild (optional)\n"
+"| `+<Klassenname>.png+` neben der App-Klasse\n"
+"| Test-Helfer und Tests\n"
+"| `+test/…/core/appmanager/Apps.java+`, `+TestTranslations.java+`, eigener Test\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:45
+#, no-wrap
+msgid "Basic structure"
+msgstr "Grundgerüst"
+
+#. type: #sec-basic-structure
+#: modules/ROOT/pages/development/implementing/apps.adoc:48
+msgid ""
+"Shortened form of `+FixActivePower+`. The name in `+@Component+` is the app "
+"ID (`+getAppId()+` reads `+COMPONENT_NAME+`):"
+msgstr ""
+"Gekürzte Form von `+FixActivePower+`. Der Name in `+@Component+` ist die App-"
+"ID (`+getAppId()+` liest `+COMPONENT_NAME+`):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:54
+#, no-wrap
+msgid ""
+"@Component(name = \"App.Ess.FixActivePower\")\n"
+"public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, BundleParameter>\n"
+"\t\timplements OpenemsApp {\n"
+msgstr ""
+"@Component(name = \"App.Ess.FixActivePower\")\n"
+"public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, BundleParameter>\n"
+"\t\timplements OpenemsApp {\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:58
+#, no-wrap
+msgid ""
+"\tpublic enum Property implements Type<Property, FixActivePower, BundleParameter>, Nameable {\n"
+"\t\t// Components\n"
+"\t\tCTRL_FIX_ACTIVE_POWER_ID(AppDef.componentId(\"ctrlFixActivePower0\")), //\n"
+msgstr ""
+"\tpublic enum Property implements Type<Property, FixActivePower, BundleParameter>, Nameable {\n"
+"\t\t// Components\n"
+"\t\tCTRL_FIX_ACTIVE_POWER_ID(AppDef.componentId(\"ctrlFixActivePower0\")), //\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:63
+#, no-wrap
+msgid ""
+"\t\t// Properties\n"
+"\t\tALIAS(alias()), //\n"
+"\t\tESS_ID(ComponentProps.pickManagedSymmetricEssId()), //\n"
+"\t\t;\n"
+msgstr ""
+"\t\t// Properties\n"
+"\t\tALIAS(alias()), //\n"
+"\t\tESS_ID(ComponentProps.pickManagedSymmetricEssId()), //\n"
+"\t\t;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:65
+#, no-wrap
+msgid "\t\tprivate final AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def;\n"
+msgstr "\t\tprivate final AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:69
+#, no-wrap
+msgid ""
+"\t\tprivate Property(AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def) {\n"
+"\t\t\tthis.def = def;\n"
+"\t\t}\n"
+msgstr ""
+"\t\tprivate Property(AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def) {\n"
+"\t\t\tthis.def = def;\n"
+"\t\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:74
+#, no-wrap
+msgid ""
+"\t\t@Override\n"
+"\t\tpublic Type<Property, FixActivePower, BundleParameter> self() {\n"
+"\t\t\treturn this;\n"
+"\t\t}\n"
+msgstr ""
+"\t\t@Override\n"
+"\t\tpublic Type<Property, FixActivePower, BundleParameter> self() {\n"
+"\t\t\treturn this;\n"
+"\t\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:79
+#, no-wrap
+msgid ""
+"\t\t@Override\n"
+"\t\tpublic AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def() {\n"
+"\t\t\treturn this.def;\n"
+"\t\t}\n"
+msgstr ""
+"\t\t@Override\n"
+"\t\tpublic AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def() {\n"
+"\t\t\treturn this.def;\n"
+"\t\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:85
+#, no-wrap
+msgid ""
+"\t\t@Override\n"
+"\t\tpublic Function<GetParameterValues<FixActivePower>, BundleParameter> getParamter() {\n"
+"\t\t\treturn Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);\n"
+"\t\t}\n"
+"\t}\n"
+msgstr ""
+"\t\t@Override\n"
+"\t\tpublic Function<GetParameterValues<FixActivePower>, BundleParameter> getParamter() {\n"
+"\t\t\treturn Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);\n"
+"\t\t}\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:91
+#, no-wrap
+msgid ""
+"\t@Activate\n"
+"\tpublic FixActivePower(@Reference ComponentManager componentManager, ComponentContext componentContext,\n"
+"\t\t\t@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {\n"
+"\t\tsuper(componentManager, componentContext, cm, componentUtil);\n"
+"\t}\n"
+msgstr ""
+"\t@Activate\n"
+"\tpublic FixActivePower(@Reference ComponentManager componentManager, ComponentContext componentContext,\n"
+"\t\t\t@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {\n"
+"\t\tsuper(componentManager, componentContext, cm, componentUtil);\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:96
+#, no-wrap
+msgid ""
+"\t@Override\n"
+"\tpublic OpenemsAppCategory[] getCategories() {\n"
+"\t\treturn new OpenemsAppCategory[] { OpenemsAppCategory.ESS };\n"
+"\t}\n"
+msgstr ""
+"\t@Override\n"
+"\tpublic OpenemsAppCategory[] getCategories() {\n"
+"\t\treturn new OpenemsAppCategory[] { OpenemsAppCategory.ESS };\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:101
+#, no-wrap
+msgid ""
+"\t@Override\n"
+"\tpublic OpenemsAppCardinality getCardinality() {\n"
+"\t\treturn OpenemsAppCardinality.SINGLE;\n"
+"\t}\n"
+msgstr ""
+"\t@Override\n"
+"\tpublic OpenemsAppCardinality getCardinality() {\n"
+"\t\treturn OpenemsAppCardinality.SINGLE;\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:108
+#, no-wrap
+msgid ""
+"\t@Override\n"
+"\tprotected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {\n"
+"\t\treturn (t, p, l) -> {\n"
+"\t\t\tfinal var id = this.getId(t, p, Property.CTRL_FIX_ACTIVE_POWER_ID);\n"
+"\t\t\tfinal var alias = this.getString(p, l, Property.ALIAS);\n"
+"\t\t\tfinal var essId = this.getString(p, Property.ESS_ID);\n"
+msgstr ""
+"\t@Override\n"
+"\tprotected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {\n"
+"\t\treturn (t, p, l) -> {\n"
+"\t\t\tfinal var id = this.getId(t, p, Property.CTRL_FIX_ACTIVE_POWER_ID);\n"
+"\t\t\tfinal var alias = this.getString(p, l, Property.ALIAS);\n"
+"\t\t\tfinal var essId = this.getString(p, Property.ESS_ID);\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:114
+#, no-wrap
+msgid ""
+"\t\t\tfinal var components = Lists.newArrayList(//\n"
+"\t\t\t\t\tnew EdgeConfig.Component(id, alias, \"Controller.Ess.FixActivePower\", //\n"
+"\t\t\t\t\t\t\tJsonUtils.buildJsonObject() //\n"
+"\t\t\t\t\t\t\t\t\t.addProperty(\"ess.id\", essId) //\n"
+"\t\t\t\t\t\t\t\t\t.build()));\n"
+msgstr ""
+"\t\t\tfinal var components = Lists.newArrayList(//\n"
+"\t\t\t\t\tnew EdgeConfig.Component(id, alias, \"Controller.Ess.FixActivePower\", //\n"
+"\t\t\t\t\t\t\tJsonUtils.buildJsonObject() //\n"
+"\t\t\t\t\t\t\t\t\t.addProperty(\"ess.id\", essId) //\n"
+"\t\t\t\t\t\t\t\t\t.build()));\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:122
+#, no-wrap
+msgid ""
+"\t\t\treturn AppConfiguration.create() //\n"
+"\t\t\t\t\t.addTask(Tasks.component(components)) //\n"
+"\t\t\t\t\t.addTask(Tasks.schedulerByCentralOrder(//\n"
+"\t\t\t\t\t\t\tnew SchedulerComponent(id, \"Controller.Ess.FixActivePower\", this.getAppId()))) //\n"
+"\t\t\t\t\t.build();\n"
+"\t\t};\n"
+"\t}\n"
+msgstr ""
+"\t\t\treturn AppConfiguration.create() //\n"
+"\t\t\t\t\t.addTask(Tasks.component(components)) //\n"
+"\t\t\t\t\t.addTask(Tasks.schedulerByCentralOrder(//\n"
+"\t\t\t\t\t\t\tnew SchedulerComponent(id, \"Controller.Ess.FixActivePower\", this.getAppId()))) //\n"
+"\t\t\t\t\t.build();\n"
+"\t\t};\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:127
+#, no-wrap
+msgid ""
+"\t@Override\n"
+"\tprotected Property[] propertyValues() {\n"
+"\t\treturn Property.values();\n"
+"\t}\n"
+msgstr ""
+"\t@Override\n"
+"\tprotected Property[] propertyValues() {\n"
+"\t\treturn Property.values();\n"
+"\t}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:133
+#, no-wrap
+msgid ""
+"\t@Override\n"
+"\tprotected FixActivePower getApp() {\n"
+"\t\treturn this;\n"
+"\t}\n"
+"}\n"
+msgstr ""
+"\t@Override\n"
+"\tprotected FixActivePower getApp() {\n"
+"\t\treturn this;\n"
+"\t}\n"
+"}\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:136
+#, no-wrap
+msgid "Properties and form fields"
+msgstr "Eigenschaften und Formularfelder"
+
+#. type: #sec-properties-and-form-fields
+#: modules/ROOT/pages/development/implementing/apps.adoc:139
+msgid ""
+"Each value of the enum `+Property+` is a property of the app. The name of "
+"the enum value is also the key in JSON (`+\"ESS_ID\": \"ess0\"+`). The "
+"behavior is described by an `+AppDef+`:"
+msgstr ""
+"Jeder Wert des Enums `+Property+` ist eine Eigenschaft der App. Der Name des "
+"Enum-Werts ist zugleich der Schlüssel im JSON (`+\"ESS_ID\": \"ess0\"+`). "
+"Das Verhalten beschreibt ein `+AppDef+`:"
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/apps.adoc:169
+#, no-wrap
+msgid ""
+"| Call\n"
+"| Effect\n"
+"\n"
+"| `+AppDef.componentId(\"ctrl0\")+`\n"
+"| Property for a Component-ID with this default value. `+getId(t, p, Property.X)+` returns the stored value or the default value. Without a field, so it does not appear in the form.\n"
+"| `+CommonProps.alias()+`\n"
+"| field for the alias\n"
+"| `+AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> …)+`\n"
+"| starting point for your own property\n"
+"| `+setTranslatedLabel(\"key\")+`, `+setTranslatedDescription(\"key\")+`\n"
+"| text from the translation files\n"
+"| `+setTranslatedLabelWithAppPrefix(\".x.label\")+`, `+setTranslatedDescriptionWithAppPrefix(\".x.description\")+`\n"
+"| as above, the key begins with the app ID\n"
+"| `+setDefaultValue(…)+`\n"
+"| default value\n"
+"| `+setRequired(true)+`\n"
+"| mandatory field\n"
+"| `+setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> …)+`\n"
+"| type of field and its settings\n"
+"| `+wrapField(…)+`\n"
+"| supplements an existing field, e.g. `+field.onlyShowIf(…)+`\n"
+"| `+setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))+`\n"
+"| field only visible from this role\n"
+"| `+setAllowedToSave(false)+`\n"
+"| value is not stored in the app instance\n"
+"| `+bidirectional(CONTROLLER_ID, \"url\", ComponentManagerSupplier::getComponentManager)+`\n"
+"| value is only in the component, not in the app instance. If it is missing in the request, it is read from the component.\n"
+msgstr ""
+"| Aufruf\n"
+"| Wirkung\n"
+"\n"
+"| `+AppDef.componentId(\"ctrl0\")+`\n"
+"| Eigenschaft für eine Komponenten-ID mit diesem Standardwert. `+getId(t, p, Property.X)+` liefert den gespeicherten Wert oder den Standardwert. Ohne Feld, erscheint also nicht im Formular.\n"
+"| `+CommonProps.alias()+`\n"
+"| Feld für den Alias\n"
+"| `+AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> …)+`\n"
+"| Ausgangspunkt für eine eigene Eigenschaft\n"
+"| `+setTranslatedLabel(\"schlüssel\")+`, `+setTranslatedDescription(\"schlüssel\")+`\n"
+"| Text aus den Übersetzungsdateien\n"
+"| `+setTranslatedLabelWithAppPrefix(\".x.label\")+`, `+setTranslatedDescriptionWithAppPrefix(\".x.description\")+`\n"
+"| wie oben, der Schlüssel beginnt mit der App-ID\n"
+"| `+setDefaultValue(…)+`\n"
+"| Standardwert\n"
+"| `+setRequired(true)+`\n"
+"| Pflichtfeld\n"
+"| `+setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> …)+`\n"
+"| Art des Feldes und seine Einstellungen\n"
+"| `+wrapField(…)+`\n"
+"| ergänzt ein vorhandenes Feld, z. B. `+field.onlyShowIf(…)+`\n"
+"| `+setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))+`\n"
+"| Feld nur ab dieser Rolle sichtbar\n"
+"| `+setAllowedToSave(false)+`\n"
+"| Wert wird nicht in der App-Instanz gespeichert\n"
+"| `+bidirectional(CONTROLLER_ID, \"url\", ComponentManagerSupplier::getComponentManager)+`\n"
+"| Wert liegt nur in der Komponente, nicht in der App-Instanz. Fehlt er in der Anfrage, wird er aus der Komponente gelesen.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:172
+msgid ""
+"Ready-made properties for selecting components are in `+ComponentProps+`, "
+"e.g. `+pickManagedSymmetricEssId()+`, `+pickElectricityMeterId()+` and "
+"`+pickElectricityGridMeterId()+`. They list the enabled components and take "
+"the first as the default value."
+msgstr ""
+"Fertige Eigenschaften zur Auswahl von Komponenten stehen in "
+"`+ComponentProps+`, z. B. `+pickManagedSymmetricEssId()+`, "
+"`+pickElectricityMeterId()+` und `+pickElectricityGridMeterId()+`. Sie "
+"listen die aktivierten Komponenten und nehmen die erste als Standardwert."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:174
+msgid ""
+"**Field types** from `+JsonFormlyUtil+`, among others: "
+"`+buildInputFromNameable+`, `+buildSelectFromNameable+`, "
+"`+buildCheckboxFromNameable+`, `+buildRangeFromNameable+`, "
+"`+buildDateTimeFromNameable+`, `+buildRepeatFromNameable+`, "
+"`+buildFieldGroupFromNameable+`."
+msgstr ""
+"**Feldarten** aus `+JsonFormlyUtil+`, unter anderem: "
+"`+buildInputFromNameable+`, `+buildSelectFromNameable+`, "
+"`+buildCheckboxFromNameable+`, `+buildRangeFromNameable+`, "
+"`+buildDateTimeFromNameable+`, `+buildRepeatFromNameable+`, "
+"`+buildFieldGroupFromNameable+`."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:176
+msgid "**Number field** (from `+AppHeatMyPv+`):"
+msgstr "**Zahlenfeld** (aus `+AppHeatMyPv+`):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:189
+#, no-wrap
+msgid ""
+"MAX_HEAT_POWER(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //\n"
+"\t\t.setDefaultValue(3000) //\n"
+"\t\t.setRequired(true) //\n"
+"\t\t.setTranslatedLabelWithAppPrefix(\".maxHeatPower.label\") //\n"
+"\t\t.setTranslatedDescriptionWithAppPrefix(\".maxHeatPower.description\"))\n"
+"\t\t.setField(JsonFormlyUtil::buildInputFromNameable,\n"
+"\t\t\t\t(app, property, l, parameter, field) -> field.setInputType(NUMBER)//\n"
+"\t\t\t\t\t\t.setMin(0)//\n"
+"\t\t\t\t\t\t.setMax(9000)//\n"
+"\t\t\t\t\t\t.setUnit(Unit.WATT, l))), //\n"
+msgstr ""
+"MAX_HEAT_POWER(AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //\n"
+"\t\t.setDefaultValue(3000) //\n"
+"\t\t.setRequired(true) //\n"
+"\t\t.setTranslatedLabelWithAppPrefix(\".maxHeatPower.label\") //\n"
+"\t\t.setTranslatedDescriptionWithAppPrefix(\".maxHeatPower.description\"))\n"
+"\t\t.setField(JsonFormlyUtil::buildInputFromNameable,\n"
+"\t\t\t\t(app, property, l, parameter, field) -> field.setInputType(NUMBER)//\n"
+"\t\t\t\t\t\t.setMin(0)//\n"
+"\t\t\t\t\t\t.setMax(9000)//\n"
+"\t\t\t\t\t\t.setUnit(Unit.WATT, l))), //\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:192
+msgid ""
+"`+setMin+` and `+setMax+` only accept whole numbers; `+InputBuilder+` has no "
+"setting for the step size. Inputs can be checked with "
+"`+setValidation(pattern, message)+` via a regular expression. This check "
+"belongs to the form; values from a direct JSON-RPC request do not go through "
+"it."
+msgstr ""
+"`+setMin+` und `+setMax+` nehmen nur ganze Zahlen; eine Einstellung für die "
+"Schrittweite bietet `+InputBuilder+` nicht. Eingaben lassen sich mit "
+"`+setValidation(muster, meldung)+` über einen regulären Ausdruck prüfen. "
+"Diese Prüfung gehört zum Formular; Werte aus einer direkten JSON-RPC-Anfrage "
+"durchlaufen sie nicht."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:194
+msgid ""
+"**Selection with your own entries:** The entries are a JSON array with "
+"`+label+` and `+value+`; `+SelectBuilder.setOptions+` sets it:"
+msgstr ""
+"**Auswahl mit eigenen Einträgen:** Die Einträge sind ein JSON-Array mit "
+"`+label+` und `+value+`; `+SelectBuilder.setOptions+` setzt es:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:211
+#, no-wrap
+msgid ""
+".setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {\n"
+"\tfinal var options = JsonUtils.buildJsonArray() //\n"
+"\t\t\t.add(JsonUtils.buildJsonObject() //\n"
+"\t\t\t\t\t.addProperty(\"label\", translate(parameter.bundle(), \"App.X.Y.default\")) //\n"
+"\t\t\t\t\t.addProperty(\"value\", \"\") //\n"
+"\t\t\t\t\t.build());\n"
+"\tfor (var meter : app.getComponentUtil().getEnabledComponentsOfType(ElectricityMeter.class)) {\n"
+"\t\toptions.add(JsonUtils.buildJsonObject() //\n"
+"\t\t\t\t.add(\"label\", DEFAULT_COMPONENT_2_LABEL.apply(meter)) //\n"
+"\t\t\t\t.addProperty(\"value\", meter.id()) //\n"
+"\t\t\t\t.build());\n"
+"\t}\n"
+"\tfield.setOptions(options.build());\n"
+"})\n"
+msgstr ""
+".setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {\n"
+"\tfinal var options = JsonUtils.buildJsonArray() //\n"
+"\t\t\t.add(JsonUtils.buildJsonObject() //\n"
+"\t\t\t\t\t.addProperty(\"label\", translate(parameter.bundle(), \"App.X.Y.default\")) //\n"
+"\t\t\t\t\t.addProperty(\"value\", \"\") //\n"
+"\t\t\t\t\t.build());\n"
+"\tfor (var meter : app.getComponentUtil().getEnabledComponentsOfType(ElectricityMeter.class)) {\n"
+"\t\toptions.add(JsonUtils.buildJsonObject() //\n"
+"\t\t\t\t.add(\"label\", DEFAULT_COMPONENT_2_LABEL.apply(meter)) //\n"
+"\t\t\t\t.addProperty(\"value\", meter.id()) //\n"
+"\t\t\t\t.build());\n"
+"\t}\n"
+"\tfield.setOptions(options.build());\n"
+"})\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:214
+msgid ""
+"**Note with a mandatory checkbox** during installation: "
+"`+CommonProps.installationHint(…)+` shows a text with a checkbox and does "
+"not store the value. With `+field.requireTrue(l)+` and "
+"`+field.onlyShowIf(Exp.currentModelValue(CONTROLLER_ID).isNull())+`, it only "
+"appears as long as the app does not yet have a Component-ID (example: "
+"`+CleverPvProps.privacyPolicy+`)."
+msgstr ""
+"**Hinweis mit Pflicht-Haken** bei der Installation: "
+"`+CommonProps.installationHint(…)+` zeigt einen Text mit Checkbox und "
+"speichert den Wert nicht. Mit `+field.requireTrue(l)+` und "
+"`+field.onlyShowIf(Exp.currentModelValue(CONTROLLER_ID).isNull())+` "
+"erscheint er nur, solange die App noch keine Komponenten-ID hat (Beispiel: "
+"`+CleverPvProps.privacyPolicy+`)."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:216
+#, no-wrap
+msgid "Creating the configuration"
+msgstr "Konfiguration erzeugen"
+
+#. type: #sec-creating-the-configuration
+#: modules/ROOT/pages/development/implementing/apps.adoc:219
+msgid ""
+"`+appPropertyConfigurationFactory()+` converts the properties into tasks. "
+"The function receives the target `+t+`, the values `+p+` and the language "
+"`+l+`."
+msgstr ""
+"`+appPropertyConfigurationFactory()+` wandelt die Eigenschaften in Aufgaben "
+"um. Die Funktion erhält das Ziel `+t+`, die Werte `+p+` und die Sprache "
+"`+l+`."
+
+#. type: #sec-creating-the-configuration
+#: modules/ROOT/pages/development/implementing/apps.adoc:221
+msgid ""
+"**`+ConfigurationTarget+`:** `+ADD+`, `+UPDATE+`, `+VALIDATE+`, `+DELETE+`, "
+"`+TEST+`. Values that should only be set during installation are limited "
+"with `+.onlyIf(t == ConfigurationTarget.ADD, b -> …)+`; a later change of "
+"the app then does not overwrite them."
+msgstr ""
+"**`+ConfigurationTarget+`:** `+ADD+`, `+UPDATE+`, `+VALIDATE+`, `+DELETE+`, "
+"`+TEST+`. Werte, die nur bei der Installation gesetzt werden sollen, "
+"begrenzt man mit `+.onlyIf(t == ConfigurationTarget.ADD, b -> …)+`; so "
+"überschreibt ein späteres Ändern der App sie nicht."
+
+#. type: #sec-creating-the-configuration
+#: modules/ROOT/pages/development/implementing/apps.adoc:222
+msgid ""
+"**Reading values:** `+getString+`, `+getStringOrNull+`, `+getInt+`, "
+"`+getDouble+`, `+getBoolean+`, `+getEnum+`, `+getJsonArray+`. They return "
+"the passed value or the default value of the `+AppDef+`."
+msgstr ""
+"**Werte lesen:** `+getString+`, `+getStringOrNull+`, `+getInt+`, "
+"`+getDouble+`, `+getBoolean+`, `+getEnum+`, `+getJsonArray+`. Sie liefern "
+"den übergebenen Wert oder den Standardwert des `+AppDef+`."
+
+#. type: #sec-creating-the-configuration
+#: modules/ROOT/pages/development/implementing/apps.adoc:223
+msgid ""
+"**Property names of the component:** The keys are the OSGi names: "
+"`+meter_id()+` in the `+Config+` becomes `+\"meter.id\"+`."
+msgstr ""
+"**Property-Namen der Komponente:** Die Schlüssel sind die OSGi-Namen: aus "
+"`+meter_id()+` in der `+Config+` wird `+\"meter.id\"+`."
+
+#. type: #sec-creating-the-configuration
+#: modules/ROOT/pages/development/implementing/apps.adoc:224
+msgid ""
+"**Tasks** (`+Tasks+`): `+component+`, `+schedulerByCentralOrder+`, "
+"`+scheduler+`, `+staticIp+`, `+cluster+`, `+persistencePredictor+`, "
+"`+predictorManagerByCentralOrder+`."
+msgstr ""
+"**Aufgaben** (`+Tasks+`): `+component+`, `+schedulerByCentralOrder+`, "
+"`+scheduler+`, `+staticIp+`, `+cluster+`, `+persistencePredictor+`, "
+"`+predictorManagerByCentralOrder+`."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/implementing/apps.adoc:226
+#, no-wrap
+msgid "Scheduler order"
+msgstr "Scheduler-Reihenfolge"
+
+#. type: #sec-scheduler-order
+#: modules/ROOT/pages/development/implementing/apps.adoc:229
+msgid ""
+"If the app creates a Controller with `+Tasks.schedulerByCentralOrder+`, its "
+"Factory-ID must be in `+ProductionSchedulerOrderDefinition+`:"
+msgstr ""
+"Legt die App einen Controller mit `+Tasks.schedulerByCentralOrder+` an, muss "
+"seine Factory-ID in `+ProductionSchedulerOrderDefinition+` stehen:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:233
+#, no-wrap
+msgid ".thenByFactoryId(\"Controller.Ess.FixActivePower\") //\n"
+msgstr ".thenByFactoryId(\"Controller.Ess.FixActivePower\") //\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:236
+msgid ""
+"If the entry is missing, the installation aborts with `+Unhandled "
+"component+`. The position in the list determines the order in which the "
+"Controllers run (see xref:development/fundamentals/cycle-and-ess-"
+"power.adoc[Cycle, Scheduler and ESS Power])."
+msgstr ""
+"Fehlt der Eintrag, bricht die Installation mit `+Unhandled component+` ab. "
+"Die Position in der Liste legt die Reihenfolge fest, in der die Controller "
+"laufen (siehe xref:development/fundamentals/cycle-and-ess-power.adoc[Zyklus, "
+"Scheduler und Leistungsverteilung])."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/implementing/apps.adoc:238
+#, no-wrap
+msgid "Dependencies on other apps"
+msgstr "Abhängigkeiten zu anderen Apps"
+
+#. type: #sec-dependencies-on-other-apps
+#: modules/ROOT/pages/development/implementing/apps.adoc:241
+msgid ""
+"If an app needs another one, it enters a `+DependencyDeclaration+` "
+"(`+.addDependencies(…)+` on `+AppConfiguration.create()+`; examples: "
+"`+HeatPump+`, `+HeatingElement+`). `+CreatePolicy+` determines when the "
+"dependent app is created: `+ALWAYS+`, `+IF_NOT_EXISTING+` or `+NEVER+`. In "
+"addition, there are `+UpdatePolicy+`, `+DeletePolicy+`, "
+"`+DependencyUpdatePolicy+` and `+DependencyDeletePolicy+`."
+msgstr ""
+"Braucht eine App eine andere, trägt sie eine `+DependencyDeclaration+` ein "
+"(`+.addDependencies(…)+` am `+AppConfiguration.create()+`; Beispiele: "
+"`+HeatPump+`, `+HeatingElement+`). `+CreatePolicy+` legt fest, wann die "
+"abhängige App angelegt wird: `+ALWAYS+`, `+IF_NOT_EXISTING+` oder `+NEVER+`. "
+"Dazu kommen `+UpdatePolicy+`, `+DeletePolicy+`, `+DependencyUpdatePolicy+` "
+"und `+DependencyDeletePolicy+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:243
+#, no-wrap
+msgid "Category, cardinality, permissions, checks"
+msgstr "Kategorie, Anzahl, Rechte, Prüfungen"
+
+#. type: #sec-category-cardinality-permissions-checks
+#: modules/ROOT/pages/development/implementing/apps.adoc:246
+msgid ""
+"**`+getCategories()+`:** category in the App Center, values from "
+"`+OpenemsAppCategory+`, e.g. `+API+`, `+ESS+`, `+HEAT+`, `+METER+`, "
+"`+PREDICTION+`."
+msgstr ""
+"**`+getCategories()+`:** Rubrik im App Center, Werte aus "
+"`+OpenemsAppCategory+`, z. B. `+API+`, `+ESS+`, `+HEAT+`, `+METER+`, "
+"`+PREDICTION+`."
+
+#. type: #sec-category-cardinality-permissions-checks
+#: modules/ROOT/pages/development/implementing/apps.adoc:247
+msgid ""
+"**`+getCardinality()+`:** `+SINGLE+` (one instance of this app), "
+"`+SINGLE_IN_CATEGORY+` (one instance per category), `+MULTIPLE+` (any "
+"number)."
+msgstr ""
+"**`+getCardinality()+`:** `+SINGLE+` (eine Instanz dieser App), "
+"`+SINGLE_IN_CATEGORY+` (eine Instanz je Kategorie), `+MULTIPLE+` (beliebig "
+"viele)."
+
+#. type: #sec-category-cardinality-permissions-checks
+#: modules/ROOT/pages/development/implementing/apps.adoc:248
+msgid ""
+"**`+getAppPermissions()+`:** Without overriding, `+canSee+` and "
+"`+canDelete+` apply from `+OWNER+`, `+canInstall+` for `+OWNER+`, "
+"`+INSTALLER+` and `+ADMIN+`. `+FixActivePower+` only shows the app to admins "
+"(`+setCanSee(Role.ADMIN)+`)."
+msgstr ""
+"**`+getAppPermissions()+`:** Ohne Überschreiben gilt `+canSee+` und "
+"`+canDelete+` ab `+OWNER+`, `+canInstall+` für `+OWNER+`, `+INSTALLER+` und "
+"`+ADMIN+`. `+FixActivePower+` zeigt die App nur Admins "
+"(`+setCanSee(Role.ADMIN)+`)."
+
+#. type: #sec-category-cardinality-permissions-checks
+#: modules/ROOT/pages/development/implementing/apps.adoc:250
+msgid ""
+"**Checks** are set by `+getValidateBuilder()+`, building blocks are in "
+"`+Checkables+`:"
+msgstr ""
+"**Prüfungen** setzt `+getValidateBuilder()+`, Bausteine stehen in "
+"`+Checkables+`:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:259
+#, no-wrap
+msgid ""
+"@Override\n"
+"protected ValidatorConfig.Builder getValidateBuilder() {\n"
+"\treturn ValidatorConfig.create() //\n"
+"\t\t\t.setInstallableCheckableConfigs(Checkables.check3rdPartyAccessAccepted()) //\n"
+"\t\t\t.setCompatibleCheckableConfigs(Checkables.checkCoordinatesSet());\n"
+"}\n"
+msgstr ""
+"@Override\n"
+"protected ValidatorConfig.Builder getValidateBuilder() {\n"
+"\treturn ValidatorConfig.create() //\n"
+"\t\t\t.setInstallableCheckableConfigs(Checkables.check3rdPartyAccessAccepted()) //\n"
+"\t\t\t.setCompatibleCheckableConfigs(Checkables.checkCoordinatesSet());\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:262
+msgid "From this, `+Validator+` calculates the status of the app:"
+msgstr "Daraus berechnet `+Validator+` den Status der App:"
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/apps.adoc:278
+#, no-wrap
+msgid ""
+"| Status\n"
+"| Meaning\n"
+"| Display in the App Center\n"
+"\n"
+"| `+INCOMPATIBLE+`\n"
+"| A `+Compatible+` check fails.\n"
+"| list of incompatible apps, **only visible to admins** (`+index.component.ts+`)\n"
+"| `+COMPATIBLE+`\n"
+"| Only an `+Installable+` check fails.\n"
+"| available, installation is rejected\n"
+"| `+INSTALLABLE+`\n"
+"| All checks passed.\n"
+"| available\n"
+msgstr ""
+"| Status\n"
+"| Bedeutung\n"
+"| Anzeige im App Center\n"
+"\n"
+"| `+INCOMPATIBLE+`\n"
+"| Eine `+Compatible+`-Prüfung schlägt fehl.\n"
+"| Liste „Inkompatibel“, **nur für Admins sichtbar** (`+index.component.ts+`)\n"
+"| `+COMPATIBLE+`\n"
+"| Nur eine `+Installable+`-Prüfung schlägt fehl.\n"
+"| verfügbar, Installation wird abgelehnt\n"
+"| `+INSTALLABLE+`\n"
+"| Alle Prüfungen bestanden.\n"
+"| verfügbar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:281
+msgid ""
+"A failed `+Compatible+` check therefore makes the app disappear for owners. "
+"Checks that the user can solve themselves therefore fit better with "
+"`+Installable+`."
+msgstr ""
+"Eine fehlgeschlagene `+Compatible+`-Prüfung lässt die App also für Owner "
+"verschwinden. Prüfungen, die der Benutzer selbst lösen kann, passen deshalb "
+"eher zu `+Installable+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:283
+#, no-wrap
+msgid "Texts, link and image"
+msgstr "Texte, Link und Bild"
+
+#. type: #sec-texts-link-and-image
+#: modules/ROOT/pages/development/implementing/apps.adoc:286
+msgid ""
+"In `+translation_de.properties+` and `+translation_en.properties+` under `+…/"
+"core/appmanager/+`; umlauts are stored directly in UTF-8:"
+msgstr ""
+"In `+translation_de.properties+` und `+translation_en.properties+` unter `+…/"
+"core/appmanager/+`; Umlaute stehen dort direkt in UTF-8:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:291
+#, no-wrap
+msgid ""
+"App.Cloud.Clever-PV.Name = clever-PV\n"
+"App.Cloud.Clever-PV.Name.short = clever-PV\n"
+msgstr ""
+"App.Cloud.Clever-PV.Name = clever-PV\n"
+"App.Cloud.Clever-PV.Name.short = clever-PV\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:294
+msgid ""
+"The name comes from `+<app ID>.Name+`, the short form from `+<app "
+"ID>.Name.short+`. Missing keys are found by the test `+TestTranslations+` if "
+"the app is entered there."
+msgstr ""
+"Der Name kommt aus `+<App-ID>.Name+`, die Kurzform aus `+<App-"
+"ID>.Name.short+`. Fehlende Schlüssel findet der Test `+TestTranslations+`, "
+"wenn die App dort eingetragen ist."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:296
+msgid ""
+"**Website link:** `+getAppDescriptor+` fetches it via "
+"`+OpenemsEdgeOem.getAppWebsiteUrl+`. For OpenEMS, `+OpenemsEdgeOemImpl+` "
+"inherits the table from `+DummyOpenemsEdgeOem+`. "
+"`+TestTranslations.testOemWebsiteUrl+` requires an entry for each app "
+"entered there; an empty link is sufficient:"
+msgstr ""
+"**Website-Link:** `+getAppDescriptor+` holt ihn über "
+"`+OpenemsEdgeOem.getAppWebsiteUrl+`. Für OpenEMS erbt `+OpenemsEdgeOemImpl+` "
+"die Tabelle aus `+DummyOpenemsEdgeOem+`. "
+"`+TestTranslations.testOemWebsiteUrl+` verlangt für jede dort eingetragene "
+"App einen Eintrag; ein leerer Link genügt:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:303
+#, no-wrap
+msgid ""
+".put(\"App.Cloud.Clever-PV\", AppLink.create() //\n"
+"\t\t.emptyLink(Language.DE) //\n"
+"\t\t.emptyLink(Language.EN) //\n"
+") //\n"
+msgstr ""
+".put(\"App.Cloud.Clever-PV\", AppLink.create() //\n"
+"\t\t.emptyLink(Language.DE) //\n"
+"\t\t.emptyLink(Language.EN) //\n"
+") //\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:306
+msgid ""
+"**Image:** `+getImage()+` looks for `+<ClassName>.png+` in the package of "
+"the class. If the file is missing, it returns `+null+`."
+msgstr ""
+"**Bild:** `+getImage()+` sucht `+<Klassenname>.png+` im Paket der Klasse. "
+"Fehlt die Datei, liefert es `+null+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:308
+#, no-wrap
+msgid "Tests"
+msgstr "Tests"
+
+#. type: #sec-tests
+#: modules/ROOT/pages/development/implementing/apps.adoc:311
+msgid "Three places in the bundle `+io.openems.edge.core+`:"
+msgstr "Drei Stellen im Bundle `+io.openems.edge.core+`:"
+
+#. type: #sec-tests
+#: modules/ROOT/pages/development/implementing/apps.adoc:313
+msgid "**1. Helper in `+Apps.java+`:**"
+msgstr "**1. Helfer in `+Apps.java+`:**"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:319
+#, no-wrap
+msgid ""
+"public static final AppCleverPv cleverPv(AppManagerTestBundle t) {\n"
+"\treturn app(t, AppCleverPv::new, \"App.Cloud.Clever-PV\");\n"
+"}\n"
+msgstr ""
+"public static final AppCleverPv cleverPv(AppManagerTestBundle t) {\n"
+"\treturn app(t, AppCleverPv::new, \"App.Cloud.Clever-PV\");\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:322
+msgid ""
+"**2. Entry in `+TestTranslations+`**, parameters: app, check form, "
+"properties:"
+msgstr ""
+"**2. Eintrag in `+TestTranslations+`**, Parameter: App, Formular prüfen, "
+"Eigenschaften:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:326
+#, no-wrap
+msgid "this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));\n"
+msgstr "this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:329
+msgid "**3. Own test** (template `+AppCleverPvTest+`):"
+msgstr "**3. Eigener Test** (Vorlage `+AppCleverPvTest+`):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:337
+#, no-wrap
+msgid ""
+"@BeforeEach\n"
+"void beforeEach() throws Exception {\n"
+"\tthis.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> List.of(//\n"
+"\t\t\tthis.cleverPv = Apps.cleverPv(t) //\n"
+"\t), null, new PseudoComponentManagerFactory());\n"
+msgstr ""
+"@BeforeEach\n"
+"void beforeEach() throws Exception {\n"
+"\tthis.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> List.of(//\n"
+"\t\t\tthis.cleverPv = Apps.cleverPv(t) //\n"
+"\t), null, new PseudoComponentManagerFactory());\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:341
+#, no-wrap
+msgid ""
+"\tfinal var componentTask = this.appManagerTestBundle.addComponentAggregateTask();\n"
+"\tthis.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);\n"
+"}\n"
+msgstr ""
+"\tfinal var componentTask = this.appManagerTestBundle.addComponentAggregateTask();\n"
+"\tthis.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);\n"
+"}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:346
+#, no-wrap
+msgid ""
+"@Test\n"
+"void testInstall() throws Exception {\n"
+"\tthis.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,\n"
+"\t\t\tnew AddAppInstance.Request(this.cleverPv.getAppId(), \"key\", \"alias\", properties));\n"
+msgstr ""
+"@Test\n"
+"void testInstall() throws Exception {\n"
+"\tthis.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,\n"
+"\t\t\tnew AddAppInstance.Request(this.cleverPv.getAppId(), \"key\", \"alias\", properties));\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:350
+#, no-wrap
+msgid ""
+"\tthis.appManagerTestBundle.assertComponentExist(new EdgeConfig.Component(\"ctrl0\", \"alias\", \"Controller.X\", //\n"
+"\t\t\tJsonUtils.buildJsonObject().build()));\n"
+"}\n"
+msgstr ""
+"\tthis.appManagerTestBundle.assertComponentExist(new EdgeConfig.Component(\"ctrl0\", \"alias\", \"Controller.X\", //\n"
+"\t\t\tJsonUtils.buildJsonObject().build()));\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:353
+msgid "`+withApp(app).hasOnlyProperties(…)+` checks the list of properties."
+msgstr ""
+"`+withApp(app).hasOnlyProperties(…)+` prüft die Liste der Eigenschaften."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:354
+msgid ""
+"The form is returned by `+app.getAppAssistant(DUMMY_ADMIN).fields+`; this "
+"allows selection entries to be checked (template: "
+"`+EvcsPropsArchitectureTypeTest+`)."
+msgstr ""
+"Das Formular liefert `+app.getAppAssistant(DUMMY_ADMIN).fields+`; so lassen "
+"sich Auswahl-Einträge prüfen (Vorlage: `+EvcsPropsArchitectureTypeTest+`)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:355
+msgid ""
+"Additional components are added to the test via `+"
+"((DummyPseudoComponentManager) "
+"appManagerTestBundle.componentManger).addComponent(…)+`."
+msgstr ""
+"Zusätzliche Komponenten kommen über `+((DummyPseudoComponentManager) "
+"appManagerTestBundle.componentManger).addComponent(…)+` in den Test."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:357
+msgid "Running:"
+msgstr "Ausführen:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:362
+#, no-wrap
+msgid ""
+"./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.app.api.AppCleverPvTest'\n"
+"./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.core.appmanager.TestTranslations'\n"
+msgstr ""
+"./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.app.api.AppCleverPvTest'\n"
+"./gradlew :io.openems.edge.core:test --tests 'io.openems.edge.core.appmanager.TestTranslations'\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:365
+#, no-wrap
+msgid "Installation and Backend"
+msgstr "Installation und Backend"
+
+#. type: #sec-installation-and-backend
+#: modules/ROOT/pages/development/implementing/apps.adoc:368
+msgid ""
+"The installation registers the Edge with the Backend "
+"(`+AppManagerImpl.handleAddAppInstanceRequest+` → "
+"`+addInstallAppInstanceHistory+`). If no Backend is connected, it aborts "
+"with `+Backend not connected!+`. Exceptions are installations without a key "
+"of apps that an installed app lists as a dependency with "
+"`+CreatePolicy.NEVER+` (`+getFreeApps+`)."
+msgstr ""
+"Die Installation meldet die Edge beim Backend an "
+"(`+AppManagerImpl.handleAddAppInstanceRequest+` → "
+"`+addInstallAppInstanceHistory+`). Ist kein Backend verbunden, bricht sie "
+"mit `+Backend not connected!+` ab. Ausgenommen sind Installationen ohne "
+"Schlüssel von Apps, die eine installierte App als Abhängigkeit mit "
+"`+CreatePolicy.NEVER+` führt (`+getFreeApps+`)."
+
+#. type: #sec-installation-and-backend
+#: modules/ROOT/pages/development/implementing/apps.adoc:370
+msgid ""
+"**Without a Backend**, the form can still be viewed in the App Center. An "
+"instance can also be entered directly in the property `+apps+` of the "
+"component `+Core.AppManager+`, a JSON array:"
+msgstr ""
+"**Ohne Backend** lässt sich das Formular trotzdem im App Center ansehen. "
+"Eine Instanz kann man außerdem direkt in die Eigenschaft `+apps+` der "
+"Komponente `+Core.AppManager+` eintragen, ein JSON-Array:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/apps.adoc:374
+#, no-wrap
+msgid "[{\"appId\":\"App.Ess.FixActivePower\",\"alias\":\"Power setpoint\",\"instanceId\":\"<UUID>\",\"properties\":{\"CTRL_FIX_ACTIVE_POWER_ID\":\"ctrlFixActivePower0\",\"ESS_ID\":\"ess0\"}}]\n"
+msgstr "[{\"appId\":\"App.Ess.FixActivePower\",\"alias\":\"Leistungsvorgabe\",\"instanceId\":\"<UUID>\",\"properties\":{\"CTRL_FIX_ACTIVE_POWER_ID\":\"ctrlFixActivePower0\",\"ESS_ID\":\"ess0\"}}]\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/apps.adoc:377
+msgid ""
+"According to the description of this property, such changes only take effect "
+"on the components when the app is updated via the UI or JSON-RPC. Existing "
+"entries must remain in the array."
+msgstr ""
+"Laut Beschreibung dieser Eigenschaft wirken solche Änderungen erst auf die "
+"Komponenten, wenn die App über die Oberfläche oder per JSON-RPC aktualisiert "
+"wird. Vorhandene Einträge müssen im Array bleiben."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:379
+#, no-wrap
+msgid "Checklist"
+msgstr "Checkliste"
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:382
+msgid ""
+"Create the app class under `+io.openems.edge.core/src/io/openems/edge/app/"
+"<area>/+`."
+msgstr ""
+"App-Klasse unter `+io.openems.edge.core/src/io/openems/edge/app/<Bereich>/+` "
+"anlegen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:383
+msgid ""
+"Enter `+<app ID>.Name+`, `+.Name.short+` and all field texts in both "
+"translation files."
+msgstr ""
+"`+<App-ID>.Name+`, `+.Name.short+` und alle Feldtexte in beide "
+"Übersetzungsdateien eintragen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:384
+msgid ""
+"Enter the Factory-ID in `+ProductionSchedulerOrderDefinition+` if a "
+"Controller is added via `+schedulerByCentralOrder+`."
+msgstr ""
+"Factory-ID in `+ProductionSchedulerOrderDefinition+` eintragen, falls ein "
+"Controller über `+schedulerByCentralOrder+` eingereiht wird."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:385
+msgid "Add the link in `+DummyOpenemsEdgeOem+`."
+msgstr "Link in `+DummyOpenemsEdgeOem+` ergänzen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:386
+msgid "Check the bundle of the component in `+EdgeApp.bndrun+`."
+msgstr "Bundle der Komponente in `+EdgeApp.bndrun+` prüfen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:387
+msgid "Add `+Apps.java+`, `+TestTranslations+` and your own test."
+msgstr "`+Apps.java+`, `+TestTranslations+` und einen eigenen Test ergänzen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:388
+msgid "Run tests and Checkstyle."
+msgstr "Tests und Checkstyle ausführen."
+
+#. type: #sec-checklist
+#: modules/ROOT/pages/development/implementing/apps.adoc:389
+msgid ""
+"`+./gradlew buildEdge+`; the new JAR must run on the Edge for the app to "
+"appear."
+msgstr ""
+"`+./gradlew buildEdge+`; das neue JAR muss auf der Edge laufen, damit die "
+"App erscheint."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc:391
+#, no-wrap
+msgid "If the app does not appear"
+msgstr "Wenn die App nicht erscheint"
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/apps.adoc:404
+#, no-wrap
+msgid ""
+"| Cause\n"
+"| Check\n"
+"\n"
+"| The Edge runs with a JAR without the app, e.g. the official Docker image.\n"
+"| Compare the checksum of the JAR (see xref:development/deployment/docker.adoc[Running in Docker]) or query `+getApps+`.\n"
+"| Status `+INCOMPATIBLE+` and login without the Admin role.\n"
+"| Log in as admin and view the list of incompatible apps.\n"
+"| `+canSee+` requires a higher role.\n"
+"| Check `+getAppPermissions()+`.\n"
+msgstr ""
+"| Ursache\n"
+"| Prüfung\n"
+"\n"
+"| Die Edge läuft mit einem JAR ohne die App, z. B. dem offiziellen Docker-Image.\n"
+"| Prüfsumme des JARs vergleichen (siehe xref:development/deployment/docker.adoc[Betrieb in Docker]) oder `+getApps+` abfragen.\n"
+"| Status `+INCOMPATIBLE+` und Anmeldung ohne Admin-Rolle.\n"
+"| Als Admin anmelden und die Liste „Inkompatibel“ ansehen.\n"
+"| `+canSee+` verlangt eine höhere Rolle.\n"
+"| `+getAppPermissions()+` prüfen.\n"

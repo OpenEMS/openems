@@ -1,0 +1,2442 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 06.11.2026 · OpenEMS-Version 2026.12.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Running in Docker"
+msgstr "OpenEMS-Entwicklung: Betrieb in Docker"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The first steps are described in xref:edge/deploy/docker.adoc[Deploy OpenEMS "
+"Edge to Docker], xref:backend/deploy/docker.adoc[Deploy OpenEMS Backend to "
+"Docker] and xref:ui/deploy/docker.adoc[Deploy the UI with Docker]. This page "
+"adds what happens inside the images: structure, start sequence, ports, "
+"volumes, environment variables, how to build and replace parts, and known "
+"pitfalls."
+msgstr ""
+"Die ersten Schritte beschreiben xref:latest@edge/deploy/docker.adoc[Deploy "
+"OpenEMS Edge to Docker], xref:latest@backend/deploy/docker.adoc[Deploy "
+"OpenEMS Backend to Docker] und xref:latest@ui/deploy/docker.adoc[Deploy the "
+"UI with Docker]. Diese Seite ergänzt, was in den Images passiert: Aufbau, "
+"Startablauf, Ports, Volumes, Umgebungsvariablen, wie man Teile baut und "
+"austauscht, und bekannte Stolperstellen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The statements are derived from the files under `+tools/docker/+` and the "
+"Java code. Where something was tried out, it says so."
+msgstr ""
+"Die Aussagen sind aus den Dateien unter `+tools/docker/+` und dem Java-Code "
+"abgeleitet. Wo etwas ausprobiert wurde, steht es dabei."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Overview"
+msgstr "Überblick"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Image (Docker Hub)\n"
+"| Dockerfile\n"
+"| Content\n"
+"| Ports in the container\n"
+"\n"
+"| `+openems/edge+`\n"
+"| `+tools/docker/edge/Dockerfile+`\n"
+"| OpenEMS Edge (`+openems-edge.jar+`)\n"
+"| 8080 Apache Felix Web Console, 8085 Websocket for the UI\n"
+"| `+openems/ui-edge+`\n"
+"| `+tools/docker/ui/Dockerfile.edge+`\n"
+"| Angular UI {plus} nginx, proxy to an Edge\n"
+"| 80, 443\n"
+"| `+openems/backend+`\n"
+"| `+tools/docker/backend/Dockerfile+`\n"
+"| central Backend with Edge Manager\n"
+"| 8079 Apache Felix Web Console, 8082 UI Websocket, 8083 Edge Manager\n"
+"| `+openems/backend-edge+`\n"
+"| `+tools/docker/backend-edge/Dockerfile+`\n"
+"| Backend Edge Application, to which the Edges connect\n"
+"| 8078 Apache Felix Web Console, 8081 Edge Websocket\n"
+"| `+openems/ui-backend+`\n"
+"| `+tools/docker/ui/Dockerfile.backend+`\n"
+"| Angular UI {plus} nginx, proxy to the Backend\n"
+"| 80, 443\n"
+msgstr ""
+"| Image (Docker Hub)\n"
+"| Dockerfile\n"
+"| Inhalt\n"
+"| Ports im Container\n"
+"\n"
+"| `+openems/edge+`\n"
+"| `+tools/docker/edge/Dockerfile+`\n"
+"| OpenEMS Edge (`+openems-edge.jar+`)\n"
+"| 8080 Apache Felix Web Console, 8085 Websocket für die UI\n"
+"| `+openems/ui-edge+`\n"
+"| `+tools/docker/ui/Dockerfile.edge+`\n"
+"| Angular-UI {plus} nginx, Proxy auf eine Edge\n"
+"| 80, 443\n"
+"| `+openems/backend+`\n"
+"| `+tools/docker/backend/Dockerfile+`\n"
+"| Zentrales Backend mit Edge-Manager\n"
+"| 8079 Felix, 8082 UI-Websocket, 8083 Edge-Manager\n"
+"| `+openems/backend-edge+`\n"
+"| `+tools/docker/backend-edge/Dockerfile+`\n"
+"| Backend-Edge-Anwendung, mit der sich die Edges verbinden\n"
+"| 8078 Felix, 8081 Edge-Websocket\n"
+"| `+openems/ui-backend+`\n"
+"| `+tools/docker/ui/Dockerfile.backend+`\n"
+"| Angular-UI {plus} nginx, Proxy auf das Backend\n"
+"| 80, 443\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"In addition, there is `+.devcontainer/+` (development environment for VS "
+"Code: JDK 25, Node.js 22, Angular CLI) and `+.gitpod.Dockerfile+` or `+tools/"
+"gitpod/+` for Gitpod. These images are for development, not for operation."
+msgstr ""
+"Zusätzlich gibt es `+.devcontainer/+` (Entwicklungsumgebung für VS Code: "
+"Java 25 JDK, Node.js 22, Angular-CLI) und `+.gitpod.Dockerfile+` bzw. "
+"`+tools/gitpod/+` für Gitpod. Diese Images dienen zum Entwickeln, nicht zum "
+"Betrieb, und werden hier nur erwähnt."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "The following applies to the ports in general:"
+msgstr "Für die Ports gilt allgemein:"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Port\n"
+"| Service\n"
+"| Set via\n"
+"\n"
+"| 8080 / 8079 / 8078\n"
+"| Felix HTTP (Apache Felix Web Console `+/system/console+`)\n"
+"| `+-Dorg.apache.felix.http.port+` in the start script\n"
+"| 8085\n"
+"| Edge: “Controller Api Websocket”\n"
+"| component `+ctrlApiWebsocket0+`, field `+port+`\n"
+"| 8084\n"
+"| Edge: REST/JSON API (not in the default configuration)\n"
+"| component, field `+port+` (default 8084)\n"
+"| 8082\n"
+"| Backend: `+Ui.Websocket+`\n"
+"| field `+port+`\n"
+"| 8083\n"
+"| Backend: `+Edge.Manager+` (remote station for the Backend Edge Application)\n"
+"| field `+port+`\n"
+"| 8081\n"
+"| Backend-Edge: `+Backend.Edge.App+` (remote station for the Edges)\n"
+"| field `+port+`\n"
+msgstr ""
+"| Port\n"
+"| Dienst\n"
+"| Einstellbar über\n"
+"\n"
+"| 8080 / 8079 / 8078\n"
+"| Felix-HTTP (Webkonsole `+/system/console+`)\n"
+"| `+-Dorg.apache.felix.http.port+` im Startskript\n"
+"| 8085\n"
+"| Edge: „Controller Api Websocket“\n"
+"| Komponente `+ctrlApiWebsocket0+`, Feld `+port+`\n"
+"| 8084\n"
+"| Edge: „Controller Api REST“ (nicht in der Grundkonfiguration)\n"
+"| Komponente, Feld `+port+` (Voreinstellung 8084)\n"
+"| 8082\n"
+"| Backend: „Ui.Websocket“\n"
+"| `+Ui.Websocket+`, Feld `+port+`\n"
+"| 8083\n"
+"| Backend: „Edge.Manager“ (Gegenstelle für Backend-Edge)\n"
+"| `+Edge.Manager+`, Feld `+port+`\n"
+"| 8081\n"
+"| Backend-Edge: „Backend.Edge.App“ (Gegenstelle für die Edges)\n"
+"| `+Backend.Edge.App+`, Feld `+port+`\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Structure of the Java images (Edge, Backend, Backend-Edge)"
+msgstr "Aufbau der Java-Images (Edge, Backend, Backend-Edge)"
+
+#. type: #sec-structure-of-the-java-images-edge-backend-backend-edge
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"All three Dockerfiles are built the same way and differ only in the Gradle "
+"task, JAR name, ports and default JVM options."
+msgstr ""
+"Alle drei Dockerfiles sind gleich gebaut und unterscheiden sich nur im "
+"Gradle-Task, im JAR-Namen, in den Ports und in den voreingestellten JVM-"
+"Optionen."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Stage 1: build"
+msgstr "Stufe 1: Build"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"ARG JAVA_VERSION=25\n"
+"ARG JAVA_PACKAGE=jre\n"
+msgstr ""
+"ARG JAVA_VERSION=25\n"
+"ARG JAVA_PACKAGE=jre\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"FROM --platform=$BUILDPLATFORM eclipse-temurin:${JAVA_VERSION}-jdk-alpine AS build_edge\n"
+"RUN apk add --no-cache dos2unix bash\n"
+"COPY tools/docker/edge/root/ /opt/root/\n"
+"RUN find /opt/root/ -type f -print0 | xargs -0 dos2unix\n"
+"WORKDIR /src\n"
+"ENV OEMS_EDGE_OUTPUT=/opt/openems-edge.jar\n"
+"RUN --mount=type=bind,target=.,readwrite \\\n"
+"    --mount=type=cache,target=/root/.gradle \\\n"
+"    ./gradlew --no-build-cache buildEdge\n"
+msgstr ""
+"FROM --platform=$BUILDPLATFORM eclipse-temurin:${JAVA_VERSION}-jdk-alpine AS build_edge\n"
+"RUN apk add --no-cache dos2unix bash\n"
+"COPY tools/docker/edge/root/ /opt/root/\n"
+"RUN find /opt/root/ -type f -print0 | xargs -0 dos2unix\n"
+"WORKDIR /src\n"
+"ENV OEMS_EDGE_OUTPUT=/opt/openems-edge.jar\n"
+"RUN --mount=type=bind,target=.,readwrite \\\n"
+"    --mount=type=cache,target=/root/.gradle \\\n"
+"    ./gradlew --no-build-cache buildEdge\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**The build context is the root directory of the repository.** The source "
+"code is not copied, but mounted via `+--mount=type=bind,readwrite+`. Write "
+"accesses of the build (e.g. `+generated/+`) end up in a throwaway layer and "
+"do not change the working tree."
+msgstr ""
+"**Build-Kontext ist das Wurzelverzeichnis des Repositorys.** Der Quellcode "
+"wird nicht kopiert, sondern per `+--mount=type=bind,readwrite+` "
+"eingeblendet. Schreibzugriffe des Builds (z. B. `+generated/+`) landen in "
+"einer Wegwerf-Schicht und verändern den Arbeitsbaum nicht."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+--mount=type=cache,target=/root/.gradle+` keeps Gradle dependencies "
+"between builds. This requires BuildKit."
+msgstr ""
+"`+--mount=type=cache,target=/root/.gradle+` hält Gradle-Abhängigkeiten "
+"zwischen Builds vor. Das setzt BuildKit voraus (bei aktuellem Docker "
+"Standard)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+--platform=$BUILDPLATFORM+`: the build stage always runs in the "
+"architecture of the build machine, because the result is a platform-"
+"independent JAR. Only the runtime stage is built for the target architecture."
+msgstr ""
+"`+--platform=$BUILDPLATFORM+`: Die Build-Stufe läuft immer in der "
+"Architektur des Build-Rechners. Das ist möglich, weil das Ergebnis ein "
+"plattformunabhängiges JAR ist. Nur die Laufzeitstufe wird für die "
+"Zielarchitektur gebaut."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Gradle tasks `+buildEdge+`, `+buildBackend+` and `+buildBackendEdge+` "
+"write their JAR to the path from `+OEMS_EDGE_OUTPUT+`, "
+"`+OEMS_BACKEND_OUTPUT+` or `+OEMS_BACKEND_EDGE_OUTPUT+`."
+msgstr ""
+"Die Gradle-Tasks `+buildEdge+`, `+buildBackend+` und `+buildBackendEdge+` "
+"schreiben ihr JAR an den Pfad aus `+OEMS_EDGE_OUTPUT+`, "
+"`+OEMS_BACKEND_OUTPUT+` bzw. `+OEMS_BACKEND_EDGE_OUTPUT+`."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+dos2unix+` on the start scripts prevents problems if the repository was "
+"checked out on Windows with CRLF."
+msgstr ""
+"`+dos2unix+` über die Startskripte verhindert Probleme, wenn das Repository "
+"unter Windows mit CRLF ausgecheckt wurde."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Stages 2 and 3: runtime"
+msgstr "Stufe 2 und 3: Laufzeit"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container\n"
+"... add the Adoptium APK repository ...\n"
+"RUN apk add --update --no-cache rsync dos2unix temurin-${JAVA_VERSION}-${JAVA_PACKAGE}\n"
+msgstr ""
+"FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container\n"
+"... Adoptium-APK-Repository eintragen ...\n"
+"RUN apk add --update --no-cache rsync dos2unix temurin-${JAVA_VERSION}-${JAVA_PACKAGE}\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"FROM base_container\n"
+"COPY --from=build_edge --chown=abc:abc /opt/root/ /\n"
+"COPY --from=build_edge --chown=abc:abc /opt/openems-edge.jar /opt/openems/openems-edge.jar\n"
+"RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \\;\n"
+"ENV EXTRA_JVM_OPTS=\"-XX:+ExitOnOutOfMemoryError\"\n"
+"VOLUME /var/opt/openems/config\n"
+"VOLUME /var/opt/openems/data\n"
+"EXPOSE 8080 8085\n"
+msgstr ""
+"FROM base_container\n"
+"COPY --from=build_edge --chown=abc:abc /opt/root/ /\n"
+"COPY --from=build_edge --chown=abc:abc /opt/openems-edge.jar /opt/openems/openems-edge.jar\n"
+"RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \\;\n"
+"ENV EXTRA_JVM_OPTS=\"-XX:+ExitOnOutOfMemoryError\"\n"
+"VOLUME /var/opt/openems/config\n"
+"VOLUME /var/opt/openems/data\n"
+"EXPOSE 8080 8085\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**The base is the linuxserver.io Alpine image** with the tag `+edge+` "
+"(Alpine development branch). It provides the init system s6-overlay, the "
+"user `+abc+` and the helper `+lsiown+`. Because `+edge+` is a moving tag, "
+"two builds of the same commit can contain different base packages."
+msgstr ""
+"**Basis ist das Alpine-Image von linuxserver.io** im Tag `+edge+` (Alpine-"
+"Entwicklungszweig). Es bringt das Init-System s6-overlay, den Benutzer "
+"`+abc+` und das Hilfsprogramm `+lsiown+` mit. Weil `+edge+` ein beweglicher "
+"Tag ist, können zwei Builds desselben Commits unterschiedliche Basis-Pakete "
+"enthalten."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Java** comes as a Temurin JRE from the Adoptium APK repository, version "
+"from `+JAVA_VERSION+` (default 25, matching `+javac.target: 25+` in `+cnf/"
+"build.bnd+`)."
+msgstr ""
+"**Java** kommt als Temurin-JRE aus dem APK-Repository von Adoptium, Version "
+"aus `+JAVA_VERSION+` (Voreinstellung 25, passend zu `+javac.target: 25+` in "
+"`+cnf/build.bnd+`). Im APK-Repository von Adoptium gibt es JRE-Pakete "
+"`+temurin-NN-jre+` für die Versionen 8, 11, 17 und 20 bis 27 (Stand "
+"01.11.2026, x86_64), also auch für 25."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"There is **no `+HEALTHCHECK+`** in the Dockerfiles. `+docker ps+` therefore "
+"only shows “Up”, not “healthy”."
+msgstr ""
+"Es gibt **keinen `+HEALTHCHECK+`** in den Dockerfiles. `+docker ps+` zeigt "
+"daher nur „Up“, nicht „healthy“."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Start sequence (s6-overlay)"
+msgstr "Startablauf (s6-overlay)"
+
+#. type: #sec-start-sequence-s6-overlay
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The entry point is `+/init+` of s6-overlay. The services are under `+/etc/s6-"
+"overlay/s6-rc.d/+` in the respective `+root/+` directory."
+msgstr ""
+"Der Einstiegspunkt ist `+/init+` von s6-overlay. Die Dienste liegen unter `+/"
+"etc/s6-overlay/s6-rc.d/+` im jeweiligen `+root/+`-Verzeichnis."
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Service\n"
+"| Type\n"
+"| Task\n"
+"\n"
+"| `+init-adduser+`\n"
+"| oneshot\n"
+"| Sets UID/GID of the user `+abc+` from `+PUID+`/`+PGID+` (default 911/911), shows the banner.\n"
+"| `+init-openems-config+`\n"
+"| oneshot\n"
+"| If `+/var/opt/openems/config+` is empty, the default configuration is copied from `+/var/lib/openems-default-config/+` (Backend additionally `+metadata.json+`, see below).\n"
+"| `+init-permissions+`\n"
+"| oneshot\n"
+"| `+lsiown -R abc:abc /opt/openems /var/opt/openems+`\n"
+"| `+svc-openems-edge+` (or `+-backend+`, `+-backend-edge+`)\n"
+"| longrun\n"
+"| Starts Java as user `+abc+`.\n"
+msgstr ""
+"| Dienst\n"
+"| Typ\n"
+"| Aufgabe\n"
+"\n"
+"| `+init-adduser+`\n"
+"| oneshot\n"
+"| Setzt UID/GID des Benutzers `+abc+` aus `+PUID+`/`+PGID+` (Voreinstellung 911/911), zeigt das Banner.\n"
+"| `+init-openems-config+`\n"
+"| oneshot\n"
+"| Ist `+/var/opt/openems/config+` leer, wird die Grundkonfiguration aus `+/var/lib/openems-default-config/+` hineinkopiert (Backend zusätzlich `+metadata.json+`, siehe unten).\n"
+"| `+init-permissions+`\n"
+"| oneshot\n"
+"| `+lsiown -R abc:abc /opt/openems /var/opt/openems+`\n"
+"| `+svc-openems-edge+` (bzw. `+-backend+`, `+-backend-edge+`)\n"
+"| longrun\n"
+"| Startet Java als Benutzer `+abc+`.\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Java call of the Edge"
+msgstr "Java-Aufruf der Edge"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"/usr/bin/java \\\n"
+"  -Dosgi.clean=true \\\n"
+"  -Dorg.apache.felix.eventadmin.Timeout=0 \\\n"
+"  -Dorg.apache.felix.http.host=0.0.0.0 \\\n"
+"  -Dorg.apache.felix.http.port=8080 \\\n"
+"  -Dfelix.cm.dir=/var/opt/openems/config \\\n"
+"  -Dopenems.data.dir=/var/opt/openems/data \\\n"
+"  -Djava.net.preferIPv4Stack=true \\\n"
+"  $EXTRA_JVM_OPTS \\\n"
+"  -jar /opt/openems/openems-edge.jar\n"
+msgstr ""
+"/usr/bin/java \\\n"
+"  -Dosgi.clean=true \\\n"
+"  -Dorg.apache.felix.eventadmin.Timeout=0 \\\n"
+"  -Dorg.apache.felix.http.host=0.0.0.0 \\\n"
+"  -Dorg.apache.felix.http.port=8080 \\\n"
+"  -Dfelix.cm.dir=/var/opt/openems/config \\\n"
+"  -Dopenems.data.dir=/var/opt/openems/data \\\n"
+"  -Djava.net.preferIPv4Stack=true \\\n"
+"  $EXTRA_JVM_OPTS \\\n"
+"  -jar /opt/openems/openems-edge.jar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+felix.cm.dir+` and `+openems.data.dir+` override the paths `+c:/openems/…"
+"+` from `+EdgeApp.bndrun+`."
+msgstr ""
+"`+felix.cm.dir+` und `+openems.data.dir+` überschreiben die Pfade `+c:/"
+"openems/…+` aus `+EdgeApp.bndrun+`."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+org.apache.felix.http.host=0.0.0.0+`: the Apache Felix Web Console listens "
+"on all interfaces of the container. If port 8080 is published, the console "
+"is reachable from outside."
+msgstr ""
+"`+org.apache.felix.http.host=0.0.0.0+`: Die Apache Felix Web Console lauscht "
+"auf allen Schnittstellen des Containers. Wird Port 8080 veröffentlicht, ist "
+"die Konsole von außen erreichbar."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`pass:c[-XX:+ExitOnOutOfMemoryError]` is part of the default value of "
+"`+EXTRA_JVM_OPTS+`: if memory runs out, the JVM exits and s6 restarts the "
+"service. **If you set `+EXTRA_JVM_OPTS+` yourself, the default value is "
+"replaced**; include this option if you want to keep it."
+msgstr ""
+"`pass:c[-XX:+ExitOnOutOfMemoryError]` steckt in der Voreinstellung von "
+"`+EXTRA_JVM_OPTS+`: Bei Speichermangel beendet sich die JVM, s6 startet den "
+"Dienst neu. **Wer `+EXTRA_JVM_OPTS+` selbst setzt, ersetzt die "
+"Voreinstellung**; die Option also mit angeben, wenn sie bleiben soll."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Backend and Backend-Edge additionally have `pass:c[-XX:+UseZGC -XX:"
+"+UseCompactObjectHeaders]` in the default value."
+msgstr ""
+"Backend und Backend-Edge haben in der Voreinstellung zusätzlich `pass:c[-XX:"
+"+UseZGC -XX:+UseCompactObjectHeaders]`."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Readiness check:** `+s6-notifyoncheck -d -n 300 -w 1000 -c \"nc -z "
+"127.0.0.1 8080\"+` reports the service as ready as soon as the Felix port "
+"responds (up to 300 attempts at intervals of 1 s). This only takes effect "
+"within s6, not as a Docker health check."
+msgstr ""
+"**Bereitschaftsprüfung:** `+s6-notifyoncheck -d -n 300 -w 1000 -c \"nc -z "
+"127.0.0.1 8080\"+` meldet den Dienst als bereit, sobald der Felix-Port "
+"antwortet (bis zu 300 Versuche im Abstand von 1 s). Das wirkt nur innerhalb "
+"von s6, nicht als Docker-Healthcheck."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Default configuration of the Edge"
+msgstr "Grundkonfiguration der Edge"
+
+#. type: #sec-default-configuration-of-the-edge
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"At the first start, these files are copied to `+/var/opt/openems/config+`:"
+msgstr ""
+"Beim ersten Start werden diese Dateien nach `+/var/opt/openems/config+` "
+"kopiert:"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| File\n"
+"| Component\n"
+"\n"
+"| `+Core/*.config+`\n"
+"| `+_appManager+`, `+_componentManager+`, `+_cycle+`, `+_energy+`, `+_meta+`, `+_predictorManager+`, `+_serialNumber+`, `+_sum+`\n"
+"| `+Scheduler/AllAlphabetically/default.config+`\n"
+"| `+scheduler0+` (all Controllers alphabetically)\n"
+"| `+Controller/Api/Websocket/default.config+`\n"
+"| `+ctrlApiWebsocket0+`, port 8085, `+apiTimeout+` 60 s\n"
+msgstr ""
+"| Datei\n"
+"| Komponente\n"
+"\n"
+"| `+Core/*.config+`\n"
+"| `+_appManager+`, `+_componentManager+`, `+_cycle+`, `+_energy+`, `+_meta+`, `+_predictorManager+`, `+_serialNumber+`, `+_sum+`\n"
+"| `+Scheduler/AllAlphabetically/default.config+`\n"
+"| `+scheduler0+` (alle Controller alphabetisch)\n"
+"| `+Controller/Api/Websocket/default.config+`\n"
+"| `+ctrlApiWebsocket0+`, Port 8085, `+apiTimeout+` 60 s\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"No devices, no Backend connection, no REST API, no Timedata (rrd4j). The "
+"check “directory empty?” only applies at the very first start. If you want "
+"to provide your own default configuration, put it in `+tools/docker/edge/"
+"root/var/lib/openems-default-config/+` and rebuild the image, or fill the "
+"volume before the first start."
+msgstr ""
+"Keine Geräte, kein Backend-Anschluss, keine REST-API, keine Timedata "
+"(rrd4j). Die Prüfung „Verzeichnis leer?“ greift nur beim allerersten Start. "
+"Wer eine eigene Grundkonfiguration mitliefern will, legt sie in `+tools/"
+"docker/edge/root/var/lib/openems-default-config/+` ab und baut das Image "
+"neu, oder befüllt das Volume vor dem ersten Start."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Environment variables (Java images)"
+msgstr "Umgebungsvariablen (Java-Images)"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Variable\n"
+"| Default\n"
+"| Effect\n"
+"\n"
+"| `+EXTRA_JVM_OPTS+`\n"
+"| see above\n"
+"| Additional JVM options, e.g. `+-Xmx512m+`, `+-Duser.timezone=Europe/Berlin+` or `+-agentlib:jdwp=…+` for debugging.\n"
+"| `+PUID+` / `+PGID+`\n"
+"| 911 / 911\n"
+"| UID/GID of the user `+abc+`. Important for bind mounts instead of named volumes and for access to devices such as `+/dev/ttyUSB0+`.\n"
+"| `+TZ+`\n"
+"| –\n"
+"| Time zone of the JVM. On Linux, Java adopts the variable `+TZ+`; the time zone data (`+tzdata+`) is installed by the linuxserver base image. Not set in the OpenEMS code.\n"
+msgstr ""
+"| Variable\n"
+"| Voreinstellung\n"
+"| Wirkung\n"
+"\n"
+"| `+EXTRA_JVM_OPTS+`\n"
+"| siehe oben\n"
+"| Zusätzliche JVM-Optionen, z. B. `+-Xmx512m+`, `+-Duser.timezone=Europe/Berlin+` oder `+-agentlib:jdwp=…+` zum Debuggen.\n"
+"| `+PUID+` / `+PGID+`\n"
+"| 911 / 911\n"
+"| UID/GID des Benutzers `+abc+`. Wichtig bei Bind-Mounts statt Named Volumes und für den Zugriff auf Geräte wie `+/dev/ttyUSB0+`.\n"
+"| `+TZ+`\n"
+"| –\n"
+"| Zeitzone der JVM. Java übernimmt unter Linux die Variable `+TZ+`, die Zeitzonendaten (`+tzdata+`) installiert das linuxserver-Basisimage. Im OpenEMS-Code nicht gesetzt.\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Operating the Edge with the UI"
+msgstr "Edge mit UI betreiben"
+
+#. type: #sec-operating-the-edge-with-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Compose file is in xref:edge/deploy/docker.adoc[Deploy OpenEMS Edge to "
+"Docker] and in `+tools/docker/edge/docker-compose.yml+`. How to log in is "
+"described there and in xref:gettingstarted.adoc[Getting Started]."
+msgstr ""
+"Die Compose-Datei steht in xref:latest@edge/deploy/docker.adoc[Deploy "
+"OpenEMS Edge to Docker] und in `+tools/docker/edge/docker-compose.yml+`. Die "
+"Anmeldung beschreiben diese Seite und "
+"xref:latest@gettingstarted.adoc[Getting Started]."
+
+#. type: #sec-operating-the-edge-with-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Port 8085 does not need to be published** if only the UI from the "
+"container is used: the UI connects to `+ws(s)://<site>/openems-edge+` (`+ui/"
+"src/themes/openems/environments/edge-docker.ts+`), and nginx forwards this "
+"to the Edge in the Compose network. Publishing is only needed for direct "
+"clients (e.g. `+ng serve+` on the development machine or scripts)."
+msgstr ""
+"**Port 8085 muss nicht veröffentlicht werden**, wenn nur die UI aus dem "
+"Container genutzt wird: Die UI baut ihre Verbindung zu `+ws(s)://<Seite>/"
+"openems-edge+` auf (`+ui/src/themes/openems/environments/edge-docker.ts+`), "
+"und nginx leitet sie im Compose-Netz an die Edge weiter. Die "
+"Veröffentlichung braucht man nur für direkte Clients (z. B. `+ng serve+` auf "
+"dem Entwicklungsrechner oder Skripte)."
+
+#. type: #sec-operating-the-edge-with-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Apache Felix Web Console is also no longer needed after setup. In "
+"operation, port 8080 should not be open to the network or should only be "
+"bound to `+127.0.0.1+` (`+127.0.0.1:8080:8080+`)."
+msgstr ""
+"Ebenso ist die Apache Felix Web Console nach der Einrichtung nicht mehr "
+"nötig. Im Betrieb sollte Port 8080 nicht offen ins Netz zeigen oder nur an "
+"`+127.0.0.1+` gebunden werden (`+127.0.0.1:8080:8080+`)."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Data and configuration"
+msgstr "Daten und Konfiguration"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Volume\n"
+"| Path in the container\n"
+"| Content\n"
+"\n"
+"| `+openems-edge-conf+`\n"
+"| `+/var/opt/openems/config+`\n"
+"| Configuration Admin files (`+*.config+`), one file per component\n"
+"| `+openems-edge-data+`\n"
+"| `+/var/opt/openems/data+`\n"
+"| Data of the components, e.g. rrd4j history\n"
+msgstr ""
+"| Volume\n"
+"| Pfad im Container\n"
+"| Inhalt\n"
+"\n"
+"| `+openems-edge-conf+`\n"
+"| `+/var/opt/openems/config+`\n"
+"| Configuration-Admin-Dateien (`+*.config+`), eine Datei je Komponente\n"
+"| `+openems-edge-data+`\n"
+"| `+/var/opt/openems/data+`\n"
+"| Daten der Komponenten, z. B. rrd4j-Historie, Zustände\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "Backup:"
+msgstr "Sichern:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker run --rm -v openems-edge-conf:/src:ro -v \"$PWD\":/dst alpine \\\n"
+"  tar czf /dst/openems-edge-conf.tgz -C /src .\n"
+msgstr ""
+"docker run --rm -v openems-edge-conf:/src:ro -v \"$PWD\":/dst alpine \\\n"
+"  tar czf /dst/openems-edge-conf.tgz -C /src .\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Note: Compose prefixes volume names with the project name (usually the "
+"directory name, e.g. `+edge_openems-edge-conf+`). `+docker volume ls+` shows "
+"the real name."
+msgstr ""
+"Hinweis: Compose stellt Volume-Namen den Projektnamen voran (meist der "
+"Verzeichnisname, z. B. `+edge_openems-edge-conf+`). Den echten Namen zeigt "
+"`+docker volume ls+`."
+
+#. type: Title ====
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Paths on the Docker host"
+msgstr "Pfade auf dem Docker-Host"
+
+#. type: #sec-paths-on-the-docker-host
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"On a normal Docker installation (Ubuntu, Debian), named volumes are located "
+"under `+/var/lib/docker/volumes/<project>_<volume>/_data+`. This does not "
+"apply if Docker is installed as a Snap (then `+/var/snap/docker/common/var-"
+"lib-docker/volumes/…+`), runs in rootless mode or has its own `+data-root+`. "
+"The actual path is shown by:"
+msgstr ""
+"Bei einer normalen Docker-Installation (Ubuntu, Debian) liegen benannte "
+"Volumes unter `+/var/lib/docker/volumes/<Projekt>_<Volume>/_data+`. Das gilt "
+"nicht, wenn Docker als Snap installiert ist (dann `+/var/snap/docker/common/"
+"var-lib-docker/volumes/…+`), im Rootless-Modus läuft oder ein eigenes `+data-"
+"root+` gesetzt ist. Den tatsächlichen Pfad zeigt:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "docker volume inspect <project>_openems-edge-conf --format '{{.Name}}: {{.Mountpoint}}'\n"
+msgstr "docker volume inspect <Projekt>_openems-edge-conf --format '{{.Name}}: {{.Mountpoint}}'\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Root permissions are required for `+/var/lib/docker+`. The files belong to "
+"the user `+abc+` in the container (UID 911)."
+msgstr ""
+"Für `+/var/lib/docker+` sind root-Rechte nötig. Die Dateien gehören dem "
+"Benutzer `+abc+` im Container (UID 911)."
+
+#. type: Title ====
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Accessing files"
+msgstr "Zugriff auf Dateien"
+
+#. type: #sec-accessing-files
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"In the Compose file of the repository, the container is called "
+"`+openems_edge+`; `+docker ps+` shows the real name."
+msgstr ""
+"In der Compose-Datei des Repositorys heißt der Container `+openems_edge+`; "
+"den echten Namen zeigt `+docker ps+`."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker exec -it openems_edge bash                    # as root\n"
+"docker exec -it -u abc openems_edge bash             # as the user of the Edge\n"
+"docker exec -u abc openems_edge ls -R /var/opt/openems/config\n"
+"docker cp openems_edge:/var/opt/openems/config ./config-copy\n"
+msgstr ""
+"docker exec -it openems_edge bash                    # als root\n"
+"docker exec -it -u abc openems_edge bash             # als Benutzer der Edge\n"
+"docker exec -u abc openems_edge ls -R /var/opt/openems/config\n"
+"docker cp openems_edge:/var/opt/openems/config ./config-kopie\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Only edit `+.config+` files directly when the container is stopped (`+docker "
+"compose stop openems-edge+`) and do not change owner and permissions. "
+"Reason: Felix Configuration Admin (version 1.9.26) keeps the configurations "
+"in memory (`+CachingPersistenceManagerProxy+`) and does not re-read the "
+"files during operation. A change to the file therefore only takes effect "
+"after a restart. If the same configuration is saved beforehand via the UI, "
+"Configuration Admin writes the state from memory to the file, and the manual "
+"change is gone. During operation, it is better to make changes via the UI or "
+"the Apache Felix Web Console."
+msgstr ""
+"`+.config+`-Dateien direkt nur bei gestopptem Container bearbeiten (`+docker "
+"compose stop openems-edge+`) und Eigentümer und Rechte nicht ändern. Grund: "
+"Felix Configuration Admin (Version 1.9.26) hält die Konfigurationen im "
+"Speicher (`+CachingPersistenceManagerProxy+`) und liest die Dateien im "
+"laufenden Betrieb nicht neu. Eine Änderung an der Datei wirkt deshalb erst "
+"nach einem Neustart. Wird dieselbe Konfiguration vorher über die UI "
+"gespeichert, schreibt Configuration Admin den Stand aus dem Speicher in die "
+"Datei, und die Handänderung ist weg. Im laufenden Betrieb besser über die UI "
+"oder die Apache Felix Web Console ändern."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Restarting"
+msgstr "Neu starten"
+
+#. type: #sec-restarting
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "In the directory of the Compose file:"
+msgstr "Im Verzeichnis der Compose-Datei:"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Command\n"
+"| Effect\n"
+"| When\n"
+"\n"
+"| `+docker compose restart <service>+`\n"
+"| restarts the existing container with its previous settings\n"
+"| restart the Edge, e.g. after changing `+.config+` files\n"
+"| `+docker compose up -d <service>+`\n"
+"| recreates the container if the Compose file has changed\n"
+"| after changing `+hostname+`, `+environment+` (e.g. `+EXTRA_JVM_OPTS+`), ports, mounts or image\n"
+"| `+docker compose up -d --force-recreate <service>+`\n"
+"| always recreates the container\n"
+"| if only the content of a bind mount has changed and you want to be sure\n"
+msgstr ""
+"| Befehl\n"
+"| Wirkung\n"
+"| Wann\n"
+"\n"
+"| `+docker compose restart <dienst>+`\n"
+"| Startet den bestehenden Container mit seinen bisherigen Einstellungen neu\n"
+"| Edge neu starten, z. B. nach Änderung von `+.config+`-Dateien\n"
+"| `+docker compose up -d <dienst>+`\n"
+"| Erstellt den Container neu, wenn sich die Compose-Datei geändert hat\n"
+"| Nach Änderung von `+hostname+`, `+environment+` (z. B. `+EXTRA_JVM_OPTS+`), Ports, Mounts oder Image\n"
+"| `+docker compose up -d --force-recreate <dienst>+`\n"
+"| Erstellt den Container in jedem Fall neu\n"
+"| Wenn sich nur der Inhalt eines Bind-Mounts geändert hat und man sichergehen will\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The volumes are retained in all three cases. There is no `+systemctl restart "
+"openems+` in the container as on a Debian installation; the Edge is started "
+"and monitored by s6."
+msgstr ""
+"Die Volumes bleiben in allen drei Fällen erhalten. Ein `+systemctl restart "
+"openems+` wie auf einer Debian-Installation gibt es im Container nicht; die "
+"Edge wird von s6 gestartet und überwacht."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Restarting only the Java process, without the container (derived from the "
+"structure of s6-overlay v3, not checked in the container):"
+msgstr ""
+"Nur den Java-Prozess neu starten, ohne den Container (abgeleitet aus dem "
+"Aufbau von s6-overlay v3, nicht im Container geprüft):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker exec openems_edge ls /run/service                     # check the path\n"
+"docker exec openems_edge s6-svc -r /run/service/svc-openems-edge\n"
+msgstr ""
+"docker exec openems_edge ls /run/service                     # Pfad prüfen\n"
+"docker exec openems_edge s6-svc -r /run/service/svc-openems-edge\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Update"
+msgstr "Update"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker compose pull\n"
+"docker compose up -d\n"
+msgstr ""
+"docker compose pull\n"
+"docker compose up -d\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Configuration and data are retained in the volumes. `+Core.Host+` recognizes "
+"the container by the file `+/.dockerenv+` and then uses "
+"`+OperatingSystemDocker+`. Network settings, network information, system "
+"restart and system update are not implemented there; the UI receives an "
+"error message or does not offer an update. Updates in Docker operation are "
+"done via new images."
+msgstr ""
+"Konfiguration und Daten bleiben in den Volumes erhalten. `+Core.Host+` "
+"erkennt den Container an der Datei `+/.dockerenv+` und nutzt dann "
+"`+OperatingSystemDocker+`. Netzwerk-Einstellungen, Netzwerk-Infos, Neustart "
+"des Systems und System-Update sind dort nicht umgesetzt; die UI bekommt eine "
+"Fehlermeldung bzw. bietet kein Update an. Updates laufen im Docker-Betrieb "
+"über neue Images."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Building images yourself"
+msgstr "Images selbst bauen"
+
+#. type: #sec-building-images-yourself
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "In the root directory of the repository:"
+msgstr "Im Wurzelverzeichnis des Repositorys:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker build . -t openems_edge         -f tools/docker/edge/Dockerfile\n"
+"docker build . -t openems_ui-edge      -f tools/docker/ui/Dockerfile.edge\n"
+"docker build . -t openems_backend      -f tools/docker/backend/Dockerfile\n"
+"docker build . -t openems_backend-edge -f tools/docker/backend-edge/Dockerfile\n"
+"docker build . -t openems_ui-backend   -f tools/docker/ui/Dockerfile.backend\n"
+msgstr ""
+"docker build . -t openems_edge         -f tools/docker/edge/Dockerfile\n"
+"docker build . -t openems_ui-edge      -f tools/docker/ui/Dockerfile.edge\n"
+"docker build . -t openems_backend      -f tools/docker/backend/Dockerfile\n"
+"docker build . -t openems_backend-edge -f tools/docker/backend-edge/Dockerfile\n"
+"docker build . -t openems_ui-backend   -f tools/docker/ui/Dockerfile.backend\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Then enter `+image: openems_edge+` etc. in the Compose file, or have Compose "
+"build it directly:"
+msgstr ""
+"In der Compose-Datei dann `+image: openems_edge+` usw. eintragen, oder in "
+"Compose direkt bauen lassen:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"  openems-edge:\n"
+"    build:\n"
+"      context: /path/to/openems\n"
+"      dockerfile: tools/docker/edge/Dockerfile\n"
+"    image: openems_edge:dev\n"
+msgstr ""
+"  openems-edge:\n"
+"    build:\n"
+"      context: /pfad/zum/openems\n"
+"      dockerfile: tools/docker/edge/Dockerfile\n"
+"    image: openems_edge:dev\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Close Eclipse** or at least stop the automatic build. If another program "
+"accesses the project files during the build, according to the README the "
+"build aborts with “failed to solve: error from sender: context canceled”."
+msgstr ""
+"**Eclipse schließen** oder zumindest den automatischen Build anhalten. "
+"Greift ein anderes Programm während des Builds auf die Projektdateien zu, "
+"bricht der Build laut README mit „failed to solve: error from sender: "
+"context canceled“ ab."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The build context comprises the entire repository, and there is no "
+"`+.dockerignore+`. `+ui/node_modules+`, `+build/+`, `+generated/+` and "
+"`+.metadata+` (Eclipse) are therefore also transferred. This makes the build "
+"slower (not measured)."
+msgstr ""
+"Der Build-Kontext umfasst das ganze Repository. Eine `+.dockerignore+` gibt "
+"es nicht, deshalb werden auch `+ui/node_modules+`, `+build/+`, `+generated/"
+"+` und `+.metadata+` (Eclipse) übertragen. Das macht den Build langsam, "
+"schadet aber nicht (nicht gemessen)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**For a different architecture** (e.g. arm64 for a Raspberry Pi, built on an "
+"amd64 machine) with buildx (not tried out):"
+msgstr ""
+"**Für eine andere Architektur** (z. B. arm64 für einen Raspberry Pi, auf "
+"einem amd64-Rechner gebaut) mit buildx (nicht ausprobiert):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker buildx build --platform linux/arm64 -t openems_edge:arm64 \\\n"
+"  -f tools/docker/edge/Dockerfile --load .\n"
+msgstr ""
+"docker buildx build --platform linux/arm64 -t openems_edge:arm64 \\\n"
+"  -f tools/docker/edge/Dockerfile --load .\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "UI image"
+msgstr "UI-Image"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"ARG NODE=24\n"
+"ARG NPM=11\n"
+"ARG VERSION=\"openems,openems-edge-docker,prod\"\n"
+msgstr ""
+"ARG NODE=24\n"
+"ARG NPM=11\n"
+"ARG VERSION=\"openems,openems-edge-docker,prod\"\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui\n"
+"COPY ui/ /src/\n"
+"...\n"
+"RUN npm install -g \"npm@${NPM}\" && npm ci && node_modules/.bin/ng build -c \"$VERSION\"\n"
+msgstr ""
+"FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui\n"
+"COPY ui/ /src/\n"
+"...\n"
+"RUN npm install -g \"npm@${NPM}\" && npm ci && node_modules/.bin/ng build -c \"$VERSION\"\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base\n"
+"RUN apk add --update --no-cache nginx openssl bash dos2unix rsync gettext\n"
+"...\n"
+"COPY --from=build_ui --chown=abc:abc /src/target/ /var/www/html/openems/\n"
+msgstr ""
+"FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base\n"
+"RUN apk add --update --no-cache nginx openssl bash dos2unix rsync gettext\n"
+"...\n"
+"COPY --from=build_ui --chown=abc:abc /src/target/ /var/www/html/openems/\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+VERSION+` selects the Angular configuration from `+ui/angular.json+`: "
+"theme (`+openems+`), environment (`+openems-edge-docker+` or `+openems-"
+"backend-docker+`) and `+prod+`. A separate theme can be built with `+--build-"
+"arg VERSION=…+` if it is entered in `+angular.json+`."
+msgstr ""
+"`+VERSION+` wählt die Angular-Konfiguration aus `+ui/angular.json+`: Theme "
+"(`+openems+`), Umgebung (`+openems-edge-docker+` bzw. `+openems-backend-"
+"docker+`) und `+prod+`. Ein eigenes Theme lässt sich so mit `+--build-arg "
+"VERSION=…+` bauen, wenn es in `+angular.json+` eingetragen ist."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Unlike the Java images, `+ui/+` is copied into the image here via `+COPY+`. "
+"`+npm ci+` deletes an existing `+node_modules+` and reinstalls; a local "
+"`+node_modules+` only increases the build context."
+msgstr ""
+"Anders als bei den Java-Images wird `+ui/+` hier per `+COPY+` in das Image "
+"kopiert. Ein lokales `+ui/node_modules+` landet damit ebenfalls im Build-"
+"Kontext und in der Build-Stufe; `+npm ci+` löscht ein vorhandenes "
+"`+node_modules+` und installiert neu."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Replacing the program and the UI"
+msgstr "Programm und Oberfläche austauschen"
+
+#. type: #sec-replacing-the-program-and-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"This section describes how to replace the program (JAR) and the UI in a "
+"running Docker installation without building an image, and how to test an "
+"Edge beforehand as a clone. Check the names of containers and volumes "
+"beforehand with `+docker compose ps+` and `+docker volume ls+`."
+msgstr ""
+"Dieser Abschnitt beschreibt, wie man in einer laufenden Docker-Installation "
+"das Programm (JAR) und die Oberfläche austauscht, ohne ein Image zu bauen, "
+"und wie man eine Edge vorher als Klon testet. Namen von Containern und "
+"Volumes vorher mit `+docker compose ps+` und `+docker volume ls+` prüfen."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Replacing the program (JAR)"
+msgstr "Programm (JAR) austauschen"
+
+#. type: #sec-replacing-the-program-jar
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The start command in the container always calls `+/opt/openems/openems-"
+"edge.jar+`, with `+-Dosgi.clean=true+`. The bundle cache is therefore "
+"emptied at every start, so a new JAR takes full effect."
+msgstr ""
+"Der Startbefehl im Container ruft immer `+/opt/openems/openems-edge.jar+` "
+"auf, mit `+-Dosgi.clean=true+`. Der Bundle-Zwischenspeicher wird also bei "
+"jedem Start geleert, ein neues JAR wirkt vollständig."
+
+#. type: #sec-replacing-the-program-jar
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "**New official image:** see <<sec-update,Update>>."
+msgstr "**Neues offizielles Image:** siehe <<sec-update,Update>>."
+
+#. type: #sec-replacing-the-program-jar
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Your own JAR:** build it in the repository and place it over the JAR in "
+"the image."
+msgstr "**Eigenes JAR:** im Repository bauen und über das JAR im Image legen."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"./gradlew buildEdge                      # creates build/openems-edge.jar\n"
+"sha256sum build/openems-edge.jar\n"
+"# copy it to the Docker host, then in the Compose file:\n"
+"#   volumes:\n"
+"#     - ./openems-edge.jar:/opt/openems/openems-edge.jar:ro\n"
+"docker compose up -d --force-recreate openems-edge\n"
+"docker exec openems_edge sha256sum /opt/openems/openems-edge.jar\n"
+msgstr ""
+"./gradlew buildEdge                      # erzeugt build/openems-edge.jar\n"
+"sha256sum build/openems-edge.jar\n"
+"# auf den Docker-Host kopieren, dann in der Compose-Datei:\n"
+"#   volumes:\n"
+"#     - ./openems-edge.jar:/opt/openems/openems-edge.jar:ro\n"
+"docker compose up -d --force-recreate openems-edge\n"
+"docker exec openems_edge sha256sum /opt/openems/openems-edge.jar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The state of the working directory is built, including changes that have not "
+"been checked in, e.g. to `+EdgeApp.bndrun+`."
+msgstr ""
+"Gebaut wird der Stand des Arbeitsverzeichnisses, also auch nicht "
+"eingecheckte Änderungen, z. B. an `+EdgeApp.bndrun+`."
+
+#. type: Title ====
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Replacing it directly by copying"
+msgstr "Direkt durch Kopieren ersetzen"
+
+#. type: #sec-replacing-it-directly-by-copying
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Without changing the Compose file and without recreating the container, the "
+"JAR can also be overwritten directly. The container is stopped for this so "
+"that the running JVM does not read the JAR while it is being overwritten "
+"(not tried out)."
+msgstr ""
+"Ohne Änderung der Compose-Datei und ohne Neuerstellen des Containers lässt "
+"sich das JAR auch direkt überschreiben. Der Container wird dafür angehalten, "
+"damit die laufende JVM das JAR nicht liest, während es überschrieben wird "
+"(nicht ausprobiert)."
+
+#. type: #sec-replacing-it-directly-by-copying
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**JAR bound via bind mount:** overwrite the file on the host. `+cp+` on an "
+"existing file writes to the same file; the bind mount then points to the new "
+"content without recreating. With `+:ro+`, only access from the container is "
+"blocked."
+msgstr ""
+"**JAR per Bind-Mount eingebunden:** die Datei auf dem Host überschreiben. "
+"`+cp+` auf eine bestehende Datei schreibt in dieselbe Datei; der Bind-Mount "
+"zeigt danach ohne Neuerstellen auf den neuen Inhalt. Mit `+:ro+` ist nur der "
+"Zugriff aus dem Container gesperrt."
+
+#. type: #sec-replacing-it-directly-by-copying
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**JAR in the image, without bind mount:** copy it into the container with "
+"`+docker cp+`."
+msgstr ""
+"**JAR im Image, ohne Bind-Mount:** mit `+docker cp+` in den Container "
+"kopieren."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker stop openems_edge\n"
+"docker cp build/openems-edge.jar openems_edge:/opt/openems/openems-edge.jar\n"
+"docker start openems_edge\n"
+"docker exec openems_edge sha256sum /opt/openems/openems-edge.jar\n"
+msgstr ""
+"docker stop openems_edge\n"
+"docker cp build/openems-edge.jar openems_edge:/opt/openems/openems-edge.jar\n"
+"docker start openems_edge\n"
+"docker exec openems_edge sha256sum /opt/openems/openems-edge.jar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"A JAR copied with `+docker cp+` ends up in the writable layer of the "
+"container. It is retained with `+docker stop+`/`+start+` and `+docker "
+"restart+`, but is lost as soon as the container is recreated. For a "
+"permanent replacement, use the bind mount."
+msgstr ""
+"Mit `+docker cp+` kopiert landet das JAR in der beschreibbaren Schicht des "
+"Containers. Es bleibt bei `+docker stop+`/`+start+` und `+docker restart+` "
+"erhalten, geht aber verloren, sobald der Container neu erstellt wird. Für "
+"einen dauerhaften Austausch den Bind-Mount verwenden."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Replacing the UI"
+msgstr "Oberfläche austauschen"
+
+#. type: #sec-replacing-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Official image:** `+docker compose pull openems-ui+` and `+docker compose "
+"up -d openems-ui+`. Changed nginx templates do not reach an existing volume "
+"`+/etc/nginx+` (see <<sec-ui-pitfalls,UI pitfalls>>)."
+msgstr ""
+"**Offizielles Image:** `+docker compose pull openems-ui+` und `+docker "
+"compose up -d openems-ui+`. Geänderte nginx-Vorlagen erreichen ein "
+"bestehendes Volume `+/etc/nginx+` nicht (siehe <<sec-ui-"
+"pitfalls,Stolperstellen der UI>>)."
+
+#. type: #sec-replacing-the-ui
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Your own UI:** build it with the same Angular configuration as the "
+"Dockerfile and place the result over the web directory of the container `+/"
+"var/www/html/openems+`. The build result is in `+ui/target+`."
+msgstr ""
+"**Eigene Oberfläche:** mit derselben Angular-Konfiguration bauen wie das "
+"Dockerfile und das Ergebnis über das Web-Verzeichnis des Containers `+/var/"
+"www/html/openems+` legen. Das Build-Ergebnis liegt in `+ui/target+`."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"cd ui\n"
+"npm ci\n"
+"node_modules/.bin/ng build -c \"openems,openems-edge-docker,prod\"\n"
+"ls target/index.html\n"
+"# copy the content of ui/target to the Docker host, then in the Compose file:\n"
+"#   volumes:\n"
+"#     - ./openems-www:/var/www/html/openems:ro\n"
+"docker compose up -d --force-recreate openems-ui\n"
+msgstr ""
+"cd ui\n"
+"npm ci\n"
+"node_modules/.bin/ng build -c \"openems,openems-edge-docker,prod\"\n"
+"ls target/index.html\n"
+"# Inhalt von ui/target auf den Docker-Host kopieren, dann in der Compose-Datei:\n"
+"#   volumes:\n"
+"#     - ./openems-www:/var/www/html/openems:ro\n"
+"docker compose up -d --force-recreate openems-ui\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Then reload the page in the browser without cache. These steps are derived "
+"from the Dockerfile and Compose file and have not been tried out."
+msgstr ""
+"Danach die Seite im Browser ohne Cache neu laden. Die Schritte sind aus "
+"Dockerfile und Compose-Datei abgeleitet und nicht ausprobiert."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Loading bundles via FileInstall"
+msgstr "Bundles über FileInstall nachladen"
+
+#. type: #sec-loading-bundles-via-fileinstall
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The bundle `+org.apache.felix.fileinstall+` is part of the Edge and monitors "
+"a directory: it installs bundles (`+.jar+`) and configurations (`+.cfg+`, "
+"`+.config+`) placed there during operation. The start script of the image "
+"does not set `+felix.fileinstall.dir+`. Without this, FileInstall uses `+./"
+"load+`, relative to the working directory of the JVM, i.e. the service "
+"directory of s6. This is neither in a volume nor in a bind mount, so the "
+"directory in the container should have its own location."
+msgstr ""
+"Das Bundle `+org.apache.felix.fileinstall+` ist Teil der Edge und überwacht "
+"ein Verzeichnis: Dort abgelegte Bundles (`+.jar+`) und Konfigurationen "
+"(`+.cfg+`, `+.config+`) installiert es im laufenden Betrieb. Das Startskript "
+"des Images setzt `+felix.fileinstall.dir+` nicht. Ohne Angabe nimmt "
+"FileInstall `+./load+`, relativ zum Arbeitsverzeichnis der JVM, also dem "
+"Dienstverzeichnis von s6. Das liegt weder in einem Volume noch in einem Bind-"
+"Mount, deshalb gehört das Verzeichnis im Container an einen eigenen Ort."
+
+#. type: #sec-loading-bundles-via-fileinstall
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**1. Create the folder on the host,** in the Compose directory. The Edge "
+"runs as `+abc+` in the container, and the files must be readable for this "
+"user:"
+msgstr ""
+"**1. Ordner auf dem Host anlegen,** im Compose-Verzeichnis. Die Edge läuft "
+"im Container als `+abc+`, die Dateien müssen für diesen Benutzer lesbar sein:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"mkdir -p load\n"
+"chmod a+rX load\n"
+msgstr ""
+"mkdir -p load\n"
+"chmod a+rX load\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "**2. Change the Compose file,** for the Edge service:"
+msgstr "**2. Compose-Datei ändern,** beim Dienst der Edge:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"    environment:\n"
+"      - EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -Dfelix.fileinstall.dir=/opt/openems/load\n"
+"    volumes:\n"
+"      - ./load:/opt/openems/load:ro\n"
+msgstr ""
+"    environment:\n"
+"      - EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -Dfelix.fileinstall.dir=/opt/openems/load\n"
+"    volumes:\n"
+"      - ./load:/opt/openems/load:ro\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The start script splits the options at spaces, so the path must not contain "
+"any."
+msgstr ""
+"Das Startskript trennt die Optionen an Leerzeichen, der Pfad darf also keine "
+"enthalten."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**3. Recreate the container.** `+docker compose restart+` is not sufficient "
+"because environment and mounts change. The volumes are retained."
+msgstr ""
+"**3. Container neu erstellen.** `+docker compose restart+` reicht nicht, "
+"weil sich Umgebung und Mounts ändern. Die Volumes bleiben erhalten."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "docker compose up -d <service>\n"
+msgstr "docker compose up -d <dienst>\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**4. Check:** copy a bundle to the folder. It must appear as `+Active+` in "
+"the Apache Felix Web Console under `+/system/console/bundles+`. FileInstall "
+"checks the directory every 2 seconds (`+felix.fileinstall.poll+`, default "
+"2000 ms)."
+msgstr ""
+"**4. Prüfen:** ein Bundle in den Ordner kopieren. Es muss in der Apache "
+"Felix Web Console unter `+/system/console/bundles+` als `+Active+` "
+"erscheinen. FileInstall prüft das Verzeichnis alle 2 Sekunden "
+"(`+felix.fileinstall.poll+`, Standard 2000 ms)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**New at every start:** the image starts with `+-Dosgi.clean=true+`, so the "
+"file must remain in the folder."
+msgstr ""
+"**Bei jedem Start neu:** Das Image startet mit `+-Dosgi.clean=true+`. Die "
+"Datei muss also im Ordner liegen bleiben."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Bundle missing in the UI:** `+EdgeConfigWorker+` only reads the Factories "
+"when rebuilding the `+EdgeConfig+`, i.e. on the first build and when a "
+"configuration is deleted. It does not react to new bundles. A bundle loaded "
+"later is then missing under “Install components”. Remedy: create a "
+"configuration in the Apache Felix Web Console and delete it again."
+msgstr ""
+"**Bundle fehlt in der Oberfläche:** `+EdgeConfigWorker+` liest die Factories "
+"nur beim Neuaufbau der `+EdgeConfig+`, also beim ersten Aufbau und wenn eine "
+"Konfiguration gelöscht wird. Auf neue Bundles reagiert er nicht. Ein später "
+"geladenes Bundle fehlt dann unter „Komponenten installieren“. Abhilfe: in "
+"der Apache Felix Web Console eine Konfiguration anlegen und wieder löschen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Security:** anyone who can write to the folder can execute code in the "
+"Edge. `+:ro+` only protects against write access from the container."
+msgstr ""
+"**Sicherheit:** Wer in den Ordner schreiben darf, kann Code in der Edge "
+"ausführen. `+:ro+` schützt nur vor Schreibzugriffen aus dem Container."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Cloning an Edge for testing"
+msgstr "Edge zum Testen klonen"
+
+#. type: #sec-cloning-an-edge-for-testing
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"A clone is a second container with copies of the configuration and data, its "
+"own ports and its own name. The original continues to run unchanged. The "
+"clone receives the same configuration and thus queries and controls the same "
+"devices, in parallel with the original. It therefore first starts without a "
+"network."
+msgstr ""
+"Ein Klon ist ein zweiter Container mit Kopien von Konfiguration und Daten, "
+"eigenen Ports und eigenem Namen. Das Original läuft unverändert weiter. Der "
+"Klon bekommt dieselbe Konfiguration und fragt damit dieselben Geräte ab bzw. "
+"steuert sie, parallel zum Original. Deshalb startet er zuerst ohne Netz."
+
+#. type: #sec-cloning-an-edge-for-testing
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "**1. Read out the structure of the original:**"
+msgstr "**1. Aufbau des Originals auslesen:**"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker inspect openems_edge --format '{{range .Mounts}}{{.Type}} {{if eq .Type \"volume\"}}{{.Name}}{{else}}{{.Source}}{{end}} {{.Destination}}{{println}}{{end}}'\n"
+"docker inspect openems_edge --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -v -E '^(PATH|HOME|LANG|S6_|LSIO_|TERM|XDG_|VIRTUAL_ENV)'\n"
+msgstr ""
+"docker inspect openems_edge --format '{{range .Mounts}}{{.Type}} {{if eq .Type \"volume\"}}{{.Name}}{{else}}{{.Source}}{{end}} {{.Destination}}{{println}}{{end}}'\n"
+"docker inspect openems_edge --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -v -E '^(PATH|HOME|LANG|S6_|LSIO_|TERM|XDG_|VIRTUAL_ENV)'\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**2. Copy configuration and data.** Stop the original briefly so that the "
+"data (rrd4j) is not written during copying. `+SRC_CONF+` and `+SRC_DATA+` "
+"are the volume names from step 1:"
+msgstr ""
+"**2. Konfiguration und Daten kopieren.** Das Original dafür kurz anhalten, "
+"damit die Daten (rrd4j) nicht während des Kopierens geschrieben werden. "
+"`+SRC_CONF+` und `+SRC_DATA+` sind die Volume-Namen aus Schritt 1:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker stop openems_edge\n"
+"docker volume create clone-conf\n"
+"docker volume create clone-data\n"
+"docker run --rm --network none -v \"$SRC_CONF\":/from:ro -v clone-conf:/to alpine cp -a /from/. /to/\n"
+"docker run --rm --network none -v \"$SRC_DATA\":/from:ro -v clone-data:/to alpine cp -a /from/. /to/\n"
+"docker start openems_edge\n"
+msgstr ""
+"docker stop openems_edge\n"
+"docker volume create clone-conf\n"
+"docker volume create clone-data\n"
+"docker run --rm --network none -v \"$SRC_CONF\":/from:ro -v clone-conf:/to alpine cp -a /from/. /to/\n"
+"docker run --rm --network none -v \"$SRC_DATA\":/from:ro -v clone-data:/to alpine cp -a /from/. /to/\n"
+"docker start openems_edge\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "**3. Compose file of the clone, first start without a network:**"
+msgstr "**3. Compose-Datei des Klons, erster Start ohne Netz:**"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"services:\n"
+"  openems-edge-clone:\n"
+"    image: openems/edge:latest\n"
+"    container_name: openems-edge-clone\n"
+"    hostname: openems-edge-clone\n"
+"    restart: \"no\"\n"
+"    network_mode: none\n"
+"    volumes:\n"
+"      - clone-conf:/var/opt/openems/config:rw\n"
+"      - clone-data:/var/opt/openems/data:rw\n"
+"volumes:\n"
+"  clone-conf:\n"
+"    external: true\n"
+"  clone-data:\n"
+"    external: true\n"
+msgstr ""
+"services:\n"
+"  openems-edge-clone:\n"
+"    image: openems/edge:latest\n"
+"    container_name: openems-edge-clone\n"
+"    hostname: openems-edge-clone\n"
+"    restart: \"no\"\n"
+"    network_mode: none\n"
+"    volumes:\n"
+"      - clone-conf:/var/opt/openems/config:rw\n"
+"      - clone-data:/var/opt/openems/data:rw\n"
+"volumes:\n"
+"  clone-conf:\n"
+"    external: true\n"
+"  clone-data:\n"
+"    external: true\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Errors from Bridges that cannot reach their device without a network are "
+"expected here; `+UnsupportedClassVersionError+` and errors when starting "
+"bundles must not occur."
+msgstr ""
+"Fehler von Bridges, die ohne Netz ihr Gerät nicht erreichen, sind hier "
+"erwartet; `+UnsupportedClassVersionError+` und Fehler beim Start von Bundles "
+"dürfen nicht vorkommen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**4. With network and UI.** Only when step 3 is clean and it is clear how "
+"the clone may access devices: remove `+network_mode: none+`, bind ports only "
+"to `+127.0.0.1+` and add `+openems/ui-edge+` with `+WEBSOCKET_HOST+` "
+"pointing to the clone. Do not adopt the Modbus port of the original so that "
+"Modbus clients do not accidentally connect to the clone."
+msgstr ""
+"**4. Mit Netz und Oberfläche.** Erst wenn Schritt 3 sauber ist und geklärt "
+"ist, wie der Klon auf Geräte zugreifen darf: `+network_mode: none+` "
+"entfernen, Ports nur an `+127.0.0.1+` binden und `+openems/ui-edge+` mit "
+"`+WEBSOCKET_HOST+` auf den Klon ergänzen. Den Modbus-Port des Originals "
+"nicht übernehmen, damit sich Modbus-Clients nicht versehentlich mit dem Klon "
+"verbinden."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**5. Delete the clone.** First check what is being deleted; only names of "
+"the clone may appear. `+docker volume rm+` permanently deletes the copies; "
+"the volumes of the original remain untouched."
+msgstr ""
+"**5. Klon löschen.** Zuerst ansehen, was gelöscht wird; es dürfen nur Namen "
+"des Klons erscheinen. `+docker volume rm+` löscht die Kopien endgültig; die "
+"Volumes des Originals bleiben unberührt."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker ps -a --format '{{.Names}}' | grep clone\n"
+"docker volume ls | grep clone\n"
+"docker compose down\n"
+"docker volume rm clone-conf clone-data\n"
+msgstr ""
+"docker ps -a --format '{{.Names}}' | grep clone\n"
+"docker volume ls | grep clone\n"
+"docker compose down\n"
+"docker volume rm clone-conf clone-data\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"A clone built this way was tried out with a Java 25 image and a bound JAR; "
+"deleting it was not."
+msgstr ""
+"Ein so aufgebauter Klon wurde mit einem Java-25-Image und einem "
+"eingebundenen JAR ausprobiert; das Löschen nicht."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "UI container in detail"
+msgstr "UI-Container im Detail"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Environment variables"
+msgstr "Umgebungsvariablen"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Variable\n"
+"| Default\n"
+"| Effect\n"
+"\n"
+"| `+WEBSOCKET_HOST+`\n"
+"| `+<hostname>+` (placeholder)\n"
+"| Target of the proxy for `+/openems-edge+` or `+/openems-backend+` and `+/rest+`. **If the placeholder remains, the container stops with `+sleep infinity+`** and reports this in the log.\n"
+"| `+WEBSOCKET_PORT+`\n"
+"| 8085 (Edge UI) or 8082 (Backend UI)\n"
+"| port of the Websocket\n"
+"| `+REST_PORT+`\n"
+"| 8084\n"
+"| port for `+/rest+`\n"
+"| `+ENABLE_HTTPS+`\n"
+"| false\n"
+"| `+TEST+`/`+TESTING+`/`+SNAKEOIL+`: generate a self-signed certificate. `+PROD+`/`+PRODUCTION+`/`+TRUE+`/`+YES+`/`+1+`: own certificate expected. Otherwise HTTP only.\n"
+"| `+UI_WEBSOCKET+`\n"
+"| –\n"
+"| Older format `+ws://host:port+`; only evaluated if `+WEBSOCKET_HOST+` still contains the placeholder.\n"
+msgstr ""
+"| Variable\n"
+"| Voreinstellung\n"
+"| Wirkung\n"
+"\n"
+"| `+WEBSOCKET_HOST+`\n"
+"| `+<hostname>+` (Platzhalter)\n"
+"| Ziel des Proxys für `+/openems-edge+` bzw. `+/openems-backend+` und `+/rest+`. **Bleibt der Platzhalter stehen, hält der Container mit `+sleep infinity+` an** und meldet das im Log.\n"
+"| `+WEBSOCKET_PORT+`\n"
+"| 8085 (Edge-UI) bzw. 8082 (Backend-UI)\n"
+"| Port des Websockets\n"
+"| `+REST_PORT+`\n"
+"| 8084\n"
+"| Port für `+/rest+`\n"
+"| `+ENABLE_HTTPS+`\n"
+"| false\n"
+"| `+TEST+`/`+TESTING+`/`+SNAKEOIL+`: selbstsigniertes Zertifikat erzeugen. `+PROD+`/`+PRODUCTION+`/`+TRUE+`/`+YES+`/`+1+`: eigenes Zertifikat erwartet. Sonst nur HTTP.\n"
+"| `+UI_WEBSOCKET+`\n"
+"| –\n"
+"| Älteres Format `+ws://host:port+`; wird nur ausgewertet, wenn `+WEBSOCKET_HOST+` noch den Platzhalter enthält.\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Sequence at startup"
+msgstr "Ablauf beim Start"
+
+#. type: #sec-sequence-at-startup
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+/defaults/nginx/+` is copied to `+/etc/nginx/+` with `+rsync --ignore-"
+"existing+`."
+msgstr ""
+"`+/defaults/nginx/+` wird mit `+rsync --ignore-existing+` nach `+/etc/nginx/"
+"+` kopiert."
+
+#. type: #sec-sequence-at-startup
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The finished `+.conf+` files are created from `+/etc/nginx/site-confs/80-"
+"*.conf.tpl+` (and with HTTPS `+443-*.conf.tpl+`) via `+envsubst+`. Only `+"
+"$WEBSOCKET_HOST+`, `+$WEBSOCKET_PORT+` and `+$REST_PORT+` are replaced. The "
+"generated files are rewritten at every start."
+msgstr ""
+"Aus `+/etc/nginx/site-confs/80-*.conf.tpl+` (und bei HTTPS `+443-"
+"*.conf.tpl+`) entstehen per `+envsubst+` die fertigen `+.conf+`-Dateien. "
+"Ersetzt werden nur `+$WEBSOCKET_HOST+`, `+$WEBSOCKET_PORT+` und `+"
+"$REST_PORT+`. Die erzeugten Dateien werden bei jedem Start neu geschrieben."
+
+#. type: #sec-sequence-at-startup
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "nginx starts in the foreground."
+msgstr "nginx startet im Vordergrund."
+
+#. type: #sec-sequence-at-startup
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Proxy rules of the Edge UI (`+root-edge/defaults/nginx/site-confs/80-"
+"openems.conf.tpl+`):"
+msgstr ""
+"Proxy-Regeln der Edge-UI (`+root-edge/defaults/nginx/site-confs/80-"
+"openems.conf.tpl+`):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"location / {\n"
+"    try_files $uri $uri/ /index.html;\n"
+"}\n"
+"location /openems-edge {\n"
+"    proxy_pass http://$WEBSOCKET_HOST:$WEBSOCKET_PORT;\n"
+"    proxy_http_version 1.1;\n"
+"    proxy_set_header Upgrade $http_upgrade;\n"
+"    proxy_set_header Connection 'upgrade';\n"
+"    ...\n"
+"}\n"
+"location /rest {\n"
+"    proxy_pass http://$WEBSOCKET_HOST:$REST_PORT/rest;\n"
+"    ...\n"
+"}\n"
+msgstr ""
+"location / {\n"
+"    try_files $uri $uri/ /index.html;\n"
+"}\n"
+"location /openems-edge {\n"
+"    proxy_pass http://$WEBSOCKET_HOST:$WEBSOCKET_PORT;\n"
+"    proxy_http_version 1.1;\n"
+"    proxy_set_header Upgrade $http_upgrade;\n"
+"    proxy_set_header Connection 'upgrade';\n"
+"    ...\n"
+"}\n"
+"location /rest {\n"
+"    proxy_pass http://$WEBSOCKET_HOST:$REST_PORT/rest;\n"
+"    ...\n"
+"}\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "UI pitfalls"
+msgstr "Stolperstellen der UI"
+
+#. type: #sec-ui-pitfalls
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**`+/etc/nginx+` is a volume.** Because of `+--ignore-existing+`, changed "
+"templates from a newer image do not reach an existing volume. After an image "
+"update with changed nginx files, delete the volume `+openems-ui-conf+` or "
+"compare the files by hand. Conversely, your own changes to the `+.tpl+` "
+"files are retained; changes to the generated `+.conf+` files are lost at the "
+"next start."
+msgstr ""
+"**`+/etc/nginx+` ist ein Volume.** Wegen `+--ignore-existing+` erreichen "
+"geänderte Vorlagen aus einem neueren Image ein bestehendes Volume nicht. "
+"Nach einem Image-Update mit geänderten nginx-Dateien das Volume `+openems-ui-"
+"conf+` löschen oder die Dateien von Hand abgleichen. Umgekehrt bleiben "
+"eigene Änderungen an den `+.tpl+`-Dateien erhalten; Änderungen an den "
+"erzeugten `+.conf+`-Dateien gehen beim nächsten Start verloren."
+
+#. type: #sec-ui-pitfalls
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**`+/rest+` leads nowhere** as long as no REST/JSON API is set up on the "
+"Edge on port 8084 (not in the default configuration)."
+msgstr ""
+"**`+/rest+` zeigt ins Leere**, solange auf der Edge keine REST/JSON-"
+"Schnittstelle auf Port 8084 eingerichtet ist (nicht in der "
+"Grundkonfiguration)."
+
+#. type: #sec-ui-pitfalls
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**HTTPS with your own certificate:** put `+cert.crt+` and `+cert.key+` in `+/"
+"etc/nginx/keys/+` (e.g. via bind mount). If they are missing with "
+"`+ENABLE_HTTPS=PROD+`, the container stops with `+sleep infinity+`."
+msgstr ""
+"**HTTPS mit eigenem Zertifikat:** `+cert.crt+` und `+cert.key+` nach `+/etc/"
+"nginx/keys/+` legen (z. B. per Bind-Mount). Fehlen sie bei "
+"`+ENABLE_HTTPS=PROD+`, hält der Container mit `+sleep infinity+` an."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Backend with Backend-Edge, UI and InfluxDB"
+msgstr "Backend mit Backend-Edge, UI und InfluxDB"
+
+#. type: #sec-backend-with-backend-edge-ui-and-influxdb
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Compose files are in xref:backend/deploy/docker.adoc[Deploy OpenEMS "
+"Backend to Docker]."
+msgstr ""
+"Die Compose-Dateien stehen in xref:latest@backend/deploy/docker.adoc[Deploy "
+"OpenEMS Backend to Docker]."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"Edge (Controller Api Backend)\n"
+"   |  ws:8081\n"
+"   v\n"
+"backend-edge (Backend.Edge.App)\n"
+"   |  ws:8083\n"
+"   v\n"
+"backend (Edge.Manager, Ui.Websocket,      <--ws:8082--  ui-backend (nginx)\n"
+"         Metadata.File, Timedata.*)                         ^\n"
+"   |  http:8086                                             |  http:80\n"
+"   v                                                     Browser\n"
+"InfluxDB\n"
+msgstr ""
+"Edge (Controller Api Backend)\n"
+"   |  ws:8081\n"
+"   v\n"
+"backend-edge (Backend.Edge.App)\n"
+"   |  ws:8083\n"
+"   v\n"
+"backend (Edge.Manager, Ui.Websocket,      <--ws:8082--  ui-backend (nginx)\n"
+"         Metadata.File, Timedata.*)                         ^\n"
+"   |  http:8086                                             |  http:80\n"
+"   v                                                     Browser\n"
+"InfluxDB\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Edges do **not** connect to the container `+openems/backend+`, but to "
+"`+openems/backend-edge+` on port 8081. The Compose file `+tools/docker/"
+"backend/docker-compose.yml+` contains Backend, UI and InfluxDB, but **no** "
+"Backend-Edge container; port 8083 is published there so that a separately "
+"started Backend-Edge container can connect."
+msgstr ""
+"Die Edges verbinden sich **nicht** mit dem Container `+openems/backend+`, "
+"sondern mit `+openems/backend-edge+` auf Port 8081. Die Compose-Datei in "
+"`+tools/docker/backend/docker-compose.yml+` enthält Backend, UI und "
+"InfluxDB, aber **keinen** Backend-Edge-Container; Port 8083 ist dort "
+"veröffentlicht, damit ein separat gestarteter Backend-Edge-Container sich "
+"verbinden kann."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Connecting Backend-Edge to the Backend"
+msgstr "Backend-Edge mit dem Backend verbinden"
+
+#. type: #sec-connecting-backend-edge-to-the-backend
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The default configuration of Backend-Edge (`+Backend/Edge/App.config+`) "
+"contains `+uri=\"ws://localhost:8083\"+`. In the container, `+localhost+` "
+"points to the Backend-Edge container itself. After the first start, set the "
+"field **Uri** of the “Backend Edge Application” to the Backend container in "
+"the Apache Felix Web Console of Backend-Edge (`+http://<host>:8078/system/"
+"console/configMgr+`):"
+msgstr ""
+"Die Grundkonfiguration von Backend-Edge (`+Backend/Edge/App.config+`) "
+"enthält `+uri=\"ws://localhost:8083\"+`. Im Container zeigt `+localhost+` "
+"auf den Backend-Edge-Container selbst. Nach dem ersten Start in der Apache "
+"Felix Web Console von Backend-Edge (`+http://<host>:8078/system/console/"
+"configMgr+`) bei „Backend Edge Application“ das Feld **Uri** auf den Backend-"
+"Container setzen:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "ws://openems-backend:8083\n"
+msgstr "ws://openems-backend:8083\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Do not use an underscore in the host name.** `+BackendEdgeServerApp+` "
+"creates a `+java.net.URI+` from it. Tried out with Java 23:"
+msgstr ""
+"**Keinen Unterstrich im Hostnamen verwenden.** `+BackendEdgeServerApp+` "
+"erzeugt daraus ein `+java.net.URI+`. Ausprobiert mit Java 23:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"ws://openems_backend:8083  host=null             port=-1\n"
+"ws://openems-backend:8083  host=openems-backend  port=8083\n"
+msgstr ""
+"ws://openems_backend:8083  host=null             port=-1\n"
+"ws://openems-backend:8083  host=openems-backend  port=8083\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+java.net.URI+` does not recognize host names with an underscore as a host. "
+"That the Websocket connection therefore fails is concluded from this and has "
+"not been checked in the running system. Therefore choose service and "
+"container names with a hyphen in the Compose file, as in `+tools/docker/"
+"backend/docker-compose.yml+`."
+msgstr ""
+"`+java.net.URI+` erkennt Hostnamen mit Unterstrich nicht als Host. Dass die "
+"Websocket-Verbindung damit scheitert, ist daraus geschlossen und nicht im "
+"laufenden System geprüft. Deshalb in der Compose-Datei Dienst- und "
+"Containernamen mit Bindestrich wählen, wie in `+tools/docker/backend/docker-"
+"compose.yml+`."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Default configuration of the Backend"
+msgstr "Grundkonfiguration des Backends"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| File\n"
+"| Content\n"
+"\n"
+"| `+Edge/Manager.config+`\n"
+"| port 8083, pool 10\n"
+"| `+Ui/Websocket.config+`\n"
+"| port 8082, pool 10\n"
+"| `+Metadata/File.config+`\n"
+"| `+path=\"/var/opt/openems/metadata.json\"+`\n"
+"| `+Timedata/Dummy.config+`\n"
+"| `+timedata0+`, does not store anything\n"
+msgstr ""
+"| Datei\n"
+"| Inhalt\n"
+"\n"
+"| `+Edge/Manager.config+`\n"
+"| Port 8083, Pool 10\n"
+"| `+Ui/Websocket.config+`\n"
+"| Port 8082, Pool 10\n"
+"| `+Metadata/File.config+`\n"
+"| `+path=\"/var/opt/openems/metadata.json\"+`\n"
+"| `+Timedata/Dummy.config+`\n"
+"| `+timedata0+`, speichert nichts\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Metadata:** At the first start, `+/var/lib/openems-default-metadata/"
+"metadata.json+` is copied to `+/var/opt/openems/metadata.json+`. It contains "
+"two demo Edges (`+edge0+`, `+edge1+`) with example Apikeys and setup "
+"passwords from the public repository. Replace these entries with your own "
+"values before productive use."
+msgstr ""
+"**Metadaten:** Beim ersten Start wird `+/var/lib/openems-default-metadata/"
+"metadata.json+` nach `+/var/opt/openems/metadata.json+` kopiert. Sie enthält "
+"zwei Demo-Edges (`+edge0+`, `+edge1+`) mit Beispiel-Apikeys und Setup-"
+"Passwörtern aus dem öffentlichen Repository. Diese Einträge vor dem "
+"produktiven Einsatz durch eigene Werte ersetzen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"**Caution, according to the script not in the volume:** `+/var/opt/openems/"
+"metadata.json+` is located next to the volumes `+…/config+` and `+…/data+`, "
+"not in them. If the container is recreated (e.g. after `+docker compose "
+"pull+`), the file is gone. Since the configuration volume is then no longer "
+"empty, the init script does not copy it again. According to the code, "
+"`+Metadata.File+` then cannot read the file, writes a warning to the log and "
+"knows no Edge, so no Edge can log in (not tried out). Remedy: in "
+"`+Metadata.File+`, set the path to `+/var/opt/openems/data/metadata.json+` "
+"and copy the file there, or bind the file via bind mount:"
+msgstr ""
+"**Achtung, laut Skript nicht im Volume:** `+/var/opt/openems/metadata.json+` "
+"liegt neben den Volumes `+…/config+` und `+…/data+`, nicht darin. Wird der "
+"Container neu erstellt (z. B. nach `+docker compose pull+`), ist die Datei "
+"weg. Da das Konfigurationsvolume dann nicht mehr leer ist, kopiert das Init-"
+"Skript sie auch nicht neu. Laut Code kann `+Metadata.File+` die Datei dann "
+"nicht lesen, schreibt eine Warnung ins Log und kennt keine Edge, sodass sich "
+"keine Edge anmelden kann (nicht ausprobiert). Abhilfe: In `+Metadata.File+` "
+"den Pfad auf `+/var/opt/openems/data/metadata.json+` stellen und die Datei "
+"dorthin kopieren, oder die Datei per Bind-Mount einbinden:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"    volumes:\n"
+"      - ./metadata.json:/var/opt/openems/metadata.json:rw\n"
+msgstr ""
+"    volumes:\n"
+"      - ./metadata.json:/var/opt/openems/metadata.json:rw\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Connecting InfluxDB"
+msgstr "InfluxDB anbinden"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"docker exec openems-influxdb influx setup \\\n"
+"  --username openems \\\n"
+"  --password <your-password> \\\n"
+"  --org openems.io \\\n"
+"  --bucket openems \\\n"
+"  --force\n"
+"docker exec openems-influxdb influx auth list\n"
+msgstr ""
+"docker exec openems-influxdb influx setup \\\n"
+"  --username openems \\\n"
+"  --password <eigenes-Passwort> \\\n"
+"  --org openems.io \\\n"
+"  --bucket openems \\\n"
+"  --force\n"
+"docker exec openems-influxdb influx auth list\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The command must match the actual container name; the Compose files use "
+"`+openems-influxdb+` with a hyphen."
+msgstr ""
+"Der Befehl muss zum tatsächlichen Containernamen passen; die Compose-Dateien "
+"verwenden `+openems-influxdb+` mit Bindestrich."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Use your own password. The password and token do not belong in the Compose "
+"file in Git."
+msgstr ""
+"Ein eigenes Passwort verwenden. Passwort und Token gehören nicht in die "
+"Compose-Datei im Git."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Then delete `+Timedata.Dummy+` in the Apache Felix Web Console of the "
+"Backend (`+http://<host>:8079/system/console/configMgr+`) and create "
+"`+Timedata.InfluxDB+` with the URL `+http://openems-influxdb:8086+` and the "
+"token from `+influx auth list+` as ApiKey."
+msgstr ""
+"Danach in der Apache Felix Web Console des Backends (`+http://<host>:8079/"
+"system/console/configMgr+`) `+Timedata.Dummy+` löschen und "
+"`+Timedata.InfluxDB+` mit der URL `+http://openems-influxdb:8086+` und dem "
+"Token aus `+influx auth list+` als ApiKey anlegen."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Connecting an Edge to the Backend"
+msgstr "Edge mit dem Backend verbinden"
+
+#. type: #sec-connecting-an-edge-to-the-backend
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"On the Edge, create the component “Controller Api Backend” "
+"(`+ctrlBackend0+`) with Uri `+ws://<docker-host>:8081+` (Backend-Edge, not "
+"Backend) and the Apikey of the Edge from `+metadata.json+`. If the Edge runs "
+"in the same Compose project, `+ws://openems-backend-edge:8081+` is possible."
+msgstr ""
+"Auf der Edge die Komponente „Controller Api Backend“ (`+ctrlBackend0+`) "
+"anlegen, mit der Uri `+ws://<docker-host>:8081+` (Backend-Edge, nicht "
+"Backend) und dem Apikey der Edge aus `+metadata.json+`. Läuft die Edge im "
+"selben Compose-Projekt, ist `+ws://openems-backend-edge:8081+` möglich."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Hardware access from the Edge container"
+msgstr "Hardware-Zugriff aus dem Edge-Container"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Connection\n"
+"| In the container\n"
+"| Remark\n"
+"\n"
+"| Modbus/TCP, HTTP devices in the LAN\n"
+"| works via the Docker bridge network\n"
+"| Outgoing connections to the LAN do not need a port release.\n"
+"| Modbus RTU via USB-RS485\n"
+"| pass the device through: `+devices: [\"/dev/ttyUSB0:/dev/ttyUSB0\"]+`\n"
+"| The user `+abc+` needs permissions on the device, e.g. via `+group_add+` with the GID of the group `+dialout+` of the host or matching `+PUID+`/`+PGID+`. The native Linux library of jSerialComm 2.11.4 is built against glibc, while Alpine uses musl. Neither the Edge Dockerfile nor the linuxserver base image installs the compatibility layer `+gcompat+`. Check with `+apk info -e gcompat+` in the container and install it if necessary.\n"
+"| Devices that address the Edge (Modbus/TCP API, port 502)\n"
+"| publish the port\n"
+"| see <<sec-modbus-tcp,Modbus/TCP>>\n"
+"| Discovery via broadcast/mDNS\n"
+"| usually not in the bridge network\n"
+"| If necessary `+network_mode: host+`; the `+ports+` entries are then omitted.\n"
+"| GPIO, I²C, relays on the device itself\n"
+"| only by passing the devices through\n"
+"| \n"
+msgstr ""
+"| Anbindung\n"
+"| Im Container\n"
+"| Bemerkung\n"
+"\n"
+"| Modbus/TCP, HTTP-Geräte (Shelly, Wallboxen, Wechselrichter im LAN)\n"
+"| funktioniert über das Bridge-Netz von Docker\n"
+"| Ausgehende Verbindungen ins LAN brauchen keine Portfreigabe.\n"
+"| Modbus RTU über USB-RS485\n"
+"| Gerät durchreichen: `+devices: [\"/dev/ttyUSB0:/dev/ttyUSB0\"]+`\n"
+"| Der Benutzer `+abc+` braucht Rechte auf das Gerät, z. B. über `+group_add+` mit der GID der Gruppe `+dialout+` des Hosts oder passende `+PUID+`/`+PGID+`. Die native Linux-Bibliothek der seriellen Bibliothek jSerialComm 2.11.4 ist gegen glibc gebaut (`+libc.so.6+`, Symbolversionen `+GLIBC_2.x+`). Alpine verwendet musl. Weder das Edge-Dockerfile noch das linuxserver-Basisimage installiert die Kompatibilitätsschicht `+gcompat+`. Im Container mit `+apk info -e gcompat+` prüfen und sie bei Bedarf nachinstallieren.\n"
+"| Geräte, die die Edge ansprechen (z. B. Modbus-Slave-Schnittstelle der Edge, Port 502)\n"
+"| Port veröffentlichen\n"
+"| `+ports: [\"502:502\"]+`; Einzelheiten unter <<sec-modbus-tcp,Modbus/TCP>>.\n"
+"| Erkennung per Broadcast/mDNS\n"
+"| im Bridge-Netz in der Regel nicht\n"
+"| Gegebenenfalls `+network_mode: host+`; dann entfallen die `+ports+`-Einträge.\n"
+"| GPIO, I²C, Relais am Gerät selbst\n"
+"| nur mit Durchreichen der Geräte\n"
+"| \n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The time of the Edge comes from the host. For correct daily values and "
+"tariffs, the host must be synchronized via NTP."
+msgstr ""
+"Die Uhrzeit der Edge kommt vom Host. Für korrekte Tageswerte und Tarife muss "
+"der Host per NTP synchronisiert sein."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Modbus/TCP"
+msgstr "Modbus/TCP"
+
+#. type: #sec-modbus-tcp
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid "Two directions have to be distinguished:"
+msgstr "Zwei Richtungen sind zu unterscheiden:"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Direction\n"
+"| Component\n"
+"| Docker\n"
+"\n"
+"| Edge reads devices in the LAN (Edge is master)\n"
+"| `+Bridge.Modbus.Tcp+` with IP and port of the device\n"
+"| Nothing necessary; outgoing connections go through the bridge network\n"
+"| Others read the Edge (Edge is slave)\n"
+"| `+Controller.Api.ModbusTcp.ReadOnly+` or `+.ReadWrite+`\n"
+"| publish the port\n"
+msgstr ""
+"| Richtung\n"
+"| Komponente\n"
+"| Docker\n"
+"\n"
+"| Edge liest Geräte im LAN (Edge ist Master)\n"
+"| `+Bridge.Modbus.Tcp+` („Bridge Modbus/TCP“) mit IP und Port des Geräts; der Gerätetreiber verweist im Feld Modbus-ID auf die Bridge (z. B. `+modbus0+`)\n"
+"| Nichts nötig; ausgehende Verbindungen gehen über das Bridge-Netz\n"
+"| Andere lesen die Edge (Edge ist Slave)\n"
+"| `+Controller.Api.ModbusTcp.ReadOnly+` bzw. `+.ReadWrite+`\n"
+"| Port veröffentlichen\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Defaults of the slave interface according to the code (`+CommonConfig+`): "
+"port 502 (`+DEFAULT_PORT+`), components `+_sum+`, at most 5 simultaneous "
+"connections (`+DEFAULT_MAX_CONCURRENT_CONNECTIONS+`)."
+msgstr ""
+"Voreinstellungen der Slave-Schnittstelle laut Code (`+CommonConfig+`): Port "
+"502 (`+DEFAULT_PORT+`), Komponenten `+_sum+`, höchstens 5 gleichzeitige "
+"Verbindungen (`+DEFAULT_MAX_CONCURRENT_CONNECTIONS+`)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"A host port can only be assigned once; if several Edges run on one host, "
+"each gets its own host port (e.g. `+5020:502+`). New ports are only adopted "
+"by a recreated container (`+docker compose up -d <service>+`); `+restart+` "
+"is not sufficient."
+msgstr ""
+"Ein Host-Port kann nur einmal vergeben werden; laufen mehrere Edges auf "
+"einem Host, bekommt jede einen eigenen Host-Port (z. B. `+5020:502+`). Neue "
+"Ports übernimmt erst ein neu erstellter Container (`+docker compose up -d "
+"<dienst>+`), `+restart+` reicht nicht."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Port below 1024: The Edge runs as `+abc+` in the container. Docker sets "
+"`+net.ipv4.ip_unprivileged_port_start=0+` in the container if the container "
+"has its own network (not `+network_mode: host+`) and the kernel knows the "
+"setting. With `+network_mode: host+`, the setting of the host applies. If "
+"“Permission denied” appears in the log, set e.g. port 1502 in the component "
+"and publish it as `+5020:1502+`."
+msgstr ""
+"Port unter 1024: Die Edge läuft im Container als `+abc+`, Port 502 liegt "
+"unter 1024. Docker setzt im Container "
+"`+net.ipv4.ip_unprivileged_port_start=0+`, wenn der Container ein eigenes "
+"Netzwerk hat (nicht `+network_mode: host+`) und der Kernel die Einstellung "
+"kennt. Mit `+network_mode: host+` gilt die Einstellung des Hosts. Erscheint "
+"im Log „Permission denied“, in der Komponente z. B. Port 1502 einstellen und "
+"als `+5020:1502+` veröffentlichen."
+
+#. type: Title ====
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Troubleshooting if the Edge does not read a device"
+msgstr "Fehlersuche, wenn die Edge ein Gerät nicht liest"
+
+#. type: #sec-troubleshooting-if-the-edge-does-not-read-a-device
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Narrow down step by step whether it is due to the network, the container or "
+"the device:"
+msgstr ""
+"Schrittweise eingrenzen, ob es am Netz, am Container oder am Gerät liegt "
+"(Platzhalter `+<IP>+`, Bridge-ID und Komponenten-IDs ersetzen):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"# 1. Does the host reach the device?\n"
+"nc -zv -w 3 <IP> 502\n"
+msgstr ""
+"# 1. Host erreicht das Gerät?\n"
+"nc -zv -w 3 <IP> 502\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"# 2. Does the container reach the device?\n"
+"docker exec openems_edge bash -c 'timeout 3 bash -c \"</dev/tcp/<IP>/502\" && echo open || echo closed'\n"
+msgstr ""
+"# 2. Container erreicht das Gerät?\n"
+"docker exec openems_edge bash -c 'timeout 3 bash -c \"</dev/tcp/<IP>/502\" && echo offen || echo zu'\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"# 3. Error messages of the Bridge (without the lines of the debug log Controller)\n"
+"docker compose logs --tail=2000 openems-edge | grep -v ctrlDebugLog | grep -i -E 'modbus|<bridge-id>' | tail -40\n"
+msgstr ""
+"# 3. Fehlermeldungen der Bridge (ohne die Zeilen des Debug-Log-Controllers)\n"
+"docker compose logs --tail=2000 openems-edge | grep -v ctrlDebugLog | grep -i -E 'modbus|<bridge-id>' | tail -40\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"# 4. Modbus request without Edge, directly from the host (package mbpoll)\n"
+"mbpoll -m tcp -a 1 -t 4 -r 40001 -c 2 -o 5 -1 <IP>\n"
+msgstr ""
+"# 4. Modbus-Anfrage ohne Edge, direkt vom Host (Paket mbpoll)\n"
+"mbpoll -m tcp -a 1 -t 4 -r 40001 -c 2 -o 5 -1 <IP>\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The lines of `+ctrlDebugLog0+` only show states (e.g. “Modbus Communication "
+"failed”). The Bridge writes the actual error message as `+ERROR "
+"[e.modbus.api.task.AbstractTask] Execute failed …+`. If this is not "
+"sufficient, temporarily set “Log-Verbosity” in the Bridge to "
+"`+READS_AND_WRITES+` and reset it afterwards."
+msgstr ""
+"Die Zeilen von `+ctrlDebugLog0+` zeigen nur Zustände (z. B. „Modbus "
+"Communication failed“). Die eigentliche Fehlermeldung schreibt die Bridge "
+"als `+ERROR [e.modbus.api.task.AbstractTask] Execute failed …+`. Reicht das "
+"nicht, in der Bridge „Log-Verbosity“ vorübergehend auf `+READS_AND_WRITES+` "
+"stellen und danach zurücksetzen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"“Connection refused” or errors already with `+nc+`: network, firewall, port "
+"or Modbus switched off on the device."
+msgstr ""
+"„Connection refused“ oder Fehler schon bei `+nc+`: Netz, Firewall, Port oder "
+"Modbus am Gerät abgeschaltet."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"“Socket timeout reading response - Read timed out”: the TCP connection is "
+"up, but the device does not respond in time. The Bridge waits for a fixed "
+"**500 ms** (`+AbstractModbusBridge.DEFAULT_TIMEOUT+`, set in "
+"`+BridgeModbusTcpImpl+`, not configurable). If the device responds more "
+"slowly, every request fails, even though the address and Unit-ID are correct."
+msgstr ""
+"„Socket timeout reading response - Read timed out“: Die TCP-Verbindung "
+"steht, das Gerät antwortet aber nicht rechtzeitig. Die Bridge wartet fest "
+"**500 ms** (`+AbstractModbusBridge.DEFAULT_TIMEOUT+`, gesetzt in "
+"`+BridgeModbusTcpImpl+`, nicht konfigurierbar). Antwortet das Gerät "
+"langsamer, scheitert jede Abfrage, obwohl Adresse und Unit-ID stimmen."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"`+mbpoll+` counts registers from 1: `+-r 40001+` corresponds to address "
+"40000 of the Bridge. For SunSpec devices, this request returns `+21365 "
+"28243+` (`+0x5375 0x6E53+` = “SunS”), which confirms reachability and Unit-"
+"ID. `+-o+` extends the waiting time."
+msgstr ""
+"`+mbpoll+` zählt Register ab 1: `+-r 40001+` entspricht Adresse 40000 der "
+"Bridge. Bei SunSpec-Geräten liefert diese Abfrage `+21365 28243+` (`+0x5375 "
+"0x6E53+` = „SunS“); damit sind Erreichbarkeit und Unit-ID belegt. Mit `+-o+` "
+"lässt sich die Wartezeit verlängern."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Development workflows"
+msgstr "Entwicklungs-Workflows"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Goal\n"
+"| Procedure\n"
+"\n"
+"| Test your own change as in operation\n"
+"| Build the image from your fork, use it in the Compose file, keep the same volumes.\n"
+"| Debug the Edge in Eclipse, UI in the container\n"
+"| `+tools/docker/ui/docker-compose.yml+`, see xref:ui/deploy/docker.adoc[Deploy the UI with Docker].\n"
+"| Debug the Edge in the container\n"
+"| `pass:c[EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005]` and publish port 5005; in Eclipse “Remote Java Application” to `+<host>:5005+` (not tried out with this image).\n"
+"| Test only a new JAR, without an image build\n"
+"| `+./gradlew buildEdge+` locally, place the JAR over `+/opt/openems/openems-edge.jar+` via bind mount.\n"
+"| Simulate several Edges\n"
+"| Several Edge services with their own volumes and different host ports in one Compose file; each with its own Apikey on the Backend.\n"
+msgstr ""
+"| Ziel\n"
+"| Vorgehen\n"
+"\n"
+"| Eigene Änderung testen, wie im Betrieb\n"
+"| Image aus dem eigenen Stand bauen, in der Compose-Datei verwenden, gleiche Volumes behalten.\n"
+"| Edge in Eclipse debuggen, UI im Container\n"
+"| `+tools/docker/ui/docker-compose.yml+`, siehe xref:latest@ui/deploy/docker.adoc[Deploy the UI with Docker].\n"
+"| Edge im Container debuggen\n"
+"| `pass:c[EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005]` und Port 5005 veröffentlichen; in Eclipse „Remote Java Application“ auf `+<host>:5005+`. (Mit diesem Image nicht ausprobiert.)\n"
+"| Nur ein neues JAR testen, ohne Image-Build\n"
+"| `+./gradlew buildEdge+` lokal, JAR per Bind-Mount über `+/opt/openems/openems-edge.jar+` legen.\n"
+"| Mehrere Edges simulieren\n"
+"| Mehrere Edge-Dienste mit eigenen Volumes und unterschiedlichen Host-Ports in einer Compose-Datei; jede mit eigenem Apikey am Backend.\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Resources"
+msgstr "Ressourcen"
+
+#. type: #sec-resources
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"The Edge targets weak hardware (about 1 GB RAM). Without `+-Xmx+`, the JVM "
+"in the container by default takes a quarter of the memory visible to the "
+"container as the heap limit. On a host with a lot of RAM, it is advisable to "
+"set the heap with `+EXTRA_JVM_OPTS+` or a memory limit (`+mem_limit+`)."
+msgstr ""
+"Die Edge zielt auf schwache Hardware (etwa 1 GB RAM). Ohne `+-Xmx+` nimmt "
+"die JVM im Container standardmäßig ein Viertel des für den Container "
+"sichtbaren Speichers als Heap-Obergrenze. Auf einem Host mit viel RAM "
+"empfiehlt es sich, den Heap mit `+EXTRA_JVM_OPTS+` oder ein Speicherlimit "
+"(`+mem_limit+`) festzulegen."
+
+#. type: #sec-resources
+#: modules/ROOT/pages/development/deployment/docker.adoc
+msgid ""
+"Backend and InfluxDB need significantly more depending on the number of "
+"Edges. There are no figures for this in the code or documentation."
+msgstr ""
+"Backend und InfluxDB brauchen je nach Zahl der Edges deutlich mehr. Zahlen "
+"dazu stehen weder im Code noch in der Doku."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid "Summary of the pitfalls"
+msgstr "Zusammenfassung der Stolperstellen"
+
+#. type: Table
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#, no-wrap
+msgid ""
+"| Problem\n"
+"| Cause\n"
+"| Remedy\n"
+"\n"
+"| UI container does not start, log: “WEBSOCKET_HOST contains <hostname> placeholder”\n"
+"| `+WEBSOCKET_HOST+` not set\n"
+"| set the variable\n"
+"| Backend-Edge does not connect to the Backend\n"
+"| default configuration `+ws://localhost:8083+`\n"
+"| change Uri to `+ws://openems-backend:8083+`\n"
+"| Connection with `+ws://openems_backend:…+` fails\n"
+"| `+java.net.URI+` does not recognize a host name with an underscore\n"
+"| hyphenated names\n"
+"| Edges can no longer log in after the container is recreated\n"
+"| `+metadata.json+` outside the volumes\n"
+"| put the file in the data volume or bind it via bind mount\n"
+"| Changed nginx templates from a new UI image have no effect\n"
+"| `+rsync --ignore-existing+` on the volume `+/etc/nginx+`\n"
+"| create the volume anew or compare\n"
+"| Build aborts with “context canceled”\n"
+"| Eclipse accesses files\n"
+"| close Eclipse\n"
+"| Apache Felix Web Console reachable from outside\n"
+"| `+http.host=0.0.0.0+` and published port\n"
+"| bind the port only to `+127.0.0.1+` or do not publish it\n"
+"| Start aborts with “not a directory” when bind mounting a file\n"
+"| source file was missing at the first start, Docker created a directory\n"
+"| remove the directory, create the file, restart\n"
+"| Change to `+hostname+` or `+environment+` has no effect\n"
+"| `+docker compose restart+` does not adopt the Compose file\n"
+"| `+docker compose up -d <service>+`\n"
+"| Host name of the Edge is a random hex string\n"
+"| host name of the container = container ID\n"
+"| set `+hostname:+` in the Compose file\n"
+"| Container switches or limits real devices\n"
+"| configuration of a real system copied to the volume\n"
+"| disable switching Controllers and outputs, set inverters to read-only; better use your own test configuration\n"
+"| Modbus “Read timed out”, even though port 502 is reachable\n"
+"| device responds more slowly than the fixed 500 ms of the Bridge\n"
+"| check with `+mbpoll -o 5+`; the cause is on the device, not in Docker\n"
+"| `+apk add+` in your own build fails with “DNS: transient error”\n"
+"| `+docker build+` runs in the default network `+bridge+` without working name resolution\n"
+"| `+docker build --network host+`\n"
+msgstr ""
+"| Problem\n"
+"| Ursache\n"
+"| Abhilfe\n"
+"\n"
+"| UI-Container startet nicht, Log: „WEBSOCKET_HOST contains <hostname> placeholder“\n"
+"| `+WEBSOCKET_HOST+` nicht gesetzt\n"
+"| Variable setzen\n"
+"| Backend-Edge verbindet sich nicht mit dem Backend\n"
+"| Grundkonfiguration `+ws://localhost:8083+`\n"
+"| Uri auf `+ws://openems-backend:8083+` ändern\n"
+"| Verbindung mit `+ws://openems_backend:…+` scheitert\n"
+"| `+java.net.URI+` erkennt bei einem Unterstrich keinen Rechnernamen\n"
+"| Bindestrich-Namen\n"
+"| Edges können sich nach Container-Neuerstellung nicht mehr anmelden\n"
+"| `+metadata.json+` außerhalb der Volumes\n"
+"| Datei ins Data-Volume legen oder per Bind-Mount einbinden\n"
+"| Geänderte nginx-Vorlagen aus neuem UI-Image wirken nicht\n"
+"| `+rsync --ignore-existing+` auf das Volume `+/etc/nginx+`\n"
+"| Volume neu anlegen oder abgleichen\n"
+"| Build bricht mit „context canceled“ ab\n"
+"| Eclipse greift auf Dateien zu\n"
+"| Eclipse schließen\n"
+"| Apache Felix Web Console von außen erreichbar\n"
+"| `+http.host=0.0.0.0+` und veröffentlichter Port\n"
+"| Port nur an `+127.0.0.1+` binden oder nicht veröffentlichen\n"
+"| Start bricht ab mit „not a directory“ beim Bind-Mount einer Datei\n"
+"| Quelldatei fehlte beim ersten Start, Docker hat ein Verzeichnis angelegt\n"
+"| Verzeichnis entfernen, Datei anlegen, neu starten\n"
+"| Änderung an `+hostname+` oder `+environment+` wirkt nicht\n"
+"| `+docker compose restart+` übernimmt die Compose-Datei nicht\n"
+"| `+docker compose up -d <dienst>+`\n"
+"| Hostname der Edge ist eine zufällige Hex-Zeichenfolge\n"
+"| Hostname des Containers = Container-ID\n"
+"| `+hostname:+` in der Compose-Datei setzen\n"
+"| Container schaltet oder begrenzt echte Geräte\n"
+"| Konfiguration einer echten Anlage ins Volume kopiert\n"
+"| Schaltende Controller und Ausgänge deaktivieren, Wechselrichter auf Read-Only; besser eigene Testkonfiguration\n"
+"| Modbus „Read timed out“, obwohl Port 502 erreichbar ist\n"
+"| Gerät antwortet langsamer als die festen 500 ms der Bridge\n"
+"| Mit `+mbpoll -o 5+` prüfen; Ursache am Gerät, nicht in Docker\n"
+"| `+apk add+` im eigenen Build scheitert mit „DNS: transient error“\n"
+"| `+docker build+` läuft im Standard-Netz `+bridge+` ohne funktionierende Namensauflösung\n"
+"| `+docker build --network host+`\n"

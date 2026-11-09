@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. type: Title ===
+#: modules/ROOT/pages/development/build/commands.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Notes"
+msgstr "Hinweise"
+
 #. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
 #: modules/ROOT/pages/user/basics/energy-flows.adoc
 #: modules/ROOT/pages/user/data/export.adoc
 #: modules/ROOT/pages/user/devices/cluster.adoc
@@ -682,12 +690,6 @@ msgstr ""
 "Ergebnis: eine Zeile je Viertelstunde, erste Spalte Zeitpunkt, danach eine "
 "Spalte je Kanal. Fehlende Werte bleiben leer. Die Umwandlung mit `+jq+` "
 "wurde an Beispieldaten geprüft, die Abfrage an einer echten Anlage nicht."
-
-#. type: Title ===
-#: modules/ROOT/pages/user/data/export.adoc
-#, no-wrap
-msgid "Notes"
-msgstr "Hinweise"
 
 #. type: #sec-notes
 #: modules/ROOT/pages/user/data/export.adoc

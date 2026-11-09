@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,23 +15,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. type: Title ==
-#: modules/ROOT/pages/user/basics/energy-flows.adoc
-#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
-#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
-#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
-#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
-#: modules/ROOT/pages/user/schedule/forecasts.adoc
-#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
-#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
-#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
-#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
-#: modules/ROOT/pages/user/systems/fenecon-home.adoc
-#, no-wrap
-msgid "Good to know"
-msgstr "Gut zu wissen"
-
 #. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
 #: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
 #: modules/ROOT/pages/user/data/history-rrd4j.adoc
 #: modules/ROOT/pages/user/devices/controllable-inverters.adoc
@@ -48,6 +37,22 @@ msgid ""
 msgstr ""
 "__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
 "Branch develop)__"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
 
 #. type: Title =
 #: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc

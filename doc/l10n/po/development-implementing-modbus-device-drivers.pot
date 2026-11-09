@@ -1,0 +1,474 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/apps.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Basic structure"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Modbus device drivers"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"xref:edge/implement.adoc[Implementing a Device] walks through a first Modbus "
+"device step by step. This page is the reference for tasks, elements and "
+"converters. A driver only describes **which registers belong to which "
+"Channel**. Connection, scheduling, error handling and conversion are handled "
+"by the Modbus Bridge (bundle `+io.openems.edge.bridge.modbus+`). The meter "
+"Janitza UMG 96RM-E (`+io.openems.edge.meter.janitza+`, class "
+"`+MeterJanitzaUmg96rmeImpl+`) serves as a template here."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Bridge and device"
+msgstr ""
+
+#. type: #sec-bridge-and-device
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The **Bridge** is a separate component: `+Bridge.Modbus.Tcp+` (IP address, "
+"port) or `+Bridge.Modbus.Serial+` (RS485). It holds the connection and "
+"processes the tasks of all connected devices. Several devices can share a "
+"Bridge (e.g. several meters on an RS485 bus)."
+msgstr ""
+
+#. type: #sec-bridge-and-device
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The **device** inherits from `+AbstractOpenemsModbusComponent+`, implements "
+"`+ModbusComponent+` and receives `+modbus_id+` (ID of the Bridge) and "
+"`+modbusUnitId+` (Modbus Unit-ID) in the Config."
+msgstr ""
+
+#. type: #sec-bridge-and-device
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"If communication fails, the base class sets the State-Channel "
+"`+ModbusCommunicationFailed+` (level WARNING) of the device."
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"@Designate(ocd = Config.class, factory = true)\n"
+"@Component(name = \"Meter.Janitza.UMG96RME\", immediate = true, configurationPolicy = REQUIRE)\n"
+"@GenerateTargetsFromReferences(\"Modbus\")\n"
+"public class MeterJanitzaUmg96rmeImpl extends AbstractOpenemsModbusComponent\n"
+"        implements MeterJanitzaUmg96rme, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"    @Override\n"
+"    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,\n"
+"            target = \"(&(id=${config.modbus_id})(enabled=true))\")\n"
+"    protected void setModbus(BridgeModbus modbus) {\n"
+"        super.setModbus(modbus);\n"
+"    }\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"    public MeterJanitzaUmg96rmeImpl() {\n"
+"        super(OpenemsComponent.ChannelId.values(),\n"
+"              ModbusComponent.ChannelId.values(),\n"
+"              ElectricityMeter.ChannelId.values(),\n"
+"              MeterJanitzaUmg96rme.ChannelId.values());\n"
+"        ElectricityMeter.calculateAverageVoltageFromPhases(this);\n"
+"    }\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"    @Activate\n"
+"    private void activate(ComponentContext context, Config config) throws OpenemsException {\n"
+"        this.meterType = config.type();\n"
+"        this.invert = config.invert();\n"
+"        super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());\n"
+"    }\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"    @Override\n"
+"    protected ModbusProtocol defineModbusProtocol() {\n"
+"        return new ModbusProtocol(this,\n"
+"            new FC3ReadRegistersTask(19000, Priority.HIGH,\n"
+"                m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(19000), SCALE_FACTOR_3),\n"
+"                m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002), SCALE_FACTOR_3),\n"
+"                m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004), SCALE_FACTOR_3),\n"
+"                new DummyRegisterElement(19006, 19011),\n"
+"                ...\n"
+"                m(ElectricityMeter.ChannelId.ACTIVE_POWER,\n"
+"                        new FloatDoublewordElement(19026), INVERT_IF_TRUE(this.invert)),\n"
+"                ...));\n"
+"    }\n"
+"}\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The reference to the Bridge is a **setter method** `+setModbus+`; therefore "
+"`+@GenerateTargetsFromReferences+` contains the reference name `+"
+"\"Modbus\"+`."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"`+super.activate(…, config.modbusUnitId())+` registers the device with the "
+"Bridge. The base class creates the protocol once on first access via "
+"`+defineModbusProtocol()+` and then keeps it. Values from the Config that "
+"influence the protocol (here `+invert+`) must therefore be set **before** "
+"`+super.activate+`."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"`+ElectricityMeter.calculateAverageVoltageFromPhases(this)+` is an example "
+"of calculated Channels: if the device only provides phase values, totals or "
+"averages are created via callback."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Tasks"
+msgstr ""
+
+#. type: #sec-tasks
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid "A task is a Modbus request over a contiguous register range."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"| Class\n"
+"| Function code\n"
+"| Purpose\n"
+"\n"
+"| `+FC3ReadRegistersTask+`\n"
+"| 3\n"
+"| read holding registers (most common case)\n"
+"| `+FC4ReadInputRegistersTask+`\n"
+"| 4\n"
+"| read input registers\n"
+"| `+FC1ReadCoilsTask+`, `+FC2ReadInputsTask+`\n"
+"| 1, 2\n"
+"| read coils or digital inputs\n"
+"| `+FC6WriteRegisterTask+`\n"
+"| 6\n"
+"| write one register\n"
+"| `+FC16WriteRegistersTask+`\n"
+"| 16\n"
+"| write several registers\n"
+"| `+FC5WriteCoilTask+`\n"
+"| 5\n"
+"| write one coil\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The elements of a task must follow each other **without gaps**. Registers "
+"that are not needed are filled with `+new DummyRegisterElement(from, to)+`. "
+"A read request over a larger range is usually faster than many small ones; "
+"some devices, however, limit the number of registers per request or reject "
+"ranges with undefined registers."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Priority and scheduling"
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The Bridge schedules the tasks per Cycle (`+ModbusWorker+`, "
+"`+TasksSupplierImpl+`):"
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"**Write tasks** run as early as possible, directly after "
+"`+TOPIC_CYCLE_EXECUTE_WRITE+`."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"**Read tasks** run as late as possible so that the values are fresh for "
+"`+TOPIC_CYCLE_BEFORE_PROCESS_IMAGE+`."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid "`+Priority.HIGH+`: the read task runs in **every** Cycle."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"`+Priority.LOW+`: per Cycle, **one** LOW task of the whole Bridge runs, in "
+"turn. With many LOW tasks, it therefore takes correspondingly many Cycles "
+"until a value is renewed. Suitable for meter readings, serial numbers, limit "
+"values."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"If the cycle time is not sufficient for all tasks, the Bridge sets the "
+"Channel `+CycleTimeIsTooShort+`; `+CycleDelay+` shows the delay."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"A device that repeatedly does not respond is considered defective. Only a "
+"single random task is then attempted occasionally so that it does not block "
+"the bus for the other devices."
+msgstr ""
+
+#. type: #sec-priority-and-scheduling
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"After how many read errors the values become invalid (`+null+`) is set on "
+"the Bridge (“Invalidate elements after how many read Errors?”)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Elements"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"| Element\n"
+"| Registers\n"
+"| Type\n"
+"\n"
+"| `+UnsignedWordElement+`, `+SignedWordElement+`\n"
+"| 1\n"
+"| 16-bit integer\n"
+"| `+UnsignedDoublewordElement+`, `+SignedDoublewordElement+`\n"
+"| 2\n"
+"| 32-bit integer\n"
+"| `+UnsignedQuadruplewordElement+`, `+SignedQuadruplewordElement+`\n"
+"| 4\n"
+"| 64-bit integer\n"
+"| `+FloatDoublewordElement+`, `+FloatQuadruplewordElement+`\n"
+"| 2 / 4\n"
+"| IEEE-754 float / double\n"
+"| `+StringWordElement+`\n"
+"| n\n"
+"| string\n"
+"| `+BitsWordElement+`\n"
+"| 1\n"
+"| individual bits on Boolean or State-Channels\n"
+"| `+CoilElement+`\n"
+"| –\n"
+"| coil (for FC1/FC5)\n"
+"| `+DummyRegisterElement+`\n"
+"| n\n"
+"| gap, is ignored\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The word order of multi-part values (`+WordOrder+`) can be set, e.g. "
+"`+.wordOrder(WordOrder.LSWMSW)+`, if the device sends the least significant "
+"word first."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid "Mapping bits to State-Channels:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"m(new BitsWordElement(32, this)\n"
+"        .bit(0, BatteryInverterSinexcel.ChannelId.FAULT_STATUS)\n"
+"        .bit(1, BatteryInverterSinexcel.ChannelId.ALERT_STATUS)\n"
+"        ...)\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Conversion (converter)"
+msgstr ""
+
+#. type: #sec-conversion-converter
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The third parameter of `+m(channel, element, converter)+` converts register "
+"values to Channel values and back when writing "
+"(`+ElementToChannelConverter+`)."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"| Converter\n"
+"| Effect when reading\n"
+"\n"
+"| `+DIRECT_1_TO_1+` (default)\n"
+"| unchanged\n"
+"| `+SCALE_FACTOR_1+`, `+_2+`, `+_3+`\n"
+"| × 10, × 100, × 1000 (e.g. kV → V or kW → W)\n"
+"| `+SCALE_FACTOR_MINUS_1+`, `+_2+`, `+_3+`\n"
+"| ÷ 10, ÷ 100, ÷ 1000\n"
+"| `+INVERT+`, `+INVERT_IF_TRUE(bool)+`\n"
+"| reverse the sign (always or depending on the Config)\n"
+"| `+KEEP_POSITIVE+`, `+KEEP_NEGATIVE_AND_INVERT+`\n"
+"| only let positive values through, or only negative values and invert them, otherwise 0; useful for distributing a signed power to two Channels\n"
+"| `+SET_NULL_FOR_DEFAULT(value)+`\n"
+"| adopt an “invalid” value of the device (e.g. 0xFFFF) as `+null+`\n"
+"| `+chain(…)+`\n"
+"| several converters in a row\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The unit of the Channel is in its `+Doc+` (e.g. `+Unit.WATT+`). The "
+"converter must lead from the device value to exactly this unit. Example: the "
+"device provides voltage in V as float, Channel `+VOLTAGE_L1+` is in mV → "
+"`+SCALE_FACTOR_3+`."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Writing"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid ""
+"new FC6WriteRegisterTask(135,\n"
+"        m(BatteryInverterSinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135), SCALE_FACTOR_2))\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"The Channel must be a write-channel (`+accessMode+` WRITE_ONLY or "
+"READ_WRITE)."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"`+setNextWriteValue(v)+` on the Channel immediately passes the value to the "
+"element (with conversion via the converter). The write task fetches it in "
+"the next write step and **then resets it**."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"Consequence: a value is written exactly once. If the device is to receive a "
+"setpoint permanently (many inverters require this as a sign of life), the "
+"driver must set it anew in every Cycle, typically in `+applyPower()+` or a "
+"Cycle Event."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#, no-wrap
+msgid "Checking a driver"
+msgstr ""
+
+#. type: #sec-checking-a-driver
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"With `+DummyModbusBridge+`, register contents can be specified in the test "
+"and the Channel values checked; see xref:development/testing/component-"
+"tests.adoc[Component tests]."
+msgstr ""
+
+#. type: #sec-checking-a-driver
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"On the real Bridge, the setting “Log-Verbosity” shows the Modbus requests in "
+"the log."
+msgstr ""
+
+#. type: #sec-checking-a-driver
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+msgid ""
+"Via `+ModbusSlave+`/`+getModbusSlaveTable()+`, the driver also provides its "
+"Channels in the Modbus/TCP API of the Edge."
+msgstr ""

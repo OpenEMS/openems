@@ -1,0 +1,451 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title =
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:1
+#, no-wrap
+msgid "Components and Channels in code"
+msgstr "OpenEMS-Entwicklung: Komponenten und Channels im Code"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:9
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:11
+msgid ""
+"The concepts are described in xref:coreconcepts.adoc[Core concepts & "
+"terminology] and xref:edge/architecture.adoc[Edge Architecture]. This page "
+"shows how they appear in the code of OpenEMS Edge."
+msgstr ""
+"Die Konzepte beschreiben xref:latest@coreconcepts.adoc[Core concepts & "
+"terminology] und xref:latest@edge/architecture.adoc[Edge Architecture]. "
+"Diese Seite zeigt, wie sie im Code von OpenEMS Edge aussehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:13
+#, no-wrap
+msgid "OSGi and bundles"
+msgstr "OSGi und Bundles"
+
+#. type: #sec-osgi-and-bundles
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:16
+msgid ""
+"The Edge is an OSGi application on Apache Felix. Important services from "
+"`+EdgeApp.bndrun+`:"
+msgstr ""
+"Die Edge ist eine OSGi-Anwendung auf Apache Felix. Wichtige Dienste aus "
+"`+EdgeApp.bndrun+`:"
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:32
+#, no-wrap
+msgid ""
+"| Bundle\n"
+"| Task\n"
+"\n"
+"| `+org.apache.felix.scr+`\n"
+"| Declarative Services: creates components from `+@Component+` classes and connects `+@Reference+`s\n"
+"| `+org.apache.felix.configadmin+`\n"
+"| stores configurations (directory `+felix.cm.dir+`)\n"
+"| `+org.apache.felix.eventadmin+`\n"
+"| distributes the Cycle Events (see xref:development/fundamentals/cycle-and-ess-power.adoc[Cycle])\n"
+"| `+org.apache.felix.metatype+`\n"
+"| describes configuration fields; the forms in Apache Felix Web Console and UI are created from them\n"
+"| `+io.openems.core.referencetarget+`\n"
+"| sets reference filters from configuration values (see xref:development/implementing/controller.adoc[Implementing a Controller])\n"
+msgstr ""
+"| Bundle\n"
+"| Aufgabe\n"
+"\n"
+"| `+org.apache.felix.scr+`\n"
+"| Declarative Services: erzeugt Komponenten aus `+@Component+`-Klassen und verbindet `+@Reference+`s\n"
+"| `+org.apache.felix.configadmin+`\n"
+"| speichert Konfigurationen (Verzeichnis `+felix.cm.dir+`)\n"
+"| `+org.apache.felix.eventadmin+`\n"
+"| verteilt die Zyklus-Ereignisse (siehe xref:development/fundamentals/cycle-and-ess-power.adoc[Zyklus])\n"
+"| `+org.apache.felix.metatype+`\n"
+"| beschreibt Konfigurationsfelder; daraus entstehen die Formulare in Webkonsole und UI\n"
+"| `+io.openems.core.referencetarget+`\n"
+"| setzt Referenz-Filter aus Konfigurationswerten (siehe xref:development/implementing/controller.adoc[Komponente])\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:35
+msgid ""
+"Every directory `+io.openems.*+` is a bundle. A bundle may only access "
+"bundles listed in its `+-buildpath+`. Typical are API bundles (`+*.api+`, "
+"e.g. `+io.openems.edge.ess.api+`) with the Natures and device bundles that "
+"are programmed only against these APIs."
+msgstr ""
+"Jedes Verzeichnis `+io.openems.*+` ist ein Bundle. Ein Bundle darf nur auf "
+"Bundles zugreifen, die in seinem `+-buildpath+` stehen. Typisch sind API-"
+"Bundles (`+*.api+`, z. B. `+io.openems.edge.ess.api+`) mit den Natures und "
+"Geräte-Bundles, die nur gegen diese APIs programmiert sind."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:37
+#, no-wrap
+msgid "Components"
+msgstr "Komponenten"
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:40
+msgid ""
+"An OpenEMS Component is a class with `+@Component+` and a configuration "
+"(`+@Designate(ocd = Config.class, factory = true)+`). With `+factory = "
+"true+` there can be any number of Instances, each with its own Component-ID "
+"(`+meter0+`, `+meter1+` …). The name in `+@Component(name = "
+"\"Meter.Janitza.UMG96RME\")+` is the **Factory-PID**; it appears in the "
+"configuration and must not be changed for compatibility reasons."
+msgstr ""
+"Eine Komponente ist eine Klasse mit `+@Component+` und einer Konfiguration "
+"(`+@Designate(ocd = Config.class, factory = true)+`). Mit `+factory = true+` "
+"kann es beliebig viele Instanzen geben, jede mit eigener ID (`+meter0+`, "
+"`+meter1+` …). Der Name in `+@Component(name = \"Meter.Janitza.UMG96RME\")+` "
+"ist die **Factory-PID**; sie erscheint in der Konfiguration und darf aus "
+"Kompatibilitätsgründen nicht geändert werden."
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:42
+msgid ""
+"Almost all components inherit from `+AbstractOpenemsComponent+` (devices "
+"with Modbus from `+AbstractOpenemsModbusComponent+`). The base class:"
+msgstr ""
+"Fast alle Komponenten erben von `+AbstractOpenemsComponent+` (Geräte mit "
+"Modbus von `+AbstractOpenemsModbusComponent+`). Die Basisklasse:"
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:44
+msgid ""
+"creates all Channels in the constructor whose `+ChannelId+` enums are passed,"
+msgstr ""
+"legt im Konstruktor alle Channels an, deren `+ChannelId+`-Enums übergeben "
+"werden,"
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:45
+msgid "sets the basic data in `+activate(context, id, alias, enabled)+`,"
+msgstr "setzt in `+activate(context, id, alias, enabled)+` die Grunddaten,"
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:46
+msgid "releases the Channels in `+deactivate()+`."
+msgstr "gibt in `+deactivate()+` die Channels frei."
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:48
+msgid ""
+"Each component has the Nature `+OpenemsComponent+` with, among others, the "
+"Channel `+State+` (overall state from all State-Channels) and error messages."
+msgstr ""
+"Jede Komponente hat die Nature `+OpenemsComponent+` mit u. a. den Channels "
+"`+State+` (Sammelzustand aus allen State-Channels) und Fehlermeldungen."
+
+#. type: #sec-components
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:50
+msgid ""
+"**Singleton components** with a fixed ID begin with an underscore, e.g. "
+"`+_sum+`, `+_cycle+`, `+_componentManager+`, `+_power+`, `+_meta+`, "
+"`+_appManager+`."
+msgstr ""
+"**Singleton-Komponenten** mit fester ID beginnen mit Unterstrich, z. B. "
+"`+_sum+`, `+_cycle+`, `+_componentManager+`, `+_power+`, `+_meta+`, "
+"`+_appManager+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:52
+#, no-wrap
+msgid "Natures"
+msgstr "Natures"
+
+#. type: #sec-natures
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:55
+msgid ""
+"Controllers are written against Natures, not against concrete devices. "
+"Examples:"
+msgstr ""
+"Controller programmieren gegen Natures, nicht gegen konkrete Geräte. "
+"Beispiele:"
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:80
+#, no-wrap
+msgid ""
+"| Nature\n"
+"| Bundle\n"
+"| Meaning\n"
+"\n"
+"| `+ElectricityMeter+`\n"
+"| `+io.openems.edge.meter.api+`\n"
+"| meter: power, voltage, current, energy; `+MeterType+` (GRID, PRODUCTION, CONSUMPTION_METERED …)\n"
+"| `+SymmetricEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| ESS: SoC, capacity, actual power\n"
+"| `+ManagedSymmetricEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| controllable ESS: setpoint Channels, `+applyPower()+`\n"
+"| `+EssDcCharger+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| DC-side PV on the hybrid inverter\n"
+"| `+Controller+`\n"
+"| `+io.openems.edge.controller.api+`\n"
+"| control logic in `+run()+`\n"
+"| `+Sum+`\n"
+"| `+io.openems.edge.common+`\n"
+"| totals across all devices (`+_sum+`)\n"
+msgstr ""
+"| Nature\n"
+"| Bundle\n"
+"| Bedeutung\n"
+"\n"
+"| `+ElectricityMeter+`\n"
+"| `+io.openems.edge.meter.api+`\n"
+"| Zähler: Leistung, Spannung, Strom, Energie; `+MeterType+` (GRID, PRODUCTION, CONSUMPTION_METERED …)\n"
+"| `+SymmetricEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| Speicher: SoC, Kapazität, Ist-Leistung\n"
+"| `+ManagedSymmetricEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| steuerbarer Speicher: Sollwert-Channels, `+applyPower()+`\n"
+"| `+EssDcCharger+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| DC-seitige PV am Hybrid-Wechselrichter\n"
+"| `+Controller+`\n"
+"| `+io.openems.edge.controller.api+`\n"
+"| Regel-Logik in `+run()+`\n"
+"| `+Sum+`\n"
+"| `+io.openems.edge.common+`\n"
+"| Summen über alle Geräte (`+_sum+`)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:83
+msgid ""
+"**Important:** An implementation must list **all** Natures it provides in "
+"the `+implements+` list, including the inherited parent interfaces (e.g. "
+"`+ManagedSymmetricEss, SymmetricEss, OpenemsComponent+`). Recognition as an "
+"OSGi service depends on the declared interfaces of the class, not on the "
+"complete inheritance."
+msgstr ""
+"**Wichtig:** Eine Implementierung muss **alle** Natures, die sie anbietet, "
+"in der `+implements+`-Liste aufzählen, auch die geerbten Eltern-Interfaces "
+"(z. B. `+ManagedSymmetricEss, SymmetricEss, OpenemsComponent+`). Die "
+"Erkennung als OSGi-Dienst richtet sich nach den deklarierten Interfaces der "
+"Klasse, nicht nach der vollständigen Vererbung."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:85
+#, no-wrap
+msgid "Channels"
+msgstr "Channels"
+
+#. type: #sec-channels
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:88
+msgid ""
+"A Channel is defined as an enum constant in the interface (Nature or the "
+"component's own interface):"
+msgstr ""
+"Ein Channel wird als Enum-Konstante im Interface (Nature oder "
+"komponenteneigenes Interface) definiert:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:98
+#, no-wrap
+msgid ""
+"public interface MyMeter extends OpenemsComponent {\n"
+"    enum ChannelId implements io.openems.edge.common.channel.ChannelId {\n"
+"        TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),\n"
+"        COMMUNICATION_FAILED(Doc.of(Level.FAULT).text(\"Communication failed\"));\n"
+"        ...\n"
+"    }\n"
+"}\n"
+msgstr ""
+"public interface MyMeter extends OpenemsComponent {\n"
+"    enum ChannelId implements io.openems.edge.common.channel.ChannelId {\n"
+"        TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)),\n"
+"        COMMUNICATION_FAILED(Doc.of(Level.FAULT).text(\"Communication failed\"));\n"
+"        ...\n"
+"    }\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:101
+msgid ""
+"The Channel Address has the form `+Component-ID/Channel-ID+`, where "
+"`+ACTIVE_POWER+` becomes the Channel-ID `+ActivePower+`."
+msgstr ""
+"Die Adresse eines Channels ist `+Komponenten-ID/ChannelName+`, wobei aus "
+"`+ACTIVE_POWER+` der Name `+ActivePower+` wird."
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:103
+#, no-wrap
+msgid "Reading and writing"
+msgstr "Lesen und Schreiben"
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:122
+#, no-wrap
+msgid ""
+"| Method\n"
+"| Effect\n"
+"\n"
+"| `+_setNextValue(v)+` / `+setNextValue(v)+`\n"
+"| sets the **next** value; visible only after the Process Image is switched in the next Cycle\n"
+"| `+value()+`\n"
+"| returns the value of the **current** Process Image (stable for the entire Cycle)\n"
+"| `+getNextValue()+`\n"
+"| returns the next value that has not yet been adopted\n"
+"| `+setNextWriteValue(v)+`\n"
+"| only for write-channels: write request, e.g. a setpoint to a device\n"
+"| `+getNextWriteValueAndReset()+`\n"
+"| fetches the write request and resets it (typically in the device driver)\n"
+"| `+onSetNextValue+`, `+onUpdate+`, `+onChange+`, `+onSetNextWrite+`\n"
+"| callbacks\n"
+msgstr ""
+"| Methode\n"
+"| Wirkung\n"
+"\n"
+"| `+_setNextValue(v)+` / `+setNextValue(v)+`\n"
+"| setzt den **nächsten** Wert; sichtbar erst nach dem Wechsel des Prozessabbilds im nächsten Zyklus\n"
+"| `+value()+`\n"
+"| liefert den Wert des **aktuellen** Prozessabbilds (für den ganzen Zyklus stabil)\n"
+"| `+getNextValue()+`\n"
+"| liefert den noch nicht übernommenen nächsten Wert\n"
+"| `+setNextWriteValue(v)+`\n"
+"| nur bei Write-Channels: Schreibwunsch, z. B. Sollwert an ein Gerät\n"
+"| `+getNextWriteValueAndReset()+`\n"
+"| holt den Schreibwunsch ab und setzt ihn zurück (typisch im Gerätetreiber)\n"
+"| `+onSetNextValue+`, `+onUpdate+`, `+onChange+`, `+onSetNextWrite+`\n"
+"| Callbacks\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:125
+#, no-wrap
+msgid "Types"
+msgstr "Arten"
+
+#. type: #sec-types
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:128
+msgid ""
+"Read-channels (`+IntegerReadChannel+`, `+EnumReadChannel+` …) and write-"
+"channels (`+IntegerWriteChannel+`, `+BooleanWriteChannel+` …), all in "
+"`+io.openems.edge.common.channel+`."
+msgstr ""
+"Read-Channels (`+IntegerReadChannel+`, `+EnumReadChannel+` …) und Write-"
+"Channels (`+IntegerWriteChannel+`, `+BooleanWriteChannel+` …), alle in "
+"`+io.openems.edge.common.channel+`."
+
+#. type: #sec-types
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:129
+msgid ""
+"**State-Channels** (`+Doc.of(Level.WARNING)+` etc.) are Boolean Channels "
+"with severity INFO, WARNING or FAULT. If one is active, the overall state "
+"`+State+` of the component goes to the highest level; `+_sum/State+` "
+"combines all components."
+msgstr ""
+"**State-Channels** (`+Doc.of(Level.WARNING)+` usw.) sind Boolean-Channels "
+"mit Schweregrad INFO, WARNING oder FAULT. Ist einer aktiv, geht der "
+"Sammelzustand `+State+` der Komponente auf den höchsten Level; `+_sum/"
+"State+` fasst alle Komponenten zusammen."
+
+#. type: #sec-types
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:130
+msgid ""
+"The access mode (`+accessMode+`) READ_ONLY, READ_WRITE or WRITE_ONLY "
+"determines whether the Channel can be written to via REST, for example."
+msgstr ""
+"Die Zugriffsart (`+accessMode+`) READ_ONLY, READ_WRITE oder WRITE_ONLY "
+"bestimmt, ob der Channel z. B. über REST beschrieben werden kann."
+
+#. type: #sec-types
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:131
+msgid ""
+"`+persistencePriority+` controls which Channels end up in the history and "
+"Backend."
+msgstr ""
+"`+persistencePriority+` steuert, welche Channels in Historie und Backend "
+"landen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:133
+#, no-wrap
+msgid "Sum"
+msgstr "Sum"
+
+#. type: #sec-sum
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:136
+msgid ""
+"The component `+_sum+` (interface `+Sum+`) forms totals across all meters, "
+"ESS and producers in each Cycle: `+GridActivePower+`, "
+"`+ProductionActivePower+`, `+ConsumptionActivePower+`, `+EssSoc+`, energy "
+"meters etc. The values are calculated shortly before the Process Image is "
+"switched (`+updateChannelsBeforeProcessImage()+`). Controllers and UI use "
+"`+_sum+` instead of individual devices where this is sufficient. What goes "
+"into the totals is described on the user page xref:user/basics/energy-"
+"flows.adoc[Basics]."
+msgstr ""
+"Die Komponente `+_sum+` (Interface `+Sum+`) bildet in jedem Zyklus Summen "
+"über alle Zähler, Speicher und Erzeuger: `+GridActivePower+`, "
+"`+ProductionActivePower+`, `+ConsumptionActivePower+`, `+EssSoc+`, Energie-"
+"Zähler usw. Die Werte werden kurz vor dem Wechsel des Prozessabbilds "
+"berechnet (`+updateChannelsBeforeProcessImage()+`). Controller und UI nutzen "
+"`+_sum+` statt einzelner Geräte, wo das reicht. Was in die Summen eingeht, "
+"beschreibt die Anwenderseite xref:user/basics/energy-flows.adoc[Grundlagen]."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:138
+#, no-wrap
+msgid "Configuration at runtime"
+msgstr "Konfiguration zur Laufzeit"
+
+#. type: #sec-configuration-at-runtime
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:141
+msgid ""
+"Configurations are changed via the Configuration Admin, see xref:edge/"
+"configuration.adoc[Configuration]. The UI and JSON-RPC "
+"(`+createComponentConfig+`, `+updateComponentConfig+`, "
+"`+deleteComponentConfig+`) go through the `+ComponentManager+`."
+msgstr ""
+"Konfigurationen ändert man über den Configuration Admin, siehe "
+"xref:latest@edge/configuration.adoc[Configuration]. Die UI und JSON-RPC "
+"(`+createComponentConfig+`, `+updateComponentConfig+`, "
+"`+deleteComponentConfig+`) gehen über den `+ComponentManager+`."
+
+#. type: #sec-configuration-at-runtime
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:142
+msgid ""
+"After a change, OSGi calls `+@Modified+`, if present; otherwise the "
+"component is deactivated and reactivated."
+msgstr ""
+"Nach einer Änderung ruft OSGi `+@Modified+` auf, falls vorhanden; sonst wird "
+"die Komponente deaktiviert und neu aktiviert."
+
+#. type: #sec-configuration-at-runtime
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc:142
+msgid ""
+"`+ComponentManager.getEdgeConfig()+` returns the entire configuration "
+"including all Channels. Building it is expensive; do not call it in every "
+"Cycle."
+msgstr ""
+"`+ComponentManager.getEdgeConfig()+` liefert die gesamte Konfiguration "
+"inklusive aller Channels. Der Aufbau ist aufwendig; nicht in jedem Zyklus "
+"aufrufen."

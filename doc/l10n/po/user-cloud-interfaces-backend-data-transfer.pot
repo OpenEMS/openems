@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,39 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr ""
 
 #. type: Title ==
 #: modules/ROOT/pages/user/basics/energy-flows.adoc
@@ -40,22 +73,6 @@ msgstr ""
 
 #. type: Plain text
 #: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
-#: modules/ROOT/pages/user/data/history-rrd4j.adoc
-#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
-#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
-#: modules/ROOT/pages/user/schedule/overview.adoc
-#: modules/ROOT/pages/user/schedule/weather.adoc
-#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
-#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
-#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
-#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
-msgid ""
-"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
-"version, branch develop)__"
-msgstr ""
-
-#. type: Plain text
-#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
 msgid ""
 "The **backend** is a central server to which systems can connect. It "
 "provides online monitoring on the move, the long-term history and remote "
@@ -69,17 +86,6 @@ msgid ""
 "Whether anything is sent at all depends on the setup: without a backend "
 "connection, all data remains on the device. With plain OpenEMS, you operate "
 "the backend yourself or use that of a provider."
-msgstr ""
-
-#. type: Title ===
-#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
-#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
-#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
-#: modules/ROOT/pages/user/schedule/weather.adoc
-#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
-#: modules/ROOT/pages/user/third-party/openwb.adoc
-#, no-wrap
-msgid "Setup"
 msgstr ""
 
 #. type: #sec-setup

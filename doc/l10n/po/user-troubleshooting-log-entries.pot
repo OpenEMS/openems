@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. type: #sec-see-also
-#: modules/ROOT/pages/user/_nav.adoc
-#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/troubleshooting/log-entries.adoc
 msgid ""
 "xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the "
 "backend]"

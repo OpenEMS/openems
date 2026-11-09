@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Overview"
+msgstr "Überblick"
+
 #. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
 #: modules/ROOT/pages/user/basics/energy-flows.adoc
 #: modules/ROOT/pages/user/data/export.adoc
 #: modules/ROOT/pages/user/devices/cluster.adoc
@@ -108,12 +116,6 @@ msgstr ""
 "Alle Zahlen stammen aus dem Code. Was das BMS intern macht (z. B. wie es den "
 "Ladezustand berechnet), steht nicht im OpenEMS-Code und ist hier nicht "
 "beschrieben."
-
-#. type: Title ==
-#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
-#, no-wrap
-msgid "Overview"
-msgstr "Überblick"
 
 #. type: #sec-overview
 #: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc

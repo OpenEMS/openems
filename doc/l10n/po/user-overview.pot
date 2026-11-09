@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,79 +17,79 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Basics"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Existing systems"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Devices"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Storage systems control"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "EV charging station control"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "I/O control"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Schedule"
 msgstr ""
 
 #. type: #sec-schedule
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 msgid ""
 "xref:user/schedule/forecasts.adoc[Forecasts for consumption and production]"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "External interfaces"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Cloud interfaces"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Third-party systems"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Data"
 msgstr ""
 
 #. type: Title ===
-#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
 #, no-wrap
 msgid "Troubleshooting"
 msgstr ""
