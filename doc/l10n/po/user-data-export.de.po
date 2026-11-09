@@ -1,0 +1,724 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "OpenEMS: Exporting data"
+msgstr "OpenEMS: Daten exportieren"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"This page describes what data the **Excel export** of the web interface "
+"contains, how it depends on the selected period and what other ways there "
+"are to get data out of OpenEMS as a file or text."
+msgstr ""
+"Diese Seite beschreibt, welche Daten der **Excel-Export** der Weboberfläche "
+"enthält, wie er vom gewählten Zeitraum abhängt und welche anderen Wege es "
+"gibt, Daten als Datei oder Text aus OpenEMS herauszuholen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "The Excel export"
+msgstr "Der Excel-Export"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Where to find it"
+msgstr "Wo man ihn findet"
+
+#. type: #sec-where-to-find-it
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**History, energy overview:** Button “Download as Excel file” (in the old "
+"interface directly on the energy widget)."
+msgstr ""
+"**Historie, Energie-Übersicht:** Schaltfläche „Download als Excel-Datei“ (in "
+"der alten Oberfläche direkt am Energie-Widget)."
+
+#. type: #sec-where-to-find-it
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**New navigation:** separate export page under History, with period "
+"selection."
+msgstr ""
+"**Neue Navigation:** eigene Export-Seite unter Historie, mit Zeitraumauswahl."
+
+#. type: #sec-where-to-find-it
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"According to the code, the export is “temporarily unavailable” in the "
+"**smartphone app**; it only works in the browser. The file is called e.g. "
+"`+Export-edge0-01.-31.10.2026.xlsx+`."
+msgstr ""
+"In der **Smartphone-App** ist der Export laut Code „vorübergehend nicht "
+"verfügbar“; er funktioniert nur im Browser. Die Datei heißt z. B. `+Export-"
+"edge0-01.-31.10.2026.xlsx+`."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Does the export depend on the displayed period?"
+msgstr "Ist der Export vom angezeigten Zeitraum abhängig?"
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Yes.** Exactly the period currently set in the history is exported (day, "
+"week, month, year or custom period):"
+msgstr ""
+"**Ja.** Exportiert wird genau der Zeitraum, der in der Historie gerade "
+"eingestellt ist (Tag, Woche, Monat, Jahr oder eigener Zeitraum):"
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Whole days** are always exported: from 0:00 on the first day to the end of "
+"the last day, in the time zone of the browser."
+msgstr ""
+"Es werden immer **ganze Tage** exportiert: vom ersten Tag 0:00 Uhr bis zum "
+"Ende des letzten Tages, in der Zeitzone des Browsers."
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"If the commissioning date is known, the export starts there at the earliest."
+msgstr ""
+"Ist das Datum der Inbetriebnahme bekannt, beginnt der Export frühestens dort."
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"If “today” is selected, the export also contains the remaining quarter hours "
+"of the day; there are no values for the future yet (displayed as “-”)."
+msgstr ""
+"Ist „heute“ eingestellt, enthält der Export auch die restlichen "
+"Viertelstunden des Tages; für die Zukunft gibt es noch keine Werte (Anzeige "
+"„-“)."
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"How far back you can go depends on the storage of the history. On the "
+"device, the data goes back about 15 months (see xref:user/data/history-"
+"rrd4j.adoc[History])."
+msgstr ""
+"Wie weit man zurückgehen kann, hängt vom Speicher der Historie ab. Auf dem "
+"Gerät reichen die Daten etwa 15 Monate zurück (siehe xref:user/data/history-"
+"rrd4j.adoc[Historie])."
+
+#. type: #sec-does-the-export-depend-on-the-displayed-period
+#: modules/ROOT/pages/user/data/export.adoc
+msgid "A long period results in a large file: one year is around 35,000 rows."
+msgstr ""
+"Ein langer Zeitraum ergibt eine große Datei: ein Jahr sind rund 35.000 "
+"Zeilen."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Where the data comes from"
+msgstr "Woher die Daten kommen"
+
+#. type: #sec-where-the-data-comes-from
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The file is not assembled in the browser, but by the system to which the web "
+"interface is connected:"
+msgstr ""
+"Die Datei wird nicht im Browser zusammengestellt, sondern von dem System, "
+"mit dem die Weboberfläche verbunden ist:"
+
+#. type: #sec-where-the-data-comes-from
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Connected locally to the system:** The system creates the file from its "
+"own xref:user/data/history-rrd4j.adoc[history]."
+msgstr ""
+"**Lokal mit der Anlage verbunden:** Die Anlage erzeugt die Datei aus ihrer "
+"eigenen xref:user/data/history-rrd4j.adoc[Historie]."
+
+#. type: #sec-where-the-data-comes-from
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Connected via the online portal:** The backend creates the file from the "
+"data stored there (see xref:user/cloud-interfaces/backend-data-"
+"transfer.adoc[Data transfer to the backend])."
+msgstr ""
+"**Über das Online-Portal verbunden:** Das Backend erzeugt die Datei aus den "
+"dort gespeicherten Daten (siehe xref:user/cloud-interfaces/backend-data-"
+"transfer.adoc[Datenübertragung zum Backend])."
+
+#. type: #sec-where-the-data-comes-from
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Structure and columns are the same in both cases. The values may differ "
+"slightly because the data is stored differently."
+msgstr ""
+"Aufbau und Spalten sind in beiden Fällen gleich. Die Werte können sich "
+"leicht unterscheiden, weil die Daten unterschiedlich gespeichert werden."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "What the file contains"
+msgstr "Was in der Datei steht"
+
+#. type: #sec-what-the-file-contains
+#: modules/ROOT/pages/user/data/export.adoc
+msgid "The file has one worksheet “Export” with three parts."
+msgstr "Die Datei hat ein Tabellenblatt „Export“ mit drei Teilen."
+
+#. type: #sec-what-the-file-contains
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**1. Header:** System number (only for export via the backend), time of "
+"creation, export period."
+msgstr ""
+"**1. Kopf:** Anlagennummer (nur beim Export über das Backend), "
+"Erstellungszeitpunkt, Exportzeitraum."
+
+#. type: #sec-what-the-file-contains
+#: modules/ROOT/pages/user/data/export.adoc
+msgid "**2. Overall overview – energy amounts for the entire period (kWh):**"
+msgstr "**2. Gesamtübersicht – Energiemengen für den ganzen Zeitraum (kWh):**"
+
+#. type: Table
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"| Column\n"
+"| Source\n"
+"\n"
+"| Grid purchase\n"
+"| `+_sum/GridBuyActiveEnergy+`\n"
+"| Grid feed-in\n"
+"| `+_sum/GridSellActiveEnergy+`\n"
+"| Production\n"
+"| `+_sum/ProductionActiveEnergy+`\n"
+"| Storage charge\n"
+"| `+_sum/EssDcChargeEnergy+`\n"
+"| Storage discharge\n"
+"| `+_sum/EssDcDischargeEnergy+`\n"
+"| Consumption\n"
+"| `+_sum/ConsumptionActiveEnergy+`\n"
+msgstr ""
+"| Spalte\n"
+"| Quelle\n"
+"\n"
+"| Netzbezug\n"
+"| `+_sum/GridBuyActiveEnergy+`\n"
+"| Netzeinspeisung\n"
+"| `+_sum/GridSellActiveEnergy+`\n"
+"| Erzeugung\n"
+"| `+_sum/ProductionActiveEnergy+`\n"
+"| Speicher Beladung\n"
+"| `+_sum/EssDcChargeEnergy+`\n"
+"| Speicher Entladung\n"
+"| `+_sum/EssDcDischargeEnergy+`\n"
+"| Verbrauch\n"
+"| `+_sum/ConsumptionActiveEnergy+`\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Each value is the difference between the meter readings at the beginning and "
+"end of the period. If a value is missing, it says “not available”."
+msgstr ""
+"Jeder Wert ist die Differenz der Zählerstände am Anfang und am Ende des "
+"Zeitraums. Fehlt ein Wert, steht dort „nicht vorhanden“."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid "**3. General data – power per quarter hour:** one row per 15 minutes."
+msgstr ""
+"**3. Allgemeine Daten – Leistung je Viertelstunde:** eine Zeile je 15 "
+"Minuten."
+
+#. type: Table
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"| Column\n"
+"| Source\n"
+"| Note\n"
+"\n"
+"| Date / time\n"
+"| –\n"
+"| Time of the quarter hour\n"
+"| Grid purchase [W] / grid feed-in [W]\n"
+"| `+_sum/GridActivePower+`\n"
+"| split by sign; the other column is 0\n"
+"| Production [W]\n"
+"| `+_sum/ProductionActivePower+`\n"
+"| \n"
+"| Storage charge [W] / storage discharge [W]\n"
+"| `+_sum/EssDischargePower+`\n"
+"| split by sign\n"
+"| Consumption [W]\n"
+"| `+_sum/ConsumptionActivePower+`\n"
+"| \n"
+"| State of charge [%]\n"
+"| `+_sum/EssSoc+`\n"
+"| \n"
+msgstr ""
+"| Spalte\n"
+"| Quelle\n"
+"| Hinweis\n"
+"\n"
+"| Datum / Uhrzeit\n"
+"| –\n"
+"| Zeitpunkt der Viertelstunde\n"
+"| Netzbezug [W] / Netzeinspeisung [W]\n"
+"| `+_sum/GridActivePower+`\n"
+"| aufgeteilt nach Vorzeichen; die jeweils andere Spalte ist 0\n"
+"| Erzeugung [W]\n"
+"| `+_sum/ProductionActivePower+`\n"
+"| \n"
+"| Speicher Beladung [W] / Speicher Entladung [W]\n"
+"| `+_sum/EssDischargePower+`\n"
+"| aufgeteilt nach Vorzeichen\n"
+"| Verbrauch [W]\n"
+"| `+_sum/ConsumptionActivePower+`\n"
+"| \n"
+"| Ladezustand [%]\n"
+"| `+_sum/EssSoc+`\n"
+"| \n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The power values are **averages over the quarter hour**, rounded to whole "
+"watts. Missing values appear as “-”. All values come from the totals of "
+"OpenEMS (component `+_sum+`); how these are created is explained on the page "
+"xref:user/basics/energy-flows.adoc[Basics]."
+msgstr ""
+"Die Leistungswerte sind **Mittelwerte über die Viertelstunde**, auf ganze "
+"Watt gerundet. Fehlende Werte erscheinen als „-“. Alle Werte stammen aus den "
+"Summen von OpenEMS (Komponente `+_sum+`); wie diese entstehen, erklärt die "
+"Seite xref:user/basics/energy-flows.adoc[Grundlagen]."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**4. Detailed evaluation of producers, consumers and apps:** to the right of "
+"the general data, also per quarter hour. There is a separate column with its "
+"name for each matching device:"
+msgstr ""
+"**4. Detaillierte Auswertung der Erzeuger, Verbraucher und Apps:** rechts "
+"neben den allgemeinen Daten, ebenfalls je Viertelstunde. Für jedes passende "
+"Gerät gibt es eine eigene Spalte mit seinem Namen:"
+
+#. type: Table
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"| Group\n"
+"| What goes in\n"
+"| Value\n"
+"\n"
+"| Production\n"
+"| PV inverters, meters of the type “production”, PV inputs of hybrid inverters\n"
+"| Power [W]\n"
+"| Consumption\n"
+"| Meters of the type “consumption”, charge points, heat controls (e.g. heating elements), emergency power meters\n"
+"| Power [W]\n"
+"| Dynamic electricity tariff\n"
+"| every tariff component, provided that price control is set up\n"
+"| Price per quarter hour in the sub-unit of the currency per kWh (e.g. ct/kWh)\n"
+msgstr ""
+"| Gruppe\n"
+"| Was hineinkommt\n"
+"| Wert\n"
+"\n"
+"| Erzeugung\n"
+"| PV-Wechselrichter, Zähler vom Typ „Erzeugung“, PV-Eingänge von Hybrid-Wechselrichtern\n"
+"| Leistung [W]\n"
+"| Verbrauch\n"
+"| Zähler vom Typ „Verbrauch“, Ladepunkte, Wärme-Steuerungen (z. B. Heizstäbe), Notstrom-Zähler\n"
+"| Leistung [W]\n"
+"| Dynamischer Stromtarif\n"
+"| jede Tarif-Komponente, sofern die Preissteuerung eingerichtet ist\n"
+"| Preis je Viertelstunde in der Untereinheit der Währung je kWh (z. B. ct/kWh)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The following do **not** appear as a separate column: grid meters, meters of "
+"the type “production and consumption”, groups of charge points and groups of "
+"PV inverters."
+msgstr ""
+"**Nicht** als eigene Spalte erscheinen: Netzzähler, Zähler vom Typ "
+"„Erzeugung und Verbrauch“, Gruppen von Ladepunkten und Gruppen von PV-"
+"Wechselrichtern."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The detail values are **already included in the overall overview**. The file "
+"also points this out. If you add them up and add them to the total, you "
+"count them twice."
+msgstr ""
+"Die Detailwerte sind **bereits in der Gesamtübersicht enthalten**. Darauf "
+"weist auch die Datei hin. Wer sie aufsummiert und zur Gesamtsumme addiert, "
+"zählt doppelt."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The electricity price is the price with which xref:user/storage-control/time-"
+"of-use-tariffs.adoc[price control] calculated in the respective quarter "
+"hour. With several tariff components, all columns show this one price."
+msgstr ""
+"Der Strompreis ist der Preis, mit dem die xref:user/storage-control/time-of-"
+"use-tariffs.adoc[Preissteuerung] in der jeweiligen Viertelstunde gerechnet "
+"hat. Bei mehreren Tarif-Komponenten zeigen alle Spalten diesen einen Preis."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "What to watch out for"
+msgstr "Worauf man achten sollte"
+
+#. type: #sec-what-to-watch-out-for
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Sum of the quarter hours ≠ overall overview:** If you convert the power "
+"values into energy (watts × 0.25 h), you do not get exactly the overall "
+"overview. It comes from the meter readings, the time series from averages. "
+"The values differ particularly for the storage: the energy totals measure on "
+"the battery side (DC), the power columns on the alternating current side."
+msgstr ""
+"**Summe der Viertelstunden ≠ Gesamtübersicht:** Rechnet man die "
+"Leistungswerte in Energie um (Watt × 0,25 h), ergibt sich nicht genau die "
+"Gesamtübersicht. Diese kommt aus den Zählerständen, die Zeitreihe aus "
+"Mittelwerten. Besonders beim Speicher weichen die Werte voneinander ab: Die "
+"Energiesummen messen auf der Batterieseite (DC), die Leistungsspalten auf "
+"der Wechselstromseite."
+
+#. type: #sec-what-to-watch-out-for
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Negative or implausible totals** in the overall overview have the same "
+"causes as in the history, e.g. a reset meter reading (see xref:user/data/"
+"history-rrd4j.adoc[History])."
+msgstr ""
+"**Negative oder unplausible Summen** in der Gesamtübersicht haben dieselben "
+"Ursachen wie in der Historie, z. B. ein zurückgesetzter Zählerstand (siehe "
+"xref:user/data/history-rrd4j.adoc[Historie])."
+
+#. type: #sec-what-to-watch-out-for
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"**Tariff without price control:** For each tariff component, the export "
+"reads the price from the first price control. If a tariff component is set "
+"up but no price control, this first price control does not exist. According "
+"to the code, the export then aborts with an error and no file is created. "
+"Remedy: deactivate the tariff component or set up a price control. This has "
+"not been tried out on a system."
+msgstr ""
+"**Tarif ohne Preissteuerung:** Für jede Tarif-Komponente liest der Export "
+"den Preis aus der ersten Preissteuerung. Ist eine Tarif-Komponente "
+"eingerichtet, aber keine Preissteuerung, gibt es diese erste Preissteuerung "
+"nicht. Laut Code bricht der Export dann mit einem Fehler ab, und es entsteht "
+"keine Datei. Abhilfe: die Tarif-Komponente deaktivieren oder eine "
+"Preissteuerung einrichten. An einer Anlage ausprobiert wurde das nicht."
+
+#. type: #sec-what-to-watch-out-for
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The file is intended for viewing (colors, merged cells). The routes below "
+"are better suited for further processing."
+msgstr ""
+"Die Datei ist für die Ansicht gedacht (Farben, verbundene Zellen). Für die "
+"Weiterverarbeitung eignen sich die Wege unten besser."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Other ways to export data"
+msgstr "Andere Wege, Daten zu exportieren"
+
+#. type: Table
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"| Route\n"
+"| Delivers\n"
+"| Format\n"
+"| Prerequisite\n"
+"\n"
+"| **JSON-RPC via REST**\n"
+"| Histories of any channels, energy amounts, energy per period, also the Excel file\n"
+"| JSON (easy to convert to CSV)\n"
+"| REST/JSON API **with write access** (`+Controller.Api.Rest.ReadWrite+`), user at least **Owner**\n"
+"| **REST query of individual values**\n"
+"| current values, also several via wildcard\n"
+"| JSON\n"
+"| REST/JSON API, also the read-only variant; Guest role is sufficient\n"
+"| **Modbus/TCP API**\n"
+"| current values for third-party systems (e.g. PLC, home automation) that record them themselves\n"
+"| Modbus registers\n"
+"| App “Modbus/TCP API”\n"
+"| **Modbus register list**\n"
+"| Description of all registers of the Modbus API (no measured values)\n"
+"| Excel\n"
+"| configured Modbus API; download in the system profile\n"
+"| **Websocket**\n"
+"| current values every second as long as you are connected\n"
+"| JSON\n"
+"| see xref:user/external-interfaces/websocket.adoc[Websocket]\n"
+msgstr ""
+"| Weg\n"
+"| Liefert\n"
+"| Format\n"
+"| Voraussetzung\n"
+"\n"
+"| **JSON-RPC über REST**\n"
+"| Verläufe beliebiger Kanäle, Energiemengen, Energie je Zeitabschnitt, auch die Excel-Datei\n"
+"| JSON (leicht in CSV umzuwandeln)\n"
+"| REST/JSON-API **mit Schreibzugriff** (`+Controller.Api.Rest.ReadWrite+`), Benutzer mindestens **Eigentümer**\n"
+"| **REST-Abfrage einzelner Werte**\n"
+"| aktuelle Werte, auch mehrere per Platzhalter\n"
+"| JSON\n"
+"| REST/JSON-API, auch die Nur-Lesen-Variante; Rolle Gast genügt\n"
+"| **Modbus/TCP-API**\n"
+"| aktuelle Werte für Fremdsysteme (z. B. SPS, Hausautomation), die sie selbst aufzeichnen\n"
+"| Modbus-Register\n"
+"| App „Modbus/TCP-API“\n"
+"| **Modbus-Registerliste**\n"
+"| Beschreibung aller Register der Modbus-API (keine Messwerte)\n"
+"| Excel\n"
+"| eingerichtete Modbus-API; Download im Anlagenprofil\n"
+"| **Websocket**\n"
+"| laufende Werte im Sekundentakt, solange man verbunden ist\n"
+"| JSON\n"
+"| siehe xref:user/external-interfaces/websocket.adoc[Websocket]\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Retrieving histories via JSON-RPC"
+msgstr "Verläufe über JSON-RPC abrufen"
+
+#. type: #sec-retrieving-histories-via-json-rpc
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Via the REST interface (port 8084, path `+/jsonrpc+`, see xref:user/external-"
+"interfaces/rest-control.adoc[Control via REST/JSON]) you can make the same "
+"queries that the web interface uses. Two prerequisites apply:"
+msgstr ""
+"Über die REST-Schnittstelle (Port 8084, Pfad `+/jsonrpc+`, siehe xref:user/"
+"external-interfaces/rest-control.adoc[Steuern über REST/JSON]) lassen sich "
+"dieselben Abfragen stellen, die auch die Weboberfläche nutzt. Dafür gelten "
+"zwei Voraussetzungen:"
+
+#. type: #sec-retrieving-histories-via-json-rpc
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The REST/JSON API **with write access** must be set up "
+"(`+Controller.Api.Rest.ReadWrite+`). The read-only variant rejects every "
+"call to `+/jsonrpc+` with “REST-Api is in Read-Only mode”, even pure queries."
+msgstr ""
+"Es muss die REST/JSON-API **mit Schreibzugriff** eingerichtet sein "
+"(`+Controller.Api.Rest.ReadWrite+`). Die Nur-Lesen-Variante lehnt jeden "
+"Aufruf von `+/jsonrpc+` mit „REST-Api is in Read-Only mode“ ab, auch reine "
+"Abfragen."
+
+#. type: #sec-retrieving-histories-via-json-rpc
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The user needs at least the **Owner** role. Via the web interface or the "
+"xref:user/external-interfaces/websocket.adoc[websocket], on the other hand, "
+"the Guest role is sufficient for the same queries (see xref:user/external-"
+"interfaces/json-rpc.adoc[JSON-RPC])."
+msgstr ""
+"Der Benutzer braucht mindestens die Rolle **Eigentümer**. Über die "
+"Weboberfläche bzw. den xref:user/external-interfaces/"
+"websocket.adoc[Websocket] genügt für dieselben Abfragen dagegen die Rolle "
+"Gast (siehe xref:user/external-interfaces/json-rpc.adoc[JSON-RPC])."
+
+#. type: #sec-retrieving-histories-via-json-rpc
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"With this variant and these credentials, you can also control the system and "
+"change settings (see xref:user/external-interfaces/rest-control.adoc[Control "
+"via REST/JSON]). The password should therefore be protected accordingly."
+msgstr ""
+"Mit dieser Variante und diesen Zugangsdaten kann man die Anlage auch steuern "
+"und Einstellungen ändern (siehe xref:user/external-interfaces/rest-"
+"control.adoc[Steuern über REST/JSON]). Das Passwort sollte deshalb "
+"entsprechend geschützt werden."
+
+#. type: Table
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"| Query\n"
+"| Delivers\n"
+"\n"
+"| `+queryHistoricTimeseriesData+`\n"
+"| Values of any channels as a time series; the resolution can be selected (e.g. 5 or 15 minutes)\n"
+"| `+queryHistoricTimeseriesEnergy+`\n"
+"| Energy amount per channel for the entire period\n"
+"| `+queryHistoricTimeseriesEnergyPerPeriod+`\n"
+"| Energy amount per channel for each section (e.g. per day or month)\n"
+"| `+queryHistoricTimeseriesExportXlxs+`\n"
+"| the Excel file as above, Base64-encoded\n"
+msgstr ""
+"| Abfrage\n"
+"| Liefert\n"
+"\n"
+"| `+queryHistoricTimeseriesData+`\n"
+"| Werte beliebiger Kanäle als Zeitreihe; die Auflösung ist wählbar (z. B. 5 oder 15 Minuten)\n"
+"| `+queryHistoricTimeseriesEnergy+`\n"
+"| Energiemenge je Kanal für den ganzen Zeitraum\n"
+"| `+queryHistoricTimeseriesEnergyPerPeriod+`\n"
+"| Energiemenge je Kanal für jeden Abschnitt (z. B. je Tag oder Monat)\n"
+"| `+queryHistoricTimeseriesExportXlxs+`\n"
+"| die Excel-Datei wie oben, Base64-kodiert\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"The dates are whole days (`+YYYY-MM-DD+`). The end date is included. The "
+"`+id+` must be a UUID."
+msgstr ""
+"Die Datumsangaben sind ganze Tage (`+JJJJ-MM-TT+`). Das Bis-Datum ist "
+"eingeschlossen. Die `+id+` muss eine UUID sein."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Example: Retrieve grid, production and consumption of one day in 15-minute "
+"resolution and save as a CSV file. The tool `+jq+` takes care of the "
+"conversion."
+msgstr ""
+"Beispiel: Netz, Erzeugung und Verbrauch eines Tages in 15-Minuten-Auflösung "
+"abrufen und als CSV-Datei speichern. Das Umwandeln übernimmt das Werkzeug "
+"`+jq+`."
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid ""
+"curl -s -u 'x:PASSWORD' -H 'Content-Type: application/json' \\\n"
+"  -X POST 'http://IP-OF-THE-SYSTEM:8084/jsonrpc' \\\n"
+"  -d '{\"jsonrpc\":\"2.0\",\"id\":\"00000000-0000-0000-0000-000000000001\",\n"
+"       \"method\":\"queryHistoricTimeseriesData\",\n"
+"       \"params\":{\"fromDate\":\"2026-10-29\",\"toDate\":\"2026-10-29\",\n"
+"                 \"timezone\":\"Europe/Berlin\",\n"
+"                 \"channels\":[\"_sum/GridActivePower\",\"_sum/ProductionActivePower\",\n"
+"                             \"_sum/ConsumptionActivePower\",\"_sum/EssSoc\"],\n"
+"                 \"resolution\":{\"value\":15,\"unit\":\"minutes\"}}}' \\\n"
+"| jq -r '.result as $r | ($r.data|keys) as $k\n"
+"         | ([\"Time\"]+$k|@csv),\n"
+"           (range($r.timestamps|length) as $i\n"
+"            | [$r.timestamps[$i]] + [$k[] as $c | $r.data[$c][$i]] | @csv)' \\\n"
+"> export.csv\n"
+msgstr ""
+"curl -s -u 'x:PASSWORT' -H 'Content-Type: application/json' \\\n"
+"  -X POST 'http://IP-DER-ANLAGE:8084/jsonrpc' \\\n"
+"  -d '{\"jsonrpc\":\"2.0\",\"id\":\"00000000-0000-0000-0000-000000000001\",\n"
+"       \"method\":\"queryHistoricTimeseriesData\",\n"
+"       \"params\":{\"fromDate\":\"2026-10-29\",\"toDate\":\"2026-10-29\",\n"
+"                 \"timezone\":\"Europe/Berlin\",\n"
+"                 \"channels\":[\"_sum/GridActivePower\",\"_sum/ProductionActivePower\",\n"
+"                             \"_sum/ConsumptionActivePower\",\"_sum/EssSoc\"],\n"
+"                 \"resolution\":{\"value\":15,\"unit\":\"minutes\"}}}' \\\n"
+"| jq -r '.result as $r | ($r.data|keys) as $k\n"
+"         | ([\"Zeit\"]+$k|@csv),\n"
+"           (range($r.timestamps|length) as $i\n"
+"            | [$r.timestamps[$i]] + [$k[] as $c | $r.data[$c][$i]] | @csv)' \\\n"
+"> export.csv\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Result: one row per quarter hour, first column time, then one column per "
+"channel. Missing values remain empty. The conversion with `+jq+` was checked "
+"on sample data, the query was not checked on a real system."
+msgstr ""
+"Ergebnis: eine Zeile je Viertelstunde, erste Spalte Zeitpunkt, danach eine "
+"Spalte je Kanal. Fehlende Werte bleiben leer. Die Umwandlung mit `+jq+` "
+"wurde an Beispieldaten geprüft, die Abfrage an einer echten Anlage nicht."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Notes"
+msgstr "Hinweise"
+
+#. type: #sec-notes
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"Which channels are stored in the history and for how long is on the page "
+"xref:user/data/history-rrd4j.adoc[History]. What is not stored there cannot "
+"be delivered by any export either."
+msgstr ""
+"Welche Kanäle in der Historie gespeichert sind und wie lange, steht auf der "
+"Seite xref:user/data/history-rrd4j.adoc[Historie]. Was dort nicht "
+"gespeichert wird, kann auch kein Export liefern."
+
+#. type: #sec-notes
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"For permanent recording beyond the approximately 15 months of the device, "
+"you must retrieve the data regularly and store it yourself, e.g. daily by "
+"script with the query above."
+msgstr ""
+"Für eine dauerhafte Aufzeichnung über die rund 15 Monate des Geräts hinaus "
+"muss man die Daten regelmäßig abrufen und selbst ablegen, z. B. täglich per "
+"Skript mit der Abfrage oben."
+
+#. type: #sec-notes
+#: modules/ROOT/pages/user/data/export.adoc
+msgid ""
+"For current values, the read-only variants of the REST and Modbus APIs are "
+"sufficient. For histories and energy amounts via REST (JSON-RPC), the "
+"variant with write access is required, even if the retrieval itself only "
+"reads."
+msgstr ""
+"Für aktuelle Werte genügen die Nur-Lesen-Varianten von REST- und Modbus-API. "
+"Für Verläufe und Energiemengen über REST (JSON-RPC) ist die Variante mit "
+"Schreibzugriff nötig, auch wenn der Abruf selbst nur liest."

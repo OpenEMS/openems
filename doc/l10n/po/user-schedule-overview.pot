@@ -1,0 +1,217 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "OpenEMS: Schedule"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"**OpenEMS has a schedule.** It shows what the system plans for the current "
+"and the next day, in quarter hours:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "which **electricity price** applies,"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "how much **solar yield** and **consumption** are expected,"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"what the **storage** should do (e.g. “delayed discharge” or “charge from "
+"grid”),"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "and how **grid purchase** and **state of charge** develop as a result."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"For past periods of the day, the schedule shows the **measured values**. "
+"This way, one chart shows both what happened and what is planned."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The schedule is more than the forecast: it uses the xref:user/schedule/"
+"forecasts.adoc[forecasts] and shows what OpenEMS does with them."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "Where to see it"
+msgstr ""
+
+#. type: #sec-where-to-see-it
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The web interface has its own **schedule page**. Since October 2026 it "
+"updates itself as soon as a new plan has been made. It also shows whether "
+"planning is in progress or has been completed."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "How it is created"
+msgstr ""
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"OpenEMS collects forecasts, electricity prices (xref:user/storage-control/"
+"time-of-use-tariffs.adoc[tariffs]), the state of the storage and the grid "
+"limits."
+msgstr ""
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"An optimizer tries out many possible sequences and selects the cheapest one "
+"that complies with all limits."
+msgstr ""
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The near future is planned in quarter hours, times further ahead in hours."
+msgstr ""
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The plan is renewed regularly, about every quarter of an hour, and "
+"immediately when settings are changed."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "What is included in the plan"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid ""
+"| Function\n"
+"| Role in the schedule\n"
+"\n"
+"| xref:user/storage-control/time-of-use-tariffs.adoc[Price control]\n"
+"| decides when the storage is conserved, charged or discharged\n"
+"| xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]\n"
+"| delays or limits charging (together with price control)\n"
+"| Charge points (wallbox)\n"
+"| plan the charging of vehicles\n"
+"| Heating elements (Askoma, my-PV)\n"
+"| plan the heating power\n"
+"| Emergency reserve, discharge limit, fixed storage power\n"
+"| are taken into account as constraints for the storage\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"Since October 2026 the schedule is also calculated if none of these "
+"controlling functions is active."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "How to read the schedule"
+msgstr ""
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "**Past:** measured values in 5-minute steps."
+msgstr ""
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"**Future:** plan in quarter hours. It is based on forecasts and can change "
+"with each new plan."
+msgstr ""
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"If reality differs from the forecast (e.g. clouds, unexpected consumption), "
+"OpenEMS adjusts the plan the next time it plans."
+msgstr ""
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The period covers the current day and, as soon as available, the next one."
+msgstr ""
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"Without electricity prices and forecasts, no meaningful schedule can be "
+"created."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "For advanced users"
+msgstr ""
+
+#. type: #sec-for-advanced-users
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The schedule can also be retrieved via the interface, e.g. for your own "
+"evaluations. This is done with the request “getSchedule” to the component "
+"`+_energy+` (see xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]). For "
+"each quarter hour, the response contains prices, production, consumption, "
+"grid, storage and state of charge, as well as the planned state of each "
+"function involved."
+msgstr ""

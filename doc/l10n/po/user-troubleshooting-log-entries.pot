@@ -1,0 +1,666 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/_nav.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the "
+"backend]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/overview.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"__As of: 2026-11-02 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/overview.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"xref:user/external-interfaces/websocket.adoc[Websocket] – the connection of "
+"the web interface, user roles"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "OpenEMS: Understanding log entries"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The log of the system contains a great many entries, most of them harmless. "
+"This page explains how to read an entry, which types of entries exist and "
+"how to tell whether you need to do something. The examples come from logs of "
+"several systems; the list is not complete, but covers the frequent entries. "
+"A few messages depend on the language of the system; they are given here in "
+"their English version."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Where to see the log"
+msgstr ""
+
+#. type: #sec-where-to-see-the-log
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"In the web interface under **Settings → Log** (from the “Owner” role). The "
+"view continuously shows new entries, at most the last 200. At the top you "
+"can pause the display (“Automatic updating”), filter by **level** and search "
+"for text. The color shows the level: green = INFO, orange = WARN, red = "
+"ERROR, gray = DEBUG."
+msgstr ""
+
+#. type: #sec-where-to-see-the-log
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"“Condensed Output” only affects the status line (see <<sec-the-status-"
+"line,The status line>>): when switched on, it appears in one single long "
+"line; when switched off, each component gets its own line. The switch "
+"changes a setting of the system and therefore applies to all users."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Structure of an entry"
+msgstr ""
+
+#. type: #sec-structure-of-an-entry
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid "Each entry has four parts:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Part\n"
+"| Example\n"
+"| Meaning\n"
+"\n"
+"| Time\n"
+"| `+2.11.2026, 15:18:41+`\n"
+"| when the entry was created\n"
+"| Level\n"
+"| `+WARN+`\n"
+"| INFO = note, WARN = something is missing or not working at the moment, ERROR = an operation has failed\n"
+"| Source\n"
+"| `+io.openems.edge.core.cycle.CycleWorker+`\n"
+"| the part of the program that writes the entry. The last part usually reveals the topic (see <<sec-where-an-entry-comes-from,Where an entry comes from>>).\n"
+"| Message\n"
+"| `+Error in Cycle-Step [Controller [ctrlBalancing0]]: …+`\n"
+"| the actual text, usually with the name of the affected component in square brackets\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The level alone does not say how important an entry is (see <<sec-what-is-"
+"important-and-what-is-not,What is important and what is not>>)."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Names of the components"
+msgstr ""
+
+#. type: #sec-names-of-the-components
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The names in square brackets are the IDs of the components of the system. "
+"Frequent ones are:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Name\n"
+"| Component\n"
+"\n"
+"| `+_sum+`\n"
+"| Total values of the entire system\n"
+"| `+ess0+`\n"
+"| Storage system\n"
+"| `+battery0+`, `+batteryInverter0+`\n"
+"| Battery and battery inverter\n"
+"| `+charger0+`\n"
+"| PV input on the inverter\n"
+"| `+meter0+`, `+meter1+` …\n"
+"| Meters, `+meter0+` is usually the grid meter\n"
+"| `+pvInverter…+`\n"
+"| PV inverter\n"
+"| `+evcs…+`, `+evse…+`\n"
+"| Charging station\n"
+"| `+io0+`, `+ioShelly…+`\n"
+"| Relays and inputs/outputs, Shelly devices\n"
+"| `+modbus0+`, `+modbus1+` …\n"
+"| Modbus connections to devices (cable or network)\n"
+"| `+ctrl…+`\n"
+"| Controllers, e.g. `+ctrlBalancing0+` = self-consumption optimization\n"
+"| `+_componentManager+`, `+_appManager+`, `+_energy+`\n"
+"| internal management: components, apps, optimization\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "The status line"
+msgstr ""
+
+#. type: #sec-the-status-line
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The long line `+[ctrlDebugLog0] …+` (level INFO) is a **snapshot of all "
+"components**. It repeats in every run of the control and is not an error "
+"message in itself. It is the best tool for seeing the state of the system at "
+"a glance."
+msgstr ""
+
+#. type: #sec-the-status-line
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"Structure per component: `component[values{vbar}State:state]`. An example:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"_sum[State:Info Ess SoC:100 %|L:1872 W Grid:24 W Production Total:1603 W Consumption:2904 W]\n"
+"ess0[Started|SoC:100 %|L:1872 W|Allowed:0;10000] meter0[L:24 W] ioShellyPlug[x|37 W]\n"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Item\n"
+"| Meaning\n"
+"\n"
+"| `+L:1872 W+`\n"
+"| current power. Signs as in xref:user/basics/energy-flows.adoc[Basics]: grid positive = purchase, negative = feed-in; storage positive = discharging, negative = charging.\n"
+"| `+L1:+`, `+L2:+`, `+L3:+`\n"
+"| Power on one phase, e.g. with single-phase devices\n"
+"| `+SoC:100 %+`\n"
+"| State of charge of the battery\n"
+"| `+UNDEFINED+`\n"
+"| **no value available**: The device is not currently supplying anything. Often a sign of a connection problem.\n"
+"| `+Allowed:0;10000+` (storage)\n"
+"| highest permitted power: first value charging (0 or negative), second discharging. `+0;10000+` = charging not possible at the moment (e.g. battery full), discharging up to 10,000 W.\n"
+"| `+Battery:+`, `+PV:+` (storage)\n"
+"| with hybrid inverters: power of the battery and DC PV power\n"
+"| `+Actual+`, `+Charge+`, `+Discharge+` (battery)\n"
+"| current voltage and current as well as the limits of the battery for charging and discharging\n"
+"| `+Running+`, `+Started+`, `+Stopped+`, `+Error+`\n"
+"| Operating state of the battery or storage\n"
+"| `+1- 2- 3- 4-+`, `+Read[xxxx]Write[----]+`\n"
+"| Relays, inputs and outputs: `+x+` = on, `+-+` = off, `+?+` = unknown\n"
+"| `[x{vbar}37 W]` (Shelly)\n"
+"| Switching state and power; `[?{vbar}UNDEFINED]` = the device does not respond\n"
+"| `+State:INFO: …+`, `+State:WARNING: …+`, `+State:FAULT: …+`\n"
+"| State message of the component in increasing severity\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Special parts of the status line"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Part\n"
+"| Meaning\n"
+"| Important?\n"
+"\n"
+"| `+_sum[State:Info …]+` or `+_sum[State:Fault …]+`\n"
+"| State of the entire system: the **worst state of all components**. With “Fault”, at least one component has a fault.\n"
+"| Pointer: with “Fault”, search the line for `+FAULT+`\n"
+"| `+_componentManager[Defective: …]+` with `+State:FAULT: A configured OpenEMS Component was not activated+`\n"
+"| Components that **could not start**, with reason (see <<sec-components-do-not-start,Components do not start>>)\n"
+"| yes\n"
+"| `+_componentManager[State:INFO: OutOfMemory had happened. Found heap dump files.]+`\n"
+"| The working memory of the program has run full; this creates a memory dump file. The note remains as long as this file exists, so it does not mean that it is happening again right now. The system checks every 5 minutes and keeps only the newest file.\n"
+"| yes, if it happens repeatedly\n"
+"| `+_appManager[… State:INFO: Defective App detected]+`\n"
+"| An app no longer matches its expected setup (see <<sec-apps,Apps>>)\n"
+"| usually not\n"
+"| `+_energy[ScheduledPeriods:… SimulationsPerQuarter:…]+`\n"
+"| The optimization is calculating and has a schedule (see xref:user/schedule/overview.adoc[Schedule])\n"
+"| no, normal state\n"
+"| `+_energy[No Schedule available …]+`\n"
+"| The optimization has no schedule, usually because the storage is missing\n"
+"| consequence\n"
+"| `+ctrlBackend0[NOT CONNECTED …]+`, `+State:WARNING: UnableToSend+`\n"
+"| no connection to the backend (online monitoring)\n"
+"| yes, if online monitoring is used\n"
+"| `+BackendConnectionStateListenerImpl[State:NoConnection[durationWithoutConnection=PT71H35M…]]+`\n"
+"| Duration without backend connection, here around 71 hours (`+H+` hours, `+M+` minutes, `+S+` seconds)\n"
+"| as above\n"
+"| `+BackendConnectionStateListenerImpl[State:NoBackendInstance[]]+`\n"
+"| No backend connection is set up at all\n"
+"| no, if intended\n"
+"| `+State:INFO: CycleTimeIsTooShort+` (with a Modbus connection)\n"
+"| The queries of this connection take longer than one run of the control\n"
+"| only if permanent: too many or too slow devices on the connection\n"
+"| `+State:FAULT: Running the Controller failed+` (with a controller)\n"
+"| The controller aborted in the last run; the reason is in an entry “Error in Cycle-Step” or “Error in Controller”\n"
+"| consequence\n"
+"| `+Authentication failed+` (with an electricity tariff)\n"
+"| Login with the tariff provider has failed; prices may be missing or out of date (see xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs])\n"
+"| yes, if the tariff is used\n"
+"| `+A new Firmware Update is available.+` (Shelly)\n"
+"| new firmware for the device\n"
+"| no\n"
+"| `+scheduler0[State:INFO: A configured Controller is missing]+`\n"
+"| The scheduler lists a controller that is not running\n"
+"| consequence\n"
+"| `+State:FAULT: MQTT connection failed+`\n"
+"| no connection to the MQTT broker\n"
+"| yes, if a device is connected via it (e.g. xref:user/third-party/openwb.adoc[openWB])\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Types of entries"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Connection to devices failed – usually the cause"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+State:WARNING: Modbus Communication failed+` (status line)\n"
+"| A device on a Modbus connection does not respond\n"
+"| `+ERROR … Execute failed FC3ReadHoldingRegisters [meter1;unitid=…] ModbusIOException: … Cannot read from serial port+`\n"
+"| Individual Modbus query failed. The component is in the brackets. `+FC3+`/`+FC4+` = read, `+FC16 WriteRegisters+` = write, e.g. setpoints to the inverter. “Cannot read from serial port” concerns a cable connection (RS485/USB), “Socket timeout” a network connection.\n"
+"| `+… ModbusSlaveException: Illegal Data Address+`\n"
+"| The device responds, but does not know the requested register: wrong device type set, different firmware or wrong Modbus address\n"
+"| `+Parsing Response failed. … Received message is too short.+`\n"
+"| The response of the device was incomplete, e.g. due to interference on the line\n"
+"| `+INFO … Open serial modbus connection to /dev/… ...+`\n"
+"| The system opens a cable Modbus connection. Once at startup is normal; frequent repetition means that the connection keeps breaking off (cable, adapter, device).\n"
+"| `+Failed to fetch status from shelly: … No route to host+` or `+Host is unreachable+`\n"
+"| The Shelly cannot be reached on the network: switched off, different IP address or Wi-Fi gone\n"
+"| `+Failed to fetch status from shelly: … Connect timed out+`, `+Read timed out+`, `+Connection reset+`\n"
+"| The Shelly responds too slowly or aborts; harmless if isolated\n"
+"| `+State:FAULT: SlaveCommunicationFailed+` (Shelly, status line)\n"
+"| The Shelly does not respond\n"
+"| `+INFO … Process for CycleEndpoint [… url=…] is still running. Task is not queued twice+`\n"
+"| The previous query to the device is still running; the device responds slowly or not at all\n"
+"| `+connection failed: MqttException+`, `+Attempting to reconnect to MQTT broker...+`\n"
+"| no connection to the MQTT broker; the system tries again\n"
+"| `+Error while sending MQTT topics+`\n"
+"| Values cannot be sent to an MQTT server\n"
+"| `+Failed to connect to OpenEMS Backend … Connection refused+`, `+Disconnected from OpenEMS Backend+`, `+Waiting till next WebSocket reconnect+`\n"
+"| Connection attempts to the backend fail; the system tries again at intervals (see xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend])\n"
+"| `+Unable to send message: Connection is closed. {…}+`\n"
+"| Data for the backend could not be sent because there is no connection\n"
+"| `+ERROR … Error while setting GPIO DIGITAL_OUTPUT_1+`\n"
+"| A switching output of the device could not be set, e.g. because the hardware is missing or faulty. The relay then does not switch.\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Control does not receive values – usually a consequence"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+Error in Cycle-Step [Controller [ctrlBalancing0]]: Value for Channel [ess0/ActivePower] is invalid.+`\n"
+"| The controller needs a measured value that is currently missing (`+UNDEFINED+`) and skips this run\n"
+"| `+Error in Controller [ctrlGridOptimizedCharge0]. … Value for Channel [ess0/Soc] is invalid.+`\n"
+"| another form of the same entry\n"
+"| `+Grid-Mode is [UNDEFINED]+`\n"
+"| The controller does not know whether the system is on the grid or in island mode because the storage does not supply the grid mode. It warns and tries anyway; “is invalid” usually follows.\n"
+"| `+There is no grid active power present.+` and similar\n"
+"| A controller lacks grid, storage or state of charge values\n"
+"| `+No production forecast available. …+`\n"
+"| A PV forecast is missing for grid-optimized charge (see xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge])\n"
+"| `+State:FAULT: Start battery timeout passed!+` (storage)\n"
+"| The battery did not start within the intended time; the storage is not working. Often a consequence of a disturbed connection to the battery.\n"
+"| `+Grid mode not stable. …+` (battery inverter)\n"
+"| The inverter does not report stable grid operation; together with “Modbus Communication failed” usually a consequence of the missing connection\n"
+"| `+State:INFO: Communication failure+` (GoodWe inverter)\n"
+"| Message set by the inverter itself\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"These entries disappear by themselves as soon as the cause has been "
+"eliminated."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Component not found"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+Unable to find OpenEMS Component with ID [io2]+`\n"
+"| A controller is set to a component that does not exist, is deactivated or has not started\n"
+"| `+Scheduler [scheduler0]: Controller [ctrlBalancing0] is missing.+`\n"
+"| The scheduler lists a controller that is not running, often because it could not start itself\n"
+"| `+[meter2] Activate DISABLED+`\n"
+"| The component is set up but deactivated. It supplies no values, and other components and programs cannot find it.\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Components do not start"
+msgstr ""
+
+#. type: #sec-components-do-not-start
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"`+_componentManager[Defective: …]+` states the reason for each component "
+"that could not start:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Reason\n"
+"| Meaning\n"
+"\n"
+"| `+Unsatisfied reference for Modbus ((&(id=modbus1)(enabled=true)))+`\n"
+"| The component needs another component, here the Modbus connection `+modbus1+`, which is missing or **deactivated**. The brackets show what is being searched for.\n"
+"| `+Unsatisfied reference for ess ((&(id=ess0)(enabled=true)))+`\n"
+"| needs the storage `+ess0+`, which is not running\n"
+"| `+Missing Bundle+`\n"
+"| The program part for this component is not installed\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"Such a list is often a **chain**: If, for example, `+modbus1+` is "
+"deactivated, the battery, inverter and meters do not start, therefore "
+"neither does `+ess0+`, and therefore no controller that needs `+ess0+`. Look "
+"for the **first link** and fix it."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Apps"
+msgstr ""
+
+#. type: #sec-apps
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid "With “Defective App detected”, `+_appManager+` names the deviation:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+Missing Component:ctrlIoHeatPump0+`\n"
+"| The app created a component that is missing today, e.g. deleted by hand\n"
+"| `+Property 'enabled': expected 'true', got 'false'+`\n"
+"| A setting deviates from the app's expectation, e.g. deactivated by hand\n"
+"| `+Property 'chargePoint.id': expected '\"evcs0\"', got '\"…\"'+`\n"
+"| The component was switched to another device by hand\n"
+"| `+… but property does not exist+`\n"
+"| The app expects a setting that the component does not (or no longer) know; can occur after software changes\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The system works as it is actually set. The entry only becomes important if "
+"the deviation is unintended; intended manual changes also trigger it."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Access from outside"
+msgstr ""
+
+#. type: #sec-access-from-outside
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"These entries occur when another program accesses the system: the web "
+"interface in the browser, home automation such as xref:user/third-party/home-"
+"assistant.adoc[Home Assistant], xref:user/third-party/evcc.adoc[evcc] or a "
+"custom script."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+Unable to read value for Channel [meter1/ActivePower]+`\n"
+"| A program connected via websocket requests a value that the system cannot supply: The component is deactivated or missing, it does not have this value, or the value can only be written, not read. The latter applies to pure control values, e.g. the setpoint power of the storage (`+ess0/SetActivePowerEquals+`): Anyone who activates it as an entity in Home Assistant for control triggers the entry continuously. Repeats in every run as long as the request exists. Remedy in the requesting program, e.g. deselect the component in Home Assistant. Example: For charging stations that cannot be controlled, the web interface requests the charging power limit (`+SetChargePowerLimit+`).\n"
+"| `+Unhandled Notification: {\"method\":\"logMessage\", … \"msg\":\"[count=…;page=…;version=…] …\"}+`\n"
+"| The web interface in the browser reports its own program error to the system; the system only writes it to the log. `+version=+` shows the version of the interface in the browser; if it differs from the state of the system, reload the page without cache.\n"
+"| `+writeError: status=500, message=… Authentication failed+`, `+REST call failed: Authentication failed+`\n"
+"| A program has called the REST interface without valid credentials (see xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON])\n"
+"| `+Authentication failed for user[…]: wrong password+`, `+Authentication failed with password only.+`\n"
+"| Login with wrong password\n"
+"| `+Authentication successful with password only for user [Owner].+`\n"
+"| successful login. With REST, the entry appears with **every** request; a program that queries regularly therefore generates a great many of them. Normal.\n"
+"| `+REST call by User [Owner]: GET Channel [_sum/…] Result […]+`\n"
+"| Every REST query with user, values and result. Only appears if debug mode is switched on at the REST interface. The queried values reveal which program is asking.\n"
+"| `+User [admin:Admin] connected.+`, `+… closed websocket connection.+`\n"
+"| Login or logout at the web interface; user and role in the brackets\n"
+"| `+JSON-RPC Error \"…\" for Request {…}+`\n"
+"| A request from the web interface has failed; the reason is in quotation marks. “Endpoint with method … is not defined!” means: This system does not offer the requested function.\n"
+"| `+Watchdog expired: 60s, limit: 60s+`\n"
+"| A program was connected to the system via Modbus/TCP, but did not ask anything for 60 seconds. The connection is disconnected; if the program asks again, it reconnects. Harmless.\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Purely informative"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Entry\n"
+"| Meaning\n"
+"\n"
+"| `+[predictor…] Prediction for [_sum/UnmanagedConsumptionActivePower]: Prediction{…}+`\n"
+"| Forecast in 15-minute steps (see xref:user/schedule/forecasts.adoc[Forecasts])\n"
+"| `+Failed to shift prediction for channel …+`\n"
+"| The forecast created for now a few hours ago could not be read from the history; the current forecast is not affected\n"
+"| `+Controller Ess SoH Cycle: not running+`\n"
+"| The calibration cycle of the battery is not running at the moment; normal state\n"
+"| `+[battery0] Changing StateMachine from [RUNNING] to [UNDEFINED]+`\n"
+"| State change of a component. Useful for troubleshooting: A sequence such as `+RUNNING+` → `+UNDEFINED+` at the battery and `+STARTED+` → `+ERROR+` at the storage shows **when** the storage failed; the entries shortly before usually name the reason.\n"
+"| `+[…] Activate+`, `+Modified+`, `+Deactivate+`\n"
+"| A component was started, changed or ended, e.g. at the start of the software or after a change to the settings\n"
+"| `+State:INFO: Surplus-Feed-To-Grid power is limited+`\n"
+"| The surplus feed-in with hybrid inverters is currently limited\n"
+"| `+Execute FC16WriteRegisters […]+` (INFO)\n"
+"| individual Modbus commands; only appear if more detailed logging is set at the Modbus connection\n"
+"| `+[validateApps] took … ms+`\n"
+"| Duration of the app check\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "Where an entry comes from"
+msgstr ""
+
+#. type: #sec-where-an-entry-comes-from
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"The **source** shows who triggered an entry. This is important because the "
+"cause lies in a different place depending on the origin:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid ""
+"| Origin\n"
+"| Who triggers\n"
+"| Source contains\n"
+"| Where the cause lies\n"
+"\n"
+"| **Control**\n"
+"| the system itself, in every run\n"
+"| `+core.cycle+`, `+controller.ess+`, `+controller.io+`, `+controller.debuglog+`\n"
+"| usually with a device that supplies no values\n"
+"| **Management**\n"
+"| Start of the software, settings, apps\n"
+"| `+core.componentmanager+`, `+core.appmanager+`\n"
+"| in the settings of the system\n"
+"| **Devices and services**\n"
+"| the system queries devices or connects to services\n"
+"| `+bridge.modbus+`, `+bridge.http+`, `+bridge.mqtt+`, `+io.shelly+`, `+controller.api.backend+`, `+controller.api.mqtt+`\n"
+"| at the device, on the line or in the network\n"
+"| **Access from outside**\n"
+"| another program queries the system\n"
+"| `+controller.api.websocket+`, `+controller.api.rest+`, `+jetty+`, `+j2mod…TCPConnectionHandler+`\n"
+"| at the requesting program\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Important with access from outside:** The entry does name a component of "
+"the system, but this is **not the cause**. With `+Unable to read value for "
+"Channel [meter1/ActivePower]+`, `+meter1+` is only what was asked for; it is "
+"the requesting program that needs changing, not the meter."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "What is important and what is not"
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Cause before consequence.** Many entries are consequences of a single "
+"cause. Look at the causes first: connection failed (Modbus, Shelly, MQTT, "
+"backend), components do not start (`+Unsatisfied reference+`, `+Missing "
+"Bundle+`), battery does not start, `+OutOfMemory+`. The consequences (`+is "
+"invalid+`, `+Grid-Mode is [UNDEFINED]+`, `+is missing+`, `+No Schedule "
+"available+`, `+_sum State:Fault+`) disappear with the cause."
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Permanent or one-off?** The control runs about every second. An entry that "
+"appears once or only briefly after a restart is usually harmless because not "
+"all devices are ready at startup. What matters is what **keeps repeating**."
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Reading the level correctly.** `+FAULT+` in the status line and `+ERROR+` "
+"mean: something is not working. `+WARNING+`/`+WARN+`: something is missing; "
+"check whether it is a consequence. `+INFO+`: note. Exceptions: "
+"`+OutOfMemory+`, “Defective App detected” and “Authentication failed” are at "
+"INFO and may still require action."
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Does it affect me?** An unreachable Shelly on a socket that is not "
+"currently in use is unimportant. An unreachable grid meter or storage, on "
+"the other hand, paralyzes self-consumption optimization."
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Where does it come from?** Entries from access from outside are fixed in "
+"the requesting program, not in the system (see <<sec-where-an-entry-comes-"
+"from,Where an entry comes from>>)."
+msgstr ""
+
+#. type: #sec-what-is-important-and-what-is-not
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"**Quick check with the status line.** `+_sum[State:Info …]+` and values "
+"instead of `+UNDEFINED+` at the storage, grid meter and battery: The system "
+"is running. `+_sum[State:Fault …]+`: Search the line for `+FAULT+` and "
+"`+UNDEFINED+`; this shows the affected devices."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+#, no-wrap
+msgid "See also"
+msgstr ""
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid "xref:user/basics/energy-flows.adoc[Basics] – terms and signs"
+msgstr ""
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid "xref:user/third-party/home-assistant.adoc[Home Assistant]"
+msgstr ""

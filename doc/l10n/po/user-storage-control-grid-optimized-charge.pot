@@ -1,0 +1,270 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Settings"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid "OpenEMS: Grid-optimized charge"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"Grid-optimized charge decides **when and how strongly the storage is charged "
+"with solar power**. It has two goals:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"**Complying with the feed-in limit:** Many systems may only feed part of "
+"their power into the grid (e.g. 60 % or 70 %). Whatever exceeds this at "
+"midday is charged into the storage instead of being curtailed."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"**Not filling the storage too early:** If the storage is already full in the "
+"morning, there is no room left for the midday peak, and solar power is lost. "
+"Charging is therefore distributed over the day. The storage should only be "
+"full towards the end of the surplus period."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"In OpenEMS, this function is called **Controller.Ess.GridOptimizedCharge** "
+"(usually with the ID `+ctrlGridOptimizedCharge0+`)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid "What this looks like over the day"
+msgstr ""
+
+#. type: #sec-what-this-looks-like-over-the-day
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"In the **early morning** there is no significant surplus yet, and the "
+"function waits."
+msgstr ""
+
+#. type: #sec-what-this-looks-like-over-the-day
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"In the **morning** the storage charges at a reduced rate. The rest of the "
+"surplus is fed in, as far as the feed-in limit allows."
+msgstr ""
+
+#. type: #sec-what-this-looks-like-over-the-day
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"At **midday** the feed-in would exceed the limit. Now the storage charges at "
+"least enough for the limit to be complied with."
+msgstr ""
+
+#. type: #sec-what-this-looks-like-over-the-day
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "In the **afternoon**, up to the target time, the storage becomes full."
+msgstr ""
+
+#. type: #sec-what-this-looks-like-over-the-day
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "If the two goals conflict, the **feed-in limit takes priority**."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid "The target time"
+msgstr ""
+
+#. type: #sec-the-target-time
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "What matters is when the storage should be full:"
+msgstr ""
+
+#. type: #sec-the-target-time
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"**Automatic** (default): OpenEMS looks at the xref:user/schedule/"
+"forecasts.adoc[forecast] and searches for the time from which solar "
+"production is expected to no longer exceed consumption. A safety buffer is "
+"subtracted from this time."
+msgstr ""
+
+#. type: #sec-the-target-time
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "**Manual:** You specify a fixed time, e.g. 17:00."
+msgstr ""
+
+#. type: #sec-the-target-time
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"**Off:** The storage does not delay charging. The feed-in limit is still "
+"complied with."
+msgstr ""
+
+#. type: #sec-the-target-time
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "The safety buffer is determined by the **risk propensity**:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Buffer\n"
+"| Effect\n"
+"\n"
+"| Low\n"
+"| 3 hours\n"
+"| The storage almost certainly becomes full, but slightly less room remains at midday.\n"
+"| Medium (default)\n"
+"| 2 hours\n"
+"| balanced\n"
+"| High\n"
+"| 1 hour\n"
+"| More room for midday peaks; on overcast days the storage may not become completely full.\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid "When the function does not intervene"
+msgstr ""
+
+#. type: #sec-when-the-function-does-not-intervene
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "If the storage cannot be controlled."
+msgstr ""
+
+#. type: #sec-when-the-function-does-not-intervene
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "In island mode (emergency power)."
+msgstr ""
+
+#. type: #sec-when-the-function-does-not-intervene
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "As long as there has been no clear solar surplus yet on that day."
+msgstr ""
+
+#. type: #sec-when-the-function-does-not-intervene
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"If the permitted feed-in is very small. Meaningful control is then not "
+"possible."
+msgstr ""
+
+#. type: #sec-when-the-function-does-not-intervene
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"What the function is currently doing is shown by the states “Charging "
+"delayed” and “Feed-in limitation”, e.g. “Charge limit active”, “no remaining "
+"time” or “End time not calculated”."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid "Together with a time-of-use tariff"
+msgstr ""
+
+#. type: #sec-together-with-a-time-of-use-tariff
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"If price control for a xref:user/storage-control/time-of-use-"
+"tariffs.adoc[time-of-use tariff] is also active, grid-optimized charge **no "
+"longer works independently**. Otherwise, two functions would be adjusting "
+"the storage at the same time. Instead, the price control optimizer plans "
+"both together:"
+msgstr ""
+
+#. type: #sec-together-with-a-time-of-use-tariff
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid "It can then also charge the storage in a “delayed” or “limited” manner."
+msgstr ""
+
+#. type: #sec-together-with-a-time-of-use-tariff
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"The settings of grid-optimized charge remain effective: the risk propensity "
+"(as a reserve for the state of charge) or the fixed target time."
+msgstr ""
+
+#. type: #sec-together-with-a-time-of-use-tariff
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"If price control is switched off, grid-optimized charge takes over again by "
+"itself."
+msgstr ""
+
+#. type: #sec-together-with-a-time-of-use-tariff
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+msgid ""
+"The result can be seen in the xref:user/schedule/overview.adoc[schedule]."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Default\n"
+"| Meaning\n"
+"\n"
+"| Mode\n"
+"| Automatic\n"
+"| Automatic / Manual / Off\n"
+"| Risk propensity\n"
+"| Medium\n"
+"| see above\n"
+"| Target time\n"
+"| 17:00\n"
+"| only in Manual mode\n"
+"| Feed-in limit\n"
+"| –\n"
+"| is set centrally in the system settings (Meta), no longer in this function\n"
+msgstr ""

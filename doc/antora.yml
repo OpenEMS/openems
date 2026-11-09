@@ -1,6 +1,7 @@
 name: openems
 title: Open Energy Management System
 version: latest
+display_version: English
 start_page: ROOT:introduction.adoc
 nav:
   - modules/ROOT/nav.adoc

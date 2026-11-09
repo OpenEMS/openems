@@ -4,9 +4,6 @@
 :toclevels: 3
 :experimental:
 :icons: font
-:page-lang: en
-
-Diese Seite auf Deutsch: xref:user/de/external-interfaces/rest-control.adoc[OpenEMS: Steuern über REST/JSON]
 
 __As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
 

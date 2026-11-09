@@ -1,0 +1,556 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr "Einrichtung"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "What is recorded"
+msgstr "Was aufgezeichnet wird"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Display in the web interface"
+msgstr "Anzeige in der Weboberfläche"
+
+#. type: Title =
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "OpenEMS: § 14a EnWG"
+msgstr "OpenEMS: § 14a EnWG"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"§ 14a of the German Energy Industry Act (EnWG) regulates “controllable "
+"consumption devices” in Germany: heat pumps, wallboxes, air conditioning "
+"units and also electricity storage systems that can charge from the grid. "
+"The grid operator may temporarily limit their grid purchase if there is a "
+"risk of overload. In return, there are reduced grid fees; with “Module 3” "
+"they are time-variable."
+msgstr ""
+"§ 14a des Energiewirtschaftsgesetzes (EnWG) regelt in Deutschland "
+"„steuerbare Verbrauchseinrichtungen“: Wärmepumpen, Wallboxen, Klimageräte "
+"und auch Stromspeicher, die aus dem Netz laden können. Der Netzbetreiber "
+"darf ihren Netzbezug bei drohender Überlastung vorübergehend begrenzen. Im "
+"Gegenzug gibt es reduzierte Netzentgelte; bei „Modul 3“ sind sie "
+"zeitvariabel."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid "OpenEMS has two building blocks for this:"
+msgstr "In OpenEMS gibt es dazu zwei Bausteine:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"the **power limitation of the storage** in response to a signal from the "
+"grid operator,"
+msgstr ""
+"die **Leistungsbegrenzung des Speichers** auf ein Signal des Netzbetreibers "
+"hin,"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**time-variable grid fees (Module 3)** as part of the electricity prices for "
+"xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs]."
+msgstr ""
+"**zeitvariable Netzentgelte (Modul 3)** als Teil der Strompreise bei "
+"xref:user/storage-control/time-of-use-tariffs.adoc[dynamischen Stromtarifen]."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Part 1: Power limitation of the storage"
+msgstr "Teil 1: Leistungsbegrenzung des Speichers"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "The function"
+msgstr "Die Funktion"
+
+#. type: #sec-the-function
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The limitation is handled by the controller **Controller.Ess.Limiter14a** "
+"(usually `+ctrlEssLimiter14a0+`). It has only two settings:"
+msgstr ""
+"Die Begrenzung übernimmt der Controller **Controller.Ess.Limiter14a** (meist "
+"`+ctrlEssLimiter14a0+`). Er hat nur zwei Einstellungen:"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Meaning\n"
+"\n"
+"| Ess-ID\n"
+"| the storage that is limited (usually `+ess0+`)\n"
+"| Input Channel\n"
+"| the input at which the signal from the grid operator is present, e.g. a contact of a control box\n"
+msgstr ""
+"| Einstellung\n"
+"| Bedeutung\n"
+"\n"
+"| Ess-ID\n"
+"| der Speicher, der begrenzt wird (meist `+ess0+`)\n"
+"| Input Channel\n"
+"| der Eingang, an dem das Signal des Netzbetreibers anliegt, z. B. ein Kontakt einer Steuerbox\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "What happens on a signal"
+msgstr "Was passiert bei einem Signal"
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"If the signal from the grid operator is present, **OpenEMS limits the "
+"charging power of the storage to a maximum of 4.2 kW**. More precisely:"
+msgstr ""
+"Liegt das Signal des Netzbetreibers an, **begrenzt OpenEMS die Ladeleistung "
+"des Speichers auf höchstens 4,2 kW**. Genauer:"
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The storage power may not fall below −4,200 W. Charging is therefore "
+"possible with a maximum of 4.2 kW."
+msgstr ""
+"Die Speicherleistung darf nicht unter −4.200 W fallen. Beladen ist also mit "
+"höchstens 4,2 kW möglich."
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid "**Discharging remains possible without limitation.**"
+msgstr "**Entladen bleibt unbegrenzt möglich.**"
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The limitation applies **to any charging**, even if the power comes from "
+"your own PV system. OpenEMS does not distinguish here where the charging "
+"energy comes from."
+msgstr ""
+"Die Begrenzung gilt **für jede Beladung**, auch wenn der Strom aus der "
+"eigenen PV-Anlage kommt. OpenEMS unterscheidet hier nicht, woher die "
+"Ladeenergie stammt."
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"It only takes effect in **grid mode**. In island mode (emergency power) "
+"there is no limitation."
+msgstr ""
+"Sie greift nur im **Netzbetrieb**. Im Inselbetrieb (Notstrom) wird nicht "
+"begrenzt."
+
+#. type: #sec-what-happens-on-a-signal
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The limitation has **priority** over all other storage functions: the § 14a "
+"controller runs first in the defined order, even before the ripple control "
+"receiver, emergency reserve, price control, etc."
+msgstr ""
+"Die Begrenzung hat **Vorrang** vor allen anderen Speicher-Funktionen: Der "
+"§14a-Controller läuft in der festgelegten Reihenfolge als erster, noch vor "
+"Rundsteuerempfänger, Notstromreserve, Preissteuerung usw."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Signal logic"
+msgstr "Signal-Logik"
+
+#. type: #sec-signal-logic
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The input is evaluated **inverted** (noted in the code as a peculiarity of "
+"the relay board): the limitation is active when the input reports “off”. If "
+"the input does not supply any value at all, e.g. in the event of a fault, "
+"there is **no** limitation."
+msgstr ""
+"Der Eingang wird **invertiert** ausgewertet (im Code als Besonderheit der "
+"Relaisplatine vermerkt): Die Begrenzung ist aktiv, wenn der Eingang „aus“ "
+"meldet. Liefert der Eingang gar keinen Wert, z. B. bei einer Störung, wird "
+"**nicht** begrenzt."
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid ""
+"| Value\n"
+"| Meaning\n"
+"\n"
+"| `+RestrictionMode+`\n"
+"| whether the limitation is currently active\n"
+"| `+CumulatedRestrictionTime+`\n"
+"| total duration of limitation (seconds)\n"
+msgstr ""
+"| Wert\n"
+"| Bedeutung\n"
+"\n"
+"| `+RestrictionMode+`\n"
+"| ob die Begrenzung gerade aktiv ist\n"
+"| `+CumulatedRestrictionTime+`\n"
+"| wie lange insgesamt begrenzt wurde (Sekunden)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"Both values are stored with high priority in the xref:user/data/history-"
+"rrd4j.adoc[history]. This makes it possible to prove later when and for how "
+"long the grid operator intervened."
+msgstr ""
+"Beide Werte werden mit hoher Priorität in der xref:user/data/history-"
+"rrd4j.adoc[Historie] gespeichert. So lässt sich später nachweisen, wann und "
+"wie lange der Netzbetreiber eingegriffen hat."
+
+#. type: #sec-display-in-the-web-interface
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"If the § 14a function is set up, an additional line appears in the **grid "
+"widget**. During a limitation it shows the value “4.2 kW”."
+msgstr ""
+"Im **Netz-Widget** erscheint bei eingerichteter §14a-Funktion eine "
+"zusätzliche Zeile. Sie zeigt während einer Begrenzung den Wert „4,2 kW“ an."
+
+#. type: #sec-display-in-the-web-interface
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"In the **grid history**, periods with active limitation are marked in the "
+"chart, similar to ripple control receiver interventions and island mode."
+msgstr ""
+"In der **Netz-Historie** werden Zeiträume mit aktiver Begrenzung im Diagramm "
+"markiert, ähnlich wie Rundsteuerempfänger-Eingriffe und Inselbetrieb."
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**As an app:** “App.Ess.Limiter14a” in the app center. You select the "
+"storage and an input contact. There can only be one such app."
+msgstr ""
+"**Als App:** „App.Ess.Limiter14a“ im App Center. Man wählt den Speicher und "
+"einen Eingangskontakt. Es kann nur eine solche App geben."
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**For FENECON Home and Commercial systems:** The system app has the option "
+"“Has limiter for §14a”. If it is set, the limitation is set up "
+"automatically; the first digital input of the control computer is used as "
+"the input (`+…/DigitalInput1+`). The option can only be selected if the "
+"control computer has its own switching inputs and outputs (CM3, CM4, CM4S, "
+"CM4S Gen2 or Gen3); otherwise it is grayed out."
+msgstr ""
+"**Bei FENECON-Home- und Commercial-Systemen:** In der System-App gibt es die "
+"Option „Hat Limitierer für §14a“. Ist sie gesetzt, wird die Begrenzung "
+"automatisch eingerichtet; als Eingang wird der erste digitale Eingang des "
+"Steuerrechners verwendet (`+…/DigitalInput1+`). Die Option ist nur wählbar, "
+"wenn der Steuerrechner eigene Schaltein- und -ausgänge hat (CM3, CM4, CM4S, "
+"CM4S Gen2 oder Gen3); sonst ist sie ausgegraut."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "What does not exist (yet)"
+msgstr "Was es (noch) nicht gibt"
+
+#. type: #sec-what-does-not-exist-yet
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**Heat pump and wallbox:** The code has no separate § 14a limitation for "
+"heat pumps or charge points. The function only affects the storage. For "
+"other devices, the limitation takes place, if at all, outside OpenEMS, e.g. "
+"directly via the control input of the device."
+msgstr ""
+"**Wärmepumpe und Wallbox:** Im Code gibt es keine eigene §14a-Begrenzung für "
+"Wärmepumpen oder Ladepunkte. Die Funktion betrifft nur den Speicher. Für "
+"andere Geräte erfolgt die Begrenzung, wenn überhaupt, außerhalb von OpenEMS, "
+"z. B. direkt über den Steuereingang des Geräts."
+
+#. type: #sec-what-does-not-exist-yet
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**Energy optimizer:** The limit value of 4.2 kW is stored in the optimizer, "
+"but is not used anywhere in the current code. The xref:user/schedule/"
+"overview.adoc[schedule] therefore does not take a § 14a limitation into "
+"account. This would hardly be possible anyway, because an intervention by "
+"the grid operator cannot be foreseen."
+msgstr ""
+"**Energie-Optimierer:** Im Optimierer ist der Grenzwert von 4,2 kW zwar "
+"hinterlegt, wird aber im aktuellen Code nirgends verwendet. Der xref:user/"
+"schedule/overview.adoc[Fahrplan] berücksichtigt eine §14a-Begrenzung also "
+"nicht. Das wäre auch kaum möglich, weil ein Eingriff des Netzbetreibers "
+"nicht vorhersehbar ist."
+
+#. type: #sec-what-does-not-exist-yet
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**Ongoing operation with price control:** The limitation is nevertheless "
+"complied with during operation. The § 14a controller runs before xref:user/"
+"storage-control/time-of-use-tariffs.adoc[price control]. Its setpoint is "
+"therefore limited to a maximum of 4.2 kW charging power."
+msgstr ""
+"**Laufender Betrieb mit Preissteuerung:** Im laufenden Betrieb wird die "
+"Begrenzung trotzdem eingehalten. Der §14a-Controller läuft vor der xref:user/"
+"storage-control/time-of-use-tariffs.adoc[Preissteuerung]. Deren Sollwert "
+"wird deshalb auf höchstens 4,2 kW Ladeleistung begrenzt."
+
+#. type: #sec-what-does-not-exist-yet
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**Consequence for the schedule:** If “Charge from grid” is planned for the "
+"time of an intervention, less is charged than intended. The storage then "
+"also cannot absorb PV surplus above 4.2 kW; it goes into the grid or is "
+"curtailed if there is a feed-in limit. At the next planning, the optimizer "
+"continues calculating with the actual state of charge."
+msgstr ""
+"**Folge für den Fahrplan:** Ist für die Zeit eines Eingriffs „Beladung aus "
+"dem Netz“ geplant, wird weniger geladen als vorgesehen. Auch PV-Überschuss "
+"über 4,2 kW kann der Speicher dann nicht aufnehmen; er geht ins Netz oder "
+"wird bei einer Einspeisegrenze abgeregelt. Bei der nächsten Planung rechnet "
+"der Optimierer mit dem tatsächlichen Ladestand weiter."
+
+#. type: #sec-what-does-not-exist-yet
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"**Fixed value:** The 4.2 kW are permanently stored in the code and cannot be "
+"adjusted."
+msgstr ""
+"**Fester Wert:** Die 4,2 kW sind fest im Code hinterlegt und nicht "
+"einstellbar."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Part 2: Time-variable grid fees (Module 3)"
+msgstr "Teil 2: Zeitvariable Netzentgelte (Modul 3)"
+
+#. type: #sec-part-2-time-variable-grid-fees-module-3
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid "With Module 3, different grid fees apply depending on the time of day:"
+msgstr "Bei Modul 3 gelten je nach Uhrzeit unterschiedliche Netzentgelte:"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid ""
+"| Level\n"
+"| Abbreviation\n"
+"| typical\n"
+"\n"
+"| Low tariff\n"
+"| NT\n"
+"| at night, e.g. 0–5\n"
+"| Standard tariff\n"
+"| ST\n"
+"| remaining time\n"
+"| High tariff\n"
+"| HT\n"
+"| in the evening, e.g. 17–21\n"
+msgstr ""
+"| Stufe\n"
+"| Abkürzung\n"
+"| typisch\n"
+"\n"
+"| Niedrigtarif\n"
+"| NT\n"
+"| nachts, z. B. 0–5 Uhr\n"
+"| Standardtarif\n"
+"| ST\n"
+"| übrige Zeit\n"
+"| Hochtarif\n"
+"| HT\n"
+"| abends, z. B. 17–21 Uhr\n"
+
+#. type: #sec-setup-2
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"In the tariff app (e.g. for ENTSO-E exchange prices), for the bidding zone "
+"Germany there is the question **“Do you use time-variable network charges "
+"according to Section 14a EnWG (Module 3)?”**. If you answer yes, you select "
+"the grid operator:"
+msgstr ""
+"In der Tarif-App (z. B. für ENTSO-E-Börsenpreise) gibt es für die Gebotszone "
+"Deutschland die Frage **„Nutzen Sie zeitvariable Netzentgelte nach §14a EnWG "
+"(Modul 3)?“**. Wird sie bejaht, wählt man den Netzbetreiber aus:"
+
+#. type: #sec-setup-2
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"For some large grid operators, the grid fees are **permanently stored** in "
+"the code: Bayernwerk, Netze BW, EWE Netz, MITNETZ, SH Netz, Westnetz, E.DIS, "
+"Avacon, LEW, “TE Netze” (in the code `+TE_NETZE+`) and Netze ODR. The prices "
+"in ct/kWh and the time windows are stored, per quarter in each case."
+msgstr ""
+"Für einige große Netzbetreiber sind die Netzentgelte im Code **fest "
+"hinterlegt**: Bayernwerk, Netze BW, EWE Netz, MITNETZ, SH Netz, Westnetz, "
+"E.DIS, Avacon, LEW, „TE Netze“ (im Code `+TE_NETZE+`) und Netze ODR. "
+"Hinterlegt sind die Preise in ct/kWh und die Zeitfenster, jeweils pro "
+"Quartal."
+
+#. type: #sec-setup-2
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"For “Other”, you enter the time windows for NT and HT yourself; ST applies "
+"to times without an entry."
+msgstr ""
+"Bei „Andere“ trägt man die Zeitfenster für NT und HT selbst ein; für Zeiten "
+"ohne Eintrag gilt ST."
+
+#. type: #sec-setup-2
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The grid fees are then added to the exchange price as additional costs. This "
+"way, they are included in the electricity price that xref:user/storage-"
+"control/time-of-use-tariffs.adoc[price control] uses for planning. This "
+"makes grid charging more attractive in NT times, for example, and less "
+"attractive in HT times."
+msgstr ""
+"Die Netzentgelte werden dann als Nebenkosten zum Börsenpreis addiert. So "
+"fließen sie in den Strompreis ein, mit dem die xref:user/storage-control/"
+"time-of-use-tariffs.adoc[Preissteuerung] plant. Netzladen wird dadurch z. B. "
+"in NT-Zeiten attraktiver und in HT-Zeiten unattraktiver."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The stored grid fees only apply to the **quarters entered in the code**. If "
+"a grid operator changes its prices or a new year is added, OpenEMS must be "
+"updated. The price cannot be determined for times without an entry."
+msgstr ""
+"Die hinterlegten Netzentgelte gelten nur für die **im Code eingetragenen "
+"Quartale**. Ändert ein Netzbetreiber seine Preise oder kommt ein neues Jahr "
+"hinzu, muss OpenEMS aktualisiert werden. Für Zeiten ohne Eintrag kann der "
+"Preis nicht bestimmt werden."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"The grid fees in the code should be compared with the current price sheet of "
+"your own grid operator. If there are differences, “Other” with your own time "
+"windows is the safer choice."
+msgstr ""
+"Die Netzentgelte im Code sollten mit dem aktuellen Preisblatt des eigenen "
+"Netzbetreibers verglichen werden. Bei Abweichungen ist „Andere“ mit eigenen "
+"Zeitfenstern die sicherere Wahl."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+msgid ""
+"Module 3 only affects the **price calculation**. It has nothing to do "
+"technically with the power limitation from Part 1."
+msgstr ""
+"Modul 3 beeinflusst nur die **Preisberechnung**. Mit der Leistungsbegrenzung "
+"aus Teil 1 hat es technisch nichts zu tun."
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Power limitation\n"
+"| Time-variable grid fees (Module 3)\n"
+"\n"
+"| Purpose\n"
+"| Reducing grid purchase on the instructions of the grid operator\n"
+"| Using lower grid fees at certain times\n"
+"| affects\n"
+"| only the storage (charging at a maximum of 4.2 kW)\n"
+"| the electricity price for price control\n"
+"| triggered by\n"
+"| Signal at the input (e.g. control box)\n"
+"| Time of day (fixed time windows)\n"
+"| Setup\n"
+"| App “Limiter14a” or option in the Home/Commercial app\n"
+"| Option in the tariff app, selection of the grid operator\n"
+msgstr ""
+"| \n"
+"| Leistungsbegrenzung\n"
+"| Zeitvariable Netzentgelte (Modul 3)\n"
+"\n"
+"| Zweck\n"
+"| Netzbezug auf Anweisung des Netzbetreibers drosseln\n"
+"| günstigere Netzentgelte zu bestimmten Zeiten nutzen\n"
+"| betrifft\n"
+"| nur den Speicher (Beladung höchstens 4,2 kW)\n"
+"| den Strompreis für die Preissteuerung\n"
+"| ausgelöst durch\n"
+"| Signal am Eingang (z. B. Steuerbox)\n"
+"| Uhrzeit (feste Zeitfenster)\n"
+"| Einrichtung\n"
+"| App „Limiter14a“ oder Option in der Home-/Commercial-App\n"
+"| Option in der Tarif-App, Auswahl des Netzbetreibers\n"
