@@ -17,8 +17,15 @@ import { NavigationService } from "../../navigation/service/navigation.service";
 import { OeImageComponent } from "../../oe-img/oe-img";
 import { DataService } from "../../shared/dataservice";
 import { SystemStatusComponent } from "../../status/system/system-status.component";
+import cz from "./i18n/cz.json";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
+import es from "./i18n/es.json";
+import fr from "./i18n/fr.json";
+import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
+import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 @Component({
     selector: "oe-header-message",
@@ -55,7 +62,17 @@ export class AppHeaderContentComponent {
 
     constructor() {
         this.isSmartphone = this.platFormService.getDevice().isSmartphone();
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 this.translate.setTranslation(lang, translation, shouldMerge);
             }

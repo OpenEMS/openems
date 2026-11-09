@@ -1,6 +1,6 @@
 package io.openems.edge.battery.soltaro.single.versiona;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
 
 import java.time.LocalDateTime;
 

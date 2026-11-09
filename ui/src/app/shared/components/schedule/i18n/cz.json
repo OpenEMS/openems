@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "ACCEPT": "Přijmout",
+        "ADD": "Přidat",
+        "ADD_ERROR": "Úlohu nebylo možné přidat",
+        "ADD_SUCCESS": "Úloha byla úspěšně přidána do časového plánu",
+        "DELETE": "Smazat",
+        "DELETE_ERROR": "Úlohu nebylo možné smazat",
+        "DELETE_SUCCESS": "Úloha byla úspěšně smazána",
+        "DURATION": "Doba trvání",
+        "EDIT": "Upravit",
+        "EDIT_ERROR": "Úlohu nebylo možné upravit",
+        "EDIT_SUCCESS": "Úloha byla úspěšně upravena",
+        "END": "Konec",
+        "FREQ": {
+            "DAILY": "Denně",
+            "MONTHLY": "Měsíčně",
+            "WEEKLY": "Týdně",
+            "YEARLY": "Ročně"
+        },
+        "FREQUENCY": "Opakování",
+        "MODE": "Nabíjecí režim",
+        "MODE_SELECTION_PLACEHOLDER": "Vybrat",
+        "NEXT_TASKS": "Další úlohy",
+        "PLEASE_CHOOSE": "Vyberte čas",
+        "REPEAT_EACH": "Opakovat každý",
+        "ROTATION": "Opakování",
+        "START": "Začátek",
+        "VALIDATION_ERROR_1": "Zadejte prosím čas začátku",
+        "VALIDATION_ERROR_2": "Zadejte prosím čas konce",
+        "VALIDATION_ERROR_3": "Vyberte prosím nabíjecí režim",
+        "VALIDATION_ERROR_4": "Zadejte prosím čas začátku ve formátu HH:mm a pouze po čtvrthodinách (00, 15, 30 nebo 45 minut)",
+        "VALIDATION_ERROR_5": "Zadejte prosím čas konce ve formátu HH:mm a pouze po čtvrthodinách (00, 15, 30 nebo 45 minut)",
+        "VALIDATION_ERROR_6": "Čas konce musí být po čase začátku",
+        "VALIDATION_ERROR_7": "Chybí čas začátku nebo doba trvání",
+        "VALIDATION_ERROR_8": "Zadejte prosím opakování",
+        "VALIDATION_ERROR_9": "Nastavte alespoň jedno opakování",
+        "WEEK_DAY": "Den v týdnu"
+    }
+}

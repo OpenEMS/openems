@@ -113,6 +113,7 @@ export class ScheduleComponent extends AbstractFormlyComponent {
                     : []),
             ],
             title: translate.instant("MENU.SCHEDULE"),
+            useCiFont: true,
             component: new EdgeConfig.Component(),
         };
     }

@@ -1,0 +1,9 @@
+{
+    "FAVORITES": {
+        "ADDED_FAVORITE": "Tillagd",
+        "DESCRIPTION_OTHERS": "Systemägaren kan markera innehåll som favoriter med hjärtikonen. Då är det enkelt att hitta det igen här senare.",
+        "DESCRIPTION_OWNER": "Markera innehåll med hjärtat så att du enkelt hittar det igen senare. Ditt urval visas här.",
+        "INFO": "Håll koll på viktiga saker",
+        "REMOVED_FAVORITE": "Borttagen"
+    }
+}

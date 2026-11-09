@@ -48,7 +48,7 @@ export abstract class EvseChargepoint {
     }
 
     public showPhaseSwitching(injector: Injector): Promise<boolean> {
-        return Promise.resolve(false);
+        return Promise.resolve(this.hasPhaseSwitchingAbility());
     }
 
     public hasPropertyValue<T>(propertyName: string, value: T): boolean {

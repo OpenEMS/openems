@@ -21,6 +21,9 @@ import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({
+    "oe-user": environment.icons.COMMON.USER,
+    "oe-settings": environment.icons.COMMON.SETTINGS,
+    "oe-cockpit": environment.icons.COMMON.COCKPIT,
     "oe-consumption": environment.icons.COMMON.CONSUMPTION,
     "oe-heatpump": environment.icons.COMPONENT.HEATPUMP,
     "oe-heating-element": environment.icons.COMPONENT.HEATING_ELEMENT,

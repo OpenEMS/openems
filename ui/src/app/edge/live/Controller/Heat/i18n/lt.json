@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Pasirinktas režimas"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "Neprieinama tik skaitymo režimu."
+        },
+        "SCHEDULE": {
+            "END_TEMPERATURE": "Galutinė temperatūra",
+            "MANUAL_EVENTS": "Rankiniai įvykiai",
+            "MODE": "Šildymo režimas",
+            "MODE_SELECTION_PLACEHOLDER": "Pasirinkite",
+            "SCHEDULE": "Grafikas",
+            "SMART_EVENT": "Išmanusis įvykis",
+            "SMART_EVENTS": "Išmanieji įvykiai",
+            "SMART_EVENT_END": "Rytoj 7:00"
+        },
+        "SETTINGS": {
+            "MODE": {
+                "FAST_HEAT": {
+                    "DESCRIPTION": "Šildymo strypas automatiškai pasirenka atitinkamą šildymo lygį.\nMaksimalios galios trukmė – 10 valandų.\nPo to daroma 1 val. pertrauka.",
+                    "TITLE": "Greitas šildymas"
+                },
+                "OFF": {
+                    "TITLE": "Nesildoma"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "Leidžia tolygiai šildyti skirtingus buferinius katilus. Aktyvavimas vyksta automatiškai, puikiai pritaikytas prie jūsų perteklinės ir turimos PV energijos.",
+                    "TITLE": "PV perteklius"
+                }
+            },
+            "NO_SETTINGS_AVAILABLE": "Nustatymų nėra."
+        }
+    }
+}

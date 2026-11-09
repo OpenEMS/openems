@@ -57,9 +57,8 @@ public enum AblType implements TranslatableEnum {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
 				def -> def.setTranslatedLabel("mountType.label") //
 						.setDefaultValue(AblType.EM_4_CONTROLLER_SINGLE) //
-						.setField(JsonFormlyUtil::buildSelectFromNameable, //
-								(app, property, l, parameter, field) -> //
-								field.setOptions(OptionsFactory.of(AblType.class), l)));
+						.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+								.setOptions(OptionsFactory.of(AblType.class), l)));
 	}
 
 }

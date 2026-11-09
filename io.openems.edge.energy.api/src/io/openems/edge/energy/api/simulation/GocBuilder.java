@@ -26,8 +26,8 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.Environment;
@@ -226,11 +226,13 @@ public class GocBuilder {
 	}
 
 	private GlobalOptimizationContext.Grid buildGrid() {
+		final var gridLimit = this.meta.getGridLimit();
+
 		return new GlobalOptimizationContext.Grid(//
-				/* maxBuyPower */ this.meta.getGridBuyLimit().hard().power(), //
-				/* maxSellPower */ this.meta.getGridSellHardLimit(), //
-				/* maxSellPowerWithBuffer */ this.meta.getGridSellHardLimitWithBuffer(), //
-				/* gridBuySoftLimit */ this.meta.getGridBuyLimit().soft());
+				/* maxBuyPower */ gridLimit.gridBuyHardLimit(), //
+				/* maxSellPower */ gridLimit.gridSellHardLimit(), //
+				/* maxSellPowerWithBuffer */ gridLimit.gridSellHardLimitWithBuffer(), //
+				/* gridBuySoftLimit */ gridLimit.gridBuySoftLimit());
 	}
 
 	private GlobalOptimizationContext.Ess buildEss(int essCapacity, int essSoc) {
@@ -251,7 +253,7 @@ public class GocBuilder {
 
 	private Periods buildPeriods(//
 			ZonedDateTime startTime, //
-			JSCalendar.OneTasks<GridBuyLimit.Soft> gridBuySoftLimits, //
+			JSCalendar.OneTasks<GridLimit.Power> gridBuySoftLimits, //
 			Prediction productionValues, //
 			Prediction consumptionValues, //
 			TimeOfUsePrices gridBuyPrices, //
@@ -260,7 +262,7 @@ public class GocBuilder {
 		for (var i = 0;; i++) {
 			final var time = startTime.plusMinutes(i * 15L);
 			final var gridBuySoftLimit = Optional.ofNullable(gridBuySoftLimits.getPayloadAt(time)) //
-					.map(GridBuyLimit.Soft::power) //
+					.map(GridLimit.Power::power) //
 					.map(QUARTER::convertPowerToEnergy) //
 					.orElse(null);
 			final int production = QUARTER.convertPowerToEnergy(//

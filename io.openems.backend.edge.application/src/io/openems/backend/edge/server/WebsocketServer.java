@@ -6,11 +6,7 @@ import static io.openems.common.websocket.WebsocketUtils.getAsOptionalUuid;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
-import io.openems.common.websocket.CommonHttpHeader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -18,12 +14,14 @@ import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 
+import io.openems.backend.edge.application.BackendEdgeServerApp;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.logger.ContextLogger;
 import io.openems.common.websocket.AbstractWebsocketServer;
+import io.openems.common.websocket.CommonHttpHeader;
 
 public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
@@ -32,37 +30,29 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
-	private final Function<String, String> authenticateApikey;
+	private final BackendEdgeServerApp app;
 
 	private final Logger log;
 
 	public WebsocketServer(String name, int port, int poolSize, //
-			BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdgeManager, //
-			BiConsumer<String, JsonrpcNotification> sendNotificationToEdgeManager, //
-			Function<String, String> authenticateApikey, //
+			BackendEdgeServerApp app, //
 			Runnable connectedEdgesChanged) {
 		super(name, port, poolSize);
 		this.log = new ContextLogger(WebsocketServer.class, name);
-		this.authenticateApikey = authenticateApikey;
-		this.onOpen = new OnOpen(//
-				connectedEdgesChanged);
-		this.onRequest = new OnRequest(//
-				name, //
-				sendRequestToEdgeManager);
-		this.onNotification = new OnNotification(//
-				name, //
-				sendNotificationToEdgeManager);
-		this.onError = new OnError(//
-				this::logError);
-		this.onClose = new OnClose(//
-				connectedEdgesChanged);
+		this.app = app;
+		this.onOpen = new OnOpen(connectedEdgesChanged);
+		this.onRequest = new OnRequest(name, app);
+		this.onNotification = new OnNotification(name, app);
+		this.onError = new OnError(this::logError);
+		this.onClose = new OnClose(connectedEdgesChanged);
 	}
 
 	@Override
 	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
 		final var apikey = getAsOptionalString(request, CommonHttpHeader.APIKEY).orElse(null);
-		final var instanceId = getAsOptionalUuid(request, CommonHttpHeader.INSTANCE_ID).map(UUID::toString).orElse("N/A");
-		final var edgeId = this.authenticateApikey.apply(apikey);
+		final var instanceId = getAsOptionalUuid(request, CommonHttpHeader.INSTANCE_ID).map(UUID::toString)
+				.orElse("N/A");
+		final var edgeId = this.app.getCache().authenticateApikey(apikey);
 		if (edgeId == null) {
 			this.log.error("Handshake rejected. Invalid Apikey [InstanceID={}]", instanceId);
 			throw new InvalidDataException(CloseFrame.POLICY_VALIDATION, "Handshake rejected. Invalid Apikey");

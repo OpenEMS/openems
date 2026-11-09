@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, signal, SimpleChanges } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
+import { OeCheckboxComponent } from "src/app/shared/components/oe-checkbox/oe-checkbox";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { SohCycleState, SohDeterminationService } from "../../service/soh-determination.service";
@@ -28,6 +29,7 @@ type SohCycleControllerValue = Partial<SohCycleState> & {
         ComponentsBaseModule,
         ModalComponentsModule,
         NgxSpinnerModule,
+        OeCheckboxComponent,
         ReactiveFormsModule,
     ],
 })
@@ -39,12 +41,21 @@ export class SohCycleSectionComponent implements OnChanges {
 
     public readonly Converter = Converter;
 
+    protected pvOffFormGroup: FormGroup;
+
     private readonly essId = signal<string>("");
     private sohDeterminationService = inject(SohDeterminationService);
     private alertCtrl = inject(AlertController);
     private translate = inject(TranslateService);
     private service = inject(Service);
     private websocket = inject(Websocket);
+    private formBuilder = inject(FormBuilder);
+
+    constructor() {
+        this.pvOffFormGroup = this.formBuilder.group({
+            pvOffConfirmed: new FormControl(false),
+        });
+    }
 
     public get isSohCycleLoading(): boolean {
         return this.sohCycleController?.["isRunning"] === null;
@@ -75,9 +86,11 @@ export class SohCycleSectionComponent implements OnChanges {
     }
 
     public get isSohCycleAvailable(): boolean {
-        return !!this.componentFormControl
-            && !!this.sohCycleController
-            && this.isSohCycleEnabled;
+        return !!this.componentFormControl && !!this.sohCycleController && this.isSohCycleEnabled;
+    }
+
+    public get isPvOffConfirmed(): boolean {
+        return this.pvOffFormGroup.get("pvOffConfirmed")?.value === true;
     }
 
     public get sohCycleControllerFormGroup(): FormGroup | null {
@@ -99,7 +112,7 @@ export class SohCycleSectionComponent implements OnChanges {
     }
 
     public async startSohCycle(): Promise<void> {
-        if (this.edge == null) {
+        if (this.edge == null || !this.isPvOffConfirmed) {
             return;
         }
 
@@ -115,10 +128,9 @@ export class SohCycleSectionComponent implements OnChanges {
         isRunningControl.markAsDirty();
 
         try {
-            await this.edge.updateComponentConfig(this.websocket, controllerId, [
-                { name: "isRunning", value: true },
-            ]);
+            await this.edge.updateComponentConfig(this.websocket, controllerId, [{ name: "isRunning", value: true }]);
             isRunningControl.markAsPristine();
+            this.pvOffFormGroup.get("pvOffConfirmed")?.setValue(false);
             this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
         } catch (error) {
             isRunningControl.setValue(previousIsRunning);
@@ -128,6 +140,10 @@ export class SohCycleSectionComponent implements OnChanges {
     }
 
     public async showRestartConfirmation(): Promise<void> {
+        if (!this.isPvOffConfirmed) {
+            return;
+        }
+
         const alert = await this.alertCtrl.create({
             header: this.translate.instant("STORAGE.ADMIN_MODAL.SOH.RESTART_CONFIRMATION_TITLE"),
             message: this.translate.instant("STORAGE.ADMIN_MODAL.SOH.RESTART_WARNING"),
@@ -148,5 +164,8 @@ export class SohCycleSectionComponent implements OnChanges {
 
         await alert.present();
     }
-}
 
+    protected setPvOffFormGroup(event: FormGroup): void {
+        this.pvOffFormGroup = event;
+    }
+}

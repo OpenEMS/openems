@@ -17,7 +17,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -31,14 +30,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
-import io.openems.edge.common.meta.GridBuyLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -61,7 +58,6 @@ import io.openems.edge.timeofusetariff.api.TariffManager;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @GenerateTargetsFromReferences({ "ess", "CtrlGridOptimizedCharge" })
-@SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
 
@@ -174,23 +170,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			this.disableRunOnGridOptimizedChargeControllers();
 		}
 
-		// NOTE gridBuySoftLimit is nullable to handle deprecation of Config
-		// maxChargePowerFromGrid
-		final var gridBuySoftLimit = Optional.ofNullable(this.meta.getGridBuyLimit().soft().getActiveOneTask()) //
-				.map(OneTask::payload) //
-				.map(GridBuyLimit.Soft::power) //
-				.orElse(this.config.maxChargePowerFromGrid());
-		final int gridSellHardLimit = this.meta.getGridSellHardLimitWithBuffer();
-
+		final var gridLimit = this.meta.getGridLimit();
 		final var clock = this.componentManager.getClock();
 		final var currentPeriod = this.energyScheduleHandler.getCurrentPeriod();
 
 		final var am = switch (this.config.mode()) {
 		case AUTOMATIC //
-			-> calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod, null, clock);
-		case MANUAL -> //
-			calculateApplyMode(this.sum, this.ess, gridBuySoftLimit, gridSellHardLimit, currentPeriod,
-					this.config.manualMode(), clock);
+			-> calculateApplyMode(this.sum, this.ess, gridLimit, currentPeriod, null, clock);
+		case MANUAL //
+			-> calculateApplyMode(this.sum, this.ess, gridLimit, currentPeriod, this.config.manualMode(), clock);
 		case OFF //
 			-> new ApplyMode(StateMachine.BALANCING, null);
 		};

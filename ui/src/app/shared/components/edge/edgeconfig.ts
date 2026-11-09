@@ -1,4 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
+import { environment } from "src/environments";
 import { ChannelAddress } from "../../shared";
 import { TEnumKeys } from "../../type/utility";
 import { WidgetFactory } from "../../type/widget";
@@ -37,7 +38,7 @@ export class EdgeConfig {
     constructor(edge: Edge, source?: EdgeConfig, blockRefresh: boolean = false) {
         if (source) {
             this.mergeComponents(source.components);
-            this.factories = source.factories;
+            this.factories = environment.CLEANED_FACTORIES(source);
         }
 
         if (!blockRefresh) {

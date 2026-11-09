@@ -32,15 +32,15 @@ public final class CleverPvProps {
 				.setTranslatedLabel("App.Cloud.CleverPv.url.label") //
 				.setTranslatedDescription(descriptionTranslationKey)//
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(PASSWORD);
-				}).bidirectional(prop, "url", ComponentManagerSupplier::getComponentManager, t -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(PASSWORD))
+				.bidirectional(prop, "url", ComponentManagerSupplier::getComponentManager, t -> {
 					return JsonUtils.getAsOptionalString(t) //
 							.map(s -> {
 								if (s.isEmpty()) {
 									return null;
 								}
-								return new JsonPrimitive("xxx");
+								return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 							}) //
 							.orElse(null);
 				}) //
@@ -57,14 +57,15 @@ public final class CleverPvProps {
 	 */
 	public static <APP extends OpenemsApp & ComponentUtilSupplier & ComponentManagerSupplier> AppDef<? super APP, Nameable, BundleProvider> privacyPolicy(
 			Nameable controllerId) {
-		return AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
-			return translate(parameter.bundle(), "App.Cloud.CleverPv.datasecurityHint");
-		}), def -> def //
-				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.requireTrue(l);
-					field.onlyShowIf(Exp.currentModelValue(controllerId).isNull());
-				})); //
+		return AppDef.copyOfGeneric(//
+				CommonProps.installationHint((_, _, _, parameter) -> {
+					return translate(parameter.bundle(), "App.Cloud.CleverPv.datasecurityHint");
+				}), //
+				def -> def //
+						.setRequired(true) //
+						.wrapField((_, _, l, _, field) -> field //
+								.requireTrue(l) //
+								.onlyShowIf(Exp.currentModelValue(controllerId).isNull()))); //
 	}
 
 }

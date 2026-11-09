@@ -101,21 +101,21 @@ class EnergySchedulerTest {
 		void shouldDelayCharge_whenSurplus() {
 			when(this.model.getSurplus()).thenReturn(1000);
 			applyDelayCharge(this.model);
-			verify(this.model).setEss(0);
+			verify(this.model).commitEss(0);
 		}
 
 		@Test
 		void shouldDischarge_whenNoSurplus() {
 			when(this.model.getSurplus()).thenReturn(-1000);
 			applyDelayCharge(this.model);
-			verify(this.model).setEss(1000);
+			verify(this.model).commitEss(1000);
 		}
 
 		@Test
 		void shouldDelayCharge_whenExactlyZeroSurplus() {
 			when(this.model.getSurplus()).thenReturn(0);
 			applyDelayCharge(this.model);
-			verify(this.model).setEss(0);
+			verify(this.model).commitEss(0);
 		}
 	}
 
@@ -131,28 +131,28 @@ class EnergySchedulerTest {
 		void shouldLimitCharge_whenLimitLessThanSurplus() {
 			when(this.model.getSurplus()).thenReturn(1000);
 			applyLimitCharge(this.model, 500);
-			verify(this.model).setEss(-500);
+			verify(this.model).commitEss(-500);
 		}
 
 		@Test
 		void shouldChargeSurplus_whenLimitGreaterThanSurplus() {
 			when(this.model.getSurplus()).thenReturn(600);
 			applyLimitCharge(this.model, 1000);
-			verify(this.model).setEss(-600);
+			verify(this.model).commitEss(-600);
 		}
 
 		@Test
 		void shouldChargeSurplus_whenNoLimit() {
 			when(this.model.getSurplus()).thenReturn(1000);
 			applyLimitCharge(this.model, null);
-			verify(this.model).setEss(-1000);
+			verify(this.model).commitEss(-1000);
 		}
 
 		@Test
 		void shouldDischarge_whenNoSurplus() {
 			when(this.model.getSurplus()).thenReturn(-1000);
 			applyLimitCharge(this.model, 500);
-			verify(this.model).setEss(1000);
+			verify(this.model).commitEss(1000);
 		}
 	}
 
@@ -168,7 +168,7 @@ class EnergySchedulerTest {
 		void shouldDischargeConsumption() {
 			when(this.model.getConsumption()).thenReturn(1000);
 			applyDischargeConsumption(this.model);
-			verify(this.model).setEss(1000);
+			verify(this.model).commitEss(1000);
 		}
 	}
 }

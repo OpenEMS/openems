@@ -52,6 +52,7 @@ export namespace SharedFavorite {
         // Convert to absolute links and set parent to favorites route
         const absoluteFavoriteNodes = Array.from(favoriteNodes).map((node) => {
             node.parent = absoluteNavigationTrees.find((tree) => tree.id === NavigationId.FAVORITES) ?? null;
+            node.tourId = NavigationId.FAVORITES + "-" + node.id;
             node = node.setParentRecursively();
             node.routerLink = {
                 ...node.routerLink,
@@ -73,7 +74,10 @@ export namespace SharedFavorite {
         return absoluteFavoriteNodes;
     }
 
-    export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig, edge: Edge): string[] {
+    export function getPredefinedNodes(translate: TranslateService, config: EdgeConfig | null, edge: Edge): string[] {
+        if (config == null) {
+            return [EnergyJourneyShared.historyNavigationTree(translate).id];
+        }
         const consumptionChildren = SharedBottomNavigationBar.getConsumptionChildren(config, edge, translate);
 
         return [
