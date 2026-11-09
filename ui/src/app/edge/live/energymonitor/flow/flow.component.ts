@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, ElementRef, inject, NgZone, OnDestroy } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { addHours, isSameDay, startOfToday } from "date-fns";
@@ -18,7 +17,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 type NodeId = "production" | "grid" | "storage" | "consumption";
 
@@ -66,7 +67,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
      * Node centers in the SVG viewBox. "wide": 680 x 460 incl. consumer column on the right; "compact" (narrow screens,
      * e.g. smartphones): 400 x 440, consumers are listed below the graphic.
      */
-    protected static readonly LAYOUTS: Record<"wide" | "compact", Record<NodeId, { x: number; y: number }>> = {
+    private static readonly LAYOUTS: Record<"wide" | "compact", Record<NodeId, { x: number; y: number }>> = {
         wide: {
             production: { x: 300, y: 70 },
             grid: { x: 90, y: 220 },
@@ -112,29 +113,29 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     /** Below this component width (px) the compact layout is used */
     private static readonly COMPACT_WIDTH = 560;
 
-    protected NODES = EnergyflowComponent.LAYOUTS.wide;
-    protected compact: boolean = false;
-    protected readonly RADIUS = 50;
-    protected readonly SOC_CIRCUMFERENCE = 2 * Math.PI * 50;
+    private NODES = EnergyflowComponent.LAYOUTS.wide;
+    private compact: boolean = false;
+    private readonly RADIUS = 50;
+    private readonly SOC_CIRCUMFERENCE = 2 * Math.PI * 50;
 
-    protected readonly uid = uuidv4().substring(0, 8);
+    private readonly uid = uuidv4().substring(0, 8);
 
-    protected production: number | null = null;
-    protected gridBuy: number = 0;
-    protected gridSell: number = 0;
-    protected storageCharge: number = 0;
-    protected storageDischarge: number = 0;
-    protected consumption: number | null = null;
-    protected soc: number | null = null;
-    protected socDash: string = "0 999";
-    protected storageEstimate: string | null = null;
-    protected hasStorage: boolean = false;
+    private production: number | null = null;
+    private gridBuy: number = 0;
+    private gridSell: number = 0;
+    private storageCharge: number = 0;
+    private storageDischarge: number = 0;
+    private consumption: number | null = null;
+    private soc: number | null = null;
+    private socDash: string = "0 999";
+    private storageEstimate: string | null = null;
+    private hasStorage: boolean = false;
 
-    protected flows: Flow[] = [];
-    protected idlePaths: string[] = [];
-    protected consumers: Consumer[] = [];
+    private flows: Flow[] = [];
+    private idlePaths: string[] = [];
+    private consumers: Consumer[] = [];
 
-    protected today: {
+    private today: {
         production: number | null;
         consumption: number | null;
         gridBuy: number | null;
@@ -142,8 +143,8 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         autarchy: number | null;
     } | null = null;
 
-    protected readonly formatPower = Utils.CONVERT_WATT_TO_KILOWATT;
-    protected readonly formatEnergy = EnergyflowComponent.formatEnergyValue;
+    private readonly formatPower = Utils.CONVERT_WATT_TO_KILOWATT;
+    private readonly formatEnergy = EnergyflowComponent.formatEnergyValue;
 
     private evcss: EvcsComponent[] = [];
     private meters: EdgeConfig.Component[] = [];
@@ -158,7 +159,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
     private zone = inject(NgZone);
 
     /** ViewBox of the SVG for the current layout */
-    protected get viewBox(): string {
+    private get viewBox(): string {
         if (this.compact) {
             return "0 0 400 440";
         }
@@ -210,44 +211,22 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
         super.ngOnDestroy();
     }
 
-    /**
-     * Inline SVG markup of an ionicon for use inside the SVG (`<svg viewBox="0 0 512 512" fill="currentColor"
-     * [innerHTML]>`). Ionicons style their outlines via CSS classes; these are converted to attributes here. The markup
-     * comes from the bundled ionicons package only.
-     */
-    protected icon(name: string): SafeHtml {
-        let markup = this.iconCache.get(name);
-        if (markup == null) {
-            const data = EnergyflowComponent.ICONS[name] ?? EnergyflowComponent.ICONS["speedometer-outline"];
-            const raw = data.substring(data.indexOf(",") + 1);
-            let svg = raw;
-            try {
-                svg = decodeURIComponent(raw);
-            } catch {
-                // not URI-encoded
-            }
-            const inner = svg
-                .substring(svg.indexOf(">") + 1, svg.lastIndexOf("</svg>"))
-                .replace(
-                    /class='([^']*)'/g,
-                    (_, classes: string) =>
-                        (classes.includes("ionicon-fill-none") ? " fill='none' stroke='currentColor'" : "") +
-                        (classes.includes("ionicon-stroke-width") ? " stroke-width='32'" : ""),
-                );
-            markup = this.sanitizer.bypassSecurityTrustHtml(inner);
-            this.iconCache.set(name, markup);
-        }
-        return markup;
-    }
-
     protected override afterIsInitialized(): void {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    this.translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                this.translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         this.updateToday();
         this.todayTimer = setInterval(() => this.updateToday(), 5 * 60 * 1000);
@@ -285,14 +264,14 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
                 ?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter((component) => {
                     const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
-                    const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+                    const isEvcs = natureIds?.includes("io.openems.edge.evcs.api.Evcs") ?? false;
                     return component.isEnabled && this.config?.isTypeConsumptionMetered(component) && isEvcs === false;
                 }) ?? [];
         for (const meter of this.meters) {
             channels.push(new ChannelAddress(meter.id, "ActivePower"));
         }
 
-        this.evcss = EvcsComponent.getComponents(this.config, this.edge) ?? [];
+        this.evcss = this.config != null ? (EvcsComponent.getComponents(this.config, this.edge) ?? []) : [];
         for (const evcs of this.evcss) {
             channels.push(evcs.powerChannel);
         }
@@ -324,6 +303,36 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
 
         this.updateFlows();
         this.updateConsumers(c);
+    }
+
+    /**
+     * Inline SVG markup of an ionicon for use inside the SVG (`<svg viewBox="0 0 512 512" fill="currentColor"
+     * [innerHTML]>`). Ionicons style their outlines via CSS classes; these are converted to attributes here. The markup
+     * comes from the bundled ionicons package only.
+     */
+    private icon(name: string): SafeHtml {
+        let markup = this.iconCache.get(name);
+        if (markup == null) {
+            const data = EnergyflowComponent.ICONS[name] ?? EnergyflowComponent.ICONS["speedometer-outline"];
+            const raw = data.substring(data.indexOf(",") + 1);
+            let svg = raw;
+            try {
+                svg = decodeURIComponent(raw);
+            } catch {
+                // not URI-encoded
+            }
+            const inner = svg
+                .substring(svg.indexOf(">") + 1, svg.lastIndexOf("</svg>"))
+                .replace(
+                    /class='([^']*)'/g,
+                    (_, classes: string) =>
+                        (classes.includes("ionicon-fill-none") ? " fill='none' stroke='currentColor'" : "") +
+                        (classes.includes("ionicon-stroke-width") ? " stroke-width='32'" : ""),
+                );
+            markup = this.sanitizer.bypassSecurityTrustHtml(inner);
+            this.iconCache.set(name, markup);
+        }
+        return markup;
     }
 
     /** Undirected base path between two main nodes, relative to the current layout */
@@ -533,7 +542,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             }
             key = "EDGE.INDEX.ENERGYFLOW.EMPTY_AT";
         }
-        if (at == null) {
+        if (at == null || key == null) {
             return null;
         }
         const locale = Language.getCurrentLanguage().i18nLocaleKey;
@@ -568,7 +577,7 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
                     consumption: consumption ?? null,
                     gridBuy: buy ?? null,
                     gridSell: d["_sum/GridSellActiveEnergy"] ?? null,
-                    autarchy: Utils.calculateAutarchy(buy, consumption),
+                    autarchy: buy != null && consumption != null ? Utils.calculateAutarchy(buy, consumption) : null,
                 };
             })
             .catch(() => {
@@ -576,9 +585,9 @@ export class EnergyflowComponent extends AbstractFlatWidget implements OnDestroy
             });
 
         return Promise.all([energy, schedule]).then(([, schedule]) => {
-            this.socForecast = (schedule?.data ?? [])
-                .filter((e) => e.timestamp > now && e._sum.EssSoc != null)
-                .map((e) => ({ time: e.timestamp, soc: e._sum.EssSoc }));
+            this.socForecast = (schedule?.data ?? []).flatMap((e) =>
+                e.timestamp > now && e._sum.EssSoc != null ? [{ time: e.timestamp, soc: e._sum.EssSoc }] : [],
+            );
         });
     }
 }

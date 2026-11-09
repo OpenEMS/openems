@@ -1,0 +1,15 @@
+{
+    "EDGE": {
+        "INDEX": {
+            "ENERGYFLOW": {
+                "AUTARCHY_TODAY": "Självförsörjningsgrad idag",
+                "CONSUMPTION_TODAY": "Förbrukning idag",
+                "EMPTY_AT": "räcker till ~{{value}}",
+                "FULL_AT": "full ~{{value}}",
+                "GRID_BUY_TODAY": "Köp från nätet idag",
+                "GRID_SELL_TODAY": "Sälj till nätet idag",
+                "PRODUCTION_TODAY": "Produktion idag"
+            }
+        }
+    }
+}

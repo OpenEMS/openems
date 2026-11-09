@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Subject } from "rxjs";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
@@ -13,6 +12,18 @@ import { EnergyflowComponent } from "./flow.component";
  * The component extends {@link AbstractFlatWidget}, which has a heavy DI graph. Like other flat widget specs, the logic
  * is exercised via the prototype with a stub `this` that only contains the fields the methods read.
  */
+
+/** Consumer as laid out by the component, as far as the tests look at it */
+type TestConsumer = {
+    name: string;
+    icon: string;
+    power: number | null;
+    active: boolean;
+    r: number;
+    y: number;
+    flow: { dots: string[] } | null;
+};
+
 describe("EnergyflowComponent", () => {
     const Static = EnergyflowComponent as any;
 
@@ -81,7 +92,10 @@ describe("EnergyflowComponent", () => {
 
     function flowPowers(component: any): Record<string, number> {
         return Object.fromEntries(
-            component.flows.map((flow) => [flow.pathId.replace("oe-ef-test-", ""), Math.round(flow.power)]),
+            component.flows.map((flow: { pathId: string; power: number }) => [
+                flow.pathId.replace("oe-ef-test-", ""),
+                Math.round(flow.power),
+            ]),
         );
     }
 
@@ -285,16 +299,16 @@ describe("EnergyflowComponent", () => {
             component.updateConsumers({ "evcs0/ActivePower": 1400, "meter0/ActivePower": 0 });
 
             const consumers = component.consumers;
-            expect(consumers.map((c) => c.icon)).toEqual([
+            expect(consumers.map((c: TestConsumer) => c.icon)).toEqual([
                 "car-outline",
                 "flame-outline",
                 "shield-checkmark-outline",
                 "ellipsis-horizontal",
             ]);
-            expect(consumers.map((c) => c.power)).toEqual([1400, 0, null, 1600]);
-            expect(consumers.map((c) => c.active)).toEqual([true, false, false, true]);
+            expect(consumers.map((c: TestConsumer) => c.power)).toEqual([1400, 0, null, 1600]);
+            expect(consumers.map((c: TestConsumer) => c.active)).toEqual([true, false, false, true]);
             expect(consumers[2].name).toBe("Emergency power…");
-            expect(consumers.every((c) => c.r === 26)).toBeTrue();
+            expect(consumers.every((c: TestConsumer) => c.r === 26)).toBeTrue();
             expect(consumers[1].flow.dots).toEqual([]);
             expect(consumers[0].flow.dots.length).toBe(3);
         });
@@ -313,10 +327,10 @@ describe("EnergyflowComponent", () => {
             component.updateConsumers({ "evcs0/ActivePower": 1000, "evcs1/ActivePower": 2000 });
 
             const consumers = component.consumers;
-            const rows = new Set(consumers.map((c) => c.y));
+            const rows = new Set(consumers.map((c: TestConsumer) => c.y));
             expect(consumers.length).toBe(7);
             expect(rows.size).toBe(5);
-            expect(consumers.every((c) => c.r === 22)).toBeTrue();
+            expect(consumers.every((c: TestConsumer) => c.r === 22)).toBeTrue();
 
             // second wallbox sits to the right of the first one, the line to the first carries both
             const [first, second] = consumers;
@@ -333,7 +347,7 @@ describe("EnergyflowComponent", () => {
             const component = createComponent({ consumption: 1000, meters: meters });
             component.updateConsumers({});
 
-            const rows = [...new Set(component.consumers.map((c) => c.y))];
+            const rows = [...new Set(component.consumers.map((c: TestConsumer) => c.y))];
             expect(rows.length).toBe(6);
             expect(component.consumers[component.consumers.length - 1].icon).toBe("ellipsis-horizontal");
         });
@@ -344,7 +358,7 @@ describe("EnergyflowComponent", () => {
             component.updateConsumers({});
 
             expect(component.consumers.length).toBe(8);
-            expect(component.consumers.every((c) => c.r === 26)).toBeTrue();
+            expect(component.consumers.every((c: TestConsumer) => c.r === 26)).toBeTrue();
         });
     });
 
@@ -390,8 +404,8 @@ describe("EnergyflowComponent", () => {
             expect(channels).toContain("_sum/EssDischargePower");
             expect(channels).toContain("meter0/ActivePower");
             expect(channels).not.toContain("meter1/ActivePower");
-            expect(channels.some((c) => c.startsWith("evcs0/"))).toBeTrue();
-            expect(component.meters.map((m) => m.id)).toEqual(["meter0"]);
+            expect(channels.some((c: string) => c.startsWith("evcs0/"))).toBeTrue();
+            expect(component.meters.map((m: { id: string }) => m.id)).toEqual(["meter0"]);
             expect(component.evcss.length).toBe(1);
         });
     });

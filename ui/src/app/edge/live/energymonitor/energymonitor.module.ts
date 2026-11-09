@@ -11,11 +11,7 @@ import { EnergymonitorComponent } from "./energymonitor.component";
 import { EnergyflowComponent } from "./flow/flow.component";
 
 @NgModule({
-    imports: [
-        BrowserAnimationsModule,
-        BrowserModule,
-        SharedModule,
-    ],
+    imports: [BrowserAnimationsModule, BrowserModule, SharedModule],
     declarations: [
         ConsumptionSectionComponent,
         EnergymonitorChartComponent,
@@ -25,9 +21,6 @@ import { EnergyflowComponent } from "./flow/flow.component";
         ProductionSectionComponent,
         StorageSectionComponent,
     ],
-    exports: [
-        EnergyflowComponent,
-        EnergymonitorComponent,
-    ],
+    exports: [EnergyflowComponent, EnergymonitorComponent],
 })
-export class EnergymonitorModule { }
+export class EnergymonitorModule {}
