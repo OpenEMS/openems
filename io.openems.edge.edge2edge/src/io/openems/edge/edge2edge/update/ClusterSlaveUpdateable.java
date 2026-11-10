@@ -36,7 +36,7 @@ public class ClusterSlaveUpdateable implements Updateable {
 	private static final Duration ERROR_RETENTION_DURATION = Duration.ofMinutes(REBOOT_TIMEOUT_MINUTES);
 	private final Logger log = LoggerFactory.getLogger(ClusterSlaveUpdateable.class);
 	private final Edge2EdgeWebsocketBridge bridge;
-	private final String name;
+	private String name;
 	private GetUpdateState.UpdateState lastUpdateState = new GetUpdateState.UpdateState.Unknown();
 	private Instant connectionLostSince = null;
 	private Instant errorMsgSetAt = null;
@@ -65,6 +65,7 @@ public class ClusterSlaveUpdateable implements Updateable {
 	@Override
 	public UpdateableMetaInfo getMetaInfo(Language language) {
 		var bridgeAlias = this.getBridgeAliasOrId();
+		this.name = this.bridge.getRemoteHostname().orElse(bridgeAlias);
 		final var metaInfoName = TextProvider //
 				.byTranslation(ClusterSlaveUpdateable.class, "ClusterSlaveUpdateable.Metainfo.name") //
 				.formatWithArguments(this.name) //

@@ -1,10 +1,10 @@
 package io.openems.common.jsonrpc.notification;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.types.DataTable;
 
 /**
  * Represents a JSON-RPC Notification for resending aggregated data.
@@ -36,7 +36,7 @@ public final class ResendDataNotification extends AbstractDataNotification {
 		return new ResendDataNotification(parseParams(notification.getParams()));
 	}
 
-	public ResendDataNotification(TreeBasedTable<Long, String, JsonElement> data) {
+	public ResendDataNotification(DataTable data) {
 		super(ResendDataNotification.METHOD, data);
 	}
 

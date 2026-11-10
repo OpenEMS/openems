@@ -1,7 +1,7 @@
 package io.openems.edge.evse.chargepoint.heidelberg.connect;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;

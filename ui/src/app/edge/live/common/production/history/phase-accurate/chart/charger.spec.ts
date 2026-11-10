@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ActivatedRoute } from "@angular/router";
 import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
@@ -27,7 +26,7 @@ describe("History Production Details - chargers", () => {
                         data: [
                             DATA("MPPT 1: 15,9 kWh", [0.124, 0, null, 0, 0.173, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0.11, 0.113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.145, 0, 0, 0, 0, 0, 0, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0.113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, null, 0.113, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0.13, 0, 0, 0, 0, 0, null, null, null, null, 0, 0, 0, 0, 0, null, 0, null, 0.14, null, null, null, 2.127, 0.175, 0.176, null, 0.18, 0.18, 0.185, 0.18, null, 0.185, 0.19, 0.18, 0.18, 0.176, 0.176, 0.17, 0.175, 0.17, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
                         ],
-                        labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
+                        labels: LABELS(History.DAY.dataChannelWithValues!.result.timestamps),
                         options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", { left: { scale: { beginAtZero: true } } },
                         ),
                     },
@@ -40,7 +39,7 @@ describe("History Production Details - chargers", () => {
                         data: [
                             DATA("MPPT 1: 21,6 kWh", [0.016, 0.014, 0.016, 0.015, 0.016, 0.015, 0.015, 0.015, 0.016, 0.017, 0.018, 0.014, 0.016, 0.017, 0.016, 0.015, 0.014, 0.017, 0.015, 0.016, 0.017, 0.016, 0.015, 0.016, 0.014, 0.015, 0.014, 0.016, 0.014, null, null]),
                         ],
-                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
+                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues!.result.timestamps),
                         options: OeTester.ChartOptions.BAR_CHART_OPTIONS("day", "bar", {}),
                     },
                 });

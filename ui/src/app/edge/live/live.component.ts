@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, OnDestroy, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, OnDestroy, OnInit, untracked, ViewChild, } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
@@ -7,6 +7,8 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { TourService } from "src/app/shared/tour/tour.service";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
@@ -24,7 +26,7 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
         }
     `,
 })
-export class LiveComponent implements OnDestroy {
+export class LiveComponent implements OnDestroy, OnInit {
     @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
 
     protected edge: Edge | null = null;
@@ -37,6 +39,8 @@ export class LiveComponent implements OnDestroy {
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private interval: ReturnType<typeof setInterval> | undefined;
     private platformService = inject(PlatFormService);
+    private readonly tourService = inject(TourService);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     constructor(
         public service: Service,
@@ -63,9 +67,15 @@ export class LiveComponent implements OnDestroy {
             });
             this.checkIfRefreshNeeded();
         });
+
+        effect(() => {
+            if (navigationService.position() !== null && userService.currentUser() != null) {
+                untracked(() => this.tourService.startNavigationTourIfNeeded());
+            }
+        });
     }
 
-    public ionViewWillEnter() {
+    ngOnInit() {
         if (this.widgets?.list) {
             this.showNewFooter =
                 this.widgets?.list.filter(
@@ -73,10 +83,6 @@ export class LiveComponent implements OnDestroy {
                 )?.length > 0;
         }
         this.layoutRefresh.request(300);
-    }
-
-    ionViewWillLeave() {
-        this.ngOnDestroy();
     }
 
     public ngOnDestroy() {

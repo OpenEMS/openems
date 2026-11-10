@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "CATEGORY_FILTER": "アプリカテゴリー",
+                "STATUS_AVAILABLE": "利用可能",
+                "STATUS_FILTER": "可用性",
+                "STATUS_INCOMPATIBLE": "互換性なし",
+                "STATUS_INSTALLED": "インストール済み"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "SUCCESS_MESSAGE": "システムの設置場所が正常に更新されました。",
+            "TITLE": "システムの設置場所"
+        },
+        "SYSTEM_PROTOCOL": {
+            "DOWNLOAD": "ダウンロード",
+            "LABEL": "システムプロトコル",
+            "TITLE": "現在"
+        }
+    }
+}

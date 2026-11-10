@@ -1,4 +1,4 @@
-import { Component, model, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model } from "@angular/core";
 import { Mode } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AddTaskComponent } from "src/app/shared/components/schedule/add/add-task.component";

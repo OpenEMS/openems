@@ -30,6 +30,15 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public interface Doc {
 
+	public static sealed interface OptionsDoc<T> permits EnumDoc, StringEnumDoc {
+		/**
+		 * Gets the allowed options.
+		 *
+		 * @return the options
+		 */
+		public T[] getOptions();
+	}
+
 	/**
 	 * Create a Channel-Doc with a specific OpenemsType.
 	 *

@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "ACCEPT": "Godkänn",
+        "ADD": "Lägg till",
+        "ADD_ERROR": "Uppgiften kunde inte läggas till",
+        "ADD_SUCCESS": "Uppgiften lades till i schemat",
+        "DELETE": "Ta bort",
+        "DELETE_ERROR": "Uppgiften kunde inte tas bort",
+        "DELETE_SUCCESS": "Uppgiften togs bort",
+        "DURATION": "Längd",
+        "EDIT": "Redigera",
+        "EDIT_ERROR": "Uppgiften kunde inte anpassas",
+        "EDIT_SUCCESS": "Uppgiften anpassades",
+        "END": "Slut",
+        "FREQ": {
+            "DAILY": "Dagligen",
+            "MONTHLY": "Månadsvis",
+            "WEEKLY": "Veckovis",
+            "YEARLY": "Årligen"
+        },
+        "FREQUENCY": "Upprepa",
+        "MODE": "Laddningsläge",
+        "MODE_SELECTION_PLACEHOLDER": "Välj",
+        "NEXT_TASKS": "Nästa uppgifter",
+        "PLEASE_CHOOSE": "Välj tid",
+        "REPEAT_EACH": "Upprepa varje",
+        "ROTATION": "Rotation",
+        "START": "Start",
+        "VALIDATION_ERROR_1": "Ange starttiden",
+        "VALIDATION_ERROR_2": "Ange sluttiden",
+        "VALIDATION_ERROR_3": "Välj laddningsläge",
+        "VALIDATION_ERROR_4": "Ange starttiden i formatet HH:mm och endast i kvartstimmar (00, 15, 30 eller 45 minuter)",
+        "VALIDATION_ERROR_5": "Ange sluttiden i formatet HH:mm och endast i kvartstimmar (00, 15, 30 eller 45 minuter)",
+        "VALIDATION_ERROR_6": "Sluttiden måste ligga efter starttiden",
+        "VALIDATION_ERROR_7": "Starttid eller längd saknas",
+        "VALIDATION_ERROR_8": "Ange upprepning",
+        "VALIDATION_ERROR_9": "Ange minst en upprepning",
+        "WEEK_DAY": "Veckodag"
+    }
+}

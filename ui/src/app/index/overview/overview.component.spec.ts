@@ -1,8 +1,9 @@
 import { LOCALE_ID, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { IonicModule } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, IonicModule } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
@@ -20,6 +21,7 @@ import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
+import { FilterComponent } from "../filter/filter.component";
 import { OverViewComponent } from "./overview.component";
 
 describe("OverviewComponent", () => {
@@ -54,6 +56,8 @@ describe("OverviewComponent", () => {
                 IonicModule.forRoot(),
                 RouterModule.forRoot(routes),
                 FlatWidgetButtonComponent,
+                FilterComponent,
+                FormsModule,
             ],
             declarations: [OverViewComponent],
             providers: [
@@ -106,6 +110,17 @@ describe("OverviewComponent", () => {
         expect(button).toBeNull();
     });
 
+    it("keeps search controls available when no edges match", async () => {
+        await fixture.whenStable();
+        component.environment = { ...component.environment, backend: "OpenEMS Backend" };
+        component.noEdges = true;
+        fixture.changeDetectorRef.markForCheck();
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.query(By.css("ion-searchbar"))).not.toBeNull();
+        expect(fixture.debugElement.query(By.css("oe-filter"))).not.toBeNull();
+    });
+
     async function getIbnButtonElement(
         component: OverViewComponent,
         fixture: ComponentFixture<OverViewComponent>,
@@ -118,10 +133,146 @@ describe("OverviewComponent", () => {
             user: new User("", "test.user", globalRole, Language.DE.key, true, {}),
         });
 
-        component.ionViewWillEnter();
+        component.ngOnInit();
         await fixture.whenStable();
         fixture.detectChanges();
         const { debugElement } = fixture;
         return debugElement.query(By.css('[testId="ibn-button"]'));
+    }
+});
+
+describe("OverviewComponent search requests", () => {
+    let component: OverViewComponent;
+    let service: jasmine.SpyObj<Service>;
+
+    beforeEach(() => {
+        service = jasmine.createSpyObj<Service>("Service", ["getEdges"]);
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: Service, useValue: service },
+                { provide: Websocket, useValue: {} },
+                { provide: TranslateService, useValue: {} },
+                { provide: Pagination, useValue: {} },
+                { provide: ActivatedRoute, useValue: {} },
+                { provide: Router, useValue: jasmine.createSpyObj("Router", ["navigate"]) },
+                { provide: UserService, useValue: { currentUser: signal(null) } },
+            ],
+        });
+        component = TestBed.runInInjectionContext(
+            () =>
+                new OverViewComponent(
+                    service,
+                    TestBed.inject(Websocket),
+                    TestBed.inject(TranslateService),
+                    TestBed.inject(Pagination),
+                    TestBed.inject(ActivatedRoute),
+                    TestBed.inject(Router),
+                    TestBed.inject(UserService),
+                ),
+        );
+    });
+
+    afterEach(() => {
+        jasmine.clock().uninstall();
+    });
+
+    it("ignores the initial response when a filtered search finishes first", async () => {
+        const initial = deferredEdges();
+        const filtered = deferredEdges();
+        const edges = [DummyConfig.dummyEdge({ role: Role.OWNER })];
+        service.getEdges.and.returnValues(initial.promise, filtered.promise);
+
+        component.ngOnInit();
+        component["searchOnChange"](new Map([["status", ["active"]]]));
+        filtered.resolve(edges);
+        await settleRequests();
+        initial.resolve([]);
+        await settleRequests();
+
+        expect(component.filteredEdges()).toEqual(edges);
+        expect(component.noEdges).toBeFalse();
+    });
+
+    it("does not let an old response clear loading or stop pagination", async () => {
+        const initial = deferredEdges();
+        const filtered = deferredEdges();
+        const edges = Array.from({ length: 20 }, () => DummyConfig.dummyEdge({ role: Role.OWNER }));
+        service.getEdges.and.returnValues(initial.promise, filtered.promise);
+
+        component.ngOnInit();
+        component["searchOnChange"](new Map([["status", ["active"]]]));
+        initial.resolve([]);
+        await settleRequests();
+
+        expect(component["loading"]()).toBeTrue();
+        expect(component["limitReached"]).toBeFalse();
+        expect(component.noEdges).toBeFalse();
+
+        filtered.resolve(edges);
+        await settleRequests();
+
+        expect(component.filteredEdges()).toEqual(edges);
+        expect(component["loading"]()).toBeFalse();
+        expect(component["limitReached"]).toBeFalse();
+    });
+
+    it("updates the empty state after each accepted search", async () => {
+        const edges = [DummyConfig.dummyEdge({ role: Role.OWNER })];
+        service.getEdges.and.returnValues(Promise.resolve([]), Promise.resolve(edges));
+
+        component.ngOnInit();
+        await settleRequests();
+        expect(component.noEdges).toBeTrue();
+
+        component["searchOnChange"]();
+        await settleRequests();
+        expect(component.noEdges).toBeFalse();
+        expect(component.filteredEdges()).toEqual(edges);
+    });
+
+    it("does not append a stale pagination response to a new search", async () => {
+        const nextPage = deferredEdges();
+        const edges = [DummyConfig.dummyEdge({ role: Role.OWNER })];
+        const complete = jasmine.createSpy("complete");
+        service.getEdges.and.returnValues(nextPage.promise, Promise.resolve(edges));
+
+        jasmine.clock().install();
+        component.doInfinite({ target: { complete } } as unknown as InfiniteScrollCustomEvent);
+        jasmine.clock().tick(200);
+        jasmine.clock().uninstall();
+        component["searchOnChange"]();
+        await settleRequests();
+        nextPage.resolve([DummyConfig.dummyEdge({ role: Role.OWNER })]);
+        await settleRequests();
+
+        expect(component.filteredEdges()).toEqual(edges);
+        expect(complete).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not start a scheduled page after the search changes", async () => {
+        const complete = jasmine.createSpy("complete");
+        service.getEdges.and.returnValue(Promise.resolve([]));
+
+        jasmine.clock().install();
+        component.doInfinite({ target: { complete } } as unknown as InfiniteScrollCustomEvent);
+        component["searchOnChange"]();
+        jasmine.clock().tick(200);
+        jasmine.clock().uninstall();
+        await settleRequests();
+
+        expect(service.getEdges).toHaveBeenCalledTimes(1);
+        expect(complete).toHaveBeenCalledTimes(1);
+    });
+
+    function settleRequests(): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    function deferredEdges() {
+        let resolve!: (edges: Edge[]) => void;
+        const promise = new Promise<Edge[]>((resolvePromise) => {
+            resolve = resolvePromise;
+        });
+        return { promise, resolve };
     }
 });

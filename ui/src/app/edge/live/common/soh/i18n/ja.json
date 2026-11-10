@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "再実行",
+                "START": "実行"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "容量測定中",
+                "ENABLED_INFO": "ESS SoHサイクルコントローラーが有効です",
+                "ERROR": "SoHサイクル中にエラーが発生しました。詳細についてはシステムログを確認してください。",
+                "INFO": "テストサイクルを実行して電池容量を測定し、健全状態（SoH）を算出します。処理には、電池の種類と大きさに応じて数時間かかる場合があります。テストサイクルは、電池が使用されていないときにのみ実行することをおすすめします。",
+                "MEASURED_CAPACITY": "測定容量",
+                "PV_OFF_CONFIRMATION": "ここに、インバーターの内蔵DCスイッチを使用して太陽光発電システムがオフにされたことを確認します。",
+                "RESTART_CONFIRMATION_TITLE": "再実行の確認",
+                "RESTART_WARNING": "SoHサイクルを再起動すると、現在の測定値がリセットされ、新しいサイクルが開始されます。再起動してもよろしいですか？",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "状態",
+                "TITLE": "容量の測定",
+                "TITLE_TIP": "管理者のみに表示"
+            }
+        }
+    }
+}

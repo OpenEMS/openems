@@ -8,20 +8,8 @@ import { ModalComponent } from "./modal/modal";
 import { CommonGridHomeComponent } from "./new-navigation/new-navigation";
 
 @NgModule({
-    imports: [
-        BrowserModule,
-        SharedModule,
-        ModalModule,
-        CommonGridHistory,
-    ],
-    declarations: [
-        FlatComponent,
-        ModalComponent,
-        CommonGridHomeComponent,
-    ],
-    exports: [
-        FlatComponent,
-        CommonGridHomeComponent,
-    ],
+    imports: [BrowserModule, SharedModule, ModalModule, CommonGridHistory],
+    declarations: [FlatComponent, ModalComponent, CommonGridHomeComponent],
+    exports: [FlatComponent, CommonGridHomeComponent],
 })
-export class CommonGrid { }
+export class CommonGrid {}

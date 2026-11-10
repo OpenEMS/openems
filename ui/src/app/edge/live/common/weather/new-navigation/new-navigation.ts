@@ -25,7 +25,9 @@ export class WeatherHomeComponent extends AbstractFormlyComponent {
     ): OeFormlyView {
         const lines: OeFormlyField[] = [];
 
-        const meta = edge.getConfig(websocket).value.getComponentsByFactory("Core.Meta")[0];
+        const config = edge.getConfig(websocket).value;
+        AssertionUtils.assertIsDefined(config);
+        const meta = config.getComponentsByFactory("Core.Meta")[0];
         const placeName = meta.getPropertyFromComponent("placeName") ?? null;
         const pageTitle = placeName
             ? translate.instant("TITLE_WITH_LOCATION", { location: placeName })

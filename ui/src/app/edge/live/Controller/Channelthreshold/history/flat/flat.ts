@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
@@ -21,13 +20,11 @@ export class FlatComponent extends AbstractFlatWidget {
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.controllers.set(
-            this.config
-                .getComponentsByFactory("Controller.ChannelThreshold")
-                .concat(
-                    this.config.getComponentsImplementingNature(
-                        "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
-                    ),
+            this.config!.getComponentsByFactory("Controller.ChannelThreshold").concat(
+                this.config!.getComponentsImplementingNature(
+                    "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
                 ),
+            ),
         );
 
         const channelAddresses: ChannelAddress[] = [];
@@ -42,7 +39,7 @@ export class FlatComponent extends AbstractFlatWidget {
         return channelAddresses;
     }
 
-    private getDisplayName(controller: EdgeConfig.Component | null, output: ChannelAddress | null): string {
-        return controller.id === controller.alias ? output.channelId : controller.alias;
+    private getDisplayName(controller: EdgeConfig.Component, output: ChannelAddress | null): string {
+        return controller.id === controller.alias ? (output?.channelId ?? controller.alias) : controller.alias;
     }
 }

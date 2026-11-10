@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -13,8 +12,8 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    public calculatedSelfConsumption: number;
     protected modalComponent: Modal | null = null;
+    private calculatedSelfConsumption: number | null = null;
 
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();

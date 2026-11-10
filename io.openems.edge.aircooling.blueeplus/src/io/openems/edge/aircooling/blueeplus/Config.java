@@ -17,6 +17,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "IoT interface version?", description = "Which IoT interface version?")
+	IotInterfaceVersion version() default IotInterfaceVersion.KERNEL_6_6;
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 

@@ -132,14 +132,13 @@ public class RabotChargeApi {
 			return JsonSerializerUtil.jsonObjectSerializer(PriceComponents.class, json -> {
 				// TODO check nullable values
 				final var data = json.getJsonObject("data");
-				
 
 				Function<String, Double> getNestedValue = (key) -> {
 					var nestedOpt = JsonUtils.getAsOptionalJsonObject(data, key);
 					if (nestedOpt.isPresent()) {
 						return JsonUtils.getAsOptionalDouble(nestedOpt.get(), "value").orElse(0.0);
 					}
-					
+
 					return 0.0;
 				};
 
@@ -181,10 +180,9 @@ public class RabotChargeApi {
 								.add("guaranteeOfOrigin", JsonUtils.buildJsonObject()//
 										.addProperty("value", obj.guaranteeOfOrigin())//
 										.build()) //
-								.add("variableServiceFee",
-										JsonUtils.buildJsonObject()//
+								.add("variableServiceFee", JsonUtils.buildJsonObject()//
 										.addProperty("value", obj.variableServiceFee())//
-												.build()) //
+										.build()) //
 								.build())
 						.build();
 			});

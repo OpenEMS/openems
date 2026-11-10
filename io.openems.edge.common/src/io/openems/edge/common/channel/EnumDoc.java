@@ -9,11 +9,12 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.common.channel.Doc.OptionsDoc;
 import io.openems.edge.common.channel.internal.AbstractDoc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class EnumDoc extends AbstractDoc<Integer> {
+public non-sealed class EnumDoc extends AbstractDoc<Integer> implements OptionsDoc<OptionsEnum> {
 
 	private final OptionsEnum[] options;
 
@@ -32,6 +33,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 		return this;
 	}
 
+	@Override
 	public OptionsEnum[] getOptions() {
 		return this.options;
 	}

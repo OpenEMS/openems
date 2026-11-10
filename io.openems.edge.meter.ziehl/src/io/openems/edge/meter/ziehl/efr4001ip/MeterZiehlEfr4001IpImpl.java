@@ -1,8 +1,8 @@
 package io.openems.edge.meter.ziehl.efr4001ip;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 
 import org.osgi.service.cm.ConfigurationAdmin;

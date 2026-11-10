@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { AuthenticateWithPasswordRequest } from "../jsonrpc/request/authenticateWithPasswordRequest";
 import { AuthenticateWithTokenRequest } from "../jsonrpc/request/authenticateWithTokenRequest";
@@ -9,7 +8,7 @@ export interface WebsocketInterface {
      *
      * @param request The JSON-RPC Request
      */
-    login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest);
+    login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void>;
 
     /** Logs out by sending a logout JSON-RPC Request. */
     logout(): void;

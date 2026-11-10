@@ -1,0 +1,24 @@
+{
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "CATEGORY_FILTER": "App-kategorier",
+                "STATUS_AVAILABLE": "Tillgänglig",
+                "STATUS_FILTER": "Tillgänglighet",
+                "STATUS_INCOMPATIBLE": "Inkompatibel",
+                "STATUS_INSTALLED": "Installerad"
+            }
+        }
+    },
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "SUCCESS_MESSAGE": "Systemplatsen har uppdaterats.",
+            "TITLE": "Systemplats"
+        },
+        "SYSTEM_PROTOCOL": {
+            "DOWNLOAD": "Ladda ner",
+            "LABEL": "Systemprotokoll",
+            "TITLE": "För närvarande"
+        }
+    }
+}

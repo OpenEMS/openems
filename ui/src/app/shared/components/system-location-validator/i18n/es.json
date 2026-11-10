@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "¿No aparece la dirección correcta? Edite sus datos arriba y realice la validación de nuevo.",
+        "ADDRESS_LIST_NOTE_PROFILE": "¿No aparece la dirección correcta? En caso necesario, cambie sus datos arriba y realice la validación de nuevo.",
+        "ADDRESS_LIST_TITLE": "¿Qué dirección corresponde a la ubicación de {{ edgeShortName }}{{ id }}?",
+        "APPLY_BUTTON_LABEL": "Aplicar",
+        "BUTTON_LABEL_INSTALLATION": "Realizar validación",
+        "BUTTON_LABEL_PROFILE": "Validar dirección",
+        "GEO_CODE_RESULT_LABEL": "Seleccione la dirección correspondiente:",
+        "UNKNOWN_ADDRESS": "Las coordenadas se introducen manualmente después para la funcionalidad completa en los ajustes del sistema."
+    }
+}

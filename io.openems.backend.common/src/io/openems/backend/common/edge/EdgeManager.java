@@ -81,11 +81,19 @@ public interface EdgeManager {
 	/**
 	 * Gets the {@link EdgeCache} of the WebSocket connection for an Edge-ID. If
 	 * more than one connection exists, the EdgeCache of the first one is returned.
-	 * Returns null if none is found.
 	 *
 	 * @param edgeId the Edge-ID
-	 * @return the {@link EdgeCache}
+	 * @return the {@link EdgeCache} or null if the client does not exist
 	 */
 	public EdgeCache getEdgeCacheForEdgeId(String edgeId);
+
+	/**
+	 * Gets the {@link EdgeClient} of the WebSocket connection for an Edge-ID. If
+	 * more than one connection exists, the EdgeClient of the first one is returned.
+	 *
+	 * @param edgeId the Edge-ID
+	 * @return the {@link EdgeClient} or null if the client does not exist.
+	 */
+	public EdgeClient getEdgeClientForEdgeId(String edgeId);
 
 }

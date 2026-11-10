@@ -1,5 +1,10 @@
 @if (edge) {
   <oe-navigation-view>
+    <ng-container header #header>
+      <ion-item lines="none">
+        <ion-label class="ion-text-center"> {{ "GENERAL.HISTORY" | translate }} </ion-label>
+      </ion-item>
+    </ng-container>
     <ion-buttons header class="ion-justify-content-center">
       <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
       @if (!ref.children.length) {

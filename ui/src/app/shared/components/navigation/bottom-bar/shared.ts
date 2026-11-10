@@ -27,13 +27,17 @@ export namespace SharedBottomNavigationBar {
             OverViewComponent.getNavigationTree(user, translate, service),
             getCockpitNavigationTree(edge, config, translate),
             getScheduleNavigationTree(translate, edge, config),
-            getFavoritesNavigationTree(translate),
+            getFavoritesNavigationTree(edge, translate),
             EnergyJourneyShared.getNavigationTree(edge, config, translate),
             getProfileNavigationTree(user, translate),
         ].filter((e) => e !== null);
     }
 
-    export function getFavoritesNavigationTree(translate: TranslateService): NavigationTree {
+    export function getFavoritesNavigationTree(edge: Edge, translate: TranslateService): NavigationTree | null {
+        if (edge == null || !edge.isOnline) {
+            return null;
+        }
+
         return new NavigationTree(
             NavigationId.FAVORITES,
             { baseString: "favorites" },
@@ -57,6 +61,7 @@ export namespace SharedBottomNavigationBar {
 
         const consumptionMetered = config.getComponentsByFactories(
             "Evse.Controller.Single",
+            "Evcs.Cluster.PeakShaving",
             "Controller.IO.HeatingElement",
             "Controller.Io.HeatPump.SgReady",
             "Controller.ChannelThreshold",
@@ -81,10 +86,6 @@ export namespace SharedBottomNavigationBar {
         config: EdgeConfig,
         translate: TranslateService,
     ): NavigationTree | null {
-        if (!edge.isOnline) {
-            return null;
-        }
-
         const weatherComponent = config.getFirstComponentByFactoryId("Weather.OpenMeteo");
         const storage = SharedStorage.getNavigationTree(edge, translate, config);
         const grid = SharedGrid.getNavigationTree(edge, config, translate);
@@ -95,12 +96,14 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             NavigationId.LIVE,
             { baseString: "live" },
-            { name: "home-outline" },
+            { name: "oe-cockpit" },
             translate.instant("MENU.COCKPIT"),
             "icon",
-            [production, consumption, storage, grid, weather]
-                .filter((el) => el !== null)
-                .map((el) => new NavigationTree(...el)),
+            edge.isOnline
+                ? [production, consumption, storage, grid, weather]
+                      .filter((el) => el !== null)
+                      .map((el) => new NavigationTree(...el))
+                : [],
             null,
             { accordionOpenedOnDefault: true, hideFavorite: true },
         );
@@ -110,15 +113,15 @@ export namespace SharedBottomNavigationBar {
         return new NavigationTree(
             "profile",
             { baseString: "profile" },
-            { name: "person-outline" },
-            "Profil",
+            { name: "oe-user" },
+            translate.instant("MENU.PROFILE"),
             "icon",
             [
                 UserComponent.getNavigationTree(user),
                 new NavigationTree(
                     "profile-settings",
                     { baseString: "settings" },
-                    { name: "cog-outline" },
+                    { name: "oe-settings" },
                     translate.instant("MENU.EDGE_SYSTEM_SETTINGS"),
                     "label",
                     [],

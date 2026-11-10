@@ -1,0 +1,29 @@
+= Common Tariff API
+
+The `io.openems.common.tariff.api` project defines shared tariff interfaces used by OpenEMS Edge and Backend implementations.
+This bundle provides the contract for tariff providers, update status handling and spot-tariff access.
+
+== Core Interfaces
+
+- `Tariff`: Generic tariff interface that provides `TariffData` and update status. Always created by a `TariffProvider` or identical implementation as `TariffProvider`.
+- `TariffProvider`: Generic interface for a tariff provider. Used by other parts of the system to get all available tariffs. Has ranking and observable loaded-tariff information
+- `TariffUpdateStatus`: Sealed status model for successful updates and different failure types
+- `SpotTariff` / `SpotTariffProvider`: Specialization for spot-market based tariffs per bidding zone
+
+== Exported Packages
+
+- `io.openems.common.tariff.api`
+- `io.openems.common.tariff.api.http`
+- `io.openems.common.tariff.api.spottariff`
+
+== HTTP Scheduling Helper
+
+`TariffDelayTimeProvider` provides default retry/update delays for HTTP-based tariff fetchers, including:
+
+- immediate first execution
+- backoff on transient errors
+- infinite delay on unauthorized responses
+- daily refresh scheduling once future prices are available
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.common.tariff.api[Source Code icon:github[]]
+

@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
@@ -14,10 +13,10 @@ import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.c
     standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
-    public mostStressedPhase: BehaviorSubject<{ name: string; value: number }> = new BehaviorSubject(null);
-    public meterId: string;
-    public peakShavingPower: number;
-    public rechargePower: number;
+    public mostStressedPhase: BehaviorSubject<{ name: string; value: number }> = new BehaviorSubject<{ name: string; value: number }>({ name: "", value: 0 });
+    public meterId: string | null = null;
+    public peakShavingPower: number | null = null;
+    public rechargePower: number | null = null;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
     protected modalComponent: Modal | null = null;
@@ -37,7 +36,15 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     }
 
     protected override getChannelAddresses() {
-        this.meterId = this.component.properties["meter.id"];
+        if (this.component == null) {
+            return [];
+        }
+
+        this.meterId = this.component.getPropertyFromComponent<string>("meter.id");
+        if (this.meterId == null) {
+            return [];
+        }
+
         return [
             new ChannelAddress(this.meterId, "ActivePower"),
             new ChannelAddress(this.meterId, "ActivePowerL1"),
@@ -47,6 +54,10 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null || this.meterId == null) {
+            return;
+        }
+
         const activePowerArray: number[] = [
             currentData.allComponents[this.meterId + "/ActivePowerL1"],
             currentData.allComponents[this.meterId + "/ActivePowerL2"],

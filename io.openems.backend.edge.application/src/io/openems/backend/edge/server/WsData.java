@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.java_websocket.WebSocket;
 
-public class WsData extends io.openems.common.websocket.WsData {
+import io.openems.backend.common.edge.EdgeClient;
+
+public class WsData extends io.openems.common.websocket.WsData implements EdgeClient {
 
 	private static final List<String> DEBUG_EDGE_IDS = List.of();
 
@@ -23,24 +25,9 @@ public class WsData extends io.openems.common.websocket.WsData {
 		super.setDebug(DEBUG_EDGE_IDS.contains(edgeId));
 	}
 
-	/**
-	 * Gets the Edge-ID.
-	 * 
-	 * @return the Edge-ID; possibly null
-	 */
+	@Override
 	public String getEdgeId() {
 		return this.edgeId;
-	}
-
-	/**
-	 * Gets the Edge-ID or "UNKNOWN".
-	 * 
-	 * @return never null
-	 */
-	public String getEdgeIdString() {
-		return this.edgeId != null //
-				? this.edgeId //
-				: "UNKNOWN";
 	}
 
 	@Override

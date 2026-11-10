@@ -94,7 +94,7 @@ public class ProgressPublisher {
 	 * @see Thread#sleep(long)
 	 */
 	public void sleep(long millis, int start, int end, String title) throws InterruptedException {
-		if (end < start) {
+		if (end <= start) {
 			throw new IllegalArgumentException("start must be smaller than end");
 		}
 		assertPercentage(start);
