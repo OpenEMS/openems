@@ -1,0 +1,388 @@
+= OpenEMS: Controllable inverters
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+OpenEMS integrates many inverters. For some, only measured values are **queried** (power, energy, state of charge). For others, OpenEMS can also **control** the device: it specifies charging and discharging power to the storage or limits the power of a PV inverter.
+
+This page shows which inverters can be controlled in the OpenEMS code, separated by device type. It is based on a review of the code. No tests were carried out with real devices.
+
+[#sec-three-device-types]
+== Three device types
+
+[cols="3*",options="header"]
+|===
+| Device type
+| Connections
+| What OpenEMS can control
+
+| **Battery inverter** (without PV inputs, “AC-coupled”)
+| Battery and house grid. The PV system has its **own** PV inverter.
+| Charging and discharging power of the storage
+| **Hybrid inverter**
+| Battery, house grid **and** PV modules (own PV inputs or MPP trackers)
+| Charging and discharging power; depending on the device also feed-in limit
+| **PV inverter**
+| PV modules and house grid, no battery
+| an upper limit for the active power
+|===
+
+[#sec-what-the-difference-means-in-practice]
+=== What the difference means in practice
+
+[cols="3*",options="header"]
+|===
+| 
+| Battery inverter {plus} separate PV inverter
+| Hybrid inverter
+
+| **Route of solar power into the storage**
+| PV → alternating current → battery inverter → direct current → battery (converted twice)
+| PV → battery directly on the direct current side
+| **How OpenEMS records PV power**
+| via the PV inverter or a meter; counts as **AC production**
+| via the PV inputs of the hybrid inverter; visible in the configuration as separate components (“Charger” or “DcCharger”); counts as **DC production** (see xref:user/basics/energy-flows.adoc[Basics])
+| **Feed-in limitation**
+| only via the PV inverter (if controllable) or by charging the storage
+| the hybrid inverter can comply with it itself; the storage charges the surplus directly
+| **Power limit**
+| Storage and PV have separate inverters
+| Battery and PV power share the maximum output power of the hybrid inverter
+| **Retrofitting**
+| Storage can be added to an existing PV system
+| PV and storage are planned together
+|===
+
+[#sec-name-in-openems-device-type]
+=== Name in OpenEMS ≠ device type
+
+OpenEMS builds a storage system in two ways:
+
+* as **one** storage component (e.g. `+Ess.SMA.SunnyBoyStorage+`, `+SolarEdge.ESS+`), or
+* from **three** components: a “Battery-Inverter”, a battery and a general storage (`+Ess.Generic.ManagedSymmetric+`) that connects both and is controlled.
+
+This technical division says **nothing** about the hardware. For example, the inverter of the FENECON Home systems is called `+GoodWe.BatteryInverter+` in OpenEMS, but is a **hybrid inverter** with PV inputs. What matters is whether there are components for the PV inputs.
+
+[#sec-battery-inverters-without-pv-inputs]
+== Battery inverters without PV inputs
+
+[cols="4*",options="header"]
+|===
+| Manufacturer
+| Device
+| Component in the configuration
+| Control can be switched off via
+
+| SMA
+| Sunny Boy Storage
+| `+Ess.SMA.SunnyBoyStorage+`
+| “Read-Only mode” (off ex works)
+| SMA
+| Sunny Island
+| `+Ess.SMA.SunnyIsland+`
+| “Read-Only mode” (off ex works)
+| Victron
+| Multiplus 2 (ESS)
+| `+Victron.Ess+`
+| “Read-Only mode” (off ex works)
+| KACO
+| blueplanet gridsave (e.g. in FENECON Commercial 92)
+| `+Battery-Inverter.Kaco.BlueplanetGridsave+` {plus} battery {plus} `+Ess.Generic.ManagedSymmetric+`
+| –
+| REFU
+| REFUstore, REFUstore 88k
+| `+Battery-Inverter.Refu+`, `+Battery-Inverter.Refu.REFUstore88k+` {plus} battery {plus} general storage
+| –
+| Sinexcel
+| Battery inverter
+| `+Battery-Inverter.Sinexcel+` {plus} battery {plus} general storage
+| –
+| SAX Power
+| Storage
+| `+Ess.SaxPower+`
+| –
+| GoodWe
+| BT series (GW5K/8K/10K-BT), e.g. FENECON Pro Hybrid GW without PV inputs
+| `+GoodWe.Ess+`
+| Control mode (**INTERNAL ex works**)
+| FENECON
+| Mini
+| `+Fenecon.Mini.Ess+`
+| Read-Only
+| FENECON
+| Pro 9-12, individually or as a cluster of 2–3 devices
+| `+Fenecon.Pro.Ess+`, combined in a cluster via `+Ess.Cluster+`
+| –
+|===
+
+* The combinations of battery inverter, battery and general storage (KACO gridsave, REFU, Sinexcel) are mainly intended for commercial storage systems.
+* **SMA Sunny Boy Storage:** For a fixed charging or discharging power, OpenEMS switches the storage to “Charge” or “Discharge” mode. At 0 W, the storage returns to the internal self-consumption control. There is an app in the app center for this device.
+* **Victron:** The Multiplus itself has no PV inputs. Victron solar charge controllers (MPPT) are connected to the battery on the direct current side and are only queried as separate components (`+Victron.DC-Charger+`). Control is only via `+Victron.Ess+`. According to its description, the individual component `+Victron.Battery-Inverter+` is only intended for querying and does not write setpoints.
+* **GoodWe BT:** see section “GoodWe BT series” below.
+* **FENECON Pro 9-12:** The system apps (for installers) set up the storage without PV inputs. They additionally create deep discharge protection (minimum state of charge for discharging 13 % ex works, forced charging below 10 %). The same component `+Fenecon.Pro.Ess+` is also used for the Pro Hybrid, there with a PV meter.
+* **FENECON Mini:** The component `+Fenecon.Mini.PvMeter+` measures a separately connected PV system; it is not a PV input of the storage.
+
+[#sec-hybrid-inverters]
+== Hybrid inverters
+
+[cols="5*",options="header"]
+|===
+| Manufacturer
+| Device
+| Storage component
+| PV inputs in OpenEMS
+| Control can be switched off via
+
+| GoodWe / FENECON
+| FENECON Home 6/10/10 Gen2/15/20/30, Commercial 50 Gen3 and 100
+| `+GoodWe.BatteryInverter+` {plus} battery {plus} `+Ess.Generic.ManagedSymmetric+`
+| `+GoodWe.Charger…+`
+| Control mode (SMART ex works)
+| GoodWe
+| ET series (GW5K/8K/10K-ET), e.g. FENECON Pro Hybrid GW
+| `+GoodWe.Ess+`
+| `+GoodWe.Charger…+`
+| Control mode (**INTERNAL ex works**)
+| SMA
+| Sunny Tripower Smart Energy (STP SE)
+| `+Ess.SMA.StpSe.Inverter+` {plus} `+…Battery+`
+| `+Ess.SMA.StpSe.DcCharger+`
+| Control mode (SMART ex works)
+| Fronius
+| Symo Gen24 (Plus)
+| `+Ess.Fronius.Gen24.Inverter+` {plus} `+…Battery+`
+| `+Ess.Fronius.Gen24.DcCharger+`
+| Control mode (**INTERNAL ex works**)
+| Kostal
+| Plenticore with storage
+| `+Kostal.Plenticore.Ess+`
+| `+Kostal.Plenticore.PV-Inverter+` (query only)
+| Read-Only (**on ex works**) and control mode (**INTERNAL ex works**)
+| SolarEdge
+| StorEdge / Hybrid
+| `+SolarEdge.ESS+`
+| `+SolarEdge.ESS.Charger+`
+| Control mode (**INTERNAL ex works**)
+| Sungrow
+| Hybrid inverter
+| `+Ess.Sungrow+`
+| `+Ess.Sungrow.DcCharger+`
+| Control mode (SMART ex works)
+| KACO
+| blueplanet hybrid 10
+| `+Kaco.BlueplanetHybrid10.Ess+`
+| `+Kaco.BlueplanetHybrid10.Charger+`
+| Read-Only (**on ex works**)
+| FENECON (older devices)
+| Pro Hybrid
+| `+Fenecon.Pro.Ess+`
+| `+Fenecon.Pro.PvMeter+`
+| –
+| FENECON (older devices)
+| Commercial 40
+| `+Ess.Fenecon.Commercial40+`
+| `+Ess.Fenecon.Commercial40.PV1+` / `+PV2+`
+| Read-Only
+|===
+
+[#sec-control-modes]
+=== Control modes
+
+Many hybrid inverters have a “Control Mode” setting: GoodWe, SMA STP SE, Fronius Gen24, Kostal Plenticore, SolarEdge and Sungrow. Hybrid inverters usually have their own self-consumption control. The control mode determines who controls:
+
+[cols="3*",options="header"]
+|===
+| Mode
+| Effect
+| Prerequisite
+
+| **INTERNAL**
+| The inverter controls itself (self-consumption or automatic mode). OpenEMS does **not** specify any power.
+| Manufacturer's meter at the grid connection
+| **SMART**
+| The inverter controls in automatic mode. OpenEMS only intervenes if a function requires something else, e.g. charging from the grid or discharge lock.
+| Manufacturer's meter at the grid connection
+| **REMOTE**
+| OpenEMS specifies the power completely. According to the code, slower than the internal mode.
+| no manufacturer's meter necessary
+|===
+
+Not every driver has all three modes. **Important:** With `+GoodWe.Ess+`, Fronius Gen24, Kostal Plenticore and SolarEdge, the mode is set to INTERNAL ex works. As long as it is not changed, xref:user/storage-control/time-of-use-tariffs.adoc[price control], emergency reserve, etc. have no effect.
+
+[#sec-goodwe-in-fenecon-home-and-commercial]
+=== GoodWe in FENECON Home and Commercial
+
+Control is most extensive with GoodWe (see also xref:user/systems/fenecon-home.adoc[FENECON Home]). The system apps set up the inverter, battery, storage and PV inputs in one step.
+
+[cols="3*",options="header"]
+|===
+| Inverter
+| Series
+| System
+
+| FENECON FHI 10 DAH
+| ET
+| Home 10
+| FENECON ET Gen2 6K / 10K / 15K
+| EUB
+| Home 6, Home 10 Gen2, Home 15
+| FENECON FHI 20 DAH / FHI 30 DAH
+| ETT
+| Home 20, Home 30
+| FENECON 50K
+| ETF
+| Commercial 50 Gen3
+| FENECON 100K
+| NBC
+| Commercial 100
+|===
+
+In addition, the driver recognizes the GoodWe devices GW5K/8K/10K of the ET series (hybrid) and BT series (battery inverter, see below).
+
+* **Control mode:** **SMART** ex works; the system apps do not change it. OpenEMS therefore only intervenes if a function requires it, e.g. price control, emergency reserve or xref:user/storage-control/section-14a-enwg.adoc[§ 14a].
+* **Other settings on the inverter** (according to the settings of the component): feed-in limit (from the system settings or from the xref:user/storage-control/ripple-control-receiver.adoc[ripple control receiver]), emergency power output, shadow management of the PV inputs and grid connection rules (country code, VDE 4105, etc.).
+* **Start/stop:** AUTO ex works.
+
+[#sec-goodwe-bt-series]
+=== GoodWe BT series
+
+The GoodWe devices of the BT series are battery inverters **without PV inputs**. They only charge the battery via the alternating current side. The code has **no separate treatment** for them: wherever the driver distinguishes by device type, BT and ET are treated the same. Differences only arise from the fact that no PV inputs are set up on the BT:
+
+[cols="3*",options="header"]
+|===
+| Point
+| ET (hybrid)
+| BT (without PV inputs)
+
+| PV inputs in the configuration
+| `+GoodWe.Charger…+`
+| none (do not tick “Has DC-PV 1 (MPPT 1)” and “Has DC-PV 2 (MPPT 2)” in the app)
+| Storage power at the grid
+| Battery plus PV power
+| battery power only
+| Maximum charging power from the grid
+| maximum battery charging power minus current PV power
+| full battery charging power (limited by inverter and battery)
+| Charging specification from OpenEMS
+| Charge battery with specification plus PV power
+| Charge battery exactly with the specification
+| Surplus feed-in (PV power that the full battery can no longer absorb)
+| is calculated
+| not applicable
+| Feed-in limit
+| the driver `+GoodWe.Ess+` does not set one; setting on the inverter
+| not applicable; the PV system has its own inverter
+|===
+
+The behavior is therefore suitable for a battery inverter. Note:
+
+* **Control mode:** `+GoodWe.Ess+` is set to INTERNAL ex works, and the app “FENECON Pro Hybrid GW” does not change this. The inverter then controls itself and OpenEMS does not control the storage. For price control, emergency reserve, etc. to take effect, the mode must be set to SMART or REMOTE.
+* **Own control:** In INTERNAL or SMART mode, the BT controls according to its own grid meter. This records the entire feed-in, including that of the separate PV inverter.
+* Whether a BT implements the charging and discharging commands in the same way as an ET cannot be determined from the code. This would have to be checked on the device.
+
+[#sec-other-special-features]
+=== Other special features
+
+* **Kostal Plenticore:** Small setpoints around 0 W are set to 0 W (tolerance band) so that the storage does not constantly switch between charging and discharging with small grid fluctuations. An unchanged setpoint is only rewritten at intervals of the set watchdog interval. OpenEMS cannot limit the PV power of the Plenticore.
+* **KACO blueplanet hybrid 10:** From firmware version 8, the inverter ignores setpoints as long as the default password is set. OpenEMS reports this as a warning. The PV power can be limited via the component `+Kaco.BlueplanetHybrid10.PvInverter+`; it has no Read-Only switch.
+* **Kostal PIKO** (`+Kostal.Piko.Ess+`) is only queried.
+
+[#sec-pv-inverters]
+== PV inverters
+
+With PV inverters, OpenEMS can set an **upper limit for the active power**. With a battery inverter without PV inputs, this is the only way to limit PV feed-in via OpenEMS. The upper limit is used by two functions:
+
+* **Controller.PvInverter.FixPowerLimit**: limits an inverter to a fixed value.
+* **Controller.PvInverter.SellToGridLimit**: curtails the inverter so that a feed-in limit is complied with at the grid connection.
+
+[cols="3*",options="header"]
+|===
+| Manufacturer
+| Component
+| Route
+
+| SMA
+| `+PV-Inverter.SMA.SunnyTripower+`
+| SunSpec
+| Fronius
+| `+PV-Inverter.Fronius+`
+| SunSpec
+| Kostal
+| `+PV-Inverter.Kostal+`, `+PV-Inverter.Kostal.Piko+`
+| SunSpec
+| KACO
+| `+PV-Inverter.KACO.blueplanet+`
+| SunSpec
+| SolarEdge
+| `+SolarEdge.PV-Inverter+`
+| SunSpec
+| Huawei
+| `+PV-Inverter.Huawei+`, `+PV-Inverter.Huawei.SmartLogger+`
+| own driver
+| Sungrow
+| `+PV-Inverter.Sungrow+`
+| own driver
+| Solar-Log
+| `+PV-Inverter.Solarlog+`
+| own driver; the limitation is passed to the Solar-Log
+| KACO
+| `+Kaco.BlueplanetHybrid10.PvInverter+`
+| PV part of the hybrid inverter
+| Phoenix Contact
+| `+PLCnext.PvInverter.Device+`
+| own driver
+|===
+
+[#sec-query-only-ex-works]
+=== Query only ex works
+
+For all PV inverters with a Read-Only setting (SMA, Fronius, Kostal, KACO blueplanet, SolarEdge, Huawei, Sungrow), **Read-Only is switched on ex works**. The apps in the app center (SMA, Fronius, Kostal, KACO, SolarEdge) do not change this setting either. An inverter set up in this way is therefore initially **only queried**. For the limitation to take effect, Read-Only must be switched off in the configuration of the component.
+
+If a function requests a limitation while Read-Only is active, it is not written. The SunSpec drivers (SMA, Fronius, Kostal, KACO, SolarEdge) report this via the channel `+ReadOnlyModePvLimitFailed+`.
+
+[#sec-query-only]
+== Query only
+
+The following components do **not** write any setpoints or limit values to the device, even if some are formally classified as controllable in OpenEMS:
+
+[cols="2*",options="header"]
+|===
+| Component
+| Device type
+
+| `+Victron.PV-Inverter+`, `+Victron.PvInverter.via.DCCharger+`
+| PV inverter or solar charge controller
+| `+Victron.Battery-Inverter+`
+| Battery inverter (control is via `+Victron.Ess+`)
+| `+Kostal.Plenticore.PV-Inverter+`
+| PV part of a hybrid inverter
+| `+Kostal.Piko.Ess+`
+| Hybrid inverter
+| `+Samsung.ESS+`
+| Hybrid inverter
+| Bosch BPT-S 5 Hybrid
+| Hybrid inverter
+| `+Meter.OpenDTU+`
+| Hoymiles micro-inverter via OpenDTU
+|===
+
+Limitations by FixPowerLimit or SellToGridLimit and specifications from the storage functions have no effect on these devices.
+
+[#sec-special-case-phoenix-contact-plcnext]
+== Special case Phoenix Contact PLCnext
+
+`+PLCnext.ESS.Device+` and `+PLCnext.PvInverter.Device+` connect a storage or PV inverter via a PLCnext controller. Setpoints are passed to the controller. Which device type is behind it depends on the system.
+
+[#sec-good-to-know]
+== Good to know
+
+* Whether an inverter is actually controlled almost always depends on **one setting**: Read-Only or control mode. It is worth checking this after setup.
+* A **hybrid inverter** that controls itself (INTERNAL) usually needs the manufacturer's meter at the grid connection. It is not required for control by OpenEMS (REMOTE).
+* With a **battery inverter** with a separate PV inverter, OpenEMS can only limit the feed-in if the PV inverter is controllable and Read-Only is switched off. Otherwise, only charging the storage remains.
+* The xref:user/storage-control/ripple-control-receiver.adoc[dynamic ripple control receiver] only passes on its limit to GoodWe inverters. For other manufacturers, the feed-in limitation must be solved differently, e.g. via SellToGridLimit or directly on the inverter.
+* If two systems control the same storage, for example OpenEMS and a manufacturer's app or another energy management system, they work against each other. Only one should be actively controlling.
+* Many drivers come from the community. How reliably control works in everyday use depends on the respective driver and the firmware of the device.

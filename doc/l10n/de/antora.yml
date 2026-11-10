@@ -1,0 +1,25 @@
+# German translation of the documentation, as a version of the same component.
+# The pages are generated at build time by po4a from the English pages and the
+# translations in doc/l10n/po (see doc/l10n/po4a.cfg).
+name: openems
+title: Open Energy Management System
+version: de
+display_version: Deutsch
+prerelease: true
+start_page: ROOT:user/overview.adoc
+nav:
+  - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    page-lang: de
+    page-toctitle: Inhalt
+    toc-title: Inhalt
+    table-caption: Tabelle
+ext:
+  collector:
+    run:
+      command: po4a --no-update l10n/po4a.cfg
+      dir: ./../..
+    scan:
+      dir: ./../../build/l10n/de
+      clean: true

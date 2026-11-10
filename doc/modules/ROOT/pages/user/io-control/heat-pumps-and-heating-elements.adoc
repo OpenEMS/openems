@@ -1,0 +1,245 @@
+= OpenEMS: Controlling heat pumps and heating elements
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+Heat pumps and heating elements are good consumers of solar power: heat can be “saved” in a buffer tank or hot water. OpenEMS offers several controls for this. Which one is suitable depends on the device:
+
+[cols="3*",options="header"]
+|===
+| Device
+| Activation
+| Function in OpenEMS
+
+| Heat pump with SG-Ready input
+| 2 relays
+| Controller.Io.HeatPump.SgReady
+| Heating element with 1–3 phases (simply on/off)
+| up to 3 relays
+| Controller.IO.HeatingElement
+| Heating element from Askoma or my-PV (e.g. AC-THOR, AC ELWA 2)
+| Network (Modbus), continuously variable
+| Heat.Askoma / Heat.MyPv
+| Electric underfloor or infrared heating in a room
+| Relay {plus} thermometer
+| Controller.IO.Heating.Room
+|===
+
+Heat pumps and heating elements can also be set up via the app center (apps for heat pump, heating element, Askoma, my-PV and combined heat and power plant). There is no app for room heating.
+
+[#sec-heat-pump-with-sg-ready]
+== Heat pump with SG-Ready
+
+[#sec-the-four-states]
+=== The four states
+
+SG-Ready is a widely used standard. The heat pump receives one of four states via two contacts:
+
+[cols="4*",options="header"]
+|===
+| State
+| Relay 1
+| Relay 2
+| Meaning
+
+| **Lock**
+| on
+| off
+| Heat pump is locked (depending on the device, for about 2 hours at most)
+| **Normal**
+| off
+| off
+| normal, economical operation
+| **Recommendation**
+| off
+| on
+| use more electricity, e.g. slightly higher hot water or room temperature
+| **Switch-on command**
+| on
+| on
+| heat fully; depending on the device with auxiliary heating
+|===
+
+What exactly the heat pump does in these states is determined by the manufacturer.
+
+[#sec-manual-or-automatic]
+=== Manual or automatic
+
+* **Manual:** A state is permanently specified.
+* **Automatic:** OpenEMS decides every second according to this order:
+
+[cols="4*",options="header"]
+|===
+| Order
+| State
+| if …
+| Default values
+
+| 1
+| Lock
+| Grid purchase above the limit **and** storage state of charge below the limit
+| 5,000 W and 20 %, **switched off ex works**
+| 2
+| Switch-on command
+| Surplus above the limit **and** storage state of charge at least as high as the limit
+| 5,000 W and 10 %
+| 3
+| Recommendation
+| Surplus above the limit
+| 3,000 W
+| 4
+| Normal
+| otherwise
+| –
+|===
+
+After each change, the state remains for at least 60 seconds so that the heat pump is not switched constantly.
+
+[#sec-how-the-surplus-is-determined]
+=== How the surplus is determined
+
+[source]
+----
+Surplus = feed-in to the grid − discharge power of the home storage + current consumption of the heat pump
+----
+
+The consumption of the heat pump is added so that it does not “switch itself off” as soon as it consumes the surplus.
+
+* **With its own meter** for the heat pump, the measured consumption is used.
+* **Without a meter**, OpenEMS assumes that the heat pump consumes exactly the set threshold in the respective state.
+
+**Important:** The thresholds should not be lower than the actual consumption of the heat pump in the respective state, for “Switch-on command” including auxiliary heating. Otherwise, the system draws power from the grid after switching on.
+
+[#sec-time-schedule]
+=== Time schedule
+
+A time schedule can be used to specify different behavior for certain times, e.g. “Switch-on command” on weekdays from 6 to 8 or “Automatic” at night. Outside the schedule entries, the normal setting applies. Since October 2026, the time schedule and basic operating mode can be set by all users.
+
+[#sec-good-to-know]
+=== Good to know
+
+* OpenEMS counts how long each state was active.
+* The configuration has a “Base Mode” setting. It is not evaluated in the current program code. “Mode” (manual/automatic) and the time schedule are effective.
+
+[#sec-heating-element-via-relay]
+== Heating element via relay
+
+This control is intended for heating elements whose phases are **switched on and off** individually. This results in levels:
+
+[cols="3*",options="header"]
+|===
+| Level
+| switched on
+| Power at 2 kW per phase
+
+| 1
+| L1
+| 2 kW
+| 2
+| L1 {plus} L2
+| 4 kW
+| 3
+| L1 {plus} L2 {plus} L3
+| 6 kW
+|===
+
+[#sec-operating-modes]
+=== Operating modes
+
+* **Manual on:** heats permanently at the set default level.
+* **Manual off:** does not heat.
+* **Automatic:** heats with as many levels as the surplus allows. In addition, a working method can be selected (see below).
+
+The surplus is determined as for the heat pump: feed-in minus storage discharge plus current consumption of the heating element. A minimum time of 60 seconds applies after each change.
+
+[#sec-working-methods-in-automatic-mode]
+=== Working methods in automatic mode
+
+[cols="2*",options="header"]
+|===
+| Working method
+| Behavior
+
+| **Surplus only** (default, “None” in the web interface)
+| Heating takes place exclusively with surplus, without any guarantee.
+| **Minimum duration**
+| The heating element should run for at least a certain time (default 1 hour) up to an end time (default 17:00). If the surplus is not sufficient for this, it heats at the default level in good time before the end time, using grid power if necessary.
+| **Minimum energy**
+| A certain amount of energy (default 10 kWh) should be reached by the end time. OpenEMS calculates from when it must heat without surplus to reach the target and switches up one level in the last half hour if necessary. If the target can no longer be reached, it heats at full power. A meter for the heating element is required for this.
+|===
+
+If the surplus is sufficient during forced heating, heating still uses the surplus.
+
+[#sec-time-schedule-2]
+=== Time schedule
+
+If a time schedule is entered, the heating element in automatic mode only heats during the schedule entries, with the selected working method. With the minimum energy working method, each entry can have its own amount of energy. Afterwards the control shows “done” for half an hour.
+
+[#sec-good-to-know-2]
+=== Good to know
+
+* Running times per phase and level as well as the total energy are counted.
+* If a meter is present, OpenEMS initially briefly measures which power the individual phases really have.
+
+[#sec-heating-elements-from-askoma-and-my-pv]
+== Heating elements from Askoma and my-PV
+
+These heating elements are controlled via the network (Modbus) and can adjust their power **continuously**. They can therefore also use small surpluses precisely.
+
+[#sec-modes]
+=== Modes
+
+[cols="2*",options="header"]
+|===
+| Mode
+| Behavior
+
+| **Off** (default)
+| The heating element is not controlled.
+| **Surplus**
+| The power follows the surplus about every 10 seconds, up to the set maximum power at most (default 3,000 W).
+| **Rapid heating**
+| Full power. After 10 hours, OpenEMS takes a 1-hour break for protection.
+|===
+
+A time schedule can be used to apply a different mode at certain times, e.g. “Rapid heating” in the early morning.
+
+[#sec-in-the-schedule]
+=== In the schedule
+
+Since September 2026, these heating elements are taken into account in the xref:user/schedule/overview.adoc[schedule]. OpenEMS calculates how much electricity they are expected to consume and how much heat the tank can still absorb. This results in more accurate planning for home storage and grid purchase.
+
+**Note:** The mode itself is not selected automatically. The set mode or the mode from the time schedule always applies.
+
+To calculate the residual heat, the effective tank volume (liters) can be entered. Alternatively, there is a read-only variant that only displays values and does not control anything.
+
+[#sec-room-heating-underfloor-and-infrared-heating]
+== Room heating (underfloor and infrared heating)
+
+This control maintains a set **floor and room temperature** in a room. It distinguishes two levels, “low” and “high”. A weekly schedule determines when each applies, e.g. “high” on weekdays from 5:30 to 8:00. This requires thermometers for floor and room as well as relays for the heaters. Additional heating in the room, such as a wood stove, can be taken into account.
+
+Solar surplus plays no role in this control. It only regulates according to temperature and time.
+
+[#sec-who-has-priority-home-storage-or-heat]
+== Who has priority: home storage or heat?
+
+The following applies to **all** controls on this page:
+
+* **The home storage has priority.** Power that is currently flowing into the home storage does not count as surplus. The heat pump and heating element only receive something when the storage no longer absorbs the surplus or is full.
+* **The home storage is not discharged for heat in surplus mode.** If the storage discharges, this reduces the surplus.
+
+With xref:user/ev-charging-control/surplus-charging.adoc[surplus charging of the electric car] it is the other way round: there the car has priority over the home storage.
+
+Exceptions are explicitly forced states: SG-Ready “Switch-on command” or “Recommendation” in manual mode, heating element “manual on”, forced heating with minimum duration/minimum energy and “Rapid heating”. In these cases, power can also come from the grid or the storage.
+
+[#sec-frequently-asked-questions]
+== Frequently asked questions
+
+* **Why does the heating element not run even though power is being fed in?** The heating element only counts feed-in as surplus. If the storage is discharging at the same time, this power is subtracted. It is only switched on when the surplus is sufficient for a whole level (relay heating element: the set power per phase). A charging storage is not subtracted. However, it absorbs the surplus first, and only what it can no longer absorb is fed in.
+* **Why is power drawn from the grid after the heat pump is switched on?** The thresholds for Recommendation or Switch-on command are lower than the actual consumption. Increase the thresholds or set up a meter for the heat pump.
+* **Why does the state not change immediately?** A minimum time of 60 seconds applies after each change.
+* **Why does the heating element heat with grid power in the evening?** With the minimum time or minimum energy working method, forced heating takes place before the end time if the target would otherwise not be reached.

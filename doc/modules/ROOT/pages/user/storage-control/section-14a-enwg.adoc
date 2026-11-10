@@ -1,0 +1,149 @@
+= OpenEMS: § 14a EnWG
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+§ 14a of the German Energy Industry Act (EnWG) regulates “controllable consumption devices” in Germany: heat pumps, wallboxes, air conditioning units and also electricity storage systems that can charge from the grid. The grid operator may temporarily limit their grid purchase if there is a risk of overload. In return, there are reduced grid fees; with “Module 3” they are time-variable.
+
+OpenEMS has two building blocks for this:
+
+. the **power limitation of the storage** in response to a signal from the grid operator,
+. **time-variable grid fees (Module 3)** as part of the electricity prices for xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs].
+
+[#sec-part-1-power-limitation-of-the-storage]
+== Part 1: Power limitation of the storage
+
+[#sec-the-function]
+=== The function
+
+The limitation is handled by the controller **Controller.Ess.Limiter14a** (usually `+ctrlEssLimiter14a0+`). It has only two settings:
+
+[cols="2*",options="header"]
+|===
+| Setting
+| Meaning
+
+| Ess-ID
+| the storage that is limited (usually `+ess0+`)
+| Input Channel
+| the input at which the signal from the grid operator is present, e.g. a contact of a control box
+|===
+
+[#sec-what-happens-on-a-signal]
+=== What happens on a signal
+
+If the signal from the grid operator is present, **OpenEMS limits the charging power of the storage to a maximum of 4.2 kW**. More precisely:
+
+* The storage power may not fall below −4,200 W. Charging is therefore possible with a maximum of 4.2 kW.
+* **Discharging remains possible without limitation.**
+* The limitation applies **to any charging**, even if the power comes from your own PV system. OpenEMS does not distinguish here where the charging energy comes from.
+* It only takes effect in **grid mode**. In island mode (emergency power) there is no limitation.
+* The limitation has **priority** over all other storage functions: the § 14a controller runs first in the defined order, even before the ripple control receiver, emergency reserve, price control, etc.
+
+[#sec-signal-logic]
+=== Signal logic
+
+The input is evaluated **inverted** (noted in the code as a peculiarity of the relay board): the limitation is active when the input reports “off”. If the input does not supply any value at all, e.g. in the event of a fault, there is **no** limitation.
+
+[#sec-what-is-recorded]
+=== What is recorded
+
+[cols="2*",options="header"]
+|===
+| Value
+| Meaning
+
+| `+RestrictionMode+`
+| whether the limitation is currently active
+| `+CumulatedRestrictionTime+`
+| total duration of limitation (seconds)
+|===
+
+Both values are stored with high priority in the xref:user/data/history-rrd4j.adoc[history]. This makes it possible to prove later when and for how long the grid operator intervened.
+
+[#sec-display-in-the-web-interface]
+=== Display in the web interface
+
+* If the § 14a function is set up, an additional line appears in the **grid widget**. During a limitation it shows the value “4.2 kW”.
+* In the **grid history**, periods with active limitation are marked in the chart, similar to ripple control receiver interventions and island mode.
+
+[#sec-setup]
+=== Setup
+
+* **As an app:** “App.Ess.Limiter14a” in the app center. You select the storage and an input contact. There can only be one such app.
+* **For FENECON Home and Commercial systems:** The system app has the option “Has limiter for §14a”. If it is set, the limitation is set up automatically; the first digital input of the control computer is used as the input (`+…/DigitalInput1+`). The option can only be selected if the control computer has its own switching inputs and outputs (CM3, CM4, CM4S, CM4S Gen2 or Gen3); otherwise it is grayed out.
+
+[#sec-what-does-not-exist-yet]
+=== What does not exist (yet)
+
+* **Heat pump and wallbox:** The code has no separate § 14a limitation for heat pumps or charge points. The function only affects the storage. For other devices, the limitation takes place, if at all, outside OpenEMS, e.g. directly via the control input of the device.
+* **Energy optimizer:** The limit value of 4.2 kW is stored in the optimizer, but is not used anywhere in the current code. The xref:user/schedule/overview.adoc[schedule] therefore does not take a § 14a limitation into account. This would hardly be possible anyway, because an intervention by the grid operator cannot be foreseen.
+* **Ongoing operation with price control:** The limitation is nevertheless complied with during operation. The § 14a controller runs before xref:user/storage-control/time-of-use-tariffs.adoc[price control]. Its setpoint is therefore limited to a maximum of 4.2 kW charging power.
+* **Consequence for the schedule:** If “Charge from grid” is planned for the time of an intervention, less is charged than intended. The storage then also cannot absorb PV surplus above 4.2 kW; it goes into the grid or is curtailed if there is a feed-in limit. At the next planning, the optimizer continues calculating with the actual state of charge.
+* **Fixed value:** The 4.2 kW are permanently stored in the code and cannot be adjusted.
+
+[#sec-part-2-time-variable-grid-fees-module-3]
+== Part 2: Time-variable grid fees (Module 3)
+
+With Module 3, different grid fees apply depending on the time of day:
+
+[cols="3*",options="header"]
+|===
+| Level
+| Abbreviation
+| typical
+
+| Low tariff
+| NT
+| at night, e.g. 0–5
+| Standard tariff
+| ST
+| remaining time
+| High tariff
+| HT
+| in the evening, e.g. 17–21
+|===
+
+[#sec-setup-2]
+=== Setup
+
+In the tariff app (e.g. for ENTSO-E exchange prices), for the bidding zone Germany there is the question **“Do you use time-variable network charges according to Section 14a EnWG (Module 3)?”**. If you answer yes, you select the grid operator:
+
+* For some large grid operators, the grid fees are **permanently stored** in the code: Bayernwerk, Netze BW, EWE Netz, MITNETZ, SH Netz, Westnetz, E.DIS, Avacon, LEW, “TE Netze” (in the code `+TE_NETZE+`) and Netze ODR. The prices in ct/kWh and the time windows are stored, per quarter in each case.
+* For “Other”, you enter the time windows for NT and HT yourself; ST applies to times without an entry.
+
+The grid fees are then added to the exchange price as additional costs. This way, they are included in the electricity price that xref:user/storage-control/time-of-use-tariffs.adoc[price control] uses for planning. This makes grid charging more attractive in NT times, for example, and less attractive in HT times.
+
+[#sec-good-to-know]
+=== Good to know
+
+* The stored grid fees only apply to the **quarters entered in the code**. If a grid operator changes its prices or a new year is added, OpenEMS must be updated. The price cannot be determined for times without an entry.
+* The grid fees in the code should be compared with the current price sheet of your own grid operator. If there are differences, “Other” with your own time windows is the safer choice.
+* Module 3 only affects the **price calculation**. It has nothing to do technically with the power limitation from Part 1.
+
+[#sec-summary]
+== Summary
+
+[cols="3*",options="header"]
+|===
+| 
+| Power limitation
+| Time-variable grid fees (Module 3)
+
+| Purpose
+| Reducing grid purchase on the instructions of the grid operator
+| Using lower grid fees at certain times
+| affects
+| only the storage (charging at a maximum of 4.2 kW)
+| the electricity price for price control
+| triggered by
+| Signal at the input (e.g. control box)
+| Time of day (fixed time windows)
+| Setup
+| App “Limiter14a” or option in the Home/Commercial app
+| Option in the tariff app, selection of the grid operator
+|===

@@ -1,0 +1,941 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "OpenEMS: Cluster"
+msgstr "OpenEMS: Cluster"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"A **cluster** combines several devices of the same type into **one** device. "
+"The control functions then see, for example, not three storage systems but "
+"one large storage system with the sum of the power values and capacities. "
+"The cluster then distributes the specifications to the individual devices."
+msgstr ""
+"Ein **Cluster** fasst mehrere gleichartige Geräte zu **einem** Gerät "
+"zusammen. Die Regelfunktionen sehen dann zum Beispiel nicht drei Speicher, "
+"sondern einen großen Speicher mit der Summe der Leistungen und Kapazitäten. "
+"Der Cluster verteilt die Vorgaben anschließend auf die einzelnen Geräte."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"This page describes which clusters exist in OpenEMS, what they require and "
+"where their limits are. It is based on a review of the code. No tests were "
+"carried out with real systems."
+msgstr ""
+"Diese Seite beschreibt, welche Cluster es in OpenEMS gibt, was sie "
+"voraussetzen und wo ihre Grenzen liegen. Grundlage ist eine Durchsicht des "
+"Codes. Mit echten Anlagen wurde nicht getestet."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "Which clusters exist"
+msgstr "Welche Cluster es gibt"
+
+#. type: Table
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid ""
+"| Cluster\n"
+"| Combines\n"
+"| In the configuration\n"
+"| Set up via\n"
+"\n"
+"| **Storage cluster**\n"
+"| several storage systems on one system\n"
+"| “ESS Cluster” (`+Ess.Cluster+`), usually with the ID `+ess0+`\n"
+"| System apps, e.g. “FENECON Pro 9-12” as a cluster of 2–3 devices or “FENECON Commercial 92 Cluster”\n"
+"| **Group of several OpenEMS devices** (master/slave)\n"
+"| Storage systems controlled by their **own** OpenEMS device\n"
+"| “Edge-2-Edge Bridge” and “Edge-2-Edge ESS Websocket” on the master, above them a storage cluster\n"
+"| App “FENECON Commercial 92 Cluster” (master) and “… Cluster Slave” (per slave)\n"
+"| **PV inverter cluster**\n"
+"| several controllable PV inverters\n"
+"| “PV-Inverter Cluster” (`+PvInverter.Cluster+`)\n"
+"| Configuration of the component\n"
+"| **Charge point cluster** (new charge point control)\n"
+"| several charge points with surplus charging\n"
+"| “EVSE Controller Cluster of Charge-Points”, app “Chargepoint Cluster”\n"
+"| created automatically with the first charge point app (Alfen, KEBA, Mennekes)\n"
+"| **Multi-charging point management** (older charging stations)\n"
+"| several charging stations on one grid connection\n"
+"| “EVCS Cluster Peak Shaving” (`+Evcs.Cluster.PeakShaving+`)\n"
+"| App “Multi-charging point management”\n"
+msgstr ""
+"| Cluster\n"
+"| Fasst zusammen\n"
+"| In der Konfiguration\n"
+"| Eingerichtet über\n"
+"\n"
+"| **Speicher-Cluster**\n"
+"| mehrere Speichersysteme an einer Anlage\n"
+"| „ESS Cluster“ (`+Ess.Cluster+`), meist mit der ID `+ess0+`\n"
+"| System-Apps, z. B. „FENECON Pro 9-12“ als Cluster aus 2–3 Geräten oder „FENECON Commercial 92 Cluster“\n"
+"| **Verbund mehrerer OpenEMS-Geräte** (Master/Slave)\n"
+"| Speicher, die von einem **eigenen** OpenEMS-Gerät gesteuert werden\n"
+"| „Edge-2-Edge Bridge“ und „Edge-2-Edge ESS Websocket“ auf dem Master, darüber ein Speicher-Cluster\n"
+"| App „FENECON Commercial 92 Cluster“ (Master) und „… Cluster Slave“ (je Slave)\n"
+"| **PV-Wechselrichter-Cluster**\n"
+"| mehrere steuerbare PV-Wechselrichter\n"
+"| „PV-Inverter Cluster“ (`+PvInverter.Cluster+`)\n"
+"| Konfiguration der Komponente\n"
+"| **Ladepunkt-Cluster** (neue Ladepunkt-Steuerung)\n"
+"| mehrere Ladepunkte mit Überschussladen\n"
+"| „EVSE Controller Cluster of Charge-Points“, App „Ladepunkt Cluster“\n"
+"| entsteht automatisch mit der ersten Ladepunkt-App (Alfen, KEBA, Mennekes)\n"
+"| **Multiladepunkt Management** (ältere Ladestationen)\n"
+"| mehrere Ladestationen an einem Netzanschluss\n"
+"| „EVCS Cluster Peak Shaving“ (`+Evcs.Cluster.PeakShaving+`)\n"
+"| App „Multiladepunkt Management“\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"Battery “clusters” within a device (e.g. several battery towers on one "
+"inverter) and the “Profile Clustering” forecast have nothing to do with "
+"these clusters."
+msgstr ""
+"Batterie-„Cluster“ innerhalb eines Geräts (z. B. mehrere Batterietürme an "
+"einem Wechselrichter) und die Prognose „Profile Clustering“ haben mit diesen "
+"Clustern nichts zu tun."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "Storage cluster"
+msgstr "Speicher-Cluster"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "What it does"
+msgstr "Was er leistet"
+
+#. type: #sec-what-it-does
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"All control functions (self-consumption optimization, grid-optimized charge, "
+"time-of-use tariffs, emergency reserve, etc.) work with the cluster as with "
+"a single storage system. They are set up once for the cluster, not for each "
+"storage system."
+msgstr ""
+"Alle Regelfunktionen (Eigenverbrauchsoptimierung, netzdienliche Beladung, "
+"dynamische Stromtarife, Notstromreserve usw.) arbeiten mit dem Cluster wie "
+"mit einem einzelnen Speicher. Sie werden einmal für den Cluster "
+"eingerichtet, nicht für jeden Speicher."
+
+#. type: #sec-what-it-does
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid "The cluster forms its values from its members:"
+msgstr "Der Cluster bildet seine Werte aus den Mitgliedern:"
+
+#. type: Table
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid ""
+"| Value\n"
+"| Calculation in the cluster\n"
+"\n"
+"| Power, reactive power, maximum apparent power\n"
+"| Sum\n"
+"| Capacity\n"
+"| Sum\n"
+"| Permitted charging and discharging power\n"
+"| Sum\n"
+"| Charged and discharged energy\n"
+"| Sum\n"
+"| State of charge (SoC)\n"
+"| Average, weighted by capacity. If the capacity of a member is missing, simple average.\n"
+"| Cell voltage and cell temperature\n"
+"| smallest or largest value of all members\n"
+"| Power per phase\n"
+"| Sum; for storage systems without phase values, one third of the total power per phase is assumed\n"
+"| Grid mode (grid mode/island mode)\n"
+"| combined from all members\n"
+msgstr ""
+"| Wert\n"
+"| Berechnung im Cluster\n"
+"\n"
+"| Leistung, Blindleistung, maximale Scheinleistung\n"
+"| Summe\n"
+"| Kapazität\n"
+"| Summe\n"
+"| Erlaubte Lade- und Entladeleistung\n"
+"| Summe\n"
+"| Geladene und entladene Energie\n"
+"| Summe\n"
+"| Ladezustand (SoC)\n"
+"| Mittelwert, gewichtet nach Kapazität. Fehlt bei einem Mitglied die Kapazität, einfacher Mittelwert.\n"
+"| Zellspannung und Zelltemperatur\n"
+"| kleinster bzw. größter Wert aller Mitglieder\n"
+"| Leistung je Phase\n"
+"| Summe; bei Speichern ohne Phasenwerte wird ein Drittel der Gesamtleistung je Phase angenommen\n"
+"| Netzmodus (Netzbetrieb/Inselbetrieb)\n"
+"| aus allen Mitgliedern zusammengefasst\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Start/stop**: The cluster starts or stops all members together. It only "
+"reports “started” if all members are started."
+msgstr ""
+"**Start/Stopp**: Der Cluster startet oder stoppt alle Mitglieder gemeinsam. "
+"Er meldet „gestartet“ nur, wenn alle Mitglieder gestartet sind."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**No double counting**: Only the individual storage systems are included in "
+"the total values of the system (live view, history), not the cluster in "
+"addition. The storage view of the interface shows the members individually."
+msgstr ""
+"**Keine Doppelzählung**: In die Gesamtwerte der Anlage (Live-Ansicht, "
+"Historie) gehen nur die einzelnen Speicher ein, nicht zusätzlich der "
+"Cluster. Die Speicheransicht der Oberfläche zeigt die Mitglieder einzeln."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "How the power is distributed"
+msgstr "Wie die Leistung verteilt wird"
+
+#. type: #sec-how-the-power-is-distributed
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The cluster does not pass on specifications to the storage systems itself. "
+"This is done by the central power distribution “ESS Power” (`+_power+`), "
+"which is present on every system. The type of distribution is set there as a "
+"**strategy** and determined during setup."
+msgstr ""
+"Der Cluster gibt Vorgaben nicht selbst an die Speicher weiter. Das übernimmt "
+"die zentrale Leistungsverteilung „ESS Power“ (`+_power+`), die bei jeder "
+"Anlage vorhanden ist. Die Art der Verteilung wird dort als **Strategie** "
+"eingestellt und bei der Einrichtung festgelegt."
+
+#. type: Table
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid ""
+"| Strategy\n"
+"| Behavior\n"
+"\n"
+"| __Optimize By Moving Towards Target__ (default in the code)\n"
+"| Distributes according to state of charge: when discharging, the fuller storage bears more, when charging the emptier one. The division approaches the target gradually (10 % of the distance per second) so that there are no jumps.\n"
+"| __Optimize By Keeping All Inverters Nearly Equal__\n"
+"| Also weighted according to state of charge, but immediately in each cycle. If a storage system reaches its limit, the others take over the rest. Storage systems with a fault remain at 0 W. This strategy is set by the app “FENECON Commercial 92 Cluster”.\n"
+"| __Optimize By Keeping All Inverters Equal__\n"
+"| All storage systems receive the same power, regardless of the state of charge. If this is not possible, the distribution falls back on “Nearly Equal”.\n"
+"| __Optimize By Keeping Target Direction And Maximizing In Order__\n"
+"| One storage system after the other is fully utilized: when discharging the fullest first, when charging the emptiest.\n"
+"| __Optimize by Keeping ESS in Balance__\n"
+"| Newer method for clusters: distributes the cluster specification in proportion to the available margin of the storage systems.\n"
+msgstr ""
+"| Strategie\n"
+"| Verhalten\n"
+"\n"
+"| __Optimize By Moving Towards Target__ (Voreinstellung im Code)\n"
+"| Verteilt nach Ladezustand: Beim Entladen trägt der vollere Speicher mehr, beim Laden der leerere. Die Aufteilung nähert sich dem Ziel schrittweise (je Sekunde 10 % des Abstands), damit es keine Sprünge gibt.\n"
+"| __Optimize By Keeping All Inverters Nearly Equal__\n"
+"| Ebenfalls nach Ladezustand gewichtet, aber in jedem Zyklus sofort. Stößt ein Speicher an seine Grenze, übernehmen die anderen den Rest. Speicher mit Fehler bleiben bei 0 W. Diese Strategie setzt die App „FENECON Commercial 92 Cluster“.\n"
+"| __Optimize By Keeping All Inverters Equal__\n"
+"| Alle Speicher erhalten dieselbe Leistung, unabhängig vom Ladezustand. Geht das nicht, weicht die Verteilung auf „Nearly Equal“ aus.\n"
+"| __Optimize By Keeping Target Direction And Maximizing In Order__\n"
+"| Ein Speicher nach dem anderen wird voll ausgelastet: beim Entladen der vollste zuerst, beim Laden der leerste.\n"
+"| __Optimize by Keeping ESS in Balance__\n"
+"| Neueres Verfahren für Cluster: verteilt die Cluster-Vorgabe im Verhältnis zum jeweils verfügbaren Spielraum der Speicher.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"If a strategy does not find a solution, the power distribution tries others "
+"in sequence. If none succeeds, all storage systems receive 0 W for this "
+"cycle and the message “NotSolved” appears."
+msgstr ""
+"Findet eine Strategie keine Lösung, versucht die Leistungsverteilung der "
+"Reihe nach andere. Gelingt gar keine, erhalten alle Speicher für diesen "
+"Zyklus 0 W, und die Meldung „NotSolved“ erscheint."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Prerequisites"
+msgstr "Voraussetzungen"
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"All members are **controllable** storage systems. Storage systems that "
+"OpenEMS only reads out cannot be included in the cluster."
+msgstr ""
+"Alle Mitglieder sind **steuerbare** Speicher. Speicher, die OpenEMS nur "
+"ausliest, kann der Cluster nicht aufnehmen."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The members are **activated** and entered in the cluster setting “ESS-IDs”. "
+"A deactivated storage system drops out of the cluster; the cluster then only "
+"calculates with the others."
+msgstr ""
+"Die Mitglieder sind **aktiviert** und in der Cluster-Einstellung „ESS-IDs“ "
+"eingetragen. Ein deaktivierter Speicher fällt aus dem Cluster heraus; der "
+"Cluster rechnet dann nur mit den übrigen."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"All storage systems are connected to the **same grid connection** and are "
+"controlled via **one** grid meter."
+msgstr ""
+"Alle Speicher hängen am **selben Netzanschluss** und werden über **einen** "
+"Netzzähler geregelt."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The control functions are set to the cluster ID (usually `+ess0+`), not to "
+"individual members. The system apps set this up accordingly."
+msgstr ""
+"Die Regelfunktionen sind auf die Cluster-ID eingestellt (meist `+ess0+`), "
+"nicht auf einzelne Mitglieder. Die System-Apps richten das so ein."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Limits"
+msgstr "Grenzen"
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**No nested clusters**: A storage cluster cannot include another storage "
+"cluster as a member. The selection of members explicitly excludes clusters."
+msgstr ""
+"**Keine verschachtelten Cluster**: Ein Speicher-Cluster kann keinen anderen "
+"Speicher-Cluster als Mitglied aufnehmen. Die Auswahl der Mitglieder schließt "
+"Cluster ausdrücklich aus."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Missing values count as 0**: If a member does not supply a permitted "
+"charging power, for example (e.g. if the connection is lost), it is included "
+"in the total with 0. The cluster then appears smaller, but does not report "
+"its own error; the error message comes from the affected storage system."
+msgstr ""
+"**Fehlende Werte zählen als 0**: Liefert ein Mitglied z. B. keine erlaubte "
+"Ladeleistung (etwa bei Verbindungsabbruch), geht es mit 0 in die Summe ein. "
+"Der Cluster wirkt dann kleiner, meldet aber keinen eigenen Fehler; die "
+"Fehlermeldung kommt vom betroffenen Speicher."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**State of charge is an average**: A cluster SoC of 50 % can mean that one "
+"storage system is full and one is empty. Limits such as the emergency "
+"reserve refer to the cluster value."
+msgstr ""
+"**Ladezustand ist ein Mittelwert**: Ein Cluster-SoC von 50 % kann bedeuten, "
+"dass ein Speicher voll und einer leer ist. Grenzen wie die Notstromreserve "
+"beziehen sich auf den Cluster-Wert."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Same limits for all**: Settings such as the minimum state of charge apply "
+"to the entire cluster, not per storage system (unless the system app creates "
+"them per device)."
+msgstr ""
+"**Gleiche Grenzen für alle**: Einstellungen wie Mindestladezustand gelten "
+"für den ganzen Cluster, nicht je Speicher (soweit die System-App sie nicht "
+"je Gerät anlegt)."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Members can be addressed individually**: The individual storage systems "
+"remain separate components. If a control function is additionally set to a "
+"member, specifications for cluster and member mix. This is possible but "
+"difficult to keep track of."
+msgstr ""
+"**Mitglieder einzeln ansprechbar**: Die einzelnen Speicher bleiben eigene "
+"Komponenten. Wird zusätzlich eine Regelfunktion auf ein Mitglied "
+"eingestellt, mischen sich Vorgaben für Cluster und Mitglied. Das ist "
+"möglich, aber schwer zu überblicken."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "Group of several OpenEMS devices (master/slave)"
+msgstr "Verbund mehrerer OpenEMS-Geräte (Master/Slave)"
+
+#. type: #sec-group-of-several-openems-devices-master-slave
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"In larger systems, each storage system has its own OpenEMS device (slave). "
+"Another device (master) measures at the grid connection, controls the entire "
+"system and specifies power values to the slaves. In OpenEMS this is called "
+"**Edge-2-Edge**."
+msgstr ""
+"Bei größeren Anlagen hat jeder Speicher ein eigenes OpenEMS-Gerät (Slave). "
+"Ein weiteres Gerät (Master) misst am Netzanschluss, regelt die ganze Anlage "
+"und gibt den Slaves Leistungen vor. In OpenEMS heißt das **Edge-2-Edge**."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "How it is structured"
+msgstr "So ist es aufgebaut"
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"On the master, an “Edge-2-Edge Bridge” per slave establishes the connection, "
+"via the same websocket interface that the web interface also uses (port "
+"8085)."
+msgstr ""
+"Auf dem Master stellt eine „Edge-2-Edge Bridge“ je Slave die Verbindung her, "
+"über die gleiche Websocket-Schnittstelle, die auch die Weboberfläche nutzt "
+"(Port 8085)."
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"For each slave there is a component “Edge-2-Edge ESS Websocket” on the "
+"master. It mirrors the storage of the slave and passes on specifications to "
+"it. The battery and battery inverter of the slave also appear on the master "
+"as pure read components."
+msgstr ""
+"Je Slave gibt es auf dem Master eine Komponente „Edge-2-Edge ESS Websocket“. "
+"Sie bildet den Speicher des Slaves nach und gibt Vorgaben an ihn weiter. "
+"Batterie und Batterie-Wechselrichter des Slaves erscheinen auf dem Master "
+"zusätzlich als reine Lese-Komponenten."
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The master puts a storage cluster `+ess0+` over these mirrored storage "
+"systems. Everything from the “Storage cluster” section therefore also "
+"applies here."
+msgstr ""
+"Über diese nachgebildeten Speicher legt der Master einen Speicher-Cluster "
+"`+ess0+`. Alles aus dem Abschnitt „Speicher-Cluster“ gilt daher auch hier."
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The app “FENECON Commercial 92 Cluster” sets this up for 1–5 slaves. It "
+"creates its own network for the slaves on the master (master 10.5.0.1, "
+"slaves 10.5.0.11, 10.5.0.12 …). According to the code, the slaves receive "
+"their address via a preconfigured router. The slave app only sets up the "
+"battery, inverter and storage on the slave, no separate control functions."
+msgstr ""
+"Die App „FENECON Commercial 92 Cluster“ richtet das für 1–5 Slaves ein. Sie "
+"legt auf dem Master ein eigenes Netz für die Slaves an (Master 10.5.0.1, "
+"Slaves 10.5.0.11, 10.5.0.12 …). Die Slaves erhalten ihre Adresse laut Code "
+"über einen vorkonfigurierten Router. Die Slave-App richtet auf dem Slave nur "
+"Batterie, Wechselrichter und Speicher ein, keine eigenen Regelfunktionen."
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid "Both apps can only be seen and installed by the **installer**."
+msgstr "Beide Apps sieht und installiert nur der **Installateur**."
+
+#. type: #sec-how-it-is-structured
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"There is an older variant via Modbus/TCP (“Edge-2-Edge ESS”, “Edge-2-Edge "
+"Meter”). For this, the Modbus/TCP interface with write access must be active "
+"on the slave."
+msgstr ""
+"Es gibt eine ältere Variante über Modbus/TCP („Edge-2-Edge ESS“, „Edge-2-"
+"Edge Meter“). Dafür muss auf dem Slave die Modbus/TCP-Schnittstelle mit "
+"Schreibzugriff aktiv sein."
+
+#. type: #sec-prerequisites-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid "Master and slaves are connected via a local network."
+msgstr "Master und Slaves sind über ein lokales Netz verbunden."
+
+#. type: #sec-prerequisites-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"The master logs on to the slave with its own access. According to the code, "
+"a user with administrator rights is created on the slave for this purpose "
+"during initial setup; the master stores the password in the bridge setting."
+msgstr ""
+"Der Master meldet sich beim Slave mit einem eigenen Zugang an. Laut Code "
+"wird dafür beim ersten Einrichten auf dem Slave ein Benutzer mit "
+"Administratorrechten angelegt; das Passwort speichert der Master in der "
+"Bridge-Einstellung."
+
+#. type: #sec-prerequisites-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"For the master to be able to control, the access in “Edge-2-Edge ESS "
+"Websocket” is set to “Read-Write”. With “Read-Only” (default setting of the "
+"component), the master only reads."
+msgstr ""
+"Damit der Master steuern darf, steht der Zugriff in „Edge-2-Edge ESS "
+"Websocket“ auf „Read-Write“. Mit „Read-Only“ (Voreinstellung der Komponente) "
+"liest der Master nur."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Dependent on the connection**: The master sends the specification anew "
+"every second. If the connection is lost, according to the code the slave "
+"retains the last specification for up to **60 seconds** (setting “API "
+"Timeout” of the websocket interface of the slave), after which it lapses. On "
+"the master, the values of this slave are missing during this time; the "
+"cluster continues to calculate without it."
+msgstr ""
+"**Abhängig von der Verbindung**: Der Master schickt die Vorgabe jede Sekunde "
+"neu. Bricht die Verbindung ab, behält der Slave die letzte Vorgabe laut Code "
+"bis zu **60 Sekunden** bei (Einstellung „API Timeout“ der Websocket-"
+"Schnittstelle des Slaves), danach entfällt sie. Auf dem Master fehlen in der "
+"Zeit die Werte dieses Slaves; der Cluster rechnet ohne ihn weiter."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Delay**: Measured values and specifications run via the network. As a "
+"result, control reacts somewhat more slowly than with storage systems "
+"directly connected to the master. How large the difference is has not been "
+"measured."
+msgstr ""
+"**Verzögerung**: Messwerte und Vorgaben laufen über das Netz. Die Regelung "
+"reagiert dadurch etwas träger als bei Speichern, die direkt am Master "
+"hängen. Wie groß der Unterschied ist, wurde nicht gemessen."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Only storage systems are controlled**: Other devices of the slave are read "
+"at most."
+msgstr ""
+"**Nur Speicher werden gesteuert**: Andere Geräte des Slaves werden höchstens "
+"gelesen."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Monitoring of the master is incomplete**: The live view and history of the "
+"master only count components that are created on the master as storage, "
+"meter or PV producer. With the websocket variant, only the **storage** "
+"arrives from each slave (power, state of charge, energy). The battery and "
+"battery inverter appear as pure read components; their values are only in "
+"the channel view, not in the energy flow. Consequences according to the code:"
+msgstr ""
+"**Monitoring des Masters ist unvollständig**: Die Live-Ansicht und die "
+"Historie des Masters zählen nur Komponenten, die auf dem Master als "
+"Speicher, Zähler oder PV-Erzeuger angelegt sind. Von jedem Slave kommt über "
+"die Websocket-Variante nur der **Speicher** an (Leistung, Ladezustand, "
+"Energie). Batterie und Batterie-Wechselrichter erscheinen als reine Lese-"
+"Komponenten; ihre Werte stehen nur in der Kanalansicht, nicht im "
+"Energiefluss. Folgen laut Code:"
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**PV systems, meters and PV inputs (DC) of a slave are missing** from the "
+"production and consumption of the master. In the websocket variant, there is "
+"no component that mirrors them to the master."
+msgstr ""
+"**PV-Anlagen, Zähler und PV-Eingänge (DC) eines Slaves fehlen** in Erzeugung "
+"und Verbrauch des Masters. Es gibt in der Websocket-Variante keine "
+"Komponente, die sie auf den Master spiegelt."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Hybrid inverter as slave**: The mirrored storage on the master is not a "
+"hybrid device. Its alternating current power then also contains the solar "
+"power of the slave; the master records it as **discharging of the storage**. "
+"Production appears too low, storage discharge too high."
+msgstr ""
+"**Hybridwechselrichter als Slave**: Der nachgebildete Speicher auf dem "
+"Master ist kein Hybridgerät. Seine Wechselstrom-Leistung enthält dann auch "
+"den Solarstrom des Slaves; der Master verbucht ihn als **Entladung des "
+"Speichers**. Die Erzeugung erscheint zu niedrig, die Speicherentladung zu "
+"hoch."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"PV connected **directly to the master** (own meter or PV inverter on the "
+"master) is recorded correctly. The grid meter on the master measures the "
+"entire exchange with the grid anyway."
+msgstr ""
+"Richtig erfasst wird PV, die **direkt am Master** angeschlossen ist (eigener "
+"Zähler oder PV-Wechselrichter am Master). Der Netzzähler am Master misst "
+"ohnehin den gesamten Austausch mit dem Netz."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"Way out according to the code (not tested on systems): The Modbus variant "
+"has “Edge-2-Edge Meter” with meter type “Production”. This allows a meter of "
+"the slave to be mirrored on the master if the Modbus/TCP interface with this "
+"meter is enabled on the slave. Alternatively, the PV meter is integrated "
+"directly on the master."
+msgstr ""
+"Ausweg nach dem Code (an Anlagen nicht getestet): Die Modbus-Variante kennt "
+"„Edge-2-Edge Meter“ mit Zählertyp „Erzeugung“. Damit lässt sich ein Zähler "
+"des Slaves auf dem Master nachbilden, wenn auf dem Slave die Modbus/TCP-"
+"Schnittstelle mit diesem Zähler freigegeben ist. Alternativ wird der PV-"
+"Zähler direkt am Master eingebunden."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Updates**: The master offers “Systemupdates for Cluster Slaves” (from the "
+"Owner role). The slaves are updated one after the other, not at the same "
+"time. Whether the update itself works depends on the installation on the "
+"slaves; it has not been tried out."
+msgstr ""
+"**Updates**: Der Master bietet „Systemupdates für Cluster Slaves“ an (ab "
+"Rolle Eigentümer). Die Slaves werden nacheinander aktualisiert, nicht "
+"gleichzeitig. Ob das Update selbst funktioniert, hängt von der Installation "
+"auf den Slaves ab; ausprobiert wurde es nicht."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "PV inverter cluster"
+msgstr "PV-Wechselrichter-Cluster"
+
+#. type: #sec-what-it-does-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"Several controllable PV inverters appear as one: power, current and energy "
+"are added, voltage and frequency are averaged."
+msgstr ""
+"Mehrere steuerbare PV-Wechselrichter erscheinen als einer: Leistung, Strom "
+"und Energie werden addiert, Spannung und Frequenz gemittelt."
+
+#. type: #sec-what-it-does-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"A power limit for the cluster (e.g. from a feed-in limitation) is divided "
+"**in equal parts** among the inverters. An inverter that cannot manage its "
+"share is limited to its maximum power."
+msgstr ""
+"Eine Leistungsgrenze für den Cluster (z. B. aus einer Einspeisebegrenzung) "
+"wird **zu gleichen Teilen** auf die Wechselrichter aufgeteilt. Ein "
+"Wechselrichter, der seinen Anteil nicht schafft, wird auf seine "
+"Höchstleistung begrenzt."
+
+#. type: #sec-what-it-does-2
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"If no control function specifies a limit, the cluster removes the limits of "
+"all inverters."
+msgstr ""
+"Gibt keine Regelfunktion eine Grenze vor, hebt der Cluster die Grenzen aller "
+"Wechselrichter auf."
+
+#. type: #sec-prerequisites-3
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"All members are PV inverters whose power OpenEMS can limit (see xref:user/"
+"devices/controllable-inverters.adoc[Controllable inverters])."
+msgstr ""
+"Alle Mitglieder sind PV-Wechselrichter, deren Leistung OpenEMS begrenzen "
+"kann (siehe xref:user/devices/controllable-inverters.adoc[Steuerbare "
+"Wechselrichter])."
+
+#. type: #sec-prerequisites-3
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid "Each inverter reports its maximum power."
+msgstr "Jeder Wechselrichter meldet seine Höchstleistung."
+
+#. type: #sec-limits-3
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Equal parts, no compensation**: According to the code, the remainder that "
+"a weaker inverter cannot take over is **not** redistributed to the others. "
+"With inverters of different sizes, the total then remains below the limit; "
+"so there is more curtailment than necessary."
+msgstr ""
+"**Gleiche Teile, kein Ausgleich**: Laut Code wird der Rest, den ein "
+"schwächerer Wechselrichter nicht übernehmen kann, **nicht** auf die anderen "
+"umverteilt. Bei unterschiedlich großen Wechselrichtern bleibt die Summe dann "
+"unter der Grenze; es wird also stärker abgeregelt als nötig."
+
+#. type: #sec-limits-3
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**A failure stops the division**: If an inverter or its maximum power is "
+"missing, the cluster sets the message “Execution failed” and does not "
+"distribute a limit in this cycle."
+msgstr ""
+"**Ein Ausfall stoppt die Aufteilung**: Fehlt ein Wechselrichter oder seine "
+"Höchstleistung, setzt der Cluster die Meldung „Execution failed“ und "
+"verteilt in diesem Zyklus keine Grenze."
+
+#. type: #sec-limits-3
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Leave “Add to Sum?” switched off**: The individual inverters are included "
+"in total production anyway. If the setting is switched on for the cluster, "
+"production is counted twice according to the code."
+msgstr ""
+"**„Add to Sum?“ ausgeschaltet lassen**: Die einzelnen Wechselrichter gehen "
+"ohnehin in die Gesamterzeugung ein. Wird die Einstellung beim Cluster "
+"eingeschaltet, zählt die Erzeugung laut Code doppelt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Several charge points"
+msgstr "Mehrere Ladepunkte"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "Charge point cluster (new charge point control)"
+msgstr "Ladepunkt-Cluster (neue Ladepunkt-Steuerung)"
+
+#. type: #sec-charge-point-cluster-new-charge-point-control
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"For charge points with the new charge point control (Alfen, KEBA, Mennekes), "
+"there is always a cluster, even with only one charge point. It is created "
+"with the first charge point app and distributes the available power during "
+"surplus charging: **evenly** (default) or **by priority** in the order of "
+"the charge points. Details are on the page xref:user/ev-charging-control/"
+"surplus-charging.adoc[Surplus charging and phase switching]."
+msgstr ""
+"Für Ladepunkte mit der neuen Ladepunkt-Steuerung (Alfen, KEBA, Mennekes) "
+"gibt es immer einen Cluster, auch bei nur einem Ladepunkt. Er wird mit der "
+"ersten Ladepunkt-App angelegt und verteilt beim Überschussladen die "
+"verfügbare Leistung: **gleichmäßig** (Voreinstellung) oder **nach "
+"Priorität** in der Reihenfolge der Ladepunkte. Einzelheiten stehen auf der "
+"Seite xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen "
+"und Phasenumschaltung]."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid "Multi-charging point management (older charging stations)"
+msgstr "Multiladepunkt Management (ältere Ladestationen)"
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"For charging stations with the older connection, there is “Multi-charging "
+"point management”. It protects the grid connection from overload when "
+"several vehicles are charging at the same time."
+msgstr ""
+"Für Ladestationen der älteren Anbindung gibt es das „Multiladepunkt "
+"Management“. Es schützt den Netzanschluss vor Überlast, wenn mehrere "
+"Fahrzeuge gleichzeitig laden."
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Available power**: The cluster calculates how much the charging stations "
+"may use together: free power at the grid connection (limit per phase × 3 "
+"minus currently most heavily loaded phase × 3) plus, if a storage system is "
+"entered, its remaining free discharge power plus the power with which the "
+"vehicles are already charging."
+msgstr ""
+"**Verfügbare Leistung**: Der Cluster rechnet aus, wie viel die Ladestationen "
+"zusammen nutzen dürfen: freie Leistung am Netzanschluss (Grenze je Phase × 3 "
+"minus aktuell am stärksten belastete Phase × 3) plus, falls ein Speicher "
+"eingetragen ist, dessen noch freie Entladeleistung plus die Leistung, mit "
+"der die Fahrzeuge schon laden."
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Grid limit**: In the app it is called “Max. grid draw” and is entered for "
+"all phases together, e.g. 22,000 W for a house connection of 22 kW. The app "
+"divides the value by three and stores it as a limit per phase. Only the "
+"installer may change it."
+msgstr ""
+"**Netzgrenze**: In der App heißt sie „Max. Netzbezug“ und wird für alle "
+"Phasen zusammen eingetragen, z. B. 22.000 W bei einem Hausanschluss von 22 "
+"kW. Die App teilt den Wert durch drei und legt ihn als Grenze je Phase ab. "
+"Ändern darf ihn nur der Installateur."
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Order**: The charging stations are served in the entered order. Each "
+"charging vehicle first receives a minimum power (default 4,500 W), then the "
+"front charging stations receive as much as possible."
+msgstr ""
+"**Reihenfolge**: Die Ladestationen werden in der eingetragenen Reihenfolge "
+"bedient. Jedes ladende Fahrzeug bekommt zunächst eine Mindestleistung "
+"(Voreinstellung 4.500 W), danach erhalten die vorderen Ladestationen so viel "
+"wie möglich."
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Waiting**: If the power is not sufficient for a new vehicle, the charging "
+"station shows “Waiting for power”."
+msgstr ""
+"**Warten**: Reicht die Leistung für ein neues Fahrzeug nicht, zeigt die "
+"Ladestation „Warte auf Leistung“."
+
+#. type: #sec-multi-charging-point-management-older-charging-stations
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"**Limits**: The cluster calculates single-phase charging vehicles as if they "
+"occupied all three phases. According to the code, a rotated phase assignment "
+"of the charging stations is not yet taken into account. After each change, "
+"the cluster waits until the vehicles have reacted; only if the grid limit is "
+"exceeded does it adjust immediately."
+msgstr ""
+"**Grenzen**: Der Cluster rechnet einphasig ladende Fahrzeuge so, als würden "
+"sie alle drei Phasen belegen. Eine gedrehte Phasenbelegung der Ladestationen "
+"wird laut Code noch nicht berücksichtigt. Nach jeder Änderung wartet der "
+"Cluster, bis die Fahrzeuge reagiert haben; nur wenn die Netzgrenze "
+"überschritten wird, regelt er sofort nach."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Typical questions"
+msgstr "Typische Fragen"
+
+#. type: Table
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#, no-wrap
+msgid ""
+"| Question\n"
+"| Answer\n"
+"\n"
+"| Can I combine storage systems from different manufacturers in one cluster?\n"
+"| According to the code yes, as long as both are controllable. OpenEMS does not check whether the devices work well together (response time, accuracy).\n"
+"| Can I still see the storage systems individually?\n"
+"| Yes. The live view shows the members, and each member has its own measured values and messages.\n"
+"| What happens if a storage system fails?\n"
+"| The cluster continues to calculate with the others. Its capacity and permitted power decrease accordingly. Whether the failed storage is safely kept at 0 W depends on the strategy (“Nearly Equal” does this explicitly).\n"
+"| Can I connect two separate systems with their own grid connection to a cluster?\n"
+"| Technically, the storage systems can be connected, but the control only measures at **one** grid meter. The cluster is not intended for two grid connections.\n"
+"| Can a device be master for several groups or can a slave itself be a master again?\n"
+"| According to the app, a master can control up to 5 slaves. Nested storage clusters are not possible (see limits above).\n"
+msgstr ""
+"| Frage\n"
+"| Antwort\n"
+"\n"
+"| Kann ich Speicher verschiedener Hersteller in einem Cluster zusammenfassen?\n"
+"| Laut Code ja, solange beide steuerbar sind. Ob die Geräte gemeinsam gut zusammenspielen (Reaktionszeit, Genauigkeit), prüft OpenEMS nicht.\n"
+"| Sehe ich die Speicher noch einzeln?\n"
+"| Ja. Die Live-Ansicht zeigt die Mitglieder, und jedes Mitglied hat eigene Messwerte und Meldungen.\n"
+"| Was passiert, wenn ein Speicher ausfällt?\n"
+"| Der Cluster rechnet mit den übrigen weiter. Seine Kapazität und erlaubte Leistung werden entsprechend kleiner. Ob der ausgefallene Speicher sicher auf 0 W gehalten wird, hängt von der Strategie ab („Nearly Equal“ tut das ausdrücklich).\n"
+"| Kann ich zwei getrennte Anlagen mit eigenem Netzanschluss zu einem Cluster verbinden?\n"
+"| Technisch lassen sich die Speicher verbinden, aber die Regelung misst nur an **einem** Netzzähler. Für zwei Netzanschlüsse ist der Cluster nicht gedacht.\n"
+"| Kann ein Gerät Master für mehrere Gruppen sein oder ein Slave selbst wieder Master?\n"
+"| Ein Master kann laut App bis zu 5 Slaves steuern. Verschachtelte Speicher-Cluster sind nicht möglich (siehe Grenzen oben).\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Summary"
+msgstr "Zusammenfassung"
+
+#. type: #sec-summary
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"A cluster turns several devices into one large one; control functions are "
+"only set up once."
+msgstr ""
+"Ein Cluster macht aus mehreren Geräten ein großes; Regelfunktionen werden "
+"nur einmal eingerichtet."
+
+#. type: #sec-summary
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"Storage clusters are the most developed: values are combined sensibly, power "
+"distribution has several strategies, and double counting is avoided."
+msgstr ""
+"Speicher-Cluster sind am weitesten entwickelt: Werte werden sinnvoll "
+"zusammengefasst, die Leistungsverteilung kennt mehrere Strategien, "
+"Doppelzählung wird vermieden."
+
+#. type: #sec-summary
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"Via Edge-2-Edge, storage systems can be integrated on their own OpenEMS "
+"devices; control then depends on the network connection, and PV or meters on "
+"the slaves are missing from the monitoring of the master."
+msgstr ""
+"Über Edge-2-Edge lassen sich Speicher an eigenen OpenEMS-Geräten einbinden; "
+"dann hängt die Regelung von der Netzverbindung ab, und PV oder Zähler an den "
+"Slaves fehlen im Monitoring des Masters."
+
+#. type: #sec-summary
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"PV clusters only divide limits in equal parts; with inverters of different "
+"sizes, more is curtailed than necessary."
+msgstr ""
+"PV-Cluster teilen Grenzen nur zu gleichen Teilen; bei unterschiedlich großen "
+"Wechselrichtern wird mehr abgeregelt als nötig."
+
+#. type: #sec-summary
+#: modules/ROOT/pages/user/devices/cluster.adoc
+msgid ""
+"For several charge points, depending on the connection, there is the charge "
+"point cluster or multi-charge-point management."
+msgstr ""
+"Für mehrere Ladepunkte gibt es je nach Anbindung den Ladepunkt-Cluster oder "
+"das Multiladepunkt Management."

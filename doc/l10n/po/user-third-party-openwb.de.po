@@ -1,0 +1,606 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr "Einrichtung"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Limits"
+msgstr "Grenzen"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Typical questions"
+msgstr "Typische Fragen"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Which values are read"
+msgstr "Welche Werte gelesen werden"
+
+#. type: Title =
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "OpenEMS: openWB"
+msgstr "OpenEMS: openWB"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"openWB is a wallbox with its own charging control (software “openWB 2”). "
+"There are **two independent connections** between openWB and OpenEMS, one in "
+"each direction:"
+msgstr ""
+"openWB ist eine Wallbox mit eigener Lade-Steuerung (Software „openWB 2“). "
+"Zwischen openWB und OpenEMS gibt es **zwei voneinander unabhängige "
+"Anbindungen**, eine in jede Richtung:"
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid ""
+"| Direction\n"
+"| Who reads whom?\n"
+"| Route\n"
+"| Controls anything?\n"
+"\n"
+"| openWB reads OpenEMS\n"
+"| openWB queries grid, PV and storage from OpenEMS to charge with surplus\n"
+"| REST interface of OpenEMS (port 8084)\n"
+"| no\n"
+"| OpenEMS reads openWB\n"
+"| OpenEMS adopts the power and state of an openWB charge point\n"
+"| MQTT broker of openWB\n"
+"| no\n"
+msgstr ""
+"| Richtung\n"
+"| Wer liest wen?\n"
+"| Weg\n"
+"| Steuert etwas?\n"
+"\n"
+"| openWB liest OpenEMS\n"
+"| openWB fragt Netz, PV und Speicher bei OpenEMS ab, um Überschuss zu laden\n"
+"| REST-Schnittstelle von OpenEMS (Port 8084)\n"
+"| nein\n"
+"| OpenEMS liest openWB\n"
+"| OpenEMS übernimmt Leistung und Zustand eines openWB-Ladepunkts\n"
+"| MQTT-Broker der openWB\n"
+"| nein\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"The basis is the source code of openWB 2 (“core”) and the OpenEMS source "
+"code. Neither of the two connections has been tried out here. The page "
+"xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] gives a "
+"comparison with Home Assistant and evcc."
+msgstr ""
+"Grundlage sind der Quellcode von openWB 2 („core“) und der OpenEMS-"
+"Quellcode. Ausprobiert wurde hier keine der beiden Anbindungen. Einen "
+"Vergleich mit Home Assistant und evcc gibt die Seite xref:user/third-party/"
+"overview.adoc[Fremdsysteme an OpenEMS]."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "openWB reads OpenEMS"
+msgstr "openWB liest OpenEMS"
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"In openWB, there is the device **“openEMS, Fenecon FEMS, CENTURIO 10, Kaco "
+"Hy-Control”** for this. Only the **IP address** of the system and the "
+"**password** need to be entered. openWB always uses “x” as the user name; "
+"with OpenEMS only the password counts."
+msgstr ""
+"In openWB gibt es dafür das Gerät **„openEMS, Fenecon FEMS, CENTURIO 10, "
+"Kaco Hy-Control“**. Einzugeben sind nur die **IP-Adresse** der Anlage und "
+"das **Passwort**. Als Benutzername verwendet openWB fest „x“; bei OpenEMS "
+"zählt nur das Passwort."
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid "You create up to three components for the device:"
+msgstr "Zum Gerät legt man bis zu drei Komponenten an:"
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid ""
+"| Component in openWB\n"
+"| Meaning\n"
+"\n"
+"| Meter\n"
+"| Grid connection (utility meter)\n"
+"| Inverter\n"
+"| PV production\n"
+"| Storage\n"
+"| Home battery; setting “Number”: 1 = `+ess0+`, any other number = `+ess2+`\n"
+msgstr ""
+"| Komponente in openWB\n"
+"| Bedeutung\n"
+"\n"
+"| Zähler\n"
+"| Netzanschluss (EVU-Zähler)\n"
+"| Wechselrichter\n"
+"| PV-Erzeugung\n"
+"| Speicher\n"
+"| Hausbatterie; Einstellung „Nummer“: 1 = `+ess0+`, jede andere Zahl = `+ess2+`\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Prerequisite in OpenEMS:** the app or component “REST/JSON API read "
+"access” (Controller.Api.Rest.ReadOnly) or “… read/write access” on the "
+"default port **8084**. openWB always queries this port. According to the "
+"OpenEMS code, reading already works with the Guest role. See xref:user/"
+"external-interfaces/rest-control.adoc[Control via REST/JSON]."
+msgstr ""
+"**Voraussetzung in OpenEMS:** die App bzw. Komponente „REST/JSON-API "
+"Lesezugriff“ (Controller.Api.Rest.ReadOnly) oder „… Lese-/Schreibzugriff“ "
+"auf dem Standardport **8084**. openWB fragt fest diesen Port an. Lesen geht "
+"laut OpenEMS-Code schon mit der Rolle Gast. Siehe xref:user/external-"
+"interfaces/rest-control.adoc[Steuern über REST/JSON]."
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid ""
+"| openWB component\n"
+"| Value in openWB\n"
+"| Channel in OpenEMS\n"
+"\n"
+".5+| Meter\n"
+"| Total power and per phase\n"
+"| `+meter0/ActivePower+`, `+ActivePowerL1…L3+`\n"
+"| Voltage per phase\n"
+"| `+meter0/VoltageL1…L3+`\n"
+"| Frequency\n"
+"| `+meter0/Frequency+`\n"
+"| Purchase (meter reading)\n"
+"| `+_sum/GridBuyActiveEnergy+`\n"
+"| Feed-in (meter reading)\n"
+"| `+_sum/GridSellActiveEnergy+`\n"
+".2+| Inverter\n"
+"| Power\n"
+"| `+_sum/ProductionActivePower+` (sign inverted)\n"
+"| Meter reading\n"
+"| `+_sum/ProductionActiveEnergy+`\n"
+".3+| Storage\n"
+"| State of charge\n"
+"| `+ess0/Soc+` or `+ess2/Soc+`\n"
+"| Charge and discharge energy\n"
+"| `+ess0/DcChargeEnergy+`, `+DcDischargeEnergy+`\n"
+"| Power\n"
+"| **calculated** from `+_sum+`: grid {plus} production − consumption\n"
+msgstr ""
+"| openWB-Komponente\n"
+"| Wert in openWB\n"
+"| Kanal in OpenEMS\n"
+"\n"
+".5+| Zähler\n"
+"| Leistung gesamt und je Phase\n"
+"| `+meter0/ActivePower+`, `+ActivePowerL1…L3+`\n"
+"| Spannung je Phase\n"
+"| `+meter0/VoltageL1…L3+`\n"
+"| Frequenz\n"
+"| `+meter0/Frequency+`\n"
+"| Bezug (Zählerstand)\n"
+"| `+_sum/GridBuyActiveEnergy+`\n"
+"| Einspeisung (Zählerstand)\n"
+"| `+_sum/GridSellActiveEnergy+`\n"
+".2+| Wechselrichter\n"
+"| Leistung\n"
+"| `+_sum/ProductionActivePower+` (Vorzeichen umgedreht)\n"
+"| Zählerstand\n"
+"| `+_sum/ProductionActiveEnergy+`\n"
+".3+| Speicher\n"
+"| Ladezustand\n"
+"| `+ess0/Soc+` bzw. `+ess2/Soc+`\n"
+"| Lade- und Entladeenergie\n"
+"| `+ess0/DcChargeEnergy+`, `+DcDischargeEnergy+`\n"
+"| Leistung\n"
+"| **berechnet** aus `+_sum+`: Netz {plus} Erzeugung − Verbrauch\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"openWB reads units (e.g. W or kW) from the response and converts them. The "
+"values are queried in each openWB control cycle (default 10 seconds)."
+msgstr ""
+"Einheiten (z. B. W oder kW) liest openWB aus der Antwort mit und rechnet sie "
+"um. Die Werte werden in jedem Regelzyklus von openWB abgefragt "
+"(Voreinstellung 10 Sekunden)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "How it queries"
+msgstr "Wie abgefragt wird"
+
+#. type: #sec-how-it-queries
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"openWB uses the OpenEMS option of reading several values in one request with "
+"**patterns** (regular expressions), e.g. all matching values of `+meter0+` "
+"and `+_sum+` at once."
+msgstr ""
+"openWB nutzt die Möglichkeit von OpenEMS, mit **Mustern** (regulären "
+"Ausdrücken) mehrere Werte in einer Anfrage zu lesen, z. B. alle passenden "
+"Werte von `+meter0+` und `+_sum+` auf einmal."
+
+#. type: #sec-how-it-queries
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"At startup, openWB checks whether the system understands patterns across "
+"components. If so, **one** request per component is sufficient; otherwise "
+"openWB splits the query into several requests. The current OpenEMS code "
+"understands both."
+msgstr ""
+"Beim Start prüft openWB, ob die Anlage Muster über Komponenten hinweg "
+"versteht. Wenn ja, genügt **eine** Anfrage je Komponente; sonst teilt openWB "
+"die Abfrage auf mehrere Anfragen auf. Der aktuelle OpenEMS-Code versteht "
+"beides."
+
+#. type: #sec-how-it-queries
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"A comment in the openWB code says that systems should not be queried too "
+"often with the combined query."
+msgstr ""
+"Ein Kommentar im openWB-Code sagt, dass Anlagen mit der kombinierten Abfrage "
+"nicht zu häufig abgefragt werden sollten."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Fixed names:** openWB assumes that the grid meter is called `+meter0+` and "
+"the storage `+ess0+` (or `+ess2+`). With different naming, for example if "
+"`+meter0+` is a consumption meter, the values are not correct."
+msgstr ""
+"**Feste Namen:** openWB setzt voraus, dass der Netzzähler `+meter0+` heißt "
+"und der Speicher `+ess0+` (bzw. `+ess2+`). Bei anderer Benennung, etwa wenn "
+"`+meter0+` ein Verbraucherzähler ist, stimmen die Werte nicht."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Storage power is derived:** It does not come from the storage itself, but "
+"from the total values. With several storage systems, it is the sum of all, "
+"but the state of charge is only that of `+ess0+`."
+msgstr ""
+"**Speicherleistung ist abgeleitet:** Sie kommt nicht vom Speicher selbst, "
+"sondern aus den Summenwerten. Bei mehreren Speichern ist es die Summe aller, "
+"der Ladezustand aber nur der von `+ess0+`."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Inverter = total production:** The sum of all PV sources is read (AC and "
+"DC), not an individual inverter."
+msgstr ""
+"**Wechselrichter = gesamte Erzeugung:** Es wird die Summe aller PV-Quellen "
+"gelesen (AC und DC), nicht ein einzelner Wechselrichter."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Read only:** openWB does not control anything in OpenEMS via this "
+"connection, not even the storage."
+msgstr ""
+"**Nur lesen:** openWB steuert über diese Anbindung nichts in OpenEMS, auch "
+"nicht den Speicher."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Port fixed at 8084:** If the REST interface runs on another port or only "
+"behind a proxy, the connection does not work."
+msgstr ""
+"**Port fest 8084:** Läuft die REST-Schnittstelle auf einem anderen Port oder "
+"nur hinter einem Proxy, funktioniert die Anbindung nicht."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Unencrypted:** HTTP with basic authentication; the password goes through "
+"the network in plain text."
+msgstr ""
+"**Unverschlüsselt:** HTTP mit Basic-Authentifizierung; das Passwort geht im "
+"Klartext durch das Netz."
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"In the openWB code, a fallback route for the meter was noticed, intended for "
+"very old systems without pattern queries. It accesses a password field that "
+"the meter component does not set anywhere. In Python, such an access aborts "
+"with an error, so the fallback route cannot work. This route is not used "
+"with current OpenEMS."
+msgstr ""
+"Im openWB-Code fiel ein Rückfallweg beim Zähler auf, der für sehr alte "
+"Anlagen ohne Musterabfrage gedacht ist. Er greift auf ein Passwort-Feld zu, "
+"das die Zähler-Komponente nirgends setzt. In Python bricht ein solcher "
+"Zugriff mit einem Fehler ab, der Rückfallweg kann also nicht funktionieren. "
+"Mit aktuellem OpenEMS wird dieser Weg nicht benutzt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "OpenEMS reads openWB"
+msgstr "OpenEMS liest openWB"
+
+#. type: #sec-setup-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"OpenEMS has the component **“EVCS OpenWB”** (Evcs.OpenWB). It reads an "
+"internal charge point of an openWB series 2. This additionally requires a "
+"**“Bridge MQTT”**, which is connected to the MQTT broker of the openWB."
+msgstr ""
+"In OpenEMS gibt es die Komponente **„EVCS OpenWB“** (Evcs.OpenWB). Sie liest "
+"einen internen Ladepunkt einer openWB der Serie 2. Dazu braucht es "
+"zusätzlich eine **„Bridge MQTT“**, die mit dem MQTT-Broker der openWB "
+"verbunden ist."
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Meaning\n"
+"\n"
+"| MQTT Bridge ID\n"
+"| ID of the MQTT bridge (default `+mqtt0+`)\n"
+"| Chargepoint\n"
+"| internal charge point 0 or 1 (with openWB Duo two charge points)\n"
+"| Phase rotation\n"
+"| Phase rotation of the connection\n"
+msgstr ""
+"| Einstellung\n"
+"| Bedeutung\n"
+"\n"
+"| MQTT Bridge ID\n"
+"| ID der MQTT-Bridge (Standard `+mqtt0+`)\n"
+"| Chargepoint\n"
+"| interner Ladepunkt 0 oder 1 (bei openWB Duo zwei Ladepunkte)\n"
+"| Phase rotation\n"
+"| Phasenlage des Anschlusses\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"The MQTT bridge needs the address and port of the broker. In the "
+"configuration of openWB 2, the broker can be reached in insecure mode on "
+"port **1883** without login, in secure mode encrypted on port **8883**. "
+"Reading is permitted for everyone (`+openWB/#+`). For secure mode, openWB "
+"sets up a self-signed certificate (Debian's “snakeoil” certificate). The "
+"OpenEMS MQTT bridge has fields for its own certificate store (“Trust Store”, "
+"“Key Store”), but does not evaluate them in the code. It only trusts the "
+"root certificates delivered with Java. A self-signed certificate is not one "
+"of them, so the encrypted connection to the openWB is not established. The "
+"unencrypted port 1883 remains for the bridge."
+msgstr ""
+"Die MQTT-Bridge braucht Adresse und Port des Brokers. In der Konfiguration "
+"von openWB 2 ist der Broker im unsicheren Modus auf Port **1883** ohne "
+"Anmeldung erreichbar, im sicheren Modus verschlüsselt auf Port **8883**. "
+"Lesen ist für alle erlaubt (`+openWB/#+`). Für den sicheren Modus richtet "
+"openWB ein selbst signiertes Zertifikat ein (das „Snakeoil“-Zertifikat von "
+"Debian). Die MQTT-Bridge von OpenEMS hat zwar Felder für einen eigenen "
+"Zertifikatsspeicher („Trust Store“, „Key Store“), wertet sie im Code aber "
+"nicht aus. Sie vertraut nur den Stammzertifikaten, die mit Java ausgeliefert "
+"werden. Ein selbst signiertes Zertifikat gehört nicht dazu, deshalb kommt "
+"die verschlüsselte Verbindung zur openWB nicht zustande. Für die Bridge "
+"bleibt der unverschlüsselte Port 1883."
+
+#. type: #sec-which-values-are-read-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"OpenEMS subscribes to the messages under `+openWB/internal_chargepoint/0/"
+"get/…+` (or `+…/1/…+`) and adopts:"
+msgstr ""
+"OpenEMS abonniert die Nachrichten unter `+openWB/internal_chargepoint/0/get/…"
+"+` (bzw. `+…/1/…+`) und übernimmt:"
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid ""
+"| openWB message\n"
+"| Value in OpenEMS\n"
+"\n"
+"| power, powers\n"
+"| Charging power total and per phase\n"
+"| voltages, currents\n"
+"| Voltage and current per phase\n"
+"| imported\n"
+"| Energy meter (charged energy) and from this the energy of the charging session\n"
+"| plug_state, charge_state\n"
+"| Plug inserted, charging\n"
+"| phases_in_use\n"
+"| Phases used\n"
+"| fault_state\n"
+"| Fault state\n"
+msgstr ""
+"| openWB-Nachricht\n"
+"| Wert in OpenEMS\n"
+"\n"
+"| power, powers\n"
+"| Ladeleistung gesamt und je Phase\n"
+"| voltages, currents\n"
+"| Spannung und Strom je Phase\n"
+"| imported\n"
+"| Energiezähler (geladene Energie) und daraus die Energie der Ladesitzung\n"
+"| plug_state, charge_state\n"
+"| Stecker gesteckt, lädt\n"
+"| phases_in_use\n"
+"| genutzte Phasen\n"
+"| fault_state\n"
+"| Fehlerzustand\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"The charge point appears in OpenEMS as a **metered consumer** and is thus "
+"included in consumption and energy flows (see xref:user/basics/energy-"
+"flows.adoc[Energy flows])."
+msgstr ""
+"Der Ladepunkt erscheint in OpenEMS als **gemessener Verbraucher** und geht "
+"damit in Verbrauch und Energieflüsse ein (siehe xref:user/basics/energy-"
+"flows.adoc[Energieflüsse])."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Read only:** The component is a pure measured-value charge point. OpenEMS "
+"can therefore **not control** the openWB (no surplus charging by OpenEMS, no "
+"power specification). In this combination, surplus charging is done by the "
+"openWB itself, with the values from the first section."
+msgstr ""
+"**Nur lesen:** Die Komponente ist ein reiner Messwert-Ladepunkt. OpenEMS "
+"kann die openWB damit **nicht steuern** (kein Überschussladen durch OpenEMS, "
+"keine Leistungsvorgabe). Überschussladen macht in dieser Kombination die "
+"openWB selbst, mit den Werten aus dem ersten Abschnitt."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"Only **internal** charge points of the openWB, no other charge points "
+"managed by the openWB."
+msgstr ""
+"Nur **interne** Ladepunkte der openWB, keine weiteren Ladepunkte, die die "
+"openWB verwaltet."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid "The energy meter of the openWB is adopted as an absolute meter reading."
+msgstr ""
+"Der Energiezähler der openWB wird als absoluter Zählerstand übernommen."
+
+#. type: #sec-limits-2
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"In OpenEMS, there is no app in the app center for openWB; the bridge and "
+"component are created as components."
+msgstr ""
+"In OpenEMS gibt es für die openWB keine App im App Center; Bridge und "
+"Komponente werden als Komponenten angelegt."
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"**Can openWB control the OpenEMS storage, e.g. not discharge into the car?**"
+msgstr ""
+"**Kann openWB den OpenEMS-Speicher steuern, z. B. nicht ins Auto entladen?**"
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"Not via this connection; openWB only reads. Such behavior must be set in "
+"OpenEMS itself."
+msgstr ""
+"Über diese Anbindung nicht; openWB liest nur. Ein solches Verhalten muss in "
+"OpenEMS selbst eingestellt werden."
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid "**openWB shows wrong grid values.**"
+msgstr "**openWB zeigt falsche Netzwerte.**"
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"Check whether the grid meter in OpenEMS is really called `+meter0+`. openWB "
+"always queries this name."
+msgstr ""
+"Prüfen, ob in OpenEMS der Netzzähler wirklich `+meter0+` heißt. openWB fragt "
+"fest diesen Namen ab."
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid "**Do I need the OpenEMS write app for openWB?**"
+msgstr "**Brauche ich die Schreib-App von OpenEMS für openWB?**"
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"No. The read app is sufficient for openWB; for OpenEMS → openWB, no REST app "
+"is needed, but the MQTT bridge."
+msgstr ""
+"Nein. Für openWB genügt die Lese-App; für OpenEMS → openWB braucht es keine "
+"REST-App, sondern die MQTT-Bridge."
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid "**Do both systems charge with surplus at the same time?**"
+msgstr "**Laden beide Systeme gleichzeitig mit Überschuss?**"
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+msgid ""
+"If OpenEMS only reads the openWB (as above), the openWB alone controls. If "
+"you also use surplus charging in OpenEMS for other charge points, bear in "
+"mind that both systems see the same surplus (see xref:user/ev-charging-"
+"control/surplus-charging.adoc[Surplus charging])."
+msgstr ""
+"Wenn OpenEMS die openWB nur liest (wie oben), regelt allein die openWB. Wer "
+"zusätzlich in OpenEMS ein Überschussladen für andere Ladepunkte nutzt, "
+"sollte bedenken, dass beide Systeme denselben Überschuss sehen (siehe "
+"xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen])."

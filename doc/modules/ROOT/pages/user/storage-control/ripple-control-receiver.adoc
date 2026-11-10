@@ -1,0 +1,151 @@
+= OpenEMS: Ripple control receiver
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+With a **ripple control receiver** (RCR), the grid operator can remotely limit the feed-in of a PV system, e.g. in the event of grid overload. The usual levels are **0 %, 30 % and 60 %** of the system power (as well as 100 % = no limitation). For this purpose, the receiver switches contacts that are evaluated by the energy management system.
+
+The ripple control receiver is not the same as xref:user/storage-control/section-14a-enwg.adoc[§ 14a control]: the RCR limits **feed-in**, § 14a limits **grid purchase** (for the storage: the charging power).
+
+[#sec-two-variants]
+== Two variants
+
+OpenEMS has two ways of integrating a ripple control receiver:
+
+[cols="3*",options="header"]
+|===
+| Variant
+| Connection
+| Who limits
+
+| **Ripple control receiver** (“external limitation”)
+| on the **inverter**
+| the inverter itself; OpenEMS only switches on its RCR function
+| **Dynamic ripple control receiver**
+| on the **inputs of the control computer**
+| OpenEMS: it calculates the permitted feed-in and passes it on to the inverter
+|===
+
+For FENECON Home and Commercial systems, you select the variant in the system app under “External limitation”: **No limitation**, **Ripple control receiver** or **Dynamic ripple control receiver**.
+
+* The **Home 10** (generation 1) only has a checkbox “Ripple control receiver active?”; this corresponds to the first variant. The dynamic ripple control receiver is not offered for the Home 10.
+* The dynamic ripple control receiver is set up by the apps for **Home 6, Home 10 Gen2, Home 15, Home 20, Home 30** and for the Commercial systems 50 Gen3 and 100. A prerequisite is a control computer with its own digital inputs.
+
+[#sec-dynamic-ripple-control-receiver-in-detail]
+== Dynamic ripple control receiver in detail
+
+The function is called **Controller.Ess.RippleControlReceiver** (usually `+ctrlEssRippleControlReceiver0+`).
+
+[#sec-connection]
+=== Connection
+
+[cols="3*",options="header"]
+|===
+| Input (default)
+| Level
+| Permitted feed-in
+
+| `+…/DigitalInput2+`
+| 0 %
+| no feed-in
+| `+…/DigitalInput3+`
+| 30 %
+| 30 %
+| `+…/DigitalInput4+`
+| 60 %
+| 60 %
+| no input active
+| 100 %
+| no limitation by the RCR
+|===
+
+On these systems, the first digital input is reserved for xref:user/storage-control/section-14a-enwg.adoc[§ 14a control].
+
+* If several inputs are active at the same time, the **strictest** level applies: 0 % before 30 % before 60 %.
+* The inputs are evaluated **inverted** (noted in the code as a peculiarity of the relay board): a level is active when the input reports “off”. If an input does not supply any value, it is considered inactive.
+* In **island mode** there is no limitation.
+
+[#sec-what-the-percentages-refer-to]
+=== What the percentages refer to
+
+The percentages refer to the **maximum apparent power of the storage/hybrid inverter**:
+
+[source]
+----
+permitted feed-in = maximum inverter power × level
+Example: 10 kVA inverter, level 30 %  →  maximum 3,000 W feed-in
+----
+
+If the maximum inverter power is not (yet) known, OpenEMS sets **0 W** as the limit as a precaution when a level is active.
+
+If a general feed-in limit (e.g. 60 % rule from the system settings) applies at the same time, the **smaller** of the two values is used.
+
+[#sec-what-happens-to-the-surplus]
+=== What happens to the surplus
+
+The permitted feed-in has an effect on two levels:
+
+* **Inverter:** The limit is transferred to the inverter as a feed-in limitation. It controls the PV power so that no more is fed in at the grid connection.
+* **Storage:** xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] adopts the feed-in permitted by the RCR as its limit. The storage then charges the part of the PV power that may not be fed in. This way, as little solar power as possible is lost through curtailment. If xref:user/storage-control/time-of-use-tariffs.adoc[price control] is active, grid-optimized charge is switched off (see next section).
+
+PV power is only actually curtailed when the storage is full or cannot charge fast enough.
+
+[#sec-interaction-with-price-control]
+=== Interaction with price control
+
+If xref:user/storage-control/time-of-use-tariffs.adoc[price control] is active, **neither planning nor ongoing control** takes the RCR level into account:
+
+* **Planning:** In the xref:user/schedule/overview.adoc[schedule], the energy optimizer only calculates with the feed-in limit from the system settings or the fusing of the grid connection. An RCR level could not be planned in advance anyway because it cannot be foreseen.
+* **Ongoing operation:** Price control protects a feed-in limit by having the storage charge more (“Avoid feed-in limit”). It also only uses the limit from the system settings, not the RCR level.
+
+The limitation itself nevertheless remains effective because the inverter complies with it. However, PV power may be curtailed that the storage could have absorbed. This applies, for example, if the schedule currently provides for delayed or limited charging because the storage is only to be charged later.
+
+Without price control (or in “Off” mode), grid-optimized charge is at work, and it takes the RCR level into account.
+
+[#sec-what-is-recorded]
+=== What is recorded
+
+[cols="2*",options="header"]
+|===
+| Value
+| Meaning
+
+| `+RestrictionMode+`
+| current level: no limitation, 0 %, 30 % or 60 %
+| `+CumulatedRestrictionTime+`
+| total duration of all limitations in seconds (across all levels)
+|===
+
+Both values are stored with high priority in the xref:user/data/history-rrd4j.adoc[history]. This makes it possible to trace when and for how long the grid operator limited feed-in.
+
+[#sec-display-in-the-web-interface]
+=== Display in the web interface
+
+* In the **grid widget**, a line “Feed-in limitation” appears during a limitation with the permitted feed-in in percent and a note about the ripple control receiver.
+* In the **grid history**, periods with limitation are marked in the chart, as are § 14a interventions and island mode.
+
+[#sec-order]
+=== Order
+
+The RCR controller runs in the fixed order of control functions directly after the § 14a limitation and before all other storage functions.
+
+[#sec-variant-ripple-control-receiver-on-the-inverter]
+== Variant “Ripple control receiver on the inverter”
+
+With this variant, the receiver is connected directly to the inverter. OpenEMS only switches on the “Ripple Control Receiver” function in its settings. The limitation is carried out by the inverter itself. It follows that:
+
+* OpenEMS does **not** know the current level and does not record it.
+* Grid-optimized charge knows nothing about the limitation. The storage therefore does not specifically charge the part that may not be fed in. The inverter curtails the PV power directly.
+
+For the combination with a storage system, the **dynamic** variant is therefore the better choice if the system supports it.
+
+[#sec-good-to-know]
+== Good to know
+
+* In OpenEMS, the percentage levels refer to the power of the **storage/hybrid inverter**, not to the installed PV power (kWp). For systems whose PV power differs significantly, this may differ from the specification of the grid operator. If in doubt, clarify with the grid operator or installer.
+* The assignment of the inputs is fixed: input 2 = 0 %, input 3 = 30 %, input 4 = 60 %. The wiring must match.
+* The RCR only limits feed-in. Self-consumption and storage charging remain possible.
