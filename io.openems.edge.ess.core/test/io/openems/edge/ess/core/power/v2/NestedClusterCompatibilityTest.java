@@ -55,4 +55,29 @@ public class NestedClusterCompatibilityTest {
         }
     }
 
+
+    @Test
+    public void testNestedClusterWithForcedSubClusterMinimum() {
+        var a = ess("a", -10000, 10000, 10000);
+        var b = ess("b", -10000, 10000, 10000);
+        var c = ess("c", -10000, 10000, 10000);
+        var d = ess("d", -10000, 10000, 10000);
+        var sub1 = new DummyMetaEss("sub1", a, b);
+        var sub2 = new DummyMetaEss("sub2", c, d);
+        var root = new DummyMetaEss("root", sub1, sub2);
+
+        var pd = PowerDistribution.from(List.of(root, sub1, sub2, a, b, c, d));
+        pd.setEquals("root", 0);
+        pd.setGreaterOrEquals("sub1", 4000);
+        pd.solve();
+
+        var sub1Power = output(pd, "a") + output(pd, "b");
+        var sub2Power = output(pd, "c") + output(pd, "d");
+        assertTrue(sub1Power >= 4000, "Sub-cluster must respect its minimum power");
+        assertEquals(-sub1Power, sub2Power, "Sibling sub-cluster must compensate");
+        assertEquals(0, sub1Power + sub2Power, "Root target must be conserved");
+        for (var id : new String[] { "a", "b", "c", "d" }) {
+            assertTrue(output(pd, id) >= -10000 && output(pd, id) <= 10000);
+        }
+    }
 }
