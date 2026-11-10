@@ -233,7 +233,8 @@ public final class TreeSolver {
 			var adjustment = remaining * headrooms[i] / totalHeadroom;
 			adjustment = Math.max(-headrooms[i], Math.min(headrooms[i], adjustment));
 			if (adjustment != 0) {
-				applySetpoint(children.get(i), (int) (current + adjustment), true);
+				var next = Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, current + adjustment));
+				applySetpoint(children.get(i), (int) next, true);
 				remaining -= activeSetpoint(children.get(i)) - current;
 			}
 			totalHeadroom -= headrooms[i];
