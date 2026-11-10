@@ -1,0 +1,82 @@
+= OpenEMS: Forecasts for consumption and production
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/schedule/forecasts.adoc[OpenEMS: Prognosen für Verbrauch und Erzeugung]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+Several functions need a look into the future: xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] wants to know when the solar surplus ends. xref:user/storage-control/time-of-use-tariffs.adoc[Price control] wants to know how much electricity is needed in the expensive hours. For this purpose, OpenEMS creates **forecasts for solar yield and consumption**, in quarter hours for today and tomorrow.
+
+[#sec-the-available-forecasting-methods]
+== The available forecasting methods
+
+[cols="3*",options="header"]
+|===
+| Method
+| for
+| Idea
+
+| “Same as yesterday” (Persistence)
+| any values
+| Yesterday's curve repeats itself.
+| “Same weekday” (Similar Day)
+| Consumption
+| Average of the same weekdays over the last 4 weeks.
+| Daily profiles (Profile Clustering)
+| Consumption
+| Learns the typical daily routines of the household.
+| Weather model
+| Solar yield
+| Learns how much your own system delivers in which weather.
+|===
+
+Several methods can be set up. An order determines which one is asked first. If it returns nothing, the next one is used. If a total value (e.g. total production) has no forecast of its own, OpenEMS combines it from the forecasts of the individual producers.
+
+[#sec-same-as-yesterday]
+== “Same as yesterday”
+
+The simplest method. It needs no learning phase and works from the second day. It cannot foresee weather changes, weekends or special days.
+
+[#sec-same-weekday]
+== “Same weekday”
+
+For a Monday, the average of the last four Mondays is used. This captures weekly rhythms, e.g. home office days or laundry days. After the clocks change, the pattern is shifted by one hour for a few weeks.
+
+[#sec-daily-profiles-consumption]
+== Daily profiles (consumption)
+
+This method predicts **normal household consumption**. Controlled loads such as wallboxes are not included because OpenEMS plans them itself.
+
+**How it learns** (once a day, from the last 90 days):
+
+. The consumption curves of the individual days are compared and divided into groups of similar days, e.g. “working day”, “weekend at home”, “away”. This results in between 2 and 8 typical daily profiles.
+. It then learns **when which profile occurs**: depending on the weekday, whether it is a working day, and the profile of the previous day.
+
+**How it forecasts:** For today and tomorrow, the most probable profile is selected. If the actual curve fits another profile significantly better in the course of the day, it switches.
+
+**Limits:** **Recurring** patterns are recognized. A one-off event (e.g. visitors, sauna on a single day) is not predicted. At least 30 days of history are necessary. After a new installation, the forecast is therefore initially unavailable or inaccurate.
+
+[#sec-weather-model-solar-yield]
+== Weather model (solar yield)
+
+The method learns from the past how much your **own system** produces in which weather. Solar irradiation (direct and diffuse), temperature, snow and time of day play a role. The orientation, shading and size of the system therefore do not have to be entered; they are contained in the learned data. The weather data comes from xref:user/schedule/weather.adoc[Open-Meteo].
+
+* **Learning:** daily, from up to 90 days; at least 30 days are necessary.
+* **Forecast:** 2 days, with the current weather forecast.
+* **Plausibility:** The forecast is smoothed and is never higher than the power that the system has actually reached in the last 90 days. The last four measured quarter hours are also included in the smoothing so that there is no jump at the transition from measurement to forecast.
+* **Snow:** If the weather forecast currently reports snowfall and a snow cover for at least 90 % of the forecast period, the model switches to its own snow state.
+** In the first 24 hours it continues to calculate as usual.
+** After that it uses the curve of the previous day as the forecast (“same as yesterday”) if a forecast using this method is set up. Otherwise it continues to calculate as usual.
+** It returns to the normal state as soon as, according to the forecast, there is no more snow and none will settle. Or if, after at least 24 hours, at least 30 % of a typical peak power was generated in 4 of the last 6 quarter hours. The typical peak power is the value that 95 % of all quarter hours in the last 90 days did not exceed.
+
+[#sec-good-to-know]
+== Good to know
+
+* The learned models are not stored permanently. After a restart, OpenEMS learns anew from the stored xref:user/data/history-rrd4j.adoc[history]. If there is no history, there is also no basis for forecasts.
+* OpenEMS records what it predicted 1, 3 or 6 hours beforehand, alongside what actually happened. This makes it possible to assess the forecast quality afterwards.
+* Poor forecasts have a direct effect on grid-optimized charge and price control.
