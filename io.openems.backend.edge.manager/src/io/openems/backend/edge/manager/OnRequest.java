@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +27,7 @@ import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.SyncableSubscribeResponse;
 import io.openems.common.jsonrpc.syncable.SyncableProviderType;
 import io.openems.common.jsonrpc.type.CheckSetupPassword;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import org.java_websocket.WebSocket;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiConsumer;

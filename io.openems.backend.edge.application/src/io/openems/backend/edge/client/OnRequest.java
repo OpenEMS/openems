@@ -2,8 +2,6 @@ package io.openems.backend.edge.client;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.java_websocket.WebSocket;
-
 import io.openems.backend.edge.application.BackendEdgeServerApp;
 import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.exceptions.OpenemsError;
@@ -12,6 +10,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

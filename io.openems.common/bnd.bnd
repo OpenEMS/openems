@@ -5,15 +5,16 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.wrapper.Java-WebSocket,\
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.opczip,\
 	org.apache.felix.http.jetty12,\
+	${jettywebsocket},\
 	org.apache.felix.http.servlet-api,\
 	org.ops4j.pax.logging.pax-logging-api,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.wrapper.Java-WebSocket
 
 -includeresource.resources: \
 	resources

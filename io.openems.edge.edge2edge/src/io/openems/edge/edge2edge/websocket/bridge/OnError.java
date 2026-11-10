@@ -2,11 +2,11 @@ package io.openems.edge.edge2edge.websocket.bridge;
 
 import java.net.ConnectException;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.websocket.WebSocket;
 
 public class OnError implements io.openems.common.websocket.OnError {
 
