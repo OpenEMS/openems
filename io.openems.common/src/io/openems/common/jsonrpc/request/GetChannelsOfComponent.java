@@ -2,6 +2,7 @@ package io.openems.common.jsonrpc.request;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.stringSerializer;
 import static io.openems.common.utils.JsonUtils.toJsonObject;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -14,6 +15,8 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
@@ -109,22 +112,48 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 			// category = ChannelCategory.STATE
 			Level level, //
 
-			// category = ChannelCategory.ENUM
-			List<OptionsEnumEntry> options //
+			// category = ChannelCategory.ENUM -> OptionsEnumEntry list (JSON object
+			// name->value)
+			// type = OpenemsType.STRING with options -> StringEnumEntry list (JSON array of
+			// values)
+			List<OptionsEntry> options //
 	) {
 
-		public record OptionsEnumEntry(String name, int value) {
+		public interface OptionsEntry {
 
-			/**
-			 * Creates a {@link OptionsEnumEntry} from a {@link OptionsEnum}.
-			 * 
-			 * @param optionsEnum the {@link OptionsEnum}
-			 * @return the created {@link OptionsEnumEntry}
-			 */
-			public static OptionsEnumEntry from(OptionsEnum optionsEnum) {
-				return new OptionsEnumEntry(optionsEnum.getName(), optionsEnum.getValue());
+			public record OptionsEnumEntry(String name, int value) implements OptionsEntry {
+
+				protected static OptionsEnumEntry from(OptionsEnum optionsEnum) {
+					return new OptionsEnumEntry(optionsEnum.getName(), optionsEnum.getValue());
+				}
 			}
 
+			public record StringEnumEntry(String value) implements OptionsEntry {
+			}
+
+			/**
+			 * Creates {@link OptionsEnumEntry} options from {@link OptionsEnum}s.
+			 *
+			 * @param options the {@link OptionsEnum}s
+			 * @return the created options
+			 */
+			public static List<OptionsEntry> fromOptionsEnums(OptionsEnum[] options) {
+				return Stream.of(options) //
+						.<OptionsEntry>map(OptionsEnumEntry::from) //
+						.toList();
+			}
+
+			/**
+			 * Creates {@link StringEnumEntry} options from string values.
+			 *
+			 * @param options the allowed string values
+			 * @return the created options
+			 */
+			public static List<OptionsEntry> fromStringEnums(String[] options) {
+				return Stream.of(options) //
+						.<OptionsEntry>map(StringEnumEntry::new) //
+						.toList();
+			}
 		}
 
 		/**
@@ -135,6 +164,20 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 		 */
 		public static JsonSerializer<GetChannelsOfComponent.ChannelRecord> serializer() {
 			return jsonObjectSerializer(GetChannelsOfComponent.ChannelRecord.class, json -> {
+				final var category = json.getEnum("category", ChannelCategory.class);
+				final List<OptionsEntry> options;
+				if (category == ChannelCategory.ENUM) {
+					options = json.getNullableJsonObjectPath("options") //
+							.mapIfPresent(o -> o.collectStringKeys(
+									mapping(t -> new OptionsEntry.OptionsEnumEntry(t.getKey(), t.getValue().getAsInt()),
+											toList())));
+				} else if (json.getEnum("type", OpenemsType.class) == OpenemsType.STRING) {
+					options = json.getNullableJsonArrayPath("options") //
+							.mapIfPresent(a -> a.getAsList(stringSerializer()).stream()
+									.<OptionsEntry>map(OptionsEntry.StringEnumEntry::new).toList());
+				} else {
+					options = null;
+				}
 				return new GetChannelsOfComponent.ChannelRecord(//
 						json.getString("id"), //
 						json.getObject("accessMode", accessModeSerializer()), //
@@ -142,12 +185,28 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 						json.getString("text"), //
 						json.getEnum("type", OpenemsType.class), //
 						json.getObject("unit", unitSerializer()), //
-						json.getEnum("category", ChannelCategory.class), //
+						category, //
 						json.getEnumOrNull("level", Level.class), //
-						json.getNullableJsonObjectPath("options").mapIfPresent(o -> o.collectStringKeys(
-								mapping(t -> new OptionsEnumEntry(t.getKey(), t.getValue().getAsInt()), toList()))) //
+						options //
 				);
 			}, obj -> {
+				JsonElement optionsJson = null;
+				if (obj.options() != null) {
+					if (obj.category() == ChannelCategory.ENUM) {
+						optionsJson = obj.options() //
+								.stream() //
+								.map(e -> (OptionsEntry.OptionsEnumEntry) e) //
+								.collect(toJsonObject(OptionsEntry.OptionsEnumEntry::name,
+										i -> new JsonPrimitive(i.value())));
+					} else {
+						var array = new JsonArray();
+						for (var e : obj.options()) {
+							array.add(((OptionsEntry.StringEnumEntry) e).value());
+						}
+						optionsJson = array;
+					}
+				}
+				final JsonElement optionsJsonFinal = optionsJson;
 				return JsonUtils.buildJsonObject() //
 						.addProperty("id", obj.id()) //
 						.add("accessMode", accessModeSerializer().serialize(obj.accessMode())) //
@@ -157,8 +216,7 @@ public class GetChannelsOfComponent implements EndpointRequestType<Request, Resp
 						.add("unit", unitSerializer().serialize(obj.unit())) //
 						.addProperty("category", obj.category()) //
 						.onlyIf(obj.level() != null, t -> t.addProperty("level", obj.level())) //
-						.onlyIf(obj.options() != null, t -> t.add("options", obj.options().stream() //
-								.collect(toJsonObject(OptionsEnumEntry::name, i -> new JsonPrimitive(i.value()))))) //
+						.onlyIf(optionsJsonFinal != null, t -> t.add("options", optionsJsonFinal)) //
 						.build();
 			});
 		}
