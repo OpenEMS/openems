@@ -112,19 +112,23 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(HagerEcr380dMeter.class, accessMode, 0x002C) //
+						// INTEGER Channels -> UINT32 (2 words)
 						.channel(0x0000, HagerEcr380dMeter.ChannelId.V_L1_L2, ModbusType.UINT32) //
 						.channel(0x0002, HagerEcr380dMeter.ChannelId.V_L2_L3, ModbusType.UINT32) //
 						.channel(0x0004, HagerEcr380dMeter.ChannelId.V_L3_L1, ModbusType.UINT32) //
-						.channel(0x0006, HagerEcr380dMeter.ChannelId.ER_PLUS_L1, ModbusType.UINT32) //
-						.channel(0x0008, HagerEcr380dMeter.ChannelId.I_NEUTRAL, ModbusType.UINT64) //
-						.channel(0x000C, HagerEcr380dMeter.ChannelId.ER_PLUS_SUM, ModbusType.UINT64) //
-						.channel(0x0010, HagerEcr380dMeter.ChannelId.ER_MINUS_SUM, ModbusType.UINT64) //
-						.channel(0x0014, HagerEcr380dMeter.ChannelId.ER_PLUS_L1, ModbusType.UINT64) //
-						.channel(0x0018, HagerEcr380dMeter.ChannelId.ER_PLUS_L2, ModbusType.UINT64) //
-						.channel(0x001C, HagerEcr380dMeter.ChannelId.ER_PLUS_L3, ModbusType.UINT64) //
-						.channel(0x0020, HagerEcr380dMeter.ChannelId.ER_MINUS_L1, ModbusType.UINT64) //
-						.channel(0x0024, HagerEcr380dMeter.ChannelId.ER_MINUS_L2, ModbusType.UINT64) //
-						.channel(0x0028, HagerEcr380dMeter.ChannelId.ER_MINUS_L3, ModbusType.UINT64) //
+						.channel(0x0006, HagerEcr380dMeter.ChannelId.I_NEUTRAL, ModbusType.UINT32) //
+						// LONG Channels -> UINT64 (4 words)
+						.channel(0x0008, HagerEcr380dMeter.ChannelId.ER_PLUS_SUM, ModbusType.UINT64) //
+						.channel(0x000C, HagerEcr380dMeter.ChannelId.ER_MINUS_SUM, ModbusType.UINT64) //
+						.channel(0x0010, HagerEcr380dMeter.ChannelId.ER_PLUS_L1, ModbusType.UINT64) //
+						.channel(0x0014, HagerEcr380dMeter.ChannelId.ER_PLUS_L2, ModbusType.UINT64) //
+						.channel(0x0018, HagerEcr380dMeter.ChannelId.ER_PLUS_L3, ModbusType.UINT64) //
+						.channel(0x001C, HagerEcr380dMeter.ChannelId.ER_MINUS_L1, ModbusType.UINT64) //
+						.channel(0x0020, HagerEcr380dMeter.ChannelId.ER_MINUS_L2, ModbusType.UINT64) //
+						.channel(0x0024, HagerEcr380dMeter.ChannelId.ER_MINUS_L3, ModbusType.UINT64) //
+						// Reserved, keeps the declared Nature length of 0x002C
+						.uint32Reserved(0x0028) //
+						.uint32Reserved(0x002A) //
 						.build());
 	}
 
@@ -250,15 +254,31 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		);
 	}
 
+	/**
+	 * Reads the cumulated energy registers.
+	 *
+	 * <p>
+	 * Note on the polarity: {@link ElectricityMeter} defines
+	 * ActiveProductionEnergy as the integral over the <em>positive</em> values of
+	 * ActivePower and ActiveConsumptionEnergy as the integral over the
+	 * <em>negative</em> values. As ActivePower is mapped from the device without
+	 * inversion, the meter's Ea+ (imported energy) is the positive direction and
+	 * therefore maps to ActiveProductionEnergy, while Ea- (exported energy) maps to
+	 * ActiveConsumptionEnergy. Core Sum derives GridBuyActiveEnergy from
+	 * ActiveProductionEnergy and GridSellActiveEnergy from
+	 * ActiveConsumptionEnergy.
+	 *
+	 * @return the task reading the cumulated energies
+	 */
 	private FC3ReadRegistersTask getEnergyTask() {
 		return new FC3ReadRegistersTask(//
 				ENERGY_START_ADDRESS, //
 				Priority.HIGH, //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, // Ea+ (ΣT)
 						new UnsignedDoublewordElement(ENERGY_START_ADDRESS | 0x0000), SCALE_FACTOR_3), //
 				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_SUM,
 						new UnsignedDoublewordElement(ENERGY_START_ADDRESS | 0x0002), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, // Ea- (ΣT)
 						new UnsignedDoublewordElement(ENERGY_START_ADDRESS | 0x0004), SCALE_FACTOR_3), //
 				this.m(HagerEcr380dMeter.ChannelId.ER_MINUS_SUM,
 						new UnsignedDoublewordElement(ENERGY_START_ADDRESS | 0x0006), SCALE_FACTOR_3), //
@@ -269,21 +289,27 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 		);
 	}
 
+	/**
+	 * Reads the cumulated energy registers per phase.
+	 *
+	 * @see #getEnergyTask() for the Ea+/Ea- to Production/Consumption polarity
+	 * @return the task reading the cumulated energies per phase
+	 */
 	private FC3ReadRegistersTask getEnergyByPhaseTask() {
 		return new FC3ReadRegistersTask(//
 				ENERGY_PER_PHASE_START_ADDRESS, //
 				Priority.HIGH, //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, // Ea+ L1
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x0000), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, // Ea+ L2
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x0002), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, // Ea+ L3
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x0004), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, // Ea- L1
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x0006), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, // Ea- L2
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x0008), SCALE_FACTOR_3), //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3,
+				this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, // Ea- L3
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x000A), SCALE_FACTOR_3), //
 				this.m(HagerEcr380dMeter.ChannelId.ER_PLUS_L1,
 						new UnsignedDoublewordElement(ENERGY_PER_PHASE_START_ADDRESS | 0x000C), SCALE_FACTOR_3),
