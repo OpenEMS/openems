@@ -1,0 +1,406 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Basics"
+msgstr "Grundlagen"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Existing systems"
+msgstr "Bestehende Systeme"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Devices"
+msgstr "Geräte"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Storage systems control"
+msgstr "Speichersystem-Steuerung"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "EV charging station control"
+msgstr "E-Auto-Ladestation-Steuerung"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "I/O control"
+msgstr "I/O-Steuerung"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Schedule"
+msgstr "Fahrplan"
+
+#. type: #sec-schedule
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/schedule/forecasts.adoc[Forecasts for consumption and production]"
+msgstr ""
+"xref:user/schedule/forecasts.adoc[Prognosen für Verbrauch und Erzeugung]"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "External interfaces"
+msgstr "Externe Schnittstellen"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Cloud interfaces"
+msgstr "Cloud-Schnittstellen"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Third-party systems"
+msgstr "Fremdsysteme"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Data"
+msgstr "Daten"
+
+#. type: Title ===
+#: l10n/nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Troubleshooting"
+msgstr "Fehlersuche"
+
+#. type: Title =
+#: modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "OpenEMS: Overview"
+msgstr "OpenEMS: Übersicht"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/overview.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"__As of: 2026-11-02 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 02.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"These pages give insight into **how selected OpenEMS functions work**: what "
+"they do, when they intervene, what can be set and what to watch out for. "
+"They are aimed at users and operators, not at developers. They are based on "
+"the current OpenEMS source code (as of the end of October 2026)."
+msgstr ""
+"Diese Seiten geben Einblick, **wie ausgewählte Funktionen von OpenEMS "
+"arbeiten**: was sie bewirken, wann sie eingreifen, was man einstellen kann "
+"und worauf man achten sollte. Sie richten sich an Anwender und Betreiber, "
+"nicht an Entwickler. Grundlage ist der aktuelle OpenEMS-Quellcode (Stand "
+"Ende Oktober 2026)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Pages"
+msgstr "Seiten"
+
+#. type: #sec-basics
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/basics/energy-flows.adoc[Production, consumption, grid and "
+"storage] – what is measured and what is calculated"
+msgstr ""
+"xref:user/basics/energy-flows.adoc[Erzeugung, Verbrauch, Netz und Speicher] "
+"– was gemessen und was berechnet wird"
+
+#. type: #sec-existing-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/systems/fenecon-home.adoc[FENECON Home] – structure, settings and "
+"protective functions of the home storage system"
+msgstr ""
+"xref:user/systems/fenecon-home.adoc[FENECON Home] – Aufbau, Einstellungen "
+"und Schutzfunktionen des Heimspeichers"
+
+#. type: #sec-existing-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery] – "
+"communication with the BMS, when the battery is full or empty, limits, "
+"emergency reserve, startup and shutdown"
+msgstr ""
+"xref:user/systems/fenecon-home-battery.adoc[FENECON-Home-Batterie] – "
+"Kommunikation mit dem BMS, wann die Batterie voll oder leer ist, Grenzen, "
+"Notstromreserve, Start und Abschaltung"
+
+#. type: #sec-devices
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/devices/cluster.adoc[Cluster] – combining several storage systems, "
+"PV inverters, charge points or OpenEMS devices into one"
+msgstr ""
+"xref:user/devices/cluster.adoc[Cluster] – mehrere Speicher, PV-"
+"Wechselrichter, Ladepunkte oder OpenEMS-Geräte zu einem zusammenfassen"
+
+#. type: #sec-devices
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/devices/controllable-inverters.adoc[Controllable inverters] – "
+"which inverters from other manufacturers OpenEMS can control and what has to "
+"be set for this"
+msgstr ""
+"xref:user/devices/controllable-inverters.adoc[Steuerbare Wechselrichter] – "
+"welche Wechselrichter anderer Hersteller OpenEMS steuern kann und was dafür "
+"eingestellt sein muss"
+
+#. type: #sec-storage-systems-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] "
+"– complying with the feed-in limit and not filling the storage too early"
+msgstr ""
+"xref:user/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung] "
+"– Einspeisegrenze einhalten und den Speicher nicht zu früh füllen"
+
+#. type: #sec-storage-systems-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/storage-control/ripple-control-receiver.adoc[Ripple control "
+"receiver] – feed-in limitation by the grid operator (0/30/60 %)"
+msgstr ""
+"xref:user/storage-control/ripple-control-receiver.adoc[Rundsteuerempfänger] "
+"– Einspeisebegrenzung durch den Netzbetreiber (0/30/60 %)"
+
+#. type: #sec-storage-systems-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs] – "
+"using cheap electricity, avoiding expensive electricity"
+msgstr ""
+"xref:user/storage-control/time-of-use-tariffs.adoc[Dynamische Stromtarife] – "
+"günstigen Strom nutzen, teuren meiden"
+
+#. type: #sec-storage-systems-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/storage-control/section-14a-enwg.adoc[§ 14a EnWG] – storage "
+"limitation by the grid operator and time-variable grid fees"
+msgstr ""
+"xref:user/storage-control/section-14a-enwg.adoc[§ 14a EnWG] – "
+"Speicherbegrenzung durch den Netzbetreiber und zeitvariable Netzentgelte"
+
+#. type: #sec-ev-charging-station-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and "
+"phase switching] – charging an electric car with solar power"
+msgstr ""
+"xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen und "
+"Phasenumschaltung] – Elektroauto mit Solarstrom laden"
+
+#. type: #sec-ev-charging-station-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control "
+"compared] – OpenEMS, evcc and openWB: wallboxes, charging modes, home "
+"storage, load management"
+msgstr ""
+"xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox-Steuerung im "
+"Vergleich] – OpenEMS, evcc und openWB: Wallboxen, Lademodi, Hausspeicher, "
+"Lastmanagement"
+
+#. type: #sec-i-o-control
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/io-control/heat-pumps-and-heating-elements.adoc[Controlling heat "
+"pumps and heating elements] – using solar power as heat"
+msgstr ""
+"xref:user/io-control/heat-pumps-and-heating-elements.adoc[Wärmepumpe und "
+"Heizstab steuern] – Solarstrom als Wärme nutzen"
+
+#. type: #sec-schedule
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/schedule/overview.adoc[Overview] – what the system plans for today "
+"and tomorrow"
+msgstr ""
+"xref:user/schedule/overview.adoc[Überblick] – was das System für heute und "
+"morgen plant"
+
+#. type: #sec-schedule
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/schedule/weather.adoc[Weather] – where the weather data comes from"
+msgstr "xref:user/schedule/weather.adoc[Wetter] – woher die Wetterdaten kommen"
+
+#. type: #sec-external-interfaces
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON] – "
+"e.g. from a home automation system"
+msgstr ""
+"xref:user/external-interfaces/rest-control.adoc[Steuern über REST/JSON] – z. "
+"B. aus einer Hausautomation"
+
+#. type: #sec-external-interfaces
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/external-interfaces/json-rpc.adoc[JSON-RPC] – the common "
+"“language” of the interfaces"
+msgstr ""
+"xref:user/external-interfaces/json-rpc.adoc[JSON-RPC] – die gemeinsame "
+"„Sprache“ der Schnittstellen"
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/overview.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"xref:user/external-interfaces/websocket.adoc[Websocket] – the connection of "
+"the web interface, user roles"
+msgstr ""
+"xref:user/external-interfaces/websocket.adoc[Websocket] – die Verbindung der "
+"Weboberfläche, Benutzerrollen"
+
+#. type: #sec-cloud-interfaces
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the "
+"backend] – what the system sends to the central server and when"
+msgstr ""
+"xref:user/cloud-interfaces/backend-data-transfer.adoc[Datenübertragung zum "
+"Backend] – was die Anlage wann an den zentralen Server sendet"
+
+#. type: #sec-third-party-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] – "
+"comparison of Home Assistant, evcc and openWB"
+msgstr ""
+"xref:user/third-party/overview.adoc[Fremdsysteme an OpenEMS] – Vergleich von "
+"Home Assistant, evcc und openWB"
+
+#. type: #sec-third-party-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/third-party/evcc.adoc[evcc] – templates for REST and Modbus, "
+"storage control and limits"
+msgstr ""
+"xref:user/third-party/evcc.adoc[evcc] – Vorlagen für REST und Modbus, "
+"Speichersteuerung und Grenzen"
+
+#. type: #sec-third-party-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/third-party/home-assistant.adoc[Home Assistant] – integration "
+"“Fenecon FEMS & OpenEMS”: communication, control and limits"
+msgstr ""
+"xref:user/third-party/home-assistant.adoc[Home Assistant] – Integration "
+"„Fenecon FEMS & OpenEMS“: Kommunikation, Steuerung und Grenzen"
+
+#. type: #sec-third-party-systems
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/third-party/openwb.adoc[openWB] – openWB reads OpenEMS (REST), "
+"OpenEMS reads openWB (MQTT)"
+msgstr ""
+"xref:user/third-party/openwb.adoc[openWB] – openWB liest OpenEMS (REST), "
+"OpenEMS liest openWB (MQTT)"
+
+#. type: #sec-data
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/data/export.adoc[Exporting data] – what the Excel export contains "
+"and how else to get data out"
+msgstr ""
+"xref:user/data/export.adoc[Daten exportieren] – was im Excel-Export steht "
+"und wie man Daten anders herausholt"
+
+#. type: #sec-data
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/data/history-rrd4j.adoc[History] – how histories are stored and "
+"why values are sometimes wrong"
+msgstr ""
+"xref:user/data/history-rrd4j.adoc[Historie] – wie Verläufe gespeichert "
+"werden und warum Werte manchmal nicht stimmen"
+
+#. type: #sec-troubleshooting
+#: modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/troubleshooting/log-entries.adoc[Understanding log entries] – what "
+"is in the log and how to tell whether it matters"
+msgstr ""
+"xref:user/troubleshooting/log-entries.adoc[Log-Einträge verstehen] – was im "
+"Log steht und woran man erkennt, ob es wichtig ist"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Terms"
+msgstr "Begriffe"
+
+#. type: Table
+#: modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid ""
+"| Term\n"
+"| Meaning\n"
+"\n"
+"| Edge\n"
+"| The OpenEMS software on the energy management device on site.\n"
+"| Backend\n"
+"| Central server through which systems can be monitored remotely.\n"
+"| UI\n"
+"| The web interface (online monitoring).\n"
+"| Component\n"
+"| A building block of the system in OpenEMS, e.g. a meter, the storage or a control function. Each component has an ID such as `+ess0+` (storage) or `+meter0+` (grid meter).\n"
+"| Channel\n"
+"| A single measured value or control value, e.g. `+_sum/EssSoc+` (state of charge of the storage).\n"
+"| Controller\n"
+"| A control function that decides anew every second, e.g. grid-optimized charge.\n"
+"| Meta\n"
+"| The general system settings: location, currency, grid connection limits.\n"
+msgstr ""
+"| Begriff\n"
+"| Bedeutung\n"
+"\n"
+"| Edge\n"
+"| Die OpenEMS-Software auf dem Energiemanagement-Gerät vor Ort.\n"
+"| Backend\n"
+"| Zentraler Server, über den Anlagen aus der Ferne überwacht werden können.\n"
+"| UI\n"
+"| Die Weboberfläche (Online-Monitoring).\n"
+"| Komponente\n"
+"| Ein Baustein der Anlage in OpenEMS, z. B. ein Zähler, der Speicher oder eine Regelfunktion. Jede Komponente hat eine ID wie `+ess0+` (Speicher) oder `+meter0+` (Netzzähler).\n"
+"| Kanal\n"
+"| Ein einzelner Messwert oder Steuerwert, z. B. `+_sum/EssSoc+` (Ladezustand des Speichers).\n"
+"| Controller\n"
+"| Eine Regelfunktion, die jede Sekunde neu entscheidet, z. B. die netzdienliche Beladung.\n"
+"| Meta\n"
+"| Die allgemeinen Systemeinstellungen: Standort, Währung, Netzanschluss-Grenzen.\n"

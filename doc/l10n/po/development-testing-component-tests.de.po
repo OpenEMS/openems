@@ -1,0 +1,497 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Component tests"
+msgstr "OpenEMS-Entwicklung: Tests"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"xref:edge/implement.adoc[Implementing a Device] shows a first JUnit test. "
+"This page describes the test framework in more detail. Components are tested "
+"without running OSGi. The test framework in `+io.openems.edge.common+` "
+"(package `+io.openems.edge.common.test+`) creates the component, sets "
+"references by hand, activates it with a test configuration and replays "
+"Cycles."
+msgstr ""
+"xref:latest@edge/implement.adoc[Implementing a Device] zeigt einen ersten "
+"JUnit-Test. Diese Seite beschreibt das Test-Framework genauer. Komponenten "
+"werden ohne laufendes OSGi getestet. Das Test-Framework in "
+"`+io.openems.edge.common+` (Paket `+io.openems.edge.common.test+`) erzeugt "
+"die Komponente, setzt Referenzen von Hand, aktiviert sie mit einer Test-"
+"Konfiguration und spielt Zyklen nach."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Running"
+msgstr "Ausführen"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "./gradlew :io.openems.edge.controller.ess.balancing:test\n"
+msgstr "./gradlew :io.openems.edge.controller.ess.balancing:test\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"`+${testpath}+` (`+cnf/build.bnd+`) contains JUnit Jupiter and the Vintage "
+"engine; both styles run. Rule from `+CLAUDE.md+`: keep the existing style in "
+"existing files (many still use JUnit 4 with `+org.junit.Test+`), write new "
+"test classes with Jupiter only if the bundle already uses Jupiter, and never "
+"mix both in one file."
+msgstr ""
+"Unter `+${testpath}+` (`+cnf/build.bnd+`) stehen JUnit Jupiter und die "
+"Vintage-Engine; beide Stile laufen. Regel aus `+CLAUDE.md+`: In bestehenden "
+"Dateien den vorhandenen Stil beibehalten (viele nutzen noch JUnit 4 mit "
+"`+org.junit.Test+`), neue Testklassen nur dann mit Jupiter schreiben, wenn "
+"das Bundle Jupiter schon nutzt, und nie beides in einer Datei mischen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Structure of a test"
+msgstr "Aufbau eines Tests"
+
+#. type: #sec-structure-of-a-test
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid "Example from `+BalancingImplTest+`:"
+msgstr "Beispiel aus `+BalancingImplTest+`:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid ""
+"new ControllerTest(new ControllerEssBalancingImpl())\n"
+"        .addReference(\"ess\", new DummyManagedSymmetricEss(\"ess0\")\n"
+"                .setPower(new DummyPower(0.3, 0.3, 0.1)))\n"
+"        .addReference(\"meter\", new DummyElectricityMeter(\"meter0\"))\n"
+"        .activate(MyConfig.create()\n"
+"                .setId(\"ctrl0\")\n"
+"                .setEssId(\"ess0\")\n"
+"                .setMeterId(\"meter0\")\n"
+"                .setTargetGridSetpoint(0)\n"
+"                .build())\n"
+"        .next(new TestCase()\n"
+"                .input(\"ess0\", SymmetricEss.ChannelId.ACTIVE_POWER, 0)\n"
+"                .input(\"meter0\", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)\n"
+"                .output(\"ess0\", SET_ACTIVE_POWER_EQUALS, 6000))\n"
+"        .next(new TestCase()\n"
+"                .input(\"ess0\", SymmetricEss.ChannelId.ACTIVE_POWER, 0)\n"
+"                .input(\"meter0\", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)\n"
+"                .output(\"ess0\", SET_ACTIVE_POWER_EQUALS, 12000));\n"
+msgstr ""
+"new ControllerTest(new ControllerEssBalancingImpl())\n"
+"        .addReference(\"ess\", new DummyManagedSymmetricEss(\"ess0\")\n"
+"                .setPower(new DummyPower(0.3, 0.3, 0.1)))\n"
+"        .addReference(\"meter\", new DummyElectricityMeter(\"meter0\"))\n"
+"        .activate(MyConfig.create()\n"
+"                .setId(\"ctrl0\")\n"
+"                .setEssId(\"ess0\")\n"
+"                .setMeterId(\"meter0\")\n"
+"                .setTargetGridSetpoint(0)\n"
+"                .build())\n"
+"        .next(new TestCase()\n"
+"                .input(\"ess0\", SymmetricEss.ChannelId.ACTIVE_POWER, 0)\n"
+"                .input(\"meter0\", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)\n"
+"                .output(\"ess0\", SET_ACTIVE_POWER_EQUALS, 6000))\n"
+"        .next(new TestCase()\n"
+"                .input(\"ess0\", SymmetricEss.ChannelId.ACTIVE_POWER, 0)\n"
+"                .input(\"meter0\", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000)\n"
+"                .output(\"ess0\", SET_ACTIVE_POWER_EQUALS, 12000));\n"
+
+#. type: Table
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid ""
+"| Step\n"
+"| Meaning\n"
+"\n"
+"| `+new ComponentTest(sut)+` / `+new ControllerTest(sut)+`\n"
+"| framework around the component under test (`+sut+`). `+ControllerTest+` additionally calls `+run()+` in the Controller step.\n"
+"| `+addReference(\"field\", object)+`\n"
+"| sets a `+@Reference+` field via reflection. The name is the field name or, for setter references, the method name (e.g. `+\"setModbus\"+`).\n"
+"| `+addComponent(object)+`\n"
+"| registers another component without assigning it to a field; if a `+DummyComponentManager+` is set as a reference, it is also entered there\n"
+"| `+activate(config)+`\n"
+"| calls the `+@Activate+` method with the test configuration; if `+activate()+` changes the configuration (e.g. reference filter), the component is deactivated and reactivated as in OSGi\n"
+"| `+next(testCase)+`\n"
+"| runs through one Cycle; `+next(testCase, n)+` repeats it n times\n"
+"| `+deactivate()+`\n"
+"| calls `+@Deactivate+`\n"
+msgstr ""
+"| Schritt\n"
+"| Bedeutung\n"
+"\n"
+"| `+new ComponentTest(sut)+` / `+new ControllerTest(sut)+`\n"
+"| Rahmen um die zu testende Komponente (`+sut+`). `+ControllerTest+` ruft zusätzlich `+run()+` im Controller-Schritt auf.\n"
+"| `+addReference(\"feld\", objekt)+`\n"
+"| setzt ein `+@Reference+`-Feld per Reflection. Der Name ist der Feldname bzw. bei Setter-Referenzen der Methodenname (z. B. `+\"setModbus\"+`).\n"
+"| `+addComponent(objekt)+`\n"
+"| registriert eine weitere Komponente, ohne sie einem Feld zuzuweisen; ist ein `+DummyComponentManager+` als Referenz gesetzt, wird sie auch dort eingetragen\n"
+"| `+activate(config)+`\n"
+"| ruft die `+@Activate+`-Methode mit der Test-Konfiguration auf; ändert `+activate()+` die Konfiguration (z. B. Referenz-Filter), wird wie in OSGi deaktiviert und neu aktiviert\n"
+"| `+next(testCase)+`\n"
+"| spielt einen Zyklus durch; `+next(testCase, n)+` wiederholt ihn n-mal\n"
+"| `+deactivate()+`\n"
+"| ruft `+@Deactivate+` auf\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"In the example, the setpoint rises from Cycle to Cycle (6000, 12000 …) "
+"because the setpoint is set “with filter” and the PID filter of "
+"`+DummyPower(0.3, 0.3, 0.1)+` takes effect (p, i, d)."
+msgstr ""
+"Im Beispiel steigt der Sollwert von Zyklus zu Zyklus (6000, 12000 …), weil "
+"der Sollwert „mit Filter“ gesetzt wird und der PID-Filter von "
+"`+DummyPower(0.3, 0.3, 0.1)+` wirkt (p, i, d)."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Sequence of `+next()+`"
+msgstr "Ablauf von `+next()+`"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"The order corresponds to the real Cycle (see xref:development/fundamentals/"
+"cycle-and-ess-power.adoc[Cycle]):"
+msgstr ""
+"Die Reihenfolge entspricht dem echten Zyklus (siehe xref:development/"
+"fundamentals/cycle-and-ess-power.adoc[Zyklus]):"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid "Apply time leap (`+timeleap+`)"
+msgstr "Zeitsprung anwenden (`+timeleap+`)"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"Event BEFORE_PROCESS_IMAGE, then switch the Process Image of the component "
+"under test"
+msgstr ""
+"Ereignis BEFORE_PROCESS_IMAGE, dann Prozessabbild der zu testenden "
+"Komponente wechseln"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"**Set inputs**: the values from `+input(…)+` are set and immediately adopted "
+"into the Process Image. They are thus already visible via `+value()+` in the "
+"same test Cycle."
+msgstr ""
+"**Eingaben setzen**: Die Werte aus `+input(…)+` werden gesetzt und sofort "
+"ins Prozessabbild übernommen. Sie sind damit schon im selben Testzyklus über "
+"`+value()+` sichtbar."
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"Events AFTER_PROCESS_IMAGE, BEFORE_CONTROLLERS, execute Controllers, "
+"AFTER_CONTROLLERS, BEFORE_WRITE, EXECUTE_WRITE, AFTER_WRITE"
+msgstr ""
+"Ereignisse AFTER_PROCESS_IMAGE, BEFORE_CONTROLLERS, Controller ausführen, "
+"AFTER_CONTROLLERS, BEFORE_WRITE, EXECUTE_WRITE, AFTER_WRITE"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid "**Check outputs**"
+msgstr "**Ausgaben prüfen**"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid "How `+output(…)+` checks:"
+msgstr "Wie `+output(…)+` prüft:"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"for write-channels the **next write value** (`+getNextWriteValueAndReset()"
+"+`),"
+msgstr ""
+"bei Write-Channels den **nächsten Schreibwert** "
+"(`+getNextWriteValueAndReset()+`),"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"for other Channels the **next value** (`+getNextValue()+`), i.e. the value "
+"that the component set in this Cycle,"
+msgstr ""
+"bei anderen Channels den **nächsten Wert** (`+getNextValue()+`), also den "
+"Wert, den die Komponente in diesem Zyklus gesetzt hat,"
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"`+outputReadValue(…)+` instead checks `+value()+` from the current Process "
+"Image."
+msgstr ""
+"`+outputReadValue(…)+` prüft stattdessen `+value()+` aus dem aktuellen "
+"Prozessabbild."
+
+#. type: #sec-sequence-of-next
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"For your own checks, there are callbacks per phase, e.g. "
+"`+onBeforeProcessImage(…)+`, `+onAfterControllers…+`, `+onAfterWrite…+`."
+msgstr ""
+"Für eigene Prüfungen gibt es Callbacks je Phase, z. B. "
+"`+onBeforeProcessImage(…)+`, `+onAfterControllers…+`, `+onAfterWrite…+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Controlling time"
+msgstr "Zeit steuern"
+
+#. type: #sec-controlling-time
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"Components that work with time get the clock via "
+"`+componentManager.getClock()+`. In the test:"
+msgstr ""
+"Komponenten, die mit Zeit arbeiten, holen die Uhr über "
+"`+componentManager.getClock()+`. Im Test:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid ""
+"final var clock = createDummyClock();     // TimeLeapClock, start 2020-01-01 00:00 UTC\n"
+"new ControllerTest(new MyControllerImpl())\n"
+"        .addReference(\"componentManager\", new DummyComponentManager(clock))\n"
+"        ...\n"
+"        .next(new TestCase()\n"
+"                .timeleap(clock, 15, ChronoUnit.MINUTES)\n"
+"                .output(...));\n"
+msgstr ""
+"final var clock = createDummyClock();     // TimeLeapClock, Start 01.01.2020 00:00 UTC\n"
+"new ControllerTest(new MyControllerImpl())\n"
+"        .addReference(\"componentManager\", new DummyComponentManager(clock))\n"
+"        ...\n"
+"        .next(new TestCase()\n"
+"                .timeleap(clock, 15, ChronoUnit.MINUTES)\n"
+"                .output(...));\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"`+createDummyClock()+` is in `+io.openems.common.test.TestUtils+`. This "
+"allows delays, day changes or quarter-hour grids, for example, to be tested "
+"without waiting."
+msgstr ""
+"`+createDummyClock()+` steht in `+io.openems.common.test.TestUtils+`. Damit "
+"lassen sich z. B. Verzögerungen, Tageswechsel oder Viertelstunden-Raster "
+"ohne Warten testen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Strict mode"
+msgstr "Strenger Modus"
+
+#. type: #sec-strict-mode
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"`+new TestCase().activateStrictMode()+` requires that all Channels of the "
+"tested component appear in inputs or outputs. Channels that you deliberately "
+"do not check are excluded with `+withIgnoredChannelsForStrictMode(…)+`. This "
+"finds forgotten or unexpectedly set Channels."
+msgstr ""
+"`+new TestCase().activateStrictMode()+` verlangt, dass alle Channels der "
+"getesteten Komponente in Eingaben oder Ausgaben vorkommen. Channels, die man "
+"bewusst nicht prüft, nimmt man mit `+withIgnoredChannelsForStrictMode(…)+` "
+"aus. Das findet vergessene oder unerwartet gesetzte Channels."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Dummy components"
+msgstr "Dummy-Komponenten"
+
+#. type: Table
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid ""
+"| Class\n"
+"| Bundle (package `+…test+`)\n"
+"| Purpose\n"
+"\n"
+"| `+DummyManagedSymmetricEss+`, `+DummySymmetricEss+`, `+DummyHybridEss+`, `+DummyMetaEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| ESS\n"
+"| `+DummyPower+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| ESS Power, optionally with PID parameters or maximum power\n"
+"| `+DummyElectricityMeter+`, `+DummySinglePhaseElectricityMeter+`\n"
+"| `+io.openems.edge.meter.api+`\n"
+"| meters\n"
+"| `+DummyComponentManager+`, `+DummyCycle+`, `+DummyMeta+`, `+DummyEventAdmin+`\n"
+"| `+io.openems.edge.common+`\n"
+"| core services\n"
+"| `+DummyConfigurationAdmin+`, `+TimeLeapClock+`\n"
+"| `+io.openems.common+`\n"
+"| Configuration Admin, controllable clock\n"
+"| `+DummyModbusBridge+`\n"
+"| `+io.openems.edge.bridge.modbus+`\n"
+"| Modbus Bridge with predefined registers\n"
+"| `+DummyScheduler+`\n"
+"| `+io.openems.edge.scheduler.api+`\n"
+"| Scheduler\n"
+msgstr ""
+"| Klasse\n"
+"| Bundle (Paket `+…test+`)\n"
+"| Zweck\n"
+"\n"
+"| `+DummyManagedSymmetricEss+`, `+DummySymmetricEss+`, `+DummyHybridEss+`, `+DummyMetaEss+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| Speicher\n"
+"| `+DummyPower+`\n"
+"| `+io.openems.edge.ess.api+`\n"
+"| Leistungsverteilung, optional mit PID-Parametern oder Maximalleistung\n"
+"| `+DummyElectricityMeter+`, `+DummySinglePhaseElectricityMeter+`\n"
+"| `+io.openems.edge.meter.api+`\n"
+"| Zähler\n"
+"| `+DummyComponentManager+`, `+DummyCycle+`, `+DummyMeta+`, `+DummyEventAdmin+`\n"
+"| `+io.openems.edge.common+`\n"
+"| Kerndienste\n"
+"| `+DummyConfigurationAdmin+`, `+TimeLeapClock+`\n"
+"| `+io.openems.common+`\n"
+"| Configuration Admin, steuerbare Uhr\n"
+"| `+DummyModbusBridge+`\n"
+"| `+io.openems.edge.bridge.modbus+`\n"
+"| Modbus-Bridge mit vorgegebenen Registern\n"
+"| `+DummyScheduler+`\n"
+"| `+io.openems.edge.scheduler.api+`\n"
+"| Scheduler\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"The dummy classes are in the `+src+` folder of the API bundles (package `+…"
+"test+`) so that other bundles can use them in tests. The API bundle must be "
+"in the `+-buildpath+` or `+-testpath+` for this."
+msgstr ""
+"Die Dummy-Klassen liegen im `+src+`-Ordner der API-Bundles (Paket `+…"
+"test+`), damit andere Bundles sie im Test nutzen können. Das API-Bundle muss "
+"dafür im `+-buildpath+` oder `+-testpath+` stehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "Testing Modbus drivers"
+msgstr "Modbus-Treiber testen"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid ""
+"new ComponentTest(new MeterJanitzaUmg96rmeImpl())\n"
+"        .addReference(\"setModbus\", new DummyModbusBridge(\"modbus0\")\n"
+"                .withRegisters(19000,\n"
+"                        0x3F80, 0x0000,      // VOLTAGE_L1 = 1.0f\n"
+"                        0x3F80, 0x0000,      // VOLTAGE_L2\n"
+"                        ...))\n"
+"        .activate(MyConfig.create()\n"
+"                .setId(\"meter0\")\n"
+"                .setModbusId(\"modbus0\")\n"
+"                .setType(GRID)\n"
+"                .build())\n"
+"        .next(new TestCase()\n"
+"                .output(ElectricityMeter.ChannelId.VOLTAGE_L1, 1000));\n"
+msgstr ""
+"new ComponentTest(new MeterJanitzaUmg96rmeImpl())\n"
+"        .addReference(\"setModbus\", new DummyModbusBridge(\"modbus0\")\n"
+"                .withRegisters(19000,\n"
+"                        0x3F80, 0x0000,      // VOLTAGE_L1 = 1.0f\n"
+"                        0x3F80, 0x0000,      // VOLTAGE_L2\n"
+"                        ...))\n"
+"        .activate(MyConfig.create()\n"
+"                .setId(\"meter0\")\n"
+"                .setModbusId(\"modbus0\")\n"
+"                .setType(GRID)\n"
+"                .build())\n"
+"        .next(new TestCase()\n"
+"                .output(ElectricityMeter.ChannelId.VOLTAGE_L1, 1000));\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"`+DummyModbusBridge+` offers, among others, `+withRegister(address, value)"
+"+`, `+withRegisters(start, values…)+`, `+withRegistersFloat32(start, floats…)"
+"+` and `+withInputRegister(s)+` for FC4. This allows register assignment, "
+"word order and converters to be checked without a device."
+msgstr ""
+"`+DummyModbusBridge+` bietet u. a. `+withRegister(adresse, wert)+`, "
+"`+withRegisters(start, werte…)+`, `+withRegistersFloat32(start, floats…)+` "
+"und `+withInputRegister(s)+` für FC4. So lassen sich Registerbelegung, "
+"Wortreihenfolge und Converter prüfen, ohne Gerät."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#, no-wrap
+msgid "MyConfig"
+msgstr "MyConfig"
+
+#. type: #sec-myconfig
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+msgid ""
+"Each test has a class `+MyConfig extends AbstractComponentConfig implements "
+"Config+` with a builder. It implements all methods of the Config annotation "
+"and returns the values from the builder. `+AbstractComponentConfig+` "
+"(`+io.openems.common.test+`) provides the property structure that "
+"`+activate()+` expects. New Config fields must also be added to "
+"`+MyConfig+`, otherwise the test cannot be compiled."
+msgstr ""
+"Jeder Test hat eine Klasse `+MyConfig extends AbstractComponentConfig "
+"implements Config+` mit einem Builder. Sie implementiert alle Methoden der "
+"Config-Annotation und liefert die Werte aus dem Builder. "
+"`+AbstractComponentConfig+` (`+io.openems.common.test+`) liefert dabei die "
+"Property-Struktur, die `+activate()+` erwartet. Neue Config-Felder müssen "
+"auch in `+MyConfig+` ergänzt werden, sonst lässt sich der Test nicht "
+"übersetzen."

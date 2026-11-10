@@ -1,0 +1,133 @@
+= OpenEMS: Data transfer to the backend
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+The **backend** is a central server to which systems can connect. It provides online monitoring on the move, the long-term history and remote access. This page describes **what the system sends to the backend and when**, and what it receives from there.
+
+Whether anything is sent at all depends on the setup: without a backend connection, all data remains on the device. With plain OpenEMS, you operate the backend yourself or use that of a provider.
+
+[#sec-setup]
+== Setup
+
+The connection is established by the function **Controller.Api.Backend** (usually `+ctrlBackend0+`).
+
+[cols="3*",options="header"]
+|===
+| Setting
+| Default
+| Meaning
+
+| Uri
+| –
+| Address of the backend, e.g. `+wss://…+`. Without an entry there is no connection.
+| Apikey
+| –
+| Access key. The backend uses it to recognize the system.
+| Proxy
+| –
+| optional, if the network requires a proxy
+| Persistence Priority
+| HIGH
+| which values are sent continuously
+| Aggregated values Persistence Priority
+| LOW
+| which values are sent as 5-minute values
+| Resend values Persistence Priority
+| HIGH
+| which values are resent after a connection failure
+| Api-Timeout
+| 60 s
+| how long a control value set via the backend applies without being renewed
+|===
+
+[#sec-how-the-connection-is-established]
+== How the connection is established
+
+* **The system establishes the connection itself**, outwards to the backend. Therefore no port has to be opened in the router.
+* It is a permanent websocket connection. Interrupted connections are automatically re-established.
+* When establishing the connection, the system sends the **Apikey** and a random identifier that is newly generated at each program start. The user name and password of the system are not transmitted.
+
+[#sec-what-is-sent-and-when]
+== What is sent and when
+
+[cols="3*",options="header"]
+|===
+| What
+| When
+| Content
+
+| **Configuration**
+| after the connection is established and at every change
+| all configured devices and functions with their settings and the list of their values
+| **Current values**
+| **every second** (per program cycle)
+| only values that have **changed**; once every 5 minutes all values in full
+| **5-minute values**
+| every 5 minutes, with a random delay of up to 4½ minutes
+| summarized values of the last 5 minutes: average, for meter readings the reading
+| **Resent values**
+| after a connection failure, at the earliest 5 minutes after reconnecting (randomly distributed, up to about an hour later)
+| the values stored locally in the meantime (from the xref:user/data/history-rrd4j.adoc[history])
+| **Schedule**
+| only as long as someone is viewing it via the backend
+| the current xref:user/schedule/overview.adoc[schedule] at each re-planning
+| **System log**
+| only as long as someone is following it via the backend
+| the current log lines of the system
+| **Responses**
+| on request
+| Responses to requests from the web interface, e.g. histories, settings, app center
+|===
+
+The random delay for the 5-minute values ensures that not all systems send in the same second.
+
+[#sec-which-values-are-sent]
+== Which values are sent
+
+Not every measured value goes to the backend. Each value has a **priority** (VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH). Only values with at least the set priority are sent:
+
+* **Continuously, every second:** values with priority HIGH or above, i.e. mainly the important total values such as grid, production, consumption and storage.
+* **As 5-minute values:** values with priority LOW or above, i.e. significantly more detailed values of individual devices.
+* **Resent:** values with priority HIGH or above. This setting should match the priority of the local history, because only what was stored locally can be resent.
+
+Pure control values (write-only) are never sent.
+
+[#sec-after-a-connection-failure]
+== After a connection failure
+
+* During the interruption, the per-second values are lost; there is no buffer.
+* The system notes in its local history **when it could not send**.
+* After reconnecting, it first sends the configuration and all current values.
+* At the earliest after 5 minutes, randomly distributed up to about an hour later, the missing periods from the local history are resent, in sections of 5 minutes. These values have the resolution of the local history (5-minute values).
+* Without a local history (e.g. rrd4j deactivated), the gap in the backend remains.
+
+[#sec-what-the-system-receives-from-the-backend]
+== What the system receives from the backend
+
+[cols="2*",options="header"]
+|===
+| What
+| What for
+
+| Requests from the web interface
+| Anyone operating the system on the move sends their requests via the backend. The user's xref:user/external-interfaces/websocket.adoc#sec-functions-and-user-roles[roles] in the backend apply.
+| Exchange electricity prices
+| as one of the price sources for xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs]
+| Exchange rates
+| for converting prices into the currency of the system
+|===
+
+Prices and exchange rates are **subscribed to**: the backend sends them as soon as they change. If no backend is set up or it cannot be reached for more than 5 minutes, the system retrieves this data itself from the internet.
+
+[#sec-good-to-know]
+== Good to know
+
+* **Data volume:** The per-second values account for most of the data volume. Since only changed values are sent, the volume depends on how much is changing in the system.
+* **Data protection:** With the backend, measured values and the configuration leave the house. If you do not want this, do not set up a backend connection. The system is fully functional locally.
+* **Control via the backend:** Control values set via the backend also only apply until the Api-Timeout (see xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON]).
+* **Troubleshooting:** If the system cannot send, the backend function shows a warning (“Unable to send”).

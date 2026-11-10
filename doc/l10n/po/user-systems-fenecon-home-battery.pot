@@ -1,0 +1,1183 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Overview"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Typical questions"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Connection"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "OpenEMS: FENECON Home battery"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"This page describes what the **OpenEMS source code** contains about the "
+"battery of the FENECON Home: how OpenEMS talks to the battery management "
+"system (BMS), when the battery counts as full or empty, how charging and "
+"discharging are limited and controlled, how the battery is started and shut "
+"down, and which values and messages exist. The structure, models and "
+"inverters of the FENECON Home are on the page xref:user/systems/fenecon-"
+"home.adoc[FENECON Home]. FENECON devices run the manufacturer's own FEMS; "
+"individual values may differ there."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"All figures come from the code. What the BMS does internally (e.g. how it "
+"calculates the state of charge) is not in the OpenEMS code and is not "
+"described here."
+msgstr ""
+
+#. type: #sec-overview
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Three components are involved in the storage:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Component\n"
+"| ID\n"
+"| Task\n"
+"\n"
+"| Battery (“Battery FENECON Home”)\n"
+"| battery0\n"
+"| reads the BMS, calculates the permitted charging and discharging currents, starts and stops the battery\n"
+"| Battery inverter (GoodWe)\n"
+"| batteryInverter0\n"
+"| receives the battery values and limits from OpenEMS and implements the power\n"
+"| Storage system (“ESS Generic Managed Symmetric”)\n"
+"| ess0\n"
+"| combines both; all control functions (self-consumption, emergency reserve, tariffs) act on it\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "The route of the data:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"BMS ──Modbus──> battery0 ──> ess0 <── control functions\n"
+"                   │          │\n"
+"    battery values,│          │power specifications\n"
+"    current limits v          v\n"
+"                batteryInverter0\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Important for understanding: With the FENECON Home, the GoodWe inverter does "
+"**not** talk directly to the BMS. OpenEMS reads the BMS and passes the "
+"values on to the inverter (operating mode “EMS”). If OpenEMS fails, the "
+"inverter lacks these values."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Module types"
+msgstr ""
+
+#. type: #sec-module-types
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS detects the module type from the BMS at startup. With very old BMS "
+"firmware that does not report the type, 52 Ah is assumed. After a firmware "
+"update, the type is read again."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| 52 Ah\n"
+"| 64.4 Ah\n"
+"\n"
+"| Energy per module\n"
+"| 2.2 kWh\n"
+"| 2.8 kWh\n"
+"| Cells per module (in series)\n"
+"| 14\n"
+"| 14\n"
+"| Temperature sensors per module\n"
+"| 3\n"
+"| 5\n"
+"| Module voltage min. / max.\n"
+"| 42.0 V / 49.0 V (3.00 / 3.50 V per cell)\n"
+"| 40.6 V / 49.7 V (2.90 / 3.55 V per cell)\n"
+"| Initial value for the maximum current\n"
+"| 40 A\n"
+"| 50 A\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"From the number of towers and the modules per tower, OpenEMS calculates:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Capacity** = towers × modules per tower × energy per module (example: 1 "
+"tower with 5 modules of 2.8 kWh each = 14 kWh). This is the **nominal "
+"value**; the state of health (SoH) is not included."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "**End-of-charge voltage** = modules per tower × maximum module voltage."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**End-of-discharge voltage** = modules per tower × minimum module voltage."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Because, according to the code, the BMS sometimes reports values that are "
+"too small at the beginning, OpenEMS recalculates with every change. If an "
+"inverter with the detected module type counts as not permitted, OpenEMS "
+"locks charging and discharging (see xref:user/systems/fenecon-"
+"home.adoc[FENECON Home], “Impermissible combination”)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Communication with the BMS"
+msgstr ""
+
+#. type: #sec-connection
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Serial Modbus connection (RS485) via the internal interface of the control "
+"computer, 19,200 baud, 8 data bits, no parity, 1 stop bit, Modbus address 1. "
+"The FENECON Home app sets this up."
+msgstr ""
+
+#. type: #sec-connection
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"According to a comment in the code, the BMS hangs if it sees requests to "
+"other devices on the bus for about 30 to 45 ms. OpenEMS therefore inserts a "
+"pause of **50 ms** between requests to different devices on the same bus."
+msgstr ""
+
+#. type: #sec-connection
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**OpenEMS writes nothing to the BMS.** It only reads. The battery is started "
+"via a relay and shut down via a communication pause (see <<sec-start-and-"
+"shutdown,Start and shutdown>>)."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "What is read"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Area\n"
+"| Values\n"
+"| Query\n"
+"\n"
+"| Entire battery\n"
+"| Voltage, current, state of charge (SoC), state of health (SoH), lowest and highest cell voltage with cell number, lowest and highest temperature with sensor number, charging and discharging current permitted by the BMS, number of towers, cell limit voltages, alarm, warning and fault bits\n"
+"| every cycle\n"
+"| Control\n"
+"| “BMS started” (yes/no), island mode detected, current consumption of the control computer\n"
+"| every cycle\n"
+"| Per tower\n"
+"| Firmware version, status (charging, discharging, idle, charge/discharge switch on/off), alarms, SoC, SoH, voltage, current, cell voltages, remaining capacity, temperatures, serial number, statistics (see below)\n"
+"| every cycle or less often\n"
+"| Per module\n"
+"| every single cell voltage, every temperature sensor, two temperatures of the balancing circuit, serial number\n"
+"| less often\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS only creates the channels for towers and modules once the number of "
+"towers and modules is known. They are named, for example, `+battery0/"
+"Tower0Module2Cell003Voltage+` (cell 3 in module 2 of the first tower). "
+"Serial numbers of the BMS and modules are stored."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "What is passed on to the inverter"
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS continuously writes to the GoodWe inverter: voltage, current, SoC, "
+"SoH, average temperature, number of modules, end-of-charge and end-of-"
+"discharge voltage as well as the permitted charging and discharging currents."
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Some special features:"
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The **SoC is passed on as at least 1 %**. According to the code, this "
+"prevents the inverter from starting a forced charge itself at 0 %."
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS sets the inverter's own minimum SoC values (grid and island mode) to "
+"**0 %**. The limits for “empty” therefore come solely from OpenEMS and the "
+"BMS."
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The current limits passed on rise by at most **1 A per cycle** and are "
+"limited to the maximum current of the inverter (see page xref:user/systems/"
+"fenecon-home.adoc[FENECON Home])."
+msgstr ""
+
+#. type: #sec-what-is-passed-on-to-the-inverter
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"If the battery is not started, OpenEMS passes on default values and the "
+"storage system does not permit any power."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "State of charge (SoC)"
+msgstr ""
+
+#. type: #sec-state-of-charge-soc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The SoC comes **directly from the BMS**. OpenEMS does not calculate it "
+"itself, but adopts it for the battery and the storage system. The display in "
+"the web interface is therefore the value of the BMS."
+msgstr ""
+
+#. type: #sec-state-of-charge-soc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"With several storage systems, the total SoC is weighted by capacity (see "
+"xref:user/devices/cluster.adoc[Cluster])."
+msgstr ""
+
+#. type: #sec-state-of-charge-soc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "The state of health (SoH) also comes from the BMS."
+msgstr ""
+
+#. type: #sec-state-of-charge-soc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"0 % and 100 % do not mean that OpenEMS shuts down hard there. What matters "
+"are the limits in the next two sections, and they depend mainly on the "
+"**cell voltages**."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "When is the battery full?"
+msgstr ""
+
+#. type: #sec-when-is-the-battery-full
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"From a high SoC, the permitted charging current is reduced in stages. The "
+"percentages refer to the maximum current (initial value 40 A or 50 A, or the "
+"highest value the BMS has ever reported); between the support points, the "
+"calculation is linear:"
+msgstr ""
+
+#. type: Block title
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Charging current depending on the SoC"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| SoC\n"
+"| 52 Ah\n"
+"| 64.4 Ah\n"
+"\n"
+"| up to just below 96 %\n"
+"| 100 %\n"
+"| 100 %\n"
+"| 96 %\n"
+"| 100 %\n"
+"| 80 %\n"
+"| 97 %\n"
+"| 62.5 %\n"
+"| 60 %\n"
+"| 98 %\n"
+"| 40 %\n"
+"| 40 %\n"
+"| 99 %\n"
+"| 20 %\n"
+"| 20 %\n"
+"| 100 %\n"
+"| 5 % (2 A)\n"
+"| 8 % (4 A)\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"A small charging current is therefore still permitted even at 100 %. The "
+"code does not give a reason for this."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"In addition, the **highest cell voltage** limits the current (64.4 Ah "
+"modules only):"
+msgstr ""
+
+#. type: Block title
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Charging current depending on the highest cell voltage (64.4 Ah)"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Cell voltage\n"
+"| permitted charging current\n"
+"\n"
+"| up to 3.45 V\n"
+"| 100 %\n"
+"| 3.54 V\n"
+"| 8 %\n"
+"| from 3.58 V\n"
+"| 0 (charging locked)\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"This curve does not exist for 52 Ah modules; there the BMS and the "
+"overcharge protection take effect."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Overcharge protection (forced discharge):** If the highest cell voltage is "
+"at or above the start threshold for 60 seconds, the battery is discharged "
+"with a small current until the voltage falls below the second threshold. "
+"After that, charging remains locked until the voltage drops below the third "
+"threshold."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Forced discharge from\n"
+"| until below\n"
+"| Charging locked until below\n"
+"\n"
+"| 52 Ah\n"
+"| 3.55 V\n"
+"| 3.49 V\n"
+"| 3.45 V\n"
+"| 64.4 Ah\n"
+"| 3.63 V\n"
+"| 3.54 V\n"
+"| 3.45 V\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"In short: The battery is “full” when the BMS reports 100 % and the charging "
+"current drops to a few amperes, or when a cell reaches the upper voltage "
+"limit. Then there is no more (significant) charging. Whether the BMS itself "
+"curtails even earlier depends on its firmware; OpenEMS adopts its limit (see "
+"<<sec-how-the-limits-come-together,How the limits come together>>)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "When is the battery empty?"
+msgstr ""
+
+#. type: #sec-when-is-the-battery-empty
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"There is **no SoC curve** in OpenEMS for discharging. Limiting is via the "
+"**lowest cell voltage**:"
+msgstr ""
+
+#. type: Block title
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Discharging current depending on the lowest cell voltage"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Cell voltage\n"
+"| 52 Ah\n"
+"| 64.4 Ah\n"
+"\n"
+"| from 3.10 V\n"
+"| 100 %\n"
+"| 100 %\n"
+"| 3.00 V\n"
+"| 10 %\n"
+"| approx. 55 % (linear between 2.90 and 3.10 V)\n"
+"| just above 2.90 V\n"
+"| 10 %\n"
+"| 10 %\n"
+"| 2.90 V and below\n"
+"| 10 %\n"
+"| 0 (discharging locked)\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Deep discharge protection (forced charge):** If the lowest cell voltage is "
+"at or below the start threshold for 60 seconds, the battery is charged with "
+"**2 A per tower**, from the grid if necessary, until the voltage reaches the "
+"second threshold. After that, discharging remains locked until the third "
+"threshold is exceeded."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Forced charge from\n"
+"| until\n"
+"| Discharging locked until above\n"
+"\n"
+"| 52 Ah\n"
+"| 2.90 V\n"
+"| 3.00 V\n"
+"| 3.10 V\n"
+"| 64.4 Ah\n"
+"| 2.85 V\n"
+"| 2.95 V\n"
+"| 3.10 V\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Critical undervoltage (2.8 V):** Regardless of the module type, OpenEMS "
+"monitors the limit of 2.8 V per cell. In the code, the message texts consist "
+"of an English part and a German part; the table gives the English part and "
+"the meaning of the German part:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Situation\n"
+"| Message\n"
+"| Consequence\n"
+"\n"
+"| below 2.8 V, battery is being charged\n"
+"| Warning “Low min voltage warning”: low state of charge because the battery cannot be charged by the inverter; without charging, the battery will soon shut down to protect itself\n"
+"| none\n"
+"| below 2.8 V, without charging, less than 10 minutes\n"
+"| the same warning\n"
+"| none\n"
+"| below 2.8 V, without charging, longer than 10 minutes\n"
+"| Fault “Low min voltage fault”: low state of charge; the battery will soon shut down to protect itself\n"
+"| OpenEMS shuts down the battery\n"
+"| battery shut down, last cell voltage below 2.8 V\n"
+"| Fault “Low min voltage fault - Battery stopped”: the battery was shut down because of a low state of charge; please contact your installer\n"
+"| battery stays off\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"According to the code, the battery is not restarted on its own in this case "
+"as long as the last measured value is below 2.8 V; hence the reference to "
+"the installer."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Emergency reserve:** In normal operation, discharging usually stops much "
+"earlier, namely at the set emergency reserve (see <<sec-emergency-"
+"reserve,Emergency reserve>>)."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"In short: For everyday use, the battery is “empty” when the emergency "
+"reserve is reached. If the reserve is switched off, the cell voltage "
+"decides: from about 3.1 V, discharging is throttled, at 2.9 V (64.4 Ah) it "
+"is locked, and below that the forced charge begins. The displayed SoC can "
+"still be above 0 % or already show 0 %; this depends on the calculation in "
+"the BMS."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "How the limits come together"
+msgstr ""
+
+#. type: #sec-how-the-limits-come-together
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS calculates a permitted charging and a permitted discharging current "
+"in each cycle (about every second). It is the **smallest** of these values:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Source\n"
+"| Charging\n"
+"| Discharging\n"
+"\n"
+"| Limit reported by the BMS itself\n"
+"| yes\n"
+"| yes\n"
+"| SoC curve\n"
+"| yes\n"
+"| –\n"
+"| Cell voltage curve (lowest and highest cell)\n"
+"| yes (64.4 Ah)\n"
+"| yes\n"
+"| Temperature curve\n"
+"| empty in the code, so no limitation by OpenEMS\n"
+"| likewise\n"
+"| Slow ramp-up\n"
+"| yes\n"
+"| yes\n"
+"| Forced charge / forced discharge\n"
+"| yes\n"
+"| yes\n"
+"| Battery not started or values missing\n"
+"| 0\n"
+"| 0\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Special features:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Only reduce while limiting:** Once a curve has reduced the current, it can "
+"then only lower it further. Only when the value is back in the unlimited "
+"range is the limitation considered lifted."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Slow ramp-up:** The permitted current rises by at most 0.1 A per second. "
+"From 0 to 50 A this takes a good 8 minutes. After a start or after a "
+"limitation, the battery therefore initially charges and discharges only "
+"slowly."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Temperature: OpenEMS itself does not limit according to temperature. The BMS "
+"does this via its own limit."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "The storage system (ess0) calculates the permitted power from this:"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Charging: permitted charging current × battery voltage."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Discharging: permitted discharging current × battery voltage × 0.95 "
+"(efficiency deduction), plus the current PV power at the hybrid inverter."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The permitted power also rises only slowly (at most 5 % of the target value "
+"per second)."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The “ESS Protection” setting of the storage system is set to “voltage "
+"control”. According to the code, this needs the internal resistance of the "
+"battery; however, the FENECON Home battery does not report it in the "
+"intended form. According to the code, this additional limitation therefore "
+"has no effect on the FENECON Home (concluded from the code, not checked on a "
+"system)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "How the battery is controlled"
+msgstr ""
+
+#. type: #sec-how-the-battery-is-controlled
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Within the permitted limits, the control functions decide how much is "
+"charged or discharged:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Function\n"
+"| Effect on the battery\n"
+"| Page\n"
+"\n"
+"| Self-consumption optimization (default)\n"
+"| Inverter controls the grid connection to 0: charge surplus, discharge for demand\n"
+"| xref:user/systems/fenecon-home.adoc[FENECON Home]\n"
+"| Emergency reserve\n"
+"| Discharging ends at the reserve, recharging if necessary\n"
+"| <<sec-emergency-reserve,below>>\n"
+"| Grid-optimized charge\n"
+"| shifts charging to the midday peak\n"
+"| xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]\n"
+"| Time-of-use tariff\n"
+"| locks discharging in cheap hours or charges from the grid\n"
+"| xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs]\n"
+"| § 14a, ripple control receiver\n"
+"| limit the power on instruction from the grid operator\n"
+"| xref:user/storage-control/section-14a-enwg.adoc[§ 14a], xref:user/storage-control/ripple-control-receiver.adoc[Ripple control receiver]\n"
+"| DC surplus feed-in\n"
+"| feeds in PV surplus when the battery is full\n"
+"| xref:user/systems/fenecon-home.adoc[FENECON Home]\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS combines simultaneous specifications; the limits of the battery "
+"always take priority."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Emergency reserve"
+msgstr ""
+
+#. type: #sec-emergency-reserve
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The emergency reserve holds back part of the battery for a power failure. "
+"The Owner can switch it on and off in the storage settings and set it "
+"between 5 % and 100 %; the default is 10 %. According to the code, control "
+"works as follows (R = set reserve):"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| SoC\n"
+"| Behavior\n"
+"\n"
+"| above R {plus} 1 %\n"
+"| no limitation\n"
+"| R {plus} 1 %\n"
+"| Discharging is gently reduced to half the inverter power (or to the current DC PV power if this is greater)\n"
+"| R\n"
+"| Discharging only to the extent of the current DC PV power; the battery itself practically no longer delivers anything\n"
+"| below R\n"
+"| no output from the storage\n"
+"| R − 1 %\n"
+"| Charging with the power of additional AC-coupled PV systems\n"
+"| R − 2 % and recharging from the grid permitted\n"
+"| Charging from the grid with 10 % of the inverter power\n"
+"| R − 4 % and recharging from the grid permitted\n"
+"| Charging from the grid with 50 % of the inverter power\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Recharging continues up to R {plus} 1 % in each case. An SoC of 100 % also "
+"ends recharging."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Recharging from the grid** is a separate setting (“Activate maintenance of "
+"the emergency power reserve from the grid”, in the grid settings), off by "
+"default. The web interface points out that actively charging from the grid "
+"beyond the technically necessary maintenance charging must be registered and "
+"can affect the EEG subsidy."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The emergency reserve function does not query the grid state and also sets "
+"its discharge limit in island mode. OpenEMS passes on the specification to "
+"the inverter, likewise without taking the grid state into account. How the "
+"GoodWe inverter handles the specification in island mode is determined by "
+"its firmware; this is not in the OpenEMS code. According to its description, "
+"the function is intended for normal grid operation."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Start and shutdown"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Start"
+msgstr ""
+
+#. type: #sec-start
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The storage system first starts the battery, then the inverter. The battery "
+"goes through these steps:"
+msgstr ""
+
+#. type: #sec-start
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Wait until the BMS responds (60 seconds at most)."
+msgstr ""
+
+#. type: #sec-start
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"If the BMS reports “not started”, OpenEMS switches on the **start relay** "
+"(`+io0/Relay4+`, with the control computer CM4S Gen3 `+io0/Relay6+`), holds "
+"it for 10 seconds and switches it off again."
+msgstr ""
+
+#. type: #sec-start
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Wait until the BMS reports “started” and communication is established."
+msgstr ""
+
+#. type: #sec-start
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"A time limit of 120 seconds applies to each step. If it is exceeded, the "
+"battery reports “Running the Logic failed” (warning); the sequence stays in "
+"the same step and continues as soon as the condition is met. Charging and "
+"discharging are locked during the start."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Shutdown"
+msgstr ""
+
+#. type: #sec-shutdown
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS has **no shutdown command** for the BMS. Instead, it stops querying "
+"the BMS; according to the code, the BMS then shuts itself down after its own "
+"timeout. After 35 minutes, OpenEMS resumes the query. As soon as "
+"communication stops, the battery counts as stopped."
+msgstr ""
+
+#. type: #sec-shutdown
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "The battery is shut down:"
+msgstr ""
+
+#. type: #sec-shutdown
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"if a **fault** (level “Fault”) is pending on the storage system, the battery "
+"or the inverter. The storage system then stops the inverter and battery. "
+"Once the fault is gone and the battery is stopped, it starts both again."
+msgstr ""
+
+#. type: #sec-shutdown
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"in the event of critical undervoltage (see above). The battery then stays "
+"off."
+msgstr ""
+
+#. type: #sec-shutdown
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "if the setting “Start/stop behaviour” is set to STOP."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Firmware update"
+msgstr ""
+
+#. type: #sec-firmware-update
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The component contains an update function for the BMS firmware. According to "
+"the code, an update takes about 25 minutes, the battery cannot be used "
+"during this time, and the storage system goes into the maintenance state. An "
+"additional service supplies the firmware; there is no such service in the "
+"OpenEMS code. The update can therefore not be used in pure OpenEMS."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Messages"
+msgstr ""
+
+#. type: #sec-messages
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The BMS reports states in three levels: pre-alarm, level 1 and level 2, each "
+"for the entire battery and per tower (e.g. cell overvoltage, cell "
+"undervoltage, overcurrent, over- and undertemperature, cell voltage "
+"difference, low SoC or SoH). In OpenEMS, pre-alarm and level 1 are only yes/"
+"no values without a message. Only level 2 appears as a message; most of them "
+"as a **warning**, “cell overvoltage level 2” only as info. Hardware faults "
+"of the BMS (e.g. contactor does not close, fuse defective, short circuit) "
+"also appear as warnings."
+msgstr ""
+
+#. type: #sec-messages
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "Other messages:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Message\n"
+"| Level\n"
+"| Meaning\n"
+"\n"
+"| Warnings and faults on critical undervoltage\n"
+"| Warning / Fault\n"
+"| see <<sec-when-is-the-battery-empty,When is the battery empty?>>\n"
+"| “The installed inverter and battery combination is not authorised …”\n"
+"| Warning (inverter)\n"
+"| Module type does not match the inverter, charging and discharging locked\n"
+"| “Running the Logic failed”\n"
+"| Warning\n"
+"| a step in starting the battery takes longer than 120 seconds, or another error in the sequence\n"
+"| “Deep discharge protection triggered!” / “Over charge protection triggered!”\n"
+"| Fault (storage system)\n"
+"| Protection of the storage system; according to the code, only occurs if the charging and discharging limits become negative at the same time and remain so for 4 minutes\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Since a message of the “Fault” level stops the storage system, the warnings "
+"of the BMS do not shut down the battery; the undervoltage faults do."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Other values from the BMS"
+msgstr ""
+
+#. type: #sec-other-values-from-the-bms
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"OpenEMS reads a number of lifetime and statistics values per tower. They are "
+"visible in the channel view or via the interfaces:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid ""
+"| Value\n"
+"| Meaning\n"
+"\n"
+"| charged and discharged energy (total)\n"
+"| meter readings of the BMS in Wh\n"
+"| charged and discharged amount of charge\n"
+"| in mAh\n"
+"| remaining energy, remaining capacity\n"
+"| according to the BMS\n"
+"| efficiency charging/discharging, self-discharge rate\n"
+"| according to a comment in the code, only the first tower supplies valid values (e.g. about 94 % efficiency), the other towers show 0\n"
+"| internal resistance\n"
+"| per tower\n"
+"| counters for deep discharge and overcharge events\n"
+"| number\n"
+"| times\n"
+"| accumulated duration of deep discharge, overcharging, high, very high, low and very low temperature, and overcurrent during charging and discharging\n"
+"| serial numbers\n"
+"| BMS and each module; the prefix depends on the module type and, with the 64.4 Ah module, on the production date\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Other functions"
+msgstr ""
+
+#. type: #sec-other-functions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Measuring the state of health (SoH cycle):** A control function discharges "
+"the battery towards 0 %, charges it to 100 % and discharges it again, "
+"normally with 0.2 C and with a 30-minute pause between the phases. The SoH "
+"results from the discharged energy. A reference cycle can optionally run "
+"first."
+msgstr ""
+
+#. type: #sec-other-functions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Extending the battery:** Before installing further modules, an auxiliary "
+"function brings the storage to a suitable state of charge (for installers "
+"only)."
+msgstr ""
+
+#. type: #sec-other-functions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Two batteries on one inverter:** The component knows two battery "
+"connections on the inverter (“Port on BatteryInverter”)."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "**Why does the battery charge so slowly from 96 %?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"This is the SoC curve: above 96 % (52 Ah) or from 96 % (64.4 Ah), the "
+"charging current is gradually reduced down to 2 A or 4 A at 100 % (values "
+"for the initial maximum current)."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Why does the battery charge or discharge only slowly after a restart?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The permitted current rises by at most 0.1 A per second, the limit passed on "
+"to the inverter by 1 A per cycle and the permitted power by 5 % per second. "
+"It takes a few minutes to reach full power."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"**Why does the battery not discharge even though the SoC is still above the "
+"reserve?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Possible reasons according to the code: The lowest cell voltage is at or "
+"below 3.1 V and limits the current; after a forced charge, discharging is "
+"locked until above 3.1 V; a control function (e.g. time-of-use tariff) locks "
+"discharging; the battery is just starting."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "**Why does the battery charge from the grid at night?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Either it is maintaining the emergency reserve (only if “recharging from the "
+"grid” is permitted), it is being force-charged because of a very low cell "
+"voltage (2 A per tower, even without this permission), or a time-of-use "
+"tariff is charging deliberately."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "**Does the capacity show the actual condition?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"No. The displayed capacity is the nominal value from the number of modules. "
+"The condition is reflected by the SoH of the BMS."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "**What happens in the event of a fault at the inverter?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"The storage system stops the inverter and battery. The battery shuts down "
+"through the communication pause and is restarted after the fault has ended."
+msgstr ""
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"This page describes the OpenEMS source code. None of it has been tested on a "
+"system."
+msgstr ""
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid ""
+"Limits set by the BMS itself and its SoC calculation are not in the code; "
+"they can change with the BMS firmware."
+msgstr ""
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+msgid "The thresholds and curves are hard-coded and cannot be set."
+msgstr ""

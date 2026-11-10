@@ -1,0 +1,156 @@
+= Cycle, Scheduler and ESS Power
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+xref:edge/architecture.adoc[Edge Architecture] explains the input-process-output model, the Scheduler and the Process Image. This page adds the details from the code. Responsible for the Cycle is the singleton component `+_cycle+` (`+io.openems.edge.core+`, classes `+CycleImpl+` and `+CycleWorker+`).
+
+[#sec-cycle-time]
+== Cycle time
+
+* Default: **1000 ms** (`+Cycle.DEFAULT_CYCLE_TIME+`), adjustable in the component “Core Cycle” (field `+cycleTime+`).
+* `+_cycle/MeasuredCycleTime+` contains the time actually used by a Cycle.
+* For troubleshooting, there is a log verbosity (`+CycleLogVerbosity+`): summary, phases or individual components, each with time measurement.
+* At the beginning of each Cycle, the operating system's watchdog (systemd) is notified. If the Cycle hangs, systemd can restart the service, provided the watchdog is active in the service file.
+
+[#sec-sequence-of-a-cycle]
+== Sequence of a Cycle
+
+The order is in `+CycleWorker.forever()+`. All Cycle Events are sent synchronously via the Event Admin (`+EdgeEventConstants+`); the next step only starts when all receivers have finished.
+
+[cols="3*",options="header"]
+|===
+| No.
+| Step
+| Typical use
+
+| 1
+| Event `+TOPIC_CYCLE_BEFORE_PROCESS_IMAGE+`
+| Drivers hand over read values; Modbus Bridge completes read tasks
+| 2
+| **Switch Process Image**: for each enabled component (except `+_sum+`) `+channel.nextProcessImage()+`
+| from here on `+value()+` returns the new values
+| 3
+| Calculate `+_sum+` (`+updateChannelsBeforeProcessImage()+`) and switch its Process Image
+| totals match the device values just adopted
+| 4
+| Event `+TOPIC_CYCLE_AFTER_PROCESS_IMAGE+`
+| Components calculate derived values; with strategy `+BALANCE+`, `+_power+` rebuilds the model here
+| 5
+| Event `+TOPIC_CYCLE_BEFORE_CONTROLLERS+`
+| preparations before the Controllers
+| 6
+| **Execute Scheduler and Controllers**
+| `+Controller.run()+` in Scheduler order
+| 7
+| Event `+TOPIC_CYCLE_AFTER_CONTROLLERS+`
+| evaluation of the Controller results
+| 8
+| Event `+TOPIC_CYCLE_BEFORE_WRITE+`
+| `+_power+` solves the power distribution and calls `+applyPower()+` of the ESS
+| 9
+| Event `+TOPIC_CYCLE_EXECUTE_WRITE+`
+| Drivers write setpoints to the devices
+| 10
+| Event `+TOPIC_CYCLE_AFTER_WRITE+`
+| clean-up; `+_power+` (solver v1) discards the constraints of this Cycle
+|===
+
+An exception anywhere in this sequence only aborts the current Cycle; it is logged as “Error in Scheduler …” (with stack trace for `+NullPointerException+` and `+ClassCastException+`). The next Cycle starts normally.
+
+[#sec-scheduler-and-controllers]
+== Scheduler and Controllers
+
+* Without a Scheduler, no Controllers run; the log then reports “There are no Schedulers configured!”.
+* Several Schedulers are possible; they run sorted by their Component-ID. Each Scheduler provides an ordered list of Controller IDs via `+getControllers()+`.
+* Available Schedulers: `+allalphabetically+` (optionally a fixed list first, then all other Controllers alphabetically by ID), `+fixedorder+` (fixed list), `+daily+` (by time of day), `+jscalendar+` (by calendar rules).
+* If a Controller is missing or the ID is not a Controller, the Scheduler sets its State-Channel `+ControllerIsMissing+`.
+* A disabled Controller is skipped; `+_cycle/IgnoreDisabledController+` is set.
+* If `+run()+` throws an exception, it is logged, the State-Channel `+RunFailed+` (level FAULT) of the Controller is set and the next Controller is executed.
+
+[#sec-meaning-of-the-order]
+=== Meaning of the order
+
+Controllers that set ESS setpoints work via **constraints** of the power distribution. An earlier Controller can set constraints that later ones must comply with. Example: a Controller for § 14a sets a maximum charging power; a self-consumption Controller running later then receives at most this value. Limiting Controllers therefore come **before** optimizing ones in the order. Details on § 14a are on the user page xref:user/storage-control/section-14a-enwg.adoc[§ 14a].
+
+[#sec-ess-power-power]
+== ESS Power (`+_power+`)
+
+ESS (`+ManagedSymmetricEss+`) do not have setpoints written directly. Controllers set constraints, and the component `+_power+` (bundle `+io.openems.edge.ess.core+`, “ESS Power”) solves them together for all ESS.
+
+[#sec-setting-constraints]
+=== Setting constraints
+
+[cols="3*",options="header"]
+|===
+| Method on the ESS
+| Channel
+| Constraint
+
+| `+setActivePowerEqualsWithFilter(p)+`
+| `+SetActivePowerEquals+`
+| power = p, with control filter
+| `+setActivePowerEqualsWithoutFilter(p)+`
+| `+SetActivePowerEquals+`
+| power = p, without filter
+| `+setActivePowerLessOrEquals(p)+`
+| `+SetActivePowerLessOrEquals+`
+| power ≤ p
+| `+setActivePowerGreaterOrEquals(p)+`
+| `+SetActivePowerGreaterOrEquals+`
+| power ≥ p
+| accordingly `+…ReactivePower…+`
+| 
+| reactive power
+|===
+
+Signs: **negative = charge, positive = discharge**. Writing to one of these Channels immediately creates a constraint at the solver via `+onChannelSetNextWrite+`.
+
+* **With filter** for closed control loops that react to a grid meter (e.g. self-consumption optimization). The filter prevents oscillation.
+* **Without filter** if the value comes directly from a higher-level Controller or from the user.
+* For your own constraints, there is `+addPowerConstraint(…)+` or `+addPowerConstraintAndValidate(…)+`; the latter throws an exception if the constraint is incompatible with the previous ones.
+* `+getPower().getMaxPower(…)+` and `+getMinPower(…)+` return the leeway that remains after the previous constraints.
+
+[#sec-solving-and-applying]
+=== Solving and applying
+
+* Constraints only apply for one Cycle. Solver v1 discards them after writing (step 10) and creates the static limits of the ESS anew (`+getStaticConstraints()+`, e.g. permitted charging/discharging power); solver v2 rebuilds its model after the Process Image is switched (step 4). A Controller must therefore set its setpoints anew in every Cycle.
+* Solving takes place before writing (step 8). Each ESS receives the result via `+applyPower(activePower, reactivePower)+`; the driver converts it into device registers. Rounding is done to `+getPowerPrecision()+`.
+* If no solution is possible, the State-Channel `+_power/NotSolved+` (level WARNING) is set.
+
+[#sec-strategies-and-filters]
+=== Strategies and filters
+
+[cols="3*",options="header"]
+|===
+| Setting
+| Default
+| Meaning
+
+| `+strategy+`
+| `+OPTIMIZE_BY_MOVING_TOWARDS_TARGET+`
+| distribution across several ESS. All strategies except `+BALANCE+` use solver v1 (linear optimization); `+BALANCE+` uses the newer solver v2 (`+TreeSolver+`).
+| `+enablePid+`
+| on
+| PID filter for “with filter” setpoints; parameters `+p+`, `+i+`, `+d+`
+| `+enablePT1Filter+`
+| off
+| PT1 filter instead of PID (only if PID is off), time constant `+pt1TimeConstant+`
+| `+symmetricMode+`
+| on
+| keeps asymmetric ESS symmetric
+| `+debugMode+`
+| off
+| additional log output of the solver
+|===
+
+[#sec-notes-for-your-own-code]
+== Notes for your own code
+
+* In `+run()+`, only work with `+value()+`, not with `+getNextValue()+`; otherwise the Controller sees a value that other Controllers do not yet see in the same Cycle.
+* A value that a Controller writes to a Channel (`+_setNextValue+`) can only be read via `+value()+` in the next Cycle.
+* Slow work (network, calculations over many seconds) belongs in a separate thread or worker (`+AbstractWorker+`, `+AbstractCycleWorker+`), not in `+run()+` or a Cycle Event. All events run synchronously and extend the Cycle.

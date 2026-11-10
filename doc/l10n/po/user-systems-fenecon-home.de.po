@@ -1,0 +1,1120 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Title =
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "OpenEMS: FENECON Home"
+msgstr "OpenEMS: FENECON Home"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The FENECON Home is a home storage system consisting of a hybrid inverter, "
+"battery and energy management. This page summarizes what the **OpenEMS "
+"source code** contains about the FENECON Home: structure, settings, "
+"protective functions and additional functions. FENECON devices run the "
+"manufacturer's own FEMS; individual functions may differ there or be "
+"available earlier."
+msgstr ""
+"Das FENECON Home ist ein Heimspeichersystem aus Hybrid-Wechselrichter, "
+"Batterie und Energiemanagement. Diese Seite fasst zusammen, was der "
+"**OpenEMS-Quellcode** über das FENECON Home enthält: Aufbau, Einstellungen, "
+"Schutzfunktionen und Zusatzfunktionen. Auf FENECON-Geräten läuft das "
+"herstellereigene FEMS; einzelne Funktionen können dort abweichen oder früher "
+"verfügbar sein."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Models"
+msgstr "Modelle"
+
+#. type: #sec-models
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"OpenEMS has the following Home variants, each as a separate app in the app "
+"center:"
+msgstr ""
+"OpenEMS kennt folgende Home-Varianten, jeweils als eigene App im App Center:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Model\n"
+"| App\n"
+"| Inverter (according to the code)\n"
+"| Series\n"
+"| DC PV inputs (MPPT)\n"
+"\n"
+"| FENECON Home 10\n"
+"| App.FENECON.Home\n"
+"| FENECON FHI 10 DAH\n"
+"| ET\n"
+"| 2\n"
+"| FENECON Home 6\n"
+"| App.FENECON.Home6\n"
+"| FENECON ET Gen2 6K\n"
+"| EUB\n"
+"| 2\n"
+"| FENECON Home 10 Gen2\n"
+"| App.FENECON.Home10.Gen2\n"
+"| FENECON ET Gen2 10K\n"
+"| EUB\n"
+"| 3\n"
+"| FENECON Home 15\n"
+"| App.FENECON.Home15\n"
+"| FENECON ET Gen2 15K\n"
+"| EUB\n"
+"| 3\n"
+"| FENECON Home 20\n"
+"| App.FENECON.Home.20\n"
+"| FENECON FHI 20 DAH\n"
+"| ETT\n"
+"| 2\n"
+"| FENECON Home 30\n"
+"| App.FENECON.Home.30\n"
+"| FENECON FHI 30 DAH (internally 29.9 kW)\n"
+"| ETT\n"
+"| 3\n"
+msgstr ""
+"| Modell\n"
+"| App\n"
+"| Wechselrichter (laut Code)\n"
+"| Serie\n"
+"| DC-PV-Eingänge (MPPT)\n"
+"\n"
+"| FENECON Home 10\n"
+"| App.FENECON.Home\n"
+"| FENECON FHI 10 DAH\n"
+"| ET\n"
+"| 2\n"
+"| FENECON Home 6\n"
+"| App.FENECON.Home6\n"
+"| FENECON ET Gen2 6K\n"
+"| EUB\n"
+"| 2\n"
+"| FENECON Home 10 Gen2\n"
+"| App.FENECON.Home10.Gen2\n"
+"| FENECON ET Gen2 10K\n"
+"| EUB\n"
+"| 3\n"
+"| FENECON Home 15\n"
+"| App.FENECON.Home15\n"
+"| FENECON ET Gen2 15K\n"
+"| EUB\n"
+"| 3\n"
+"| FENECON Home 20\n"
+"| App.FENECON.Home.20\n"
+"| FENECON FHI 20 DAH\n"
+"| ETT\n"
+"| 2\n"
+"| FENECON Home 30\n"
+"| App.FENECON.Home.30\n"
+"| FENECON FHI 30 DAH (intern 29,9 kW)\n"
+"| ETT\n"
+"| 3\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"Technically, the inverters come from the GoodWe family. In the code, the "
+"series are called “ET” (Home 10), “ETT – Home Series 20 & 30 kW” and “EUB – "
+"Home Gen2 Series 6, 10 & 15 kW”. The inverter type is recognized by the "
+"serial number. The Home apps may only be seen and deleted by installers."
+msgstr ""
+"Die Wechselrichter stammen technisch aus der GoodWe-Familie. Im Code heißen "
+"die Serien „ET“ (Home 10), „ETT – Home Series 20 & 30 kW“ und „EUB – Home "
+"Gen2 Series 6, 10 & 15 kW“. Der Wechselrichtertyp wird an der Seriennummer "
+"erkannt. Die Home-Apps dürfen nur Installateure sehen und löschen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**DC inputs on Home 20 and 30:** Previously, the individual PV strings were "
+"entered there (Home 20: 4 strings, Home 30: 6 strings, i.e. 2 strings per "
+"MPPT). This division is marked as “no longer supported” in the code and is "
+"only displayed for existing systems. New entries are made per MPPT input: 2 "
+"for the Home 20, 3 for the Home 30."
+msgstr ""
+"**DC-Eingänge bei Home 20 und 30:** Früher wurden dort die einzelnen PV-"
+"Strings eingetragen (Home 20: 4 Strings, Home 30: 6 Strings, also 2 Strings "
+"je MPPT). Diese Einteilung ist im Code als „nicht mehr unterstützt“ markiert "
+"und wird nur noch für bestehende Anlagen angezeigt. Neu wird je MPPT-Eingang "
+"eingetragen: 2 beim Home 20, 3 beim Home 30."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Generations"
+msgstr "Generationen"
+
+#. type: #sec-generations
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"Two generations are commonly distinguished: **generation 1** is the Home 10 "
+"with 2.2 kWh battery modules, **generation 2** are the Home 6, 10 Gen2, 15, "
+"20 and 30 with 2.8 kWh modules. The OpenEMS code does not use this "
+"classification in this way. It distinguishes by **inverter series** and "
+"**battery module type**. This results in:"
+msgstr ""
+"Im Sprachgebrauch werden zwei Generationen unterschieden: **Generation 1** "
+"ist das Home 10 mit 2,2-kWh-Batteriemodulen, **Generation 2** sind Home 6, "
+"10 Gen2, 15, 20 und 30 mit 2,8-kWh-Modulen. Der OpenEMS-Code verwendet diese "
+"Einteilung so nicht. Er unterscheidet nach **Wechselrichter-Serie** und "
+"**Batteriemodul-Typ**. Daraus ergibt sich:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Home 10 (Gen 1)\n"
+"| Home 6 / 10 Gen2 / 15\n"
+"| Home 20 / 30\n"
+"\n"
+"| Inverter series\n"
+"| ET\n"
+"| EUB (“Home Gen2”)\n"
+"| ETT\n"
+"| Permitted battery modules\n"
+"| only 52 Ah (2.2 kWh)\n"
+"| 52 Ah (2.2 kWh) **or** 64.4 Ah (2.8 kWh)\n"
+"| only 64.4 Ah (2.8 kWh)\n"
+"| Max. battery current\n"
+"| 25 A\n"
+"| 25 A with 52 Ah modules, 40 A with 64.4 Ah modules\n"
+"| 50 A\n"
+"| Max. battery charging power\n"
+"| 10 kW\n"
+"| 9 / 16 / 24 kW\n"
+"| 20 / 30 kW\n"
+"| Max. battery discharging power\n"
+"| 10 kW\n"
+"| 6.6 / 11 / 16.5 kW\n"
+"| 20 / 30 kW\n"
+"| DC PV inputs (MPPT)\n"
+"| 2\n"
+"| 2 / 3 / 3\n"
+"| 2 / 3\n"
+"| Grid meter\n"
+"| Home 3-phase sensor (fixed)\n"
+"| integrated sensor or external sensor (120 A) or sensor with own current transformers\n"
+"| external sensor (120 A) or sensor with own current transformers\n"
+"| Additional AC meter (for AC PV)\n"
+"| yes\n"
+"| no\n"
+"| yes\n"
+msgstr ""
+"| \n"
+"| Home 10 (Gen 1)\n"
+"| Home 6 / 10 Gen2 / 15\n"
+"| Home 20 / 30\n"
+"\n"
+"| Wechselrichter-Serie\n"
+"| ET\n"
+"| EUB („Home Gen2“)\n"
+"| ETT\n"
+"| zulässige Batteriemodule\n"
+"| nur 52 Ah (2,2 kWh)\n"
+"| 52 Ah (2,2 kWh) **oder** 64,4 Ah (2,8 kWh)\n"
+"| nur 64,4 Ah (2,8 kWh)\n"
+"| max. Batteriestrom\n"
+"| 25 A\n"
+"| 25 A mit 52-Ah-Modulen, 40 A mit 64,4-Ah-Modulen\n"
+"| 50 A\n"
+"| max. Batterie-Ladeleistung\n"
+"| 10 kW\n"
+"| 9 / 16 / 24 kW\n"
+"| 20 / 30 kW\n"
+"| max. Batterie-Entladeleistung\n"
+"| 10 kW\n"
+"| 6,6 / 11 / 16,5 kW\n"
+"| 20 / 30 kW\n"
+"| DC-PV-Eingänge (MPPT)\n"
+"| 2\n"
+"| 2 / 3 / 3\n"
+"| 2 / 3\n"
+"| Netzzähler\n"
+"| Home-3-Phasensensor (fest)\n"
+"| integrierter Sensor oder externer Sensor (120 A) oder Sensor mit eigenen Stromwandlern\n"
+"| externer Sensor (120 A) oder Sensor mit eigenen Stromwandlern\n"
+"| zusätzlicher AC-Zähler (für AC-PV)\n"
+"| ja\n"
+"| nein\n"
+"| ja\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Important:** According to the code, the Home 6, 10 Gen2 and 15 may also be "
+"operated with the older 2.2 kWh modules, but then with lower battery current "
+"(25 instead of 40 A). The equation “Gen2 = 2.8 kWh modules” therefore only "
+"applies to the Home 20 and 30 in the code."
+msgstr ""
+"**Wichtig:** Laut Code dürfen Home 6, 10 Gen2 und 15 auch mit den älteren "
+"2,2-kWh-Modulen betrieben werden, dann aber mit geringerem Batteriestrom (25 "
+"statt 40 A). Die Gleichung „Gen2 = 2,8-kWh-Module“ gilt im Code also nur für "
+"Home 20 und 30."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Impermissible combination"
+msgstr "Unzulässige Kombination"
+
+#. type: #sec-impermissible-combination
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"OpenEMS checks whether the inverter and battery modules match. If the "
+"combination is not permitted, for example a Home 10 inverter (Gen 1) with "
+"2.8 kWh modules or a Home 20/30 with 2.2 kWh modules, then:"
+msgstr ""
+"OpenEMS prüft, ob Wechselrichter und Batteriemodule zusammenpassen. Ist die "
+"Kombination nicht zugelassen, zum Beispiel ein Home-10-Wechselrichter (Gen "
+"1) mit 2,8-kWh-Modulen oder ein Home 20/30 mit 2,2-kWh-Modulen, dann:"
+
+#. type: #sec-impermissible-combination
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "**charging and discharging are blocked** (battery current 0 A),"
+msgstr "wird **Laden und Entladen gesperrt** (Batteriestrom 0 A),"
+
+#. type: #sec-impermissible-combination
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"the warning appears: “The installed inverter and battery combination is not "
+"authorised. Operation could cause hardware damages, so charging and "
+"discharging is blocked. Please install a complete Home 10, Home 20 or Home "
+"30 system.”"
+msgstr ""
+"erscheint die Warnung: „The installed inverter and battery combination is "
+"not authorised. Operation could cause hardware damages, so charging and "
+"discharging is blocked. Please install a complete Home 10, Home 20 or Home "
+"30 system.“"
+
+#. type: #sec-impermissible-combination
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"OpenEMS reads the module type from the battery management. With very old "
+"battery firmware that does not report the type, 52 Ah (2.2 kWh) is assumed."
+msgstr ""
+"Den Modultyp liest OpenEMS aus dem Batteriemanagement aus. Bei sehr alter "
+"Batterie-Firmware, die den Typ nicht meldet, wird 52 Ah (2,2 kWh) angenommen."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Control computer generations (do not confuse)"
+msgstr "Steuerrechner-Generationen (nicht verwechseln)"
+
+#. type: #sec-control-computer-generations-do-not-confuse
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"In the code, “Gen2” and “Gen3” also appear for the **control computer** "
+"(compute module “CM4S Gen2” or “CM4S Gen3”). This is independent of the Home "
+"generation. The following depend on it, for example:"
+msgstr ""
+"Im Code taucht „Gen2“ und „Gen3“ auch beim **Steuerrechner** auf (Compute "
+"Module „CM4S Gen2“ bzw. „CM4S Gen3“). Das ist unabhängig von der Home-"
+"Generation. Davon hängen z. B. ab:"
+
+#. type: #sec-control-computer-generations-do-not-confuse
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"the relay used to start the battery (`+io0/Relay6+` for CM4S Gen3, otherwise "
+"`+io0/Relay4+`),"
+msgstr ""
+"das Relais, über das die Batterie gestartet wird (bei CM4S Gen3 `+io0/"
+"Relay6+`, sonst `+io0/Relay4+`),"
+
+#. type: #sec-control-computer-generations-do-not-confuse
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "whether an additional relay board is set up,"
+msgstr "ob eine zusätzliche Relaisplatine eingerichtet wird,"
+
+#. type: #sec-control-computer-generations-do-not-confuse
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "the status LED and the § 14a limitation."
+msgstr "die Status-LED und die § 14a-Begrenzung."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Structure in OpenEMS"
+msgstr "Aufbau in OpenEMS"
+
+#. type: #sec-structure-in-openems
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"When a Home app is installed, it automatically sets up these building blocks:"
+msgstr ""
+"Wird eine Home-App installiert, richtet sie automatisch diese Bausteine ein:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Building block\n"
+"| typical ID\n"
+"| Task\n"
+"\n"
+"| Battery\n"
+"| battery0\n"
+"| Battery management (BMS) of the FENECON Home battery tower\n"
+"| Battery inverter\n"
+"| batteryInverter0\n"
+"| Hybrid inverter\n"
+"| Storage system\n"
+"| ess0\n"
+"| combines battery and inverter into one controllable storage system\n"
+"| Grid meter\n"
+"| meter0\n"
+"| 3-phase sensor at the house connection\n"
+"| PV inputs (DC)\n"
+"| charger0, charger1 …\n"
+"| Solar modules directly on the inverter (MPPT)\n"
+"| Emergency power meter\n"
+"| meter2\n"
+"| measures the emergency power output (if available)\n"
+"| Relay board\n"
+"| io0\n"
+"| among other things, start relay of the battery\n"
+"| Communication\n"
+"| modbus0, modbus1, modbus2\n"
+"| internal connections to battery and inverter, possibly external meters\n"
+"| Emergency reserve\n"
+"| ctrlEmergencyCapacityReserve0\n"
+"| keeps capacity free for power outages\n"
+"| DC surplus feed-in\n"
+"| ctrlEssSurplusFeedToGrid0\n"
+"| feeds DC surplus into the grid if the battery cannot absorb it\n"
+msgstr ""
+"| Baustein\n"
+"| typische ID\n"
+"| Aufgabe\n"
+"\n"
+"| Batterie\n"
+"| battery0\n"
+"| Batteriemanagement (BMS) des FENECON-Home-Batterieturms\n"
+"| Batterie-Wechselrichter\n"
+"| batteryInverter0\n"
+"| Hybrid-Wechselrichter\n"
+"| Speichersystem\n"
+"| ess0\n"
+"| fasst Batterie und Wechselrichter zu einem steuerbaren Speicher zusammen\n"
+"| Netzzähler\n"
+"| meter0\n"
+"| 3-Phasen-Sensor am Hausanschluss\n"
+"| PV-Eingänge (DC)\n"
+"| charger0, charger1 …\n"
+"| Solarmodule direkt am Wechselrichter (MPPT)\n"
+"| Notstromzähler\n"
+"| meter2\n"
+"| misst den Notstromausgang (wenn vorhanden)\n"
+"| Relaisplatine\n"
+"| io0\n"
+"| u. a. Startrelais der Batterie\n"
+"| Kommunikation\n"
+"| modbus0, modbus1, modbus2\n"
+"| interne Verbindungen zu Batterie und Wechselrichter, ggf. externe Zähler\n"
+"| Notstromreserve\n"
+"| ctrlEmergencyCapacityReserve0\n"
+"| hält Kapazität für Stromausfälle frei\n"
+"| DC-Überschuss-Einspeisung\n"
+"| ctrlEssSurplusFeedToGrid0\n"
+"| speist DC-Überschuss ins Netz, wenn die Batterie ihn nicht aufnehmen kann\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"In addition, matching apps are installed or required: self-consumption "
+"optimization, xref:user/storage-control/grid-optimized-charge.adoc[grid-"
+"optimized charge], xref:user/schedule/forecasts.adoc[forecasts], depending "
+"on the hardware the status LED and possibly a limitation according to § 14a "
+"EnWG."
+msgstr ""
+"Zusätzlich werden passende Apps mit installiert bzw. vorausgesetzt: "
+"Eigenverbrauchsoptimierung, xref:user/storage-control/grid-optimized-"
+"charge.adoc[netzdienliche Beladung], xref:user/schedule/"
+"forecasts.adoc[Prognosen], je nach Hardware die Status-LED und ggf. eine "
+"Begrenzung nach § 14a EnWG."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Settings during installation"
+msgstr "Einstellungen bei der Installation"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Country and grid"
+msgstr "Land und Netz"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Meaning\n"
+"\n"
+"| Country setting\n"
+"| Country's grid regulations for the inverter: Germany, Austria, Switzerland, Sweden, Czech Republic, Netherlands, Greece, Lithuania, etc.\n"
+"| Grid setting\n"
+"| Reactive power behavior: Q(U) curve, P(U) curve, fixed cos φ = 1 or fixed cos φ between 0.80 and 0.99 (inductive or capacitive)\n"
+"| Remote shutdown (central grid and system protection)\n"
+"| Shutdown by an external grid and system protection\n"
+msgstr ""
+"| Einstellung\n"
+"| Bedeutung\n"
+"\n"
+"| Ländereinstellung\n"
+"| Netzvorschriften des Landes für den Wechselrichter: Deutschland, Österreich, Schweiz, Schweden, Tschechien, Niederlande, Griechenland, Litauen u. a.\n"
+"| Netzeinstellung\n"
+"| Blindleistungsverhalten: Q(U)-Kurve, P(U)-Kurve, fester cos φ = 1 oder fester cos φ zwischen 0,80 und 0,99 (induktiv oder kapazitiv)\n"
+"| Fernabschaltung (zentraler NA-Schutz)\n"
+"| Abschaltung durch einen externen Netz- und Anlagenschutz\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Feed-in"
+msgstr "Einspeisung"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Type of limitation\n"
+"| Meaning\n"
+"\n"
+"| No limitation\n"
+"| no limitation of feed-in\n"
+"| Dynamic feed-in\n"
+"| The feed-in at the grid connection is limited to a fixed value (e.g. 60 % or 70 % of the PV power); OpenEMS controls the inverter for this.\n"
+"| Ripple control receiver\n"
+"| The grid operator limits via ripple control receiver.\n"
+"| Dynamic ripple control receiver\n"
+"| Ripple control receiver whose specifications OpenEMS implements dynamically\n"
+"| Dynamic feed-in & ripple control receiver\n"
+"| both combined\n"
+msgstr ""
+"| Art der Begrenzung\n"
+"| Bedeutung\n"
+"\n"
+"| Keine Limitierung\n"
+"| keine Begrenzung der Einspeisung\n"
+"| Dynamische Einspeisung\n"
+"| Die Einspeisung am Netzanschluss wird auf einen festen Wert begrenzt (z. B. 60 % oder 70 % der PV-Leistung); OpenEMS regelt dafür den Wechselrichter.\n"
+"| Rundsteuerempfänger\n"
+"| Der Netzbetreiber begrenzt per Rundsteuerempfänger.\n"
+"| Dynamischer Rundsteuerempfänger\n"
+"| Rundsteuerempfänger, dessen Vorgaben OpenEMS dynamisch umsetzt\n"
+"| Dynamische Einspeisung & Rundsteuerempfänger\n"
+"| beides kombiniert\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The maximum feed-in power is stored centrally in the system settings and can "
+"also be changed there later (“Feed-In Settings”). This value is additionally "
+"limited by the fusing of the grid connection."
+msgstr ""
+"Die maximale Einspeiseleistung wird zentral in den Systemeinstellungen "
+"hinterlegt und dort auch später geändert („Einspeise-Einstellungen“). Dieser "
+"Wert wird zusätzlich durch die Absicherung des Netzanschlusses begrenzt."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Meters"
+msgstr "Zähler"
+
+#. type: #sec-meters
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Grid meter:** Home 3-phase sensor with 120 A current transformer (default) "
+"or without current transformer. On Gen2 models, the sensor is integrated; an "
+"external one is optional. With current transformers, the primary current is "
+"entered (200 to 5000 A, secondary 5 A)."
+msgstr ""
+"**Netzzähler:** Home-3-Phasen-Sensor mit Stromwandler 120 A (Standard) oder "
+"ohne Stromwandler. Bei Gen2-Modellen ist der Sensor integriert; ein externer "
+"ist optional. Bei Stromwandlern wird der Primärstrom eingetragen (200 bis "
+"5000 A, Sekundär 5 A)."
+
+#. type: #sec-meters
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**AC meter** (Home 10, 20, 30): optional meter for an additional AC-coupled "
+"PV system (Socomec or KDK type)."
+msgstr ""
+"**AC Zähler** (Home 10, 20, 30): optionaler Zähler für eine zusätzliche AC-"
+"gekoppelte PV-Anlage (Typ Socomec oder KDK)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "PV"
+msgstr "PV"
+
+#. type: #sec-pv
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**DC PV inputs:** Which inputs (MPPT) are occupied; each can be given its "
+"own name."
+msgstr ""
+"**DC-PV-Eingänge:** Welche Eingänge (MPPT) belegt sind; jeder kann einen "
+"eigenen Namen bekommen."
+
+#. type: #sec-pv
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Shadow management:** The inverter regularly searches for the best "
+"operating point when modules are partially shaded. **It only has to be "
+"deactivated if power optimizers are installed on the modules.**"
+msgstr ""
+"**Schattenmanagement:** Der Wechselrichter sucht regelmäßig den besten "
+"Arbeitspunkt, wenn Module teilweise verschattet sind. **Nur wenn "
+"Leistungsoptimierer an den Modulen verbaut sind, muss es deaktiviert "
+"werden.**"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Emergency power"
+msgstr "Notstrom"
+
+#. type: #sec-emergency-power
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Activate emergency power supply**: whether an emergency power output is "
+"available."
+msgstr ""
+"**Aktivieren der Notstromversorgung**: ob ein Notstromausgang vorhanden ist."
+
+#. type: #sec-emergency-power
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Emergency reserve**: Part of the battery is not discharged during normal "
+"operation so that it is available in the event of a power failure. "
+"Adjustable from 5 to 100 %, default 10 %."
+msgstr ""
+"**Notstromreserve**: Ein Teil der Batterie wird im normalen Betrieb nicht "
+"entladen, damit er bei Stromausfall zur Verfügung steht. Einstellbar von 5 "
+"bis 100 %, Standard 10 %."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Other"
+msgstr "Weitere"
+
+#. type: #sec-other
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**§ 14a EnWG:** If a control device of the grid operator is connected, the "
+"storage power can be limited on its instructions (depending on the hardware)."
+msgstr ""
+"**§ 14a EnWG:** Ist ein Steuergerät des Netzbetreibers angeschlossen, kann "
+"die Speicherleistung auf dessen Anweisung begrenzt werden (abhängig von der "
+"Hardware)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Battery"
+msgstr "Batterie"
+
+#. type: #sec-battery
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The battery tower consists of modules; several towers are possible. OpenEMS "
+"automatically recognizes the module type:"
+msgstr ""
+"Der Batterieturm besteht aus Modulen; mehrere Türme sind möglich. OpenEMS "
+"erkennt den Modultyp automatisch:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Module type\n"
+"| Capacity per module\n"
+"| Cells per module\n"
+"| Initial maximum current\n"
+"\n"
+"| 52 Ah\n"
+"| 2.2 kWh\n"
+"| 14\n"
+"| 40 A\n"
+"| 64.4 Ah\n"
+"| 2.8 kWh\n"
+"| 14\n"
+"| 50 A\n"
+msgstr ""
+"| Modultyp\n"
+"| Kapazität je Modul\n"
+"| Zellen je Modul\n"
+"| anfänglicher Maximalstrom\n"
+"\n"
+"| 52 Ah\n"
+"| 2,2 kWh\n"
+"| 14\n"
+"| 40 A\n"
+"| 64,4 Ah\n"
+"| 2,8 kWh\n"
+"| 14\n"
+"| 50 A\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The storage capacity results from the number of modules. Voltage and "
+"temperature are monitored **per tower and module**."
+msgstr ""
+"Die Speicherkapazität ergibt sich aus der Zahl der Module. Spannung und "
+"Temperatur werden **je Turm und Modul** überwacht."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"In detail on the battery (BMS communication, charging and discharging "
+"limits, emergency reserve, startup and shutdown): xref:user/systems/fenecon-"
+"home-battery.adoc[FENECON Home battery]."
+msgstr ""
+"Ausführlich zur Batterie (BMS-Kommunikation, Lade- und Entladegrenzen, "
+"Notstromreserve, Start und Abschaltung): xref:user/systems/fenecon-home-"
+"battery.adoc[FENECON-Home-Batterie]."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Protective functions"
+msgstr "Schutzfunktionen"
+
+#. type: #sec-protective-functions
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Charging and discharging current** are limited depending on cell voltage "
+"and temperature. After a limitation, the current is only increased slowly "
+"again (0.1 A per second)."
+msgstr ""
+"**Lade- und Entladestrom** werden abhängig von Zellspannung und Temperatur "
+"begrenzt. Nach einer Begrenzung wird der Strom nur langsam wieder erhöht "
+"(0,1 A pro Sekunde)."
+
+#. type: #sec-protective-functions
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Deep discharge protection:** If the cell voltage falls too low (critical "
+"limit 2.8 V), OpenEMS reports in stages (see table)."
+msgstr ""
+"**Tiefentladeschutz:** Sinkt die Zellspannung zu weit (kritische Grenze 2,8 "
+"V), meldet OpenEMS stufenweise (siehe Tabelle)."
+
+#. type: #sec-protective-functions
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"At very low state of charge, the battery can be force-charged with a small "
+"current (2 A per tower)."
+msgstr ""
+"Bei sehr niedrigem Ladezustand kann die Batterie mit einem kleinen Strom "
+"zwangsgeladen werden (2 A je Turm)."
+
+#. type: Block title
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Messages at low cell voltage"
+msgstr "Meldungen bei niedriger Zellspannung"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Level\n"
+"| Message\n"
+"\n"
+"| Warning\n"
+"| “Low battery state of charge because the battery cannot be charged by the inverter. Without charging, the battery will soon switch off to protect itself.”\n"
+"| Fault\n"
+"| “Low state of charge. The battery will soon switch off to protect itself.”\n"
+"| Fault\n"
+"| “Battery was switched off due to too low a state of charge. Please contact your installer.”\n"
+msgstr ""
+"| Stufe\n"
+"| Meldung\n"
+"\n"
+"| Warnung\n"
+"| „Niedriger Ladezustand der Batterie, da die Batterie nicht durch den Wechselrichter beladen werden kann. Ohne Beladung schaltet sich die Batterie demnächst ab, um sich selbst zu schützen.“\n"
+"| Fehler\n"
+"| „Niedriger Ladezustand. Die Batterie schaltet sich demnächst ab, um sich selbst zu schützen.“\n"
+"| Fehler\n"
+"| „Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur.“\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Startup, updates, extension"
+msgstr "Start, Updates, Erweiterung"
+
+#. type: #sec-startup-updates-extension
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The battery is switched on at startup via a relay (`+io0/Relay4+`, with "
+"control computer CM4S Gen3 `+io0/Relay6+`)."
+msgstr ""
+"Die Batterie wird beim Start über ein Relais eingeschaltet (`+io0/Relay4+`, "
+"bei Steuerrechner CM4S Gen3 `+io0/Relay6+`)."
+
+#. type: #sec-startup-updates-extension
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "OpenEMS contains a function to update the battery **firmware**."
+msgstr ""
+"OpenEMS enthält eine Funktion, um die **Firmware** der Batterie zu "
+"aktualisieren."
+
+#. type: #sec-startup-updates-extension
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Extending the battery:** An auxiliary function (“Prepare Battery "
+"Extension”) brings the storage to a suitable state of charge before "
+"installing further modules."
+msgstr ""
+"**Batterie erweitern:** Eine Hilfsfunktion („Batterienachrüstung“) bringt "
+"den Speicher vor dem Einbau weiterer Module auf einen passenden Ladezustand."
+
+#. type: #sec-startup-updates-extension
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"**Measuring the state of health (SoH):** An optional function (“SoH Cycle”) "
+"carries out a charge/discharge cycle and uses it to determine the state of "
+"health of the battery."
+msgstr ""
+"**Zustand (SoH) messen:** Eine optionale Funktion („SoH Zyklus“) führt einen "
+"Lade-/Entladezyklus durch und ermittelt daraus den Gesundheitszustand der "
+"Batterie."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Inverter"
+msgstr "Wechselrichter"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Control by OpenEMS"
+msgstr "Steuerung durch OpenEMS"
+
+#. type: #sec-control-by-openems
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "The inverter can be operated in three ways:"
+msgstr "Der Wechselrichter kann auf drei Arten betrieben werden:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| Mode\n"
+"| Meaning\n"
+"\n"
+"| SMART (default)\n"
+"| The inverter controls itself (fast); OpenEMS switches to its own specifications when required, e.g. for price control or grid charging.\n"
+"| INTERNAL\n"
+"| Only the internal control of the inverter; no specifications from OpenEMS.\n"
+"| REMOTE\n"
+"| OpenEMS specifies everything. Slower, but possible without a smart meter at the grid connection.\n"
+msgstr ""
+"| Modus\n"
+"| Bedeutung\n"
+"\n"
+"| SMART (Standard)\n"
+"| Der Wechselrichter regelt selbst (schnell), OpenEMS schaltet bei Bedarf auf eigene Vorgaben um, z. B. für Preissteuerung oder Netzladen.\n"
+"| INTERNAL\n"
+"| Nur die interne Regelung des Wechselrichters; keine Vorgaben von OpenEMS.\n"
+"| REMOTE\n"
+"| OpenEMS gibt alles vor. Langsamer, aber ohne Smart Meter am Netzanschluss möglich.\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Grid regulations"
+msgstr "Netzvorschriften"
+
+#. type: #sec-grid-regulations
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The inverter component contains extensive settings for the grid connection "
+"rules, including grid code (VDE-AR-N 4105 / 4110), power reduction at over- "
+"and underfrequency (P(F)), power depending on voltage (P(U)) and reactive "
+"power methods (fixed cos φ, cos φ(P), Q(U), Q(P)). The installer sets these "
+"values according to the specifications of the grid operator."
+msgstr ""
+"Der Wechselrichter-Baustein enthält umfangreiche Einstellungen für die "
+"Netzanschlussregeln, u. a. Netzcode (VDE-AR-N 4105 / 4110), "
+"Leistungsreduktion bei Über- und Unterfrequenz (P(F)), Leistung abhängig von "
+"der Spannung (P(U)) und Blindleistungsverfahren (cos φ fest, cos φ(P), Q(U), "
+"Q(P)). Diese Werte stellt der Installateur nach den Vorgaben des "
+"Netzbetreibers ein."
+
+#. type: #sec-emergency-power-2
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The **emergency power output** can be switched on or off (“Off-Grid outlet”)."
+msgstr ""
+"Der **Notstromausgang** kann ein- oder ausgeschaltet werden („Off-Grid "
+"outlet“)."
+
+#. type: #sec-emergency-power-2
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"A separate meter (`+meter2+`) measures the power at the emergency power "
+"output."
+msgstr "Ein eigener Zähler (`+meter2+`) misst die Leistung am Notstromausgang."
+
+#. type: #sec-emergency-power-2
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"In island mode, OpenEMS shows the grid state “Off-Grid” and counts the time "
+"in island mode."
+msgstr ""
+"Im Inselbetrieb zeigt OpenEMS den Netzzustand „Off-Grid“ an und zählt die "
+"Zeit im Inselbetrieb mit."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "DC surplus"
+msgstr "DC-Überschuss"
+
+#. type: #sec-dc-surplus
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"If the PV modules on the inverter supply more than the house and battery can "
+"absorb (e.g. battery full), the “Surplus-Feed-To-Grid” function ensures that "
+"this DC surplus is fed into the grid and not curtailed, provided the feed-in "
+"limit allows it."
+msgstr ""
+"Liefern die PV-Module am Wechselrichter mehr, als Haus und Batterie "
+"aufnehmen können (z. B. Batterie voll), sorgt die Funktion „Surplus-Feed-To-"
+"Grid“ dafür, dass dieser DC-Überschuss ins Netz eingespeist und nicht "
+"abgeregelt wird, sofern die Einspeisegrenze es zulässt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Status LED"
+msgstr "Status-LED"
+
+#. type: #sec-status-led
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"OpenEMS controls a status LED (component “System FENECON Home”, "
+"`+system0+`). It is set up automatically by the apps for **Home 6, Home 10 "
+"Gen2, Home 15, Home 20 and Home 30**, and also by the Commercial systems. "
+"**On the Home 10 (Gen 1), the app does not set up a status LED.** A further "
+"prerequisite is a control computer with its own switching outputs (CM3, CM4, "
+"CM4S, CM4S Gen2 or Gen3). Only an admin can set up the LED app manually."
+msgstr ""
+"OpenEMS steuert eine Status-LED (Komponente „System FENECON Home“, "
+"`+system0+`). Sie wird von den Apps für **Home 6, Home 10 Gen2, Home 15, "
+"Home 20 und Home 30** automatisch eingerichtet, außerdem von den Commercial-"
+"Systemen. **Beim Home 10 (Gen 1) richtet die App keine Status-LED ein.** "
+"Voraussetzung ist zusätzlich ein Steuerrechner mit eigenen Schaltausgängen "
+"(CM3, CM4, CM4S, CM4S Gen2 oder Gen3). Von Hand einrichten kann die LED-App "
+"nur ein Admin."
+
+#. type: #sec-status-led
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "The LED shows:"
+msgstr "Die LED zeigt:"
+
+#. type: Table
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid ""
+"| LED\n"
+"| Meaning (according to the code)\n"
+"\n"
+"| blue, continuous\n"
+"| no fault and no warning\n"
+"| blue, flashing (1 second)\n"
+"| warning or fault, and no connection to the backend\n"
+"| off\n"
+"| warning or fault with an existing connection to the backend\n"
+msgstr ""
+"| LED\n"
+"| Bedeutung (laut Code)\n"
+"\n"
+"| blau, dauerhaft\n"
+"| kein Fehler und keine Warnung\n"
+"| blau, blinkend (1 Sekunde)\n"
+"| Warnung oder Fehler, und keine Verbindung zum Backend\n"
+"| aus\n"
+"| Warnung oder Fehler bei bestehender Verbindung zum Backend\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The LED also has red and green contacts; however, only blue is used for the "
+"status in the current code."
+msgstr ""
+"Die LED hat auch rote und grüne Kontakte; im aktuellen Code wird für den "
+"Status aber nur Blau verwendet."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Control computer"
+msgstr "Steuerrechner"
+
+#. type: #sec-control-computer
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The FENECON Home contains a control computer based on a Raspberry Pi Compute "
+"Module. The code distinguishes between CM3, CM4, CM4S, CM4S Gen2 and Gen3. "
+"Some functions (e.g. status LED, § 14a limitation) depend on this hardware."
+msgstr ""
+"Im FENECON Home steckt ein Steuerrechner auf Basis eines Raspberry Pi "
+"Compute Module. Der Code unterscheidet CM3, CM4, CM4S, CM4S Gen2 und Gen3. "
+"Manche Funktionen (z. B. Status-LED, § 14a-Begrenzung) hängen von dieser "
+"Hardware ab."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "What else OpenEMS does with the Home"
+msgstr "Was OpenEMS sonst mit dem Home macht"
+
+#. type: #sec-what-else-openems-does-with-the-home
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "All general functions described on the other pages apply to the Home:"
+msgstr ""
+"Für das Home gelten alle allgemeinen Funktionen, die auf den anderen Seiten "
+"beschrieben sind:"
+
+#. type: #sec-what-else-openems-does-with-the-home
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"xref:user/basics/energy-flows.adoc[Energy flows and total values]: Grid "
+"meter, DC PV inputs and storage supply the values for `+_sum+`."
+msgstr ""
+"xref:user/basics/energy-flows.adoc[Energieflüsse und Summenwerte]: "
+"Netzzähler, DC-PV-Eingänge und Speicher liefern die Werte für `+_sum+`."
+
+#. type: #sec-what-else-openems-does-with-the-home
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge] "
+"and xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs] "
+"control the storage."
+msgstr ""
+"xref:user/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung] "
+"und xref:user/storage-control/time-of-use-tariffs.adoc[dynamische "
+"Stromtarife] steuern den Speicher."
+
+#. type: #sec-what-else-openems-does-with-the-home
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging] and "
+"xref:user/io-control/heat-pumps-and-heating-elements.adoc[heat pump/heating "
+"element] use the PV surplus."
+msgstr ""
+"xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen] und "
+"xref:user/io-control/heat-pumps-and-heating-elements.adoc[Wärmepumpe/"
+"Heizstab] nutzen den PV-Überschuss."
+
+#. type: #sec-what-else-openems-does-with-the-home
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"The xref:user/data/history-rrd4j.adoc[history] is stored locally; the data "
+"is optionally transferred to a xref:user/cloud-interfaces/backend-data-"
+"transfer.adoc[backend]."
+msgstr ""
+"Die xref:user/data/history-rrd4j.adoc[Historie] wird lokal gespeichert, die "
+"Daten optional an ein xref:user/cloud-interfaces/backend-data-"
+"transfer.adoc[Backend] übertragen."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"This page describes what is available in the **OpenEMS source code** for the "
+"FENECON Home. It does not say whether and how a FENECON Home can be operated "
+"with plain OpenEMS. FENECON ships the devices with its own FEMS."
+msgstr ""
+"Diese Seite beschreibt, was im **OpenEMS-Quellcode** für das FENECON Home "
+"vorhanden ist. Ob und wie man ein FENECON Home mit reinem OpenEMS betreibt, "
+"ist damit nicht gesagt. FENECON liefert die Geräte mit dem eigenen FEMS aus."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid ""
+"Many settings (country setting, grid regulations, feed-in limitation) are "
+"**legally relevant** and belong in the hands of the installer."
+msgstr ""
+"Viele Einstellungen (Ländereinstellung, Netzvorschriften, "
+"Einspeisebegrenzung) sind **rechtlich relevant** und gehören in die Hand des "
+"Installateurs."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+msgid "Only deactivate shadow management if power optimizers are installed."
+msgstr ""
+"Das Schattenmanagement nur deaktivieren, wenn Leistungsoptimierer verbaut "
+"sind."

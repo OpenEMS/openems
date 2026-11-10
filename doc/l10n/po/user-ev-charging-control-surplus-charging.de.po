@@ -1,0 +1,749 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Prerequisites"
+msgstr "Voraussetzungen"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Several charge points"
+msgstr "Mehrere Ladepunkte"
+
+#. type: Title =
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "OpenEMS: Surplus charging and phase switching (EVSE)"
+msgstr "OpenEMS: Überschussladen und Phasenumschaltung (EVSE)"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"With surplus charging, the electric car charges as far as possible with "
+"**solar power that would otherwise be fed into the grid**. To make this work "
+"even with little sun, the wallbox can **switch between single-phase and "
+"three-phase charging**. This page explains how OpenEMS proceeds. It "
+"describes the new charge point control “EVSE” (functions "
+"**Evse.Controller.Single** per charge point and **Evse.Controller.Cluster** "
+"for all charge points together)."
+msgstr ""
+"Mit dem Überschussladen lädt das Elektroauto möglichst mit **Solarstrom, der "
+"sonst ins Netz eingespeist würde**. Damit das auch bei wenig Sonne klappt, "
+"kann die Wallbox zwischen **einphasigem und dreiphasigem Laden umschalten**. "
+"Diese Seite erklärt, wie OpenEMS dabei vorgeht. Sie beschreibt die neue "
+"Ladepunkt-Steuerung „EVSE“ (Funktionen **Evse.Controller.Single** je "
+"Ladepunkt und **Evse.Controller.Cluster** für alle Ladepunkte gemeinsam)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "The charging modes"
+msgstr "Die Lademodi"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"| Mode\n"
+"| Behavior\n"
+"\n"
+"| **PV Surplus** (“Surplus” in the configuration)\n"
+"| Only charges with surplus. If it is not sufficient for the minimum power of the car, charging pauses.\n"
+"| **PV Surplus with guaranteed charge** (“Minimum” in the configuration)\n"
+"| Always charges at least at the lowest possible power, from the grid or storage if necessary. Additional surplus is used on top.\n"
+"| **Fast Charging** (“Force” in the configuration)\n"
+"| Charges immediately at full power, regardless of the surplus.\n"
+"| **No Charge** (“Zero” in the configuration)\n"
+"| Does not charge.\n"
+msgstr ""
+"| Modus\n"
+"| Verhalten\n"
+"\n"
+"| **PV-Überschuss** („Surplus“ in der Konfiguration)\n"
+"| Lädt nur mit Überschuss. Reicht er nicht für die Mindestleistung des Autos, wird pausiert.\n"
+"| **PV-Überschuss mit garantierter Beladung** („Minimum“ in der Konfiguration)\n"
+"| Lädt immer mindestens mit der kleinstmöglichen Leistung, bei Bedarf aus Netz oder Speicher. Zusätzlicher Überschuss wird obendrauf genutzt.\n"
+"| **Schnellladen** („Force“ in der Konfiguration)\n"
+"| Lädt sofort mit voller Leistung, unabhängig vom Überschuss.\n"
+"| **Keine Beladung** („Zero“ in der Konfiguration)\n"
+"| Lädt nicht.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"The mode can be permanently set, changed via a time schedule (“Schedule” in "
+"the web interface) or specified once for the current charging session (“One-"
+"Shot”, applies until the cable is unplugged). Optionally, an energy limit "
+"can be set per charging session, e.g. “at most 20 kWh”."
+msgstr ""
+"Der Modus kann fest eingestellt, über einen Zeitplan gewechselt oder für die "
+"aktuelle Ladung einmalig vorgegeben werden („One-Shot“, gilt bis zum "
+"Abstecken des Kabels). Optional lässt sich eine Energiegrenze je Ladevorgang "
+"setzen, z. B. „höchstens 20 kWh“."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "What counts as surplus"
+msgstr "Was als Überschuss zählt"
+
+#. type: #sec-what-counts-as-surplus
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "OpenEMS calculates the available surplus every second as follows:"
+msgstr "OpenEMS berechnet den verfügbaren Überschuss jede Sekunde so:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"Surplus = current charging power of the cars\n"
+"        + feed-in to the grid\n"
+"        + charging power of the home storage\n"
+"        − purchase from the grid\n"
+"        − discharge power of the home storage\n"
+msgstr ""
+"Überschuss = aktuelle Ladeleistung der Autos\n"
+"           + Einspeisung ins Netz\n"
+"           + Ladeleistung des Hausspeichers\n"
+"           − Bezug aus dem Netz\n"
+"           − Entladeleistung des Hausspeichers\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "It follows that:"
+msgstr "Daraus folgt:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**The car has priority over the home storage.** Power currently flowing into "
+"the home storage counts as surplus and can go to the car."
+msgstr ""
+"**Das Auto hat Vorrang vor dem Hausspeicher.** Strom, der gerade in den "
+"Hausspeicher fließt, zählt als Überschuss und kann ans Auto gehen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**The home storage is not discharged into the car during surplus charging.** "
+"If the storage discharges, this reduces the surplus."
+msgstr ""
+"**Der Hausspeicher wird beim Überschussladen nicht ins Auto entladen.** "
+"Entlädt der Speicher, verringert das den Überschuss."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"Purchase from the grid reduces the surplus. If grid purchase is greater than "
+"the current charging power, no surplus remains."
+msgstr ""
+"Bezug aus dem Netz verringert den Überschuss. Ist der Netzbezug größer als "
+"die aktuelle Ladeleistung, bleibt kein Überschuss."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Sequence of surplus charging"
+msgstr "Ablauf beim Überschussladen"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Starting charging"
+msgstr "Laden starten"
+
+#. type: #sec-starting-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "A paused charging session only starts when"
+msgstr "Eine pausierte Ladung startet erst, wenn"
+
+#. type: #sec-starting-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"there was enough surplus for the minimum power for at least 90 % of the time "
+"in the last 20 seconds"
+msgstr ""
+"in den letzten 20 Sekunden zu mindestens 90 % der Zeit genug Überschuss für "
+"die Mindestleistung da war"
+
+#. type: #sec-starting-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "and continuously in the last 10 seconds."
+msgstr "und in den letzten 10 Sekunden durchgehend."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Pausing charging"
+msgstr "Laden pausieren"
+
+#. type: #sec-pausing-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "A running charging session is only paused when"
+msgstr "Eine laufende Ladung wird erst pausiert, wenn"
+
+#. type: #sec-pausing-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"there was insufficient surplus for at least 90 % of the time in the last "
+"minute"
+msgstr ""
+"in der letzten Minute zu mindestens 90 % der Zeit kein ausreichender "
+"Überschuss da war"
+
+#. type: #sec-pausing-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "and continuously none in the last 10 seconds."
+msgstr "und in den letzten 10 Sekunden durchgehend nicht."
+
+#. type: #sec-pausing-charging
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "Until then, the car continues charging at minimum power."
+msgstr "Bis dahin lädt das Auto mit der Mindestleistung weiter."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Lock time after start or pause"
+msgstr "Sperrzeit nach Start oder Pause"
+
+#. type: #sec-lock-time-after-start-or-pause
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"After each start or pause triggered by the surplus, a **lock time of 5 "
+"minutes** applies. No further change takes place during this time. This "
+"protects the car and wallbox when clouds pass by."
+msgstr ""
+"Nach jedem Start oder jeder Pause, die durch den Überschuss ausgelöst wurde, "
+"gilt eine **Sperrzeit von 5 Minuten**. In dieser Zeit wird nicht erneut "
+"gewechselt. Das schont Auto und Wallbox, wenn Wolken durchziehen."
+
+#. type: #sec-lock-time-after-start-or-pause
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Consequence:** Shortly after a start, the car can continue charging at "
+"minimum power for up to 5 minutes even though the surplus has already gone. "
+"This energy then comes from the grid or the home storage."
+msgstr ""
+"**Folge:** Kurz nach einem Start kann das Auto bis zu 5 Minuten mit "
+"Mindestleistung weiterladen, obwohl der Überschuss schon wieder weg ist. "
+"Diese Energie kommt dann aus dem Netz oder aus dem Hausspeicher."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Adjusting the power"
+msgstr "Leistung anpassen"
+
+#. type: #sec-adjusting-the-power
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"More power is released **gently**, at most about 3 % per second. Going from "
+"6 A to 32 A takes about one minute."
+msgstr ""
+"Mehr Leistung wird **sanft** freigegeben, höchstens etwa 3 % pro Sekunde. "
+"Von 6 A auf 32 A dauert es etwa eine Minute."
+
+#. type: #sec-adjusting-the-power
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "Less power is implemented immediately."
+msgstr "Weniger Leistung wird sofort umgesetzt."
+
+#. type: #sec-adjusting-the-power
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"The power is rounded to the levels that the wallbox can do (e.g. whole "
+"amperes)."
+msgstr ""
+"Die Leistung wird auf die Stufen gerundet, die die Wallbox kann (z. B. ganze "
+"Ampere)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Car is full"
+msgstr "Auto ist voll"
+
+#. type: #sec-car-is-full
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"If the car charges at less than 500 W for 5 minutes even though power is "
+"released, OpenEMS assumes that it is full. It is then no longer allocated "
+"any surplus until it absorbs power again."
+msgstr ""
+"Lädt das Auto 5 Minuten lang mit weniger als 500 W, obwohl Leistung "
+"freigegeben ist, nimmt OpenEMS an, dass es voll ist. Es bekommt dann keinen "
+"Überschuss mehr zugeteilt, bis es wieder Leistung aufnimmt."
+
+#. type: #sec-several-charge-points
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "With several charge points, the cluster distributes the surplus:"
+msgstr "Bei mehreren Ladepunkten verteilt der Cluster den Überschuss:"
+
+#. type: #sec-several-charge-points
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"First, each car in surplus mode receives its **minimum power**, as long as "
+"the surplus is sufficient."
+msgstr ""
+"Zuerst bekommt jedes Auto im Überschussmodus seine **Mindestleistung**, "
+"solange der Überschuss dafür reicht."
+
+#. type: #sec-several-charge-points
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "It distributes the rest according to the set strategy."
+msgstr "Den Rest verteilt er nach der eingestellten Strategie."
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"| Strategy\n"
+"| Distribution of the rest\n"
+"\n"
+"| **Even** (default)\n"
+"| All cars receive the same additional amount.\n"
+"| **By priority**\n"
+"| The order of the charge points in the cluster setting decides. The first receives as much as possible, then the next.\n"
+msgstr ""
+"| Strategie\n"
+"| Verteilung des Rests\n"
+"\n"
+"| **Gleichmäßig** (Standard)\n"
+"| Alle Autos bekommen gleich viel zusätzlich.\n"
+"| **Nach Priorität**\n"
+"| Die Reihenfolge der Ladepunkte in der Cluster-Einstellung entscheidet. Der erste bekommt so viel wie möglich, dann der nächste.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"Cars in “PV Surplus with guaranteed charge” or “Fast Charging” mode receive "
+"their power regardless of the surplus."
+msgstr ""
+"Autos im Modus „PV-Überschuss mit garantierter Beladung“ oder „Schnellladen“ "
+"bekommen ihre Leistung unabhängig vom Überschuss."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Phase switching"
+msgstr "Phasenumschaltung"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Why switch?"
+msgstr "Warum umschalten?"
+
+#. type: #sec-why-switch
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "A car needs a minimum power, typically 6 A per phase:"
+msgstr "Ein Auto braucht eine Mindestleistung, typisch 6 A pro Phase:"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"| Charging with\n"
+"| Minimum power (6 A)\n"
+"| Maximum power (16 A)\n"
+"\n"
+"| 1 phase\n"
+"| approx. 1.4 kW\n"
+"| approx. 3.7 kW\n"
+"| 3 phases\n"
+"| approx. 4.1 kW\n"
+"| approx. 11 kW\n"
+msgstr ""
+"| Laden mit\n"
+"| Mindestleistung (6 A)\n"
+"| Höchstleistung (16 A)\n"
+"\n"
+"| 1 Phase\n"
+"| ca. 1,4 kW\n"
+"| ca. 3,7 kW\n"
+"| 3 Phasen\n"
+"| ca. 4,1 kW\n"
+"| ca. 11 kW\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"Three-phase charging therefore needs at least around 4.1 kW of surplus. "
+"**Single-phase charging with solar power is possible from around 1.4 kW.** "
+"With plenty of sun, on the other hand, three-phase is faster."
+msgstr ""
+"Bei dreiphasigem Laden braucht man also mindestens rund 4,1 kW Überschuss. "
+"**Einphasig kann schon ab rund 1,4 kW mit Solarstrom geladen werden.** Bei "
+"viel Sonne ist dreiphasig dagegen schneller."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"The **wallbox** must support phase switching. In the code, this is provided "
+"for Alfen, Hardy Barth, KEBA and Mennekes, among others, depending on the "
+"model and equipment. Exception: The Mennekes Professional is controlled via "
+"the charging current and does not switch phases automatically."
+msgstr ""
+"Die **Wallbox** muss die Phasenumschaltung unterstützen. Im Code ist das u. "
+"a. bei Alfen, Hardy Barth, KEBA und Mennekes vorgesehen, je nach Modell und "
+"Ausstattung. Ausnahme: Die Mennekes Professional wird über den Ladestrom "
+"gesteuert und schaltet nicht automatisch die Phasen um."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"The **car** must be able to tolerate a charging interruption (setting “Does "
+"this EV support interrupting a charging session?” on the vehicle, default: "
+"yes). Otherwise, some older vehicles abort the charging process. If this is "
+"switched off, switching only takes place while not charging."
+msgstr ""
+"Das **Auto** muss eine Ladeunterbrechung vertragen (Einstellung „Unterstützt "
+"dieses EV das Unterbrechen eines Ladevorgangs?“ beim Fahrzeug, Standard: "
+"ja). Manche ältere Fahrzeuge brechen sonst den Ladevorgang ab. Ist das "
+"ausgeschaltet, wird nur umgeschaltet, während nicht geladen wird."
+
+#. type: #sec-prerequisites
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"Phase switching must be switched on in the charge point control (default: "
+"off)."
+msgstr ""
+"In der Ladepunkt-Steuerung muss die Phasenumschaltung eingeschaltet sein "
+"(Standard: aus)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Settings"
+msgstr "Einstellungen"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Behavior\n"
+"\n"
+"| **Off** (default)\n"
+"| no switching, the wallbox stays as it is\n"
+"| **1-phase**\n"
+"| switches to 1 phase as soon as charging starts and 3 phases are currently active\n"
+"| **3-phase**\n"
+"| switches to 3 phases as soon as charging starts and 1 phase is currently active\n"
+"| **Automatic Phase Switching**\n"
+"| selects by itself depending on the surplus and charging mode\n"
+msgstr ""
+"| Einstellung\n"
+"| Verhalten\n"
+"\n"
+"| **Aus** (Standard)\n"
+"| keine Umschaltung, die Wallbox bleibt, wie sie ist\n"
+"| **1-phasig**\n"
+"| schaltet auf 1 Phase, sobald geladen wird und gerade 3 Phasen aktiv sind\n"
+"| **3-phasig**\n"
+"| schaltet auf 3 Phasen, sobald geladen wird und gerade 1 Phase aktiv ist\n"
+"| **Automatische Phasenumschaltung**\n"
+"| wählt je nach Überschuss und Lademodus selbst\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Manual switching"
+msgstr "Manuelle Umschaltung"
+
+#. type: #sec-manual-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"With “1-phase” or “3-phase” you set the number of phases. OpenEMS switches "
+"once as soon as the car charges and then stays there. This is suitable, for "
+"example, for vehicles that only charge single-phase or if you always want to "
+"charge three-phase at full power."
+msgstr ""
+"Mit „1-phasig“ oder „3-phasig“ legt man die Phasenzahl fest. OpenEMS "
+"schaltet einmal um, sobald das Auto lädt, und bleibt dann dabei. Das eignet "
+"sich z. B. für Fahrzeuge, die nur einphasig laden, oder wenn man immer mit "
+"voller Leistung dreiphasig laden möchte."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Automatic switching"
+msgstr "Automatische Umschaltung"
+
+#. type: #sec-automatic-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"In automatic mode, OpenEMS decides based on the power that it **would like "
+"to give** the car:"
+msgstr ""
+"Im Automatikbetrieb entscheidet OpenEMS anhand der Leistung, die es dem Auto "
+"**gern geben würde**:"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid ""
+"| Direction\n"
+"| Condition\n"
+"\n"
+"| 1 → 3 phases\n"
+"| Over the last **2 minutes**, the possible power was at least **4,100 W**. Short upward peaks are not counted.\n"
+"| 3 → 1 phase\n"
+"| Over the last **2 minutes**, the possible power was at most **3,700 W**, and in the last 20 seconds it would have been sufficient for single-phase charging. Short downward dips are not counted.\n"
+msgstr ""
+"| Richtung\n"
+"| Bedingung\n"
+"\n"
+"| 1 → 3 Phasen\n"
+"| Über die letzten **2 Minuten** lag die mögliche Leistung bei mindestens **4.100 W**. Kurze Spitzen nach oben werden dabei nicht mitgezählt.\n"
+"| 3 → 1 Phase\n"
+"| Über die letzten **2 Minuten** lag die mögliche Leistung bei höchstens **3.700 W**, und in den letzten 20 Sekunden hätte es für einphasiges Laden gereicht. Kurze Einbrüche nach unten werden nicht mitgezählt.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"The gap between 4,100 W and 3,700 W prevents constant switching back and "
+"forth."
+msgstr ""
+"Der Abstand zwischen 4.100 W und 3.700 W verhindert ständiges Hin- und "
+"Herschalten."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "A **lock time of 5 minutes** applies after each automatic switch."
+msgstr ""
+"Nach jeder automatischen Umschaltung gilt eine **Sperrzeit von 5 Minuten**."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Start charging single-phase:** If charging is paused and the wallbox is "
+"set to 3 phases, but the surplus is sufficient for single-phase charging "
+"(for 10 seconds), OpenEMS switches to 1 phase and starts charging."
+msgstr ""
+"**Laden einphasig beginnen:** Ist die Ladung pausiert und die Wallbox steht "
+"auf 3 Phasen, reicht der Überschuss aber für einphasiges Laden (10 Sekunden "
+"lang), schaltet OpenEMS auf 1 Phase und startet die Ladung."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**In “PV Surplus” mode**, OpenEMS switches between 1 and 3 phases depending "
+"on the surplus."
+msgstr ""
+"**Im Modus „PV-Überschuss“** schaltet OpenEMS je nach Überschuss zwischen 1 "
+"und 3 Phasen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**In “PV Surplus with guaranteed charge” mode**, it charges single-phase at "
+"the lowest power without surplus, and with surplus as with surplus charging."
+msgstr ""
+"**Im Modus „PV-Überschuss mit garantierter Beladung“** lädt es ohne "
+"Überschuss einphasig mit der kleinsten Leistung, mit Überschuss wie beim "
+"Überschussladen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "**In “Fast Charging” mode**, it charges three-phase at full power."
+msgstr "**Im Modus „Schnellladen“** lädt es dreiphasig mit voller Leistung."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"If a switch is imminent, OpenEMS provides the expected time (about 100 "
+"seconds in advance) as a value of the charge point control."
+msgstr ""
+"Zeichnet sich eine Umschaltung ab, stellt OpenEMS den voraussichtlichen "
+"Zeitpunkt (etwa 100 Sekunden im Voraus) als Wert der Ladepunkt-Steuerung "
+"bereit."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "What happens when switching"
+msgstr "Was beim Umschalten passiert"
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Stop charging:** The power is set to 0 until the car no longer draws any "
+"power."
+msgstr ""
+"**Ladung stoppen:** Die Leistung wird auf 0 gesetzt, bis das Auto keinen "
+"Strom mehr zieht."
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Wait:** 30-second pause so that the car and wallbox are safely at rest."
+msgstr ""
+"**Warten:** 30 Sekunden Pause, damit Auto und Wallbox sicher in Ruhe sind."
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid "**Switch:** The wallbox changes the number of phases."
+msgstr "**Umschalten:** Die Wallbox wechselt die Phasenzahl."
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Restart:** Charging starts at minimum power and is then ramped up again."
+msgstr ""
+"**Neu starten:** Die Ladung startet mit der Mindestleistung und wird dann "
+"wieder hochgeregelt."
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"If switching does not succeed within **10 minutes**, OpenEMS aborts and "
+"reports a phase switching error."
+msgstr ""
+"Klappt die Umschaltung nicht innerhalb von **10 Minuten**, bricht OpenEMS ab "
+"und meldet einen Fehler bei der Phasenumschaltung."
+
+#. type: #sec-what-happens-when-switching
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"A switch therefore takes at least about half a minute without charging. For "
+"this reason, OpenEMS only switches if the situation proves stable over a "
+"longer period of time."
+msgstr ""
+"Eine Umschaltung dauert also mindestens etwa eine halbe Minute ohne Ladung. "
+"Deshalb schaltet OpenEMS nur um, wenn sich die Lage über längere Zeit stabil "
+"zeigt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#, no-wrap
+msgid "Together with time schedules and electricity prices"
+msgstr "Zusammen mit Zeitplan und Strompreisen"
+
+#. type: #sec-together-with-time-schedules-and-electricity-prices
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"In addition to fixed modes, the time schedule of a charge point can also "
+"contain “smart” entries with a **minimum charging amount**. For such charge "
+"points, the energy optimizer itself plans when to charge in which mode. It "
+"primarily uses surplus and, with a xref:user/storage-control/time-of-use-"
+"tariffs.adoc[time-of-use tariff], cheap times. The result can be seen in the "
+"xref:user/schedule/overview.adoc[schedule]. Without such entries, the set "
+"mode simply applies."
+msgstr ""
+"Im Zeitplan eines Ladepunkts lassen sich neben festen Modi auch „smarte“ "
+"Einträge mit einer **Mindest-Lademenge** anlegen. Für solche Ladepunkte "
+"plant der Energie-Optimierer selbst, wann in welchem Modus geladen wird. Er "
+"nutzt dabei vorrangig Überschuss und, bei xref:user/storage-control/time-of-"
+"use-tariffs.adoc[dynamischem Stromtarif], günstige Zeiten. Das Ergebnis ist "
+"im xref:user/schedule/overview.adoc[Fahrplan] zu sehen. Ohne solche Einträge "
+"gilt einfach der eingestellte Modus."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"The page xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox "
+"control compared] compares wallbox control with evcc and openWB."
+msgstr ""
+"Einen Vergleich der Wallbox-Steuerung mit evcc und openWB gibt die Seite "
+"xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox-Steuerung im "
+"Vergleich]."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Frequently asked questions"
+msgstr "Häufige Fragen"
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Why does the car charge even though there is no surplus?** Either “PV "
+"Surplus with guaranteed charge” or “Fast Charging” mode is active, or "
+"charging is still in the pause delay (1 minute) or the lock time (5 minutes)."
+msgstr ""
+"**Warum lädt das Auto, obwohl kein Überschuss da ist?** Entweder ist der "
+"Modus „PV-Überschuss mit garantierter Beladung“ oder Schnellladen aktiv, "
+"oder die Ladung läuft noch in der Pausen-Verzögerung (1 Minute) bzw. der "
+"Sperrzeit (5 Minuten)."
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Why does charging not start even though the sun is shining?** The surplus "
+"must be sufficient for the minimum power, i.e. around 4.1 kW for three-"
+"phase. Remedy: automatic phase switching. In addition, the lock time may "
+"still be running after a pause."
+msgstr ""
+"**Warum startet die Ladung nicht, obwohl die Sonne scheint?** Der Überschuss "
+"muss für die Mindestleistung reichen, dreiphasig also für rund 4,1 kW. "
+"Abhilfe: automatische Phasenumschaltung. Außerdem läuft nach einer Pause "
+"eventuell noch die Sperrzeit."
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Why does the home storage not charge?** The car has priority during "
+"surplus charging."
+msgstr ""
+"**Warum lädt der Hausspeicher nicht?** Das Auto hat beim Überschussladen "
+"Vorrang."
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+msgid ""
+"**Why does the wallbox not switch?** Phase switching is off, the wallbox or "
+"car does not support it, the lock time is still running, or the power has "
+"not yet been stably above or below the threshold for 2 minutes."
+msgstr ""
+"**Warum schaltet die Wallbox nicht um?** Phasenumschaltung ist aus, die "
+"Wallbox oder das Auto unterstützt sie nicht, die Sperrzeit läuft noch oder "
+"die Leistung lag noch nicht 2 Minuten stabil über bzw. unter der Schwelle."

@@ -1,0 +1,139 @@
+= OpenEMS: Control via REST/JSON
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+Via the REST interface, third-party systems such as a home automation system (Home Assistant, ioBroker, Node-RED …) or your own scripts can **read values from OpenEMS and control the system**. Simple HTTP calls are sufficient.
+
+[#sec-setup]
+== Setup
+
+There are two variants:
+
+[cols="2*",options="header"]
+|===
+| Function
+| allows
+
+| Controller.Api.Rest.ReadOnly
+| reading only
+| Controller.Api.Rest.ReadWrite
+| reading and controlling
+|===
+
+* **Port:** 8084 by default.
+* **Login:** with the password of an OpenEMS user. The user name is arbitrary; `+x+` is common. What is allowed depends on the role of the user.
+* **Api-Timeout:** 60 seconds by default (explanation below).
+
+Tip: If you only want to read current values, use the ReadOnly variant. The address `+/jsonrpc+` does not work there, not even for pure queries such as histories; this requires the ReadWrite variant and at least the Owner role (see xref:user/data/export.adoc[Exporting data]).
+
+[#sec-reading-values]
+== Reading values
+
+[source]
+----
+http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/rest/channel/_sum/EssSoc
+----
+
+returns, for example, the state of charge of the storage with its unit:
+
+[source]
+----
+{"type":"INTEGER","accessMode":"RO","text":"","unit":"%","value":57}
+----
+
+Wildcards can be used to query several values at once, e.g. the power of all meters: `+/rest/channel/meter.*/ActivePower+`.
+
+Frequently used values:
+
+[cols="2*",options="header"]
+|===
+| Address
+| Meaning
+
+| `+_sum/GridActivePower+`
+| Grid power (positive = purchase, negative = feed-in)
+| `+_sum/ProductionActivePower+`
+| Solar power
+| `+_sum/ConsumptionActivePower+`
+| Consumption
+| `+_sum/EssSoc+`
+| State of charge of the storage
+| `+_sum/EssDischargePower+`
+| Storage power (positive = discharging)
+|===
+
+[#sec-controlling-two-fundamentally-different-routes]
+== Controlling: two fundamentally different routes
+
+[cols="3*",options="header"]
+|===
+| 
+| Setting a control value
+| Changing a setting
+
+| Example
+| “Charge the storage with 2 kW now”, “Relay 1 on”
+| “Switch off price control”, “Set risk propensity to High”
+| Duration
+| **temporary**
+| **permanent**, also after a restart
+| Role
+| Owner (via this route)
+| Owner
+| Suitable for
+| frequent, ongoing control
+| rare changes
+|===
+
+[#sec-setting-a-control-value]
+=== Setting a control value
+
+[source]
+----
+POST http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/rest/channel/ess0/SetActivePowerEquals
+Body: {"value": -2000}
+----
+
+(For the storage, a negative value means charging, a positive value discharging.)
+
+**Important – the Api-Timeout:** A control value only applies as long as it is renewed regularly. If no new value arrives within the Api-Timeout (default 60 seconds), OpenEMS discards it and the system returns to its normal behavior.
+
+* This is a **protective function**: if the home automation system fails, the storage does not remain permanently on an old command.
+* **If you want to control permanently, you must send the value regularly**, significantly more often than the timeout, e.g. every 10 to 30 seconds.
+* An empty value cancels the command immediately.
+
+Only values intended for control can be set. For pure measured values, the message “is not a Write Channel” appears. Other functions and limits continue to apply, e.g. the emergency reserve or the grid limits. A command is therefore not always implemented in full.
+
+[#sec-changing-a-setting]
+=== Changing a setting
+
+Settings are changed via the address `+/jsonrpc+` (see xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]):
+
+[source]
+----
+POST http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/jsonrpc
+Body:
+{
+  "method": "updateComponentConfig",
+  "params": {
+    "componentId": "ctrlEssTimeOfUseTariff0",
+    "properties": [ { "name": "mode", "value": "OFF" } ]
+  }
+}
+----
+
+The change is saved and applies immediately. **Do not change settings every minute.** Each change is written to the memory of the device, and on SD cards or eMMC frequent writing leads to wear in the long term. Control values are intended for ongoing control.
+
+[#sec-common-problems]
+== Common problems
+
+* **Command only works for one minute:** This is the Api-Timeout. The value must be sent again regularly.
+* **“is not a Write Channel”:** The value is read-only. Often a setting is what is actually meant.
+* **Access denied:** The role of the user is not sufficient.
+* **“Read-Only mode”:** Only the ReadOnly variant is set up.
+* **Wrong address:** Settings go to `+/jsonrpc+`. The documentation in the source code incorrectly mentions `+/rest/jsonrpc+`.
