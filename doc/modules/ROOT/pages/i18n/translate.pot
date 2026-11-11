@@ -5714,13 +5714,13 @@ msgstr ""
 
 #. type: Plain text
 #: gettingstarted.adoc:263
-msgid "Configure Edge.Websocket"
+msgid "Configure Edge.Manager"
 msgstr ""
 
 #. type: Plain text
 #: gettingstarted.adoc:265
 msgid ""
-"The *Edge.Websocket* service is responsible for the communication between "
+"The *Edge.Manager* service is responsible for the communication between "
 "OpenEMS Backend and OpenEMS Edge."
 msgstr ""
 
@@ -5734,7 +5734,7 @@ msgstr ""
 #. type: Block title
 #: gettingstarted.adoc:268
 #, no-wrap
-msgid "Configuration of Backend Edge.Websocket"
+msgid "Configuration of Backend Edge.Manager"
 msgstr ""
 
 #. type: Target for macro image
@@ -5849,7 +5849,7 @@ msgstr ""
 #: gettingstarted.adoc:301
 msgid ""
 "Next we will configure OpenEMS Edge to connect to the OpenEMS Backend "
-"`Edge.Websocket` service."
+"`Edge.Manager` service."
 msgstr ""
 
 #. type: Plain text
@@ -5895,7 +5895,7 @@ msgstr ""
 msgid ""
 "\"Uri\" is set to `ws://localhost:8081`. This defines an unencrypted "
 "websocket (\"ws://\") connection to the local computer on port \"8081\" like "
-"we configured before for the Edge.Websocket."
+"we configured before for the Edge.Manager."
 msgstr ""
 
 #. type: Plain text
@@ -5920,7 +5920,7 @@ msgstr ""
 
 #. type: Plain text
 #: gettingstarted.adoc:322
-msgid "`[Edge.Websocket] Edge [edge0] connected`"
+msgid "`[Edge.Manager] Edge [edge0] connected`"
 msgstr ""
 
 #. type: Title ===
