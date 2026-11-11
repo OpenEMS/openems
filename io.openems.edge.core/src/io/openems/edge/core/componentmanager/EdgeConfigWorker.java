@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.jar.Manifest;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -453,15 +452,8 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				continue;
 			}
 
-			// read Bundle Manifest
-			var manifestUrl = bundle.getResource("META-INF/MANIFEST.MF");
-			Manifest manifest;
-			try {
-				manifest = new Manifest(manifestUrl.openStream());
-			} catch (IOException e) {
-				// unable to read manifest
-				continue;
-			}
+			// get "Service-Component"-Entry of Bundle Manifest
+			var serviceComponentsString = bundle.getHeaders().get(ComponentConstants.SERVICE_COMPONENT);
 
 			// get Factory-PIDs in this Bundle
 			var factoryPids = mti.getFactoryPids();
@@ -474,7 +466,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					var objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
-					var natures = this.getNatures(bundle, manifest, factoryPid);
+					var natures = this.getNatures(bundle, serviceComponentsString, factoryPid);
 					// Add Factory to config
 					builder.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
@@ -488,7 +480,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
 					var objectClassDefinition = mti.getObjectClassDefinition(pid, null);
 					// Get Natures implemented by this Factory-PID
-					var natures = this.getNatures(bundle, manifest, pid);
+					var natures = this.getNatures(bundle, serviceComponentsString, pid);
 					// Add Factory to config
 					builder.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
@@ -507,15 +499,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 * &lt;/scr:component&gt;
 	 * </pre>
 	 *
-	 * @param bundle     the {@link Bundle}
-	 * @param manifest   the {@link Manifest}
-	 * @param factoryPid the Factory-PID
+	 * @param bundle                  the {@link Bundle}
+	 * @param serviceComponentsString the "Service-Component" header of the Bundle
+	 * @param factoryPid              the Factory-PID
 	 * @return Natures as array of Strings
 	 */
-	private String[] getNatures(Bundle bundle, Manifest manifest, String factoryPid) {
+	private String[] getNatures(Bundle bundle, String serviceComponentsString, String factoryPid) {
 		try {
-			// get "Service-Component"-Entry of Manifest
-			var serviceComponentsString = manifest.getMainAttributes().getValue(ComponentConstants.SERVICE_COMPONENT);
 			if (serviceComponentsString == null) {
 				return new String[0];
 			}
@@ -528,7 +518,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					continue;
 				}
 
-				var componentUrl = bundle.getResource(serviceComponent);
+				var componentUrl = bundle.getEntry(serviceComponent);
 				var dbFactory = DocumentBuilderFactory.newInstance();
 				dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 				var dBuilder = dbFactory.newDocumentBuilder();
