@@ -18,6 +18,33 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
         FORCE_NIGHT
     }
 
+    /** Active power control mode, selected from the HEMS (only one at a time). */
+    enum ControlMode {
+        /** POI setpoint held by ctrlBalancing0, PV curtailed by SoC (targetGridSetpoint). */
+        SCENARIO_1,
+        /** Daily charge / discharge windows; this controller sets BESS power and PV limit. */
+        SCENARIO_2,
+        /** No active power control: BESS 0 W, PV not curtailed. */
+        OFF
+    }
+
+    /** Where the BESS charges from inside the charge window. */
+    enum ChargeSource {
+        PV_ONLY,
+        /** PV surplus first, the grid covers the rest of the allowed charge power. */
+        PV_AND_GRID,
+        /** Grid only; PV is curtailed to 0. */
+        GRID_ONLY
+    }
+
+    /** PV_ONLY: who gets the PV surplus first inside the charge window. */
+    enum ChargePriority {
+        /** BESS charges first, export up to the charge grid setting gets the rest. */
+        BATTERY_FIRST,
+        /** Export up to the charge grid setting first, the BESS gets the rest. */
+        EXPORT_FIRST
+    }
+
     String id() default "ctrlSocPvCurtail0";
     String alias() default "";
     boolean enabled() default true;
@@ -32,10 +59,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "PV Inverter-ID", description = "ID of the PV inverter")
     String pvInverter_id() default "pvInverter0";
 
-    @AttributeDefinition(name = "BatteryInverter-ID",
-            description = "Q is written straight to this component's SetReactivePowerSetpoint channel (reg 10), "
-                    + "bypassing Ess.Power, which limits ess0 Q to 0.")
-    String batteryInverter_id() default "batteryInverter0";
+    @AttributeDefinition(name = "BatteryInverter-IDs",
+            description = "BESS Q is written straight to each listed component's SetReactivePowerSetpoint channel "
+                    + "(reg 10), bypassing Ess.Power, which limits ess0 Q to 0. With several PCS (Ess.Cluster as "
+                    + "Ess-ID) list all of them; Q is split by their MaxApparentPower. Adding a PCS = adding its ID.")
+    String[] batteryInverter_ids() default { "batteryInverter0" };
 
     @AttributeDefinition(name = "Meter-ID", description = "Grid (POI) meter ID. Used to log measured Q.")
     String meter_id() default "meter0";
@@ -58,6 +86,56 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
     @AttributeDefinition(name = "Max PV P limit change per cycle [W]")
     int maxRampWattsPerCycle() default 50000;
+
+    // ────────────────────────────────────────────────────────────
+    // CONTROL MODE AND SCENARIO 2 (SCHEDULED CHARGE / DISCHARGE)
+    // ────────────────────────────────────────────────────────────
+
+    @AttributeDefinition(name = "Control mode", description = "SCENARIO_1 / SCENARIO_2 / OFF. "
+            + "SCENARIO_2 and OFF need this controller to run before ctrlBalancing0 (scheduler order).")
+    ControlMode controlMode() default ControlMode.SCENARIO_1;
+
+    @AttributeDefinition(name = "Schedule time zone", description = "Time zone of the window times, e.g. Asia/Kolkata")
+    String scheduleTimeZone() default "Asia/Kolkata";
+
+    @AttributeDefinition(name = "Charge window from [HH:MM]", description = "Daily. From = To disables the window.")
+    String chargeFrom() default "00:00";
+
+    @AttributeDefinition(name = "Charge window to [HH:MM]", description = "Exclusive. To < From crosses midnight.")
+    String chargeTo() default "00:00";
+
+    @AttributeDefinition(name = "Charge SoC limit [%]", description = "Charging stops at this SoC.")
+    int chargeSocLimit() default 95;
+
+    @AttributeDefinition(name = "Charge grid setting [W]",
+            description = "PV_ONLY / PV_AND_GRID: maximum export at the POI. GRID_ONLY: import power at the POI.")
+    int chargeGridSettingW() default 0;
+
+    @AttributeDefinition(name = "Charge source", description = "PV_ONLY / PV_AND_GRID / GRID_ONLY")
+    ChargeSource chargeSource() default ChargeSource.PV_ONLY;
+
+    @AttributeDefinition(name = "Charge priority", description = "PV_ONLY only: BATTERY_FIRST / EXPORT_FIRST")
+    ChargePriority chargePriority() default ChargePriority.BATTERY_FIRST;
+
+    @AttributeDefinition(name = "Grid import limit [W]", description = "PV_AND_GRID / GRID_ONLY: maximum import at the POI.")
+    int gridImportLimitW() default 2000000;
+
+    @AttributeDefinition(name = "Discharge window from [HH:MM]", description = "Daily. From = To disables the window.")
+    String dischargeFrom() default "00:00";
+
+    @AttributeDefinition(name = "Discharge window to [HH:MM]", description = "Exclusive. To < From crosses midnight.")
+    String dischargeTo() default "00:00";
+
+    @AttributeDefinition(name = "Discharge SoC limit [%]", description = "Discharging stops at this SoC.")
+    int dischargeSocLimit() default 20;
+
+    @AttributeDefinition(name = "Discharge grid setting [W]", description = "Export held at the POI.")
+    int dischargeGridSettingW() default 0;
+
+    @AttributeDefinition(name = "Scenario 2 PV headroom per cycle [W]",
+            description = "How far the PV limit may run ahead of the BESS while it ramps. Bounds the "
+                    + "short export overshoot while the BESS catches up; 0 in steady state.")
+    int scheduleHeadroomW() default 20000;
 
     // ────────────────────────────────────────────────────────────
     // REACTIVE POWER (Q) CONFIGURATION

@@ -111,6 +111,10 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent
         super.deactivate();
     }
 
+    /** Line voltages in kV x 100 (U16) to the mV of the voltage channels. */
+    private static final ElementToChannelConverter KV_X100_TO_MV = ElementToChannelConverter
+            .chain(ElementToChannelConverter.SCALE_FACTOR_1, ElementToChannelConverter.SCALE_FACTOR_3);
+
     @Override
     protected ModbusProtocol defineModbusProtocol() {
         return new ModbusProtocol(this,
@@ -131,7 +135,7 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent
                     ElementToChannelConverter.DIRECT_1_TO_1),
 
                 // Reg 2004–2005: UAC Voltage avg [mV, S32]
-                // Node-RED: V × 1000. 415 V → 415000 mV. S32 holds it cleanly.
+                // Node-RED: V × 1000. POI 132 kV → 132000000 mV. S32 holds it cleanly.
                 m(ElectricityMeter.ChannelId.VOLTAGE,
                     new SignedDoublewordElement(2004),
                     ElementToChannelConverter.DIRECT_1_TO_1),
@@ -143,41 +147,41 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent
                     ElementToChannelConverter.DIRECT_1_TO_1)
             ),
 
-            // ── Block 2 HIGH: Per-phase voltage + current (regs 2007–2012) ───
+            // ── Block 2 HIGH: Line voltages + currents (regs 2007–2012) ──────
             // Promoted to HIGH so they update in the same cycle as PAC/QAC.
+            // 132 kV POI: voltages are kV x 100 and currents A x 100 so they fit U16
+            // with useful resolution (132 kV -> 13200, 8.75 A -> 875).
             new FC3ReadRegistersTask(2007, Priority.HIGH,
 
-                // Reg 2007: UAC12 → VOLTAGE_L1 [U16, integer V → mV ×1000]
-                // Node-RED sends 240 V. SCALE_FACTOR_3 (×1000) → 240000 mV.
+                // Reg 2007: UAC12 → VOLTAGE_L1 [U16, kV x 100 → mV x 10^4]
                 m(ElectricityMeter.ChannelId.VOLTAGE_L1,
                     new UnsignedWordElement(2007),
-                    ElementToChannelConverter.SCALE_FACTOR_3),
+                    KV_X100_TO_MV),
 
-                // Reg 2008: UAC23 → VOLTAGE_L2 [U16, V → mV ×1000]
+                // Reg 2008: UAC23 → VOLTAGE_L2 [U16, kV x 100 → mV]
                 m(ElectricityMeter.ChannelId.VOLTAGE_L2,
                     new UnsignedWordElement(2008),
-                    ElementToChannelConverter.SCALE_FACTOR_3),
+                    KV_X100_TO_MV),
 
-                // Reg 2009: UAC31 → VOLTAGE_L3 [U16, V → mV ×1000]
+                // Reg 2009: UAC31 → VOLTAGE_L3 [U16, kV x 100 → mV]
                 m(ElectricityMeter.ChannelId.VOLTAGE_L3,
                     new UnsignedWordElement(2009),
-                    ElementToChannelConverter.SCALE_FACTOR_3),
+                    KV_X100_TO_MV),
 
-                // Reg 2010: IAC1 → CURRENT_L1 [U16, integer A → mA ×1000]
-                // Node-RED sends integer amps (~3467 A for 7.5 MW / 3 phases).
+                // Reg 2010: IAC1 → CURRENT_L1 [U16, A x 100 → mA x 10]
                 m(ElectricityMeter.ChannelId.CURRENT_L1,
                     new UnsignedWordElement(2010),
-                    ElementToChannelConverter.SCALE_FACTOR_3),
+                    ElementToChannelConverter.SCALE_FACTOR_1),
 
-                // Reg 2011: IAC2 → CURRENT_L2 [U16, A → mA ×1000]
+                // Reg 2011: IAC2 → CURRENT_L2 [U16, A x 100 → mA]
                 m(ElectricityMeter.ChannelId.CURRENT_L2,
                     new UnsignedWordElement(2011),
-                    ElementToChannelConverter.SCALE_FACTOR_3),
+                    ElementToChannelConverter.SCALE_FACTOR_1),
 
-                // Reg 2012: IAC3 → CURRENT_L3 [U16, A → mA ×1000]
+                // Reg 2012: IAC3 → CURRENT_L3 [U16, A x 100 → mA]
                 m(ElectricityMeter.ChannelId.CURRENT_L3,
                     new UnsignedWordElement(2012),
-                    ElementToChannelConverter.SCALE_FACTOR_3)
+                    ElementToChannelConverter.SCALE_FACTOR_1)
             ),
 
             // ── Block 3 HIGH: PF, SAC, THD (regs 2013–2016) ─────────────────
@@ -236,12 +240,12 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent
 
             // ── Block 6 HIGH: IAC total (reg 2029) ────────────────────────────
             // At 2029 (not 2005) — UAC S32 occupies 2004+2005.
-            // Node-RED sends integer amps. SCALE_FACTOR_3 → milliamps.
+            // Node-RED sends A x 100. SCALE_FACTOR_1 → milliamps.
             new FC3ReadRegistersTask(2029, Priority.HIGH,
 
                 m(ElectricityMeter.ChannelId.CURRENT,
                     new UnsignedWordElement(2029),
-                    ElementToChannelConverter.SCALE_FACTOR_3)
+                    ElementToChannelConverter.SCALE_FACTOR_1)
             )
         );
     }

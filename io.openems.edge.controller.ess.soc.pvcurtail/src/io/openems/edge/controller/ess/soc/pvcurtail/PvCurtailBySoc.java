@@ -47,7 +47,22 @@ public interface PvCurtailBySoc extends Controller, OpenemsComponent {
 
 		/** Measured Q at POI meter [var], for the setpoint-vs-actual plot. */
 		POI_Q_MEASURED(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE));
+				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+
+		/** What the active power control is doing (scenario, window, SoC limit). */
+		SCHEDULE_STATE(Doc.of(ScheduleState.values())),
+
+		/** Scenario 2 / OFF: BESS active power set-point [W], + discharge / - charge. */
+		BESS_P_CMD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+
+		/** PV active power limit written this cycle [W]. */
+		PV_P_LIMIT_CMD(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+
+		/** Scenario 2: POI target [W], + export / - import. */
+		POI_P_TARGET(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
 
 		private final Doc doc;
 
