@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/meter/DSMR_Modbus/Config.java=UTF-8
+encoding//src/io/openems/edge/meter/DSMR_Modbus/DSMR_Modbus.java=UTF-8
+encoding//src/io/openems/edge/meter/DSMR_Modbus/DSMR_ModbusImpl.java=UTF-8
+encoding//test/io/openems/edge/meter/DSMR_Modbus/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/meter/DSMR_Modbus/MyModbusDeviceTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
