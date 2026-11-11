@@ -83,6 +83,11 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	private static final int MAX_VOLTAGE = 500_000; // [mV]
 	private static final int MIN_FREQUENCY = 45_000; // [mHz]
 	private static final int MAX_FREQUENCY = 55_000; // [mHz]
+	/*
+	 * Not documented in the API description, but enforced by the API: larger values
+	 * are rejected with 422 ("Input should be less than or equal to 150").
+	 */
+	private static final int MAX_BATTERY_CAPACITY = 150_000; // [Wh]
 
 	private static final int HTTP_FORBIDDEN = 403;
 	private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
@@ -276,9 +281,8 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	 * @return the {@link StaticData}
 	 */
 	private StaticData getStaticData(ElectricityMeter meter) {
-		final var batteryCapacity = this.sum.getEssCapacity().get();
 		return new StaticData(//
-				batteryCapacity != null && batteryCapacity > 0 ? batteryCapacity / 1000. : null, //
+				validBatteryCapacityKwh(this.sum.getEssCapacity().get()), //
 				this.getSmartmeterModel(meter));
 	}
 
@@ -456,6 +460,17 @@ public class ControllerOrtsnetzAuslastungImpl extends AbstractOpenemsComponent
 	 */
 	protected static Integer validFrequency(Integer frequency) {
 		return frequency != null && frequency >= MIN_FREQUENCY && frequency <= MAX_FREQUENCY ? frequency : null;
+	}
+
+	/**
+	 * Validates the battery capacity and converts it to kWh.
+	 *
+	 * @param capacity the capacity in [Wh]
+	 * @return the capacity in [kWh] if it is &gt; 0 and &lt;= 150 kWh; otherwise
+	 *         null
+	 */
+	protected static Double validBatteryCapacityKwh(Integer capacity) {
+		return capacity != null && capacity > 0 && capacity <= MAX_BATTERY_CAPACITY ? capacity / 1000. : null;
 	}
 
 	private static Integer validSoc(Integer soc) {

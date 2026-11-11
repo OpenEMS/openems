@@ -61,7 +61,7 @@ public class ControllerOrtsnetzAuslastungImplTest {
 			 "redispatch":{"active":true,"affected_units":3,"active_measures":2,"data_updated_at":null}}
 			""";
 
-	private record Setup(TimeLeapClock clock, DummyElectricityMeter meter, DummyMeta meta,
+	private record Setup(TimeLeapClock clock, DummyElectricityMeter meter, DummyMeta meta, DummySum sum,
 			DummyEndpointFetcher fetcher, List<JsonObject> requests, ControllerTest test) {
 	}
 
@@ -107,7 +107,7 @@ public class ControllerOrtsnetzAuslastungImplTest {
 						.setMeterId(meterId) //
 						.setDebugMode(DebugMode.OFF) //
 						.build());
-		return new Setup(clock, meter, meta, fetcher, requests, test);
+		return new Setup(clock, meter, meta, sum, fetcher, requests, test);
 	}
 
 	@Test
@@ -153,6 +153,25 @@ public class ControllerOrtsnetzAuslastungImplTest {
 		// Static values are only sent again if they change
 		final var second = s.requests().get(1);
 		assertFalse(second.has("battery_capacity"));
+	}
+
+	@Test
+	public void testBatteryCapacityAboveApiLimitIsNotSent() throws Exception {
+		final var s = setup(new HttpResponse<>(HttpStatus.ACCEPTED, RESPONSE));
+		s.sum().withEssCapacity(171_840); // 171.84 kWh; the API accepts at most 150 kWh
+		s.test() //
+				.next(new TestCase() //
+						.onAfterControllersCallbacks(() -> assertEquals(1, s.requests().size()))) //
+				.next(new TestCase() //
+						.output(COMPONENT_ID, REQUEST_REJECTED, false) //
+						.output(COMPONENT_ID, UNABLE_TO_SEND, false)) //
+				.deactivate();
+
+		// The measurement is sent without the battery capacity
+		final var first = s.requests().get(0);
+		assertFalse(first.has("battery_capacity"));
+		assertEquals(62, first.get("battery_soc_percent").getAsInt());
+		assertEquals(230.1, first.get("l1_v").getAsDouble(), 0.000001);
 	}
 
 	@Test
@@ -334,5 +353,10 @@ public class ControllerOrtsnetzAuslastungImplTest {
 		assertEquals(230000, ControllerOrtsnetzAuslastungImpl.validVoltage(230000));
 		assertEquals(null, ControllerOrtsnetzAuslastungImpl.validFrequency(0));
 		assertEquals(50000, ControllerOrtsnetzAuslastungImpl.validFrequency(50000));
+		assertEquals(null, ControllerOrtsnetzAuslastungImpl.validBatteryCapacityKwh(null));
+		assertEquals(null, ControllerOrtsnetzAuslastungImpl.validBatteryCapacityKwh(0));
+		assertEquals(10.2, ControllerOrtsnetzAuslastungImpl.validBatteryCapacityKwh(10_200));
+		assertEquals(150., ControllerOrtsnetzAuslastungImpl.validBatteryCapacityKwh(150_000));
+		assertEquals(null, ControllerOrtsnetzAuslastungImpl.validBatteryCapacityKwh(150_001));
 	}
 }

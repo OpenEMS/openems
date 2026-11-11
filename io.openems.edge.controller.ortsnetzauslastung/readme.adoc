@@ -9,7 +9,7 @@ All values are derived from the system:
 * Battery state of charge and capacity: 'Sum' component.
 * Meter model: name of the Factory of the grid meter.
 
-Values outside the ranges of the API are not sent; phase voltages and currents of phases without valid measurement are sent as -1. Static values (battery capacity, meter model) are sent with the first measurement and whenever they change.
+Values outside the ranges of the API are not sent; phase voltages and currents of phases without valid measurement are sent as -1. A battery capacity above 150 kWh is not sent, because the API rejects the whole measurement in this case (this limit is not stated in the API description). Static values (battery capacity, meter model) are sent with the first measurement and whenever they change.
 
 Nothing is sent if the coordinates are missing, if no phase provides a valid voltage or if third-party usage is not accepted in 'Meta'.
 
