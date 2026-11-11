@@ -21,6 +21,7 @@ Each device type below is individually integrated with dedicated component suppo
 * https://www.shelly.com/en/products/shop/shelly-plug[Shelly Plug icon:external-link[]] - Basic relay plug with metering - <<_shelly_plug>>
 * https://www.shelly.com/de/products/shelly-plug-s-gen3[Shelly Plug S Gen3 icon:external-link[]] - Compact relay plug - <<_shelly_plug_s_gen3>>
 * https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM icon:external-link[]] - Single relay with integrated meter - <<_shelly_plus_1pm>>
+* https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM icon:external-link[]] with Shelly Plus Add-on - Temperature sensor readout - <<_shelly_add_on_temperature>>
 * https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S icon:external-link[]] - Improved plug with metering - <<_shelly_plus_plug_s>>
 * https://www.shelly.com/de/products/shelly-plus-pm-mini[Shelly Plus PM Mini icon:external-link[]] - Compact 2-channel meter - <<_shelly_plus_pm_mini>>
 * https://www.shelly.com/de/products/shelly-pro-1pm[Shelly Pro 1PM icon:external-link[]] - Professional single relay with metering - <<_shelly_pro_1pm>>
@@ -153,6 +154,22 @@ This bundle implements the following OpenEMS Components, each supporting one or 
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `ip` (String): IP address of the Shelly Plus 1PM device *(required)*
+
+=== Shelly Add-on Temperature
+
+*Name*: IO Shelly Add-on Temperature
+
+*Factory-PID*: `IO.Shelly.AddonTemperature`
+
+.Implemented Natures/Interfaces
+* Thermometer
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "temp0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly device *(required)*
+* `sensor_id` (Integer): ID of the temperature sensor on the Shelly (default: 100, i.e. the first sensor of the Shelly Plus Add-on)
 
 === Shelly Plus Plug S
 
