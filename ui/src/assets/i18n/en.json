@@ -908,6 +908,7 @@
         "EDGE_SETTINGS": "Settings",
         "EDGE_SYSTEM_SETTINGS": "System Settings",
         "FAVORITES": "Favorites",
+        "FLEET_ADMIN": "Fleet Administration",
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "BRAIINS": "Bitcoin Miner",

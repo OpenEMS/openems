@@ -1,0 +1,51 @@
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row class="ion-justify-content-center">
+            <ion-col size="12" size-md="6" size-lg="4">
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Passwort zurücksetzen</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        @if(error()){
+                            <ion-text color="danger"><p>{{error()}}</p></ion-text>
+                        }
+
+                        @if(!token()){
+                            @if(!done()){
+                                <p>Gib deinen Benutzernamen oder deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen des Passworts.</p>
+                                <ion-item>
+                                    <ion-input label="Benutzername / E-Mail" labelPlacement="floating"
+                                        [ngModel]="username()" (ngModelChange)="username.set($event)"
+                                        (keydown.enter)="requestReset()"></ion-input>
+                                </ion-item>
+                                <ion-button expand="block" class="ion-margin-top" (click)="requestReset()"
+                                    [disabled]="!username() || busy()">Reset-Link anfordern</ion-button>
+                            } @else {
+                                <ion-text color="success">
+                                    <p>Falls ein Konto zu dieser Eingabe existiert, wurde eine E-Mail mit einem Reset-Link versandt.</p>
+                                </ion-text>
+                            }
+                        } @else {
+                            <p>Setze dein neues Passwort (mindestens 8 Zeichen).</p>
+                            <ion-item>
+                                <ion-input label="Neues Passwort" labelPlacement="floating" type="password"
+                                    [ngModel]="password()" (ngModelChange)="password.set($event)"></ion-input>
+                            </ion-item>
+                            <ion-item>
+                                <ion-input label="Passwort wiederholen" labelPlacement="floating" type="password"
+                                    [ngModel]="password2()" (ngModelChange)="password2.set($event)"></ion-input>
+                            </ion-item>
+                            <ion-button expand="block" class="ion-margin-top" (click)="resetPassword()"
+                                [disabled]="!password() || !password2() || busy()">Passwort setzen</ion-button>
+                        }
+
+                        <div class="ion-margin-top ion-text-center">
+                            <a routerLink="/login">Zurück zum Login</a>
+                        </div>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>
