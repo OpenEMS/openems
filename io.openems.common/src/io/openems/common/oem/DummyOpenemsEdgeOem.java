@@ -250,6 +250,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Cloud.OrtsnetzAuslastung", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Api.ModbusTcp.ReadOnly", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
