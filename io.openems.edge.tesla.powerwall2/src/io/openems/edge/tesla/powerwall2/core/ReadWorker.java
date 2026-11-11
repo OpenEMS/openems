@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -31,6 +32,7 @@ public class ReadWorker extends AbstractCycleWorker {
 
 	private final TeslaPowerwall2CoreImpl parent;
 	private final String baseUrl;
+	private final SSLSocketFactory sslSocketFactory;
 
 	protected ReadWorker(TeslaPowerwall2CoreImpl parent, Inet4Address ipAddress, int port)
 			throws NoSuchAlgorithmException, KeyManagementException {
@@ -38,7 +40,9 @@ public class ReadWorker extends AbstractCycleWorker {
 		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/api";
 
 		/*
-		 * Disable SSL certificate checking
+		 * Disable SSL certificate checking - only for the connections of this worker.
+		 * Installing the factory as JVM-wide default would disable certificate checking
+		 * for every HTTPS connection of the Edge.
 		 */
 		var context = SSLContext.getInstance("TLSv1.2");
 		TrustManager[] trustManager = { new X509TrustManager() {
@@ -56,7 +60,7 @@ public class ReadWorker extends AbstractCycleWorker {
 			}
 		} };
 		context.init(null, trustManager, new SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+		this.sslSocketFactory = context.getSocketFactory();
 	}
 
 	@Override
@@ -114,6 +118,22 @@ public class ReadWorker extends AbstractCycleWorker {
 	}
 
 	/**
+	 * Opens a HTTPS connection to the Powerwall that accepts its self-signed
+	 * certificate.
+	 *
+	 * @param path the api path
+	 * @return the (not yet connected) {@link HttpsURLConnection}
+	 * @throws IOException on error
+	 */
+	HttpsURLConnection openConnection(String path) throws IOException {
+		var url = URI.create(this.baseUrl + path).toURL();
+		var connection = (HttpsURLConnection) url.openConnection();
+		connection.setSSLSocketFactory(this.sslSocketFactory);
+		connection.setHostnameVerifier((hostname, session) -> true);
+		return connection;
+	}
+
+	/**
 	 * Gets the JSON response of a HTTPS GET Request.
 	 *
 	 * @param path the api path
@@ -122,9 +142,7 @@ public class ReadWorker extends AbstractCycleWorker {
 	 */
 	private JsonObject getResponse(String path) throws OpenemsNamedException {
 		try {
-			var url = URI.create(this.baseUrl + path).toURL();
-			var connection = (HttpsURLConnection) url.openConnection();
-			connection.setHostnameVerifier((hostname, session) -> true);
+			var connection = this.openConnection(path);
 			try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
 				var content = reader.lines().collect(Collectors.joining());
 				return JsonUtils.parseToJsonObject(content);
