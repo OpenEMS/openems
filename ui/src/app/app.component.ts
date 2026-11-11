@@ -1,7 +1,7 @@
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
-import { NavigationEnd, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
 import { Subject, Subscription } from "rxjs";
@@ -11,7 +11,9 @@ import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route/route.service";
+import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
+import { TutorialTargetId } from "./shared/tour/tutorial-target-id";
 import { Language } from "./shared/type/language";
 
 @Component({
@@ -33,7 +35,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     protected isSmartphone: boolean = false;
 
+    private readonly tutorialTargetId = TutorialTargetId;
     private ngUnsubscribe: Subject<void> = new Subject<void>();
+    private readonly userService: UserService = inject(UserService);
     private subscription: Subscription = new Subscription();
 
     constructor(
@@ -63,11 +67,35 @@ export class AppComponent implements OnInit, OnDestroy {
             }),
         );
 
+        effect(() => {
+            const url = this.routeService.currentUrl();
+            if (url == null) {
+                return;
+            }
+
+            // Hide footer for history detail views
+            const segments = url.split("/");
+            this.isHistoryDetailView = segments.slice(0, -1).includes("history") && !segments.includes("export");
+        });
+
         this.subscription.add(
-            this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
-                // Hide footer for history detail views
-                const segments = e.url.split("/");
-                this.isHistoryDetailView = segments.slice(0, -1).includes("history");
+            // The new navigation maintains its own parent-child history, so handle back presses here first.
+            // Fall back to Ionic when there is no parent node or the new navigation is not active.
+            this.platform.backButton.subscribeWithPriority(10, (processNextHandler) => {
+                if (
+                    NavigationService.isNewNavigation(
+                        this.userService.currentUser(),
+                        this.service.currentEdge()?.getConfigSignal()(),
+                    )
+                ) {
+                    const parentNode = this.navigationService.currentNode()?.parent;
+                    if (parentNode != null) {
+                        void this.navigationService.navigateAbsolute(parentNode);
+                        return;
+                    }
+                }
+
+                processNextHandler();
             }),
         );
 

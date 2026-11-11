@@ -21,7 +21,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
-import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
@@ -45,7 +44,6 @@ import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse.Response;
-import io.openems.edge.energy.api.EnergyScheduler;
 
 @Component
 public final class SwitchArchitecture implements ComponentJsonApi {
@@ -172,7 +170,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedCtrlEvcsIds);
 
-		this.updateEnergyScheduler(user, io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE);
 		this.updateAppConfigurationForEvcsToEvse(user, response);
 	}
 
@@ -189,9 +186,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		final var vehicleAppsToDelete = this.findVehicleAppsToDelete(instantiatedApps, appInstances);
 		this.deleteVehicleComponents(user, vehicleAppsToDelete);
-		// TODO(alex.belke 12.02.2026): remove this scheduler update after there is a
-		// central way to work with it.
-		this.updateEnergyScheduler(user, io.openems.edge.energy.api.Version.V1_ESS_ONLY);
 		this.updateAppConfigurationForEvseToEvcs(user, instantiatedApps, response, vehicleAppsToDelete);
 		this.schedulerByCentralOrderAggregateTask.fixSchedulerOrder(user, schedulerComponents);
 	}
@@ -856,13 +850,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			JsonUtils.getAsOptionalString(instance.properties, "CTRL_EVCS_ID_CP_2").ifPresent(deletedCtrlEvcsIds::add);
 		}
 		return deletedCtrlEvcsIds;
-	}
-
-	private void updateEnergyScheduler(User user, io.openems.edge.energy.api.Version version)
-			throws OpenemsNamedException {
-		var esProperty = new UpdateComponentConfigRequest.Property("version", version.name());
-		var esRequest = new UpdateComponentConfig.Request(EnergyScheduler.SINGLETON_COMPONENT_ID, List.of(esProperty));
-		this.componentManager.handleUpdateComponentConfigRequest(user, esRequest);
 	}
 
 	private void updateAppConfigurationForEvseToEvcs(User user, ArrayList<OpenemsAppInstance> instantiatedApps,

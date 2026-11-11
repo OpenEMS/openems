@@ -4,6 +4,8 @@ import static io.openems.edge.timeofusetariff.api.TimeOfUsePrices.EMPTY_PRICES;
 
 import java.util.Optional;
 
+import io.openems.common.types.BiddingZone;
+import io.openems.edge.timeofusetariff.api.SpotTariffTracker;
 import io.openems.edge.timeofusetariff.api.TariffGridSell;
 import io.openems.edge.timeofusetariff.api.TariffManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
@@ -51,5 +53,15 @@ public class DummyTariffManager implements TariffManager {
 		return Optional.ofNullable(this.tariffGridSellProvider)//
 				.map(TariffGridSell::getGridSellPrices)//
 				.orElse(EMPTY_PRICES);
+	}
+
+	@Override
+	public SpotTariffTracker getSpotTariff(BiddingZone biddingZone) {
+		throw new UnsupportedOperationException("Spot tariff is not implemented in DummyTariffManager yet");
+	}
+
+	@Override
+	public void ungetSpotTariff(SpotTariffTracker spotTariffTracker) {
+		// Nothing, because getSpotTariff() is not supported either.
 	}
 }

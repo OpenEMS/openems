@@ -2,6 +2,8 @@ package io.openems.common.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.function.ThrowingSupplier;
@@ -164,8 +166,40 @@ public class ReflectionUtils {
 		// classes.
 		Class<?> parent = clazz.getSuperclass();
 		if (parent == null) {
-			throw new ReflectionException("Reached java.lang.Object");
+			throw new ReflectionException("Can't find member " + memberName);
 		}
 		return getField(parent, memberName);
+	}
+
+	/**
+	 * Gets the {@link Class#getDeclaredMethod} in the given {@link Class}
+	 * or any of its superclasses.
+	 * 
+	 * @param clazz      the given {@link Class}
+	 * @param methodName the name of the declared method
+	 * @return a {@link Method}
+	 * @throws ReflectionException if there is no such method
+	 */
+	public static List<Method> findMethod(Class<?> clazz, String methodName) throws ReflectionException {
+		var result = new ArrayList<Method>();
+
+		for (var method : clazz.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				method.setAccessible(true);
+				result.add(method);
+			}
+		}
+
+		if (result.isEmpty()) {
+			// If we are here, no matching field or method was found. Search in parent
+			// classes.
+			Class<?> parent = clazz.getSuperclass();
+			if (parent == null) {
+				throw new ReflectionException("Can't find method " + methodName);
+			}
+			return findMethod(parent, methodName);
+		}
+
+		return result;
 	}
 }

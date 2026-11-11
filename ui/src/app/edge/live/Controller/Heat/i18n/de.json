@@ -6,34 +6,31 @@
         "READ_ONLY": {
             "NOT_AVAILABLE": "Im Read-only-Modus nicht verfügbar."
         },
-        "FORECAST": {
-            "FORECAST": "Prognose"
-        },
         "SCHEDULE": {
-            "SCHEDULE": "Zeitplan",
+            "END_TEMPERATURE": "Endtemperatur",
+            "MANUAL_EVENTS": "Manuelle Events",
             "MODE": "Heizmodus",
             "MODE_SELECTION_PLACEHOLDER": "Auswählen",
-            "MANUAL_EVENTS": "Manuelle Events",
-            "SMART_EVENTS": "Smart Events",
+            "SCHEDULE": "Zeitplan",
             "SMART_EVENT": "Smart Event",
-            "SMART_EVENT_END": "Morgen 7:00",
-            "END_TEMPERATURE": "Endtemperatur"
+            "SMART_EVENTS": "Smart Events",
+            "SMART_EVENT_END": "Morgen 7:00"
         },
         "SETTINGS": {
-            "NO_SETTINGS_AVAILABLE": "Keine Einstellungen verfügbar.",
             "MODE": {
                 "FAST_HEAT": {
-                    "TITLE": "Schnell heizen",
-                    "DESCRIPTION": "Der Askoma-Heizstab versucht, mit der maximal möglichen Heizstufe auf die maximal eingestellte Temperatur zu heizen.\nDie maximale Leistungsdauer beträgt 10 h.\nNach dieser Zeit macht der Heizstab eine Stunde Pause."
-                },
-                "SURPLUS": {
-                    "TITLE": "PV-Überschuss",
-                    "DESCRIPTION": "Die Aktivierung erfolgt automatisch, perfekt angepasst an die überschüssige und verfügbare PV-Energie."
+                    "DESCRIPTION": "Der Heizstab versucht, mit der maximal möglichen Heizstufe auf die maximal eingestellte Temperatur zu heizen.\nDie maximale Leistungsdauer beträgt 10 h.\nNach dieser Zeit macht der Heizstab eine Stunde Pause.",
+                    "TITLE": "Schnell heizen"
                 },
                 "OFF": {
                     "TITLE": "Keine Beheizung"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "Die Aktivierung erfolgt automatisch, perfekt angepasst an die überschüssige und verfügbare PV-Energie.",
+                    "TITLE": "PV-Überschuss"
                 }
-            }
+            },
+            "NO_SETTINGS_AVAILABLE": "Keine Einstellungen verfügbar."
         }
     }
 }

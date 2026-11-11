@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "正しい住所が一覧にありませんか？上記の情報を編集して、もう一度検証を実行してください。",
+        "ADDRESS_LIST_NOTE_PROFILE": "正しい住所が一覧にありませんか？必要に応じて上記の入力内容を変更し、もう一度検証を実行してください。",
+        "ADDRESS_LIST_TITLE": "{{ edgeShortName }}{{ id }}の設置場所に該当する住所はどれですか？",
+        "APPLY_BUTTON_LABEL": "適用",
+        "BUTTON_LABEL_INSTALLATION": "検証を実行",
+        "BUTTON_LABEL_PROFILE": "住所を検証",
+        "GEO_CODE_RESULT_LABEL": "該当する住所を選択してください：",
+        "UNKNOWN_ADDRESS": "座標は、完全な機能を利用するために後からシステム設定で手動入力されます。"
+    }
+}

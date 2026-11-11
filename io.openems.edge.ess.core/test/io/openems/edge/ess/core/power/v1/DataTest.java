@@ -54,12 +54,23 @@ public class DataTest {
 		assertEquals(esss.size() * 4 /* phases + all */ * 2 /* pwr */, data.getCoefficients().getNoOfCoefficients());
 	}
 
+	/**
+	 * Verifies that a MetaEss (e.g. EssCluster) does not get its own Inverter
+	 * entry. Only physical ESS members should have Inverters so that the solver
+	 * never tries to call applyPower() on the wrapper.
+	 */
 	@Test
 	public void testNoInverterForMetaEss() {
 		data.setSymmetricMode(true);
 		assertEquals(2, data.getInverters().size());
 	}
 
+	/**
+	 * Verifies that member IDs from {@link MetaEss#getEssIds()} are registered as
+	 * coefficient columns even when the members are not in the live esss list. This
+	 * is required so that offline members can be zero-constrained by
+	 * createZeroConstraintsForOrphanedMetaEssMembers().
+	 */
 	@Test
 	public void testMemberCoefficientsRegisteredWhenOnlyClusterInEsss() {
 		EssPower powerComponent = new EssPowerImpl();
@@ -71,10 +82,14 @@ public class DataTest {
 		var clusterData = new Data(() -> clusterOnly);
 		clusterData.setSymmetricMode(true);
 
-		// Expected: coefficients for essCluster0, ess1, ess2 = 3 IDs × 2 pwr = 6
 		assertEquals(3 * 2, clusterData.getCoefficients().getNoOfCoefficients());
 	}
 
+	/**
+	 * A live ESS that is not a cluster child still gets an inverter and a
+	 * coefficient column when a MetaEss is present — it participates in power
+	 * distribution independently.
+	 */
 	@Test
 	public void testNoInverterForStandaloneWhenClusterPresent() {
 		EssPower powerComponent = new EssPowerImpl();
@@ -90,6 +105,19 @@ public class DataTest {
 		assertEquals(4 * 2, mixedData.getCoefficients().getNoOfCoefficients());
 	}
 
+	/**
+	 * Verifies that getConstraintsForAllInverters() does not throw when the live
+	 * esss list is updated (essCluster0 added) but updateInverters() has not yet
+	 * been called — the "timing gap" that occurs in OSGi when addEss() stores the
+	 * cluster in the list and then calls onUpdateEsss() non-atomically.
+	 *
+	 * <p>
+	 * Without fix: createMetaEssConstraints() sees essCluster0 in the live esss but
+	 * its coefficient was never registered --> "Coefficient for
+	 * [essCluster0,ALL,ACTIVE] was not found".
+	 *
+	 *
+	 */
 	@Test
 	public void testTimingGapClusterAddedBeforeUpdateInverters() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
@@ -105,6 +133,7 @@ public class DataTest {
 				.withMaxApparentPower(20000);
 		var cluster = new DummyMetaEss("essCluster0", ess1, ess2).setPower(powerComponent);
 
+		// Start with only the physical ESS — no cluster yet
 		var liveEsss = Lists.<ManagedSymmetricEss>newArrayList(ess1, ess2);
 		var d = new Data(() -> liveEsss);
 		d.setSymmetricMode(true);

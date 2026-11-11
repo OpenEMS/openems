@@ -1,9 +1,11 @@
-import { Component, effect, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy } from "@angular/core";
 import { IonicModule, IonIcon, ModalController } from "@ionic/angular";
 import { filter } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
+import { ChannelAddress } from "src/app/shared/type/channeladdress";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { environment } from "src/environments";
 import { DataService } from "../../shared/dataservice";
@@ -30,6 +32,7 @@ export class SystemStatusComponent implements OnDestroy {
 
     private subscribed = false;
     private liveDataService = inject(DataService);
+    private readonly tutorialTargetId = TutorialTargetId;
 
     constructor(
         public service: Service,

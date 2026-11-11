@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.aircooling.blueeplus,\
 	io.openems.edge.battery.api,\
 	io.openems.edge.battery.bmw,\
 	io.openems.edge.batteryinverter.api,\
@@ -15,8 +16,11 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.backend,\
 	io.openems.edge.ess.api,\
+	io.openems.edge.firealarmsystem.hekatron,\
+	io.openems.edge.fluidcooling.hydac,\
 	io.openems.edge.io.api,\
 	io.openems.edge.meter.api,\
+	io.openems.edge.temperature.jumo,\
 	io.openems.edge.timedata.api,\
 	io.openems.j2mod,\
 

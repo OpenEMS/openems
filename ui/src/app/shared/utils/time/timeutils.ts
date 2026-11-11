@@ -81,7 +81,7 @@ export class TimeUtils {
                 if (hasDayPeriod || !suffix) {
                     return timeString;
                 }
-                return `${timeString} ${suffix}`;
+                return `${timeString}&nbsp;${suffix}`;
             });
         };
     };

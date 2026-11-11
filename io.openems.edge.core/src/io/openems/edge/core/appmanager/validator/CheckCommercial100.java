@@ -7,6 +7,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 
 @Component(//
@@ -39,13 +41,13 @@ public class CheckCommercial100 extends AbstractCheckable implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCommercial100.Message");
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_COMMERCIAL100.exception(language);
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCommercial100.Message.Inverted");
+	public OpenemsNamedException getInvertedValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_COMMERCIAL100_INVERTED.exception(language);
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 
+import io.openems.common.function.ThrowingSupplier;
 import io.openems.edge.common.update.ProgressPublisher;
 
 public class UpdateHandler implements AutoCloseable {
@@ -48,7 +49,7 @@ public class UpdateHandler implements AutoCloseable {
 	 * @throws Exception on error
 	 */
 	public void updateArmVersion(ProgressPublisher progress, String fileName) throws Exception {
-		this.updateVersion(progress, GoodWeFirmwareVersion.ARM, fileName);
+		this.updateVersion(progress, GoodWeFirmwareType.ARM, fileName);
 	}
 
 	/**
@@ -59,13 +60,29 @@ public class UpdateHandler implements AutoCloseable {
 	 * @throws Exception on error
 	 */
 	public void updateDspVersion(ProgressPublisher progress, String fileName) throws Exception {
-		this.updateVersion(progress, GoodWeFirmwareVersion.DSP, fileName);
+		this.updateVersion(progress, GoodWeFirmwareType.DSP, fileName);
 	}
 
-	private void updateVersion(ProgressPublisher progress, GoodWeFirmwareVersion fw, String fileName) throws Exception {
+	/**
+	 * Run the update for STS firmware.
+	 *
+	 * @param progress        the progress
+	 * @param updateFileBytes the update file bytes
+	 * @throws Exception on error
+	 */
+	public void updateStsVersion(ProgressPublisher progress, byte[] updateFileBytes) throws Exception {
+		this.updateVersion(progress, GoodWeFirmwareType.STS, () -> updateFileBytes);
+	}
+
+	private void updateVersion(ProgressPublisher progress, GoodWeFirmwareType fw, String fileName) throws Exception {
+		this.updateVersion(progress, fw, () -> readBinaryFile(fileName));
+	}
+
+	private void updateVersion(ProgressPublisher progress, GoodWeFirmwareType fw,
+			ThrowingSupplier<byte[], Exception> readBinary) throws Exception {
 		progress.setPercentage(0, String.format("Start updating %s version", fw));
 		progress.setPercentage(0, String.format("reading %s file", fw));
-		final var bytes = readBinaryFile(fileName);
+		final var bytes = readBinary.get();
 		progress.setPercentage(5, String.format("finished reading %s file", fw));
 
 		// Slice the first 32 bytes for the initial part
@@ -83,7 +100,7 @@ public class UpdateHandler implements AutoCloseable {
 		progress.setPercentage(100, String.format("finished updating %s version", fw));
 	}
 
-	private void sendInitialPartWithHeader(GoodWeFirmwareVersion fw, byte[] initialBytes) throws Exception {
+	private void sendInitialPartWithHeader(GoodWeFirmwareType fw, byte[] initialBytes) throws Exception {
 
 		byte[] headerBytes = {
 				// HEADER
@@ -108,7 +125,7 @@ public class UpdateHandler implements AutoCloseable {
 		this.serialPortHandler.sendBytes(fw.text, dataPackage, DEFAULT_TIMEOUT, true);
 	}
 
-	private void sendFirmwarePart(ProgressPublisher progress, GoodWeFirmwareVersion fw, byte[] firmwarePart)
+	private void sendFirmwarePart(ProgressPublisher progress, GoodWeFirmwareType fw, byte[] firmwarePart)
 			throws Exception {
 		final var fwLength = firmwarePart.length;
 		final var blockLength = DEFAULT_BLOCK_BYTES;
@@ -130,7 +147,7 @@ public class UpdateHandler implements AutoCloseable {
 		}
 	}
 
-	private byte[] getDataPackageWithHeader(GoodWeFirmwareVersion fw, int packageIndex, byte[] firmwareBlock) {
+	private byte[] getDataPackageWithHeader(GoodWeFirmwareType fw, int packageIndex, byte[] firmwareBlock) {
 
 		var dataLength = toHexBytes(firmwareBlock.length); // default 512, last package normally lower
 		var hexIndex = toHexBytes(packageIndex + 1);

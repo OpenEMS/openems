@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { DummyConfig } from "../../edgeconfig.spec";
 import { EvcsComponent } from "./evcsComponent";
 
@@ -14,20 +13,15 @@ describe("EvcsComponent", () => {
             config,
             DummyConfig.dummyEdge({ version: "2024.10.2" }),
         );
-        expect(result.powerChannel.channelId).toBe("ChargePower");
-        expect(result.energyChannel.channelId).toBe("ActiveConsumptionEnergy");
+        expect(result?.powerChannel.channelId).toBe("ChargePower");
+        expect(result?.energyChannel.channelId).toBe("ActiveConsumptionEnergy");
     });
 
     it("power channel should be 'ChargePower' when edge is null", () => {
-        const result = EvcsComponent.from(
-            config.getComponent("evcs1"),
-            config,
-            null,
-        );
-        expect(result.powerChannel.channelId).toBe("ChargePower");
-        expect(result.energyChannel.channelId).toBe("ActiveConsumptionEnergy");
+        const result = EvcsComponent.from(config.getComponent("evcs1"), config, null);
+        expect(result?.powerChannel.channelId).toBe("ChargePower");
+        expect(result?.energyChannel.channelId).toBe("ActiveConsumptionEnergy");
     });
-
 
     it("power channel should be 'ActivePower' for mennekes", () => {
         const result = EvcsComponent.from(
@@ -35,8 +29,7 @@ describe("EvcsComponent", () => {
             config,
             DummyConfig.dummyEdge({ version: "2024.10.2" }),
         );
-        expect(result.powerChannel.channelId).toBe("ActivePower");
-        expect(result.energyChannel.channelId).toBe("ActiveProductionEnergy");
+        expect(result?.powerChannel.channelId).toBe("ActivePower");
+        expect(result?.energyChannel.channelId).toBe("ActiveProductionEnergy");
     });
-
 });

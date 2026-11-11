@@ -228,7 +228,6 @@ public class HardyBarthEvcsTest {
 
 		testBundle.addComponentAggregateTask();
 		testBundle.addEvseAggregateTask();
-		testBundle.addEnergySchedulerVersionAggregateTask();
 
 		testBundle.assertNoValidationErrors();
 	}

@@ -1,7 +1,7 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.common.type.TextProvider;
+import io.openems.common.utils.TextProvider;
 
 public interface EnumChannelParameterProvider<V extends Enum<V> & OptionsEnum> extends ParameterProvider {
 	/**

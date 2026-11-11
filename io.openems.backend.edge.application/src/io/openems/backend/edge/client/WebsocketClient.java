@@ -8,18 +8,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
-import io.openems.backend.edge.application.Cache;
+import io.openems.backend.edge.application.BackendEdgeServerApp;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.BooleanConsumer;
@@ -29,6 +24,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.logger.ContextLogger;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
@@ -38,8 +34,9 @@ import io.openems.common.websocket.WsData;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
-	private final Logger log = LoggerFactory.getLogger(WebsocketClient.class);
+	private final Logger log;
 	private final ThreadPoolExecutor executor;
+	private final BackendEdgeServerApp app;
 
 	private final OnNotification onNotification;
 	private final OnRequest onRequest;
@@ -48,37 +45,29 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	/**
 	 * Builds a {@link WebsocketClient}.
 	 * 
-	 * @param name                   a human readble name
-	 * @param uri                    the connection Uri to OpenEMS Backend
-	 *                               Edge-Manager
-	 * @param id                     unique ID of this Backend Edge Application
-	 * @param poolSize               number of threads to handle tasks
-	 * @param onConnectedChange      callback for connection to Edge-Manager status
-	 *                               changes
-	 * @param sendRequestToEdge      method to send a {@link JsonrpcRequest} to an
-	 *                               Edge
-	 * @param sendNotificationToEdge method to send a {@link JsonrpcNotification} to
-	 *                               an Edge
-	 * @param updateCache            callback for a {@link Cache} update
+	 * @param name              a human readble name
+	 * @param uri               the connection Uri to OpenEMS Backend Edge-Manager
+	 * @param id                unique ID of this Backend Edge Application
+	 * @param poolSize          number of threads to handle tasks
+	 * @param onConnectedChange callback for connection to Edge-Manager status
+	 *                          changes
+	 * @param app               reference to {@link BackendEdgeServerApp}
 	 */
 	public WebsocketClient(//
 			String name, URI uri, String id, int poolSize, //
 			BooleanConsumer onConnectedChange, //
-			BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdge, //
-			BiConsumer<String, JsonrpcNotification> sendNotificationToEdge, //
-			Consumer<UpdateMetadataCache.Notification> updateCache) {
+			BackendEdgeServerApp app) {
 		super(name, uri, Map.of("id", id), onConnectedChange,
 				new ClientReconnectorWorker.Config(100, 30, 2, FunctionUtils::doNothing));
+		this.log = new ContextLogger(WebsocketClient.class, this.getName());
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat("Backend.Edge.App-%d").build());
+		this.app = app;
 		this.onNotification = new OnNotification(//
 				name, //
-				sendNotificationToEdge, //
-				updateCache, //
-				this::logWarn);
-		this.onRequest = new OnRequest(//
-				name, //
-				sendRequestToEdge);
+				new ContextLogger(OnNotification.class, this.getName()), //
+				this.app);
+		this.onRequest = new OnRequest(name, this.app);
 		this.onError = new OnError(//
 				this::logError);
 	}
@@ -164,17 +153,17 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected void logInfo(Logger log, String message) {
-		log.info("[" + this.getName() + "] " + message);
+		this.log.info(message);
 	}
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		log.warn("[" + this.getName() + "] " + message);
+		this.log.warn(message);
 	}
 
 	@Override
 	protected void logError(Logger log, String message) {
-		log.error("[" + this.getName() + "] " + message);
+		this.log.error(message);
 	}
 
 	public boolean isConnected() {

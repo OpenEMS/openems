@@ -1,0 +1,73 @@
+{
+    "EVSE_SINGLE": {
+        "HOME": {
+            "ACTUAL_MODE": {
+                "LABEL": "Mode actuel"
+            },
+            "ENERGY_SINCE_START": "Énergie depuis le dernier début de charge",
+            "MODE": {
+                "FORCE": "Rapide",
+                "LABEL": "Mode de base",
+                "MINIMUM": "Minimal",
+                "SURPLUS": "PV",
+                "ZERO": "Désactivé"
+            },
+            "POWER": "Puissance",
+            "STATE_MACHINE": {
+                "CHARGING": "En charge",
+                "EV_CONNECTED": "VE connecté",
+                "EV_NOT_CONNECTED": "VE non connecté",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Charge terminée par la limite d'énergie",
+                "FINISHED_EV_STOP": "Charge terminée par le VE",
+                "LABEL": "État",
+                "PHASE_SWITCH": "Commutation de phases manuelle",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Passage en monophasé",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Passage en triphasé"
+            },
+            "VEHICLES": "Véhicules du Centre d'apps"
+        },
+        "SCHEDULE": {
+            "ACCEPT": "Accepter",
+            "ADD": "Ajouter",
+            "ADD_ERROR": "La tâche n'a pas pu être ajoutée",
+            "ADD_SUCCESS": "Tâche ajoutée avec succès",
+            "DAY": {
+                "FRIDAY": "Vendredi",
+                "MONDAY": "Lundi",
+                "SATURDAY": "Samedi",
+                "SUNDAY": "Dimanche",
+                "THURSDAY": "Jeudi",
+                "TUESDAY": "Mardi",
+                "WEDNESDAY": "Mercredi"
+            },
+            "DELETE": "Supprimer",
+            "DELETE_ERROR": "La tâche n'a pas pu être supprimée",
+            "DELETE_SUCCESS": "Tâche supprimée avec succès",
+            "DURATION": "Durée",
+            "EDIT": "Modifier",
+            "EDIT_ERROR": "La tâche n'a pas pu être modifiée",
+            "EDIT_SUCCESS": "Tâche ajustée avec succès",
+            "END": "Fin",
+            "FREQ": {
+                "DAILY": "Quotidien",
+                "MONTHLY": "Mensuel",
+                "WEEKLY": "Hebdomadaire",
+                "YEARLY": "Annuel"
+            },
+            "FREQUENCY": "Répéter",
+            "MODE": "Mode de charge",
+            "MODE_SELECTION_PLACEHOLDER": "Sélectionner",
+            "SMART_EVENT_TITLE": "Charge intelligente de {{kwh}} kWh",
+            "START": "Début",
+            "VALIDATION_ERROR_1": "Veuillez indiquer l'heure de début",
+            "VALIDATION_ERROR_2": "Veuillez indiquer l'heure de fin",
+            "VALIDATION_ERROR_3": "Veuillez sélectionner le mode de charge",
+            "VALIDATION_ERROR_4": "Veuillez indiquer l'heure de début au format HH:mm et uniquement par tranches d'un quart d'heure (00, 15, 30 ou 45 minutes)",
+            "VALIDATION_ERROR_5": "Veuillez indiquer l'heure de fin au format HH:mm et uniquement par tranches d'un quart d'heure (00, 15, 30 ou 45 minutes)",
+            "VALIDATION_ERROR_6": "L'heure de fin doit être postérieure à l'heure de début"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Limite d'énergie"
+        }
+    }
+}

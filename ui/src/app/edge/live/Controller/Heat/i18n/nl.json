@@ -1,0 +1,36 @@
+{
+    "HEAT": {
+        "HOME": {
+            "CHOSEN_MODE": "Geselecteerde modus"
+        },
+        "READ_ONLY": {
+            "NOT_AVAILABLE": "Niet beschikbaar in alleen-lezen modus."
+        },
+        "SCHEDULE": {
+            "END_TEMPERATURE": "Eindtemperatuur",
+            "MANUAL_EVENTS": "Handmatige events",
+            "MODE": "Verwarmingsmodus",
+            "MODE_SELECTION_PLACEHOLDER": "Selecteren",
+            "SCHEDULE": "Tijdschema",
+            "SMART_EVENT": "Slim event",
+            "SMART_EVENTS": "Slimme events",
+            "SMART_EVENT_END": "Morgen 7:00"
+        },
+        "SETTINGS": {
+            "MODE": {
+                "FAST_HEAT": {
+                    "DESCRIPTION": "De verwarmingsstaaf kiest automatisch het bijbehorende verwarmingsniveau.\nDe maximale duur van het vermogen is 10 uur.\nDaarna volgt een pauze van 1 uur.",
+                    "TITLE": "Snel verwarmen"
+                },
+                "OFF": {
+                    "TITLE": "Geen verwarming"
+                },
+                "SURPLUS": {
+                    "DESCRIPTION": "Maakt gelijkmatige verwarming van verschillende buffervaten mogelijk. De activering gebeurt automatisch, perfect afgestemd op uw overtollige en beschikbare PV-energie.",
+                    "TITLE": "PV-overschot"
+                }
+            },
+            "NO_SETTINGS_AVAILABLE": "Geen instellingen beschikbaar."
+        }
+    }
+}

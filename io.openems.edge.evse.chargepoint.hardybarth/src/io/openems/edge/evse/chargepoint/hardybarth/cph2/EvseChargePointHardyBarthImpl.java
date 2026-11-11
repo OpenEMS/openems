@@ -8,6 +8,8 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.time.Instant;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,13 +23,17 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
+import io.openems.edge.evse.chargepoint.hardybarth.common.DeviceRole;
 import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -45,6 +51,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent implements EvseChargePointHardyBarth,
 		HardyBarth, OpenemsComponent, EvseChargePoint, ElectricityMeter, TimedataProvider, EventHandler {
 
+	private static final int MIN_PHASE_SWITCH_DELAY = 60;
+
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
@@ -58,6 +66,7 @@ public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent impl
 
 	private Config config = null;
 	private EvseHandler handler;
+	private Instant lastPhaseSwitchCommand = null;
 
 	public EvseChargePointHardyBarthImpl() {
 		super(//
@@ -108,32 +117,181 @@ public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent impl
 					.build();
 		}
 
-		final var isEvConnected = switch (this.getChargePointStatus()) {
-		case UNDEFINED, A, E, F -> false;
-		case B, C, D -> true;
-		};
+		final var isEvConnected = this.isEvConnected();
 
-		final var phaseCount = evaluatePhaseCountFromCurrent(//
-				this.getCurrentL1().orElse(0), //
-				this.getCurrentL2().orElse(0), //
-				this.getCurrentL3().orElse(0));
-		final Phase.SingleOrThreePhase phase;
-		if (phaseCount != null && phaseCount == 1) {
-			phase = Phase.SingleOrThreePhase.SINGLE_PHASE;
-		} else {
+		var phase = this.getActivePhase();
+		if (phase == null) {
 			phase = Phase.SingleOrThreePhase.THREE_PHASE;
 		}
+		final var applySetPoint = this.getApplySetPoint(phase);
+
 		return ChargePointAbilities.create() //
-				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phase, 6, 16)) //
+				.setApplySetPoint(applySetPoint) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
+				.setPhaseSwitch(this.getPhaseSwitchAbility()) //
 				.build();
 	}
 
 	@Override
 	public void apply(ChargePointActions actions) {
+		if (this.config.readOnly()) {
+			return;
+		}
+
+		final var phaseSwitch = actions.phaseSwitch();
+		this.applyPhaseSwitch(phaseSwitch);
+		if (phaseSwitch != null) {
+			return;
+		}
+		this.applySetPoint(actions);
+	}
+
+	private void applySetPoint(ChargePointActions actions) {
+		if (this.isCurrentlySwitching()) {
+			return;
+		}
 		var current = actions.getApplySetPointInAmpere().value();
 		this.handler.setTarget(current);
+	}
+
+	private void applyPhaseSwitch(ApplyPhaseSwitch phaseSwitch) {
+		if (phaseSwitch == null) {
+			return;
+		}
+		if (!this.canExecutePhaseSwitch(phaseSwitch.direction())) {
+			return;
+		}
+		this.lastPhaseSwitchCommand = Instant.now();
+		this.handler.triggerPhaseSwitch(phaseSwitch.direction());
+	}
+
+	private boolean canExecutePhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection direction) {
+		if (direction == null || !this.isChargingForPhaseSwitch() || this.isCurrentlySwitching()) {
+			return false;
+		}
+		final var ability = this.getPhaseSwitchAbility();
+		return ability != null && ability.direction() == direction;
+	}
+
+	private ApplySetPoint.Ability.Ampere getApplySetPoint(Phase.SingleOrThreePhase phase) {
+		return new ApplySetPoint.Ability.Ampere(phase, 6, 16);
+	}
+
+	/**
+	 * Checks if the CP is currently switching.
+	 * 
+	 * @return is currently switching
+	 */
+	public boolean isCurrentlySwitching() {
+		Value<String> status = this.getSaliaPhaseSwitchingStatus();
+
+		final var recentlySwitched = this.lastPhaseSwitchCommand != null //
+				&& this.lastPhaseSwitchCommand.isAfter(Instant.now().minusSeconds(MIN_PHASE_SWITCH_DELAY)); //
+		final var statusSwitching = status != null //
+				&& status.isDefined() //
+				&& status.get() != null //
+				&& !status.get().trim().isEmpty() //
+				&& !"idle".equals(status.get()); //
+
+		return recentlySwitched || statusSwitching;
+	}
+
+	private ApplyPhaseSwitch getPhaseSwitchAbility() {
+		if (!this.hasPhaseSwitchingApi() || this.getDeviceRoleChannel().value().asEnum() != DeviceRole.SLAVE
+				|| !this.isEvConnected()) {
+			return null;
+		}
+
+		final var activePhase = this.getActivePhase();
+		if (activePhase == null) {
+			return null;
+		}
+
+		final var applySetPoint = this.getApplySetPoint(this.getActivePhase());
+
+		final var oppositePhase = activePhase == Phase.SingleOrThreePhase.SINGLE_PHASE
+				? Phase.SingleOrThreePhase.THREE_PHASE
+				: Phase.SingleOrThreePhase.SINGLE_PHASE;
+		final var direction = activePhase == Phase.SingleOrThreePhase.SINGLE_PHASE ? PhaseSwitchDirection.TO_THREE_PHASE
+				: PhaseSwitchDirection.TO_SINGLE_PHASE;
+		final var oppositePhaseApplySetPoint = new ApplySetPoint.Ability.Watt(oppositePhase,
+				ApplySetPoint.convertAmpereToWatt(oppositePhase, applySetPoint.min()),
+				ApplySetPoint.convertAmpereToWatt(oppositePhase, applySetPoint.max()));
+		return new ApplyPhaseSwitch(direction, new ApplyPhaseSwitch.PhaseSwitchAbility.ManualWithoutZeroSetPoint(),
+				oppositePhaseApplySetPoint);
+	}
+
+	private boolean isEvConnected() {
+		return switch (this.getChargePointStatus()) {
+		case B, C, D -> true;
+		case A, E, F, UNDEFINED -> false;
+		};
+	}
+
+	private boolean isChargingForPhaseSwitch() {
+		return switch (this.getChargePointStatus()) {
+		case C, D -> true;
+		case A, B, E, F, UNDEFINED -> false;
+		};
+	}
+
+	private Phase.SingleOrThreePhase getActivePhase() {
+		final var phaseByActualPhase = this.getActivePhaseByActualPhase();
+		if (phaseByActualPhase != null) {
+			return phaseByActualPhase;
+		}
+
+		final var phaseByPhaseSwitching = this.getActivePhaseByPhaseSwitching();
+		if (phaseByPhaseSwitching != null) {
+			return phaseByPhaseSwitching;
+		}
+
+		return this.getActivePhaseByCurrent();
+	}
+
+	private Phase.SingleOrThreePhase getActivePhaseByPhaseSwitching() {
+		final var phaseSwitchingActual = this.getSaliaPhaseSwitchingActual();
+		if (phaseSwitchingActual != null) {
+			switch (phaseSwitchingActual.trim()) {
+			case "1":
+				return Phase.SingleOrThreePhase.SINGLE_PHASE;
+			case "3":
+				return Phase.SingleOrThreePhase.THREE_PHASE;
+			default:
+				break;
+			}
+		}
+		return null;
+	}
+
+	private Phase.SingleOrThreePhase getActivePhaseByActualPhase() {
+		final var phaseActual = this.getRawPhaseActual().get();
+		if (phaseActual != null) {
+			switch (phaseActual) {
+			case 1:
+				return Phase.SingleOrThreePhase.SINGLE_PHASE;
+			case 3:
+				return Phase.SingleOrThreePhase.THREE_PHASE;
+			default:
+				break;
+			}
+		}
+		return null;
+	}
+
+	private Phase.SingleOrThreePhase getActivePhaseByCurrent() {
+		final var phaseCount = evaluatePhaseCountFromCurrent(//
+				this.getCurrentL1().orElse(0), //
+				this.getCurrentL2().orElse(0), //
+				this.getCurrentL3().orElse(0));
+		if (phaseCount != null && phaseCount == 1) {
+			return Phase.SingleOrThreePhase.SINGLE_PHASE;
+		}
+		if (phaseCount != null) {
+			return Phase.SingleOrThreePhase.THREE_PHASE;
+		}
+		return null;
 	}
 
 	@Override

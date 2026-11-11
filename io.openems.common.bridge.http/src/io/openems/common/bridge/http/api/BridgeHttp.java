@@ -17,7 +17,7 @@ import io.openems.common.types.DebugMode;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * HttpBridge to handle requests to a {@link Endpoint}.
+ * HttpBridge to handle requests to a {@link BridgeHttp.Endpoint}.
  * 
  * <p>
  * To get a reference to a bridge object include this in your component:
@@ -52,10 +52,10 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
 
 	/**
-	 * Creates a new builder for a {@link Endpoint} with the given url.
+	 * Creates a new builder for a {@link BridgeHttp.Endpoint} with the given url.
 	 *
 	 * @param url the url of the endpoint
-	 * @return a new {@link Endpoint.Builder} instance
+	 * @return a new {@link BridgeHttp.Endpoint.Builder} instance
 	 */
 	public static Endpoint.Builder create(String url) {
 		return new Endpoint.Builder(url);
@@ -123,13 +123,13 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 				return this;
 			}
 
-			public Builder setConnectTimeout(int connectTimeout) {
-				this.connectTimeout = connectTimeout;
+			public Builder setConnectTimeout(int connectTimeoutInMs) {
+				this.connectTimeout = connectTimeoutInMs;
 				return this;
 			}
 
-			public Builder setReadTimeout(int readTimeout) {
-				this.readTimeout = readTimeout;
+			public Builder setReadTimeout(int readTimeoutInMs) {
+				this.readTimeout = readTimeoutInMs;
 				return this;
 			}
 

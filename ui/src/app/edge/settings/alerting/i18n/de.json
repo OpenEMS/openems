@@ -1,7 +1,7 @@
 {
     "ALERTING": {
-        "DELAY": "Verzögerung",
         "CHECKBOX_HELP": "Du erhälst bei Eintritt des Ereignisses mit der ausgewählten Verzögerung eine E-Mail.",
+        "DELAY": "Verzögerung",
         "FAULT": "Fehler",
         "ONLINE_STATUS": "Online-Status",
         "OTHER_USERS": "Weitere Benutzer"

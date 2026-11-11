@@ -21,9 +21,9 @@ import com.google.common.hash.Hashing;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.BehaviorSubject;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
-import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.common.update.Progress;
 import io.openems.edge.common.update.ProgressHistory;
 import io.openems.edge.common.update.ProgressPublisher;

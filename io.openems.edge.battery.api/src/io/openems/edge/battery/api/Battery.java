@@ -45,8 +45,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		SOC(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -59,8 +59,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		SOH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -72,8 +72,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -85,8 +85,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: A
 		 * </ul>
 		 */
-		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+		CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -98,8 +98,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -111,8 +111,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -125,8 +125,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Usually positive, negative for force discharge mode
 		 * </ul>
 		 */
-		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+		CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -138,8 +138,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -152,8 +152,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Usually positive, negative for force charge mode
 		 * </ul>
 		 */
-		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+		DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -165,8 +165,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: Celsius
 		 * </ul>
 		 */
-		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
+		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -179,8 +179,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Range: (-50)..100
 		 * </ul>
 		 */
-		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
+		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -192,8 +192,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -205,8 +205,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -218,8 +218,8 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * <li>Unit: mOhm
 		 * </ul>
 		 */
-		INNER_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIOHM) //
+		INNER_RESISTANCE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIOHM)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		;
 

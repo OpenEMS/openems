@@ -13,7 +13,12 @@ public class Cache {
 		this.onInitializedChange = onInitializedChange;
 	}
 
-	protected synchronized void update(UpdateMetadataCache.Notification notification) {
+	/**
+	 * Replaces the cached data with data from the given notification.
+	 * 
+	 * @param notification Notification to get the data from
+	 */
+	public synchronized void update(UpdateMetadataCache.Notification notification) {
 		this.metadata = notification;
 		this.onInitializedChange.accept(this.isInitialized());
 	}

@@ -121,9 +121,7 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
                     source: "auto",
                     minRotation: 0,
                     maxRotation: 0,
-                    color: getComputedStyle(
-                        document.documentElement,
-                    ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
+                    color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks"),
                 },
                 afterUpdate: (scale: ChartOptions<any>["scales"][number]) => {
                     if (scale == null || scale.ticks == null) {

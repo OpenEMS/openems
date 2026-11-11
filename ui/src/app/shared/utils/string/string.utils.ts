@@ -93,12 +93,9 @@ export namespace StringUtils {
      * Extracts a numeric suffix from a string. Matches logic: Pattern.compile("[^0-9]+([0-9]+)$")
      *
      * @param val The input string (e.g. "fems123")
-     * @returns The number found at the end, or null if format doesn't match.
+     * @returns The number found at the end, or null if the input string does not contain a number.
      */
     export function getTrailingNumber(value: string): number | null {
-        if (!isValidString(value)) {
-            return null;
-        }
         const match = value.match(/\D+(\d+)$/)?.[1];
 
         return match ? Number.parseInt(match, 10) : null;

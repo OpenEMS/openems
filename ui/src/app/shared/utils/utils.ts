@@ -403,7 +403,7 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.getCurrentLanguage().key;
         return (value: number | null | undefined): string =>
             (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
     };
@@ -466,11 +466,7 @@ export class Utils {
      * @param productionActivePower  the Production Power
      * @returns  the Self-Consumption rate
      */
-    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
-        if (sellToGrid == null || productionActivePower == null) {
-            return null;
-        }
-
+    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number {
         if (productionActivePower <= 0) {
             /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
             return 0;

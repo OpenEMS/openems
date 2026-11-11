@@ -12,9 +12,13 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
 import java.util.function.Function;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -27,7 +31,10 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "ci", "evse", "basic", "grid_current_limit", "actual"), //
 		RAW_PHASE_COUNT(Doc.of(INTEGER), //
 				"secc", "port0", "ci", "evse", "basic", "phase_count"), //
-		RAW_PHYSICAL_CURRENT_LIMIT(Doc.of(STRING), "secc", "port0", "ci", "evse", "basic", "physical_current_limit"), //
+		RAW_PHASE_ACTUAL(Doc.of(INTEGER), //
+				"secc", "port0", "ci", "evse", "phase", "actual"), //
+		RAW_PHYSICAL_CURRENT_LIMIT(Doc.of(STRING),
+				"secc", "port0", "ci", "evse", "basic", "physical_current_limit"), //
 
 		// CHARGE
 		RAW_CHARGE_STATUS_PLUG(Doc.of(STRING), //
@@ -67,10 +74,10 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "salia", "firmwareprogress"), //
 		RAW_SALIA_PUBLISH(Doc.of(STRING), //
 				"secc", "port0", "salia", "publish"), //
-		RAW_SALIA_SOCKET_MAX_AMP(Doc.of(STRING), "secc", "port0", "salia", "socketmaxamp"), //
-		RAW_SALIA_INTCTRL_LIMIT(Doc.of(STRING), "secc", "port0", "salia", "intctrl_limit"), //
-		RAW_SALIA_PHASE_SWITCHING_STATUS(Doc.of(STRING), //
-				"secc", "port0", "salia", "phase_switching", "status"), //
+		RAW_SALIA_SOCKET_MAX_AMP(Doc.of(STRING),
+				"secc", "port0", "salia", "socketmaxamp"), //
+		RAW_SALIA_INTCTRL_LIMIT(Doc.of(STRING),
+				"secc", "port0", "salia", "intctrl_limit"), //
 
 		// SESSION
 		RAW_SESSION_STATUS_AUTHORIZATION(Doc.of(STRING), //
@@ -97,6 +104,8 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "metering", "meter", "type"), //
 		METER_NOT_AVAILABLE(Doc.of(WARNING)//
 				.translationKey(HardyBarth.class, "noMeterAvailable")), //
+		PHASE_SWITCHING_NOT_SLAVE(Doc.of(WARNING)//
+				.translationKey(HardyBarth.class, "phaseSwitchingNotSlave")), //
 		TARGET_WRITE_FAILED(Doc.of(WARNING)//
 				.translationKey(HardyBarth.class, "targetWriteFailed")), //
 		RAW_METER_AVAILABLE(new BooleanDoc()//
@@ -194,7 +203,17 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"device", "serial"), //
 		RAW_DEVICE_UUID(Doc.of(STRING), //
 				"device", "uuid"), //
-		;
+		DEVICE_ROLE(Doc.of(DeviceRole.values()).persistencePriority(PersistencePriority.HIGH)), //
+
+		// SALIA PHASE SWITCH
+		RAW_SALIA_PHASE_SWITCHING_ACTUAL(Doc.of(STRING).persistencePriority(PersistencePriority.HIGH), //
+				"secc", "port0", "salia", "phase_switching", "actual"),
+		RAW_SALIA_PHASE_SWITCHING_STATUS(Doc.of(STRING).persistencePriority(PersistencePriority.HIGH), //
+				"secc", "port0", "salia", "phase_switching", "status"),
+		RAW_SALIA_PHASE_SWITCHING_DURATION(Doc.of(STRING).persistencePriority(PersistencePriority.HIGH), //
+				"secc", "port0", "salia", "phase_switching", "duration"),
+		RAW_SALIA_PHASE_SWITCHING_DELAY(Doc.of(STRING).persistencePriority(PersistencePriority.HIGH), //
+				"secc", "port0", "salia", "phase_switching", "delay"),;
 
 		private final Doc doc;
 		private final Path path;
@@ -232,14 +251,6 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 		return this.getSoftwareVersionChannel().value().get();
 	}
 
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_SALIA_PHASE_SWITCHING_STATUS}.
-	 *
-	 * @return the Channel
-	 */
-	public default StringReadChannel getSaliaPhaseSwitchingStatusChannel() {
-		return this.channel(ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS);
-	}
 
 	/**
 	 * get raw device model name channel.
@@ -278,6 +289,24 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#DEVICE_ROLE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getDeviceRoleChannel() {
+		return this.channel(ChannelId.DEVICE_ROLE);
+	}
+
+	/**
+	 * Gets the calculated device role value.
+	 *
+	 * @return device role
+	 */
+	public default DeviceRole getDeviceRole() {
+		return this.getDeviceRoleChannel().value().asEnum();
+	}
+
+	/**
 	 * Reports whether the phase-switching API is available.
 	 *
 	 * <p>
@@ -290,14 +319,13 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 	 * This method evaluates only the API response. It does not determine whether
 	 * the device is a master or slave and therefore does not by itself indicate
 	 * that phase switching is supported by the hardware. Before controlling phase
-	 * switching, callers must additionally verify that {@link #deviceRole()} is
+	 * switching, callers must additionally verify that {@link #getDeviceRole()} is
 	 * {@link DeviceRole#SLAVE}.
 	 *
 	 * <p>
 	 * A successful {@code setphase} response alone is not a reliable indicator,
 	 * because unsupported writes can still be acknowledged and are internally
-	 * discarded by the device. See {@link #canStartPhaseSwitch()} for the current
-	 * API status.
+	 * discarded by the device.
 	 *
 	 * @return true if the API reports {@code "idle"} or {@code "progress"}
 	 */
@@ -306,27 +334,6 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 		return "idle".equals(status) || "progress".equals(status);
 	}
 
-	/**
-	 * Reports whether the phase-switching API is currently idle.
-	 *
-	 * <p>
-	 * This is true only if the raw {@code secc/port0/salia/phase_switching/status}
-	 * value is exactly {@code "idle"}. A value of {@code "progress"} means a switch
-	 * is already ongoing, so a new one must not be started; missing, null,
-	 * undefined or unknown values return false.
-	 *
-	 * <p>
-	 * This method evaluates only the API status. It does not verify the device role
-	 * or communication freshness and does not guarantee that a subsequent write
-	 * succeeds. Before controlling phase switching, callers must additionally
-	 * verify that {@link #deviceRole()} is {@link DeviceRole#SLAVE}.
-	 *
-	 * @return true if the last mapped status is exactly {@code "idle"}
-	 */
-	public default boolean canStartPhaseSwitch() {
-		var status = this.getSaliaPhaseSwitchingStatusChannel().value().get();
-		return "idle".equals(status);
-	}
 
 	public interface PathProvider {
 
@@ -345,23 +352,49 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#RAW_SALIA_PHASE_SWITCHING_ACTUAL}.
+	 *
+	 * @return the Channel
+	 */
+	public default StringReadChannel getSaliaPhaseSwitchingActualChannel() {
+		return this.channel(ChannelId.RAW_SALIA_PHASE_SWITCHING_ACTUAL);
+	}
+
+	public default String getSaliaPhaseSwitchingActual() {
+		return this.getSaliaPhaseSwitchingActualChannel().value().get();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RAW_SALIA_PHASE_SWITCHING_STATUS}.
+	 *
+	 * @return the Channel
+	 */
+	public default StringReadChannel getSaliaPhaseSwitchingStatusChannel() {
+		return this.channel(ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS);
+	}
+
+	public default Value<String> getSaliaPhaseSwitchingStatus() {
+		return this.getSaliaPhaseSwitchingStatusChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RAW_PHASE_ACTUAL}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getRawPhaseActualChannel() {
+		return this.channel(ChannelId.RAW_PHASE_ACTUAL);
+	}
+
+	public default Value<Integer> getRawPhaseActual() {
+		return this.getRawPhaseActualChannel().value();
+	}
+
+	/**
 	 * Defines if the instance is read only.
 	 *
 	 * @return true if the instance is read-only
 	 */
 	public boolean isReadOnly();
 
-	/**
-	 * Determines the device role from model name and product number.
-	 *
-	 * <p>
-	 * Both values must identify the same role. Missing, unknown or conflicting
-	 * values result in {@link DeviceRole#UNKNOWN}. This method is independent of
-	 * the phase-switching API status.
-	 *
-	 * @return the detected device role
-	 */
-	public default DeviceRole deviceRole() {
-		return DeviceRole.fromModelNameAndProduct(this.getSaliaDeviceModelName(), this.getRawDeviceProduct());
-	}
 }

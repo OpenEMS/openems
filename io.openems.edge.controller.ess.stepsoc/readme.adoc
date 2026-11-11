@@ -1,0 +1,48 @@
+= Controller Ess Step SoC
+
+Steps an ESS through the SoC range in fixed increments, pausing between each step.
+
+== Overview
+
+Provides a Controller that charges or discharges a `ManagedSymmetricEss` from one SoC extreme to the other in configurable steps. After each step is completed, the Controller pauses the ESS for a configurable standby time before continuing to the next step. 
+This is useful for balancing test, capacity tests, calibration cycles, or controlled cycling of a battery system, where a stepwise SoC profile with rest periods between steps is required rather than a continuous full charge/discharge.
+
+== Behavior
+
+The Controller runs through the following states:
+
+* *Undefined* -- Waits until `power`, SoC, `AllowedChargePower` and `AllowedDischargePower` are all defined and valid before starting.
+* *Aligning* -- Drives the ESS toward the configured `Direction` (Charge or Discharge) first, so that stepping always starts from the correct SoC extreme (0% for Charge, 100% for Discharge).
+* *Running* -- Applies the configured `power` in the configured `Direction` until the SoC crosses a `socStep` boundary, or until the ESS reports it can no longer charge/discharge further (`AllowedChargePower`/`AllowedDischargePower` == 0).
+* *Paused* -- Idles the ESS for `standbyTime` minutes after each step boundary is reached, then resumes Running.
+* *Finished* -- Reached once the ESS can no longer be charged/discharged further in the configured Direction. Terminal state.
+
+== Components
+
+*Name*: Controller Ess Step Soc
+
+*Factory-PID*: `Controller.Ess.StepSoc`
+
+.Implemented Natures/Interfaces
+* ControllerEssStepSoc
+* Controller
+* OpenemsComponent
+
+*Description*: Charges or discharges a Managed Symmetric Ess in fixed SoC steps, pausing for a configurable standby time between each step.
+
+*Use Cases*:
+
+* Controlled capacity or calibration cycling of a battery system
+* Stepwise SoC profiling with rest periods, e.g. for BMS balancing windows
+
+.*Configuration*:
+* `id` (String): Unique ID of this Component (default: `ctrlEssStepSoc0`)
+* `alias` (String): Human-readable name of this Component; defaults to Component-ID (default: `""`)
+* `enabled` (Boolean): Is this Component enabled? (default: `true`)
+* `ess_id` (String): ID of the Ess device
+* `direction` (Direction): Direction of operation -- `CHARGE` or `DISCHARGE`. If the system is not already at the corresponding empty/full SoC, the Controller first drives it to that starting point (default: `CHARGE`)
+* `power` (Integer): Absolute power in Watt used for charging/discharging, per `direction` (default: none, required)
+* `socStep` (Integer): Step size in %. E.g. with 10%, the Controller charges/discharges from 0% to 10%, then pauses (default: `10`)
+* `standbyTime` (Integer): Idle time in minutes after each step (default: `10`)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.stepsoc[Source Code icon:github[]]

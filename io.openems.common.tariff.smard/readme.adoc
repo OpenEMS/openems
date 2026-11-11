@@ -1,0 +1,13 @@
+= EPEX SPOT / SMARD
+
+This implementation uses the https://www.smard.de/[SMARD - Strom- und Gasmarktdaten für Deutschland] platform to receive day-ahead electricity prices for European bidding zones.
+The platform supports the following bidding zones: Germany, Austria, Belgium, Netherlands and Czechia.
+The SMARD spot price component (```Tariff.SpotTariff.SMARD```) is available in Backend and Edge versions of OpenEMS.
+
+== Authentication
+
+The SMARD API does not require an authentication token.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.common.tariff.smard[Source Code Common icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.spottariff/src/io/openems/edge/timeofusetariff/spottariff/provider/smard[Source Code Edge icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.tariff/src/io/openems/backend/tariff/provider/smard[Source Code Backend icon:github[]]

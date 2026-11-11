@@ -3,13 +3,13 @@ package io.openems.edge.app.meter.gridmeter;
 import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.modbusToGridMeter;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92Master;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrialL;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrialXl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -61,23 +61,24 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * Describes an app for a Janitza grid meter.
  *
  * <pre>
- {
- "appId":"App.GridMeter.Janitza",
- "alias":"Janitza Netzzähler",
- "instanceId": UUID,
- "image": base64,
- "properties":{
- "METER_ID": "meter1",
- "MODBUS_ID": "modbus2",
- "TYPE": "PRODUCTION",
- "MODEL": "Meter.Janitza.UMG96RME",
- "IP": "10.4.0.12",
- "MODBUS_UNIT_ID": 1
- },
- "appDescriptor": {
- "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
- }
- }
+ * {
+ *   "appId":"App.GridMeter.Janitza",
+ *   "alias":"Janitza Netzzähler",
+ *   "instanceId": UUID,
+ *   "image": base64,
+ *   "properties":{
+ *     "METER_ID": "meter0",
+ *     "MODBUS_ID": "modbus0",
+ *     "MODEL": "Meter.Janitza.UMG96RME",
+ *     "INTEGRATION_TYPE": "TCP",
+ *     "IP": "10.4.0.12",
+ *     "PORT": 502,
+ *     "MODBUS_UNIT_ID": 5
+ *   },
+ *   "appDescriptor": {
+ *     "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
+ *   }
+ * }
  * </pre>
  */
 @Component(name = "App.GridMeter.Janitza")
@@ -90,28 +91,29 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		ALIAS(alias()), //
-		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
+		MODEL(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setTranslatedLabel("App.Meter.Janitza.productModel") //
 				.setDefaultValue(JanitzaMeter.JanitzaModel.UMG_96_RME.getValue()) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
-					field.setOptions(
-							OptionsFactory.of(JanitzaMeter.JanitzaModel.class, JanitzaMeter.JanitzaModel.UMG_511), l);
-				}))), //
+				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> //
+				field.setOptions(OptionsFactory.of(JanitzaMeter.JanitzaModel.class, JanitzaMeter.JanitzaModel.UMG_511),
+						l)))), //
 		INTEGRATION_TYPE(CommunicationProps.modbusType()//
 				.setRequired(true)), //
+		MODBUS_UNIT_ID(MeterProps.modbusUnitId()//
+				.setRequired(true)//
+				.setDefaultValue(5)//
+				.setAutoGenerateField(false)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
-							.equal(Exp.staticValue(ModbusType.TCP))));
-				})), //
+				.wrapField((app, property, l, parameter, field) -> //
+				field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
+						.equal(Exp.staticValue(ModbusType.TCP)))))), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE).equal(Exp.staticValue(ModbusType.TCP))));
-				})), //
+				.wrapField((app, property, l, parameter, field) -> //
+				field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE).equal(Exp.staticValue(ModbusType.TCP)))))), //
 		INVERT(MeterProps.invert(METER_ID)//
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))), //
 		;
@@ -156,30 +158,40 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var meterId = this.getId(t, p, Property.METER_ID, "meter0");
+			final var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus2");
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var factoryId = this.getString(p, Property.MODEL);
 			final var invert = this.getBoolean(p, Property.INVERT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
+			final var integrationType = this.getEnum(p, ModbusType.class, Property.INTEGRATION_TYPE);
 
-			final var ip = this.getString(p, Property.IP);
-			final var port = this.getInt(p, Property.PORT);
-			final var tcpModbusId = this.getId(t, p, Property.MODBUS_ID);
+			switch (integrationType) {
+			case RTU -> {
+				final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+				components.add(modbusToGridMeter(bundle, t, modbusId));
+			}
+			case TCP -> {
+				final var ip = this.getString(p, Property.IP);
+				final var port = this.getInt(p, Property.PORT);
 
-			components.add(new EdgeConfig.Component(tcpModbusId,
-					TranslationUtil.translate(AbstractOpenemsApp.getTranslationBundle(l), "App.Meter.alias"),
-					"Bridge.Modbus.Tcp", //
-					JsonUtils.buildJsonObject() //
-							.addProperty("ip", ip) //
-							.addProperty("port", port) //
-							.build()));
+				components.add(new EdgeConfig.Component(modbusId,
+						TranslationUtil.translate(AbstractOpenemsApp.getTranslationBundle(l), "App.Meter.alias"),
+						"Bridge.Modbus.Tcp", //
+						JsonUtils.buildJsonObject() //
+								.addProperty("ip", ip) //
+								.addProperty("port", port) //
+								.build()));
+			}
+			}
 
 			components.add(new EdgeConfig.Component(meterId, alias, factoryId, //
 					JsonUtils.buildJsonObject() //
-							.addProperty("modbus.id", tcpModbusId) //
+							.addProperty("modbus.id", modbusId) //
 							.addProperty("type", GRID) //
-							.addProperty("invert", invert)//
+							.addProperty("invert", invert) //
+							.addProperty("modbusUnitId", this.getInt(p, Property.MODBUS_UNIT_ID)) //
 							.build()));
 
 			return AppConfiguration.create() //
@@ -226,7 +238,7 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanSee(Role.INSTALLER) //
-				.setCanInstall(List.of(Role.ADMIN, Role.INSTALLER)) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
 				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}

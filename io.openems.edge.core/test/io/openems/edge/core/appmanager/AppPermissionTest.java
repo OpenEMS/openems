@@ -2,8 +2,8 @@ package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
 import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 

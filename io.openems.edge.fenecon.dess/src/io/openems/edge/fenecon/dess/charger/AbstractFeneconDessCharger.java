@@ -1,6 +1,6 @@
 package io.openems.edge.fenecon.dess.charger;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;

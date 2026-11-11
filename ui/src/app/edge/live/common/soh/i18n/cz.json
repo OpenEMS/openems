@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Provést znovu",
+                "START": "Provést"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Kapacita se měří",
+                "ENABLED_INFO": "Řadič ESS SoH Cycle je aktivován",
+                "ERROR": "Během cyklu SoH došlo k chybě. Zkontrolujte prosím systémové protokoly pro další podrobnosti.",
+                "INFO": "Měří kapacitu baterie provedením testovacího cyklu a tím vypočítává stav zdraví (SoH). Proces může v závislosti na typu a velikosti baterie trvat několik hodin. Doporučuje se provádět testovací cyklus pouze v případě, že baterie není v používání.",
+                "MEASURED_CAPACITY": "Změřená kapacita",
+                "PV_OFF_CONFIRMATION": "Tímto potvrzuji, že fotovoltaická soustava na měniči byla vypnuta pomocí integrovaného DC vypínače.",
+                "RESTART_CONFIRMATION_TITLE": "Potvrdit opakované provedení",
+                "RESTART_WARNING": "Restartováním cyklu SoH se aktuální měření resetují a spustí se nový cyklus. Jste si jisti, že chcete restartovat?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "Stav",
+                "TITLE": "Určení kapacity",
+                "TITLE_TIP": "viditelné pouze pro administrátory"
+            }
+        }
+    }
+}

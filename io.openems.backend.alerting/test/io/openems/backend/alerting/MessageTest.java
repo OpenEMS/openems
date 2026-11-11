@@ -1,14 +1,15 @@
 package io.openems.backend.alerting;
 
-import java.time.ZonedDateTime;
-
-import io.openems.backend.common.mail.MailContext;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.ZonedDateTime;
+
+import org.junit.jupiter.api.Test;
+
+import io.openems.backend.common.mail.MailContext;
 
 class MessageTest {
 

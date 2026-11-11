@@ -1,0 +1,52 @@
+= Hydac Fluid Cooling
+
+Modbus integration for the HYDAC industrial fluid cooling unit.
+
+== Overview
+
+Provides integration with a HYDAC chiller / fluid cooling unit over Modbus. Reads outlet, pump, and ambient temperatures, flow, and conductance, and monitors a range of status, warning, and alarm bits; writes cooling circuit setpoints and limits, and controls chiller start/stop via coils. Runs a state machine to manage chiller start/stop behaviour and derives debounced warning/fault channels for temperature, pressure, and inverter/compressor issues.
+
+== Supported Devices
+
+.HYDAC Cooling Unit
+* Type: Industrial fluid cooling unit / chiller
+* Communication: Modbus TCP/RTU
+* Typical Use: Cooling of battery or power electronics systems
+
+== Components
+
+=== Cooling Unit Hydac
+
+*Name*: Cooling Unit Hydac
+
+*Factory-PID*: `FluidCooling.Hydac`
+
+.Implemented Natures/Interfaces
+* Hydac
+* OpenemsComponent
+* ModbusComponent
+* StartStoppable
+* EventHandler
+* ComponentJsonApi
+
+*Description*: Monitors and controls a HYDAC fluid cooling unit over Modbus. Runs a state machine (`WAIT_FOR_TARGET` → `RUNNING` / `STOPPED`) that drives the chiller on or off based on the configured or requested start/stop target. In parallel, continuously evaluates temperature, pressure, and inverter/compressor alarms and raises debounced warning and fault channels using timeout-based timers (30/60 minute windows for temperature faults, immediate for pressure and inverter faults).
+
+*Use Cases*:
+* Cooling of stationary battery energy storage systems
+* Cooling of power electronics (e.g. inverters, transformers)
+
+.*Configuration*:
+* `id` (String): Unique ID of this Component (default: "fluidCooling0")
+* `alias` (String): Human-readable name of this Component; defaults to Component-ID (default: "")
+* `enabled` (Boolean): Is this Component enabled? (default: true)
+* `startStop` (StartStopConfig): Should this Component be forced to start or stop? (default: AUTO)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `temperatureSetpoint` (Integer): The setpoint for the cooling temperature; scaling 0.01 (default: 2500, i.e. 25°C)
+
+== Features
+
+* State machine (`WAIT_FOR_TARGET` → `RUNNING` / `STOPPED`) for chiller start/stop control
+* Debounced fault/warning detection for over/under temperature, high/low pressure, and inverter/compressor errors
+* `clearErrorRequest` JSON-RPC endpoint (Installer role or higher) to clear the unit's error state, with a 5-second debounce before re-arming
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fluidcooling.hydac[Source Code icon:github[]]

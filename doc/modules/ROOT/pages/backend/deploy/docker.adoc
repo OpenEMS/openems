@@ -10,6 +10,8 @@
 
 This chapter explains how OpenEMS Backend can be deployed using our official https://hub.docker.com/r/openems/backend[Docker image].
 
+The involved components (Edge.Manager, Backend.Edge.App) and the available deployment options are described in xref:backend/architecture.adoc[Backend Architecture]. The Docker images follow this architecture: the *openems/backend* image contains the central Backend with the Edge Manager, while the separate *openems/backend-edge* image runs the Backend Edge Application that the OpenEMS Edge devices connect to.
+
 == Prepare system
 
 === Connect to the server
@@ -52,11 +54,24 @@ services:
       - openems-backend-data:/var/opt/openems/data:rw
     ports:
       - 8079:8079 # Apache-Felix
+
+  openems_backend_edge:
+    image: openems/backend-edge:latest
+    container_name: openems_backend_edge
+    hostname: openems-backend-edge
+    restart: unless-stopped
+    volumes:
+      - openems-backend-edge-conf:/var/opt/openems/config:rw
+      - openems-backend-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8078:8078 # Apache-Felix
       - 8081:8081 # Edge-Websocket
 
 volumes:
   openems-backend-conf:
   openems-backend-data:
+  openems-backend-edge-conf:
+  openems-backend-edge-data:
 ----
 
 === Run compose file
@@ -75,8 +90,9 @@ To check if the container is up and running, check `docker ps`:
 [source,bash]
 ----
 admin@ubuntu:~$ docker ps
-CONTAINER ID  IMAGE                       COMMAND   CREATED               STATUS            
-15d5ba3c5f13  openems/backend:latest      "/init"   About a minute ago    Up About a minute
+CONTAINER ID  IMAGE                        COMMAND   CREATED               STATUS            
+15d5ba3c5f13  openems/backend:latest        "/init"   About a minute ago    Up About a minute
+018187f444b1  openems/backend-edge:latest   "/init"   About a minute ago    Up About a minute
 ----
 
 or read its logs with:
@@ -85,6 +101,18 @@ or read its logs with:
 ----
 docker logs openems_backend
 ----
+
+=== Connect the Backend Edge Application
+
+The Backend Edge Application in the *openems/backend-edge* container needs to connect to the Edge Manager in the *openems/backend* container.
+
+. Open the http://localhost:8078/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] of the *openems/backend-edge* container.
++
+Login with username *admin* and password *admin*.
+
+. Configure the _**Backend Edge Application**_ service: set *Uri* to the address of the *openems/backend* container, e.g. `ws://openems_backend:8083`.
++
+The port must match the *Port* of the _**Edge Manager**_ service in the *openems/backend* container (default `8083`). Click btn:[Save].
 
 == OpenEMS Backend UI
 
@@ -103,8 +131,19 @@ services:
       - openems-backend-data:/var/opt/openems/data:rw
     ports:
       - 8079:8079 # Apache-Felix
-      - 8081:8081 # Edge-Websocket
       - 8082:8082 # UI-Websocket
+
+  openems_backend_edge:
+    image: openems/backend-edge:latest
+    container_name: openems_backend_edge
+    hostname: openems-backend-edge
+    restart: unless-stopped
+    volumes:
+      - openems-backend-edge-conf:/var/opt/openems/config:rw
+      - openems-backend-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8078:8078 # Apache-Felix
+      - 8081:8081 # Edge-Websocket
 
   openems-ui:
     image: openems/ui-backend:latest
@@ -124,6 +163,8 @@ services:
 volumes:
   openems-backend-conf:
   openems-backend-data:
+  openems-backend-edge-conf:
+  openems-backend-edge-data:
   openems-ui-conf:
   openems-ui-log:
 ----
@@ -143,9 +184,10 @@ Update the compose running with: `docker compose up -d`
 [source,bash]
 ----
 admin@ubuntu:~$ docker ps
-CONTAINER ID  IMAGE                       COMMAND   CREATED               STATUS            
-018187f444b1  openems/ui-backend:latest   "/init"   About a minute ago    Up About a minute
-15d5ba3c5f13  openems/backend:latest      "/init"   About a minute ago    Up About a minute
+CONTAINER ID  IMAGE                        COMMAND   CREATED               STATUS            
+018187f444b1  openems/ui-backend:latest     "/init"   About a minute ago    Up About a minute
+15d5ba3c5f13  openems/backend:latest        "/init"   About a minute ago    Up About a minute
+2a6c8d9f0b53  openems/backend-edge:latest   "/init"   About a minute ago    Up About a minute
 ----
 
 == Add InfluxDB Container
@@ -194,6 +236,8 @@ docker exec openems_influxdb influx auth list
 NOTE: Note down Token
 
 ==== Open Backend Apache-Felix.
+
+Open the http://localhost:8079/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] of the *openems/backend* container and login with username *admin* and password *admin*.
 
 1. Remove Timedata.Dummy
 2. Add Timedata.InfluxDB

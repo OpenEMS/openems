@@ -2,7 +2,6 @@ import { TestContext, TestingUtils } from "../../components/shared/testing/utils
 import { TimeUtils } from "./timeutils";
 
 describe("TimeUtils", () => {
-
     const locale: Intl.LocalesArgument = "de";
     let TEST_CONTEXT: TestContext;
     beforeEach(async () => {
@@ -16,13 +15,13 @@ describe("TimeUtils", () => {
     });
 
     it("+CONVERT_MINUTE_TO_TIME_OF_DAY", () => {
-        expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(1000)).toEqual("16:40 Uhr");
-        expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(0)).toEqual("00:00 Uhr");
+        expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(1000)).toEqual("16:40&nbsp;Uhr");
+        expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(0)).toEqual("00:00&nbsp;Uhr");
         expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(null)).toEqual("-");
         expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, locale)(undefined)).toEqual("-");
     });
 
-    //  Note: both formats "en" & "en-US" are accepted and supported.
+    //  Note: both formats "en" & "en-US" are accepted andCONVERT_MINUTE_TO_TIME_OF_DAY  supported.
     it("+CONVERT_MINUTE_TO_TIME_OF_DAY (en-US locale)", () => {
         expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, "en-US")(1000)).toEqual("04:40 PM");
         expect(TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(TEST_CONTEXT.translate, "en-US")(0)).toEqual("12:00 AM");
