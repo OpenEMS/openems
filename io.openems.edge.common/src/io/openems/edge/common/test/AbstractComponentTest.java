@@ -895,6 +895,30 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
+	 * Removes a OSGi Declarative Services @Reference via java reflection.
+	 *
+	 * @param methodName the name of the unbind method
+	 * @param object     the reference object
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF removeReference(String methodName, Object object) throws Exception {
+		this.osgiComponentTester.removeReference(methodName, object);
+		switch (object) {
+		case DummyComponentManager dcm ->
+		this.components.values() //
+				.forEach(dcm::removeComponent);
+		case OpenemsComponent oc -> this.components.remove(oc.id());
+		case Collection<?> os -> os.stream() //
+				.filter(OpenemsComponent.class::isInstance) //
+				.map(OpenemsComponent.class::cast) //
+				.forEach(c -> this.components.remove(c.id()));
+		case null, default -> doNothing();
+		}
+		return this.self();
+	}
+
+	/**
 	 * Adds an available {@link OpenemsComponent}.
 	 *
 	 * <p>

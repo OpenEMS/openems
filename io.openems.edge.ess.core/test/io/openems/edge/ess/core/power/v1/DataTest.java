@@ -62,7 +62,6 @@ public class DataTest {
 	@Test
 	public void testNoInverterForMetaEss() {
 		data.setSymmetricMode(true);
-		// esss = [ess0(MetaEss), ess1, ess2] → only ess1 and ess2 should have inverters
 		assertEquals(2, data.getInverters().size());
 	}
 

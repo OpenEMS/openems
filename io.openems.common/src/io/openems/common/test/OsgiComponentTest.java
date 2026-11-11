@@ -237,4 +237,31 @@ public class OsgiComponentTest<SUT> {
 
 		return true;
 	}
+
+	/**
+	 * Removes a OSGi Declarative Services @Reference via java reflection.
+	 *
+	 * @param methodName the name of the unbind method
+	 * @param object     the reference object
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public OsgiComponentTest<SUT> removeReference(String methodName, Object object) throws Exception {
+		if (!this.removeReference(this.sut.getClass(), methodName, object)) {
+			throw new Exception("Unable to remove reference on method [" + methodName + "]");
+		}
+		this.references.remove(object);
+		return this;
+	}
+
+	private boolean removeReference(Class<?> clazz, String methodName, Object object) {
+		if (this.invokeSingleArgMethod(clazz, methodName, object)) {
+			return true;
+		}
+		Class<?> parent = clazz.getSuperclass();
+		if (parent == null) {
+			return false; // reached 'java.lang.Object'
+		}
+		return this.removeReference(parent, methodName, object);
+	}
 }
