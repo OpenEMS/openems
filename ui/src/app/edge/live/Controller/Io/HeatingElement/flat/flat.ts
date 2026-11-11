@@ -2,6 +2,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { WorkMode } from "src/app/shared/type/general";
 import { ModalComponent } from "../modal/modal";
@@ -28,6 +29,10 @@ export class FlatComponent extends AbstractFlatWidget {
     protected outputChannelArray: ChannelAddress[] = [];
     protected consumptionMeter: EdgeConfig.Component = null;
     protected modalComponent: Modal | null = null;
+    protected hasWaterThermometer = false;
+    protected sensorNotAvailable = false;
+    protected legionellaFailed = false;
+    protected readonly CONVERT_TEMPERATURE = Converter.TEMPERATURE_IN_DEGREES;
 
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
@@ -56,6 +61,11 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, "_PropertyWorkMode"),
+            new ChannelAddress(this.component.id, "WaterActual"),
+            new ChannelAddress(this.component.id, "WaterTarget"),
+            new ChannelAddress(this.component.id, "WaterThermometerNotAvailable"),
+            new ChannelAddress(this.component.id, "LegionellenProtectionFailed"),
+            new ChannelAddress(this.component.id, "_PropertyHasWaterThermometer"),
         ];
 
         return channelAddresses;
@@ -80,6 +90,12 @@ export class FlatComponent extends AbstractFlatWidget {
                 break;
             }
         }
+
+        this.hasWaterThermometer =
+            currentData.allComponents[this.component.id + "/_PropertyHasWaterThermometer"] === 1 ||
+            (this.component.properties["hasWaterThermometer"] ?? false) === true;
+        this.sensorNotAvailable = currentData.allComponents[this.component.id + "/WaterThermometerNotAvailable"] === 1;
+        this.legionellaFailed = currentData.allComponents[this.component.id + "/LegionellenProtectionFailed"] === 1;
 
         this.level = currentData.allComponents[this.component.id + "/" + "Level"];
         this.runState = currentData.allComponents[this.component.id + "/" + "Status"];

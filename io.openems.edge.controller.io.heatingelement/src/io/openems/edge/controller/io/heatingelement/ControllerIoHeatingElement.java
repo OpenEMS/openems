@@ -97,7 +97,18 @@ public interface ControllerIoHeatingElement extends Controller, OpenemsComponent
 
 		SESSION_ENERGY(Doc.of(LONG)//
 				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH));
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		WATER_ACTUAL(Doc.of(INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		WATER_TARGET(Doc.of(INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		WATER_THERMOMETER_NOT_AVAILABLE(Doc.of(io.openems.common.channel.Level.WARNING)//
+				.text("The water thermometer is not available")), //
+		LEGIONELLEN_PROTECTION_FAILED(Doc.of(io.openems.common.channel.Level.WARNING)//
+				.text("The Legionella temperature was not held in time"));
 
 		private final Doc doc;
 

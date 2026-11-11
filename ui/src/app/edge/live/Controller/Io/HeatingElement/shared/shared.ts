@@ -37,6 +37,7 @@ export namespace SharedControllerIoHeatingElement {
                     HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME,
                 ),
                 ...getFormlyManualOnView(HIDE_ON_MODE_NOT_MANUAL_ON),
+                ...getFormlyTemperatureView(translate, component, edge),
             ],
             component: component,
             edge: edge,
@@ -179,6 +180,142 @@ export namespace SharedControllerIoHeatingElement {
         },
     ];
 
+    const HIDE_ON_NO_THERMOMETER = (el: HeatingElementViewModel) => !el.hasWaterThermometer;
+    const HIDE_ON_NO_LEGIONELLA = (el: HeatingElementViewModel) =>
+        !el.hasWaterThermometer || !el.enableLegionellenProtection;
+
+    const getLevelOptions = (translate: TranslateService, withLevelZero: boolean) => [
+        ...(withLevelZero
+            ? [{ name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_ZERO"), value: "LEVEL_0" }]
+            : []),
+        { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_ONE"), value: "LEVEL_1" },
+        { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_TWO"), value: "LEVEL_2" },
+        { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_THREE"), value: "LEVEL_3" },
+    ];
+
+    /**
+     * Creates the lines for the optional water temperature control.
+     *
+     * @param translate The {@link TranslateService}
+     * @param component The heating element component
+     * @param edge The current {@link Edge}
+     * @returns The formly lines
+     */
+    export const getFormlyTemperatureView = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+    ): OeFormlyView<HeatingElementViewModel>["lines"] => {
+        const T = "EDGE.INDEX.WIDGETS.HEATINGELEMENT.";
+        const thermometers = (
+            edge.getCurrentConfig()?.getComponentsImplementingNature("io.openems.edge.thermometer.api.Thermometer") ??
+            []
+        ).map((c) => ({ name: c.alias ? c.alias + " (" + c.id + ")" : c.id, value: c.id }));
+        const temperatureInput = (
+            controlName: string,
+            name: string,
+            hide: (el: HeatingElementViewModel) => boolean = HIDE_ON_NO_THERMOMETER,
+        ) => ({
+            type: "input-line" as const,
+            name: translate.instant(T + name),
+            controlName: controlName,
+            properties: { unit: "°C", type: "number" as const },
+            hide: hide,
+        });
+
+        return [
+            { type: "horizontal-line" },
+            {
+                type: "toggle-line",
+                name: translate.instant(T + "HAS_WATER_THERMOMETER"),
+                controlName: "hasWaterThermometer",
+            },
+            {
+                type: "value-from-channels-line",
+                name: translate.instant(T + "WATER_ACTUAL"),
+                channelsToSubscribe: [new ChannelAddress(component.id, "WaterActual")],
+                value: (currentData: CurrentData) =>
+                    Converter.TEMPERATURE_IN_DEGREES(currentData.allComponents[component.id + "/WaterActual"]),
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            {
+                type: "value-from-channels-line",
+                name: translate.instant(T + "WATER_TARGET"),
+                channelsToSubscribe: [new ChannelAddress(component.id, "WaterTarget")],
+                value: (currentData: CurrentData) =>
+                    Converter.TEMPERATURE_IN_DEGREES(currentData.allComponents[component.id + "/WaterTarget"]),
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            {
+                type: "value-from-channels-line",
+                name: translate.instant(T + "SENSOR_STATE"),
+                channelsToSubscribe: [new ChannelAddress(component.id, "WaterThermometerNotAvailable")],
+                value: (currentData: CurrentData) =>
+                    currentData.allComponents[component.id + "/WaterThermometerNotAvailable"] === 1
+                        ? translate.instant(T + "SENSOR_NOT_AVAILABLE")
+                        : translate.instant("GENERAL.OK"),
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            {
+                type: "value-from-channels-line",
+                name: translate.instant(T + "LEGIONELLA_STATE"),
+                channelsToSubscribe: [new ChannelAddress(component.id, "LegionellenProtectionFailed")],
+                value: (currentData: CurrentData) =>
+                    currentData.allComponents[component.id + "/LegionellenProtectionFailed"] === 1
+                        ? translate.instant(T + "LEGIONELLA_FAILED")
+                        : translate.instant("GENERAL.OK"),
+                hide: HIDE_ON_NO_LEGIONELLA,
+            },
+            { type: "horizontal-line", hide: HIDE_ON_NO_THERMOMETER },
+            {
+                type: "select-line",
+                name: translate.instant(T + "WATER_THERMOMETER"),
+                controlName: "waterThermometerId",
+                options: thermometers,
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            {
+                type: "select-line",
+                name: translate.instant(T + "SENSOR_ERROR_LEVEL"),
+                controlName: "sensorErrorLevel",
+                options: getLevelOptions(translate, true),
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            temperatureInput("lowWaterTemperature", "LOW_WATER_TEMPERATURE"),
+            temperatureInput("highWaterTemperature", "HIGH_WATER_TEMPERATURE"),
+            temperatureInput("maxWaterTemperature", "MAX_WATER_TEMPERATURE"),
+            { type: "horizontal-line", hide: HIDE_ON_NO_THERMOMETER },
+            {
+                type: "toggle-line",
+                name: translate.instant(T + "LEGIONELLA_PROTECTION"),
+                controlName: "enableLegionellenProtection",
+                hide: HIDE_ON_NO_THERMOMETER,
+            },
+            temperatureInput("legionellenWaterTemperature", "LEGIONELLA_TEMPERATURE", HIDE_ON_NO_LEGIONELLA),
+            {
+                type: "input-line",
+                name: translate.instant(T + "LEGIONELLA_INTERVAL"),
+                controlName: "legionellenInterval",
+                properties: { unit: translate.instant(T + "UNIT_DAYS"), type: "number" },
+                hide: HIDE_ON_NO_LEGIONELLA,
+            },
+            {
+                type: "input-line",
+                name: translate.instant(T + "LEGIONELLA_MIN_TIME"),
+                controlName: "minLegionellenTime",
+                properties: { unit: "h", type: "number" },
+                hide: HIDE_ON_NO_LEGIONELLA,
+            },
+            {
+                type: "input-line",
+                name: translate.instant(T + "LEGIONELLA_MAX_HEATING_TIME"),
+                controlName: "legionellenMaxHeatingTime",
+                properties: { unit: "h", type: "number" },
+                hide: HIDE_ON_NO_LEGIONELLA,
+            },
+        ];
+    };
+
     const getFormlySharedLines = (
         translate: TranslateService,
         component: EdgeConfig.Component,
@@ -219,6 +356,39 @@ export namespace SharedControllerIoHeatingElement {
         },
     ];
 
+    /** Config properties of the temperature control: form control name, channel and OSGi property name. */
+    export const TEMPERATURE_PROPERTIES: { control: string; channel: string; property: string; boolean?: true }[] = [
+        {
+            control: "hasWaterThermometer",
+            channel: "_PropertyHasWaterThermometer",
+            property: "hasWaterThermometer",
+            boolean: true,
+        },
+        { control: "waterThermometerId", channel: "_PropertyWaterThermometerId", property: "waterThermometer.id" },
+        { control: "sensorErrorLevel", channel: "_PropertySensorErrorLevel", property: "sensorErrorLevel" },
+        { control: "lowWaterTemperature", channel: "_PropertyLowWaterTemperature", property: "lowWaterTemperature" },
+        { control: "highWaterTemperature", channel: "_PropertyHighWaterTemperature", property: "highWaterTemperature" },
+        { control: "maxWaterTemperature", channel: "_PropertyMaxWaterTemperature", property: "maxWaterTemperature" },
+        {
+            control: "enableLegionellenProtection",
+            channel: "_PropertyEnableLegionellenProtection",
+            property: "enableLegionellenProtection",
+            boolean: true,
+        },
+        {
+            control: "legionellenWaterTemperature",
+            channel: "_PropertyLegionellenWaterTemperature",
+            property: "legionellenWaterTemperature",
+        },
+        { control: "legionellenInterval", channel: "_PropertyLegionellenInterval", property: "legionellenInterval" },
+        { control: "minLegionellenTime", channel: "_PropertyMinLegionellenTime", property: "minLegionellenTime" },
+        {
+            control: "legionellenMaxHeatingTime",
+            channel: "_PropertyLegionellenMaxHeatingTime",
+            property: "legionellenMaxHeatingTime",
+        },
+    ];
+
     export function getChannelAddresses(component: EdgeConfig.Component): Promise<ChannelAddress[]> {
         return Promise.resolve([
             new ChannelAddress(component.id, "_PropertyMode"),
@@ -231,6 +401,11 @@ export namespace SharedControllerIoHeatingElement {
             new ChannelAddress(component.id, "Phase2AvgPower"),
             new ChannelAddress(component.id, "Phase3AvgPower"),
             new ChannelAddress(component.id, "SessionEnergy"),
+            new ChannelAddress(component.id, "WaterActual"),
+            new ChannelAddress(component.id, "WaterTarget"),
+            new ChannelAddress(component.id, "WaterThermometerNotAvailable"),
+            new ChannelAddress(component.id, "LegionellenProtectionFailed"),
+            ...TEMPERATURE_PROPERTIES.map((p) => new ChannelAddress(component.id, p.channel)),
         ]);
     }
 
@@ -245,6 +420,17 @@ export namespace SharedControllerIoHeatingElement {
             maxPower: new FormControl(null),
             endTimeWithMeter: new FormControl(component.properties.endTimeWithMeter),
             isUnreachable: new FormControl(null),
+            hasWaterThermometer: new FormControl(component.properties.hasWaterThermometer ?? false),
+            waterThermometerId: new FormControl(component.properties["waterThermometer.id"] ?? null),
+            sensorErrorLevel: new FormControl(component.properties.sensorErrorLevel ?? null),
+            lowWaterTemperature: new FormControl(component.properties.lowWaterTemperature ?? null),
+            highWaterTemperature: new FormControl(component.properties.highWaterTemperature ?? null),
+            maxWaterTemperature: new FormControl(component.properties.maxWaterTemperature ?? null),
+            enableLegionellenProtection: new FormControl(component.properties.enableLegionellenProtection ?? false),
+            legionellenWaterTemperature: new FormControl(component.properties.legionellenWaterTemperature ?? null),
+            legionellenInterval: new FormControl(component.properties.legionellenInterval ?? null),
+            minLegionellenTime: new FormControl(component.properties.minLegionellenTime ?? null),
+            legionellenMaxHeatingTime: new FormControl(component.properties.legionellenMaxHeatingTime ?? null),
         });
     }
 
@@ -271,4 +457,6 @@ export type HeatingElementViewModel = {
     mode: Mode;
     workMode: WorkMode;
     isUnreachable: boolean;
+    hasWaterThermometer: boolean;
+    enableLegionellenProtection: boolean;
 };
