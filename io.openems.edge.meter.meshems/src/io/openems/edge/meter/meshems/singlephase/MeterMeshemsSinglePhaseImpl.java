@@ -10,15 +10,23 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.mqtt.api.BridgeMqtt;
 import io.openems.edge.bridge.mqtt.api.MqttComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
@@ -45,9 +53,15 @@ import io.openems.edge.meter.meshems.AbstractMeterMeshems;
 		name = "Meter.Meshems.SinglePhase", //
 		immediate = true, //
 		configurationPolicy = REQUIRE)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 @GenerateTargetsFromReferences("MqttBridge")
-public class MeterMeshemsSinglePhaseImpl extends AbstractMeterMeshems
-		implements MeterMeshemsSinglePhase, ElectricityMeter, SinglePhaseMeter, OpenemsComponent, MqttComponent {
+public class MeterMeshemsSinglePhaseImpl extends AbstractMeterMeshems implements MeterMeshemsSinglePhase,
+		ElectricityMeter, SinglePhaseMeter, OpenemsComponent, MqttComponent, EventHandler, ModbusSlave {
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Override
 	@Reference(//
@@ -77,13 +91,26 @@ public class MeterMeshemsSinglePhaseImpl extends AbstractMeterMeshems
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.topic());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.topic(),
+				config.staleTimeoutSeconds(), this.componentManager);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.onCycleBeforeProcessImage();
+			break;
+		}
 	}
 
 	@Override
@@ -109,37 +136,38 @@ public class MeterMeshemsSinglePhaseImpl extends AbstractMeterMeshems
 		this._setVoltage(optInt(json, "PhV", 1000));
 		this._setCurrent(optInt(json, "PhA", 1000));
 
-		// PhW (W) -> ActivePower; Var (var) -> ReactivePower; negate if inverted
-		var activePower = optInt(json, "PhW", 1);
-		if (invert && activePower != null) {
-			activePower = -activePower;
-		}
-		this._setActivePower(activePower);
-
-		var reactivePower = optInt(json, "Var", 1);
-		if (invert && reactivePower != null) {
-			reactivePower = -reactivePower;
-		}
-		this._setReactivePower(reactivePower);
+		// PhW (W) -> ActivePower; Var (var) -> ReactivePower; negated if inverted
+		this._setActivePower(invertIfTrue(optInt(json, "PhW", 1), invert));
+		this._setReactivePower(invertIfTrue(optInt(json, "Var", 1), invert));
 
 		// Hz (Hz) -> Frequency (mHz)
 		this._setFrequency(optInt(json, "Hz", 1000));
 
-		// TotWhImport -> ActiveConsumptionEnergy; TotWhExport -> ActiveProductionEnergy;
-		// swap the two if inverted
-		var consumptionEnergy = optLong(json, "TotWhImport", 1);
-		var productionEnergy = optLong(json, "TotWhExport", 1);
-		if (invert) {
-			var tmp = consumptionEnergy;
-			consumptionEnergy = productionEnergy;
-			productionEnergy = tmp;
-		}
-		this._setActiveConsumptionEnergy(consumptionEnergy);
-		this._setActiveProductionEnergy(productionEnergy);
+		// TotWhImport/TotWhExport -> energy; swapped if inverted
+		this.applyEnergy(json, invert);
+	}
+
+	@Override
+	protected void clearChannels() {
+		this._setVoltage(null);
+		this._setCurrent(null);
+		this._setActivePower(null);
+		this._setReactivePower(null);
+		this._setFrequency(null);
+		// ACTIVE_CONSUMPTION_ENERGY/ACTIVE_PRODUCTION_ENERGY are cumulated Channels;
+		// OpenEMS ignores 'null' on them once defined, so they keep the last total.
 	}
 
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 }

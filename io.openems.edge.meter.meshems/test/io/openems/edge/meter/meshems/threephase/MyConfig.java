@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean invert = false;
 		private String mqttBridgeId = "mqtt0";
 		private String topic = "";
+		private int staleTimeoutSeconds = 90;
 
 		private Builder() {
 		}
@@ -38,6 +39,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setTopic(String topic) {
 			this.topic = topic;
+			return this;
+		}
+
+		public Builder setStaleTimeoutSeconds(int staleTimeoutSeconds) {
+			this.staleTimeoutSeconds = staleTimeoutSeconds;
 			return this;
 		}
 
@@ -80,5 +86,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String topic() {
 		return this.builder.topic;
+	}
+
+	@Override
+	public int staleTimeoutSeconds() {
+		return this.builder.staleTimeoutSeconds;
 	}
 }

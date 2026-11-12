@@ -2,11 +2,15 @@
 
 Discrete device driver for the MeshEMS OpenAMI metering board, which publishes its SunSpec meter data as JSON over MQTT.
 
+== Supported Devices
+
+* https://github.com/energy-iot/meshems-openami-metering[MeshEMS OpenAMI metering board icon:github[]]
+
 == Overview
 
 This bundle integrates the https://github.com/energy-iot/meshems-openami-metering[MeshEMS OpenAMI metering icon:github[]] application running on MeshEMS (NESL 865B / ESP32-S3) hardware. The board reads one or more physical meters, maps them onto SunSpec models and publishes each reading as a flat JSON object over MQTT through the OpenEMS MQTT bridge.
 
-Unlike the generic `io.openems.edge.meter.mqtt` bundle, the SunSpec-field-to-Channel mapping here is *baked into code and unit-tested* rather than operator-configured. Two components are provided: a single-phase tenant meter (SunSpec model 11) and a three-phase subpanel meter (SunSpec model 213).
+The SunSpec-field-to-Channel mapping is *baked into code and unit-tested* rather than operator-configured. Two components are provided: a single-phase tenant meter (SunSpec model 11) and a three-phase subpanel meter (SunSpec model 213).
 
 The inverter side of a MeshEMS site is handled separately by the sibling https://github.com/energy-iot/meshems-sunspec-gateway[meshems-sunspec-gateway icon:github[]] firmware, which exposes a Modbus SunSpec interface consumed through OpenEMS's built-in Modbus SunSpec support.
 
@@ -20,6 +24,14 @@ openami/StreetPoleEMS_<device-id>/subpanel_3Ph   <- model 213, three-phase subpa
 ----
 
 Each message is a flat JSON object whose `model_id` field identifies the SunSpec model. Every field is in SunSpec engineering units: voltage in Volt, current in Ampere, active power in Watt, reactive power in var, frequency in Hertz and energy in Watt-hours.
+
+=== Message handling
+
+* *Model check*: if `model_id` is present it must match the component's SunSpec model (11 or 213). A payload with a different `model_id` is rejected (no Channel is written), `MqttCommunicationFailed` is set and a warning is logged once until a matching payload arrives. A payload without `model_id` is accepted.
+* *Atomic apply*: the MQTT callback only parses and validates the message. The Channels are written once per Cycle (on `TOPIC_CYCLE_BEFORE_PROCESS_IMAGE`) from the latest valid payload, so a Cycle never sees a half-applied message.
+* *Absent fields*: a field that is missing from the payload, or is not a finite JSON number, sets its Channel to UNDEFINED. Fields are not skipped, i.e. a stale value from a previous message is never kept. The one exception is the OpenEMS rule for cumulated Channels: `ACTIVE_CONSUMPTION_ENERGY` and `ACTIVE_PRODUCTION_ENERGY` ignore an UNDEFINED value once they hold a total and keep the last one.
+* *Stale timeout*: if no valid message has been received for longer than `staleTimeoutSeconds` (default 90 s; the board publishes every ~30 s), all mapped Channels except the cumulated energy totals are set to UNDEFINED and `MqttCommunicationFailed` is set. The next valid payload restores the values and clears the flag. `MqttCommunicationFailed` is also set while no message has been received since activation; subscribing alone does not clear it.
+* *Malformed payload*: a message that is not a JSON object sets `MqttCommunicationFailed` and leaves the Channels unchanged.
 
 === SunSpec Model 11 (single-phase) field mapping
 
@@ -85,6 +97,8 @@ This bundle implements the following OpenEMS Components:
 * SinglePhaseMeter
 * OpenemsComponent
 * MqttComponent
+* EventHandler
+* ModbusSlave
 
 *Description*: Subscribes to a single-phase tenant meter topic (`openami/<device-id>/meter_N`) and applies the baked-in SunSpec model-11 mapping. The measured value is placed on the configured phase.
 
@@ -97,6 +111,7 @@ This bundle implements the following OpenEMS Components:
 * `invert` (Boolean): Inverts all power values and swaps production/consumption energy (default: false)
 * `mqttBridgeId` (String): ID of the MQTT bridge component (default: "mqtt0")
 * `topic` (String): The MQTT topic filter to subscribe to
+* `staleTimeoutSeconds` (Integer): Seconds without a message before values are cleared; board publishes every ~30 s (default: 90)
 
 [[_meter_meshems_single_phase]]
 
@@ -111,6 +126,8 @@ This bundle implements the following OpenEMS Components:
 * ElectricityMeter
 * OpenemsComponent
 * MqttComponent
+* EventHandler
+* ModbusSlave
 
 *Description*: Subscribes to a three-phase subpanel meter topic (`openami/<device-id>/subpanel_3Ph`) and applies the baked-in SunSpec model-213 mapping. Per-phase channels are set directly; aggregate values are derived from them.
 
@@ -122,6 +139,7 @@ This bundle implements the following OpenEMS Components:
 * `invert` (Boolean): Inverts all power values and swaps production/consumption energy (default: false)
 * `mqttBridgeId` (String): ID of the MQTT bridge component (default: "mqtt0")
 * `topic` (String): The MQTT topic filter to subscribe to
+* `staleTimeoutSeconds` (Integer): Seconds without a message before values are cleared; board publishes every ~30 s (default: 90)
 
 [[_meter_meshems_three_phase]]
 

@@ -38,5 +38,9 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 			+ "(e.g., openami/StreetPoleEMS_37EAB0/meter_0)")
 	String topic() default "";
 
+	@AttributeDefinition(name = "Stale timeout [s]", description = "Seconds without a message before values are "
+			+ "cleared; board publishes every ~30 s")
+	int staleTimeoutSeconds() default 90;
+
 	String webconsole_configurationFactory_nameHint() default "Meter MeshEMS Single-Phase [{id}]";
 }

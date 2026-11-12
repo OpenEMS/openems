@@ -34,5 +34,9 @@ import io.openems.common.types.MeterType;
 			+ "(e.g., openami/StreetPoleEMS_37EAB0/subpanel_3Ph)")
 	String topic() default "";
 
+	@AttributeDefinition(name = "Stale timeout [s]", description = "Seconds without a message before values are "
+			+ "cleared; board publishes every ~30 s")
+	int staleTimeoutSeconds() default 90;
+
 	String webconsole_configurationFactory_nameHint() default "Meter MeshEMS Three-Phase [{id}]";
 }
