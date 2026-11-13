@@ -464,9 +464,16 @@ export class Utils {
      *
      * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
      * @param productionActivePower  the Production Power
-     * @returns  the Self-Consumption rate
+     * @returns  the Self-Consumption rate, or null if an input value is null
      */
-    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number {
+    public static calculateSelfConsumption(
+        sellToGrid: number | null,
+        productionActivePower: number | null,
+    ): number | null {
+        if (sellToGrid == null || productionActivePower == null) {
+            return null;
+        }
+
         if (productionActivePower <= 0) {
             /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
             return 0;

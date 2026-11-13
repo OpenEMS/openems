@@ -127,7 +127,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                             }
                             return effectiveProduction;
                         },
-                        color: "rgb(" + AbstractHistoryChart.phaseColors[i - 1] + ")",
+                        color: AbstractHistoryChart.phaseColors[i - 1],
                         stack: 3,
                     });
                 }
