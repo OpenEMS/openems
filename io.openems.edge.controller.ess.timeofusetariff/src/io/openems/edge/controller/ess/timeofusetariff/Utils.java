@@ -71,9 +71,8 @@ public final class Utils {
 			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode, Clock clock) {
 		final Integer gridActivePower = sum.getGridActivePower().get();
 		final Integer essActivePower = ess.getActivePower().get();
-		final Integer productionActivePower = sum.getProductionActivePower().get();
 
-		if (gridActivePower == null || essActivePower == null || productionActivePower == null || period == null) {
+		if (gridActivePower == null || essActivePower == null || period == null) {
 			return new ApplyMode(BALANCING, null);
 		}
 
@@ -94,7 +93,7 @@ public final class Utils {
 			yield calculateLimitCharge(ess, essActivePower, limitChargePower, balancingSetpoint);
 		}
 		case DISCHARGE_CONSUMPTION, AVOID_GRID_SELL_LIMIT ->
-			calculateDischargeConsumption(balancingSetpoint, productionActivePower);
+			calculateDischargeConsumption(balancingSetpoint, sum.getProductionActivePower().get());
 		};
 
 		return postProcessApplyMode(applyMode, balancingSetpoint, gridLimit.activeGridBuySoftLimit(),
@@ -188,7 +187,11 @@ public final class Utils {
 	}
 
 	static ApplyMode calculateDischargeConsumption(//
-			int balancingSetpoint, int productionActivePower) {
+			int balancingSetpoint, Integer productionActivePower) {
+		if (productionActivePower == null) {
+			return new ApplyMode(BALANCING, balancingSetpoint);
+		}
+
 		final int dischargeConsumptionSetpoint = balancingSetpoint + productionActivePower;
 		return new ApplyMode(DISCHARGE_CONSUMPTION, dischargeConsumptionSetpoint);
 	}
