@@ -227,6 +227,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.ancillarycosts',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.energypriceforecast',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.ews',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
@@ -460,6 +461,7 @@
 	io.openems.edge.timeofusetariff.api;version=snapshot,\
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
+	io.openems.edge.timeofusetariff.energypriceforecast;version=snapshot,\
 	io.openems.edge.timeofusetariff.ews;version=snapshot,\
 	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
 	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\

@@ -1,0 +1,51 @@
+= Energy Price Forecast EU
+
+An optional, low-priority `SpotTariffProvider` that requests up to 48 hours of wholesale electricity price forecasts from https://energypriceforecast.eu/[Energy Price Forecast EU]. Published prices are fetched by the existing OpenEMS providers. This component requests *forecasts only* and does not redistribute published prices.
+
+== Configuration
+
+Factory PID: `Tariff.SpotTariff.EnergyPriceForecast`.
+
+[cols="1,1,3",options="header"]
+|===
+|Property |Default |Meaning
+|`id` |`tariffForecast0` |Component ID
+|`enabled` |`true` |Enable the configured component
+|`service.ranking` |`-100` |Lower than providers of published prices, such as ENTSO-E (80), SMARD (90) and Backend (100)
+|`refreshIntervalMinutes` |`30` |Refresh interval per requested bidding zone; HTTP failures are retried after five minutes
+|`maxForecastAgeHours` |`24` |Maximum age of the source forecast, including during HTTP failures
+|===
+
+Configure a published spot-price provider and the existing `Tariff.BySpotTariff.GridBuy` and, where applicable, `Tariff.BySpotTariff.GridSell` components. The forecast provider is requested lazily for their bidding zones. Several consumers of one bidding zone share the same HTTP subscription and cached forecast.
+
+The existing spot-price aggregation sorts providers by ranking and fills missing values from the next provider. Keep published-price providers ranked above this component. Newly published prices therefore replace forecasts without a separate merge configuration. Source outages can be covered when a valid forecast is available. Unknown intervals remain unknown; no zero prices are substituted.
+
+Existing ancillary costs and price expressions continue to calculate the customer's tariffs once. This component does not implement `TimeOfUseTariff` or `TariffGridSell` and does not add a second retail tariff. In particular, it does not extend supplier-specific components such as `TimeOfUseTariff.Tibber` or `TimeOfUseTariff.Ews`; those do not consume the shared spot-price aggregation.
+
+== Markets and API
+
+Supported OpenEMS bidding zones: Germany-Luxembourg, Austria, Belgium, Netherlands, Czechia, Sweden SE1-SE4 and Greece. Lithuania is not supported by this API. Other API markets require a corresponding OpenEMS `BiddingZone` before they can be used here.
+
+The component uses the existing quarter-hour compatibility API:
+
+----
+https://api.energypriceforecast.eu/api/v1/evcc/tariff-quarterhour?country=DE&type=grid&hours=48&currency=EUR&mode=forecast_only&debug=1
+----
+
+`debug=1` selects the object response with entries and the source timestamp. No API key is sent. The endpoint returns model prices in EUR/kWh, reconstructed from hourly forecasts with centered linear interpolation. These are not independently trained quarter-hour predictions. Values are converted to EUR/MWh; OpenEMS performs any subsequent currency conversion. Negative and zero prices are retained. UTC timestamps identify delivery intervals, including across daylight-saving changes.
+
+Malformed responses, a different market/unit, and stale source timestamps produce an update warning. A previously valid forecast remains available during a temporary failure only until its source age or delivery range expires. The source's `updated_at`, not the HTTP response generation time, determines freshness. HTTP subscriptions are removed when the final consumer releases a bidding zone or the component is deactivated.
+
+== Horizon and source semantics
+
+This provider adds *up to* 48 hours of price data; it does not guarantee 48 hours of optimization. The effective schedule depends on the other price and prediction series. In the current implementation, `TouManualHelper` generates only 36 hours of ancillary-cost data and the spot grid-buy component intersects its prices with that range. Consumption predictors can also provide a shorter horizon. These existing limits are not changed by this bundle.
+
+The current `TariffData` format has no per-interval published/forecast flag, and the combined series uses the first provider's tariff type. Attribution identifies this provider as a model forecast, but consumers of the merged prices cannot distinguish individual forecast slots. Adding this provider affects all spot-price consumers for that bidding zone, including spot-dependent feed-in calculations such as the EEG-2025 component. Enable it only when using model prices for those future planning decisions is intended. Per-slot provenance is an upstream design question, not added by this component.
+
+== Service terms
+
+The adapter code is licensed under EPL-2.0. The hosted API is a separate service. The https://energypriceforecast.eu/de/api-nutzungsbedingungen/[API terms] permit the free 48-hour price forecast in private and commercial OpenEMS installations, provided each installation fetches its own data and credits `Energy Price Forecast EU (energypriceforecast.eu)`. This attribution is carried in `TariffData.copyright`.
+
+Central/bulk retrieval and redistribution outside the installation are not included. This Edge component does not provide a Backend collector or request a paid horizon. API availability, coverage and service terms apply independently of the adapter's source-code license.
+
+The initial design is discussed in the https://community.openems.io/t/interest-in-a-free-48-hour-electricity-price-forecast-for-openems/11060[OpenEMS Community forum].
