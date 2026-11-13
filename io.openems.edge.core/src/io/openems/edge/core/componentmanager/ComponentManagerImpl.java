@@ -442,7 +442,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		if (configs.size() > 1) {
 			throw OpenemsError.EDGE_MULTIPLE_COMPONENTS_WITH_ID.exception(componentId);
 		}
-		return configs.get(0);
+		return configs.getFirst();
 	}
 
 	/**

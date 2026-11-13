@@ -3,7 +3,6 @@ package io.openems.edge.controller.evse.cluster;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.minInt;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -177,7 +176,7 @@ public class EshUtils {
 			var remaining = initialDistributableEnergy;
 			for (var e : entries) {
 				var before = e.actualEnergy;
-				var after = fitWithin(0, e.maxEnergy, before + min(remaining, equalEnergy));
+				var after = Math.clamp((long) before + min(remaining, equalEnergy), 0, e.maxEnergy);
 				remaining -= after - before;
 
 				e.actualEnergy = after;

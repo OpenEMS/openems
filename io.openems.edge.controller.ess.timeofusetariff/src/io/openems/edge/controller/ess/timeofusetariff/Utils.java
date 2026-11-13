@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import static com.google.common.math.Quantiles.percentiles;
 import static io.openems.common.utils.DateUtils.durationUntilNextQuarter;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.AVOID_GRID_SELL_LIMIT;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
@@ -278,7 +277,7 @@ public final class Utils {
 		return (int) round(//
 				refs.build().stream() //
 						// filter negative and very large values
-						.map(v -> fitWithin(0, maxEnergyInChargeGrid, v)) //
+						.map(v -> Math.clamp(v, 0, maxEnergyInChargeGrid)) //
 						.average() //
 						.orElse(maxEnergyInChargeGrid) //
 						* ESS_CHARGE_C_RATE);

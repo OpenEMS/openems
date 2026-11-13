@@ -503,7 +503,7 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	 * @throws OpenemsNamedException on error
 	 */
 	void writeWMaxLimPct(int value) throws OpenemsNamedException {
-		int pct = Math.max(0, Math.min(100, value));
+		int pct = Math.clamp(value, 0, 100);
 
 		((FloatWriteChannel) this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT))
 				.setNextWriteValue((float) pct);

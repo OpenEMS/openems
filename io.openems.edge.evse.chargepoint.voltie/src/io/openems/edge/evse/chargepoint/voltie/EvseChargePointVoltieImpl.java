@@ -35,7 +35,6 @@ import com.ghgande.j2mod.modbus.ModbusSlaveException;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
-import io.openems.common.utils.IntUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -655,7 +654,7 @@ public class EvseChargePointVoltieImpl extends AbstractOpenemsModbusComponent im
 
 			// The register takes [mA] with 1 A resolution, valid 6000..32000; never
 			// write above 32767 (INT16)
-			final var current = IntUtils.fitWithin(MIN_CURRENT, this.getMaxCurrent(), currentInAmpere);
+			final var current = Math.clamp(currentInAmpere, MIN_CURRENT, this.getMaxCurrent());
 			final var milliAmpere = current * 1000;
 
 			if (this.lastWrittenCurrent != null && this.lastWrittenCurrent == current

@@ -559,7 +559,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 								}
 							}
 						}
-						return result.toArray(new String[result.size()]);
+						return result.toArray(String[]::new);
 					}
 				}
 			}

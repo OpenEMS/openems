@@ -393,8 +393,9 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 		var result = channelAddresses.stream() //
 				.collect(toMap(//
 						Function.identity(), //
-						c -> JsonNull.INSTANCE, //
-						(t, u) -> u, TreeMap<ChannelAddress, JsonElement>::new));
+						_ -> JsonNull.INSTANCE, //
+						(_, u) -> u, //
+						TreeMap<ChannelAddress, JsonElement>::new));
 		var edgeCache = this.getEdgeCacheForEdgeId(edgeId);
 		if (edgeCache == null) {
 			return result;

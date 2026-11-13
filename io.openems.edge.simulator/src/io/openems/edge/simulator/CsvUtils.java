@@ -111,7 +111,7 @@ public class CsvUtils {
 			if (value == null || value.isEmpty()) {
 				value = null;
 			} else {
-				if (csvFormat.decimalSeparator != ".") {
+				if (!".".equals(csvFormat.decimalSeparator)) {
 					value = value.replace(csvFormat.decimalSeparator, ".");
 				}
 				floatValues[i] = Float.parseFloat(value) * factor;

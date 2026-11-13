@@ -58,7 +58,7 @@ public class SchedulerFixedOrderImpl extends AbstractOpenemsComponent
 	private synchronized void applyConfig(Config config) {
 		this.controllerIds.clear();
 		for (String id : config.controllers_ids()) {
-			if (id.equals("")) {
+			if (id.isEmpty()) {
 				continue;
 			}
 			this.controllerIds.add(id);

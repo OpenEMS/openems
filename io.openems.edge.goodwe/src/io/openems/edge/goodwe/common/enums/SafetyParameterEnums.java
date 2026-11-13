@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 public class SafetyParameterEnums {
 
-	public class Vrt {
+	public static class Vrt {
 
 		public enum CurrentDistributionMode implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
@@ -67,7 +67,7 @@ public class SafetyParameterEnums {
 		}
 	}
 
-	public class Rpm {
+	public static class Rpm {
 
 		public enum Mode implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //

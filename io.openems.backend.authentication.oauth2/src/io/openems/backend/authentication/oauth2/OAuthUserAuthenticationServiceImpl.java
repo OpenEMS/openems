@@ -211,7 +211,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	@Override
 	public CompletableFuture<PasswordAuthenticationResult> authenticateWithToken(String token) {
-		return this.validate(token).thenApply(ignore -> {
+		return this.validate(token).thenApply(_ -> {
 			final var jwtToken = JWT.decode(token);
 			final var email = jwtToken.getClaim("email").asString();
 
@@ -332,7 +332,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 								return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
 							})) //
-					.whenComplete((unused, throwable) -> {
+					.whenComplete((_, throwable) -> {
 						if (throwable != null) {
 							this.log.error("Error registering user", throwable);
 						}

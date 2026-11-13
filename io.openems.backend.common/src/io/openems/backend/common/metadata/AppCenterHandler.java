@@ -143,7 +143,7 @@ public final class AppCenterHandler {
 
 		case AppCenterGetInstalledAppsRequest.METHOD -> handleAsync(metadata, request, //
 				AppCenterGetInstalledAppsRequest::from, //
-				(m, r) -> m.sendGetInstalledApps(edgeId), //
+				(m, _) -> m.sendGetInstalledApps(edgeId), //
 				AppCenterGetInstalledAppsResponse::from);
 
 		default -> handleGeneric(metadata, request, edgeId);
@@ -208,7 +208,7 @@ public final class AppCenterHandler {
 					final BiFunction<METADATA, REQUEST, CompletableFuture<Void>> metadataCall //
 	) throws OpenemsNamedException {
 		return metadataCall.apply(metadata, requestMapper.apply(request.getPayload())) //
-				.thenApply(r -> new GenericJsonrpcResponseSuccess(request.id));
+				.thenApply(_ -> new GenericJsonrpcResponseSuccess(request.id));
 	}
 
 	private AppCenterHandler() {

@@ -93,7 +93,7 @@ public class VersionHandler {
 	 * @return the latest version
 	 */
 	public Version getLatestVersion() {
-		return this.versions.get(this.versions.size() - 1);
+		return this.versions.getLast();
 	}
 
 	/**
