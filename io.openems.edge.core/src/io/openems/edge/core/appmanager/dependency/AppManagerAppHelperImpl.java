@@ -236,7 +236,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.getOtherAppConfigurations(ignoreInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new));
 
 		var errors = new LinkedList<String>();
-		var failedTasks = new LinkedList<AggregateTask<?>>();
 		final var language = user == null ? null : user.getLanguage();
 
 		// execute all tasks
@@ -247,20 +246,12 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				final var errorMessage = task.getGeneralFailMessage(language);
 				this.log.error(errorMessage, e);
 				errors.add(errorMessage);
-				failedTasks.add(task);
 			} catch (RuntimeException | Error e) {
 				this.log.error("Unexpected error during Task execution.", e);
 			}
 		}
 
 		if (!errors.isEmpty()) {
-			if (errors.size() == 1 //
-					&& ComponentAggregateTask.class.isAssignableFrom(failedTasks.getFirst().getClass())) {
-				// Reported as a distinct, structured error since this is the one failure the UI
-				// can resolve on its own (by removing leftover/stale component config and
-				// retrying).
-				throw OpenemsError.EDGE_APP_COMPONENTS_UPDATE_FAILED.exception(errors.getFirst());
-			}
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 

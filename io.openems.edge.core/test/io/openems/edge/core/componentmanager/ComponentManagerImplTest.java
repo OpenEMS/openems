@@ -1,11 +1,14 @@
 package io.openems.edge.core.componentmanager;
 
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import io.openems.edge.core.componentmanager.tracker.TrackedComponents;
 import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -20,7 +23,7 @@ import io.openems.edge.common.test.DummyServiceComponentRuntime;
 public class ComponentManagerImplTest {
 
 	@Test
-	public void testHandleUpdateComponentConfigRequest() throws OpenemsException, Exception {
+	public void testHandleUpdateComponentConfigRequest() throws Exception {
 		final var cm = new DummyConfigurationAdmin();
 		final var ess0 = new MyDummyComponent("ess0");
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
@@ -37,14 +40,24 @@ public class ComponentManagerImplTest {
 				.addProperty("batteryInverter.target", batteryInverter0Target); //
 		final var properties = config.getProperties();
 
+		final var trackedComponents = new TrackedComponents();
+		trackedComponents.activatedComponent(1L, ess0);
+
 		final var sut = new ComponentManagerImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", cm) //
+				.addReference("components", trackedComponents) //
 				.addReference("serviceComponentRuntime", new DummyServiceComponentRuntime()) //
 				.addReference("eventAdmin", new DummyEventAdmin()) //
 				.addComponent(ess0) //
 				.activate(MyConfig.create() //
 						.build());
+
+		// Build the EdgeConfig cache synchronously (in production this is done by the
+		// EdgeConfigWorker thread), so that applyWrittenConfiguration has a cache to
+		// update
+		var ess0InEdgeConfig = sut.getEdgeConfig().getComponentOrError(ess0.id());
+		assertTrue(ess0InEdgeConfig.getProperty("_lastChangeBy").isEmpty());
 
 		// First Test: Property without matching '.target'
 
@@ -71,6 +84,13 @@ public class ComponentManagerImplTest {
 		assertEquals(battery0Target, properties.get("battery.target")); // unchanged
 		assertEquals(batteryInverter0Target, properties.get("batteryInverter.target")); // unchanged
 
+		// The written Configuration is immediately visible in the EdgeConfig cache
+		// ("read your own writes") - without waiting for a ConfigurationEvent
+		ess0InEdgeConfig = sut.getEdgeConfig().getComponentOrError(ess0.id());
+		assertEquals("UNDEFINED",
+				getAsOptionalString(ess0InEdgeConfig.getPropertyOrError("_lastChangeBy")).orElse(null));
+		assertNotNull(ess0InEdgeConfig.getProperty("_lastChangeAt").orElse(null));
+
 		// Second Test: Property with matching '.target' -> reset
 		sut.handleUpdateComponentConfigRequest(null, new UpdateComponentConfig.Request(ess0.id(), List.of(//
 				new Property("battery.id", "battery1") //
@@ -79,5 +99,10 @@ public class ComponentManagerImplTest {
 		assertEquals("battery1", properties.get("battery.id")); // changed property
 		assertEquals("(enabled=true)", properties.get("battery.target")); // reset to default
 		assertEquals(batteryInverter0Target, properties.get("batteryInverter.target")); // unchanged
+
+		// still visible in the EdgeConfig cache after the second update
+		ess0InEdgeConfig = sut.getEdgeConfig().getComponentOrError(ess0.id());
+		assertEquals("UNDEFINED",
+				getAsOptionalString(ess0InEdgeConfig.getPropertyOrError("_lastChangeBy")).orElse(null));
 	}
 }
