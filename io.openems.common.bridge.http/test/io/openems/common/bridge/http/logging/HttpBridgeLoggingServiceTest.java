@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import io.openems.common.bridge.http.BridgeHttpImpl;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.EndpointFetcherEvents;
+import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.bridge.http.api.HttpMediaType;
 import io.openems.common.types.DebugMode;
@@ -61,7 +62,7 @@ class HttpBridgeLoggingServiceTest {
 	@Test
 	void testSanitizeHeaders() {
 		final var headers = Map.of(//
-				HttpHeader.HEADER_AUTHORIZATION, "Bearer 12345", //
+				HttpHeader.HEADER_AUTHORIZATION, HttpAuthorization.bearer("12345"), //
 				HttpHeader.HEADER_ACCEPT, HttpMediaType.Text.PLAIN //
 		);
 		final var expectedHeaders = Map.of(//

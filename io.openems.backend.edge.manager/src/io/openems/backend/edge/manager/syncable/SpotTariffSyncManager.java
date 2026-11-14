@@ -27,7 +27,7 @@ public class SpotTariffSyncManager {
 	@Reference
 	private SyncableRepository syncableRepository;
 
-	private final Consumer<Void> onSpotTariffProvidersChangeFunc = v -> this.onSpotTariffProvidersChange();
+	private final Consumer<Void> onSpotTariffProvidersChangeFunc = _ -> this.onSpotTariffProvidersChange();
 
 	private final Map<BiddingZone, SpotTariffSyncInstance> currentSyncedTariffs = new EnumMap<>(BiddingZone.class);
 

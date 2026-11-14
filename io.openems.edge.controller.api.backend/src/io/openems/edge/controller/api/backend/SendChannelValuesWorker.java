@@ -155,7 +155,7 @@ public class SendChannelValuesWorker {
 									c -> c.value().asJson(), //
 									// simple/stupid merge function to avoid
 									// 'java.lang.IllegalArgumentException Duplicate Key'
-									(t, u) -> {
+									(t, _) -> {
 										this.parent.logWarn(this.log, "Duplicate Key [" + t.toString() + "]");
 										return t;
 									}));
@@ -167,8 +167,7 @@ public class SendChannelValuesWorker {
 		}
 	}
 
-	private DataTable collectAggregatedData(ZonedDateTime now,
-			List<OpenemsComponent> enabledComponents) {
+	private DataTable collectAggregatedData(ZonedDateTime now, List<OpenemsComponent> enabledComponents) {
 		final var endTime = now.truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES));
 		final var startTime = endTime.minusMinutes(AGGREGATION_MINUTES);
 

@@ -8,10 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import io.openems.edge.core.componentmanager.tracker.TrackedComponents;
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -19,6 +17,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyEventAdmin;
 import io.openems.edge.common.test.DummyServiceComponentRuntime;
+import io.openems.edge.core.componentmanager.tracker.TrackedComponents;
 
 public class ComponentManagerImplTest {
 
