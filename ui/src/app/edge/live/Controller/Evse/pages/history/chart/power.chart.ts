@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -31,7 +32,7 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 return [
                     {
-                        name: translate.instant("GENERAL.POWER"),
+                        name: Name.METER_ALIAS_OR_ID(component),
                         converter: () => data["ActivePower"],
                         color: ChartConstants.Colors.YELLOW,
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>

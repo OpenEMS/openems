@@ -73,15 +73,23 @@ public class ControllerHeatingElementImplTest4 {
 	@Test
 	public void realDataTest() throws OpenemsNamedException, Exception {
 		prepareTest(Mode.AUTOMATIC, Level.LEVEL_3)//
-				// ensure level 3
+				// ramp up to level 3, with one Level change per minimumSwitchingTime
 				.next(new TestCase()//
+						.input(GRID_ACTIVE_POWER, -6000)//
+						.output(LEVEL, Level.LEVEL_1)) //
+				.next(new TestCase()//
+						.timeleap(CLOCK, 181, SECONDS)//
+						.input(GRID_ACTIVE_POWER, -6000)//
+						.output(LEVEL, Level.LEVEL_2)) //
+				.next(new TestCase()//
+						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, -6000)//
 						.output(LEVEL, Level.LEVEL_3)) //
 				.next(new TestCase()//
 						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, 0)//
 						.input(ESS_DISCHARGE_POWER, 2280)//
-						.output(LEVEL, Level.LEVEL_1)) //
+						.output(LEVEL, Level.LEVEL_2)) //
 				.deactivate();
 	}
 }

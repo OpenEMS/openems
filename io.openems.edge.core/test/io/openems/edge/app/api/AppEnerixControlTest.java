@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -68,7 +69,7 @@ class AppEnerixControlTest {
 		final var instance = this.installWithUrl(URL);
 		this.assertUrl(URL);
 
-		this.updateUrl(instance.instanceId, CleverPvUrl.MASKED_URL);
+		this.updateUrl(instance.instanceId, CommonProps.MASKED_PASSWORD);
 		this.assertUrl(URL);
 
 		this.updateUrl(instance.instanceId, UPDATED_URL);

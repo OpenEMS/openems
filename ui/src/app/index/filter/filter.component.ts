@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, inject } from "@angular/core";
 
 import { v4 as uuidv4 } from "uuid";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { UserService } from "src/app/shared/service/user.service";
 import { Service } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 import { TKeyValue } from "src/app/shared/type/utility";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -24,10 +26,15 @@ export class FilterComponent {
     protected defaultFilterValues: FilterCategory = {};
     protected allFilters: (Filter<string | null> | SortOrderFilter | null)[] = [];
     protected columnSize: number = 0;
+    private readonly currentUser = inject(UserService).currentUser;
 
     constructor(public service: Service) {}
 
     @Input() public set filters(_filters: typeof this.allFilters) {
+        if (this.currentUser()?.isAtMost(Role.GUEST)) {
+            return;
+        }
+
         if (ArrayUtils.arraysDeepEqualHash<Filter<string | null> | SortOrderFilter | null>(this.allFilters, _filters)) {
             return;
         }
@@ -210,7 +217,6 @@ export class FilterComponent {
                 this.searchParams.set(additionalFilter.key, additionalFilter.value);
             }
         }
-
         this.persistSelection(filter);
         this.setSearchParams.emit(this.searchParams);
     }

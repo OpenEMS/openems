@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Utför igen",
+                "START": "Utför"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Kapaciteten mäts",
+                "ENABLED_INFO": "Kontrollern ESS SoH Cycle är aktiverad",
+                "ERROR": "Ett fel uppstod under SoH-cykeln. Kontrollera systemloggarna för mer information.",
+                "INFO": "Mäter batterikapaciteten genom att genomföra en testcykel och beräknar därmed hälsotillståndet (SoH). Processen kan ta flera timmar beroende på batterityp och storlek. Vi rekommenderar att testcykeln endast utförs när batteriet inte används.",
+                "MEASURED_CAPACITY": "Upmätt kapacitet",
+                "PV_OFF_CONFIRMATION": "Härmed bekräftar jag att PV-anläggningen på växelriktaren har stängts av via den inbyggda DC-omkopplaren.",
+                "RESTART_CONFIRMATION_TITLE": "Bekräfta utför igen",
+                "RESTART_WARNING": "Om SoH-cykeln startas om återställs de aktuella mätningarna och en ny cykel påbörjas. Är du säker på att du vill starta om?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "Status",
+                "TITLE": "Kapacitetsbestämning",
+                "TITLE_TIP": "synlig endast för administratörer"
+            }
+        }
+    }
+}

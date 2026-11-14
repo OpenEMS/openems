@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -20,7 +19,7 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
         value: number;
     }>;
 
-    public formGroup: FormGroup;
+    public formGroup!: FormGroup;
     public loading: boolean = false;
 
     constructor(
@@ -55,7 +54,7 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
                         this.formGroup.controls["peakShavingPower"].value >=
                         this.formGroup.controls["rechargePower"].value
                     ) {
-                        const updateComponentArray = [];
+                        const updateComponentArray: { name: string; value: string | number | boolean }[] = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
                                 updateComponentArray.push({

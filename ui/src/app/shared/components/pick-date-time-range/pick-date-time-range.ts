@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy, OnInit, } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { IonPopover } from "@ionic/angular";
 
@@ -18,7 +18,7 @@ import { IonPopover } from "@ionic/angular";
         `,
     ],
 })
-export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
+export class PickDateTimeRangeComponent implements OnChanges, OnInit {
     @Input() public control!: FormControl;
     @Input() public mode: "time" | "date" | "datetime" = "time";
     @Input() public displayValue: string | null = null;
@@ -40,7 +40,7 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
         }
     }
 
-    public ngAfterViewInit() {
+    public ngOnInit() {
         // Border color update just in case the display value was present at init
         this.updateBorderColor();
     }

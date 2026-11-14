@@ -35,9 +35,8 @@ public class EvseProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.wiring.label") //
 				.setDefaultValue(DEFAULT_WIRING) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Wiring.optionsFactory(), l);
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
+						.setOptions(Wiring.optionsFactory(), l)));
 	}
 
 	/**
@@ -63,7 +62,7 @@ public class EvseProps {
 			AppDef<APP, Nameable, BundleProvider> configureVehicle() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.vehicle.label") //
-				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildLink, (_, _, _, parameter, field) -> {
 					var translationBundle = parameter.bundle();
 					var vehicleName = TranslationUtil.getTranslation(translationBundle,
 							"App.Evse.ElectricVehicle.Generic.Name");
@@ -98,7 +97,7 @@ public class EvseProps {
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> acknowledgeNavigationMigration(Nameable componentId,
 			Nameable architectureType) {
 		return AppDef.copyOfGeneric(defaultDef())//
-				.setField(CheckboxBuilder::new, (app, property, l, parameter, field) -> {
+				.setField(CheckboxBuilder::new, (_, _, l, parameter, field) -> {
 					field.setHint(translate(parameter.bundle(), "App.Energy.navigationMigration.hint"), HintIcon.INFO);
 					field.requireTrue(l);
 					field.setLabel(translate(parameter.bundle(), "acceptHint.label"));

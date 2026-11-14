@@ -1,0 +1,40 @@
+{
+    "JS_SCHEDULE": {
+        "ACCEPT": "Priimti",
+        "ADD": "Pridėti",
+        "ADD_ERROR": "Užduoties nepavyko pridėti",
+        "ADD_SUCCESS": "Užduotis sėkmingai pridėta prie grafiko",
+        "DELETE": "Ištrinti",
+        "DELETE_ERROR": "Užduoties nepavyko ištrinti",
+        "DELETE_SUCCESS": "Užduotis sėkmingai ištrinta",
+        "DURATION": "Trukmė",
+        "EDIT": "Redaguoti",
+        "EDIT_ERROR": "Užduoties nepavyko sureguliuoti",
+        "EDIT_SUCCESS": "Užduotis sėkmingai sureguliuota",
+        "END": "Pabaiga",
+        "FREQ": {
+            "DAILY": "Kasdien",
+            "MONTHLY": "Kas mėnesį",
+            "WEEKLY": "Kas savaitę",
+            "YEARLY": "Kasmet"
+        },
+        "FREQUENCY": "Kartoti",
+        "MODE": "Krovimo režimas",
+        "MODE_SELECTION_PLACEHOLDER": "Pasirinkite",
+        "NEXT_TASKS": "Kitos užduotys",
+        "PLEASE_CHOOSE": "Pasirinkite laiką",
+        "REPEAT_EACH": "Kartoti kas",
+        "ROTATION": "Rotacija",
+        "START": "Pradžia",
+        "VALIDATION_ERROR_1": "Nurodykite pradžios laiką",
+        "VALIDATION_ERROR_2": "Nurodykite pabaigos laiką",
+        "VALIDATION_ERROR_3": "Pasirinkite krovimo režimą",
+        "VALIDATION_ERROR_4": "Nurodykite pradžios laiką HH:mm formatu ir tik ketvirčio valandos tikslumu (00, 15, 30 arba 45 minutės)",
+        "VALIDATION_ERROR_5": "Nurodykite pabaigos laiką HH:mm formatu ir tik ketvirčio valandos tikslumu (00, 15, 30 arba 45 minutės)",
+        "VALIDATION_ERROR_6": "Pabaigos laikas turi būti vėlesnis nei pradžios laikas",
+        "VALIDATION_ERROR_7": "Nenurodytas pradžios laikas arba trukmė",
+        "VALIDATION_ERROR_8": "Nurodykite pasikartojimą",
+        "VALIDATION_ERROR_9": "Nustatykite bent vieną pasikartojimą",
+        "WEEK_DAY": "Savaitės diena"
+    }
+}

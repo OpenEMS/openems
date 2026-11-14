@@ -9,6 +9,7 @@ import globals from "globals";
 import angular from "angular-eslint";
 import { defineConfig } from "eslint/config";
 import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+import tourTarget from "./eslint-rules/tour-target.mjs";
 
 export default defineConfig([
     {
@@ -122,19 +123,29 @@ export default defineConfig([
                     message: "Using 'xdescribe' is not allowed.",
                 },
                 {
-                    selector:
-                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='let']",
-                    message: "Use const instead of let for namespace-level variables."
+                    selector: "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='let']",
+                    message: "Use const instead of let for namespace-level variables.",
                 },
                 {
-                    selector:
-                        "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='var']",
-                    message: "Do not use var for namespace-level variables."
+                    selector: "TSModuleDeclaration[kind='namespace'] > TSModuleBlock > VariableDeclaration[kind='var']",
+                    message: "Do not use var for namespace-level variables.",
                 },
                 {
                     selector: "Program > VariableDeclaration:has(NewExpression)",
-                    message: "Do not create class instances at module scope."
-                }
+                    message: "Do not create class instances at module scope.",
+                },
+                {
+                    selector: "DebuggerStatement",
+                    message: "Using 'debugger' is not allowed.",
+                },
+                {
+                    selector: "MethodDefinition[key.name=/^ionView/]",
+                    message: "Ionic lifecycle methods are not allowed. Use Angular lifecycle hooks instead.",
+                },
+                {
+                    selector: "ClassProperty[key.name=/^ionView/]",
+                    message: "Ionic lifecycle methods are not allowed. Use Angular lifecycle hooks instead.",
+                },
             ],
             // TODO reapply this rule
             // "@angular-eslint/template/accessibility-interactive-supports-focus": "error"
@@ -144,9 +155,7 @@ export default defineConfig([
             "@angular-eslint/prefer-on-push-component-change-detection": "off",
         },
         settings: {
-            "import-x/resolver-next": [
-                createTypeScriptImportResolver({ project: "./tsconfig.json" }),
-            ]
+            "import-x/resolver-next": [createTypeScriptImportResolver({ project: "./tsconfig.json" })],
         },
     },
     {
@@ -171,6 +180,16 @@ export default defineConfig([
             "@angular-eslint/template/no-autofocus": "error",
             "@angular-eslint/template/mouse-events-have-key-events": "error",
             "@angular-eslint/template/click-events-have-key-events": "error",
+        },
+    },
+    {
+        files: ["src/app/**/*.ts", "src/app/**/*.html", "src/themes/**/*.ts"],
+        ignores: ["**/*.spec.ts"],
+        plugins: {
+            tour: tourTarget,
+        },
+        rules: {
+            "tour/unique-tour-target": "error",
         },
     },
 ]);

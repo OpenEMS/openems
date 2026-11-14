@@ -20,7 +20,7 @@
                       <!--
                         only show inside the card of the first app of all instances
                         -->
-                      @if (appIndex === 0 && showSwitchArchitecture) {
+                      @if (appIndex === 0 && showSwitchArchitecture()) {
                         <div class="ion-padding-horizontal ion-margin-top ion-display-flex ion-align-items-center ion-justify-content-between">
                           <div class="ion-text-sm" translate>
                             {{ header }}

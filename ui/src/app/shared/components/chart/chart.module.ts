@@ -29,34 +29,14 @@ import { ChartLegendComponent } from "./legend/legend";
         PickdateComponentModule,
         FlatWidgetButtonComponent,
     ],
-    declarations: [
-        ChartComponent,
-        ChartLegendComponent,
-    ],
-    exports: [
-        ChartComponent,
-        ChartLegendComponent,
-        BaseChartDirective,
-        NgxSpinnerComponent,
-    ],
+    declarations: [ChartComponent, ChartLegendComponent],
+    exports: [ChartComponent, ChartLegendComponent, BaseChartDirective, NgxSpinnerComponent],
 })
-export class ChartComponentsModule { }
+export class ChartComponentsModule {}
 
-/**
-* @deprecated should avoid creating modules with browsermodule imported
-*/
+/** @deprecated Should avoid creating modules with browsermodule imported */
 @NgModule({
-    imports: [
-        BrowserModule,
-        ChartComponentsModule,
-        PipeModule,
-        PickdateModule,
-    ],
-    exports: [
-        ChartComponentsModule,
-        PickdateModule,
-        PipeModule,
-    ],
+    imports: [BrowserModule, ChartComponentsModule, PipeModule, PickdateModule],
+    exports: [ChartComponentsModule, PickdateModule, PipeModule],
 })
-export class ChartModule { }
-
+export class ChartModule {}

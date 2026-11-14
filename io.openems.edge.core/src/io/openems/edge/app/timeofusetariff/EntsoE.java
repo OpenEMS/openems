@@ -78,15 +78,11 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		BIDDING_ZONE(AppDef.of(EntsoE.class)//
 				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
 				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //
-				.setRequired(true)
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(BiddingZone.optionsFactory(), l);
-				})),
+				.setRequired(true).setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field//
+						.setOptions(BiddingZone.optionsFactory(), l))),
 
 		@Deprecated
 		RESOLUTION(defaultDef()), //
-
-		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 
 		PARAGRAPH_14A_CHECK(TimeOfUseProps.paragraph14aCheck(BIDDING_ZONE)), //
 
@@ -130,7 +126,6 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var biddingZone = this.getString(p, l, Property.BIDDING_ZONE);
-			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
 			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
 			final var tariffTable = paragraph14aCheck && germanDso == GermanDSO.OTHER
@@ -143,9 +138,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "Tariff.BySpotTariff.GridBuy",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("biddingZone", biddingZone) //
 									.addProperty("ancillaryCosts", ancillaryCosts) //
@@ -153,6 +147,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			);
 
 			return AppConfiguration.create() //
+					.addDependency(SpotTariffVendor.dependency()) //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEssTimeOfUseTariffId,
 							"Controller.Ess.Time-Of-Use-Tariff", this.getAppId()))) //

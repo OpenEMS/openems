@@ -403,7 +403,7 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.getCurrentLanguage().key;
         return (value: number | null | undefined): string =>
             (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
     };

@@ -8,8 +8,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.edge.EdgeCache;
@@ -17,6 +15,7 @@ import io.openems.backend.common.edge.jsonrpc.ConnectedEdges;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.DataTable;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.WebSocket;
 
@@ -84,7 +83,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return;
 		}
 		final var now = Instant.now().toEpochMilli();
-		final var data = TreeBasedTable.<Long, String, JsonElement>create();
+		final var data = new DataTable();
+		data.reserveRow(now, metrics.size());
 		for (var entry : metrics.entrySet()) {
 			data.put(now, this.id + "/" + entry.getKey(), new JsonPrimitive(entry.getValue()));
 		}

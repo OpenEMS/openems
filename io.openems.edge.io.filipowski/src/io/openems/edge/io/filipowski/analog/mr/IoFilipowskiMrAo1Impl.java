@@ -1,5 +1,7 @@
 package io.openems.edge.io.filipowski.analog.mr;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,7 +18,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -86,11 +87,11 @@ public class IoFilipowskiMrAo1Impl extends AbstractOpenemsModbusComponent implem
 				// Output voltage
 				new FC3ReadRegistersTask(address, Priority.HIGH, //
 						m(AnalogVoltageOutput.ChannelId.SET_OUTPUT_VOLTAGE, new UnsignedWordElement(address),
-								ElementToChannelConverter.SCALE_FACTOR_2) //
+								SCALE_FACTOR_2) //
 				),
 
 				new FC6WriteRegisterTask(address, m(AnalogVoltageOutput.ChannelId.SET_OUTPUT_VOLTAGE,
-						new UnsignedWordElement(address), ElementToChannelConverter.SCALE_FACTOR_2) //
+						new UnsignedWordElement(address), SCALE_FACTOR_2) //
 				));
 	}
 

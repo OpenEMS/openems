@@ -86,7 +86,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		);
 	}
 
-	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
+	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (_, _) -> {
 		this.timeService.removeAllTimeEndpoints();
 		this.timeService.subscribeTime(new GroupeDelayTimeProvider(this.componentManager.getClock()), //
 				this::createGroupeEndpoint, //

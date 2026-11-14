@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/java:21-jdk-bookworm
+FROM mcr.microsoft.com/devcontainers/java:25-jdk-bookworm
 
 # Install Node.js 22
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \

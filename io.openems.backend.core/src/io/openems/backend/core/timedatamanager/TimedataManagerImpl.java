@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -46,6 +45,7 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DbDataUtils;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.DataTable;
 import io.openems.common.types.Tuple2;
 import io.openems.common.utils.ComparatorUtils;
 
@@ -366,7 +366,10 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 	@Override
 	public void consumeMetrics(ZonedDateTime now, Map<String, JsonElement> metrics) {
 		final var epochMillis = now.toInstant().toEpochMilli();
-		final var data = TreeBasedTable.<Long, String, JsonElement>create();
+		final var data = new DataTable();
+		if (!metrics.isEmpty()) {
+			data.reserveRow(epochMillis, metrics.size());
+		}
 		for (var entry : metrics.entrySet()) {
 			data.put(epochMillis, entry.getKey(), entry.getValue());
 		}
