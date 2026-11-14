@@ -675,6 +675,8 @@ export enum YAxisType {
     VOLTAGE,
     HEAT_PUMP,
     HEATING_ELEMENT,
+    /** Like {@link HEATING_ELEMENT}, but with a y-axis scaled for two heating elements (Levels 0-6) */
+    HEATING_ELEMENT_TWO,
     RESTRICTION,
     ENERIX_CONTROL,
     HIDE,
