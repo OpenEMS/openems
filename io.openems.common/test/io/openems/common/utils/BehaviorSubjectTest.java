@@ -2,11 +2,16 @@ package io.openems.common.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -101,6 +106,26 @@ class BehaviorSubjectTest {
 
 		subject.setValue("newValue2");
 		assertEquals("unsubscribe", activeValue.get());
+	}
+
+	@Test
+	void testWaitForNonNullValue() throws Exception {
+		final var subject = new BehaviorSubject<String>(null);
+		var executionException = assertThrows(ExecutionException.class,
+				() -> subject.waitForNonNullValue(Duration.ofSeconds(1)).get());
+		assertInstanceOf(TimeoutException.class, executionException.getCause());
+
+		subject.setValue("Test1");
+		assertEquals("Test1", subject.waitForNonNullValue(Duration.ofSeconds(1)).get());
+
+		subject.setValue(null);
+		var future = subject.waitForNonNullValue(Duration.ofSeconds(1));
+		assertFalse(future.isDone());
+
+		subject.setValue("Test2");
+		assertEquals("Test2", future.get());
+
+		assertEquals(0, subject.getAmountOfSubscribers());
 	}
 
 }

@@ -4,6 +4,7 @@ import java.net.Proxy.Type;
 
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.controller.api.backend.api.BackendFeature;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -20,6 +21,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private PersistencePriority aggregationPriority;
 		private PersistencePriority resendPriority;
 		private boolean debugMode;
+		private boolean useDefaultFeatures = true;
+		private BackendFeature[] supportedFeatures = new BackendFeature[0];
 
 		private Builder() {
 		}
@@ -76,6 +79,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setUseDefaultFeatures(boolean useDefaultFeatures) {
+			this.useDefaultFeatures = useDefaultFeatures;
+			return this;
+		}
+
+		public Builder setSupportedFeatures(BackendFeature... supportedFeatures) {
+			this.supportedFeatures = supportedFeatures;
 			return this;
 		}
 
@@ -148,6 +161,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+
+	@Override
+	public boolean useDefaultFeatures() {
+		return this.builder.useDefaultFeatures;
+	}
+
+	@Override
+	public BackendFeature[] supportedFeatures() {
+		return this.builder.supportedFeatures;
 	}
 
 }

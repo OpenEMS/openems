@@ -55,7 +55,7 @@ export class DummyService extends AbstractService {
     stopSpinner(selector: string) {
         throw new Error("Method not implemented.");
     }
-    toast(message: string, level: "success" | "warning" | "danger") {
+    toast(message: string, level: "success" | "warning" | "danger"): Promise<void> {
         throw new Error("Method not implemented.");
     }
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler

@@ -12,8 +12,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.java_websocket.util.NamedThreadFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -30,19 +33,22 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeCache;
 import io.openems.backend.common.edge.EdgeManager;
+import io.openems.backend.common.edge.subscription.SubscriptionManager;
+import io.openems.backend.common.jsonrpc.syncable.SyncableRepository;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
+import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.backend.oauthregistry.OAuthRegistry;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -50,14 +56,18 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.notification.AllSyncableEntriesNotification;
 import io.openems.common.jsonrpc.notification.ScheduleNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.jsonrpc.syncable.SyncableEntry;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -72,12 +82,15 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 		implements EdgeManager, EventHandler, DebugLoggable {
 
 	private static final String COMPONENT_ID = "edgewebsocket0";
+	private static final String SYNCABLE_REPOSITORY_EXECUTOR_ID = "Edge.Manager.SyncableRepository";
 
 	protected final SystemLogHandler systemLogHandler;
 
 	protected final ScheduleHandler scheduleHandler;
 
 	private final Logger log = LoggerFactory.getLogger(EdgeManagerImpl.class);
+	private final DebugExecutor syncableRepositoryExecutor = new DebugExecutor(SYNCABLE_REPOSITORY_EXECUTOR_ID,
+			Executors.newSingleThreadExecutor(new NamedThreadFactory(SYNCABLE_REPOSITORY_EXECUTOR_ID, true)));
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -97,8 +110,17 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
 
+	@Reference
+	protected SyncableRepository syncableRepository;
+
+	@Reference
+	protected SubscriptionManager subscriptionManager;
+
+	private final Consumer<SyncableRepository.ChangeEvent> syncableRepositoryChangeHandler = this::handleSyncableRepositoryChange;
+
 	private WebsocketServer server = null;
 	private Config config;
+	private ImmutableList<SyncableEntry<?>> previousSentEntries;
 
 	public EdgeManagerImpl() {
 		super("Edge.Manager");
@@ -117,10 +139,13 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 		if (this.metadata.isInitialized()) {
 			this.startServer();
 		}
+
+		this.syncableRepository.getChangeEvent().subscribe(this.syncableRepositoryChangeHandler);
 	}
 
 	@Deactivate
 	private void deactivate() {
+		this.syncableRepository.getChangeEvent().unsubscribe(this.syncableRepositoryChangeHandler);
 		this.stopServer();
 	}
 
@@ -225,13 +250,19 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 
 	@Override
 	public final EdgeCache getEdgeCacheForEdgeId(String edgeId) {
+		var edgeClient = this.getEdgeClientForEdgeId(edgeId);
+		return (edgeClient == null) ? null : edgeClient.getCache();
+	}
+
+	@Override
+	public final BackendEdgeClient getEdgeClientForEdgeId(String edgeId) {
 		var server = this.server;
 		if (server == null) {
 			return null;
 		}
 		return server.getConnections().stream() //
 				.map(ws -> (WsData) ws.getAttachment()) //
-				.map(wsData -> wsData.getEdgeCache(edgeId)) //
+				.map(wsData -> wsData.getEdgeClient(edgeId)) //
 				.filter(Objects::nonNull) //
 				.findFirst().orElse(null);
 	}
@@ -311,6 +342,40 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	 */
 	public void handleScheduleNotification(String edgeId, ScheduleNotification notification) {
 		this.scheduleHandler.handleScheduleNotification(edgeId, notification);
+	}
+
+	private void handleSyncableRepositoryChange(SyncableRepository.ChangeEvent event) {
+		this.syncableRepositoryExecutor.submit("sendUpdates", () -> {
+			var server = this.server;
+			if (server == null) {
+				return;
+			}
+
+			try {
+				var allEntries = this.syncableRepository.getAllStaticEntries();
+				var changes = SyncableEntry.compareAndGetChanges(this.previousSentEntries, allEntries);
+				this.previousSentEntries = allEntries;
+				if (changes.isEmpty()) {
+					return;
+				}
+
+				var changesAsStr = changes.stream() //
+						.map(c -> StringUtils.toShortString(c.newEntry().toString(), 300)) //
+						.collect(joining(", "));
+				getComponentLogger(this).info("Send syncable repository update: {}", changesAsStr);
+
+				for (var connection : server.getConnections()) {
+					if (connection.getAttachment() == null || !(connection.getAttachment() instanceof WsData wsData)) {
+						continue;
+					}
+
+					wsData.send(new AllSyncableEntriesNotification(allEntries));
+				}
+			} catch (Exception ex) {
+				getComponentLogger(this).error("Error while sending syncable repository update to all edge managers.",
+						ex);
+			}
+		});
 	}
 
 	@Override

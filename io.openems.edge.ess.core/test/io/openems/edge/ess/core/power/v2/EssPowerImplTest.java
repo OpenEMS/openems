@@ -26,6 +26,66 @@ import io.openems.edge.ess.test.DummyMetaEss;
 public class EssPowerImplTest {
 
 	@Test
+	public void v2Check() throws Exception {
+		var p1 = new AtomicInteger();
+		var p2 = new AtomicInteger();
+		var p3 = new AtomicInteger();
+
+		final var power = new EssPowerImpl();
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(power) //
+				.withSoc(50) //
+				.withAllowedChargePower(-100000) //
+				.withAllowedDischargePower(100000) //
+				.withMaxApparentPower(20000) //
+				.withSymmetricApplyPowerCallback(r -> p1.set(r.activePower()));
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(power) //
+				.withSoc(50) //
+				.withAllowedChargePower(-100000) //
+				.withAllowedDischargePower(100000) //
+				.withMaxApparentPower(20000) //
+				.withSymmetricApplyPowerCallback(r -> p2.set(r.activePower()));
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(power) //
+				.withSoc(50) //
+				.withAllowedChargePower(-100000) //
+				.withAllowedDischargePower(100000) //
+				.withMaxApparentPower(20000) //
+				.withSymmetricApplyPowerCallback(r -> p3.set(r.activePower()));
+		var cluster0 = new DummyMetaEss("cluster0", ess1, ess2, ess3);
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var test = new ComponentTest(power) //
+				.addReference("cm", cm) //
+				.addReference("addEss", cluster0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.addReference("addEss", ess3) //
+				.activate(MyConfig.create() //
+						.setStrategy(BALANCE) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()) //
+				.next(new TestCase());
+
+		cluster0.addPowerConstraint("", ALL, ACTIVE, EQUALS, 1000);
+		cluster0.addPowerConstraint("", ALL, ACTIVE, LESS_OR_EQUALS, 1500);
+		cluster0.addPowerConstraint("", ALL, ACTIVE, GREATER_OR_EQUALS, 1500);
+
+		ess1.addPowerConstraint("", ALL, REACTIVE, LESS_OR_EQUALS, 99999);
+		assertEquals(20000, power.getMaxPower(ess1, ALL, REACTIVE));
+
+		cluster0.addPowerConstraint("", ALL, REACTIVE, EQUALS, 3000);
+		cluster0.addPowerConstraint("", ALL, REACTIVE, LESS_OR_EQUALS, 3000);
+		cluster0.addPowerConstraintAndValidate("", ALL, REACTIVE, GREATER_OR_EQUALS, 3000);
+
+		test.deactivate();
+	}
+
+	@Test
 	public void test() throws Exception {
 		final var power = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //

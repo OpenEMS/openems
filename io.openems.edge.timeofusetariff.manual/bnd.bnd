@@ -6,9 +6,12 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
+	io.openems.common.tariff.api,\
+	io.openems.common.tariff.entsoe,\
 	io.openems.edge.common,\
 	io.openems.edge.timeofusetariff.api,\
-	io.openems.edge.timeofusetariff.entsoe,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.edge.core,\

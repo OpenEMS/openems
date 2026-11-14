@@ -1,7 +1,6 @@
 package io.openems.edge.timeofusetariff.manual.eeg2025.gridsell;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.EntsoeBiddingZone;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,7 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private double fixedGridSellPrice;
-		private String securityToken;
+		private int serviceRanking = 20;
 
 		private Builder() {
 		}
@@ -24,8 +23,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setSecurityToken(String securityToken) {
-			this.securityToken = securityToken;
+		public Builder setServiceRanking(int serviceRanking) {
+			this.serviceRanking = serviceRanking;
 			return this;
 		}
 
@@ -57,6 +56,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String securityToken() {
-		return this.builder.securityToken;
+		return "";
+	}
+
+	@Override
+	public int service_ranking() {
+		return this.builder.serviceRanking;
 	}
 }

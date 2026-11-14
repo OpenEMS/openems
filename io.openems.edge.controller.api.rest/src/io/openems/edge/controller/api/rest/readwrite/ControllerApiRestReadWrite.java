@@ -8,7 +8,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface ControllerApiRestReadWrite extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
+		API_WORKER_LOG(Doc.of(OpenemsType.STRING)//
 				.text("Logs Write-Commands via ApiWorker")); //
 
 		private final Doc doc;

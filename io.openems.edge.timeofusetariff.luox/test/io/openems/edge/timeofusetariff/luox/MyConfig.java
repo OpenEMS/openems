@@ -41,7 +41,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.refreshToken = refreshToken;
 			return this;
 		}
-		
+
 		public Builder setDebugMode(DebugMode debugMode) {
 			this.debugMode = debugMode;
 			return this;

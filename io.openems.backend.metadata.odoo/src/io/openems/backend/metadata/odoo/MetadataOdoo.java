@@ -55,7 +55,6 @@ import io.openems.backend.authentication.api.model.PasswordAuthenticationResult;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.mail.MailContext;
 import io.openems.backend.common.mail.Mailer;
@@ -79,6 +78,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -410,8 +410,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			if (logJson.has("password")) {
 				logJson.addProperty("password", "HIDDEN");
 			}
-			this.log.error("[ODOO_INTERNAL_ERROR] Unable to register user: {}. Retrying... {}", e.getMessage(),
-					logJson, e);
+			this.log.error("[ODOO_INTERNAL_ERROR] Unable to register user: {}. Retrying... {}", //
+					e.getMessage(), logJson, e);
 			try {
 				Thread.sleep(5_000);
 			} catch (InterruptedException ex) {

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ErrorHandler, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Edge } from "../components/edge/edge";
@@ -26,9 +25,9 @@ export abstract class AbstractService extends ErrorHandler {
     abstract getDocsLang(): string;
 
     /**
-   * Shows a nofication using toastr
+   * Shows a notification using toastr
    */
-    abstract notify(notification: DefaultTypes.Notification);
+    abstract notify(notification: DefaultTypes.Notification): void;
 
     /**
    * Parses the route params and sets the current edge
@@ -50,7 +49,7 @@ export abstract class AbstractService extends ErrorHandler {
     /**
    * Handles being logged out.
    */
-    abstract onLogout();
+    abstract onLogout(): void;
 
     /**
    * Gets the ChannelAddresses for cumulated values that should be queried.
@@ -80,7 +79,7 @@ export abstract class AbstractService extends ErrorHandler {
    *
    * @param selector selector for specific spinner
    */
-    abstract startSpinnerTransparentBackground(selector: string);
+    abstract startSpinnerTransparentBackground(selector: string): void;
 
     /**
    * Start NGX-Spinner
@@ -91,14 +90,14 @@ export abstract class AbstractService extends ErrorHandler {
    *
    * @param selector selector for specific spinner
    */
-    abstract startSpinner(selector: string);
+    abstract startSpinner(selector: string): void;
 
     /**
    * Stop NGX-Spinner
    * @param selector selector for specific spinner
    */
-    abstract stopSpinner(selector: string);
+    abstract stopSpinner(selector: string): void;
 
-    abstract toast(message: string, level: "success" | "warning" | "danger");
+    abstract toast(message: string, level: "success" | "warning" | "danger"): Promise<void>;
 
 }

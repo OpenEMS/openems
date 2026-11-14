@@ -1,6 +1,5 @@
-// @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
-import { Router, RoutesRecognized } from "@angular/router";
+import { ActivatedRouteSnapshot, Data, Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, map } from "rxjs/operators";
 
@@ -25,8 +24,8 @@ export class GlobalRouteChangeHandler {
         this.router.events.pipe(
             filter(event => event instanceof RoutesRecognized),
             map(event => {
-                let data = null;
-                let route = event["state"].root;
+                let data: Data | null = null;
+                let route: ActivatedRouteSnapshot | null = event.state.root;
 
                 while (route) {
                     data = (route.data && Object.keys(route.data).length > 0) ? route.data : data;
@@ -35,7 +34,7 @@ export class GlobalRouteChangeHandler {
 
                 return data;
             }),
-        ).subscribe(async (e: { [key: string]: string }) => {
+        ).subscribe(async (e) => {
 
             if (e == null) {
                 return;

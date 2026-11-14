@@ -15,15 +15,15 @@ import org.junit.Test;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
-import io.openems.common.types.HttpStatus;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
+import io.openems.common.types.HttpStatus;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -73,7 +73,8 @@ public class ControllerApiRestReadOnlyImplTest {
 						.build());
 
 		final var executor = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(true);
-		final var bridgeHttpFactory = DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::networkEndpointFetcher, () -> executor);
+		final var bridgeHttpFactory = DummyBridgeHttpFactory
+				.ofBridgeImpl(DummyBridgeHttpFactory::networkEndpointFetcher, () -> executor);
 
 		bridgeHttp = bridgeHttpFactory.get();
 	}

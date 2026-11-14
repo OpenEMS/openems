@@ -42,6 +42,24 @@ public final class JsonSerializerUtil {
 	}
 
 	/**
+	 * Returns a {@link JsonSerializer} for a {@link Boolean}.
+	 *
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<Boolean> booleanSerializer() {
+		return jsonSerializer(Boolean.class, JsonElementPath::getAsBoolean, JsonPrimitive::new);
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link Long}.
+	 *
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<Long> longSerializer() {
+		return jsonSerializer(Long.class, JsonElementPath::getAsLong, JsonPrimitive::new);
+	}
+
+	/**
 	 * Returns a {@link JsonSerializer} for an enum value located at the provided
 	 * key in a {@link JsonObject}.
 	 *

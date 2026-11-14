@@ -9,7 +9,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.squareup.okio,\
 	io.openems.common,\
 	io.openems.common.bridge.http,\
+	io.openems.common.tariff.api,\
 	io.openems.edge.common,\
+	io.openems.wrapper.javaluator,\
 
 -testpath: \
 	org.jetbrains.kotlin.osgi-bundle,\

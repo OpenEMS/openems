@@ -200,11 +200,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 */
 	private void handleDataNotification(AbstractDataNotification message, String edgeId, WsData wsData)
 			throws OpenemsNamedException {
-		final var edgeCache = wsData.getEdgeCache(edgeId);
-		if (edgeCache == null) {
+		final var edgeClient = wsData.getEdgeClient(edgeId);
+		if (edgeClient == null) {
 			return;
 		}
 
+		final var edgeCache = edgeClient.getCache();
 		final var timedataManager = this.timedataManager.get();
 		if (timedataManager != null) {
 			// TODO java 21 switch case with type

@@ -8,8 +8,8 @@ import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 

@@ -281,7 +281,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		if (!(o instanceof WsData wsData)) {
 			return false;
 		}
-        return Objects.equals(this.id, wsData.id);
+		return Objects.equals(this.id, wsData.id);
 	}
 
 	@Override

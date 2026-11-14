@@ -27,7 +27,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
@@ -49,6 +48,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.session.Role;
 import io.openems.common.types.DebugMode;
 

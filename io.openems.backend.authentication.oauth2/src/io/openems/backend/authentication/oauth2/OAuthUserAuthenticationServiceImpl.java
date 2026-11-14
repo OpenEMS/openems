@@ -50,7 +50,6 @@ import io.openems.backend.authentication.api.model.OAuthToken;
 import io.openems.backend.authentication.api.model.PasswordAuthenticationResult;
 import io.openems.backend.authentication.api.model.request.RegisterUserRequest;
 import io.openems.backend.authentication.api.model.response.InitiateConnectResponse;
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.metrics.prometheus.httpbridge.HttpBridgePrometheusMetricServiceDefinition;
 import io.openems.common.bridge.http.api.BridgeHttp;
@@ -60,6 +59,7 @@ import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
 import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.logger.DebugLoggable;
 import io.openems.common.types.HttpStatus;
 import io.openems.common.utils.ThreadPoolUtils;
 

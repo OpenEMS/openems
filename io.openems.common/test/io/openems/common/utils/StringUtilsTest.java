@@ -1,45 +1,46 @@
 package io.openems.common.utils;
 
 import static io.openems.common.utils.StringUtils.definedOrElse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class StringUtilsTest {
+class StringUtilsTest {
 
 	@Test
-	public void testToShortStringStringInt() {
+	void testToShortStringStringInt() {
 		var test = "test to short string";
 		assertEquals("te...", StringUtils.toShortString(test, 5));
 	}
 
 	@Test
-	public void testToShortStringJsonObjectInt() {
+	void testToShortStringJsonObjectInt() {
 		var j = new JsonObject();
 		j.add("name", new JsonPrimitive("Testbert")); // {"name":"Testbert"} --> {"name":"T...
 		assertEquals("{\"name\":\"T...", StringUtils.toShortString(j, 13));
 	}
 
 	@Test
-	public void testCapitalizeFirstLetter() {
+	void testCapitalizeFirstLetter() {
 		assertEquals("Test", StringUtils.capitalizeFirstLetter("test"));
 		assertEquals("TEST", StringUtils.capitalizeFirstLetter("TEST"));
 		assertEquals("1test", StringUtils.capitalizeFirstLetter("1test"));
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void testCapitalizeFirstLetterWithEmptyString() {
-		assertEquals("", StringUtils.capitalizeFirstLetter(""));
+	@Test
+	void testCapitalizeFirstLetterWithEmptyString() {
+		Assertions.assertThrows(IndexOutOfBoundsException.class, () -> StringUtils.capitalizeFirstLetter(""));
 	}
 
 	@Test
-	public void testMatchWildcard() {
+	void testMatchWildcard() {
 		final var activePower = "ActivePower";
 		final var anyPower = "*Power";
 		final var anyActive = "Active*";
@@ -53,7 +54,7 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testDefinedOrElse() {
+	void testDefinedOrElse() {
 		assertEquals("foo", definedOrElse("foo", "bar"));
 		assertEquals("bar", definedOrElse(null, "bar"));
 		assertEquals("bar", definedOrElse("", "bar"));
@@ -62,24 +63,24 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testParseNumberFromNameNull() throws Exception {
+	void testParseNumberFromNameNull() {
 		assertTrue(StringUtils.parseNumberFromName(null).isEmpty());
 	}
 
 	@Test
-	public void testParseNumberFromNameInvalidString() throws Exception {
+	void testParseNumberFromNameInvalidString() {
 		assertTrue(StringUtils.parseNumberFromName("edge").isEmpty());
 	}
 
 	@Test
-	public void testParseNumberFromNameValidString() throws Exception {
+	void testParseNumberFromNameValidString() {
 		final var parsedNumber = StringUtils.parseNumberFromName("edge404");
 		assertTrue(parsedNumber.isPresent());
 		assertEquals(404, parsedNumber.getAsInt());
 	}
 
 	@Test
-	public void testEmptyToNull_ShouldReturnNull_WhenNullEmptyOrBlank() {
+	void testEmptyToNull_ShouldReturnNull_WhenNullEmptyOrBlank() {
 		String[] inputs = { null, "", "   ", "\t\n" };
 		for (String input : inputs) {
 			assertNull(StringUtils.emptyToNull(input));
@@ -87,7 +88,7 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testEmptyToNull_ShouldReturnSameString_WhenNonBlank() {
+	void testEmptyToNull_ShouldReturnSameString_WhenNonBlank() {
 		String[] inputs = { "abc", "  abc  ", "0", "true" };
 		for (String input : inputs) {
 			assertEquals(input, StringUtils.emptyToNull(input));
@@ -95,11 +96,21 @@ public class StringUtilsTest {
 	}
 
 	@Test
-	public void testContainsIgnoreCase() {
+	void testContainsIgnoreCase() {
 		assertTrue(StringUtils.containsIgnoreCase("Hello, its me", "ITS"));
 		assertTrue(StringUtils.containsIgnoreCase("Hello, its me", "its"));
 		assertFalse(StringUtils.containsIgnoreCase("Hello, its me", "itse"));
 		assertFalse(StringUtils.containsIgnoreCase("Hello, its me", "ITSE"));
+	}
+
+	@Test
+	void testExtractTextSurroundedBy() {
+		assertEquals("Baum", StringUtils.extractTextSurroundedBy("Zug[Baum]", "[", "]"));
+		assertEquals("Test", StringUtils.extractTextSurroundedBy("==Test==", "==", "=="));
+		assertEquals("", StringUtils.extractTextSurroundedBy("[]", "[", "]"));
+		assertNull(StringUtils.extractTextSurroundedBy("Zug[Baum]", "]", "["));
+		assertNull(StringUtils.extractTextSurroundedBy("Zug[Baum", "[", "]"));
+		assertNull(StringUtils.extractTextSurroundedBy("ZugBaum]", "[", "]"));
 	}
 
 }

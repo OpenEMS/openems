@@ -8,7 +8,7 @@ import io.openems.common.logger.LazyContextLogger;
 
 // TODO merge with OpenemsComponent of Edge
 public class AbstractOpenemsBackendComponent {
-	
+
 	private static final String LOG_FORMAT = "[{}] {}";
 
 	private final String name;
@@ -36,14 +36,16 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a info message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param component the {@link AbstractOpenemsBackendComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
 	 */
+	@Deprecated
 	public static void logInfo(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
 			log.info(LOG_FORMAT, component.getName(), message);
@@ -56,13 +58,15 @@ public class AbstractOpenemsBackendComponent {
 	 * Log an info message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Info-message
 	 */
+	@Deprecated
 	protected void logInfo(Logger log, String message) {
 		AbstractOpenemsBackendComponent.logInfo(this, log, message);
 	}
@@ -71,14 +75,16 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a warn message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param component the {@link AbstractOpenemsBackendComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
 	 */
+	@Deprecated
 	public static void logWarn(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
 			log.warn(LOG_FORMAT, component.getName(), message);
@@ -91,13 +97,15 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a warn message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Warn-message
 	 */
+	@Deprecated
 	protected void logWarn(Logger log, String message) {
 		AbstractOpenemsBackendComponent.logWarn(this, log, message);
 	}
@@ -106,14 +114,16 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a error message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param component the {@link AbstractOpenemsBackendComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
 	 */
+	@Deprecated
 	public static void logError(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
 			log.error(LOG_FORMAT, component.getName(), message);
@@ -126,13 +136,15 @@ public class AbstractOpenemsBackendComponent {
 	 * Log an error message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Error-message
 	 */
+	@Deprecated
 	protected void logError(Logger log, String message) {
 		AbstractOpenemsBackendComponent.logError(this, log, message);
 	}
@@ -141,14 +153,16 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a debug message including the Component ID.
 	 *
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param component the {@link AbstractOpenemsBackendComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
 	 */
+	@Deprecated
 	public static void logDebug(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
 			log.debug(LOG_FORMAT, component.getName(), message);
@@ -161,13 +175,15 @@ public class AbstractOpenemsBackendComponent {
 	 * Log a debug message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(AbstractOpenemsBackendComponent)}
-	 * to create a Logger that automatically includes the component name in all log
-	 * messages, and then use that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(AbstractOpenemsBackendComponent)} to create a
+	 * Logger that automatically includes the component name in all log messages,
+	 * and then use that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger that is used for writing the log
 	 * @param message the Debug-message
 	 */
+	@Deprecated
 	protected void logDebug(Logger log, String message) {
 		AbstractOpenemsBackendComponent.logDebug(this, log, message);
 	}
