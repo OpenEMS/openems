@@ -1,7 +1,5 @@
 package io.openems.edge.ess.core.power.v2;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +55,7 @@ public final class TreeSolver {
 		// Active pass — standalone Actuals (not inside any cluster)
 		for (var entry : entries.values()) {
 			if (entry instanceof Entry.Actual a && a.getParent() == null) {
-				a.activePowerSetPoint = fitWithin(a.ownActiveMin(), a.ownActiveMax(), 0);
+				a.activePowerSetPoint = Math.clamp(0, a.ownActiveMin(), a.ownActiveMax());
 			}
 		}
 
@@ -74,7 +72,7 @@ public final class TreeSolver {
 		// Reactive power pass — standalone Actuals
 		for (var entry : entries.values()) {
 			if (entry instanceof Entry.Actual a && a.getParent() == null) {
-				a.reactivePowerSetPoint = fitWithin(a.ownReactiveMin(), a.ownReactiveMax(), 0);
+				a.reactivePowerSetPoint = Math.clamp(0, a.ownReactiveMin(), a.ownReactiveMax());
 			}
 		}
 	}
@@ -100,7 +98,7 @@ public final class TreeSolver {
 				&& virtual.limitActivePowerMax == null) {
 			for (var child : virtual.children) {
 				if (child instanceof Entry.Actual a) {
-					a.activePowerSetPoint = fitWithin(a.ownActiveMin(), a.ownActiveMax(), 0);
+					a.activePowerSetPoint = Math.clamp(0, a.ownActiveMin(), a.ownActiveMax());
 				} else if (child instanceof Entry.Virtual v) {
 					solveActiveNode(v, resolveTarget(v.limitActivePowerMin, v.limitActivePowerMax));
 				}
@@ -115,7 +113,7 @@ public final class TreeSolver {
 			distributeToChildren(virtual.children, rawTarget >= 0 ? max : min, true);
 			return;
 		}
-		distributeToChildren(virtual.children, fitWithin(min, max, rawTarget), true);
+		distributeToChildren(virtual.children, Math.clamp(rawTarget, min, max), true);
 	}
 
 	/**
@@ -132,7 +130,7 @@ public final class TreeSolver {
 		if (virtual.limitReactivePowerMin == null && virtual.limitReactivePowerMax == null) {
 			for (var child : virtual.children) {
 				if (child instanceof Entry.Actual a) {
-					a.reactivePowerSetPoint = fitWithin(a.ownReactiveMin(), a.ownReactiveMax(), 0);
+					a.reactivePowerSetPoint = Math.clamp(0, a.ownReactiveMin(), a.ownReactiveMax());
 				} else if (child instanceof Entry.Virtual v) {
 					solveReactiveNode(v, resolveTarget(v.limitReactivePowerMin, v.limitReactivePowerMax));
 				}
@@ -147,7 +145,7 @@ public final class TreeSolver {
 			distributeToChildren(virtual.children, rawTarget >= 0 ? max : min, false);
 			return;
 		}
-		distributeToChildren(virtual.children, fitWithin(min, max, rawTarget), false);
+		distributeToChildren(virtual.children, Math.clamp(rawTarget, min, max), false);
 	}
 
 	/**
@@ -213,9 +211,9 @@ public final class TreeSolver {
 			var min = isActive ? a.ownActiveMin() : a.ownReactiveMin();
 			var max = isActive ? a.ownActiveMax() : a.ownReactiveMax();
 			if (isActive) {
-				a.activePowerSetPoint = fitWithin(min, max, value);
+				a.activePowerSetPoint = Math.clamp(value, min, max);
 			} else {
-				a.reactivePowerSetPoint = fitWithin(min, max, value);
+				a.reactivePowerSetPoint = Math.clamp(value, min, max);
 			}
 		} else if (entry instanceof Entry.Virtual v) {
 			if (isActive) {
@@ -273,7 +271,7 @@ public final class TreeSolver {
 
 			var min = isActive ? e.ownActiveMin() : e.ownReactiveMin();
 			var max = isActive ? e.ownActiveMax() : e.ownReactiveMax();
-			power = fitWithin(min, max, power);
+			power = Math.clamp(power, min, max);
 			remaining -= power;
 			applySetpoint(e, power, isActive);
 		}
@@ -289,8 +287,8 @@ public final class TreeSolver {
 			var qMax = (int) Math.sqrt(Math.max(0, s2));
 			var effMin = a.limitReactivePowerMin != null ? a.limitReactivePowerMin : -qMax;
 			var effMax = a.limitReactivePowerMax != null ? a.limitReactivePowerMax : qMax;
-			a.limitReactivePowerMin = Math.max(Math.min(effMin, qMax), -qMax);
-			a.limitReactivePowerMax = Math.max(Math.min(effMax, qMax), -qMax);
+			a.limitReactivePowerMin = Math.clamp(effMin, -qMax, qMax);
+			a.limitReactivePowerMax = Math.clamp(effMax, -qMax, qMax);
 		}
 	}
 

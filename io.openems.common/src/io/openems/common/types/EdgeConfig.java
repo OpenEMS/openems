@@ -682,7 +682,7 @@ public class EdgeConfig {
 			var name = ocd.getName();
 			var description = ocd.getDescription();
 			List<Property> properties = new ArrayList<>(Factory.toProperties(ocd));
-			return new Factory(factoryId, name, description, properties.toArray(new Property[properties.size()]),
+			return new Factory(factoryId, name, description, properties.toArray(Property[]::new),
 					natureIds);
 		}
 

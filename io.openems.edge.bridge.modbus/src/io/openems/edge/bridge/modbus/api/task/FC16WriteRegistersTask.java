@@ -127,7 +127,7 @@ public class FC16WriteRegistersTask
 		}
 
 		public Register[] getRegisters() {
-			return this.registers.toArray(new Register[this.registers.size()]);
+			return this.registers.toArray(Register[]::new);
 		}
 
 		public int getLastAddress() {

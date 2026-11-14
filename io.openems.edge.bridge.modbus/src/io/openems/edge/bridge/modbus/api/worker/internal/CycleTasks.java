@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -26,7 +27,7 @@ public record CycleTasks(LinkedList<ReadTask> reads, LinkedList<WriteTask> write
 		 * @return myself
 		 */
 		public Builder reads(ReadTask... tasks) {
-			Stream.of(tasks).forEach(this.reads::add);
+			Collections.addAll(this.reads, tasks);
 			return this;
 		}
 
@@ -37,7 +38,7 @@ public record CycleTasks(LinkedList<ReadTask> reads, LinkedList<WriteTask> write
 		 * @return myself
 		 */
 		public Builder writes(WriteTask... tasks) {
-			Stream.of(tasks).forEach(this.writes::add);
+			Collections.addAll(this.writes, tasks);
 			return this;
 		}
 

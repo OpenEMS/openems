@@ -1,6 +1,5 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
@@ -299,12 +298,12 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		// Discharge Max Current
 		// negative value is corrected as zero
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.DISCHARGE_MAX_CURRENT,
-				fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getDischargeMaxCurrent().orElse(0)));
+				Math.clamp(battery.getDischargeMaxCurrent().orElse(0), 0 /* enforce positive */, MAX_CURRENT));
 
 		// Charge Max Current
 		// negative value is corrected as zero
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.CHARGE_MAX_CURRENT,
-				fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getChargeMaxCurrent().orElse(0)));
+				Math.clamp(battery.getChargeMaxCurrent().orElse(0), 0 /* enforce positive */, MAX_CURRENT));
 	}
 
 	@Override

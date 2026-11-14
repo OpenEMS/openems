@@ -1,7 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.MapUtils.mapValue;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
@@ -148,6 +147,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	// (16-bit).
 	private static final int MAX_LEGACY_FEED_POWER = Short.MAX_VALUE;
 	private static final int MAX_HOME_30_FEED_POWER = 60_000;
+	private static final int MAX_COMMERCIAL_50_FEED_POWER = 100_000;
+	private static final int MAX_COMMERCIAL_100_FEED_POWER = 200_000;
 	private static final Logger LOG = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
@@ -700,7 +701,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		channels.wbmsCurrent().setNextWriteValue(TypeUtils.abs(battery.getCurrent().orElse(0)));
 
 		// Set SoC within [1;100] to avoid force-charge internally by PCS at 0 %
-		channels.wbmsSoc().setNextWriteValue(fitWithin(1, 100, battery.getSoc().orElse(1)));
+		channels.wbmsSoc().setNextWriteValue(Math.clamp(battery.getSoc().orElse(1), 1, 100));
 		channels.wbmsSoh().setNextWriteValue(battery.getSoh().orElse(100));
 
 		// Average Min/Max Cell Temperature; defaults to 0
@@ -925,7 +926,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	protected static int preprocessAmpereValue47900(int v, int maxDcCurrent) {
-		return fitWithin(0, maxDcCurrent, v);
+		return Math.clamp(v, 0, maxDcCurrent);
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
@@ -1046,18 +1047,22 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		switch (this.getGoodweType()) {
 		case GoodWeType.FENECON_FHI_29_9_DAH //
-			-> this.handleGridFeedForFeneconFhi299Dah();
-		case GoodWeType.FENECON_50K, GoodWeType.FENECON_100K, GoodWeType.FENECON_FHI_10_DAH,
-				GoodWeType.FENECON_FHI_20_DAH, GoodWeType.FENECON_GEN2_10K, GoodWeType.FENECON_GEN2_15K,
-				GoodWeType.FENECON_GEN2_6K, GoodWeType.GOODWE_10K_BT, GoodWeType.GOODWE_10K_ET, GoodWeType.GOODWE_5K_BT,
-				GoodWeType.GOODWE_5K_ET, GoodWeType.GOODWE_8K_BT, GoodWeType.GOODWE_8K_ET //
+			-> this.handleGridFeedWithSupportedMaximum(MAX_HOME_30_FEED_POWER);
+		case GoodWeType.FENECON_50K //
+			-> this.handleGridFeedWithSupportedMaximum(MAX_COMMERCIAL_50_FEED_POWER);
+		case GoodWeType.FENECON_100K //
+			-> this.handleGridFeedWithSupportedMaximum(MAX_COMMERCIAL_100_FEED_POWER);
+		case GoodWeType.FENECON_FHI_10_DAH, GoodWeType.FENECON_FHI_20_DAH, GoodWeType.FENECON_GEN2_10K,
+				GoodWeType.FENECON_GEN2_15K, GoodWeType.FENECON_GEN2_6K, GoodWeType.GOODWE_10K_BT,
+				GoodWeType.GOODWE_10K_ET, GoodWeType.GOODWE_5K_BT, GoodWeType.GOODWE_5K_ET, GoodWeType.GOODWE_8K_BT,
+				GoodWeType.GOODWE_8K_ET //
 			-> this.handleGridFeedForOther();
 		case GoodWeType.UNDEFINED //
 			-> doNothing();
 		}
 	}
 
-	private void handleGridFeedForFeneconFhi299Dah() throws OpenemsNamedException {
+	private void handleGridFeedWithSupportedMaximum(int supportedMaximum) throws OpenemsNamedException {
 		if (this.rcr != null && this.rcr.essRestrictionLevel() != EssRestrictionLevel.NO_RESTRICTION
 				&& !this.getMaxApparentPower().isDefined()) {
 			setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false);
@@ -1069,9 +1074,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			limit = min(limit, rcrLimit.getAsInt());
 		}
 		var exceedsMaximum = this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION
-				&& limit > MAX_HOME_30_FEED_POWER;
+				&& limit > supportedMaximum;
 		if (exceedsMaximum) {
-			limit = MAX_HOME_30_FEED_POWER;
+			limit = supportedMaximum;
 		}
 		this.handleFeedInSetting(true, limit, this.getGoodweType());
 		setValue(this, GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum);

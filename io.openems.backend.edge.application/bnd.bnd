@@ -10,7 +10,11 @@ Bundle-Description: Proxy between OpenEMS Edges and OpenEMS Backend
 	io.openems.backend.metrics.prometheus,\
 	io.openems.backend.oauthregistry,\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
 	io.openems.wrapper.Java-WebSocket,\
+	io.openems.wrapper.auth0-auth0,\
+	io.openems.wrapper.auth0-java-jwt,\
+	io.openems.wrapper.auth0-jwks-rsa,\
 	io.prometheus.metrics-core,\
 	io.prometheus.metrics-model,\
 

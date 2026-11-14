@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Supplier;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -25,7 +26,6 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.logger.ContextLogger;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
@@ -47,18 +47,20 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	 * 
 	 * @param name              a human readble name
 	 * @param uri               the connection Uri to OpenEMS Backend Edge-Manager
-	 * @param id                unique ID of this Backend Edge Application
+	 * @param headerSupplier    the headers to apply on every connect
 	 * @param poolSize          number of threads to handle tasks
 	 * @param onConnectedChange callback for connection to Edge-Manager status
 	 *                          changes
 	 * @param app               reference to {@link BackendEdgeServerApp}
 	 */
 	public WebsocketClient(//
-			String name, URI uri, String id, int poolSize, //
+			String name, URI uri, //
+			Supplier<Map<String, String>> headerSupplier, //
+			int poolSize, //
 			BooleanConsumer onConnectedChange, //
 			BackendEdgeServerApp app) {
-		super(name, uri, Map.of("id", id), onConnectedChange,
-				new ClientReconnectorWorker.Config(100, 30, 2, FunctionUtils::doNothing));
+		super(name, uri, headerSupplier.get(), onConnectedChange,
+				new ClientReconnectorWorker.Config(100, 30, 2, t -> updateHeader(t, headerSupplier)));
 		this.log = new ContextLogger(WebsocketClient.class, this.getName());
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat("Backend.Edge.App-%d").build());
@@ -70,6 +72,23 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onRequest = new OnRequest(name, this.app);
 		this.onError = new OnError(//
 				this::logError);
+	}
+
+	private static void updateHeader(//
+			ClientReconnectorWorker.WebsocketReconnectorEvent event, //
+			Supplier<Map<String, String>> headerSupplier //
+	) {
+		if (event.type() != ClientReconnectorWorker.WebsocketReconnectorEventType.START_CONNECTING) {
+			return;
+		}
+
+		final var header = headerSupplier.get();
+
+		event.ws().clearHeaders();
+
+		for (final var entry : header.entrySet()) {
+			event.ws().addHeader(entry.getKey(), entry.getValue());
+		}
 	}
 
 	/**

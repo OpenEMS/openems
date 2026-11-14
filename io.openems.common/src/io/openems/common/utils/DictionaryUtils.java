@@ -60,7 +60,7 @@ public final class DictionaryUtils {
 		final var raw = dict.get(key);
 		return switch (raw) {
 		case Boolean b -> b ? 1 : 0;
-		case Number n -> (int) Math.max(Integer.MIN_VALUE, Math.min(n.longValue(), Integer.MAX_VALUE));
+		case Number n -> Math.clamp(n.longValue(), Integer.MIN_VALUE, Integer.MAX_VALUE);
 		case String s -> Ints.tryParse(s);
 		case null, default -> null;
 		};

@@ -2,11 +2,9 @@ package io.openems.backend.edge.manager;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.jsonrpc.syncable.SyncableSubscriptionKey;
 import io.openems.backend.common.jsonrpc.syncable.SyncableUtils;
@@ -28,22 +26,21 @@ import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.SyncableSubscribeResponse;
 import io.openems.common.jsonrpc.syncable.SyncableProviderType;
 import io.openems.common.jsonrpc.type.CheckSetupPassword;
+import io.openems.common.logger.ContextLogger;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
+	private final Logger log;
 
 	private final String name;
 	private final EdgeManagerImpl edgeManager;
-	private final BiConsumer<Logger, String> logWarn;
 
 	public OnRequest(//
 			String name, //
-			EdgeManagerImpl edgeManager, //
-			BiConsumer<Logger, String> logWarn) {
+			EdgeManagerImpl edgeManager) {
+		this.log = new ContextLogger(OnRequest.class, name);
 		this.name = name;
 		this.edgeManager = edgeManager;
-		this.logWarn = logWarn;
 	}
 
 	@Override
@@ -59,7 +56,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				-> throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 			};
 
-			return response.whenComplete((t, u) -> {
+			return response.whenComplete((_, _) -> {
 				timer.close();
 			});
 		} catch (Exception e) {
@@ -95,7 +92,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSyncableUnsubscribe(SyncableUnsubscribeRequest.from(request), edgeId);
 
 		default -> {
-			this.logWarn.accept(this.log, "Unhandled Request: " + request);
+			this.log.warn("Unhandled Request: {}", request);
 			yield CompletableFuture.failedFuture(OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod()));
 		}
 		};

@@ -17,7 +17,7 @@ public class TimerangesTest {
 
 		assertEquals(1, timerangeList.size());
 
-		final var timerange = timerangeList.get(0);
+		final var timerange = timerangeList.getFirst();
 		final var timestamps = timerange.getTimestamps();
 		assertEquals(3, timestamps.size());
 		assertEquals(50L, timestamps.get(0).longValue());

@@ -174,7 +174,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 			result.add(
 					this.createPowerConstraint("ReactivePower Constraint ESS not Started", ALL, REACTIVE, EQUALS, 0));
 		}
-		return result.toArray(new Constraint[result.size()]);
+		return result.toArray(Constraint[]::new);
 	}
 
 	@Override

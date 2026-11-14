@@ -25,7 +25,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 public class DebugExecutor implements ExecutorService {
 
 	private static final Function<String, AtomicInteger> ATOMIC_INTEGER_PROVIDER = //
-			key -> new AtomicInteger(0);
+			_ -> new AtomicInteger(0);
 
 	private static final String UNDEFINED_TASK_ID = "UNDEFINED";
 
@@ -103,7 +103,10 @@ public class DebugExecutor implements ExecutorService {
 			} catch (Exception e) {
 				throw new CompletionException(e);
 			} finally {
-				this.activeTasks.computeIfPresent(id, (t, u) -> u.decrementAndGet() <= 0 ? null : u);
+				this.activeTasks.computeIfPresent(id, //
+						(_, u) -> u.decrementAndGet() <= 0 //
+								? null
+								: u);
 			}
 		}, this.executor);
 	}

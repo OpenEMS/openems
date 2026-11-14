@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
@@ -18,7 +19,8 @@ public class EdgeTest {
 	@Test
 	public void testSetLastmessage() {
 		AtomicBoolean event = new AtomicBoolean(false);
-		var metadata = new DummyMetadata(e -> e.getTopic() == Edge.Events.ON_SET_LASTMESSAGE, e -> event.set(true));
+		var metadata = new DummyMetadata(e -> Objects.equals(e.getTopic(), Edge.Events.ON_SET_LASTMESSAGE),
+				_ -> event.set(true));
 
 		var time = ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"));
 
@@ -46,7 +48,8 @@ public class EdgeTest {
 	@Test
 	public void testSetVersion() {
 		AtomicBoolean event = new AtomicBoolean(false);
-		var metadata = new DummyMetadata(e -> e.getTopic() == Edge.Events.ON_SET_VERSION, e -> event.set(true));
+		var metadata = new DummyMetadata(e -> Objects.equals(e.getTopic(), Edge.Events.ON_SET_VERSION),
+				_ -> event.set(true));
 
 		var sut = new Edge(metadata, null, null, null, null, null);
 
@@ -67,7 +70,8 @@ public class EdgeTest {
 	@Test
 	public void testSetProducttype() {
 		AtomicBoolean event = new AtomicBoolean(false);
-		var metadata = new DummyMetadata(e -> e.getTopic() == Edge.Events.ON_SET_PRODUCTTYPE, e -> event.set(true));
+		var metadata = new DummyMetadata(e -> Objects.equals(e.getTopic(), Edge.Events.ON_SET_PRODUCTTYPE),
+				_ -> event.set(true));
 
 		var sut = new Edge(metadata, null, null, null, null, null);
 

@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.edge.controller.ess.sohcycle.EssSohCycleConstants.C_RATE;
 
 import java.time.Clock;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.statemachine.AbstractContext;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.ess.sohcycle.BatteryBalanceError;
 import io.openems.edge.controller.ess.sohcycle.BatteryBalanceStatus;
 import io.openems.edge.controller.ess.sohcycle.Config;
@@ -180,7 +178,7 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 		final int maxApparentPower = maxPowerValue.get();
 		final int capacityWh = capacityValue.get();
 		final float capacityBasedPower = capacityWh * C_RATE;
-		final float limitedPower = TypeUtils.fitWithin(0, maxApparentPower, capacityBasedPower);
+		final float limitedPower = Math.clamp(capacityBasedPower, 0, maxApparentPower);
 
 		// Allow changing by 1% of max apparent power per run, similar to
 		// EmergencyCapacityReserve.
@@ -434,7 +432,7 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 		}
 
 		var sohRaw = (measuredCapacityWh.floatValue() / this.ess.getCapacity().get().floatValue()) * 100f;
-		var soh = fitWithin(0, 100, Math.round(sohRaw));
+		var soh = Math.clamp(Math.round(sohRaw), 0, 100);
 		return Optional.of(new SohResult(soh, sohRaw));
 	}
 

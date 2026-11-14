@@ -27,7 +27,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 	@Override
 	public void accept(WebSocket ws, JsonrpcNotification notification) {
-		try (final var timer = PrometheusMetrics.WEBSOCKET_REQUEST
+		try (final var _ = PrometheusMetrics.WEBSOCKET_REQUEST
 				.labelValues(this.name, notification.getFullyQualifiedMethod()).startTimer()) {
 			WsData wsData = ws.getAttachment();
 			var edgeId = wsData.getEdgeId();

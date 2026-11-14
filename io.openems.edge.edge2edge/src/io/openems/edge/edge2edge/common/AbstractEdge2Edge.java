@@ -411,7 +411,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
 						elements.peekFirst().startAddress, Priority.HIGH,
-						elements.toArray(new ModbusElement[elements.size()])));
+						elements.toArray(ModbusElement[]::new)));
 	}
 
 	/**
@@ -426,7 +426,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		}
 		this.modbusProtocol.addTask(//
 				new FC16WriteRegistersTask(//
-						elements.peekFirst().startAddress, elements.toArray(new ModbusElement[elements.size()])));
+						elements.peekFirst().startAddress, elements.toArray(ModbusElement[]::new)));
 	}
 
 	/**

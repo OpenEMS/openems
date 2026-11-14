@@ -124,7 +124,7 @@ class OfflineEdgeHandlerTest {
 		final var edgeMsgsch = new MessageSchedulerServiceImpl();
 		final var edgeCount = new AtomicInteger();
 		edgeMeta.getAllOfflineEdges().stream().map(e -> edgeMeta.getEdgeOfflineAlertingSettings(e.getId()))
-				.forEach(e -> {
+				.forEach(_ -> {
 					edgeCount.getAndIncrement();
 				});
 

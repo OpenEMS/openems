@@ -358,7 +358,7 @@ public class LegacyEntsoeComponentMigrator {
 		}
 	}
 
-	private class UpdatePropertiesBuilder {
+	private static class UpdatePropertiesBuilder {
 		private final ImmutableList.Builder<UpdateComponentConfigRequest.Property> properties = ImmutableList.builder();
 
 		public UpdatePropertiesBuilder add(String key, String value) {
