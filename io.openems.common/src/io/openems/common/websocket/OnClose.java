@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-
 @FunctionalInterface
 public interface OnClose {
 

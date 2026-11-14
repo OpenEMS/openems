@@ -16,7 +16,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshake) {
 		this.onStateChange.accept(ConnectionState.AUTHENTICATING);
 		return null;
 	}

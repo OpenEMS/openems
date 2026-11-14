@@ -80,8 +80,8 @@ final class JettyFrameHandler implements FrameHandler {
 		case OpCode.TEXT -> this.onTextFrame(frame);
 		case OpCode.BINARY -> this.binaryInProgress = !frame.isFin();
 		case OpCode.CONTINUATION -> this.onContinuationFrame(frame);
-		case OpCode.PING -> this.session.sendFrame(new Frame(OpCode.PONG).setPayload(copy(frame.getPayload())),
-				Callback.NOOP, false);
+		case OpCode.PING ->
+			this.session.sendFrame(new Frame(OpCode.PONG).setPayload(copy(frame.getPayload())), Callback.NOOP, false);
 		case OpCode.CLOSE -> {
 			// Close handshake is handled by the CoreSession
 			callback.succeeded();

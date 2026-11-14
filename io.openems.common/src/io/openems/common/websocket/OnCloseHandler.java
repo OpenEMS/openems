@@ -4,7 +4,6 @@ import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 
 import java.util.function.BiConsumer;
 
-
 public class OnCloseHandler implements Runnable {
 
 	private final WebSocket ws;

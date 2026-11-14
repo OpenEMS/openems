@@ -20,11 +20,11 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshake) {
 		var error = this._apply(ws);
 		if (error != null) {
 			ws.close(REFUSE, "Connection to backend failed. Remote [" //
-					+ parseRemoteIdentifier(ws, handshakedata) //
+					+ parseRemoteIdentifier(ws, handshake) //
 					+ "] Error: " + error.name() //
 			);
 		}

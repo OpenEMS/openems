@@ -2,7 +2,6 @@ package io.openems.common.websocket;
 
 import java.util.function.BiFunction;
 
-
 import io.openems.common.exceptions.OpenemsError;
 
 @FunctionalInterface
@@ -15,7 +14,7 @@ public interface OnOpen extends BiFunction<WebSocket, Handshake, OpenemsError> {
 	/**
 	 * Handles OnOpen event of WebSocket.
 	 *
-	 * @param ws            the {@link WebSocket}
+	 * @param ws        the {@link WebSocket}
 	 * @param handshake the {@link Handshake} with HTTP headers
 	 * @return {@link OpenemsError} or null
 	 */

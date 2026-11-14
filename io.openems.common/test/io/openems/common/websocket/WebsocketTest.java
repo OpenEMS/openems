@@ -233,8 +233,7 @@ public class WebsocketTest {
 
 			var request = request("bar");
 			client.send(request.toString());
-			var response = (GenericJsonrpcResponseSuccess) JsonrpcMessage
-					.from(responses.poll(10, TimeUnit.SECONDS));
+			var response = (GenericJsonrpcResponseSuccess) JsonrpcMessage.from(responses.poll(10, TimeUnit.SECONDS));
 			assertEquals(new JsonPrimitive("bar"), response.getResult().get("value"));
 			client.closeBlocking();
 		}

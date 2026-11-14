@@ -165,8 +165,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		// shutdown reconnector
 		this.reconnectorWorker.deactivate();
 		// close websocket
-		this.websocket.closeAndWait(CloseCode.NORMAL, "Closing connection [" + this.getName() + "]",
-				CLOSE_TIMEOUT);
+		this.websocket.closeAndWait(CloseCode.NORMAL, "Closing connection [" + this.getName() + "]", CLOSE_TIMEOUT);
 		this.stopClient();
 	}
 
@@ -196,8 +195,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		}
 
 		final var responseHandshake = new AtomicReference<Handshake>(Handshake.EMPTY);
-		var request = CoreClientUpgradeRequest.from(client, this.serverUri,
-				this.createFrameHandler(responseHandshake));
+		var request = CoreClientUpgradeRequest.from(client, this.serverUri, this.createFrameHandler(responseHandshake));
 		request.headers(headers -> this.httpHeaders.forEach(headers::put));
 		request.addExtensions("permessage-deflate");
 		request.addListener(new UpgradeListener() {
@@ -353,8 +351,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 			client.stop();
 			client.getHttpClient().stop();
 		} catch (Exception e) {
-			this.logWarn(this.log, "Unable to stop websocket client. " + e.getClass().getSimpleName() + ": "
-					+ e.getMessage());
+			this.logWarn(this.log,
+					"Unable to stop websocket client. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
 

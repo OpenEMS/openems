@@ -3,7 +3,6 @@ package io.openems.common.websocket;
 import java.util.Optional;
 import java.util.UUID;
 
-
 public class WebsocketUtils {
 
 	/**
@@ -15,7 +14,7 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshake the {@link Handshake}
-	 * @param fieldName     the name of the field
+	 * @param fieldName the name of the field
 	 * @return the field value; or null
 	 */
 	public static String getAsString(Handshake handshake, String fieldName) {
@@ -31,7 +30,7 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshake the {@link Handshake}
-	 * @param fieldName     the name of the field
+	 * @param fieldName the name of the field
 	 * @return the field value as optional; empty if not found
 	 */
 	public static Optional<String> getAsOptionalString(Handshake handshake, String fieldName) {
@@ -47,7 +46,7 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshake the {@link Handshake}
-	 * @param header        the header to search for
+	 * @param header    the header to search for
 	 * @return the field value as optional; empty if not found
 	 */
 	public static Optional<String> getAsOptionalString(Handshake handshake, CommonHttpHeader header) {
@@ -63,7 +62,7 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshake the {@link Handshake}
-	 * @param header        the header to search for
+	 * @param header    the header to search for
 	 * @return the field value as optional; empty if not found or not a valid UUID
 	 */
 	public static Optional<UUID> getAsOptionalUuid(Handshake handshake, CommonHttpHeader header) {
@@ -87,7 +86,7 @@ public class WebsocketUtils {
 	 * Tries to use the headers "Forwarded", "X-Forwarded-For" or "X-Real-IP". Falls
 	 * back to `ws.getRemoteSocketAddress()`. See https://serverfault.com/a/920060
 	 * 
-	 * @param ws            the {@link WebSocket}
+	 * @param ws        the {@link WebSocket}
 	 * @param handshake the {@link Handshake}
 	 * @return an identifier String
 	 */

@@ -4,7 +4,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.concurrent.CompletableFuture;
 
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;

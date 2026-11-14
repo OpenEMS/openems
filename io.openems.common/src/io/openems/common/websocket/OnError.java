@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiConsumer;
 

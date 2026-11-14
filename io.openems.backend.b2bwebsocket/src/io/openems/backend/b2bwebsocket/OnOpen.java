@@ -37,18 +37,18 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
-		var error = this.doApply(ws, handshakedata);
+	public OpenemsError apply(WebSocket ws, Handshake handshake) {
+		var error = this.doApply(ws, handshake);
 		if (error != null) {
 			ws.close();
 		}
 		return error;
 	}
 
-	private OpenemsError doApply(WebSocket ws, Handshake handshakedata) {
+	private OpenemsError doApply(WebSocket ws, Handshake handshake) {
 		// Read "Authorization" header for Simple HTTP authentication. Source:
 		// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-		final var authorization = getAsString(handshakedata, "authorization");
+		final var authorization = getAsString(handshake, "authorization");
 		if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
 		}

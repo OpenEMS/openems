@@ -4,7 +4,6 @@ import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 
 import java.util.function.BiConsumer;
 
-
 /**
  * Handler for WebSocket OnError event.
  */

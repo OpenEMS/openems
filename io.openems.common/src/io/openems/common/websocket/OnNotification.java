@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;

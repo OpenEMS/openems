@@ -494,17 +494,54 @@
 		</dependency>
 		<dependency>
 			<!--
-			Jetty WebSocket (core API)
-			Version must match the Jetty version embedded in org.apache.felix.http.jetty12
+			Jetty Core WebSocket Server Artifact
+			Changelog: https://github.com/jetty/jetty.project/releases
+			Keep in sync with "org.eclipse.jetty.websocket.core.server" in cnf/build.bnd
 			-->
 			<groupId>org.eclipse.jetty.websocket</groupId>
 			<artifactId>jetty-websocket-core-server</artifactId>
-			<version>12.1.13</version>
+			<version>12.1.14</version>
 		</dependency>
 		<dependency>
+			<!--
+			Jetty Core WebSocket Client Artifact
+			Changelog: https://github.com/jetty/jetty.project/releases
+			Keep in sync with "org.eclipse.jetty.websocket.core.client" in cnf/build.bnd
+			-->
 			<groupId>org.eclipse.jetty.websocket</groupId>
 			<artifactId>jetty-websocket-core-client</artifactId>
-			<version>12.1.13</version>
+			<version>12.1.14</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jetty Core WebSocket Common Artifact
+			Changelog: https://github.com/jetty/jetty.project/releases
+			Keep in sync with "org.eclipse.jetty.websocket.core.common" in cnf/build.bnd
+			-->
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>jetty-websocket-core-common</artifactId>
+			<version>12.1.14</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jetty Client API and HTTP/1.1 Implementation Artifact
+			Changelog: https://github.com/jetty/jetty.project/releases
+			Keep in sync with "org.eclipse.jetty.client" in cnf/build.bnd
+			-->
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-client</artifactId>
+			<version>12.1.14</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jetty ALPN Client API Artifact
+			Changelog: https://github.com/jetty/jetty.project/releases
+			Version must match the Jetty version embedded in org.apache.felix.http.jetty12
+			Keep in sync with macro "jettywebsocket" in cnf/build.bnd
+			-->
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-alpn-client</artifactId>
+			<version>12.1.14</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->

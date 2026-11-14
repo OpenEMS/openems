@@ -5,10 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	${jettywebsocket},\
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.opczip,\
 	org.apache.felix.http.jetty12,\
-	${jettywebsocket},\
 	org.apache.felix.http.servlet-api,\
 	org.ops4j.pax.logging.pax-logging-api,\
 

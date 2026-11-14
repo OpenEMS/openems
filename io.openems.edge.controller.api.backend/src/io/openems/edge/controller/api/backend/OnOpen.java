@@ -19,7 +19,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	}
 
 	@Override
-	public OpenemsError apply(WebSocket ws, Handshake handshakedata) {
+	public OpenemsError apply(WebSocket ws, Handshake handshake) {
 		this.parent.logInfo(this.log, "Connected to OpenEMS Backend");
 
 		// Immediately send Config
