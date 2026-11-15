@@ -75,7 +75,7 @@ public interface AppManagerUtil {
 	 */
 	public default OpenemsAppInstance getFirstInstantiatedAppByCategories(OpenemsAppCategory... categories) {
 		final var instances = this.getInstantiatedAppsByCategories(categories);
-		return instances.isEmpty() ? null : instances.get(0);
+		return instances.isEmpty() ? null : instances.getFirst();
 	}
 
 	/**

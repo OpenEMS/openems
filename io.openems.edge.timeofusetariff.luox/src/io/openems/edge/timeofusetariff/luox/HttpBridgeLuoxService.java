@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpExecutor;
 import io.openems.common.bridge.http.api.EndpointFetcher;
+import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpError;
@@ -77,7 +78,7 @@ public class HttpBridgeLuoxService implements HttpBridgeService {
 				BridgeHttp.create(UrlBuilder.parse(this.getUrl()) //
 						.withPath("/customers/contract_details") //
 						.toEncodedString()) //
-						.setHeader("Authorization", "Bearer " + accessToken) //
+						.setHeader("Authorization", HttpAuthorization.bearer(accessToken)) //
 						.build(),
 				httpResponse -> {
 					final var response = LuoxApi.ContractDetailsResponse.serializer().deserialize(httpResponse.data());
@@ -151,7 +152,7 @@ public class HttpBridgeLuoxService implements HttpBridgeService {
 				.create(UrlBuilder.parse(this.getUrl()) //
 						.withPath("/contracts/" + contractId + "/prices") //
 						.toEncodedString()) //
-				.setHeader("Authorization", "Bearer " + accessToken) //
+				.setHeader("Authorization", HttpAuthorization.bearer(accessToken)) //
 				.build();
 
 	}

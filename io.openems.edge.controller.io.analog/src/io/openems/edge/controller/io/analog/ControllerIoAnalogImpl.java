@@ -1,6 +1,5 @@
 package io.openems.edge.controller.io.analog;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -131,7 +130,7 @@ public class ControllerIoAnalogImpl extends AbstractOpenemsComponent
 				excessPower = gridActivePower * -1 - essDischargePower + usedPower;
 			}
 
-			excessPower = fitWithin(0, this.config.maximumPower(), excessPower);
+			excessPower = Math.clamp(excessPower, 0, this.config.maximumPower());
 			this.setOutput(excessPower);
 			this.nextTarget = Instant.now(this.clock).plus(DEFAULT_DEBOUNCE_SEC, ChronoUnit.SECONDS);
 		} else {

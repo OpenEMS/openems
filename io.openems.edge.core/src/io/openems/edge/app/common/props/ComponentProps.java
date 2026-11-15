@@ -123,7 +123,7 @@ public final class ComponentProps {
 					if (components.isEmpty()) {
 						return JsonNull.INSTANCE;
 					}
-					return new JsonPrimitive(components.get(0).id());
+					return new JsonPrimitive(components.getFirst().id());
 				}));
 	}
 

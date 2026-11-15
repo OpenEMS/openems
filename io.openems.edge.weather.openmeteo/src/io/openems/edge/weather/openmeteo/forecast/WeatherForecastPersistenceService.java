@@ -99,7 +99,7 @@ public class WeatherForecastPersistenceService {
 			throw new IllegalStateException("Daily weather forecast is null or empty");
 		}
 
-		var todayForecast = dailyForecast.get(0);
+		var todayForecast = dailyForecast.getFirst();
 		this.parent._setTodaysSunshineDuration(round(todayForecast.sunshineDuration()));
 		this.parent._setTodaysMinTemperature(round(todayForecast.minTemperature()));
 		this.parent._setTodaysMaxTemperature(round(todayForecast.maxTemperature()));

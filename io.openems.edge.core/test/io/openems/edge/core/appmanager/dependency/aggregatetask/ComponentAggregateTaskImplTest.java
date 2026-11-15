@@ -75,7 +75,7 @@ public class ComponentAggregateTaskImplTest {
 		assertEquals(0, this.componentManager.getAllComponents().size());
 
 		// create component
-		this.componentManager.addComponentFromComponentConfig(config.components().get(0));
+		this.componentManager.addComponentFromComponentConfig(config.components().getFirst());
 		assertEquals(1, this.componentManager.getAllComponents().size());
 
 		// not failing even if component already exist
@@ -172,7 +172,7 @@ public class ComponentAggregateTaskImplTest {
 							.build()) //
 			);
 
-			this.componentManager.addComponentFromComponentConfig(config.components().get(0));
+			this.componentManager.addComponentFromComponentConfig(config.components().getFirst());
 
 			this.task.aggregate(null, config);
 			this.task.delete(DUMMY_ADMIN, emptyList());
@@ -235,7 +235,7 @@ public class ComponentAggregateTaskImplTest {
 
 		assertFalse(this.task.getCreatedComponents().isEmpty());
 		assertEquals(1, this.task.getCreatedComponents().size());
-		assertEquals(dummyComponentId, this.task.getCreatedComponents().get(0).id());
+		assertEquals(dummyComponentId, this.task.getCreatedComponents().getFirst().id());
 	}
 
 	@Test
@@ -247,14 +247,14 @@ public class ComponentAggregateTaskImplTest {
 						.build()) //
 		);
 
-		this.componentManager.addComponentFromComponentConfig(config.components().get(0));
+		this.componentManager.addComponentFromComponentConfig(config.components().getFirst());
 
 		this.task.aggregate(null, config);
 		this.task.delete(DUMMY_ADMIN, emptyList());
 
 		assertFalse(this.task.getDeletedComponents().isEmpty());
 		assertEquals(1, this.task.getDeletedComponents().size());
-		assertEquals(dummyComponentId, this.task.getDeletedComponents().get(0));
+		assertEquals(dummyComponentId, this.task.getDeletedComponents().getFirst());
 	}
 
 }

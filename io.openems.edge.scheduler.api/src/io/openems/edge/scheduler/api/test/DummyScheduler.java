@@ -1,6 +1,6 @@
 package io.openems.edge.scheduler.api.test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,8 +33,8 @@ public class DummyScheduler extends AbstractDummyScheduler<DummyScheduler> imple
 	 * @return myself
 	 */
 	public final DummyScheduler setControllers(String... controllerIds) {
-		var cs = new LinkedHashSet<String>();
-		Arrays.stream(controllerIds).forEach(c -> cs.add(c));
+		var cs = LinkedHashSet.<String>newLinkedHashSet(controllerIds.length);
+		Collections.addAll(cs, controllerIds);
 		this.controllers = cs;
 		return this.self();
 	}

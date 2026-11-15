@@ -38,9 +38,7 @@ public class MyProcessImage implements ProcessImage {
 			this.parent.incrementAccessCounter();
 			var registers = this.getRegisterRange(offset, count);
 			var result = new Register[registers.length];
-			for (var i = 0; i < registers.length; i++) {
-				result[i] = registers[i];
-			}
+			System.arraycopy(registers, 0, result, 0, registers.length);
 			return result;
 
 		} catch (Exception e) {
@@ -87,9 +85,7 @@ public class MyProcessImage implements ProcessImage {
 							"getRegisterRange(" + offset + ", " + count + ") failed: " //
 									+ "Record for Modbus address [" + ref + "] does not fit in Result.");
 				}
-				for (var j = 0; j < registers.length; j++) {
-					result[i + j] = registers[j];
-				}
+				System.arraycopy(registers, 0, result, i, registers.length);
 
 				// increase i by word length
 				i += registers.length;

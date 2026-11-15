@@ -4,6 +4,7 @@ import { ChannelAddress } from "../../shared";
 import { TEnumKeys } from "../../type/utility";
 import { WidgetFactory } from "../../type/widget";
 import { Widgets } from "../../type/widgets";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -498,8 +499,11 @@ export class EdgeConfig {
         property: string,
     ): EdgeConfig.Component | null {
         const component = this.components[otherComponentId];
-        if (component && property in component.properties) {
-            const id = component.properties[property];
+        if (component != null && ObjectUtils.hasKeys(component.properties, [property])) {
+            const id = ObjectUtils.getValueByKeySafely(component.properties, property);
+            if (id == null || !ObjectUtils.hasKeys(this.components, [id])) {
+                return null;
+            }
             return this.components[id];
         } else {
             return null;

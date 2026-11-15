@@ -6,7 +6,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 
 public class SafetyParameterTranslatableEnum {
 
-	public class Vrt {
+	public static class Vrt {
 
 		public enum CurrentDistributionMode implements TranslatableEnum {
 			REACTIVE_POWER_PRIO("App.IntegratedSystem.safetyParameter.currentDistributionMode.ReactivePowerPrio"), //
@@ -64,7 +64,7 @@ public class SafetyParameterTranslatableEnum {
 		}
 	}
 
-	public class Rpm {
+	public static class Rpm {
 
 		public enum Mode implements TranslatableEnum {
 			BASIC("App.IntegratedSystem.safetyParameter.rpm.mode.basic"),

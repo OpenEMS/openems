@@ -20,7 +20,7 @@ Main stacks: Java 25, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 - Use the existing Utils classes where possible (e.g. `io.openems.common.utils.*` like `JsonUtils`, `TextProvider`, `ReflectionUtils`, or `io.openems.edge.common.channel.ChannelUtils`) instead of hand-rolled helpers; this applies to production code and tests.
 - Run the narrowest relevant validation for the changed area.
 - Do not bump dependencies, wrappers, plugins, or introduce new frameworks unless explicitly requested.
-- `cnf/pom.xml` must explicitly declare every Maven dependency of the OSGi runtime, including transitive ones, so it acts as a complete and reliable SBOM. When adding a dependency, also add its compile- and runtime-scope transitive dependencies at the same version (skip `optional`, `provided`, and `test` scopes) and verify with the app resolve tasks (e.g. `.\gradlew.bat :io.openems.backend.application:resolve.BackendApp`).
+- `cnf/pom.xml` must explicitly declare every Maven dependency that is actually used in compile or runtime, including transitive ones, so it acts as a complete and reliable SBOM of the packages in use. When adding a dependency, also add its compile- and runtime-scope transitive dependencies at the same version (skip `optional`, `provided`, and `test` scopes) and verify with the app resolve tasks (e.g. `.\gradlew.bat :io.openems.backend.application:resolve.BackendApp`).
 - Never create a Git commit without asking the user first. Leave changes uncommitted for review; commit only after the user explicitly confirms (or asks you to commit).
 
 ## Java / Edge / Backend

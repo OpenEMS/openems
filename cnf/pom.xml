@@ -22,13 +22,13 @@
 	<dependencies>
 		<!--
 		This file defines the "Maven Central" Bnd repository (see cnf/build.bnd).
-		Policy: declare every dependency of the OSGi runtime explicitly, including
-		transitive ones. The BndPomRepository would provide transitive dependencies
-		implicitly, but only an explicit and complete list makes this file a
-		reliable SBOM and protects against unnoticed changes of upstream
-		dependency graphs. When adding a dependency, also add its compile- and
-		runtime-scope transitive dependencies at the same version; skip optional,
-		provided and test scopes.
+		Policy: declare every dependency that is actually used in compile or
+		runtime explicitly, including transitive ones. The BndPomRepository would
+		provide transitive dependencies implicitly, but only an explicit and
+		complete list makes this file a reliable SBOM of the packages in use and
+		protects against unnoticed changes of upstream dependency graphs. When
+		adding a dependency, also add its compile- and runtime-scope transitive
+		dependencies at the same version; skip optional, provided and test scopes.
 		-->
 		<!-- biz -->
 		<dependency>
@@ -142,18 +142,6 @@
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>4.36.2</version>
-		</dependency>
-		<dependency>
-			<!--
-			Java client library for the Auth0 platform
-			Changelog: https://github.com/auth0/auth0-java/releases
-			Update files:
-			- io.openems.wrapper/bnd.bnd
-			- io.openems.wrapper/auth0-auth0.bnd
-			-->
-			<groupId>com.auth0</groupId>
-			<artifactId>auth0</artifactId>
-			<version>5.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -436,7 +424,7 @@
 			-->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.21.0</version>
+			<version>3.22.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -746,7 +734,7 @@
 			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.23.2</version>
+			<version>1.24.1</version>
 		</dependency>
 		<dependency>
 			<!--

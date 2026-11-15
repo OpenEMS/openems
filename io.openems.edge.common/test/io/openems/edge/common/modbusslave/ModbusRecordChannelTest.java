@@ -16,7 +16,7 @@ import io.openems.edge.common.test.TestUtils;
 
 public class ModbusRecordChannelTest {
 
-	private class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+	private static class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
 
 		public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			WRITE_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER)//
