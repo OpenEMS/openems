@@ -64,7 +64,7 @@ public record AppConfiguration(List<Task<?>> tasks, List<DependencyDeclaration> 
 		 * @return this
 		 */
 		public AppConfigurationBuilder addDependencies(DependencyDeclaration... dependencyDeclaration) {
-			Stream.of(dependencyDeclaration).forEach(this.dependencies::add);
+			Collections.addAll(this.dependencies, dependencyDeclaration);
 			return this;
 		}
 

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -89,7 +88,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
         };
     }
 
-    protected getChartData(): HistoryUtils.ChartData {
+    protected override getChartData(): HistoryUtils.ChartData | null {
         const edge = this.edge ?? this.service.currentEdge();
         AssertionUtils.assertIsDefined(edge);
 
@@ -98,11 +97,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
 
         const component = this.component ?? config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
-        const gridMeterComponent = this.config.getComponentFromOtherComponentsProperty(component.id, "meter.id");
+        const gridMeterComponent = config.getComponentFromOtherComponentsProperty(component.id, "meter.id");
         if (gridMeterComponent == null) {
-            return;
+            return null;
         }
-        const gridMeterId = gridMeterComponent.id;
-        return SellToGridLimitChartComponent.getChartData(gridMeterId, component.id, this.translate, edge);
+
+        return SellToGridLimitChartComponent.getChartData(gridMeterComponent.id, component.id, this.translate, edge);
     }
 }

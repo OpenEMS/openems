@@ -349,7 +349,7 @@ export class AlertingComponent implements OnDestroy {
         const formGroup = new FormGroup({});
         this.otherUserInformation = [];
 
-        const sorted = ArrayUtils.sortedAlphabetically(response, (e) => e.userLogin);
+        const sorted = ArrayUtils.sortAlphabetically(response, (e) => e.userLogin);
         sorted.forEach((r) => {
             const setting: AlertingSettingResponse = {
                 userLogin: r.userLogin,

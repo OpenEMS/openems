@@ -2,7 +2,6 @@ package io.openems.edge.meter.eastron.sdm120;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")

@@ -15,6 +15,7 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -185,9 +186,7 @@ public abstract class AbstractModbusReadWriteApi extends AbstractModbusApi imple
 	protected void applyConfig(String[] writeChannels) {
 		synchronized (this.writeChannels) {
 			this.writeChannels.clear();
-			for (var c : writeChannels) {
-				this.writeChannels.add(c);
-			}
+			Collections.addAll(this.writeChannels, writeChannels);
 		}
 	}
 

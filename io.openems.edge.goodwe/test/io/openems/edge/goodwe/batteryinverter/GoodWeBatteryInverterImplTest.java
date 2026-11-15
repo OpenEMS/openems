@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.goodwe.GoodWeConstants.DEFAULT_UNIT_ID;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.calculateWbmsChargeMaxCurrent;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.calculateWbmsDischargeMaxCurrent;
@@ -13,9 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Nested;
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.osgi.service.event.Event;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -42,7 +46,9 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.DummySum;
@@ -68,6 +74,7 @@ import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.GoodWePowerSetting;
+import io.openems.edge.goodwe.common.GridModeTestHelper;
 import io.openems.edge.goodwe.common.enums.BatteryPort;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
@@ -929,6 +936,119 @@ class GoodWeBatteryInverterImplTest {
 		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
 	}
 
+	@ParameterizedTest
+	@CsvSource({ //
+			"FENECON_100K, false, 0, OFF_GRID", //
+			"FENECON_GEN2_10K, false, 2, OFF_GRID", //
+			"FENECON_100K, true, 1, OFF_GRID_GENSET", //
+	})
+	void testGridModeRegisterArrivalAfterCapturePublishesInSameCycle(GoodWeType type, boolean genset, int raw,
+			GridMode expected) throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var afterCapture = new AtomicReference<Runnable>();
+		var test = new ComponentTest(sut) {
+			@Override
+			protected void handleEvent(String topic) throws Exception {
+				super.handleEvent(topic);
+				if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
+					var callback = afterCapture.getAndSet(null);
+					if (callback != null) {
+						callback.run();
+					}
+				}
+			}
+		};
+		var bridge = new DummyModbusBridge("modbus0") {
+			@Override
+			public void handleEvent(Event event) {
+			}
+		};
+		activateGridModeInverter(test, bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, type);
+		GridModeTestHelper.receiveGridMode(sut, 1);
+		test.next(new TestCase() //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GENSET_OPERATING_MODE, genset);
+		afterCapture.set(() -> GridModeTestHelper.receiveGridMode(sut, raw));
+		test.next(new TestCase() //
+				.outputReadValue(GoodWe.ChannelId.RAW_GRID_MODE, raw) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected)) //
+				.next(new TestCase() //
+						.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, expected)) //
+				.deactivate();
+	}
+
+	@Test
+	void testC50MeterStatusConfirmsOffGrid() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var clock = createDummyClock();
+		GridModeTestHelper.setGridModeClock(sut, clock);
+		var bridge = new DummyModbusBridge("modbus0") //
+				.withRegister(35136, 0) //
+				.withRegister(36004, MeterCommunicateStatus.NG.getValue());
+		var test = activateGridModeInverter(new ComponentTest(sut), bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K);
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> GridModeTestHelper.receiveGridMode(sut, 0)) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		for (var cycle = 0; cycle < 100 && sut.channel(SymmetricBatteryInverter.ChannelId.GRID_MODE).value()
+				.asEnum() != GridMode.OFF_GRID; cycle++) {
+			test.next(new TestCase());
+		}
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID)) //
+				.deactivate();
+	}
+
+	@Test
+	void testC50DeadlineWithPendingMeterReadAndNoNewGridMode() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		var clock = createDummyClock();
+		GridModeTestHelper.setGridModeClock(sut, clock);
+		var bridge = new DummyModbusBridge("modbus0") {
+			@Override
+			public void handleEvent(Event event) {
+			}
+		};
+		var test = activateGridModeInverter(new ComponentTest(sut), bridge);
+		io.openems.edge.common.test.TestUtils.withValue(sut, GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K);
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> GridModeTestHelper.receiveGridMode(sut, 0)) //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		clock.leap(29, ChronoUnit.SECONDS);
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID));
+		clock.leap(1, ChronoUnit.SECONDS);
+		test.next(new TestCase() //
+				.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID) //
+				.outputReadValue(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.OFF_GRID)) //
+				.deactivate();
+	}
+
+	private static ComponentTest activateGridModeInverter(ComponentTest test, DummyModbusBridge bridge)
+			throws Exception {
+		return test //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", bridge) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build());
+	}
+
 	@Test
 	void testReadFromModbus() throws Exception {
 		var sut = new GoodWeBatteryInverterImpl();
@@ -1503,30 +1623,46 @@ class GoodWeBatteryInverterImplTest {
 	@Nested
 	class FeedInLimitationTests {
 
-		@ParameterizedTest(name = "configuredLimit={0}")
+		@ParameterizedTest(name = "type={0}, fuseCurrent={1}, configuredLimit={2}")
 		@CsvSource({ //
-				"0", //
-				"10_000", //
-				"33_000", //
-				"40_000", //
-				"60_000" //
+				"FENECON_FHI_29_9_DAH, 32, 0, 0, false", //
+				"FENECON_FHI_29_9_DAH, 32, 10_000, 10_000, false", //
+				"FENECON_FHI_29_9_DAH, 32, 40_000, 22_170, false", //
+				"FENECON_FHI_29_9_DAH, 80, 100_000, 55_425, false", //
+				"FENECON_FHI_29_9_DAH, 200, 59_999, 59_999, false", //
+				"FENECON_FHI_29_9_DAH, 200, 60_000, 60_000, false", //
+				"FENECON_FHI_29_9_DAH, 200, 60_001, 60_000, true", //
+				"FENECON_FHI_29_9_DAH, 200, 100_000, 60_000, true", //
+				"FENECON_50K, 32, 0, 0, false", //
+				"FENECON_50K, 80, 100_000, 55_425, false", //
+				"FENECON_50K, 200, 99_999, 99_999, false", //
+				"FENECON_50K, 200, 100_000, 100_000, false", //
+				"FENECON_50K, 200, 100_001, 100_000, true", //
+				"FENECON_50K, 200, 130_000, 100_000, true", //
+				"FENECON_100K, 32, 0, 0, false", //
+				"FENECON_100K, 200, 200_000, 138_564, false", //
+				"FENECON_100K, 400, 199_999, 199_999, false", //
+				"FENECON_100K, 400, 200_000, 200_000, false", //
+				"FENECON_100K, 400, 200_001, 200_000, true", //
+				"FENECON_100K, 400, 260_000, 200_000, true" //
 		})
-		void testHome30UsesConfiguredExtendedFeedPowerRegardlessOfFuseLimit(int configuredLimit) throws Exception {
+		void testRespectsFuseLimitAndSupportedMaximum(GoodWeType goodWeType, int fuseCurrent, int configuredLimit,
+				int expectedLimit, boolean exceedsMaximum) throws Exception {
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
-							.setGridSellHardLimit(Math.min(22_170, configuredLimit)) //
-							.setFuseCurrent(32) //
+							.setFuseCurrent(fuseCurrent) //
 							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, configuredLimit));
+			withValue(meta, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, GridFeedInLimitationType.DYNAMIC_LIMITATION);
 			final var ess = new GoodWeBatteryInverterImpl();
 
 			activateForFeedInLimitationTest(ess, meta, null) //
 					.next(new TestCase() //
-							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
 							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 29_900) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
-							// No limit can be higher than the grid-fuse-limit
-							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, Math.min(22_170, configuredLimit)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, expectedLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, exceedsMaximum) //
 							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
 		}
@@ -1534,10 +1670,6 @@ class GoodWeBatteryInverterImplTest {
 		@ParameterizedTest
 		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
 		void testCommercialInvertersUseExtendedFeedPowerForHighLimit(GoodWeType goodWeType) throws Exception {
-			// FENECON_50K/FENECON_100K go through the restored legacy limit
-			// calculation (like every non-Home30 type), but always write the value
-			// into the 32-bit EXTENDED_FEED_POWER_PARA_SET register - FEED_POWER_PARA_SET
-			// (16-bit) is intentionally never written for these types.
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
 							.setGridSellHardLimit(70_000) //
@@ -1558,14 +1690,17 @@ class GoodWeBatteryInverterImplTest {
 		}
 
 		@ParameterizedTest
-		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
-		void testCommercialInvertersDisableFeedInLimitWhenBelowMaxApparentPower(GoodWeType goodWeType)
-				throws Exception {
+		@CsvSource({ //
+				"FENECON_50K, 62_353", "FENECON_100K, 62_353", //
+				"FENECON_50K, 130_000", "FENECON_100K, 260_000" //
+		})
+		void testCommercialInvertersWithoutDynamicLimitation(GoodWeType goodWeType, int hardLimit) throws Exception {
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
-							.setGridSellHardLimit(62_353) //
-							.setFuseCurrent(90) //
+							.setGridSellHardLimit(hardLimit) //
+							.setFuseCurrent(400) //
 							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			withValue(meta, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, GridFeedInLimitationType.NO_LIMITATION);
 			final var ess = new GoodWeBatteryInverterImpl();
 
 			activateForFeedInLimitationTest(ess, meta, null) //
@@ -1573,23 +1708,27 @@ class GoodWeBatteryInverterImplTest {
 							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
 							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 50_000) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
-							// gridSellHardLimit (fuse: 90 A = 62_353 W) >= maxApparentPower(50_000)
-							// -> no limitation needed, value falls back to maxApparentPower
-							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, false) //
-							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
-							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 50_000) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, hardLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false) //
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
 		}
 
 		@ParameterizedTest
-		@CsvSource({ "NO_LIMITATION,40000", "DYNAMIC_LIMITATION,-1", "DYNAMIC_LIMITATION,-1000" })
+		@CsvSource({ //
+				"NO_LIMITATION, 40_000, 32, 22_170", //
+				"DYNAMIC_LIMITATION, -1, 32, 22_170", //
+				"DYNAMIC_LIMITATION, -1000, 32, 22_170", //
+				"NO_LIMITATION, 100_000, 200, 138_564" //
+		})
 		void testHome30FallsBackToHardLimitForInvalidOrInactiveConfiguredLimit(GridFeedInLimitationType limitationType,
-				int configuredLimit) throws Exception {
+				int configuredLimit, int fuseCurrent, int expectedLimit) throws Exception {
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
-							.setGridSellHardLimit(22_170) //
-							.setFuseCurrent(32) //
+							.setFuseCurrent(fuseCurrent) //
 							.setGridSellLimit(limitationType, configuredLimit));
+			withValue(meta, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, limitationType);
 			final var ess = new GoodWeBatteryInverterImpl();
 
 			activateForFeedInLimitationTest(ess, meta, null) //
@@ -1598,7 +1737,8 @@ class GoodWeBatteryInverterImplTest {
 							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 25_000) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
-							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 22_170) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, expectedLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false) //
 							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
 		}
@@ -1729,6 +1869,7 @@ class GoodWeBatteryInverterImplTest {
 							// RCR: 30_000 x 30% = 9_000 W
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, expectedLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false) //
 							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
 		}
@@ -1756,8 +1897,10 @@ class GoodWeBatteryInverterImplTest {
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
 		}
 
-		@Test
-		void testRippleControlReceiverSkipsWriteUntilMaxApparentPowerIsAvailable() throws Exception {
+		@ParameterizedTest
+		@EnumSource(value = GoodWeType.class, names = { "FENECON_FHI_29_9_DAH", "FENECON_50K", "FENECON_100K" })
+		void testRippleControlReceiverSkipsWriteUntilMaxApparentPowerIsAvailable(GoodWeType goodWeType)
+				throws Exception {
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
 							.setFuseCurrent(60) //
@@ -1768,12 +1911,13 @@ class GoodWeBatteryInverterImplTest {
 
 			activateForFeedInLimitationTest(ess, meta, rcr) //
 					.next(new TestCase() //
-							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, null) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, null) //
 							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, null) //
-							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null)) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false)) //
 					.next(new TestCase() //
 							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
@@ -1784,8 +1928,13 @@ class GoodWeBatteryInverterImplTest {
 		}
 
 		@ParameterizedTest
-		@CsvSource({ "40000", "0" })
-		void testHome30WithoutActiveRcrDoesNotRequireMaxApparentPower(int configuredLimit) throws Exception {
+		@CsvSource({ //
+				"FENECON_FHI_29_9_DAH, 40_000", "FENECON_FHI_29_9_DAH, 0", //
+				"FENECON_50K, 40_000", "FENECON_50K, 0", //
+				"FENECON_100K, 40_000", "FENECON_100K, 0" //
+		})
+		void testWithoutActiveRcrDoesNotRequireMaxApparentPower(GoodWeType goodWeType, int configuredLimit)
+				throws Exception {
 			final var meta = new DummyMeta() //
 					.withGridLimit(l -> l //
 							.setGridSellHardLimit(Math.min(22_170, configuredLimit)) //
@@ -1797,12 +1946,62 @@ class GoodWeBatteryInverterImplTest {
 
 			activateForFeedInLimitationTest(ess, meta, rcr) //
 					.next(new TestCase() //
-							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
 							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, Math.min(22_170, configuredLimit)) //
 							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
 							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ //
+				"FENECON_FHI_29_9_DAH, 100_000, 120_000, 60_000, 200", //
+				"FENECON_50K, 130_000, 200_000, 100_000, 200", //
+				"FENECON_100K, 260_000, 400_000, 200_000, 400" //
+		})
+		void testCapsDynamicRcrLimitAndResetsWarningWhenLimitDecreases(GoodWeType goodWeType, int configuredLimit,
+				int maxApparentPower, int supportedMaximum, int fuseCurrent) throws Exception {
+			var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setFuseCurrent(fuseCurrent) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, configuredLimit));
+			withValue(meta, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, GridFeedInLimitationType.DYNAMIC_LIMITATION);
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
+							// Use a synthetic rating to distinguish the RCR limit from the supported
+							// maximum.
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, maxApparentPower) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, supportedMaximum) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, true)) //
+					.next(new TestCase() //
+							.onExecuteWriteCallbacks(() -> {
+								rcr.withRestrictionLevel(EssRestrictionLevel.SIXTY_PERCENT);
+								ess.run(new DummyBattery("battery0"), 0, 0);
+							}) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, supportedMaximum) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, true)) //
+					.next(new TestCase() //
+							.onExecuteWriteCallbacks(() -> {
+								meta.withGridLimit(l -> l.setGridSellHardLimit(40_000));
+								ess.run(new DummyBattery("battery0"), 0, 0);
+							}) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 40_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, false)) //
+					.next(new TestCase() //
+							.onExecuteWriteCallbacks(() -> {
+								rcr.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+								meta.withGridLimit(l -> l.setGridSellHardLimit(configuredLimit));
+								ess.run(new DummyBattery("battery0"), 0, 0);
+							}) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, supportedMaximum) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, true));
 		}
 
 		/**

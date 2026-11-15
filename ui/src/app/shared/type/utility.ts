@@ -71,3 +71,18 @@ type FixedLengthArray<T, Length extends number, Acc extends T[] = []> = Acc["len
     : FixedLengthArray<T, Length, [...Acc, T]>;
 
 export type MultiLengthArray<T, L extends number> = L extends any ? FixedLengthArray<T, L> : never;
+
+/** Resolves every property whose value is also used by another property to `never`. */
+export type TUniqueValues<T extends Record<string, string>> = {
+    [K in keyof T]: T[K] extends T[Exclude<keyof T, K>] ? never : T[K];
+};
+
+/**
+ * Returns the given values unchanged, but fails to compile if two keys share the same value.
+ *
+ * @param values The values to register.
+ * @returns The given values.
+ */
+export function defineUniqueValues<const T extends Record<string, string>>(values: T & TUniqueValues<T>): T {
+    return values;
+}

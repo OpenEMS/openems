@@ -29,6 +29,24 @@ export enum UserSettings {
     USE_NEW_UI = "useNewUI",
     ANNUAL_REVIEW = "annualReview",
     IS_DEVELOPER = "isDeveloper",
+    TUTORIAL_STATE = "tutorialState",
+}
+
+/** Stored result of the guided navigation tour. */
+export interface TutorialState {
+    state: "completed" | "skipped";
+    /** UI version the tour was finished or dismissed with; steps of a newer version start the tour automatically again. */
+    uiVersion: string;
+}
+
+export interface UserSettingsMap {
+    jsonrpcTest: string | number | boolean | string[];
+    theme: string | number | boolean | string[];
+    capacitorTest: string | number | boolean | string[];
+    useNewUI: boolean;
+    annualReview: string[];
+    isDeveloper: boolean;
+    tutorialState: TutorialState;
 }
 
 export class User {
@@ -38,9 +56,7 @@ export class User {
         public globalRole: "admin" | "installer" | "owner" | "guest",
         public language: string | null,
         public hasMultipleEdges: boolean,
-        public settings: Partial<{
-            [k in UserSettings]: number | boolean | string | string[];
-        }>,
+        public settings: Partial<UserSettingsMap>,
     ) {}
 
     // TODO this should eventually replace `language: string | null`

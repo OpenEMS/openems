@@ -3,7 +3,7 @@
     <ion-tab-bar slot="bottom" translucent="true">
       @for (tab of tabs(); let i = $index; track i) {
         @let activeIconColor = (currentUrl() | arrIncludes: tab.routerLink.baseString) ? "primary" : "medium";
-        <ion-tab-button [id]="id" color="primary" style="white-space: initial" (click)="navigationService.navigateAbsolute(tab)" [selected]="currentUrl() | arrIncludes: tab.routerLink.baseString">
+        <ion-tab-button [id]="id" color="primary" style="white-space: initial" (click)="navigationService.navigateAbsolute(tab)" [selected]="currentUrl() | arrIncludes: tab.routerLink.baseString" [attr.data-tutorial-id]="tab.tourId">
           <ion-icon name="{{ tab.icon.name }}" color="{{ activeIconColor }}"></ion-icon>
           <ion-label style="white-space: initial" color="{{ activeIconColor }}">
             <oe-navigation-label-line [nodeLabel]="tab.label"></oe-navigation-label-line>

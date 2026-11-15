@@ -2,7 +2,7 @@ package io.openems.common.jsonrpc.serialization;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
-import io.openems.common.utils.JsonUtils;
+import com.google.gson.JsonObject;
 
 public final class EmptyObject {
 
@@ -14,12 +14,9 @@ public final class EmptyObject {
 	 * @return the created {@link JsonSerializer}
 	 */
 	public static JsonSerializer<EmptyObject> serializer() {
-		return jsonObjectSerializer(EmptyObject.class, json -> {
-			return EmptyObject.INSTANCE;
-		}, obj -> {
-			return JsonUtils.buildJsonObject() //
-					.build();
-		});
+		return jsonObjectSerializer(EmptyObject.class, //
+				_ -> EmptyObject.INSTANCE, //
+				_ -> new JsonObject());
 	}
 
 	private EmptyObject() {

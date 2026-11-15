@@ -71,7 +71,7 @@ public class B2bWebsocketTest {
 		request.addChannel(new ChannelAddress("_sum", "EssSoc"));
 		request.addChannel(new ChannelAddress("_sum", "ProductionActivePower"));
 		try (final var client = TestClient.prepareAndStart(URI, USERNAME, PASSWORD)) {
-			client.setOnNotification((ws, notification) -> {
+			client.setOnNotification((_, notification) -> {
 				log.info(notification.toString());
 			});
 			var response = client.sendRequest(request).get();

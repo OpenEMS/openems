@@ -150,10 +150,10 @@ public class ApplyPowerHandler {
 			return this.handleInternalMode();
 		}
 
-		int limitedActivePower = clamp(setActivePower, -wChaMax, wChaMax);
+		int limitedActivePower = Math.clamp(setActivePower, -wChaMax, wChaMax);
 
 		int rate = (int) Math.round((double) limitedActivePower / (double) wChaMax * RATE_100_PERCENT);
-		rate = clamp(rate, -RATE_100_PERCENT, RATE_100_PERCENT);
+		rate = Math.clamp(rate, -RATE_100_PERCENT, RATE_100_PERCENT);
 
 		int outWRte = rate;
 		int inWRte = rate * (-1);
@@ -216,10 +216,6 @@ public class ApplyPowerHandler {
 		this.lastWriteMillis = System.currentTimeMillis();
 	}
 
-	private static int clamp(int value, int min, int max) {
-		return Math.max(min, Math.min(max, value));
-	}
-
 	private static record Result(SetControlMode controlMode, int outWRte, int inWRte) {
 	}
 
@@ -250,9 +246,9 @@ public class ApplyPowerHandler {
 				return null;
 			}
 
-			int pct = (int) Math.round((double) clamp(limitW, 0, Math.round(wMax)) / wMax * W_MAX_LIM_100_PERCENT);
+			int pct = (int) Math.round((double) Math.clamp(limitW, 0, Math.round(wMax)) / wMax * W_MAX_LIM_100_PERCENT);
 
-			return clamp(pct, 0, W_MAX_LIM_100_PERCENT);
+			return Math.clamp(pct, 0, W_MAX_LIM_100_PERCENT);
 
 		} catch (OpenemsException e) {
 			return null;
@@ -261,7 +257,7 @@ public class ApplyPowerHandler {
 
 	private void writeWMaxLim(int wMaxLimPct, int ena) {
 
-		wMaxLimPct = clamp(wMaxLimPct, 0, W_MAX_LIM_100_PERCENT);
+		wMaxLimPct = Math.clamp(wMaxLimPct, 0, W_MAX_LIM_100_PERCENT);
 		ena = ena == 0 ? 0 : 1;
 
 		long now = System.currentTimeMillis();

@@ -52,6 +52,7 @@ export namespace SharedFavorite {
         // Convert to absolute links and set parent to favorites route
         const absoluteFavoriteNodes = Array.from(favoriteNodes).map((node) => {
             node.parent = absoluteNavigationTrees.find((tree) => tree.id === NavigationId.FAVORITES) ?? null;
+            node.tourId = NavigationId.FAVORITES + "-" + node.id;
             node = node.setParentRecursively();
             node.routerLink = {
                 ...node.routerLink,

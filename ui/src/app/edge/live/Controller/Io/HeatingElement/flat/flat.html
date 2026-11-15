@@ -1,6 +1,6 @@
 @if (isInitialized) {
   <oe-flat-widget [modalComponent]="modalComponent" [title]="component.alias" [icon]="{ color: 'normal', name: 'oe-heating-element' }">
-    <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [value]="mode | translate"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [value]="mode"></oe-flat-widget-line>
     <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="runState | translate" [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE"></oe-flat-widget-line>
     <ng-container>
       <!-- Shown when level isn't 0  -->

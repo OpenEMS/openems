@@ -61,7 +61,7 @@ export class ControllerGroupListComponent {
             return;
         }
 
-        const componentIds = ArrayUtils.sortedAlphabetically(
+        const componentIds = ArrayUtils.sortAlphabetically(
             (config?.getComponentIdsByFactory(factoryId) ?? [])
                 .map((id) => config?.getComponentSafely(id))
                 .filter((c): c is EdgeConfig.Component => !!c && c.isEnabled),

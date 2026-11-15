@@ -1,6 +1,13 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 
+export type SelectWithImageOption = {
+    label: string;
+    value: unknown;
+    imageUrl?: string;
+    docUrl?: string;
+};
+
 @Component({
     selector: "select-with-image-modal",
     templateUrl: "./select-with-image-modal.component.html",
@@ -41,7 +48,7 @@ import { ModalController } from "@ionic/angular";
     standalone: false,
 })
 export class FormlySelectOptionsWithImageModalComponent implements OnInit {
-    @Input() public options: any[] = [];
+    @Input() public options: SelectWithImageOption[] = [];
     @Input() public value: any;
     @Input() public title!: string;
 

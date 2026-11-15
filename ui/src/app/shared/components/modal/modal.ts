@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -77,7 +76,7 @@ export class ModalComponent {
             });
         }
 
-        if (this.edge) {
+        if (this.edge != null && this.component != null) {
             this.edge
                 .updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {

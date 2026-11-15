@@ -276,7 +276,7 @@ public final class ModbusSlaveNatureTable {
 		public ModbusSlaveNatureTable build() {
 			Collections.sort(this.maps, Comparator.comparing(ModbusRecord::getOffset));
 			return new ModbusSlaveNatureTable(this.nature, this.length,
-					this.maps.toArray(new ModbusRecord[this.maps.size()]));
+					this.maps.toArray(ModbusRecord[]::new));
 		}
 	}
 

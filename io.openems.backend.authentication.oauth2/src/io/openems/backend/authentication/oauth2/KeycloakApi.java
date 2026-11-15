@@ -187,7 +187,7 @@ public final class KeycloakApi {
 		return bridgeHttp
 				.request(BridgeHttp.Endpoint
 						.create(issuerUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm") //
-						.setHeader("Authorization", "Bearer " + token) //
+						.setHeader("Authorization", HttpAuthorization.bearer(token)) //
 						.setBodyJson(RealmRole.serializer().toListSerializer().serialize(roles)) //
 						.build()) //
 				.thenAccept(FunctionUtils::doNothing);
@@ -210,7 +210,7 @@ public final class KeycloakApi {
 		return bridgeHttp
 				.request(BridgeHttp.Endpoint
 						.create(issuerUrl + "/admin/realms/" + realm + "/users/" + userId + "/reset-password") //
-						.setHeader("Authorization", "Bearer " + token) //
+						.setHeader("Authorization", HttpAuthorization.bearer(token)) //
 						.setBodyJson(JsonUtils.buildJsonObject() //
 								.addProperty("type", "password") //
 								.addProperty("value", password) //

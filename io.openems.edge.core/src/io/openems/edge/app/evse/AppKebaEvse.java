@@ -71,11 +71,10 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")),
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef())//
 				.setTranslatedLabelWithAppPrefix(".hardwareType.label")
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(KebaHardwareType.values())//
-							.map(Enum::name)//
-							.toList());
-				})//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> field//
+						.setOptions(Arrays.stream(KebaHardwareType.values())//
+								.map(Enum::name)//
+								.toList()))//
 				.setRequired(true)//
 				.setDefaultValue(KebaHardwareType.P40)),
 
@@ -86,18 +85,15 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 		PHASE_ROTATION(AppDef.copyOfGeneric(phaseRotation()//
 				.setTranslatedDescription("App.Evse.phaseRotation.description"))), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
-		PHASE_SWITCHING(AppDef.copyOfGeneric(EvseProps.p30hasPhaseSwitch())//
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
-							.equal(Exp.staticValue(KebaHardwareType.P30.name())));
-				})), //
+		PHASE_SWITCHING(AppDef.copyOfGeneric(EvseProps.p30hasPhaseSwitch()).wrapField((_, _, _, _, field) -> field//
+				.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
+						.equal(Exp.staticValue(KebaHardwareType.P30.name()))))), //
 		READ_ONLY(EvseProps.readOnly()),
 
 		// only for modbus
-		MODBUS_UNIT_ID(EvseProps.unitId().wrapField((app, property, l, parameter, field) -> {
-			field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
-					.equal(Exp.staticValue(KebaHardwareType.P40.name())));
-		})), //
+		MODBUS_UNIT_ID(EvseProps.unitId().wrapField((_, _, _, _, field) -> field//
+				.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
+						.equal(Exp.staticValue(KebaHardwareType.P40.name()))))), //
 		;
 
 		private final AppDef<? super AppKebaEvse, ? super Property, ? super BundleParameter> def;

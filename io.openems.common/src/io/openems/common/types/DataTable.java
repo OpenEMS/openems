@@ -64,15 +64,18 @@ public class DataTable extends ForwardingTable<Long, String, JsonElement> {
 	 * Returns the latest value for the given column key, if it exists. The latest
 	 * value is determined by the highest timestamp in the table.
 	 *
-	 * @param columnKey the column key (channel address) to retrieve the latest value for
-	 * @return an Optional containing the latest value as a JsonPrimitive, or an empty Optional if no value exists.
+	 * @param columnKey the column key (channel address) to retrieve the latest
+	 *                  value for
+	 * @return an Optional containing the latest value as a JsonPrimitive, or an
+	 *         empty Optional if no value exists.
 	 */
 	public Optional<JsonPrimitive> getLatestColumnValue(String columnKey) {
-		return this.rows.descendingMap().values().stream() //
-				.map(row -> row.get(columnKey)) //
-				.filter(JsonPrimitive.class::isInstance) //
-				.map(JsonPrimitive.class::cast) //
-				.findFirst();
+		for (var row : this.rows.descendingMap().values()) {
+			if (row.get(columnKey) instanceof JsonPrimitive value) {
+				return Optional.of(value);
+			}
+		}
+		return Optional.empty();
 	}
 
 	@Override

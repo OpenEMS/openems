@@ -5,6 +5,7 @@ import static java.lang.Math.round;
 import static java.lang.Math.sqrt;
 
 import java.time.Clock;
+import java.util.Objects;
 import java.util.Optional;
 
 import io.openems.common.jscalendar.JSCalendar;
@@ -154,7 +155,7 @@ public sealed interface GridLimit {
 			if (power != null && power < 0) {
 				power = null;
 			}
-			if (this.gridSellLimit.a() != type || this.gridSellLimit.b() != power) {
+			if (this.gridSellLimit.a() != type || !Objects.equals(this.gridSellLimit.b(), power)) {
 				this.gridSellLimit = new Tuple2<>(type, power);
 				this.invalidateImmutable();
 			}

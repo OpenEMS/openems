@@ -90,7 +90,7 @@
           }
           @if (isAtLeastOwner() && !isEdgeBackend()) {
             <ion-col size="12" size-sm="4">
-              <ion-card>
+              <ion-card [attr.data-tutorial-id]="tutorialTargetId.PROFILE_ALERTING">
                 <ion-item lines="full" color="light">
                   <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>
                   <ion-label>{{ "EDGE.CONFIG.INDEX.ALERTING" | translate }}</ion-label>

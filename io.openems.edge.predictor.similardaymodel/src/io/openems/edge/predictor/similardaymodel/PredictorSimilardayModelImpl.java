@@ -155,7 +155,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	private List<Integer> getAveragePrediction(List<List<Integer>> twoDimensionalArrayList) {
 		List<Integer> averageList = new ArrayList<>();
 		var rows = twoDimensionalArrayList.size();
-		var cols = twoDimensionalArrayList.get(0).size();
+		var cols = twoDimensionalArrayList.getFirst().size();
 		for (var i = 0; i < cols; i++) {
 			var sumRow = 0;
 			for (var j = 0; j < rows; j++) {

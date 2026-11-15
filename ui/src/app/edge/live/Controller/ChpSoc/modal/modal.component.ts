@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { RangeValue } from "@ionic/core";
@@ -23,8 +22,8 @@ export class Controller_ChpSocModalComponent implements OnInit {
     @Input({ required: true }) public inputChannel!: ChannelAddress;
 
     public thresholds: RangeValue = {
-        lower: null,
-        upper: null,
+        lower: 0,
+        upper: 0,
     };
 
     constructor(
@@ -36,8 +35,10 @@ export class Controller_ChpSocModalComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.thresholds["lower"] = this.component.properties["lowThreshold"];
-        this.thresholds["upper"] = this.component.properties["highThreshold"];
+        this.thresholds = {
+            lower: this.component.properties["lowThreshold"],
+            upper: this.component.properties["highThreshold"],
+        };
     }
 
     /**
@@ -59,6 +60,8 @@ export class Controller_ChpSocModalComponent implements OnInit {
             case "AUTOMATIC":
                 newMode = "AUTOMATIC";
                 break;
+            default:
+                return;
         }
 
         if (this.edge != null) {
@@ -87,7 +90,9 @@ export class Controller_ChpSocModalComponent implements OnInit {
     updateThresholds() {
         const oldLowerThreshold = this.component.properties["lowThreshold"];
         const oldUpperThreshold = this.component.properties["highThreshold"];
-
+        if (typeof this.thresholds === "number") {
+            return;
+        }
         const newLowerThreshold = this.thresholds["lower"];
         const newUpperThreshold = this.thresholds["upper"];
 

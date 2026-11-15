@@ -43,14 +43,14 @@ public class AuthenticatedRequestHandler implements JsonApi {
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder b) {
-		b.delegate(AuthenticatedRpcRequest.METHOD, endpoint -> {
+		b.delegate(AuthenticatedRpcRequest.METHOD, _ -> {
 
 		}, t -> {
 			final var authenticatedRpcRequest = AuthenticatedRpcRequest.from(t.getRequest(), User::from);
 			t.put(EdgeKeys.USER_KEY, authenticatedRpcRequest.getUser());
 			return authenticatedRpcRequest.getPayload();
 
-		}, c -> this.binder.getJsonApiBuilder(), response -> {
+		}, _ -> this.binder.getJsonApiBuilder(), response -> {
 			// wrap response in a AuthenticatedRpcResponse if successful
 			return switch (response) {
 			case JsonrpcResponseSuccess success //

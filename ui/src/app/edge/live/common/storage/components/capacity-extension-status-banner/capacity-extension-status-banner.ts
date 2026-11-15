@@ -40,4 +40,8 @@ export class CapacityExtensionStatusBannerComponent {
     protected get anyCapacityExtensionRunning() {
         return this.capacityExtensionDeterminationService.anyCapacityExtensionRunning;
     }
+
+    protected get anyExpansionAvailable() {
+        return this.capacityExtensionDeterminationService.anyExpansionAvailable;
+    }
 }

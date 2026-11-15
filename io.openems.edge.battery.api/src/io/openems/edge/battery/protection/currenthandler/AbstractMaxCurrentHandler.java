@@ -424,7 +424,7 @@ public abstract class AbstractMaxCurrentHandler {
 			return null;
 		}
 		var now = Instant.now(this.clockProvider.getClock());
-		final Double result;
+		final double result;
 		if (this.lastResultTimestamp != null && this.lastCurrentLimit != null) {
 			result = this.lastCurrentLimit
 					+ Duration.between(this.lastResultTimestamp, now).toMillis() * this.maxIncreasePerSecond //
