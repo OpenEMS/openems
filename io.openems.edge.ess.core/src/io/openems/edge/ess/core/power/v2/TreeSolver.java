@@ -23,15 +23,18 @@ import io.openems.edge.ess.core.power.v2.PowerDistribution.Entry;
  * </ul>
  *
  * <p>
- * Within each level, distribution is two-pass:
+ * Within each level, distribution is three-pass:
  * <ol>
  * <li>Pin fixed entries (ownMin == ownMax) — set their setpoint and subtract
  * from target.
  * <li>Distribute remainder proportionally among free entries.
+ * <li>For active power: redistribute any residual difference between assigned
+ * and target power within each child's own bounds (power conservation).
  * </ol>
  *
  * <p>
- * Performance: single DFS traversal — each node visited exactly once → O(n).
+ * Performance: single DFS traversal per pass — O(n) per level; the residual
+ * pass adds one O(n) scan per level (O(n·depth) overall).
  */
 public final class TreeSolver {
 
@@ -149,11 +152,13 @@ public final class TreeSolver {
 	}
 
 	/**
-	 * Distributes a target to direct children using a two-pass approach:.
+	 * Distributes a target to direct children using a three-pass approach:.
 	 *
 	 * <ol>
 	 * <li>Pin fixed entries (ownMin == ownMax), subtract their contribution.
 	 * <li>Distribute remainder proportionally among free entries.
+	 * <li>For active power: redistribute any residual difference between assigned
+	 * and target power within each child's own bounds.
 	 * </ol>
 	 *
 	 * <p>
