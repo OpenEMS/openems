@@ -60,7 +60,6 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -283,12 +282,12 @@ public class BatteryInverterRefuImpl extends AbstractSunSpecBatteryInverter
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
 		FloatWriteChannel maxBatAChaChannel = this.getSunSpecChannelOrError(RefuSunSpecModel.S64800.MAX_BAT_A_CHA);
 		maxBatAChaChannel.setNextWriteValue(
-				TypeUtils.fitWithin(0F, MAX_BAT_A_LIMIT, battery.getChargeMaxCurrent().orElse(0).floatValue()));
+				Math.clamp(battery.getChargeMaxCurrent().orElse(0).floatValue(), 0F, MAX_BAT_A_LIMIT));
 
 		FloatWriteChannel maxBatADischaChannel = this
 				.getSunSpecChannelOrError(RefuSunSpecModel.S64800.MAX_BAT_A_DISCHA);
 		maxBatADischaChannel.setNextWriteValue(
-				TypeUtils.fitWithin(0F, MAX_BAT_A_LIMIT, battery.getDischargeMaxCurrent().orElse(0).floatValue()));
+				Math.clamp(battery.getDischargeMaxCurrent().orElse(0).floatValue(), 0F, MAX_BAT_A_LIMIT));
 
 		this.updateDcVoltageLimits();
 	}

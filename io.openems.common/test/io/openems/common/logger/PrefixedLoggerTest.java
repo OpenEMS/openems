@@ -11,7 +11,7 @@ public class PrefixedLoggerTest {
 
 	private static final Exception exception = new Exception("Test");
 
-	public class TestPrefixedLogger extends PrefixedLogger {
+	public static class TestPrefixedLogger extends PrefixedLogger {
 		public TestPrefixedLogger(Logger logger) {
 			super(logger);
 		}

@@ -33,7 +33,7 @@ public record OdooGetUserInfoResponse(//
 					.mapIfPresent(jsonElementPath -> jsonElementPath.multiple(List.of(//
 							new JsonElementPath.Case<>(JsonElementPath::isJsonObject,
 									t -> t.getAsJsonObjectPath().get()),
-							new JsonElementPath.Case<>(/* default */t -> true,
+							new JsonElementPath.Case<>(/* default */_ -> true,
 									t -> JsonUtils.parseOptional(t.getAsString()) //
 											.flatMap(JsonUtils::getAsOptionalJsonObject) //
 											.orElse(new JsonObject())))));

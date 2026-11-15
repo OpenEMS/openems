@@ -486,7 +486,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 				errors.add("Multiple SchedulerComponents found with the same id");
 				continue;
 			}
-			final var schedulerComponent = schedulerComponents.get(0);
+			final var schedulerComponent = schedulerComponents.getFirst();
 			expectedOrder.add(new SchedulerComponent(componentId, schedulerComponent.factoryId(), appId));
 		}
 

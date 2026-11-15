@@ -1,7 +1,5 @@
 package io.openems.edge.ess.core.power.v2;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +23,18 @@ import io.openems.edge.ess.core.power.v2.PowerDistribution.Entry;
  * </ul>
  *
  * <p>
- * Within each level, distribution is two-pass:
+ * Within each level, distribution is three-pass:
  * <ol>
  * <li>Pin fixed entries (ownMin == ownMax) — set their setpoint and subtract
  * from target.
  * <li>Distribute remainder proportionally among free entries.
+ * <li>For active power: redistribute any residual difference between assigned
+ * and target power within each child's own bounds (power conservation).
  * </ol>
  *
  * <p>
- * Performance: single DFS traversal — each node visited exactly once → O(n).
+ * Performance: single DFS traversal per pass — O(n) per level; the residual
+ * pass adds one O(n) scan per level (O(n·depth) overall).
  */
 public final class TreeSolver {
 
@@ -57,7 +58,7 @@ public final class TreeSolver {
 		// Active pass — standalone Actuals (not inside any cluster)
 		for (var entry : entries.values()) {
 			if (entry instanceof Entry.Actual a && a.getParent() == null) {
-				a.activePowerSetPoint = fitWithin(a.ownActiveMin(), a.ownActiveMax(), 0);
+				a.activePowerSetPoint = Math.clamp(0, a.ownActiveMin(), a.ownActiveMax());
 			}
 		}
 
@@ -74,7 +75,7 @@ public final class TreeSolver {
 		// Reactive power pass — standalone Actuals
 		for (var entry : entries.values()) {
 			if (entry instanceof Entry.Actual a && a.getParent() == null) {
-				a.reactivePowerSetPoint = fitWithin(a.ownReactiveMin(), a.ownReactiveMax(), 0);
+				a.reactivePowerSetPoint = Math.clamp(0, a.ownReactiveMin(), a.ownReactiveMax());
 			}
 		}
 	}
@@ -100,7 +101,7 @@ public final class TreeSolver {
 				&& virtual.limitActivePowerMax == null) {
 			for (var child : virtual.children) {
 				if (child instanceof Entry.Actual a) {
-					a.activePowerSetPoint = fitWithin(a.ownActiveMin(), a.ownActiveMax(), 0);
+					a.activePowerSetPoint = Math.clamp(0, a.ownActiveMin(), a.ownActiveMax());
 				} else if (child instanceof Entry.Virtual v) {
 					solveActiveNode(v, resolveTarget(v.limitActivePowerMin, v.limitActivePowerMax));
 				}
@@ -115,7 +116,7 @@ public final class TreeSolver {
 			distributeToChildren(virtual.children, rawTarget >= 0 ? max : min, true);
 			return;
 		}
-		distributeToChildren(virtual.children, fitWithin(min, max, rawTarget), true);
+		distributeToChildren(virtual.children, Math.clamp(rawTarget, min, max), true);
 	}
 
 	/**
@@ -132,7 +133,7 @@ public final class TreeSolver {
 		if (virtual.limitReactivePowerMin == null && virtual.limitReactivePowerMax == null) {
 			for (var child : virtual.children) {
 				if (child instanceof Entry.Actual a) {
-					a.reactivePowerSetPoint = fitWithin(a.ownReactiveMin(), a.ownReactiveMax(), 0);
+					a.reactivePowerSetPoint = Math.clamp(0, a.ownReactiveMin(), a.ownReactiveMax());
 				} else if (child instanceof Entry.Virtual v) {
 					solveReactiveNode(v, resolveTarget(v.limitReactivePowerMin, v.limitReactivePowerMax));
 				}
@@ -147,15 +148,17 @@ public final class TreeSolver {
 			distributeToChildren(virtual.children, rawTarget >= 0 ? max : min, false);
 			return;
 		}
-		distributeToChildren(virtual.children, fitWithin(min, max, rawTarget), false);
+		distributeToChildren(virtual.children, Math.clamp(rawTarget, min, max), false);
 	}
 
 	/**
-	 * Distributes a target to direct children using a two-pass approach:.
+	 * Distributes a target to direct children using a three-pass approach:.
 	 *
 	 * <ol>
 	 * <li>Pin fixed entries (ownMin == ownMax), subtract their contribution.
 	 * <li>Distribute remainder proportionally among free entries.
+	 * <li>For active power: redistribute any residual difference between assigned
+	 * and target power within each child's own bounds.
 	 * </ol>
 	 *
 	 * <p>
@@ -193,6 +196,59 @@ public final class TreeSolver {
 
 		// Pass 2: proportional among free entries
 		distributeProportional(free, remaining, isActive);
+
+		// Preserve the original result whenever the achievable target is met;
+		// otherwise redistribute the residual within each child's own bounds.
+		// Active power only — reactive distribution is intentionally unchanged.
+		if (isActive) {
+			long actual = 0;
+			for (var child : children) {
+				actual += activeSetpoint(child);
+			}
+			if (actual != target) {
+				redistributeActiveResidual(children, (long) target - actual);
+			}
+		}
+	}
+
+	private static long activeSetpoint(Entry entry) {
+		if (entry instanceof Entry.Actual a) {
+			return a.activePowerSetPoint;
+		}
+		long result = 0;
+		for (var child : ((Entry.Virtual) entry).children) {
+			result += activeSetpoint(child);
+		}
+		return result;
+	}
+
+	private static void redistributeActiveResidual(List<Entry> children, long remaining) {
+		var headrooms = new long[children.size()];
+		long totalHeadroom = 0;
+		for (int i = 0; i < children.size(); i++) {
+			var child = children.get(i);
+			var current = activeSetpoint(child);
+			headrooms[i] = Math.max(0L, remaining > 0 //
+					? (long) child.ownActiveMax() - current
+					: current - (long) child.ownActiveMin());
+			totalHeadroom += headrooms[i];
+		}
+		// Cap at the total headroom — more can never be applied anyway.
+		remaining = Math.clamp(remaining, -totalHeadroom, totalHeadroom);
+		for (int i = 0; i < children.size() && remaining != 0 && totalHeadroom > 0; i++) {
+			var current = activeSetpoint(children.get(i));
+			// Division-first split of remaining * headrooms[i] / totalHeadroom to avoid
+			// overflow; the clamp below keeps the setpoint in bounds regardless.
+			var adjustment = remaining / totalHeadroom * headrooms[i] //
+					+ remaining % totalHeadroom * headrooms[i] / totalHeadroom;
+			adjustment = Math.clamp(adjustment, -headrooms[i], headrooms[i]);
+			if (adjustment != 0) {
+				var next = Math.clamp(current + adjustment, Integer.MIN_VALUE, Integer.MAX_VALUE);
+				applySetpoint(children.get(i), next, true);
+				remaining -= activeSetpoint(children.get(i)) - current;
+			}
+			totalHeadroom -= headrooms[i];
+		}
 	}
 
 	/**
@@ -213,9 +269,9 @@ public final class TreeSolver {
 			var min = isActive ? a.ownActiveMin() : a.ownReactiveMin();
 			var max = isActive ? a.ownActiveMax() : a.ownReactiveMax();
 			if (isActive) {
-				a.activePowerSetPoint = fitWithin(min, max, value);
+				a.activePowerSetPoint = Math.clamp(value, min, max);
 			} else {
-				a.reactivePowerSetPoint = fitWithin(min, max, value);
+				a.reactivePowerSetPoint = Math.clamp(value, min, max);
 			}
 		} else if (entry instanceof Entry.Virtual v) {
 			if (isActive) {
@@ -273,7 +329,7 @@ public final class TreeSolver {
 
 			var min = isActive ? e.ownActiveMin() : e.ownReactiveMin();
 			var max = isActive ? e.ownActiveMax() : e.ownReactiveMax();
-			power = fitWithin(min, max, power);
+			power = Math.clamp(power, min, max);
 			remaining -= power;
 			applySetpoint(e, power, isActive);
 		}
@@ -289,8 +345,8 @@ public final class TreeSolver {
 			var qMax = (int) Math.sqrt(Math.max(0, s2));
 			var effMin = a.limitReactivePowerMin != null ? a.limitReactivePowerMin : -qMax;
 			var effMax = a.limitReactivePowerMax != null ? a.limitReactivePowerMax : qMax;
-			a.limitReactivePowerMin = Math.max(Math.min(effMin, qMax), -qMax);
-			a.limitReactivePowerMax = Math.max(Math.min(effMax, qMax), -qMax);
+			a.limitReactivePowerMin = Math.clamp(effMin, -qMax, qMax);
+			a.limitReactivePowerMax = Math.clamp(effMax, -qMax, qMax);
 		}
 	}
 

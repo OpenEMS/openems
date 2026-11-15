@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, signal, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, model, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -12,7 +12,7 @@ import { Edge, Service, UserPermission, Websocket } from "src/app/shared/shared"
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
-import { ORDER_STATES } from "../shared/order-state";
+import { ORDER_STATE_CATEGORY, ORDER_STATES } from "../shared/order-state";
 import { SUM_STATES } from "../shared/sumState";
 
 @Component({
@@ -202,8 +202,18 @@ export class OverViewComponent implements OnDestroy, OnInit {
         this.loadNextPage().then((edges) => {
             if (searchGeneration === this.searchGeneration) {
                 this.filteredEdges.set(edges);
-                this.noEdges = edges.length === 0;
+                if (edges.length > 0) {
+                    this.noEdges = false;
+                } else if (!this.isSearchRestricted()) {
+                    this.noEdges = true;
+                }
             }
         });
+    }
+
+    private isSearchRestricted(): boolean {
+        const hasQuery = this.query != null && this.query !== "";
+        const hasFilter = [...this.searchParams.keys()].some((category) => category !== ORDER_STATE_CATEGORY);
+        return hasQuery || hasFilter;
     }
 }

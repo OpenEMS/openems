@@ -41,7 +41,6 @@ public enum OpenemsError {
 	EDGE_UNABLE_TO_DELETE_CONFIG(2004, "Unable to delete configuration for Component [%s]: [%s]"), //
 	EDGE_CHANNEL_NO_OPTION(2005, "Channel has no Option [%s]. Existing options: %s"), //
 	EDGE_APP_INSTANCE_NOT_FOUND(2006, "Unable to find App instance with ID [%s]"), //
-	EDGE_APP_COMPONENTS_UPDATE_FAILED(2007, "Unable to update Components for App: [%s]"), //
 	/*
 	 * Edge Validation errors. 2100-2199
 	 */

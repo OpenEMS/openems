@@ -10,14 +10,14 @@ import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TestUtils;
@@ -35,22 +35,22 @@ import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
-public class EssPowerImplTest {
+class EssPowerImplTest {
 
 	private static AtomicInteger openCallbacks;
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 		openCallbacks = new AtomicInteger(0);
 	}
 
-	@After
-	public void after() {
-		assertEquals("Not all Callbacks were actually called", 0, openCallbacks.get());
+	@AfterEach
+	void after() {
+		assertEquals(0, openCallbacks.get(), "Not all Callbacks were actually called");
 	}
 
 	@Test
-	public void testSymmetricEss() throws Exception {
+	void testSymmetricEss() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(powerComponent) //
@@ -81,7 +81,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testOnlyOneEssInClusterDistribution() throws Exception {
+	void testOnlyOneEssInClusterDistribution() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
@@ -121,7 +121,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testAsymmetricEss() throws Exception {
+	void testAsymmetricEss() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess0 = new DummyManagedAsymmetricEss("ess0") //
 				.setPower(powerComponent) //
@@ -154,7 +154,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testAsymmetricEssAllEqual() throws Exception {
+	void testAsymmetricEssAllEqual() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess0 = new DummyManagedAsymmetricEss("ess0") //
 				.setPower(powerComponent) //
@@ -191,7 +191,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testCluster() throws Exception {
+	void testCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(powerComponent) //
@@ -323,7 +323,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testStrSctr() throws Exception {
+	void testStrSctr() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(powerComponent) //
@@ -439,7 +439,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testCommercial40Cluster() throws Exception {
+	void testCommercial40Cluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
 				.setPower(powerComponent) //
@@ -535,7 +535,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testMultilayerCluster() throws Exception {
+	void testMultilayerCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess11 = new DummyManagedSymmetricEss("ess11") //
 				.setPower(powerComponent) //
@@ -602,8 +602,9 @@ public class EssPowerImplTest {
 	 * 
 	 * @throws Exception on exception
 	 */
-	// @Test
-	public void testNearEqualDistribution() throws Exception {
+	@Test
+	@Disabled("disabled because of the new strategy implementation")
+	void testNearEqualDistribution() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
@@ -716,7 +717,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testNearEqualStrategyWithoutCluster() throws Exception {
+	void testNearEqualStrategyWithoutCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
 		var ess1 = new DummyManagedSymmetricEss("ess1") //
@@ -845,7 +846,7 @@ public class EssPowerImplTest {
 	}
 
 	@Test
-	public void testPidFilter() throws Exception {
+	void testPidFilter() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
 				.setPower(powerComponent) //
@@ -901,9 +902,9 @@ public class EssPowerImplTest {
 		componentTest.next(new TestCase());
 	}
 
-	@Ignore
 	@Test
-	public void testPT1Filter() throws Exception {
+	@Disabled("disabled because of the new strategy implementation")
+	void testPT1Filter() throws Exception {
 		final var clock = TestUtils.createDummyClock();
 		EssPower powerComponent = new EssPowerImpl();
 		var ess0 = new DummyManagedSymmetricEss("ess0") //
@@ -957,8 +958,8 @@ public class EssPowerImplTest {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
-			assertEquals(description + " for " + ess.id(), p, record.activePower());
-			assertEquals(description + " for " + ess.id(), q, record.reactivePower());
+			assertEquals(p, record.activePower(), description + " for " + ess.id());
+			assertEquals(q, record.reactivePower(), description + " for " + ess.id());
 		});
 	}
 
@@ -967,12 +968,12 @@ public class EssPowerImplTest {
 		openCallbacks.incrementAndGet();
 		ess.withAsymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
-			assertEquals(description + " for " + ess.id(), pL1, record.activePowerL1());
-			assertEquals(description + " for " + ess.id(), qL1, record.reactivePowerL1());
-			assertEquals(description + " for " + ess.id(), pL2, record.activePowerL2());
-			assertEquals(description + " for " + ess.id(), qL2, record.reactivePowerL2());
-			assertEquals(description + " for " + ess.id(), pL3, record.activePowerL3());
-			assertEquals(description + " for " + ess.id(), qL3, record.reactivePowerL3());
+			assertEquals(pL1, record.activePowerL1(), description + " for " + ess.id());
+			assertEquals(qL1, record.reactivePowerL1(), description + " for " + ess.id());
+			assertEquals(pL2, record.activePowerL2(), description + " for " + ess.id());
+			assertEquals(qL2, record.reactivePowerL2(), description + " for " + ess.id());
+			assertEquals(pL3, record.activePowerL3(), description + " for " + ess.id());
+			assertEquals(qL3, record.reactivePowerL3(), description + " for " + ess.id());
 		});
 	}
 

@@ -34,7 +34,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.Phase.SinglePhase;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -150,7 +149,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 		final int maxPowerReference = maxPowerReferenceValue;
 
 		int percent = activePower * 10000 / maxPowerReference;
-		var setPoint = (int) TypeUtils.fitWithin(-10000, 10000, percent);
+		var setPoint = Math.clamp(percent, -10000, 10000);
 		setPowerTarget(setPoint);
 	}
 

@@ -163,23 +163,13 @@ public class ExpressionEvaluator {
 	}
 
 	private static boolean isTruthy(Object value) {
-		if (value == null) {
-			return false;
-		}
-
-		if (value instanceof Boolean bool) {
-			return bool;
-		}
-
-		if (value instanceof Number number) {
-			return number.doubleValue() != 0;
-		}
-
-		if (value instanceof String string) {
-			return !string.isEmpty();
-		}
-
-		return true;
+		return switch (value) {
+			case Boolean bool -> bool;
+			case Number number -> number.doubleValue() != 0;
+			case String string -> !string.isEmpty();
+			case null -> false;
+			default -> true;
+		};
 	}
 
 	private static int compareNumeric(Object left, Object right) {

@@ -31,6 +31,22 @@ describe("Array-Utils", () => {
         expect(ArrayUtils.sortByTrailingNumber(inputArr2, (_) => null)).toEqual(inputArr2);
     });
 
+    it("+getFirstSafely", () => {
+        expect(ArrayUtils.getFirstSafely([])).toEqual(null);
+        expect(ArrayUtils.getFirstSafely(null as unknown as string[])).toEqual(null);
+        expect(ArrayUtils.getFirstSafely(["foo"])).toEqual("foo");
+        expect(ArrayUtils.getFirstSafely(["foo", "bar"])).toEqual("foo");
+        expect(ArrayUtils.getFirstSafely([1, 2, 3])).toEqual(1);
+    });
+
+    it("+getLastSafely", () => {
+        expect(ArrayUtils.getLastSafely([])).toEqual(null);
+        expect(ArrayUtils.getLastSafely(null as unknown as string[])).toEqual(null);
+        expect(ArrayUtils.getLastSafely(["foo"])).toEqual("foo");
+        expect(ArrayUtils.getLastSafely(["foo", "bar"])).toEqual("bar");
+        expect(ArrayUtils.getLastSafely([1, 2, 3])).toEqual(3);
+    });
+
     describe("ReducerFunctions", () => {
         it("+sum", () => {
             // Standard summation with positive integers

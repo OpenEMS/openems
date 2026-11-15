@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -85,7 +86,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 				+ "[" + taskManager.countTasks() + "] tasks");
 		taskManager.getTasks() //
 				.forEach(t -> invalidate.accept(t.getElements()));
-		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
+		this.nextLowPriorityTasks.removeIf(t -> Objects.equals(t.a(), sourceId));
 	}
 
 	@Override

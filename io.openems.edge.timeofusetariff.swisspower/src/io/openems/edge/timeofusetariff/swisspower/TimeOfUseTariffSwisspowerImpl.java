@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -157,7 +158,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 
 	private Map<String, String> buildRequestHeaders() {
 		return Map.of(//
-				"Authorization", "Bearer " + this.accessToken //
+				"Authorization", HttpAuthorization.bearer(this.accessToken) //
 		);
 	}
 

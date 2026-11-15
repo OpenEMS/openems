@@ -146,7 +146,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 			return null;
 		}
 		this.log.warn("BackendApi Controller exists but was not injected!");
-		return backendApis.get(0);
+		return backendApis.getFirst();
 	}
 
 	private static final OpenemsNamedException getOpenemsException(Throwable e) {

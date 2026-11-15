@@ -31,7 +31,7 @@ import io.openems.edge.ess.power.api.Power;
 
 public class AbstractSunSpecEssTest {
 
-	private class DummySunSpecEssImpl extends AbstractSunSpecEss
+	private static class DummySunSpecEssImpl extends AbstractSunSpecEss
 			implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
 
 		private static final int READ_FROM_MODBUS_BLOCK = 1;

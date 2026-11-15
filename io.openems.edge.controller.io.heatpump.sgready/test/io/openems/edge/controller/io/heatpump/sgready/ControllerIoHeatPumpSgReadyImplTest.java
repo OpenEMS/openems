@@ -366,7 +366,7 @@ public class ControllerIoHeatPumpSgReadyImplTest {
 				.next(new TestCase("Force on") //
 						.timeleap(clock, 1, MINUTES)//
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
-						.input(GRID_ACTIVE_POWER, -4000) //
+						.input(GRID_ACTIVE_POWER, -6000) //
 						.input(ESS_DISCHARGE_POWER, 0) //
 						.input(ESS_SOC, 50) //
 						.output(STATUS, Status.FORCE_ON)) //
@@ -410,7 +410,7 @@ public class ControllerIoHeatPumpSgReadyImplTest {
 				.next(new TestCase("Force on") //
 						.timeleap(clock, 1, MINUTES)//
 						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 2000) //
-						.input(GRID_ACTIVE_POWER, -6000) //
+						.input(GRID_ACTIVE_POWER, -8000) //
 						.input(ESS_DISCHARGE_POWER, 2000) //
 						.input(ESS_SOC, 40) //
 						.output(STATUS, Status.FORCE_ON)) //
@@ -428,6 +428,108 @@ public class ControllerIoHeatPumpSgReadyImplTest {
 						.input(ESS_DISCHARGE_POWER, 0) //
 						.input(ESS_SOC, 40) //
 						.output(STATUS, Status.REGULAR)) //
+				.deactivate();
+	}
+
+	@Test
+	void automaticTestWithMeterPowerSwitchBackFromRecommendation() throws Exception {
+		final var clock = createDummyClock();
+		this.createDefaultControllerTest(clock) //
+				.addReference("meter", new DummyElectricityMeter("meter3")) //
+				.activate(MyConfig.create() //
+						.setId("ctrHeatPump0") //
+						.setMode(Mode.AUTOMATIC) //
+						.setAutomaticRecommendationCtrlEnabled(true) //
+						.setAutomaticRecommendationSurplusPower(3000) //
+						.setAutomaticForceOnCtrlEnabled(true) //
+						.setAutomaticForceOnSurplusPower(5000) //
+						.setAutomaticForceOnSoc(40) //
+						.setAutomaticLockCtrlEnabled(false) //
+						.setAutomaticLockGridBuyPower(7000) //
+						.setAutomaticLockSoc(20) //
+						.setOutputChannel1("io0/InputOutput0") //
+						.setOutputChannel2("io0/InputOutput1") //
+						.setMeterId("meter3") //
+						.setMinimumSwitchingTime(60) //
+						.build())
+				.next(new TestCase("Regular - heat pump running") //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 3000) //
+						.input(GRID_ACTIVE_POWER, -2000) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 50) //
+						.output(STATUS, Status.REGULAR)) //
+				.next(new TestCase("Recommendation") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 1000) //
+						.input(GRID_ACTIVE_POWER, -4000) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 50) //
+						.output(STATUS, Status.RECOMMENDATION)) //
+				.next(new TestCase("Recommendation kept despite grid buy") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
+						.input(GRID_ACTIVE_POWER, 500) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 50) //
+						.output(STATUS, Status.RECOMMENDATION)) //
+				.next(new TestCase("Regular - PV share too low") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
+						.input(GRID_ACTIVE_POWER, 1500) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 50) //
+						.output(STATUS, Status.REGULAR)) //
+				.deactivate();
+	}
+
+	@Test
+	void automaticTestWithMeterPowerForAllModes() throws Exception {
+		final var clock = createDummyClock();
+		this.createDefaultControllerTest(clock) //
+				.addReference("meter", new DummyElectricityMeter("meter3")) //
+				.activate(MyConfig.create() //
+						.setId("ctrHeatPump0") //
+						.setMode(Mode.AUTOMATIC) //
+						.setAutomaticRecommendationCtrlEnabled(true) //
+						.setAutomaticRecommendationSurplusPower(3000) //
+						.setAutomaticForceOnCtrlEnabled(true) //
+						.setAutomaticForceOnSurplusPower(5000) //
+						.setAutomaticForceOnSoc(40) //
+						.setAutomaticLockCtrlEnabled(true) //
+						.setAutomaticLockGridBuyPower(7000) //
+						.setAutomaticLockSoc(20) //
+						.setOutputChannel1("io0/InputOutput0") //
+						.setOutputChannel2("io0/InputOutput1") //
+						.setMeterId("meter3") //
+						.setMinimumSwitchingTime(60) //
+						.build())
+				.next(new TestCase("Regular - heat pump not running") //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input(GRID_ACTIVE_POWER, -5000) //
+						.input(ESS_DISCHARGE_POWER, 2000) //
+						.input(ESS_SOC, 50) //
+						.output(STATUS, Status.REGULAR)) //
+				.next(new TestCase("Recommendation") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input(GRID_ACTIVE_POWER, -4000) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 45) //
+						.output(STATUS, Status.RECOMMENDATION)) //
+				.next(new TestCase("Force on") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
+						.input(GRID_ACTIVE_POWER, -4000) //
+						.input(ESS_DISCHARGE_POWER, 2000) //
+						.input(ESS_SOC, 45) //
+						.output(STATUS, Status.FORCE_ON)) //
+				.next(new TestCase("Lock") //
+						.timeleap(clock, 1, MINUTES) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 6000) //
+						.input(GRID_ACTIVE_POWER, 9000) //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(ESS_SOC, 19) //
+						.output(STATUS, Status.LOCK)) //
 				.deactivate();
 	}
 

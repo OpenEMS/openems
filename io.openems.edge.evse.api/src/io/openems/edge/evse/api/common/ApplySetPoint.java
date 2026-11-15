@@ -11,7 +11,6 @@ import com.google.gson.JsonNull;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
-import io.openems.common.utils.IntUtils;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 
 /**
@@ -105,7 +104,7 @@ public final class ApplySetPoint {
 		}
 		var max = ability.toPower(ability.max());
 		var min = ability.toPower(ability.min());
-		power = IntUtils.fitWithin(min, max, power);
+		power = Math.clamp(power, min, max);
 		var aboveMin = power - min;
 		return min + step * (aboveMin / step);
 	}
@@ -165,7 +164,7 @@ public final class ApplySetPoint {
 		 * @return the adjusted value
 		 */
 		public default int fitWithin(int value) {
-			return IntUtils.fitWithin(this.min(), this.max(), value);
+			return Math.clamp(value, this.min(), this.max());
 		}
 
 		public static record MilliAmpere(SingleOrThreePhase phase, int min, int max) implements ApplySetPoint.Ability {

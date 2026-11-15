@@ -28,8 +28,7 @@ export namespace ControllerEvseSingleShared {
             return null;
         }
 
-        const chargePointComponent =
-            config.getComponentFromOtherComponentsProperty(component.id, "chargePoint.id") ?? null;
+        const chargePointComponent = config.getComponentFromOtherComponentsProperty(component.id, "chargePoint.id");
 
         const phaseSwitchingNode = new NavigationTree(
             component.id + "-phase-switching",

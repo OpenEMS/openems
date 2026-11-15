@@ -55,14 +55,10 @@ public abstract class AbstractKmtronicRelay extends AbstractOpenemsModbusCompone
 		var b = new StringBuilder();
 		var i = 1;
 		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
-			String valueText;
-			var valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "x" : "-";
-			} else {
-				valueText = "?";
-			}
-			b.append(i + valueText);
+			String valueText = channel.value().asOptional() //
+					.map(v -> v ? "x" : "-") //
+					.orElse("?");
+			b.append(i).append(valueText);
 
 			// add space for all but the last
 			if (++i <= this.digitalOutputChannels.length) {

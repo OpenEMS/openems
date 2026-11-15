@@ -199,7 +199,7 @@ public class Rrd4jReadHandlerTest {
 				}, (t, u) -> u, TreeMap::new));
 	}
 
-	private class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent> implements OpenemsComponent {
+	private static class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent> implements OpenemsComponent {
 
 		public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			DUMMY_CHANNEL(Doc.of(OpenemsType.INTEGER)); //
