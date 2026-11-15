@@ -72,7 +72,7 @@ export class CommonProductionSumChartDetailsComponent extends AbstractHistoryCha
                   Phase.THREE_PHASE.map((phase, i) => ({
                       name: "Phase " + phase,
                       converter: () => converter(data, phase),
-                      color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+                      color: AbstractHistoryChart.phaseColors[i],
                       stack: 3,
                   }))
             : () => [];

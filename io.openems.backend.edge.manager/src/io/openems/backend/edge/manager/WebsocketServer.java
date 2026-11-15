@@ -9,7 +9,6 @@ import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final EdgeManagerImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
@@ -18,12 +17,10 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	public WebsocketServer(EdgeManagerImpl parent, String name, int port, int poolSize) {
 		super(name, port, poolSize);
-		this.parent = parent;
-		this.onOpen = new OnOpen(parent);
+		this.onOpen = new OnOpen(name, parent);
 		this.onRequest = new OnRequest(//
 				name, //
-				parent, //
-				parent::logWarn);
+				parent);
 		this.onNotification = new OnNotification(//
 				name, //
 				() -> parent.eventAdmin, //
@@ -31,14 +28,11 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 				() -> parent.timedataManager, //
 				parent.metadata::getEdge, //
 				parent.systemLogHandler::handleSystemLogNotification, //
-				parent.scheduleHandler::handleScheduleNotification, //
-				parent::logInfo, //
-				parent::logWarn);
-		this.onError = new OnError(//
-				parent::logWarn);
+				parent.scheduleHandler::handleScheduleNotification);
+		this.onError = new OnError(name);
 		this.onClose = new OnClose(//
-				parent.metadata::getEdge, //
-				parent::logInfo);
+				name, //
+				parent.metadata::getEdge);
 	}
 
 	@Override
@@ -91,16 +85,16 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected void logInfo(Logger log, String message) {
-		this.parent.logInfo(log, message);
+		log.info(message);
 	}
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		this.parent.logWarn(log, message);
+		log.warn(message);
 	}
 
 	@Override
 	protected void logError(Logger log, String message) {
-		this.parent.logError(log, message);
+		log.error(message);
 	}
 }

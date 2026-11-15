@@ -6,12 +6,12 @@ import static java.util.Collections.emptyList;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -54,6 +54,7 @@ import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.types.Tuple2;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -129,7 +130,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 */
 	public void unbindApp(OpenemsApp app) {
 		this.availableApps.remove(app);
-		var installedInstances = this.instantiatedApps.stream().filter(t -> t.appId == app.getAppId()).toList();
+		var installedInstances = this.instantiatedApps.stream() //
+				.filter(t -> Objects.equals(t.appId, app.getAppId())) //
+				.toList();
 		this.instantiatedApps.removeAll(installedInstances);
 	}
 
@@ -234,7 +237,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the list of instantiated apps
 	 */
 	public final List<OpenemsAppInstance> getInstantiatedApps() {
-		return Collections.unmodifiableList(new ArrayList<>(this.instantiatedApps));
+		return List.copyOf(this.instantiatedApps);
 	}
 
 	/**
@@ -349,7 +352,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		} catch (OpenemsNamedException e) {
 			this._setWrongAppConfiguration(true);
-			e.printStackTrace();
+			this.log.error(e.toString(), e);
 		} finally {
 			if (isResultOfRpcRequest) {
 				this.lastUpdate = null;
@@ -544,7 +547,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		return allOtherConfigs;
 	}
 
-	private final OpenemsAppInstance createInstanceWithFilledProperties(//
+	private OpenemsAppInstance createInstanceWithFilledProperties(//
 			final OpenemsApp openemsApp, //
 			final OpenemsAppInstance instance //
 	) {
@@ -633,7 +636,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 				this.instantiatedApps.add(instance);
 			}
 			var instanceWithFilledProperties = this.createInstanceWithFilledProperties(openemsApp, instance);
-			return new Pair<>(true, new AddAppInstance.Response(instanceWithFilledProperties, warnings));
+			return new Tuple2<>(true, new AddAppInstance.Response(instanceWithFilledProperties, warnings));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
 				return;
@@ -673,10 +676,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 */
 	public DeleteAppInstance.Response handleDeleteAppInstanceRequest(User user, DeleteAppInstance.Request request)
 			throws OpenemsNamedException {
-		final var updatedResultPair = this.<Boolean, Pair<UpdateValues, OpenemsAppInstance>>lockModifyingApps(() -> {
+		final var updatedResultPair = this.lockModifyingApps(() -> {
 			final var instance = this.findInstanceById(request.instanceId()).orElse(null);
 			if (instance == null) {
-				return new Pair<>(false, null);
+				return new Tuple2<>(false, null);
 			}
 
 			final var result = this.lastUpdate = this.useAppManagerAppHelper(appHelper -> {
@@ -686,7 +689,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			// replace modified apps
 			this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
 			this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
-			return new Pair<>(true, new Pair<>(result, instance));
+			return new Tuple2<>(true, new Tuple2<>(result, instance));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
 				return;
@@ -702,8 +705,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			return new DeleteAppInstance.Response(emptyList());
 		}
 
-		final var updatedResult = updatedResultPair.first;
-		final var removedInstance = updatedResultPair.second;
+		final var updatedResult = updatedResultPair.a();
+		final var removedInstance = updatedResultPair.b();
 
 		var backendDeinstallFuture = this.backendUtil.addDeinstallAppInstanceHistory(user, removedInstance.appId,
 				removedInstance.instanceId);
@@ -1146,7 +1149,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
 			this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
 
-			return new Pair<>(!this.appIdIsAlwaysInstalled(app.getAppId()), new UpdateAppInstance.Response(
+			return new Tuple2<>(!this.appIdIsAlwaysInstalled(app.getAppId()), new UpdateAppInstance.Response(
 					this.createInstanceWithFilledProperties(app, result.rootInstance), result.warnings));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
@@ -1187,7 +1190,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		var p = new Property("apps", this.getJsonAppsString(sortedApps));
 		// user can be null using internal method
 		this.componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, Arrays.asList(p)));
+				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, List.of(p)));
 	}
 
 	private static List<OpenemsAppInstance> sortApps(List<OpenemsAppInstance> apps) {
@@ -1225,7 +1228,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	}
 
 	private <F, T> T lockModifyingApps(//
-			ThrowingSupplier<Pair<F, T>, OpenemsNamedException> supplier, //
+			ThrowingSupplier<Tuple2<F, T>, OpenemsNamedException> supplier, //
 			ThrowingConsumer<F, OpenemsNamedException> runFinally //
 	) throws OpenemsNamedException {
 		// try to get lock within 5 minutes otherwise just log a warning
@@ -1250,8 +1253,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			}
 			synchronized (this.appSynchronizeWorker.getSynchronizationLock()) {
 				final var resultPair = supplier.get();
-				firstResult = resultPair.first;
-				return resultPair.second;
+				firstResult = resultPair.a();
+				return resultPair.b();
 			}
 		} catch (InterruptedException e) {
 			this.log.error(e.getMessage(), e);
@@ -1263,18 +1266,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 				this.lockModifyingApps.unlock();
 			}
 		}
-	}
-
-	private final class Pair<F, S> {
-		public final F first;
-		public final S second;
-
-		public Pair(F first, S second) {
-			super();
-			this.first = first;
-			this.second = second;
-		}
-
 	}
 
 }

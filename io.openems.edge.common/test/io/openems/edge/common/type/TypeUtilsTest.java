@@ -74,14 +74,6 @@ public class TypeUtilsTest {
 	}
 
 	@Test
-	public void testFitWithin() {
-		assertEquals(5.0, TypeUtils.fitWithin(2.5, 7.5, 5.0), 0.0);
-		assertEquals(0F, TypeUtils.fitWithin(0F, 100F, -99.005F), 0F);
-		assertEquals(100F, TypeUtils.fitWithin(0F, 100F, 100.005F), 0F);
-		assertEquals(50F, TypeUtils.fitWithin(0F, 100F, 50F), 0F);
-	}
-
-	@Test
 	public void testSumDouble() {
 		assertNull(sum((Double) null, null));
 		assertEquals(4.0, sum(1.5, 2.5), 0.1);

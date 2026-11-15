@@ -696,7 +696,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (schedulerComponents.size() != 1) {
 			throw new OpenemsException("Not exactly 1 Scheduler available!");
 		}
-		return schedulerComponents.get(0);
+		return schedulerComponents.getFirst();
 	}
 
 	@Override

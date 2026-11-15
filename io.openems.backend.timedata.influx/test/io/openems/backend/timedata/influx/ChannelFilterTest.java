@@ -86,13 +86,14 @@ public class ChannelFilterTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "a1", "_a", "_sumS" })
+	@ValueSource(strings = { "a1", "_a", "_sumS", "_a1z" })
 	public void testValidComponentIds(String componentId) {
 		assertTrue(ChannelFilter.isValidComponentId(componentId));
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", "a", "_", "_1", "_Sum", "_sum0", "1pv0", "pv0_", "pv_0", "p-v0", "pv0a" })
+	@ValueSource(strings = { "", "a", "_", "_1", "_Sum", "_sum0", "1pv0", "pv0_", "pv_0", "p-v0", "pv0a", "a-1",
+			"_a-z" })
 	public void testInvalidComponentIds(String componentId) {
 		assertFalse(ChannelFilter.isValidComponentId(componentId));
 	}

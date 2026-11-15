@@ -100,7 +100,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public void updateEdgeStatus(String edgeId, boolean isOnline) {
 		if (isOnline) {
-			this.edges.computeIfAbsent(edgeId, ignore -> new BackendEdgeClient(edgeId, this));
+			this.edges.computeIfAbsent(edgeId, _ -> new BackendEdgeClient(edgeId, this));
 		} else {
 			this.edges.remove(edgeId);
 		}

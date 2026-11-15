@@ -317,7 +317,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					var blockCounter = commonBlockCounter;
 
 					var values = rer.values();
-					var blockId = values.get(0);
+					var blockId = values.getFirst();
 
 					this.log.debug("Read next SunSpec value at " + startAddress + ", blockId=" + blockId);
 					// END_OF_MAP
@@ -467,12 +467,12 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		for (var elements : preprocessModbusElements(readElements)) {
 			this.modbusProtocol.addTask(//
 					new FC3ReadRegistersTask(//
-							elements.get(0).startAddress, priority, elements.toArray(ModbusElement[]::new)));
+							elements.getFirst().startAddress, priority, elements.toArray(ModbusElement[]::new)));
 		}
 		for (var elements : preprocessModbusElements(writeElements)) {
 			this.modbusProtocol.addTask(//
 					new FC16WriteRegistersTask(//
-							elements.get(0).startAddress, elements.toArray(ModbusElement[]::new)));
+							elements.getFirst().startAddress, elements.toArray(ModbusElement[]::new)));
 		}
 	}
 
@@ -545,9 +545,9 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		var result = Lists.<List<ModbusElement>>newArrayList(Lists.<ModbusElement>newArrayList());
 		for (var element : elements) {
 			// Get last sublist in result
-			var l = result.get(result.size() - 1);
+			var l = result.getLast();
 			// Get last element of sublist
-			var e = l.isEmpty() ? null : l.get(l.size() - 1);
+			var e = l.isEmpty() ? null : l.getLast();
 			if ((
 			// Is first element of the sublist?
 			e == null
@@ -564,7 +564,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		}
 
 		// Avoid length check for sublist
-		if (result.get(0).isEmpty()) {
+		if (result.getFirst().isEmpty()) {
 			return List.of();
 		}
 		return result;

@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;

@@ -19,7 +19,7 @@ public interface SystemFeneconHome extends OpenemsComponent, EventHandler {
 
 		@Override
 		public Doc doc() {
-			return this.doc();
+			return this.doc;
 		}
 	}
 }

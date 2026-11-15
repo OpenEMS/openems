@@ -346,7 +346,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		AbstractManagedOcppEvcsComponent evcs;
 		var evcss = this.getEvcssBySessionIndex(sessionIndex);
 		if (evcss.size() == 1) {
-			evcs = evcss.get(0);
+			evcs = evcss.getFirst();
 		} else {
 			evcs = this.getEvcsBySessionIndexAndConnector(sessionIndex, request.getTransactionId());
 		}

@@ -1,7 +1,5 @@
 package io.openems.edge.evcs.api;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
-
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
@@ -255,8 +253,8 @@ public interface ManagedEvcs extends Evcs {
 						var increaseRate = evcs.getEvcsPower().getIncreaseRate();
 
 						// Fit values into max value
-						value = fitWithin(min, max, value);
-						currentTarget = fitWithin(min, max, currentTarget);
+						value = Math.clamp(value, min, max);
+						currentTarget = Math.clamp(currentTarget, min, max);
 
 						// Increase the last value with a ramp
 						var filterOutput = evcs.getEvcsPower().getRampFilter().getFilteredValueAsInteger(currentTarget,

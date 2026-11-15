@@ -104,7 +104,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 		// getValues() should return default value 0 when no value has been set
 		List<Integer> values = sut.getValues(OpenemsType.INTEGER, DATA);
 		assertEquals(1, values.size());
-		assertEquals(Integer.valueOf(0), values.get(0));
+		assertEquals(Integer.valueOf(0), values.getFirst());
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 		// getValues() should return the value set via the channel
 		List<Integer> values = sut.getValues(OpenemsType.INTEGER, DATA);
 		assertEquals(1, values.size());
-		assertEquals(Integer.valueOf(5000), values.get(0));
+		assertEquals(Integer.valueOf(5000), values.getFirst());
 	}
 
 	@Test

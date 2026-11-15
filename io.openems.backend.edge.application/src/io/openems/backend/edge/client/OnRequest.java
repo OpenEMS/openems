@@ -38,7 +38,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				-> throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 			};
 
-			return response.whenComplete((t, u) -> {
+			return response.whenComplete((_, _) -> {
 				timer.close();
 			});
 		} catch (Exception e) {

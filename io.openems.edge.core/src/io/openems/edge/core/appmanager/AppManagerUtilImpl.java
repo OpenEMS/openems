@@ -76,7 +76,11 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 
 	@Override
 	public List<OpenemsAppInstance> getAppsWithDependencyTo(OpenemsAppInstance instance) {
-		return this.getAppManagerImpl().getInstantiatedApps().stream()
+		final var appManager = this.getAppManagerImpl();
+		if (appManager == null) {
+			return emptyList();
+		}
+		return appManager.getInstantiatedApps().stream()
 				.filter(t -> t.dependencies != null && !t.dependencies.isEmpty())
 				.filter(t -> t.dependencies.stream().anyMatch(d -> d.instanceId.equals(instance.instanceId)))
 				.collect(Collectors.toList());
@@ -84,10 +88,10 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 
 	private final AppManagerImpl getAppManagerImpl() {
 		var appManagerList = this.componentManager.getEnabledComponentsOfType(AppManager.class);
-		if (appManagerList.size() == 0) {
+		if (appManagerList.isEmpty()) {
 			return null;
 		}
-		return (AppManagerImpl) appManagerList.get(0);
+		return (AppManagerImpl) appManagerList.getFirst();
 	}
 
 }

@@ -34,13 +34,13 @@ public class Utils {
 	 * @return the converted string
 	 */
 	public static String toLabel(String string) {
-		if (string.toUpperCase() != string || !string.contains("_")) {
+		if (!string.toUpperCase().equals(string) || !string.contains("_")) {
 			// Directly return non-uppercase strings
 			return string;
 		}
 		// Taken from https://stackoverflow.com/a/28560959/4137113
 		return Stream.of(string.trim().split("\\s|_")) //
-				.filter(word -> word.length() > 0) //
+				.filter(word -> !word.isEmpty()) //
 				.map(word -> switch (word) {
 				case "AC", "DC", "HW" -> word;
 				default -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase(); //

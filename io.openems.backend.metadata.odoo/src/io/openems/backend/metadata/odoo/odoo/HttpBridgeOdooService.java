@@ -153,7 +153,7 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 	private <REQUEST> CompletableFuture<Void> sendRequest(String path, JsonSerializer<REQUEST> requestJsonSerializer,
 			REQUEST request) {
 		return this.sendRequest(path, requestJsonSerializer, EmptyObject.serializer(), request) //
-				.thenAccept(e -> {
+				.thenAccept(_ -> {
 					// empty
 				});
 	}

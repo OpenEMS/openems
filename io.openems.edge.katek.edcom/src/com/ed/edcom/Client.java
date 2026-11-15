@@ -915,7 +915,7 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
 			return 0;
 		}
 		if (pack.size() > 0 && (Util.userId >= 1)) { // blob message
-			cdp = (DspBlob) pack.remove(0);
+			cdp = (DspBlob) pack.removeFirst();
 			System.arraycopy(cdp.bytes, 0, out_buf, 9, cdp.bytes.length);
 			tel_len = cdp.bytes.length + 9;
 			out_buf[2] = cdp.getType(); // Unit ID

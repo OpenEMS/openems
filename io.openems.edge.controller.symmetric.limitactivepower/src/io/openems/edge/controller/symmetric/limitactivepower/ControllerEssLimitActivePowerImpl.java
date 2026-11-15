@@ -1,6 +1,5 @@
 package io.openems.edge.controller.symmetric.limitactivepower;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
@@ -81,8 +80,8 @@ public class ControllerEssLimitActivePowerImpl extends AbstractOpenemsComponent
 			// adjust value so that it fits into Min/MaxActivePower
 			var maxPower = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
 			var minPower = ess.getPower().getMinPower(ess, ALL, ACTIVE);
-			var calculatedMaxDischargePower = fitWithin(minPower, maxPower, this.maxDischargePower);
-			var calculatedMaxChargePower = fitWithin(minPower, maxPower, this.maxChargePower);
+			var calculatedMaxDischargePower = Math.clamp(this.maxDischargePower, minPower, maxPower);
+			var calculatedMaxChargePower = Math.clamp(this.maxChargePower, minPower, maxPower);
 
 			// set result
 			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", ALL, ACTIVE, GREATER_OR_EQUALS,

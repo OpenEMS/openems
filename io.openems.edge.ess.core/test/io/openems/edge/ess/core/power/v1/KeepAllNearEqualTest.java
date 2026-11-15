@@ -809,7 +809,7 @@ public class KeepAllNearEqualTest {
 	 * @return int [] for allowed charge and discharge power
 	 */
 	public static int[] calculateAllowedPower(double soc) {
-		soc = Math.max(0, Math.min(soc, 100));
+		soc = Math.clamp(soc, 0, 100);
 
 		int allowedChargePower = (int) Math.round(-MAX_POWER * (100 - soc) / 100.0);
 		int allowedDischargePower = (int) Math.round(MAX_POWER * soc / 100.0);
