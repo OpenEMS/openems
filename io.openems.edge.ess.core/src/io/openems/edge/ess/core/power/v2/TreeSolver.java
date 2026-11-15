@@ -23,15 +23,18 @@ import io.openems.edge.ess.core.power.v2.PowerDistribution.Entry;
  * </ul>
  *
  * <p>
- * Within each level, distribution is two-pass:
+ * Within each level, distribution is three-pass:
  * <ol>
  * <li>Pin fixed entries (ownMin == ownMax) — set their setpoint and subtract
  * from target.
  * <li>Distribute remainder proportionally among free entries.
+ * <li>For active power: redistribute any residual difference between assigned
+ * and target power within each child's own bounds (power conservation).
  * </ol>
  *
  * <p>
- * Performance: single DFS traversal — each node visited exactly once → O(n).
+ * Performance: single DFS traversal per pass — O(n) per level; the residual
+ * pass adds one O(n) scan per level (O(n·depth) overall).
  */
 public final class TreeSolver {
 
@@ -149,11 +152,13 @@ public final class TreeSolver {
 	}
 
 	/**
-	 * Distributes a target to direct children using a two-pass approach:.
+	 * Distributes a target to direct children using a three-pass approach:.
 	 *
 	 * <ol>
 	 * <li>Pin fixed entries (ownMin == ownMax), subtract their contribution.
 	 * <li>Distribute remainder proportionally among free entries.
+	 * <li>For active power: redistribute any residual difference between assigned
+	 * and target power within each child's own bounds.
 	 * </ol>
 	 *
 	 * <p>
@@ -191,6 +196,59 @@ public final class TreeSolver {
 
 		// Pass 2: proportional among free entries
 		distributeProportional(free, remaining, isActive);
+
+		// Preserve the original result whenever the achievable target is met;
+		// otherwise redistribute the residual within each child's own bounds.
+		// Active power only — reactive distribution is intentionally unchanged.
+		if (isActive) {
+			long actual = 0;
+			for (var child : children) {
+				actual += activeSetpoint(child);
+			}
+			if (actual != target) {
+				redistributeActiveResidual(children, (long) target - actual);
+			}
+		}
+	}
+
+	private static long activeSetpoint(Entry entry) {
+		if (entry instanceof Entry.Actual a) {
+			return a.activePowerSetPoint;
+		}
+		long result = 0;
+		for (var child : ((Entry.Virtual) entry).children) {
+			result += activeSetpoint(child);
+		}
+		return result;
+	}
+
+	private static void redistributeActiveResidual(List<Entry> children, long remaining) {
+		var headrooms = new long[children.size()];
+		long totalHeadroom = 0;
+		for (int i = 0; i < children.size(); i++) {
+			var child = children.get(i);
+			var current = activeSetpoint(child);
+			headrooms[i] = Math.max(0L, remaining > 0 //
+					? (long) child.ownActiveMax() - current
+					: current - (long) child.ownActiveMin());
+			totalHeadroom += headrooms[i];
+		}
+		// Cap at the total headroom — more can never be applied anyway.
+		remaining = Math.clamp(remaining, -totalHeadroom, totalHeadroom);
+		for (int i = 0; i < children.size() && remaining != 0 && totalHeadroom > 0; i++) {
+			var current = activeSetpoint(children.get(i));
+			// Division-first split of remaining * headrooms[i] / totalHeadroom to avoid
+			// overflow; the clamp below keeps the setpoint in bounds regardless.
+			var adjustment = remaining / totalHeadroom * headrooms[i] //
+					+ remaining % totalHeadroom * headrooms[i] / totalHeadroom;
+			adjustment = Math.clamp(adjustment, -headrooms[i], headrooms[i]);
+			if (adjustment != 0) {
+				var next = Math.clamp(current + adjustment, Integer.MIN_VALUE, Integer.MAX_VALUE);
+				applySetpoint(children.get(i), next, true);
+				remaining -= activeSetpoint(children.get(i)) - current;
+			}
+			totalHeadroom -= headrooms[i];
+		}
 	}
 
 	/**
