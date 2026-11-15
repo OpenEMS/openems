@@ -14,7 +14,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
 /** Regression for power conservation across a cluster of 20 ESS units. */
-public class TwentyEssClusterReviewTest {
+public class TwentyEssClusterTest {
 
     @Test
     public void testTwentyEssWithForcedMinimumConservesTarget() {

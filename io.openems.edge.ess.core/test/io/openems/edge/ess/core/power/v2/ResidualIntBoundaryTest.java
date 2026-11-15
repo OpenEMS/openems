@@ -11,7 +11,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
 /** Large feasible active-power targets with forced minimum and maximum constraints. */
-public class ResidualIntBoundaryReviewTest {
+public class ResidualIntBoundaryTest {
 
     private static DummyManagedSymmetricEss ess(String id, int min, int max, int apparent) {
         return new DummyManagedSymmetricEss(id) //
