@@ -197,7 +197,9 @@ public final class TreeSolver {
 		// Pass 2: proportional among free entries
 		distributeProportional(free, remaining, isActive);
 
-		// Preserve the original result whenever the achievable target is met.
+		// Preserve the original result whenever the achievable target is met;
+		// otherwise redistribute the residual within each child's own bounds.
+		// Active power only — reactive distribution is intentionally unchanged.
 		if (isActive) {
 			long actual = 0;
 			for (var child : children) {
@@ -231,13 +233,18 @@ public final class TreeSolver {
 					: current - (long) child.ownActiveMin());
 			totalHeadroom += headrooms[i];
 		}
+		// Cap at the total headroom — more can never be applied anyway.
+		remaining = Math.clamp(remaining, -totalHeadroom, totalHeadroom);
 		for (int i = 0; i < children.size() && remaining != 0 && totalHeadroom > 0; i++) {
 			var current = activeSetpoint(children.get(i));
-			var adjustment = remaining * headrooms[i] / totalHeadroom;
-			adjustment = Math.max(-headrooms[i], Math.min(headrooms[i], adjustment));
+			// Division-first split of remaining * headrooms[i] / totalHeadroom to avoid
+			// overflow; the clamp below keeps the setpoint in bounds regardless.
+			var adjustment = remaining / totalHeadroom * headrooms[i] //
+					+ remaining % totalHeadroom * headrooms[i] / totalHeadroom;
+			adjustment = Math.clamp(adjustment, -headrooms[i], headrooms[i]);
 			if (adjustment != 0) {
-				var next = Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, current + adjustment));
-				applySetpoint(children.get(i), (int) next, true);
+				var next = Math.clamp(current + adjustment, Integer.MIN_VALUE, Integer.MAX_VALUE);
+				applySetpoint(children.get(i), next, true);
 				remaining -= activeSetpoint(children.get(i)) - current;
 			}
 			totalHeadroom -= headrooms[i];
