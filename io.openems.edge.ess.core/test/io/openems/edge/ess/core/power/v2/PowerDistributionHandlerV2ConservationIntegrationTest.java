@@ -46,7 +46,8 @@ public class PowerDistributionHandlerV2ConservationIntegrationTest {
 		var sut = V2TestUtils.createComponentTest(power, cluster, a, c, b);
 		sut.next(new TestCase() //
 				.onBeforeWriteCallbacks(() -> {
-					power.addConstraint(power.createSimpleConstraint("Cluster 7kW", cluster, ALL, ACTIVE, EQUALS, 7000));
+					power.addConstraint(
+							power.createSimpleConstraint("Cluster 7kW", cluster, ALL, ACTIVE, EQUALS, 7000));
 				}));
 
 		assertEquals(1000, pa.get());
