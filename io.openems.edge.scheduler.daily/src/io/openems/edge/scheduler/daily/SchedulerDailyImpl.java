@@ -113,7 +113,7 @@ public class SchedulerDailyImpl extends AbstractOpenemsComponent
 	}
 
 	private void addControllerById(LinkedHashSet<String> result, String controllerId) {
-		if (controllerId.equals("")) {
+		if (controllerId.isEmpty()) {
 			return;
 		}
 		result.add(controllerId);

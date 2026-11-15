@@ -8,23 +8,23 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.HttpMethod;
-import io.openems.common.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.cycle.CycleSubscriber;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.bridge.http.BridgeHttpImpl;
+import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService.CycleEndpoint;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.bridge.http.cycle.CycleSubscriber;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService.CycleEndpoint;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 public class BridgeHttpCycleTest {

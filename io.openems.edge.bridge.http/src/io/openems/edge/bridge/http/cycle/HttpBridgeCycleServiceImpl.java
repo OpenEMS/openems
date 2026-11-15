@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import org.osgi.service.event.Event;
@@ -20,12 +21,12 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridgeCycleService {
 
 	public static class CycleEndpointCountdown {
-		private volatile int cycleCount;
+		private final AtomicInteger cycleCount;
 		private final CycleEndpoint cycleEndpoint;
 		private volatile boolean running = false;
 
 		public CycleEndpointCountdown(CycleEndpoint endpoint) {
-			this.cycleCount = endpoint.cycle();
+			this.cycleCount = new AtomicInteger(endpoint.cycle());
 			this.cycleEndpoint = endpoint;
 		}
 
@@ -49,19 +50,19 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 		 * @return this
 		 */
 		public CycleEndpointCountdown resetTo(int cycleCount) {
-			this.cycleCount = cycleCount;
+			this.cycleCount.set(cycleCount);
 			return this;
 		}
 
 		public int getCycleCount() {
-			return this.cycleCount;
+			return this.cycleCount.get();
 		}
 
 		/**
 		 * Decreases the current cycle count by one.
 		 */
 		public void decreaseCycleCount() {
-			this.cycleCount--;
+			this.cycleCount.getAndDecrement();
 		}
 
 		public boolean isRunning() {
@@ -104,7 +105,7 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 		Objects.requireNonNull(endpoint, "CycleEndpoint is not allowed to be null!");
 
 		if (!this.cycleEndpoints.offer(new CycleEndpointCountdown(endpoint))) {
-			this.log.warn("Unable to add " + endpoint + "!");
+			this.log.warn("Unable to add {}!", endpoint);
 			return null;
 		}
 		return endpoint;
@@ -133,12 +134,16 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 			while (!this.cycleEndpoints.isEmpty() //
 					&& this.cycleEndpoints.peek().getCycleCount() == 0) {
 				final var item = this.cycleEndpoints.poll();
+				if (item == null) {
+					this.log.warn("Unable to poll from queue!");
+					break;
+				}
 				synchronized (item) {
 					if (item.isRunning()) {
 						this.log.info(
-								"Process for " + item.cycleEndpoint + " is still running. Task is not queued twice");
+								"Process for {} is still running. Task is not queued twice", item.cycleEndpoint);
 						if (!this.cycleEndpoints.offer(item.resetTo(1))) {
-							this.log.info("Unable to re-add " + item + " to queue again.");
+							this.log.info("Unable to re-add {} to queue again.", item);
 						}
 						continue;
 					}
@@ -148,7 +153,7 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 				this.pool.execute(this.createTask(item));
 
 				if (!this.cycleEndpoints.offer(item.reset())) {
-					this.log.warn("Unable to add " + item.cycleEndpoint + "!");
+					this.log.warn("Unable to add {}!", item.cycleEndpoint);
 				}
 			}
 		}

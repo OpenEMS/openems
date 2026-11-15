@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
 

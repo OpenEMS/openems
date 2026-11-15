@@ -80,9 +80,8 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 				.setTranslatedDescriptionWithAppPrefix(".zone.description") //
 				.setRequired(true)//
 				.setDefaultValue(Zone.GERMANY)//
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Zone.optionsFactory(), l);
-				}))), //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field//
+						.setOptions(Zone.optionsFactory(), l)))), //
 		;
 
 		private final AppDef<? super AwattarHourly, ? super Property, ? super Type.Parameter.BundleParameter> def;

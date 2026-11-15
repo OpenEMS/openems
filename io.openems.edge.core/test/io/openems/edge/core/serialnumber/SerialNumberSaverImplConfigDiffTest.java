@@ -123,7 +123,7 @@ public class SerialNumberSaverImplConfigDiffTest {
 		assertEquals(1, diff.addedOrModifiedValues().size());
 		assertEquals(0, diff.removedValues().size());
 
-		final var changedElement = diff.addedOrModifiedValues().get(0);
+		final var changedElement = diff.addedOrModifiedValues().getFirst();
 		assertEquals(new ChannelAddress("key", "value1Key"), changedElement.getKey());
 		assertEquals(new JsonPrimitive("newValue"), changedElement.getValue());
 	}
@@ -145,7 +145,7 @@ public class SerialNumberSaverImplConfigDiffTest {
 		assertEquals(0, diff.addedOrModifiedValues().size());
 		assertEquals(1, diff.removedValues().size());
 
-		final var removedElement = diff.removedValues().get(0);
+		final var removedElement = diff.removedValues().getFirst();
 		assertEquals(new ChannelAddress("key", "value2Key"), removedElement);
 	}
 
@@ -190,7 +190,7 @@ public class SerialNumberSaverImplConfigDiffTest {
 		assertEquals(1, diff.addedOrModifiedValues().size());
 		assertEquals(0, diff.removedValues().size());
 
-		final var addedElement = diff.addedOrModifiedValues().get(0);
+		final var addedElement = diff.addedOrModifiedValues().getFirst();
 		assertEquals(new ChannelAddress("key", "value2Key"), addedElement.getKey());
 		assertEquals(new JsonPrimitive("value2"), addedElement.getValue());
 	}
@@ -210,7 +210,7 @@ public class SerialNumberSaverImplConfigDiffTest {
 		assertEquals(1, diff.addedOrModifiedValues().size());
 		assertEquals(0, diff.removedValues().size());
 
-		final var addedElement = diff.addedOrModifiedValues().get(0);
+		final var addedElement = diff.addedOrModifiedValues().getFirst();
 		assertEquals(new ChannelAddress("key2", "value1Key"), addedElement.getKey());
 		assertEquals(new JsonPrimitive("value"), addedElement.getValue());
 	}

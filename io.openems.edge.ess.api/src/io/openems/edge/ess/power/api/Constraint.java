@@ -34,7 +34,7 @@ public sealed class Constraint {
 
 	public Constraint(String description, List<LinearCoefficient> coefficients, Relationship relationship,
 			double value) {
-		this(description, coefficients.toArray(new LinearCoefficient[coefficients.size()]), relationship, value);
+		this(description, coefficients.toArray(LinearCoefficient[]::new), relationship, value);
 	}
 
 	/**

@@ -50,7 +50,7 @@ public class SimpleEdgeHandler implements EdgeHandler {
 
 	@Override
 	public synchronized EdgeConfig getEdgeConfig(String edgeId) throws OpenemsNamedException {
-		return this.data.computeIfAbsent(edgeId, ignore -> EdgeConfig.empty());
+		return this.data.computeIfAbsent(edgeId, _ -> EdgeConfig.empty());
 	}
 
 }

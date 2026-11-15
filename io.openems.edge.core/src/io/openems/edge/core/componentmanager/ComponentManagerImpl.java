@@ -407,6 +407,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
 				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		config.update(properties);
+		this.edgeConfigWorker.applyWrittenConfiguration(config.getPid());
 	}
 
 	/**
@@ -442,7 +443,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		if (configs.size() > 1) {
 			throw OpenemsError.EDGE_MULTIPLE_COMPONENTS_WITH_ID.exception(componentId);
 		}
-		return configs.get(0);
+		return configs.getFirst();
 	}
 
 	/**

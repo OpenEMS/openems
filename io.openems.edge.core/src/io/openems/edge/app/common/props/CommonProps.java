@@ -112,10 +112,10 @@ public final class CommonProps {
 			PROP extends Nameable, //
 			PARAM extends BundleParameter> AppDef<APP, PROP, PARAM> installationHintOfUnofficialApp() {
 		return AppDef.copyOfGeneric(installationHint(//
-				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
-						"unofficialAppWarning.text1"), //
-				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
-						"unofficialAppWarning.text2")));
+				(_, _, _, parameter) -> TranslationUtil //
+						.getTranslation(parameter.bundle, "unofficialAppWarning.text1"), //
+				(_, _, _, parameter) -> TranslationUtil //
+						.getTranslation(parameter.bundle, "unofficialAppWarning.text2")));
 	}
 
 	/**
@@ -128,12 +128,11 @@ public final class CommonProps {
 	 */
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> acknowledgeNavigationMigration(Nameable componentId) {
 		return AppDef.copyOfGeneric(defaultDef())//
-				.setField(CheckboxBuilder::new, (app, property, l, parameter, field) -> {
-					field.setHint(translate(parameter.bundle(), "App.Energy.navigationMigration.hint"), HintIcon.INFO);
-					field.requireTrue(l);
-					field.setLabel(translate(parameter.bundle(), "acceptHint.label"));
-					field.onlyShowIf(Exp.currentModelValue(componentId).isNull());
-				});
+				.setField(CheckboxBuilder::new, (_, _, l, parameter, field) -> field //
+						.setHint(translate(parameter.bundle(), "App.Energy.navigationMigration.hint"), HintIcon.INFO) //
+						.requireTrue(l) //
+						.setLabel(translate(parameter.bundle(), "acceptHint.label")) //
+						.onlyShowIf(Exp.currentModelValue(componentId).isNull()));
 	}
 
 	/**
@@ -145,10 +144,9 @@ public final class CommonProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("phaseRotation.label") //
 				.setDefaultValue(PhaseRotation.L1_L2_L3) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(PhaseRotation.values()) //
-							.map(PhaseRotation::name) //
-							.toList());
-				}));
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> field //
+						.setOptions(Arrays.stream(PhaseRotation.values()) //
+								.map(PhaseRotation::name) //
+								.toList())));
 	}
 }

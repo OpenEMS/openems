@@ -1569,7 +1569,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			}
 
 			// Fit within min/max
-			socFloat = Math.max(0, Math.min(100, socFloat));
+			socFloat = Math.clamp(socFloat, 0, 100);
 
 			b.append("Limit: " + chargePowerLimit + ", Real: " + actualPower + ", SoC: " + socFloat + "\t");
 

@@ -4,6 +4,8 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.List;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -71,7 +74,7 @@ public class Na003ComM64Impl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(10000, Priority.HIGH, //
+				new FC3ReadRegistersTask(10000, Priority.LOW, //
 						new BitsWordElement(10000, this) //
 								.bit(0, Na003ComM64.ChannelId.LED_REL_1) //
 								.bit(1, Na003ComM64.ChannelId.LED_REL_2) //
@@ -113,57 +116,6 @@ public class Na003ComM64Impl extends AbstractOpenemsModbusComponent
 						m(Na003ComM64.ChannelId.U_AVG_3, new UnsignedWordElement(10019)), //
 						m(Na003ComM64.ChannelId.FREQUENCY, new UnsignedWordElement(10020)) //
 				), //
-				new FC3ReadRegistersTask(30010, Priority.LOW, //
-						m(Na003ComM64.ChannelId.OVERVOLTAGE_1_LINE_TO_LINE_SEL, new UnsignedWordElement(30010)), //
-						new DummyRegisterElement(30011, 30013), //
-						m(Na003ComM64.ChannelId.UNDERVOLTAGE_1_LINE_TO_LINE_SEL, new UnsignedWordElement(30014)), //
-						new DummyRegisterElement(30015, 30017), //
-						m(Na003ComM64.ChannelId.OVERVOLTAGE_1_LINE_TO_NEUTRAL_SEL, new UnsignedWordElement(30018)), //
-						new DummyRegisterElement(30019, 30021), //
-						m(Na003ComM64.ChannelId.UNDERVOLTAGE_1_LINE_TO_NEUTRAL_SEL, new UnsignedWordElement(30022)), //
-						new DummyRegisterElement(30023, 30025), //
-						m(Na003ComM64.ChannelId.OVERVOLTAGE_2_LINE_TO_LINE_SEL, new UnsignedWordElement(30026)), //
-						new DummyRegisterElement(30027, 30029), //
-						m(Na003ComM64.ChannelId.UNDERVOLTAGE_2_LINE_TO_LINE_SEL, new UnsignedWordElement(30030)), //
-						new DummyRegisterElement(30031, 30033), //
-						m(Na003ComM64.ChannelId.OVERVOLTAGE_2_LINE_TO_NEUTRAL_SEL, new UnsignedWordElement(30034)), //
-						new DummyRegisterElement(30035, 30037), //
-						m(Na003ComM64.ChannelId.UNDERVOLTAGE_2_LINE_TO_NEUTRAL_SEL, new UnsignedWordElement(30038)), //
-						new DummyRegisterElement(30039, 30041), //
-						m(Na003ComM64.ChannelId.OVERVOLTAGE_10_MIN_AVG_SEL, new UnsignedWordElement(30042)), //
-						new DummyRegisterElement(30043, 30053), //
-						m(Na003ComM64.ChannelId.OVERFREQUENCY_1_SEL, new UnsignedWordElement(30054)), //
-						new DummyRegisterElement(30055, 30057), //
-						m(Na003ComM64.ChannelId.UNDERFREQUENCY_1_SEL, new UnsignedWordElement(30058)), //
-						new DummyRegisterElement(30059, 30061), //
-						m(Na003ComM64.ChannelId.OVERFREQUENCY_2_SEL, new UnsignedWordElement(30062)), //
-						new DummyRegisterElement(30063, 30065), //
-						m(Na003ComM64.ChannelId.UNDERFREQUENCY_2_SEL, new UnsignedWordElement(30066)), //
-						new DummyRegisterElement(30067, 30069), //
-						m(Na003ComM64.ChannelId.OVERFREQUENCY_3_SEL, new UnsignedWordElement(30070)), //
-						new DummyRegisterElement(30071, 30073), //
-						m(Na003ComM64.ChannelId.UNDERFREQUENCY_3_SEL, new UnsignedWordElement(30074)), //
-						new DummyRegisterElement(30075, 30085), //
-						m(Na003ComM64.ChannelId.FREQUENCY_RANDOM_SEL, new UnsignedWordElement(30086)), //
-						new DummyRegisterElement(30087, 30089), //
-						m(Na003ComM64.ChannelId.FREQUENCY_CHANGE_RATE_SEL, new UnsignedWordElement(30090)), //
-						new DummyRegisterElement(30091, 30093), //
-						m(Na003ComM64.ChannelId.PHASE_SHIFT_SEL, new UnsignedWordElement(30094)), //
-						new DummyRegisterElement(30095, 30098), //
-						m(Na003ComM64.ChannelId.CONTACT, new UnsignedWordElement(30099)), //
-						m(Na003ComM64.ChannelId.CONTACT_DELAY, new UnsignedWordElement(30100)), //
-						new DummyRegisterElement(30101), //
-						m(Na003ComM64.ChannelId.ON_DELAY, new UnsignedWordElement(30102)), //
-						m(Na003ComM64.ChannelId.ON_DELAY_R_SEL, new UnsignedWordElement(30103)), //
-						m(Na003ComM64.ChannelId.ON_DELAY_R, new UnsignedWordElement(30104)), //
-						new DummyRegisterElement(30105, 30113), //
-						m(Na003ComM64.ChannelId.DIGITAL_INPUT_3_STATE, new UnsignedWordElement(30114)), //
-						m(Na003ComM64.ChannelId.U_ZERO_O_SEL, new UnsignedWordElement(30115)), //
-						new DummyRegisterElement(30116, 30118), //
-						m(Na003ComM64.ChannelId.CEN_URES_O_SEL, new UnsignedWordElement(30119)), //
-						new DummyRegisterElement(30120, 30122), //
-						m(Na003ComM64.ChannelId.CEN_LN_U_SEL, new UnsignedWordElement(30123)) //
-				), //
 				new FC6WriteRegisterTask(50902, //
 						m(Na003ComM64.ChannelId.MODBUS_ADDRESS, new UnsignedWordElement(50902)) //
 				), //
@@ -174,5 +126,31 @@ public class Na003ComM64Impl extends AbstractOpenemsModbusComponent
 						m(Na003ComM64.ChannelId.MODBUS_PROPERTIES, new UnsignedWordElement(50904)) //
 				) //
 		);
+	}
+
+	@Override
+	public String debugLog() {
+		var b = new StringBuilder();
+		b.append("Frequency:")//
+				.append(this.channel(Na003ComM64.ChannelId.FREQUENCY).value().asString());
+		b.append("|Input:");
+
+		var channels = this.getListOfDigitalChannels();
+		for (var i = 0; i < channels.size(); i++) {
+			b.append(channels.get(i).value().asOptional().map(v -> v //
+					? "x"
+					: "-") //
+					.orElse("?"));
+		}
+		return b.toString();
+	}
+
+	private List<Channel<Boolean>> getListOfDigitalChannels() {
+		return List.of(//
+				this.channel(Na003ComM64.ChannelId.DIGITAL_INPUT_1),
+				this.channel(Na003ComM64.ChannelId.DIGITAL_INPUT_2),
+				this.channel(Na003ComM64.ChannelId.DIGITAL_INPUT_3),
+				this.channel(Na003ComM64.ChannelId.DIGITAL_INPUT_4),
+				this.channel(Na003ComM64.ChannelId.DIGITAL_INPUT_5));
 	}
 }

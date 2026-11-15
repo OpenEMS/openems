@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -80,7 +81,7 @@ public class Context extends AbstractContext<BatteryBmwImpl> {
 	public Endpoint getEndpoint(String uri, String outdata) {
 		final var battery = this.getParent();
 		var map = Map.of(//
-				"Authorization", "Bearer " + battery.getToken(), //
+				"Authorization", HttpAuthorization.bearer(battery.getToken()), //
 				"Content-Type", "application/json");
 		final var id = battery.id().split(SPLIT_REGEX);
 		final var url = battery.getUrl((BridgeModbusTcp) battery.getBridgeModbus(), uri, id[1]);

@@ -67,7 +67,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			ThrowingSupplier<CompletableFuture<? extends JsonrpcResponseSuccess>, Exception> futureFunc, Timer timer) {
 		try {
 			final var future = futureFunc.get();
-			future.whenComplete((t, u) -> timer.close());
+			future.whenComplete((_, _) -> timer.close());
 			return future;
 		} catch (Exception e) {
 			timer.close();

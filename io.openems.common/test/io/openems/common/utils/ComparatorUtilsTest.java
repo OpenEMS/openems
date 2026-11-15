@@ -66,7 +66,7 @@ public class ComparatorUtilsTest {
 	) {
 		if (items.size() == 1) {
 			final var set = setSupplier.get();
-			set.add(items.get(0));
+			set.add(items.getFirst());
 			onEachCombination.accept(set);
 			return;
 		}

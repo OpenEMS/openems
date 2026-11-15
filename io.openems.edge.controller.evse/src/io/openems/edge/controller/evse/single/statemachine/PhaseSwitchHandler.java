@@ -221,7 +221,7 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<EvseSingleS
 		};
 	}
 
-	private class SubStateMachine {
+	private static class SubStateMachine {
 		private static final int DEAD_TIME_SECONDS = 30;
 		private static final int TIMEOUT_SECONDS = 600;
 

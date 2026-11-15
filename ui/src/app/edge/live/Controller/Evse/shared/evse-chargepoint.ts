@@ -31,6 +31,8 @@ export abstract class EvseChargepoint {
                 return new P40KebaModbus(chargePoint);
             case "Evse.ChargePoint.HardyBarth":
                 return new HardyBarth(chargePoint);
+            case "Evse.ChargePoint.HardyBarth.cPH1":
+                return new HardyBarthCph1(chargePoint);
             case "Evse.ChargePoint.Alpitronic":
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
@@ -101,6 +103,16 @@ export class HardyBarth extends EvseChargepoint {
                 });
             });
         });
+    }
+}
+
+export class HardyBarthCph1 extends EvseChargepoint {
+    public img = {
+        url: environment.images.EVSE.HARDY_BARTH_CPH1,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return false;
     }
 }
 

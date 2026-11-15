@@ -34,7 +34,7 @@ public class ResendHistoricDataWorkerTest {
 		final var testChannel = new ChannelAddress("c1", "test");
 		final var testValue = new JsonPrimitive("value");
 		SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> data = new TreeMap<>();
-		data.computeIfAbsent(testTimestamp, a -> new TreeMap<>()) //
+		data.computeIfAbsent(testTimestamp, _ -> new TreeMap<>()) //
 				.put(testChannel, testValue);
 		final var mapped = ResendHistoricDataWorker.mapResendData(data);
 		assertEquals(testValue, mapped.get(testTimestamp, testChannel.toString()));

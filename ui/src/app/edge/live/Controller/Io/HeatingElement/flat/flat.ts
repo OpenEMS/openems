@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { takeUntil } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { WorkMode } from "src/app/shared/type/general";
 import { ModalComponent } from "../modal/modal";
-import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../util/utils";
+import { getInactiveIfPowerIsLow, getRunStateConverter, HeatingElementComponent, Level, State } from "../util/utils";
 
 @Component({
     selector: "oe-controller-io-heating-element",
@@ -17,6 +18,7 @@ import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../
 export class FlatComponent extends AbstractFlatWidget {
     private static PROPERTY_MODE: string = "_PropertyMode";
     protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(this.translate);
+    protected readonly CONVERT_HEATING_ELEMENT_MODE = HeatingElementComponent.createModeLabelConverter(this.translate);
 
     protected mode: string;
     protected runState: State;
@@ -33,9 +35,13 @@ export class FlatComponent extends AbstractFlatWidget {
     protected sensorNotAvailable = false;
     protected legionellaFailed = false;
     protected readonly CONVERT_TEMPERATURE = Converter.TEMPERATURE_IN_DEGREES;
+    private currentMode: string | null | undefined;
 
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
+        this.translate.onLangChange.pipe(takeUntil(this.stopOnDestroy)).subscribe(() => {
+            this.mode = this.CONVERT_HEATING_ELEMENT_MODE(this.currentMode);
+        });
     }
 
     protected getModalComponent(): Modal {
@@ -76,20 +82,8 @@ export class FlatComponent extends AbstractFlatWidget {
         this.consumptionMeter = this.config.getComponent(this.component.properties["meter.id"]) ?? null;
 
         // get current mode
-        switch (currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE]) {
-            case "MANUAL_ON": {
-                this.mode = "GENERAL.ON";
-                break;
-            }
-            case "MANUAL_OFF": {
-                this.mode = "GENERAL.OFF";
-                break;
-            }
-            case "AUTOMATIC": {
-                this.mode = "GENERAL.AUTOMATIC";
-                break;
-            }
-        }
+        this.currentMode = currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE];
+        this.mode = this.CONVERT_HEATING_ELEMENT_MODE(this.currentMode);
 
         this.hasWaterThermometer =
             currentData.allComponents[this.component.id + "/_PropertyHasWaterThermometer"] === 1 ||

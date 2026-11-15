@@ -6,37 +6,40 @@ import { Formatter } from "src/app/shared/components/shared/formatter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Mode, WorkMode } from "src/app/shared/type/general";
+import { WorkMode } from "src/app/shared/type/general";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { HeatingElementComponent, HeatingElementMode } from "../util/utils";
 
 export namespace SharedControllerIoHeatingElement {
     export const PREDICTED_PV_PRODUCTION_HOUR = 5;
     export const POWER_OVERSHOOT_FACTOR = 1.1;
     // hide elements when mode is not off
-    const HIDE_ON_MODE_NOT_MANUAL_ON = (el: { mode: Mode }) => el.mode !== Mode.MANUAL_ON;
+    const HIDE_ON_MODE_NOT_MANUAL_ON = (el: { mode: HeatingElementMode }) => el.mode !== HeatingElementMode.MANUAL_ON;
     // hide elements when mode is not off
-    const HIDE_ON_WORKMODE_NOT_TIME_OR_MODE_NOT_TIME = (el: { mode: Mode; workMode: WorkMode }) =>
-        el.mode !== Mode.AUTOMATIC || el.workMode === WorkMode.NONE || el.workMode === WorkMode.ENERGY;
-    const HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME = (el: { mode: Mode; workMode: WorkMode }) =>
-        el.mode !== Mode.AUTOMATIC || el.workMode === WorkMode.NONE || el.workMode === WorkMode.TIME;
+    const HIDE_ON_WORKMODE_NOT_TIME_OR_MODE_NOT_TIME = (el: { mode: HeatingElementMode; workMode: WorkMode }) =>
+        el.mode !== HeatingElementMode.AUTOMATIC || el.workMode === WorkMode.NONE || el.workMode === WorkMode.ENERGY;
+    const HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME = (el: { mode: HeatingElementMode; workMode: WorkMode }) =>
+        el.mode !== HeatingElementMode.AUTOMATIC || el.workMode === WorkMode.NONE || el.workMode === WorkMode.TIME;
 
     export const getFormlyView = (
         translate: TranslateService,
         component: EdgeConfig.Component,
         edge: Edge,
     ): OeFormlyView<HeatingElementViewModel> => {
+        const heatingElementConfig = new HeatingElementComponent(component, edge);
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
             icon: { name: "oe-heating-element", color: "normal", size: "large" },
             lines: [
-                ...getFormlySharedLines(translate, component),
+                ...getFormlySharedLines(translate, heatingElementConfig),
                 ...getFormlyAutomaticView(
                     translate,
                     HIDE_ON_WORKMODE_NOT_TIME_OR_MODE_NOT_TIME,
                     HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME,
+                    heatingElementConfig,
                 ),
-                ...getFormlyManualOnView(HIDE_ON_MODE_NOT_MANUAL_ON),
+                ...getFormlyManualOnView(translate, heatingElementConfig, HIDE_ON_MODE_NOT_MANUAL_ON),
                 ...getFormlyTemperatureView(translate, component, edge),
             ],
             component: component,
@@ -46,8 +49,15 @@ export namespace SharedControllerIoHeatingElement {
 
     const getFormlyAutomaticView = (
         translate: TranslateService,
-        HIDE_ON_WORKMODE_NOT_TIME_OR_MODE_NOT_TIME: (field: { mode: Mode; workMode: WorkMode }) => boolean,
-        HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME: (field: { mode: Mode; workMode: WorkMode }) => boolean,
+        HIDE_ON_WORKMODE_NOT_TIME_OR_MODE_NOT_TIME: (field: {
+            mode: HeatingElementMode;
+            workMode: WorkMode;
+        }) => boolean,
+        HIDE_ON_WORKMODE_NOT_ENERGY_OR_MODE_NOT_TIME: (field: {
+            mode: HeatingElementMode;
+            workMode: WorkMode;
+        }) => boolean,
+        heatingElementConfig: HeatingElementComponent,
     ): OeFormlyView<HeatingElementViewModel>["lines"] => {
         const lines: OeFormlyView<HeatingElementViewModel>["lines"] = [];
 
@@ -66,7 +76,7 @@ export namespace SharedControllerIoHeatingElement {
                 },
                 { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_NONE"), value: WorkMode.NONE },
             ],
-            hide: (el: { mode: Mode }) => el.mode !== Mode.AUTOMATIC,
+            hide: (el: { mode: HeatingElementMode }) => el.mode !== HeatingElementMode.AUTOMATIC,
         });
 
         lines.push(
@@ -104,8 +114,8 @@ export namespace SharedControllerIoHeatingElement {
             {
                 type: "info-line",
                 name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.MESSAGE_UNREACHABLE"),
-                hide: (el: { mode: Mode; workMode: WorkMode; isUnreachable: boolean }) =>
-                    el.mode !== Mode.AUTOMATIC ||
+                hide: (el: { mode: HeatingElementMode; workMode: WorkMode; isUnreachable: boolean }) =>
+                    el.mode !== HeatingElementMode.AUTOMATIC ||
                     el.workMode === WorkMode.NONE ||
                     el.workMode === WorkMode.TIME ||
                     !el.isUnreachable,
@@ -120,11 +130,7 @@ export namespace SharedControllerIoHeatingElement {
                 type: "select-line",
                 controlName: "defaultLevel",
                 name: "Level",
-                options: [
-                    { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_ONE"), value: "LEVEL_1" },
-                    { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_TWO"), value: "LEVEL_2" },
-                    { name: translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEVEL_THREE"), value: "LEVEL_3" },
-                ],
+                options: heatingElementConfig.getLevelOptions(translate),
             },
             {
                 type: "horizontal-line",
@@ -165,17 +171,15 @@ export namespace SharedControllerIoHeatingElement {
     };
 
     const getFormlyManualOnView = (
-        hideCondition: (field: { mode: Mode }) => boolean,
+        translate: TranslateService,
+        heatingElementConfig: HeatingElementComponent,
+        hideCondition: (field: { mode: HeatingElementMode }) => boolean,
     ): OeFormlyView<HeatingElementViewModel>["lines"] => [
         {
             type: "select-line",
             controlName: "defaultLevel",
             name: "Level",
-            options: [
-                { name: "Level 1", value: "LEVEL_1" },
-                { name: "Level 2", value: "LEVEL_2" },
-                { name: "Level 3", value: "LEVEL_3" },
-            ],
+            options: heatingElementConfig.getLevelOptions(translate),
             hide: hideCondition,
         },
     ];
@@ -318,14 +322,14 @@ export namespace SharedControllerIoHeatingElement {
 
     const getFormlySharedLines = (
         translate: TranslateService,
-        component: EdgeConfig.Component,
+        heatingElementConfig: HeatingElementComponent,
     ): OeFormlyView<HeatingElementViewModel>["lines"] => [
         {
             type: "value-from-channels-line",
             name: translate.instant("GENERAL.STATE"),
-            channelsToSubscribe: [new ChannelAddress(component.id, "Status")],
+            channelsToSubscribe: [new ChannelAddress(heatingElementConfig.id, "Status")],
             value: (currentData: CurrentData) => {
-                const runState = currentData.allComponents[component.id + "/Status"];
+                const runState = currentData.allComponents[heatingElementConfig.id + "/Status"];
                 return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate)(runState);
             },
         },
@@ -333,23 +337,7 @@ export namespace SharedControllerIoHeatingElement {
             type: "buttons-from-form-control-line",
             name: translate.instant("GENERAL.MODE"),
             controlName: "mode",
-            buttons: [
-                {
-                    name: translate.instant("GENERAL.ON"),
-                    value: Mode.MANUAL_ON,
-                    icon: { color: "success", name: "play-outline", size: "medium" },
-                },
-                {
-                    name: translate.instant("GENERAL.AUTOMATIC"),
-                    value: Mode.AUTOMATIC,
-                    icon: { color: "primary", name: "sunny", size: "medium" },
-                },
-                {
-                    name: translate.instant("GENERAL.OFF"),
-                    value: Mode.MANUAL_OFF,
-                    icon: { color: "danger", name: "power-outline", size: "medium" },
-                },
-            ],
+            buttons: heatingElementConfig.getModeButtons(translate),
         },
         {
             type: "horizontal-line",
@@ -454,7 +442,7 @@ export namespace SharedControllerIoHeatingElement {
 }
 
 export type HeatingElementViewModel = {
-    mode: Mode;
+    mode: HeatingElementMode;
     workMode: WorkMode;
     isUnreachable: boolean;
     hasWaterThermometer: boolean;

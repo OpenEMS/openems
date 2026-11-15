@@ -242,7 +242,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			this.checkMetadata();
 		} else {
 			final var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
-			this.initMetadata = this.timeService.schedule(executeAt, now -> this.checkMetadata());
+			this.initMetadata = this.timeService.schedule(executeAt, _ -> this.checkMetadata());
 		}
 	}
 
@@ -258,7 +258,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				if (isOnline) {
 					this.tryRemoveEdge(edge);
 				} else {
-					this.timeService.schedule(this.timeService.now().plusMinutes(EDGE_REBOOT_MINUTES), t -> {
+					this.timeService.schedule(this.timeService.now().plusMinutes(EDGE_REBOOT_MINUTES), _ -> {
 						if (edge.isOffline()) {
 							this.tryAddEdge(edge);
 						}

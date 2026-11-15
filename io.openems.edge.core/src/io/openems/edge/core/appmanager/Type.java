@@ -108,16 +108,6 @@ public interface Type<P extends Nameable, //
 				Function<Language, ResourceBundle> resourceBundleSupplier) {
 			return t -> of(resourceBundleSupplier.apply(t.language));
 		}
-
-		/**
-		 * Creates a Empty {@link Parameter}.
-		 * 
-		 * @return the {@link Parameter}
-		 */
-		public static final Parameter empty() {
-			return new Parameter();
-		}
-
 	}
 
 	/**

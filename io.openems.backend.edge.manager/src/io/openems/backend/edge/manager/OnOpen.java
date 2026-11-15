@@ -1,32 +1,36 @@
 package io.openems.backend.edge.manager;
 
-import static io.openems.common.websocket.WebsocketUtils.getAsString;
+import static io.openems.common.utils.StringUtils.isNullOrBlank;
+import static io.openems.common.websocket.WebsocketUtils.getAsStringOrNull;
 import static io.openems.common.websocket.WebsocketUtils.parseRemoteIdentifier;
 import static org.java_websocket.framing.CloseFrame.REFUSE;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.HttpAuthorization;
+import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.notification.AllSyncableEntriesNotification;
+import io.openems.common.logger.ContextLogger;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
+	private final Logger log;
 	private final EdgeManagerImpl parent;
 
-	public OnOpen(EdgeManagerImpl parent) {
+	public OnOpen(String name, EdgeManagerImpl parent) {
+		this.log = new ContextLogger(OnOpen.class, name);
 		this.parent = parent;
 	}
 
 	@Override
 	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
 		// get id from handshake
-		final var id = getAsString(handshakedata, "id");
+		final var authorization = getAsStringOrNull(handshakedata, HttpHeader.HEADER_AUTHORIZATION);
 
-		var error = this._apply(ws, id);
+		var error = this._apply(ws, authorization);
 		if (error != null) {
 			// close websocket
 			ws.closeConnection(REFUSE, "Connection to backend failed. " //
@@ -36,17 +40,22 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		return error;
 	}
 
-	private OpenemsError _apply(WebSocket ws, String id) {
+	private OpenemsError _apply(WebSocket ws, String authorizationHeader) {
 		// get websocket attachment
 		final WsData wsData = ws.getAttachment();
 
-		if (id == null) {
+		final var authToken = HttpAuthorization.extractBearerToken(authorizationHeader);
+		if (isNullOrBlank(authToken)) {
+			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
+		}
+		final var subject = this.parent.tokenVerifier.verify(authToken);
+		if (isNullOrBlank(subject)) {
 			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
 		}
 
-		this.parent.logInfo(this.log, "Backend.Edge.Client [" + id + "] connected");
+		this.log.info("Backend.Edge.Client [{}] connected", subject);
 
-		wsData.setId(id);
+		wsData.setId(subject);
 
 		// Send a UpdateMetadataCache.Notification
 		wsData.send(this.parent.metadata.generateUpdateMetadataCacheNotification());

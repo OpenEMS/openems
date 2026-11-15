@@ -7,12 +7,14 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { parse } from "date-fns";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
+import type { ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { LiveDataService } from "../../../../livedataservice";
 import { HeatingElementViewModel, SharedControllerIoHeatingElement } from "../shared/shared";
+import { HeatingElementComponent } from "../util/utils";
 
 @Component({
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
@@ -32,17 +34,43 @@ export class ControllerIoHeatingElementSettingsComponent extends AbstractFormlyC
         return SharedControllerIoHeatingElement.getFormlyView(translate, component, edge);
     }
 
-    protected override generateView(): OeFormlyView<HeatingElementViewModel> {
-        const component = this.getComponent();
-        const edge = this.service.currentEdge();
+    protected override generateView(viewContext: ViewContext): OeFormlyView<HeatingElementViewModel> {
+        const component = viewContext.config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
-        AssertionUtils.assertIsDefined(edge);
-        return ControllerIoHeatingElementSettingsComponent.generateView(this.translate, component, edge);
+        return ControllerIoHeatingElementSettingsComponent.generateView(this.translate, component, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {
         const component = this.getComponent();
         return SharedControllerIoHeatingElement.getFormGroup(component);
+    }
+
+    protected override applyChanges(
+        fg: FormGroup<any>,
+        service: Service,
+        websocket: Websocket,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ): void {
+        if (this.buildUpdateComponentArr(fg).length === 0) {
+            fg.markAsPristine();
+            return;
+        }
+        super.applyChanges(fg, service, websocket, component, edge);
+    }
+
+    /** Maps form control names to OSGi property names (e.g. waterThermometerId -> waterThermometer.id) and numbers. */
+    protected override buildUpdateComponentArr(fg: FormGroup<any>): { name: string; value: any }[] {
+        const heatingElementConfig = new HeatingElementComponent(this.getComponent(), this.getEdge());
+        const updates = heatingElementConfig.filterSupportedUpdates(super.buildUpdateComponentArr(fg));
+        return updates.map((entry) => {
+            const p = SharedControllerIoHeatingElement.TEMPERATURE_PROPERTIES.find((x) => x.control === entry.name);
+            if (!p) {
+                return entry;
+            }
+            const isNumber = !p.boolean && !["waterThermometerId", "sensorErrorLevel"].includes(p.control);
+            return { name: p.property, value: isNumber ? Number(entry.value) : entry.value };
+        });
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -125,18 +153,6 @@ export class ControllerIoHeatingElementSettingsComponent extends AbstractFormlyC
                 : false;
 
         this.setFormControlSafelyWithValue(this.form(), "isUnreachable", isUnreachable);
-    }
-
-    /** Maps form control names to OSGi property names (e.g. waterThermometerId -> waterThermometer.id) and numbers. */
-    protected override buildUpdateComponentArr(fg: FormGroup): { name: string; value: any }[] {
-        return super.buildUpdateComponentArr(fg).map((entry) => {
-            const p = SharedControllerIoHeatingElement.TEMPERATURE_PROPERTIES.find((x) => x.control === entry.name);
-            if (!p) {
-                return entry;
-            }
-            const isNumber = !p.boolean && !["waterThermometerId", "sensorErrorLevel"].includes(p.control);
-            return { name: p.property, value: isNumber ? Number(entry.value) : entry.value };
-        });
     }
 
     private getRequiredPower(

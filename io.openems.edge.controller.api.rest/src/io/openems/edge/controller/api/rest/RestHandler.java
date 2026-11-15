@@ -84,7 +84,7 @@ public class RestHandler extends Handler.Abstract {
 			// Authenticate the user
 			var user = this.authenticate(request);
 
-			var thisTarget = targets.get(0);
+			var thisTarget = targets.getFirst();
 			var remainingTargets = targets.subList(1, targets.size());
 
 			// Dispatch based on the first path token
@@ -168,7 +168,7 @@ public class RestHandler extends Handler.Abstract {
 			throw new OpenemsException("Missing arguments to handle REST-request");
 		}
 
-		var thisTarget = targets.get(0);
+		var thisTarget = targets.getFirst();
 		var remainingTargets = targets.subList(1, targets.size());
 
 		return switch (thisTarget) {

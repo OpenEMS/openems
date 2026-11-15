@@ -963,3 +963,7 @@ const color: Color = Color.Red; // Better inference for Color type
 - [ ] Use `@typescript-eslint/recommended`
 - [ ] No ESLint warnings or errors
 - [ ] Use `consistent-type-imports`
+
+### UI (Angular/Ionic)
+
+- [ ] Every changed file under `ui/` complies with `ui/AGENTS.md` (read it first; it prescribes the format check and member-scope rules)

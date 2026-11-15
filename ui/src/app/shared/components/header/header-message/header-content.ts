@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { v4 as uuidv4 } from "uuid";
@@ -11,6 +11,7 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { TSignalValue } from "src/app/shared/type/utility";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { environment } from "src/environments";
 import { NavigationService } from "../../navigation/service/navigation.service";
@@ -35,7 +36,7 @@ import sv from "./i18n/sv.json";
     providers: [LiveDataServiceProvider],
 })
 export class AppHeaderContentComponent {
-    protected message: string | null = null;
+    protected message = signal<string | null>(null);
     protected isSmartphone: boolean = false;
     protected image: OeImageComponent["img"] | null = null;
     protected readonly service = inject(Service);
@@ -106,9 +107,8 @@ export class AppHeaderContentComponent {
         effect(() => {
             const currentValue = this.liveDataService.currentValue();
 
-            const currentUrl = this.routeService.currentUrl();
             const showMessage = StringUtils.isInArr(this.navigationService.position(), ["bottom", "left"]);
-            if (currentUrl?.split("/")?.reverse()?.[0] === "live") {
+            if (ArrayUtils.getLastSafely(StringUtils.splitBy(this.routeService.currentUrl(), "/") ?? []) === "live") {
                 this.setChannelValueToSumState(currentValue, showMessage);
                 return;
             }
@@ -122,7 +122,7 @@ export class AppHeaderContentComponent {
         show: boolean = true,
     ) {
         if (!show) {
-            this.message = null;
+            this.message.set(null);
             return;
         }
 
@@ -142,7 +142,6 @@ export class AppHeaderContentComponent {
         })();
 
         const message = key ? this.translate.instant(key) : null;
-
-        this.message = message != null && this.isSmartphone ? message.replace("\n", "<br/>") : message;
+        this.message.set(message != null && this.isSmartphone ? message.replace("\n", "<br/>") : message);
     }
 }

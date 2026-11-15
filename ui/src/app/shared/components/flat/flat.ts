@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";

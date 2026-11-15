@@ -2,6 +2,8 @@ package io.openems.edge.energy.api.handler;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
+import java.util.Objects;
+
 import org.apache.logging.log4j.util.Supplier;
 
 import io.openems.edge.common.component.OpenemsComponent;
@@ -9,8 +11,6 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
-
-import java.util.Objects;
 
 /**
  * Helper methods and classes for {@link EnergyScheduleHandler.WithOnlyOneMode}.
