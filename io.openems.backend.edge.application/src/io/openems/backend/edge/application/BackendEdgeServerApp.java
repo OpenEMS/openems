@@ -2,6 +2,7 @@ package io.openems.backend.edge.application;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -16,11 +17,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.openems.backend.common.authentication.SecretTokenGenerator;
 import io.openems.backend.common.jsonrpc.syncable.SyncableRepository;
 import io.openems.backend.edge.client.WebsocketClient;
 import io.openems.backend.edge.server.WebsocketServer;
 import io.openems.backend.edge.syncable.SyncableManager;
 import io.openems.common.OpenemsConstants;
+import io.openems.common.bridge.http.api.HttpAuthorization;
+import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -60,8 +64,10 @@ public class BackendEdgeServerApp {
 		this.log.info(line);
 
 		// Prepare Client
-		this.client = new WebsocketClient("Backend.Edge.Client", new URI(config.uri()), config.id(),
-				config.clientPoolSize(), //
+		this.client = new WebsocketClient("Backend.Edge.Client", new URI(config.uri()), () -> {
+			return Map.of(HttpHeader.HEADER_AUTHORIZATION,
+					HttpAuthorization.bearer(SecretTokenGenerator.generateAuthToken(config.id(), config.secret())));
+		}, config.clientPoolSize(), //
 				this::evaluateServerStart, //
 				this);
 		this.client.start();

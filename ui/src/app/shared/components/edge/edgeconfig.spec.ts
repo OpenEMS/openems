@@ -1590,3 +1590,45 @@ describe("hasPropertyValue", () => {
         expect(component.hasPropertyValue("numberValueStrng", 42)).toBeTrue();
     });
 });
+
+describe("getComponentFromOtherComponentsProperty", () => {
+    const ess = DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0");
+    const controller = DummyConfig.Component.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({
+        id: "ctrlEmergencyCapacityReserve0",
+        essId: "ess0",
+    });
+
+    it("returns the referenced component if the property points to an existing component", () => {
+        const config = DummyConfig.from(ess, controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBe(
+            config.components["ess0"],
+        );
+    });
+
+    it("returns null if the other component does not exist", () => {
+        const config = DummyConfig.from(ess);
+        expect(config.getComponentFromOtherComponentsProperty("unknown0", "ess.id")).toBeNull();
+    });
+
+    it("returns null if the property does not exist on the other component", () => {
+        const config = DummyConfig.from(ess, controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "meter.id")).toBeNull();
+    });
+
+    it("returns null if the property references a non-existing component", () => {
+        const config = DummyConfig.from(controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBeNull();
+    });
+
+    it("returns null if the property value is null", () => {
+        const controllerWithNullReference: Component = {
+            id: "ctrlEmergencyCapacityReserve0",
+            alias: "ctrlEmergencyCapacityReserve0",
+            factory: DummyConfig.Factory.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE,
+            properties: { "ess.id": null },
+            channels: {},
+        };
+        const config = DummyConfig.from(ess, controllerWithNullReference);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBeNull();
+    });
+});

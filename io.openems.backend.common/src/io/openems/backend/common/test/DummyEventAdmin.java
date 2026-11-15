@@ -12,7 +12,7 @@ public class DummyEventAdmin implements EventAdmin {
 	private final Consumer<Event> onEvent;
 
 	public DummyEventAdmin(Consumer<Event> onEvent) {
-		this.eventFilter = (e) -> true;
+		this.eventFilter = (_) -> true;
 		this.onEvent = onEvent;
 	}
 

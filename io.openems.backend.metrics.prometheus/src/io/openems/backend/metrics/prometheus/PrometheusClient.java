@@ -22,6 +22,8 @@ import com.sun.net.httpserver.HttpPrincipal;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.common.OpenemsConstants;
+import io.openems.common.bridge.http.api.HttpAuthorization;
+import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.types.ChannelAddress;
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
@@ -84,8 +86,9 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 				httpServerBuilder.authenticator(new Authenticator() {
 					@Override
 					public Result authenticate(HttpExchange exchange) {
-						String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-						if (authHeader == null || !authHeader.equals("Bearer " + bearerToken)) {
+						final var authHeader = exchange.getRequestHeaders().getFirst(HttpHeader.HEADER_AUTHORIZATION);
+						final var token = HttpAuthorization.extractBearerToken(authHeader);
+						if (token == null || !token.equals(bearerToken)) {
 							return new Failure(401);
 						}
 						return new Success(new HttpPrincipal("prometheus", "metrics"));

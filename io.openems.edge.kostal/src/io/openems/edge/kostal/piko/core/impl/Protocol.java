@@ -161,9 +161,7 @@ public class Protocol {
 		 */
 		byte[] results = new byte[datas.length - 7];
 
-		for (var i = 5; i < datas.length - 2; i++) {
-			results[i - 5] = datas[i];
-		}
+		System.arraycopy(datas, 5, results, 0, datas.length - 2 - 5);
 		/*
 		 * Return value
 		 */

@@ -956,12 +956,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterCo
                 }
                 break;
             case YAxisType.HEATING_ELEMENT:
+            case YAxisType.HEATING_ELEMENT_TWO:
                 {
                     const { callback, ...rest } = baseConfig.ticks;
                     scales[element.yAxisId] = {
                         ...baseConfig,
                         min: 0,
-                        max: 3,
+                        max: element.unit === YAxisType.HEATING_ELEMENT_TWO ? 6 : 3,
                         beginAtZero: true,
                         ticks: {
                             ...rest,

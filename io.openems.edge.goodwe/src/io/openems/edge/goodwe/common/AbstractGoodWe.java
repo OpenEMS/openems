@@ -1,6 +1,5 @@
 package io.openems.edge.goodwe.common;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.sumInt;
@@ -2111,7 +2110,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	protected static Integer postprocessPBattery(//
 			Integer pBattery, Integer dcVoltage, Integer maxDcCurrent, Consumer<Boolean> setState, Integer prevPBattery //
 	) {
-
 		/*
 		 * Values above maximum charge/discharge power
 		 */
@@ -2123,8 +2121,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 			if (pBattery < impossibleDcChargePower * -1 || pBattery > impossibleDcDischargePower) {
 				stateIgnoreImpossiblePBatteryValue = true;
-				pBattery = prevPBattery != null ? prevPBattery
-						: fitWithin(maxDcCurrent * dcVoltage * -1, maxDcCurrent * dcVoltage, pBattery);
+				final int maxDcPower = maxDcCurrent * dcVoltage;
+				pBattery = prevPBattery != null ? prevPBattery : Math.clamp(pBattery, -maxDcPower, maxDcPower);
 			}
 		}
 

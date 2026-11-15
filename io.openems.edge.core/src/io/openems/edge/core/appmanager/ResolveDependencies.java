@@ -145,7 +145,7 @@ public class ResolveDependencies implements Runnable {
 			}
 		}
 
-		return configs.get(0);
+		return configs.getFirst();
 	}
 
 }

@@ -20,7 +20,7 @@ public class WebsocketUtils {
 	 * @param fieldName     the name of the field
 	 * @return the field value; or null
 	 */
-	public static String getAsString(Handshakedata handshakedata, String fieldName) {
+	public static String getAsStringOrNull(Handshakedata handshakedata, String fieldName) {
 		return getAsOptionalString(handshakedata, fieldName).orElse(null);
 	}
 
@@ -32,11 +32,14 @@ public class WebsocketUtils {
 	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
 	 * "Field names are case-insensitive".
 	 *
-	 * @param handshakedata the {@link Handshakedata}
+	 * @param handshakedata the {@link Handshakedata}, or null
 	 * @param fieldName     the name of the field
 	 * @return the field value as optional; empty if not found
 	 */
 	public static Optional<String> getAsOptionalString(Handshakedata handshakedata, String fieldName) {
+		if (handshakedata == null) {
+			return Optional.empty();
+		}
 		for (var iter = handshakedata.iterateHttpFields(); iter.hasNext();) {
 			var field = iter.next();
 			if (fieldName.equalsIgnoreCase(field)) {
@@ -101,7 +104,7 @@ public class WebsocketUtils {
 	 */
 	public static String parseRemoteIdentifier(WebSocket ws, Handshakedata handshakedata) {
 		for (var key : REMOTE_IDENTIFICATION_HEADERS) {
-			var value = getAsString(handshakedata, key);
+			var value = getAsStringOrNull(handshakedata, key);
 			if (value != null) {
 				return value;
 			}

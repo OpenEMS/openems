@@ -47,7 +47,7 @@ export class ConsumptionMeterChartDetailsComponent extends AbstractHistoryChart 
                 ...Phase.THREE_PHASE.map((phase, i) => ({
                     name: "Phase " + phase,
                     converter: () => data["ConsumptionActivePower" + phase],
-                    color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+                    color: AbstractHistoryChart.phaseColors[i],
                     stack: 3,
                 })),
             ],

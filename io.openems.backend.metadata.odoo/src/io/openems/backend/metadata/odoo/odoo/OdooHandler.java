@@ -68,6 +68,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 
@@ -756,7 +757,7 @@ public class OdooHandler {
 					throw new RuntimeException(e);
 				}
 			});
-		}).thenAccept(ignore -> {
+		}).thenAccept(_ -> {
 			// empty
 		});
 	}
@@ -1035,7 +1036,7 @@ public class OdooHandler {
 			userFields.put("password", password);
 		}
 
-		getAsOptionalInt(jsonObject, "oauthProviderId").ifPresent(id -> {
+		getAsOptionalInt(jsonObject, "oauthProviderId").ifPresent(_ -> {
 			try {
 				final var oauthIds = OdooUtils.search(this.credentials, Field.AuthOAuthProvider.ODOO_MODEL,
 						new Domain(Field.AuthOAuthProvider.NAME, Operator.EQ, this.parent.getAuthOAuthProviderName()));
@@ -1741,7 +1742,7 @@ public class OdooHandler {
 	}
 
 	private <T> CompletableFuture<T> executeAdminRequest(Function<String, CompletableFuture<T>> request) {
-		return this.adminLoginFuture.exceptionallyCompose(t -> this.authenticateAsAdmin()) //
+		return this.adminLoginFuture.exceptionallyCompose(_ -> this.authenticateAsAdmin()) //
 				.thenCompose(token -> {
 					return request.apply(token).exceptionallyCompose(throwable -> {
 

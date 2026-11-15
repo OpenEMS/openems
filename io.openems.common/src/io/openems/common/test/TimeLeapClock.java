@@ -6,15 +6,16 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TimeLeapClock extends Clock {
 
 	private final ZoneId zone;
 
-	private volatile Instant instant;
+	private final AtomicReference<Instant> instant;
 
 	public TimeLeapClock(Instant start, ZoneId zone) {
-		this.instant = start;
+		this.instant = new AtomicReference<>(start);
 		this.zone = zone;
 	}
 
@@ -39,7 +40,7 @@ public class TimeLeapClock extends Clock {
 		if (zone.equals(this.zone)) { // intentional NPE
 			return this;
 		}
-		return new TimeLeapClock(this.instant, zone);
+		return new TimeLeapClock(this.instant.get(), zone);
 	}
 
 	@Override
@@ -54,35 +55,35 @@ public class TimeLeapClock extends Clock {
 	 * @param unit        the {@link TemporalUnit}
 	 */
 	public void leap(long amountToAdd, TemporalUnit unit) {
-		this.instant = this.instant.plus(amountToAdd, unit);
+		this.instant.getAndUpdate(i -> i.plus(amountToAdd, unit));
 	}
 
 	@Override
 	public long millis() {
-		return this.instant.toEpochMilli();
+		return this.instant.get().toEpochMilli();
 	}
 
 	@Override
 	public Instant instant() {
-		return this.instant;
+		return this.instant.get();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		return obj == this //
 				|| obj instanceof Clock other //
-						&& this.instant.equals(other.instant()) //
+						&& this.instant().equals(other.instant()) //
 						&& this.zone.equals(other.getZone());
 	}
 
 	@Override
 	public int hashCode() {
-		return this.instant.hashCode() ^ this.zone.hashCode();
+		return this.instant().hashCode() ^ this.zone.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "TimeLeapClock[" + this.instant + ", " + this.zone + "]";
+		return "TimeLeapClock[" + this.instant() + ", " + this.zone + "]";
 	}
 
 	/**
@@ -91,6 +92,6 @@ public class TimeLeapClock extends Clock {
 	 * @return current date and time.
 	 */
 	public ZonedDateTime now() {
-		return ZonedDateTime.ofInstant(this.instant, this.zone);
+		return ZonedDateTime.ofInstant(this.instant(), this.zone);
 	}
 }

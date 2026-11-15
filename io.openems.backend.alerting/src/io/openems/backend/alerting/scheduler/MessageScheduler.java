@@ -42,7 +42,7 @@ public class MessageScheduler<T extends Message> {
 			return;
 		}
 		synchronized (this) {
-			this.messageForId.computeIfAbsent(msg.getId(), key -> {
+			this.messageForId.computeIfAbsent(msg.getId(), _ -> {
 				this.queue.add(msg);
 				return msg;
 			});
