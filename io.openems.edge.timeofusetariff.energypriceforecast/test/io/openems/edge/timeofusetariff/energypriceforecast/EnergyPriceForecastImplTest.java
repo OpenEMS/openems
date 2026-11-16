@@ -79,9 +79,9 @@ class EnergyPriceForecastImplTest {
 	void readsForecastQuartersWithoutFillingGapsOrChangingNegativePrices() throws Exception {
 		this.clock.leap(7, MINUTES);
 		this.fetcher.addEndpointHandler(endpoint -> {
-			assertTrue(endpoint.url().contains("mode=forecast_only"));
+			assertTrue(endpoint.url().contains("/api/v1/openems/spot-forecast?"));
 			assertTrue(endpoint.url().contains("hours=48"));
-			assertTrue(endpoint.url().contains("country=DE"));
+			assertTrue(endpoint.url().contains("market=DE"));
 			return HttpResponse.ok(this.response.toString());
 		});
 		var tariff = this.sut.getSpotTariff(BiddingZone.GERMANY);
@@ -133,8 +133,8 @@ class EnergyPriceForecastImplTest {
 		assertEquals(0.0, tariff.getTariffData().getValue().prices().getAt(this.start.plus(30, MINUTES)), 0.000001);
 
 		this.clock.leap(30, MINUTES);
-		this.response.getAsJsonArray("entries").get(1).getAsJsonObject().addProperty("value", 0.05);
-		this.response.getAsJsonObject("source").getAsJsonObject("firestore").addProperty("updated_at",
+		this.response.getAsJsonArray("entries").get(1).getAsJsonObject().addProperty("value", 50.0);
+		this.response.addProperty("forecast_updated_at",
 				this.clock.instant().toString());
 		this.executor.update();
 		assertEquals(50.0, tariff.getTariffData().getValue().prices().getAt(this.clock.instant()), 0.000001);
@@ -221,14 +221,14 @@ class EnergyPriceForecastImplTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "unit", "country", "mode", "stale", "interval", "duplicate", "empty" })
+	@ValueSource(strings = { "unit", "market", "format", "stale", "interval", "duplicate", "empty" })
 	void rejectsUnusableResponsesWithoutInventingPrices(String invalidField) throws Exception {
 		var response = this.response.deepCopy();
 		switch (invalidField) {
-		case "unit" -> response.addProperty("unit", "EUR/MWh");
-		case "country" -> response.addProperty("country", "NL");
-		case "mode" -> response.getAsJsonObject("source").addProperty("mode", "mixed");
-		case "stale" -> response.getAsJsonObject("source").getAsJsonObject("firestore").addProperty("updated_at",
+		case "unit" -> response.addProperty("unit", "EUR/kWh");
+		case "market" -> response.addProperty("market", "NL");
+		case "format" -> response.addProperty("format", "evcc-custom-tariff");
+		case "stale" -> response.addProperty("forecast_updated_at",
 				this.start.minus(25, HOURS).toString());
 		case "interval" -> response.getAsJsonArray("entries").get(0).getAsJsonObject().addProperty("end",
 				this.start.plus(60, MINUTES).toString());
@@ -250,10 +250,10 @@ class EnergyPriceForecastImplTest {
 		this.clock.leap(firstInstant.getEpochSecond() - this.clock.instant().getEpochSecond(),
 				java.time.temporal.ChronoUnit.SECONDS);
 		var response = this.response.deepCopy();
-		response.getAsJsonObject("source").getAsJsonObject("firestore").addProperty("updated_at", first);
+		response.addProperty("forecast_updated_at", first);
 		response.add("entries", JsonUtils.parseToJsonArray("""
-				[{"start":"%s","end":"%s","value":0.1},
-				 {"start":"%s","end":"%s","value":0.2}]
+				[{"start":"%s","end":"%s","value":100.0},
+				 {"start":"%s","end":"%s","value":200.0}]
 				""".formatted(first, firstInstant.plus(15, MINUTES), second, Instant.parse(second).plus(15, MINUTES))));
 		this.fetcher.addEndpointHandler(endpoint -> HttpResponse.ok(response.toString()));
 		var tariff = this.sut.getSpotTariff(BiddingZone.GERMANY);
@@ -272,13 +272,13 @@ class EnergyPriceForecastImplTest {
 	}
 
 	private static final String RESPONSE = """
-			{"country":"DE","currency":"EUR","unit":"EUR/kWh",
-			 "source":{"mode":"forecast_only","firestore":{"updated_at":"2026-11-13T08:00:00Z"}},
+			{"format":"openems-spot-forecast-v1","market":"DE","currency":"EUR","unit":"EUR/MWh",
+			 "forecast_updated_at":"2026-11-13T08:00:00Z",
 			 "entries":[
-			   {"start":"2026-11-13T08:00:00Z","end":"2026-11-13T08:15:00Z","value":-0.01},
+			   {"start":"2026-11-13T08:00:00Z","end":"2026-11-13T08:15:00Z","value":-10.0},
 			   {"start":"2026-11-13T08:30:00Z","end":"2026-11-13T08:45:00Z","value":0.0},
-			   {"start":"2026-11-15T07:00:00Z","end":"2026-11-15T07:15:00Z","value":0.15},
-			   {"start":"2026-11-15T08:00:00Z","end":"2026-11-15T08:15:00Z","value":0.25}
+			   {"start":"2026-11-15T07:00:00Z","end":"2026-11-15T07:15:00Z","value":150.0},
+			   {"start":"2026-11-15T08:00:00Z","end":"2026-11-15T08:15:00Z","value":250.0}
 			 ]}
 			""";
 }

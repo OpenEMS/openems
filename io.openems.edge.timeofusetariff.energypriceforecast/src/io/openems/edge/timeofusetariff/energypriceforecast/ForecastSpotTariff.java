@@ -22,7 +22,7 @@ import io.openems.common.utils.BehaviorSubject;
 import io.openems.common.utils.SingletonPool.SingletonPoolImplementation;
 
 final class ForecastSpotTariff implements SpotTariff, SingletonPoolImplementation {
-	private static final String ENDPOINT = "https://api.energypriceforecast.eu/api/v1/evcc/tariff-quarterhour";
+	private static final String ENDPOINT = "https://api.energypriceforecast.eu/api/v1/openems/spot-forecast";
 	private final Logger log = LoggerFactory.getLogger(ForecastSpotTariff.class);
 	private final BiddingZone biddingZone;
 	private final String identifier;
@@ -54,8 +54,7 @@ final class ForecastSpotTariff implements SpotTariff, SingletonPoolImplementatio
 		this.bridge = this.bridgeHttpFactory.get();
 		this.timeService = this.bridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		var endpoint = BridgeHttp
-				.create(ENDPOINT + "?country=" + ForecastMarket.forBiddingZone(this.biddingZone)
-						+ "&type=grid&hours=48&currency=EUR&mode=forecast_only&debug=1")
+				.create(ENDPOINT + "?market=" + ForecastMarket.forBiddingZone(this.biddingZone) + "&hours=48")
 				.setHeader("User-Agent", "OpenEMS/EnergyPriceForecast").build();
 		this.subscription = this.timeService
 				.subscribeTime(

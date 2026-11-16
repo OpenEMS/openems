@@ -26,15 +26,15 @@ Existing ancillary costs and price expressions continue to calculate the custome
 
 Supported OpenEMS bidding zones: Germany-Luxembourg, Austria, Belgium, Netherlands, Czechia, Sweden SE1-SE4 and Greece. Lithuania is not supported by this API. Other API markets require a corresponding OpenEMS `BiddingZone` before they can be used here.
 
-The component uses the existing quarter-hour compatibility API:
+The component uses a dedicated, documented endpoint (format `openems-spot-forecast-v1`, see https://energypriceforecast.eu/openapi/integration-api.json[OpenAPI]):
 
 ----
-https://api.energypriceforecast.eu/api/v1/evcc/tariff-quarterhour?country=DE&type=grid&hours=48&currency=EUR&mode=forecast_only&debug=1
+https://api.energypriceforecast.eu/api/v1/openems/spot-forecast?market=DE&hours=48
 ----
 
-`debug=1` selects the object response with entries and the source timestamp. No API key is sent. The endpoint returns model prices in EUR/kWh, reconstructed from hourly forecasts with centered linear interpolation. These are not independently trained quarter-hour predictions. Values are converted to EUR/MWh; OpenEMS performs any subsequent currency conversion. Negative and zero prices are retained. UTC timestamps identify delivery intervals, including across daylight-saving changes.
+No API key is sent. The endpoint returns model forecasts only, never published prices, in EUR/MWh per quarter hour. The quarter hours are reconstructed from hourly forecasts with centered linear interpolation; they are not independently trained quarter-hour predictions. OpenEMS performs any subsequent currency conversion. Negative and zero prices are retained. UTC timestamps identify delivery intervals, including across daylight-saving changes.
 
-Malformed responses, a different market/unit, and stale source timestamps produce an update warning. A previously valid forecast remains available during a temporary failure only until its source age or delivery range expires. The source's `updated_at`, not the HTTP response generation time, determines freshness. HTTP subscriptions are removed when the final consumer releases a bidding zone or the component is deactivated.
+Malformed responses, a different market/unit, and stale source timestamps produce an update warning. A previously valid forecast remains available during a temporary failure only until its source age or delivery range expires. The forecast's `forecast_updated_at`, not the HTTP response generation time, determines freshness. HTTP subscriptions are removed when the final consumer releases a bidding zone or the component is deactivated.
 
 == Horizon and source semantics
 

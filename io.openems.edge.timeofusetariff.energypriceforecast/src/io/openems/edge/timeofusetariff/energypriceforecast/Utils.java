@@ -2,7 +2,6 @@ package io.openems.edge.timeofusetariff.energypriceforecast;
 
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 
@@ -22,21 +21,22 @@ import io.openems.common.utils.DateUtils;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 final class Utils {
+	static final String FORMAT = "openems-spot-forecast-v1";
+
 	private Utils() {
 	}
 
 	static TariffData parseForecast(String json, BiddingZone biddingZone, Clock clock, Duration maxAge)
 			throws OpenemsNamedException {
 		var root = parseToJsonObject(json);
-		var source = getAsJsonObject(root, "source");
-		if (!"forecast_only".equals(getAsString(source, "mode"))
-				|| !ForecastMarket.forBiddingZone(biddingZone).equals(getAsString(root, "country"))
-				|| !"EUR".equals(getAsString(root, "currency")) || !"EUR/kWh".equals(getAsString(root, "unit"))) {
-			throw new IllegalArgumentException("Unexpected forecast mode, market, currency or unit");
+		if (!FORMAT.equals(getAsString(root, "format"))
+				|| !ForecastMarket.forBiddingZone(biddingZone).equals(getAsString(root, "market"))
+				|| !"EUR".equals(getAsString(root, "currency")) || !"EUR/MWh".equals(getAsString(root, "unit"))) {
+			throw new IllegalArgumentException("Unexpected forecast format, market, currency or unit");
 		}
 		var now = clock.instant();
 		var horizonEnd = DateUtils.roundDownToQuarter(now).plus(Duration.ofHours(48));
-		var updated = Instant.parse(getAsString(getAsJsonObject(source, "firestore"), "updated_at"));
+		var updated = Instant.parse(getAsString(root, "forecast_updated_at"));
 		if (updated.plus(maxAge).isBefore(now) || updated.isAfter(now.plus(Duration.ofMinutes(5)))) {
 			throw new IllegalArgumentException("Forecast source timestamp is outdated or in the future");
 		}
@@ -46,13 +46,13 @@ final class Utils {
 			var end = Instant.parse(getAsString(entry, "end"));
 			var value = getAsDouble(entry, "value");
 			if (start.getEpochSecond() % 900 != 0 || start.getNano() != 0 || !end.equals(start.plusSeconds(900))
-					|| !Double.isFinite(value * 1000)) {
+					|| !Double.isFinite(value)) {
 				throw new IllegalArgumentException("Invalid forecast quarter-hour interval or price");
 			}
 			if (!end.isAfter(now) || end.isAfter(horizonEnd)) {
 				continue;
 			}
-			if (prices.putIfAbsent(start, value * 1000) != null) {
+			if (prices.putIfAbsent(start, value) != null) {
 				throw new IllegalArgumentException("Duplicate forecast interval");
 			}
 		}
