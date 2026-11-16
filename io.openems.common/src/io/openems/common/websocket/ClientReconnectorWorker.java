@@ -127,7 +127,6 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	}
 
 	public enum WebsocketReconnectorEventType {
-		RESET_WEBSOCKET_CLIENT, //
 		CLOSE_FAILED, //
 		START_CONNECTING, //
 		CONNECTED, //
