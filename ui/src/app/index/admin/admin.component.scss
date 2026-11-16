@@ -1,0 +1,63 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stats-row {
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 0.5rem;
+    h1 {
+        margin: 0.2rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+}
+
+.badge-online {
+    --background: #20bf6b;
+    --color: #fff;
+    font-weight: 600;
+}
+
+.badge-offline {
+    --background: #eb3b5a;
+    --color: #fff;
+    font-weight: 600;
+}
+
+.code-box {
+    background: #1e1e1e;
+    color: #4af626;
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 1rem 0;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+ion-card {
+    margin-bottom: 1.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}

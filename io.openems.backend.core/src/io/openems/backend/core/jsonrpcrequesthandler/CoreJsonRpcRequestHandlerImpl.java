@@ -146,10 +146,42 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 		case SetGridConnScheduleRequest.METHOD //
 			-> this.handleSetGridConnScheduleRequest(user, request.getId(), SetGridConnScheduleRequest.from(request));
 		default -> {
+			var adminResult = this.tryNeutravaAdminRequest(user, request);
+			if (adminResult != null) {
+				yield adminResult;
+			}
 			this.logWarn(context, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 		};
+	}
+
+	/**
+	 * Delegates 'neutravaAdmin*' requests to the Metadata implementation, if it
+	 * provides a public 'handleAdminRpc(User, JsonrpcRequest)' method (neutrava
+	 * persistent Metadata provider). Returns null when not available.
+	 */
+	@SuppressWarnings("unchecked")
+	private CompletableFuture<JsonrpcResponseSuccess> tryNeutravaAdminRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		final var method = request.getMethod();
+		if (method == null || !method.startsWith("neutravaAdmin")) {
+			return null;
+		}
+		try {
+			var m = this.metadata.getClass().getMethod("handleAdminRpc", User.class, JsonrpcRequest.class);
+			return (CompletableFuture<JsonrpcResponseSuccess>) m.invoke(this.metadata, user, request);
+		} catch (NoSuchMethodException e) {
+			return null;
+		} catch (java.lang.reflect.InvocationTargetException e) {
+			var cause = e.getCause();
+			if (cause instanceof OpenemsNamedException ne) {
+				throw ne;
+			}
+			throw OpenemsError.GENERIC.exception(cause != null ? cause.getMessage() : e.getMessage());
+		} catch (Exception e) {
+			throw OpenemsError.GENERIC.exception(e.getMessage());
+		}
 	}
 
 	/**

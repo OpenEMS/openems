@@ -1,0 +1,15 @@
+= SMARTFOX Charge-Point
+
+Integration of a SMARTFOX Car Charger / Pro Charger attached to a SMARTFOX Energy Manager (SMARTFOX Pro, SMARTFOX Pro 2, EM2/EM3).
+
+== Overview
+
+Measured values (charge power, session energy, total energy, charge mode) are read via Modbus TCP from the Energy Manager, using the official SMARTFOX Modbus register map. Each Car Charger occupies a block of 10 registers starting at documented address 41600 + (n-1) * 10.
+
+Charging control uses the same local HTTP endpoint as the SMARTFOX web interface:
+
+    GET http://<energy-manager>/setswcc.cgi?num={index}&mode=1&value={percent}
+
+This is used instead of the Modbus charge-mode registers, because write access to those registers is not reliably accepted on all firmware versions when the charger is attached via RS485.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.smartfox[Source Code icon:github[]]

@@ -201,6 +201,14 @@ export const routes: Routes = [
     },
 
     { path: "overview", component: OverViewComponent },
+    {
+        path: "admin",
+        loadComponent: () => import("./index/admin/admin.component").then((m) => m.AdminComponent),
+    },
+    {
+        path: "reset",
+        loadComponent: () => import("./index/reset/reset.component").then((m) => m.ResetComponent),
+    },
 
     // Edge Pages
     {

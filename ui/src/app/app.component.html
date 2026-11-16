@@ -104,6 +104,26 @@
           }
         }
 
+        <!-- neutrava: Link zur Flottenverwaltung (nur fuer globale Admins) -->
+        @if ((service.metadata | async)?.user?.globalRole === "admin") {
+          <ion-item button lines="full" routerLinkActive="active" routerLink="/admin" (click)="menu.close()">
+            <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
+            <ion-label>{{ "MENU.FLEET_ADMIN" | translate }}</ion-label>
+          </ion-item>
+        }
+
+        <!-- neutrava: Profil und Abmelden im Menue (nur eingeloggt) -->
+        @if ((service.metadata | async)?.user) {
+          <ion-item button lines="full" routerLinkActive="active" routerLink="/user" (click)="menu.close()">
+            <ion-icon slot="start" name="person-outline"></ion-icon>
+            <ion-label>{{ "MENU.PROFILE" | translate }}</ion-label>
+          </ion-item>
+          <ion-item button lines="full" (click)="menu.close(); websocket.logout()">
+            <ion-icon slot="start" name="log-out-outline" color="danger"></ion-icon>
+            <ion-label color="danger">{{ "MENU.LOGOUT" | translate }}</ion-label>
+          </ion-item>
+        }
+
         @if (service.currentEdge(); as edge) {
           <nav>
             <ion-item button lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">

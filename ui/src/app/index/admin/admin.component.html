@@ -1,0 +1,672 @@
+<ion-header>
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-button routerLink="/overview" fill="clear">
+                <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>neutrava Flottenverwaltung</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="reload()" [disabled]="loading()">
+                <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar>
+        <ion-segment [value]="selectedTab()" (ionChange)="selectedTab.set($any($event).detail.value)">
+            <ion-segment-button value="edges">
+                <ion-label>Anlagen ({{fleet()?.stats?.totalEdges ?? 0}})</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="users">
+                <ion-label>Benutzer ({{fleet()?.stats?.totalUsers ?? 0}})</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="locations-groups">
+                <ion-label>Standorte & Communities</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="onboarding">
+                <ion-label>Onboarding</ion-label>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <div class="admin-container">
+
+        @if(error()){
+            <ion-card color="danger">
+                <ion-card-content>{{error()}}</ion-card-content>
+            </ion-card>
+        }
+        @if(info()){
+            <ion-card color="success">
+                <ion-card-content>{{info()}}</ion-card-content>
+            </ion-card>
+        }
+
+        <!-- Global Stats -->
+        @if(fleet()?.stats; as stats){
+            <ion-grid class="stats-row">
+                <ion-row>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1>{{stats.totalEdges}}</h1>
+                            <p>Anlagen</p>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1 style="color: #20bf6b;">{{stats.onlineEdges}}</h1>
+                            <p>Online</p>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1 style="color: #eb3b5a;">{{stats.totalEdges - stats.onlineEdges}}</h1>
+                            <p>Offline</p>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1>{{stats.totalUsers}}</h1>
+                            <p>Benutzer</p>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1>{{stats.totalLocations}}</h1>
+                            <p>Standorte</p>
+                        </ion-card>
+                    </ion-col>
+                    <ion-col size="6" size-md="2">
+                        <ion-card class="stat-card">
+                            <h1>{{stats.totalGroups}}</h1>
+                            <p>Communities</p>
+                        </ion-card>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        }
+
+        @switch(selectedTab()) {
+
+            <!-- ======================================================== -->
+            <!-- TAB: ANLAGEN (EDGES)                                      -->
+            <!-- ======================================================== -->
+            @case("edges") {
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Anlagen-Übersicht</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-row class="ion-align-items-center">
+                            <ion-col size="12" size-md="8">
+                                <ion-searchbar
+                                    [ngModel]="edgeSearch()"
+                                    (ngModelChange)="edgeSearch.set($event)"
+                                    placeholder="Suche nach Edge-ID oder Name...">
+                                </ion-searchbar>
+                            </ion-col>
+                            <ion-col size="12" size-md="4">
+                                <ion-segment [value]="edgeFilter()" (ionChange)="edgeFilter.set($any($event).detail.value)">
+                                    <ion-segment-button value="all"><ion-label>Alle</ion-label></ion-segment-button>
+                                    <ion-segment-button value="online"><ion-label>Online</ion-label></ion-segment-button>
+                                    <ion-segment-button value="offline"><ion-label>Offline</ion-label></ion-segment-button>
+                                </ion-segment>
+                            </ion-col>
+                        </ion-row>
+
+                        <ion-list>
+                            @for(edge of filteredEdges(); track edge.id) {
+                                <ion-item>
+                                    <ion-label>
+                                        <h2>
+                                            <strong>{{edge.id}}</strong> – {{edge.comment}}
+                                            <ion-badge [class]="edge.isOnline ? 'badge-online' : 'badge-offline'">
+                                                {{edge.isOnline ? 'ONLINE' : 'OFFLINE'}}
+                                            </ion-badge>
+                                        </h2>
+                                        <p>
+                                            Standort: <strong>{{getLocationName(edge.locationId)}}</strong> ·
+                                            Status: {{edge.sumState}}
+                                            @if(edge.lastmessage){ · Kontakt: {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}} }
+                                        </p>
+                                        <p>
+                                            Communities:
+                                            @if(edge.groupIds && edge.groupIds.length > 0){
+                                                @for(gid of edge.groupIds; track gid){
+                                                    <ion-chip color="tertiary" size="small">{{getGroupName(gid)}}</ion-chip>
+                                                }
+                                            } @else {
+                                                <em>keine</em>
+                                            }
+                                        </p>
+                                        <p>
+                                            Kunden:
+                                            @if(edge.assignedUsers && edge.assignedUsers.length > 0){
+                                                {{edge.assignedUsers.join(', ')}}
+                                            } @else {
+                                                <em>keine Zuweisung</em>
+                                            }
+                                        </p>
+                                    </ion-label>
+
+                                    <div class="action-buttons" slot="end">
+                                        <ion-select
+                                            interface="popover"
+                                            placeholder="Standort"
+                                            [value]="edge.locationId"
+                                            (ionChange)="setEdgeLocation(edge, $any($event).detail.value)">
+                                            <ion-select-option [value]="''">Kein Standort</ion-select-option>
+                                            @for(loc of fleet()?.locations; track loc.id){
+                                                <ion-select-option [value]="loc.id">{{loc.name}}</ion-select-option>
+                                            }
+                                        </ion-select>
+
+                                        <ion-button fill="outline" size="small" (click)="editEdgeComment(edge)">
+                                            Name
+                                        </ion-button>
+                                        <ion-button color="danger" fill="outline" size="small" (click)="deleteEdge(edge.id)">
+                                            Löschen
+                                        </ion-button>
+                                    </div>
+                                </ion-item>
+                            } @empty {
+                                <ion-item><ion-label>Keine Anlagen gefunden.</ion-label></ion-item>
+                            }
+                        </ion-list>
+                    </ion-card-content>
+                </ion-card>
+
+                <!-- Neue Anlage registrieren -->
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Neue Anlage manuell registrieren</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Edge-ID" labelPlacement="floating"
+                                            [ngModel]="newEdgeId()" (ngModelChange)="newEdgeId.set($event)"
+                                            placeholder="z.B. edge1">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="API-Key" labelPlacement="floating"
+                                            [ngModel]="newEdgeApikey()" (ngModelChange)="newEdgeApikey.set($event)"
+                                            placeholder="Standard: gleich wie Edge-ID">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Kommentar / Kunde" labelPlacement="floating"
+                                            [ngModel]="newEdgeComment()" (ngModelChange)="newEdgeComment.set($event)"
+                                            placeholder="z.B. Familie Muster, St. Gallen">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-select label="Standort zuweisen" labelPlacement="floating"
+                                            [value]="newEdgeLocationId()" (ionChange)="newEdgeLocationId.set($any($event).detail.value)">
+                                            <ion-select-option value="">Keiner</ion-select-option>
+                                            @for(loc of fleet()?.locations; track loc.id){
+                                                <ion-select-option [value]="loc.id">{{loc.name}}</ion-select-option>
+                                            }
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6" class="ion-align-self-center">
+                                    <ion-button expand="block" (click)="registerEdge()" [disabled]="!newEdgeId()">
+                                        Anlage registrieren
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+            }
+
+            <!-- ======================================================== -->
+            <!-- TAB: BENUTZER (USERS)                                     -->
+            <!-- ======================================================== -->
+            @case("users") {
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Benutzer-Verwaltung</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-list>
+                            @for(user of fleet()?.users; track user.username){
+                                <ion-item>
+                                    <ion-label>
+                                        <h2>
+                                            <strong>{{user.username}}</strong>
+                                            @if(user.globalRole === 'ADMIN'){
+                                                <ion-badge color="warning">ADMINISTRATOR</ion-badge>
+                                            } @else {
+                                                <ion-badge color="medium">KUNDE</ion-badge>
+                                            }
+                                        </h2>
+                                        @if(user.email){ <p>E-Mail: {{user.email}}</p> }
+                                        <p>
+                                            Zugewiesene Anlagen:
+                                            @for(entry of user.edges | keyvalue; track entry.key){
+                                                <ion-chip>
+                                                    {{entry.key}} ({{entry.value}})
+                                                    <ion-icon name="close-circle" (click)="removeUserEdge(user.username, entry.key)"></ion-icon>
+                                                </ion-chip>
+                                            } @empty {
+                                                <em>keine Anlagen zugewiesen</em>
+                                            }
+                                        </p>
+                                    </ion-label>
+
+                                    <div class="action-buttons" slot="end">
+                                        <ion-select
+                                            interface="popover"
+                                            placeholder="Anlage zuweisen"
+                                            (ionChange)="setUserEdgeRole(user.username, $any($event).detail.value, 'OWNER')">
+                                            @for(e of fleet()?.edges; track e.id){
+                                                <ion-select-option [value]="e.id">{{e.id}} ({{e.comment}})</ion-select-option>
+                                            }
+                                        </ion-select>
+                                        <ion-button fill="outline" size="small" (click)="sendInvitation(user.username)">
+                                            Einladung
+                                        </ion-button>
+                                        <ion-button fill="outline" size="small" (click)="resetPassword(user.username)">
+                                            Passwort
+                                        </ion-button>
+                                        <ion-button color="danger" fill="outline" size="small" (click)="deleteUser(user.username)">
+                                            Löschen
+                                        </ion-button>
+                                    </div>
+                                </ion-item>
+                            }
+                        </ion-list>
+                    </ion-card-content>
+                </ion-card>
+
+                <!-- Neuen Benutzer anlegen -->
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Neuen Benutzer anlegen</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="E-Mail / Benutzername" labelPlacement="floating"
+                                            [ngModel]="newUsername()" (ngModelChange)="newUsername.set($event)"
+                                            placeholder="kunde@neutrava.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Passwort" labelPlacement="floating" type="password"
+                                            [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)"
+                                            placeholder="Optional bei E-Mail">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="E-Mail (fuer Mails)" labelPlacement="floating"
+                                            [ngModel]="newUserEmail()" (ngModelChange)="newUserEmail.set($event)"
+                                            placeholder="kunde@firma.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-select label="Rolle" labelPlacement="floating"
+                                            [value]="newGlobalRole()" (ionChange)="newGlobalRole.set($any($event).detail.value)">
+                                            <ion-select-option value="NONE">Kunde (sieht nur eigene Anlagen)</ion-select-option>
+                                            <ion-select-option value="ADMIN">neutrava Administrator (Vollzugriff)</ion-select-option>
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-select label="Sofort Anlage zuweisen" labelPlacement="floating"
+                                            [value]="newUserInitialEdge()" (ionChange)="newUserInitialEdge.set($any($event).detail.value)">
+                                            <ion-select-option value="">Keine Zuweisung</ion-select-option>
+                                            @for(e of fleet()?.edges; track e.id){
+                                                <ion-select-option [value]="e.id">{{e.id}} ({{e.comment}})</ion-select-option>
+                                            }
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6" class="ion-align-self-center">
+                                    <ion-button expand="block" (click)="createUser()" [disabled]="!newUsername() || (!newPassword() && !newUserEmail())">
+                                        Benutzer anlegen
+                                    </ion-button>
+                                    <ion-item lines="none" class="ion-text-wrap">
+                                        <ion-checkbox
+                                            [ngModel]="newUserSendWelcomeMail()" (ngModelChange)="newUserSendWelcomeMail.set($event)"
+                                            labelPlacement="end" [disabled]="!newUserEmail()">Willkommensmail mit Set-Passwort-Link senden</ion-checkbox>
+                                    </ion-item>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+
+                <!-- SMTP / E-Mail Konfiguration -->
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>
+                            E-Mail / SMTP
+                            <ion-badge [color]="mailConfigured() ? 'success' : 'warning'">
+                                {{mailConfigured() ? 'aktiv' : 'nicht konfiguriert'}}
+                            </ion-badge>
+                        </ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="SMTP Host" labelPlacement="floating"
+                                            [ngModel]="mailHost()" (ngModelChange)="mailHost.set($event)">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="6" size-md="2">
+                                    <ion-item>
+                                        <ion-input label="Port" labelPlacement="floating" type="number"
+                                            [ngModel]="mailPort()" (ngModelChange)="mailPort.set($event)">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="6" size-md="3">
+                                    <ion-item>
+                                        <ion-select label="TLS" labelPlacement="floating"
+                                            [value]="mailTls()" (ionChange)="mailTls.set($any($event).detail.value)">
+                                            <ion-select-option value="ssl">SSL (465)</ion-select-option>
+                                            <ion-select-option value="starttls">STARTTLS (587)</ion-select-option>
+                                            <ion-select-option value="none">kein TLS</ion-select-option>
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="3">
+                                    <ion-item>
+                                        <ion-input label="Absender" labelPlacement="floating"
+                                            [ngModel]="mailFrom()" (ngModelChange)="mailFrom.set($event)"
+                                            placeholder="ems@neutrava.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="SMTP Benutzer" labelPlacement="floating"
+                                            [ngModel]="mailUsername()" (ngModelChange)="mailUsername.set($event)">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="SMTP Passwort" labelPlacement="floating" type="password"
+                                            [ngModel]="mailPassword()" (ngModelChange)="mailPassword.set($event)"
+                                            placeholder="leer lassen = unverändert">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Alerting-Empfänger" labelPlacement="floating"
+                                            [ngModel]="mailTo()" (ngModelChange)="mailTo.set($event)"
+                                            placeholder="ops@neutrava.ch, team@neutrava.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6" class="ion-align-self-center">
+                                    <ion-button (click)="saveMailConfig()">Speichern</ion-button>
+                                    <ion-button fill="outline" (click)="sendTestMail()" [disabled]="!testMailAddress()">
+                                        Testmail senden
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col size="12" size-md="6" class="ion-align-self-center">
+                                    <ion-item>
+                                        <ion-input label="Test-Empfänger" labelPlacement="floating"
+                                            [ngModel]="testMailAddress()" (ngModelChange)="testMailAddress.set($event)"
+                                            placeholder="deine@email.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+            }
+
+            <!-- ======================================================== -->
+            <!-- TAB: STANDORTE & COMMUNITIES                              -->
+            <!-- ======================================================== -->
+            @case("locations-groups") {
+                <!-- STANDORTE -->
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Gebäude & Standorte</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-list>
+                            @for(loc of fleet()?.locations; track loc.id){
+                                <ion-item>
+                                    <ion-label>
+                                        <h2><strong>{{loc.name}}</strong> ({{loc.edgeCount}} Anlagen)</h2>
+                                        @if(loc.address){ <p>Adresse: {{loc.address}}</p> }
+                                        @if(loc.contact){ <p>Kontakt: {{loc.contact}}</p> }
+                                        @if(loc.notes){ <p>Notizen: {{loc.notes}}</p> }
+                                    </ion-label>
+                                    <ion-button slot="end" color="danger" fill="outline" size="small" (click)="deleteLocation(loc.id)">
+                                        Löschen
+                                    </ion-button>
+                                </ion-item>
+                            } @empty {
+                                <ion-item><ion-label>Noch keine Standorte hinterlegt.</ion-label></ion-item>
+                            }
+                        </ion-list>
+
+                        <h3>Neuen Standort anlegen</h3>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Standort-Name" labelPlacement="floating"
+                                            [ngModel]="newLocName()" (ngModelChange)="newLocName.set($event)"
+                                            placeholder="z.B. MFH Sonnenrain 12">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Adresse" labelPlacement="floating"
+                                            [ngModel]="newLocAddress()" (ngModelChange)="newLocAddress.set($event)"
+                                            placeholder="Strasse, PLZ Ort">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Kontakt" labelPlacement="floating"
+                                            [ngModel]="newLocContact()" (ngModelChange)="newLocContact.set($event)"
+                                            placeholder="Eigentümer / Hauswart">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12">
+                                    <ion-button (click)="createLocation()" [disabled]="!newLocName()">
+                                        Standort speichern
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+
+                <!-- COMMUNITIES -->
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Energiegemeinschaften (ZEV / vzEV / LEG / Pool)</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-list>
+                            @for(grp of fleet()?.groups; track grp.id){
+                                <ion-item>
+                                    <ion-label>
+                                        <h2>
+                                            <strong>{{grp.name}}</strong>
+                                            <ion-badge color="tertiary">{{grp.type}}</ion-badge>
+                                            ({{grp.edgeCount}} Anlagen)
+                                        </h2>
+                                        @if(grp.gridPointEdgeId){ <p>Netzanschlusspunkt (Grid-Edge): {{grp.gridPointEdgeId}}</p> }
+                                        @if(grp.notes){ <p>Notizen: {{grp.notes}}</p> }
+                                    </ion-label>
+                                    <ion-button slot="end" color="danger" fill="outline" size="small" (click)="deleteGroup(grp.id)">
+                                        Löschen
+                                    </ion-button>
+                                </ion-item>
+                            } @empty {
+                                <ion-item><ion-label>Noch keine Communities hinterlegt.</ion-label></ion-item>
+                            }
+                        </ion-list>
+
+                        <h3>Neue Gemeinschaft anlegen</h3>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Name" labelPlacement="floating"
+                                            [ngModel]="newGrpName()" (ngModelChange)="newGrpName.set($event)"
+                                            placeholder="z.B. ZEV Quartier Sonnenfeld">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-select label="Typ" labelPlacement="floating"
+                                            [value]="newGrpType()" (ionChange)="newGrpType.set($any($event).detail.value)">
+                                            <ion-select-option value="ZEV">ZEV (Zusammenschluss zum Eigenverbrauch)</ion-select-option>
+                                            <ion-select-option value="vzEV">vzEV (virtueller ZEV)</ion-select-option>
+                                            <ion-select-option value="LEG">LEG (Lokale Elektrizitätsgemeinschaft)</ion-select-option>
+                                            <ion-select-option value="POOL">POOL (Flexibilitäts- / SDL-Pool)</ion-select-option>
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-select label="Haupt-Netzzähler (Edge)" labelPlacement="floating"
+                                            [value]="newGrpGridPoint()" (ionChange)="newGrpGridPoint.set($any($event).detail.value)">
+                                            <ion-select-option value="">Keiner</ion-select-option>
+                                            @for(e of fleet()?.edges; track e.id){
+                                                <ion-select-option [value]="e.id">{{e.id}} ({{e.comment}})</ion-select-option>
+                                            }
+                                        </ion-select>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12">
+                                    <ion-button (click)="createGroup()" [disabled]="!newGrpName()">
+                                        Gemeinschaft speichern
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+                </ion-card>
+            }
+
+            <!-- ======================================================== -->
+            <!-- TAB: ONBOARDING ASSISTENT                                 -->
+            <!-- ======================================================== -->
+            @case("onboarding") {
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Kundenanlage Onboarding-Assistent</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <p>
+                            Legt in einem einzigen Schritt die Anlage im Backend an, erstellt das Kunden-Login
+                            und erzeugt die fertige Konfiguration für den Raspberry Pi.
+                        </p>
+
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Edge-ID" labelPlacement="floating"
+                                            [ngModel]="obEdgeId()" (ngModelChange)="obEdgeId.set($event)"
+                                            placeholder="z.B. edge1">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Kundenname / Bezeichnung" labelPlacement="floating"
+                                            [ngModel]="obComment()" (ngModelChange)="obComment.set($event)"
+                                            placeholder="z.B. Hans Muster, Uzwil">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="4">
+                                    <ion-item>
+                                        <ion-input label="Standort (optional)" labelPlacement="floating"
+                                            [ngModel]="obLocationName()" (ngModelChange)="obLocationName.set($event)"
+                                            placeholder="z.B. EFH Musterrain 4">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-input label="Kunden-E-Mail (Login)" labelPlacement="floating"
+                                            [ngModel]="obUsername()" (ngModelChange)="obUsername.set($event)"
+                                            placeholder="hans.muster@bluewin.ch">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-input label="Kunden-Passwort" labelPlacement="floating" type="password"
+                                            [ngModel]="obPassword()" (ngModelChange)="obPassword.set($event)"
+                                            placeholder="Start-Passwort">
+                                        </ion-input>
+                                    </ion-item>
+                                </ion-col>
+                                <ion-col size="12">
+                                    <ion-button expand="block" color="primary" (click)="runOnboarding()"
+                                        [disabled]="!obEdgeId() || !obUsername() || !obPassword() || loading()">
+                                        Anlage & Kunden-Login jetzt erstellen
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+
+                        @if(obConfigSnippet()){
+                            <div style="margin-top: 2rem;">
+                                <h3>Fertige Pi-Konfiguration für {{obEdgeId()}}</h3>
+                                <p>
+                                    Speichere folgenden Inhalt auf dem Kunden-Raspberry-Pi unter<br>
+                                    <code>/home/openems/openems/config/Controller/Api/Backend.config</code>
+                                </p>
+                                <div class="code-box">{{obConfigSnippet()}}</div>
+                                <ion-button fill="outline" (click)="copyToClipboard(obConfigSnippet()!)">
+                                    In die Zwischenablage kopieren
+                                </ion-button>
+                            </div>
+                        }
+                    </ion-card-content>
+                </ion-card>
+            }
+
+        }
+
+    </div>
+</ion-content>
