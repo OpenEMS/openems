@@ -70,7 +70,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
 	private final JettyWebSocket websocket;
 	private final URI serverUri;
-	private volatile Map<String, String> httpHeaders;
 	private final Proxy proxy;
 	private final BooleanConsumer onConnectedChange;
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -79,6 +78,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	private final ClientReconnectorWorker reconnectorWorker;
 
 	private WebSocketCoreClient client;
+	private volatile Map<String, String> httpHeaders;
 
 	protected AbstractWebsocketClient(String name, URI serverUri) {
 		this(name, serverUri, AbstractWebsocketClient.NO_HTTP_HEADERS, AbstractWebsocketClient.NO_PROXY,
@@ -187,6 +187,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	 * @throws InterruptedException on waiting error
 	 */
 	protected synchronized boolean connect(int timeoutSeconds) throws InterruptedException {
+		// Capture once, so sent headers and logged handshake are always consistent
+		final var httpHeaders = this.httpHeaders;
 		if (this.ws.isOpen()) {
 			return true;
 		}
@@ -206,7 +208,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 		final var responseHandshake = new AtomicReference<Handshake>(Handshake.EMPTY);
 		var request = CoreClientUpgradeRequest.from(client, this.serverUri, this.createFrameHandler(responseHandshake));
-		request.headers(headers -> this.httpHeaders.forEach(headers::put));
+		request.headers(headers -> httpHeaders.forEach(headers::put));
 		request.addExtensions("permessage-deflate");
 		request.addListener(new UpgradeListener() {
 			@Override
@@ -217,7 +219,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		var configuration = new Configuration.ConfigurationCustomizer();
 		JettyConfiguration.apply(configuration);
 		request.setConfiguration(configuration);
-		this.onWebsocketHandshakeSent(Handshake.of(this.httpHeaders));
+		this.onWebsocketHandshakeSent(Handshake.of(httpHeaders));
 
 		final CompletableFuture<?> future;
 		try {
