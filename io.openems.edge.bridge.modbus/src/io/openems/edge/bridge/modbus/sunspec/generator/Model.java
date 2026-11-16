@@ -6,6 +6,8 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.getAsStringOrElse;
 
+import java.util.Objects;
+
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -111,7 +113,7 @@ public record Model(int id, int len, String name, String label, String descripti
 	 */
 	public Point getPoint(String id) throws OpenemsException {
 		return this.points.stream() //
-				.filter(p -> p.id() == id) //
+				.filter(p -> Objects.equals(p.id(), id)) //
 				.findFirst() //
 				.orElseThrow(() -> new OpenemsException("Unable to find Point with ID " + id));
 	}

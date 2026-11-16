@@ -106,7 +106,7 @@ final class Bash {
 			login += "-- ";
 		}
 		cmd.add(login + command);
-		return cmd.toArray(new String[cmd.size()]);
+		return cmd.toArray(String[]::new);
 	}
 
 	private static CompletableFuture<Bash.Command> executeCommand(String rawCmd, String[] command, int timeoutSeconds) {

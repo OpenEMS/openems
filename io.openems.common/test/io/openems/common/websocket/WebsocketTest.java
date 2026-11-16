@@ -31,6 +31,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.websocket.ClientReconnectorWorker.WebsocketReconnectorEvent;
+import io.openems.common.websocket.ClientReconnectorWorker.WebsocketReconnectorEventType;
 
 public class WebsocketTest {
 
@@ -136,6 +137,18 @@ public class WebsocketTest {
 		} : events::add);
 	}
 
+	private static WebsocketReconnectorEvent awaitEvent(LinkedBlockingQueue<WebsocketReconnectorEvent> events,
+			WebsocketReconnectorEventType type) throws InterruptedException {
+		var deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+		while (System.nanoTime() < deadline) {
+			var event = events.poll(1, TimeUnit.SECONDS);
+			if (event != null && event.type() == type) {
+				return event;
+			}
+		}
+		throw new AssertionError("Timeout waiting for event " + type);
+	}
+
 	private static void await(BooleanSupplier condition) throws InterruptedException {
 		var deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
 		while (!condition.getAsBoolean()) {
@@ -176,7 +189,7 @@ public class WebsocketTest {
 				var client = new TestWebsocketClient(uri(server), Map.of(), config(events), OnOpen.NO_OP,
 						OnRequest.NO_OP, OnNotification.NO_OP, (ws, code, reason, remote) -> closeCodes.add(code))) {
 			client.start();
-			assertEquals(WebsocketReconnectorEvent.HANDSHAKE_FAILED, events.poll(10, TimeUnit.SECONDS));
+			awaitEvent(events, WebsocketReconnectorEventType.HANDSHAKE_FAILED);
 			assertEquals(CloseCode.PROTOCOL_ERROR, closeCodes.poll(10, TimeUnit.SECONDS));
 			assertTrue(server.getConnections().isEmpty());
 		}
@@ -190,13 +203,13 @@ public class WebsocketTest {
 		try (var client = new TestWebsocketClient(uri(server), Map.of(HEADER, "foo"), config(events), OnOpen.NO_OP,
 				OnRequest.NO_OP, OnNotification.NO_OP, OnClose.NO_OP)) {
 			client.start();
-			assertEquals(WebsocketReconnectorEvent.CONNECTED, events.poll(10, TimeUnit.SECONDS));
+			awaitEvent(events, WebsocketReconnectorEventType.CONNECTED);
 
 			server.close();
 			await(() -> !client.isConnected());
 
 			try (var restarted = new TestServer(port)) {
-				assertEquals(WebsocketReconnectorEvent.CONNECTED, events.poll(10, TimeUnit.SECONDS));
+				awaitEvent(events, WebsocketReconnectorEventType.CONNECTED);
 				assertEquals("bar", valueOf(client.sendRequest(request("bar"))));
 			}
 		}

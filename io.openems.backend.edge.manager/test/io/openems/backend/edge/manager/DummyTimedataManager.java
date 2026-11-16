@@ -40,19 +40,19 @@ public class DummyTimedataManager implements TimedataManager {
 	@Override
 	public void write(String edgeId, TimestampedDataNotification timestampedDataNotification) {
 		this.log.info("Writing TimestampedDataNotification for edgeId: {}", edgeId);
-		this.dataStore.computeIfAbsent(edgeId, k -> new ArrayList<>()).add(timestampedDataNotification);
+		this.dataStore.computeIfAbsent(edgeId, _ -> new ArrayList<>()).add(timestampedDataNotification);
 	}
 
 	@Override
 	public void write(String edgeId, AggregatedDataNotification aggregatedDataNotification) {
 		this.log.info("Writing AggregatedDataNotification for edgeId: {}", edgeId);
-		this.dataStore.computeIfAbsent(edgeId, k -> new ArrayList<>()).add(aggregatedDataNotification);
+		this.dataStore.computeIfAbsent(edgeId, _ -> new ArrayList<>()).add(aggregatedDataNotification);
 	}
 
 	@Override
 	public void write(String edgeId, ResendDataNotification resendDataNotification) {
 		this.log.info("Writing ResendDataNotification for edgeId: {}", edgeId);
-		this.dataStore.computeIfAbsent(edgeId, k -> new ArrayList<>()).add(resendDataNotification);
+		this.dataStore.computeIfAbsent(edgeId, _ -> new ArrayList<>()).add(resendDataNotification);
 	}
 
 	@Override

@@ -72,11 +72,12 @@ public class ClientReconnectorWorker extends AbstractWorker {
 
 		this.logAndSetDebugInfo("Connecting WebSocket...");
 		this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]...");
+		this.callEvent(WebsocketReconnectorEventType.START_CONNECTING);
 		var success = this.parent.connect(this.config.connectTimeoutSeconds());
 		this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]... done");
 
 		if (success) {
-			this.callEvent(WebsocketReconnectorEvent.CONNECTED);
+			this.callEvent(WebsocketReconnectorEventType.CONNECTED);
 			this.logAndSetDebugInfo(
 					"Connected successfully [" + this.timeSinceLastTry.elapsed(TimeUnit.SECONDS) + "s]");
 		} else {
@@ -89,11 +90,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		this.parent.logInfo(this.log, message);
 	}
 
-	private void callEvent(WebsocketReconnectorEvent event) {
+	private void callEvent(WebsocketReconnectorEventType event) {
 		try {
-			this.config.onEvent().accept(event);
+			this.config.onEvent().accept(new WebsocketReconnectorEvent(event, this.parent));
 		} catch (RuntimeException ex) {
-			this.log.warn("Failed to handle websocket reconnect event '{}'", event.getClass().getSimpleName(), ex);
+			this.log.warn("Failed to handle websocket reconnect event '{}'", event.name(), ex);
 		}
 	}
 
@@ -119,11 +120,18 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	 */
 	public void notifyHandshakeFailed(String reason) {
 		this.logAndSetDebugInfo(reason);
-		this.callEvent(WebsocketReconnectorEvent.HANDSHAKE_FAILED);
+		this.callEvent(WebsocketReconnectorEventType.HANDSHAKE_FAILED);
 	}
 
-	public enum WebsocketReconnectorEvent {
-		RESET_WEBSOCKET_CLIENT, CLOSE_FAILED, CONNECTED, HANDSHAKE_FAILED
+	public record WebsocketReconnectorEvent(WebsocketReconnectorEventType type, AbstractWebsocketClient<?> client) {
+	}
+
+	public enum WebsocketReconnectorEventType {
+		RESET_WEBSOCKET_CLIENT, //
+		CLOSE_FAILED, //
+		START_CONNECTING, //
+		CONNECTED, //
+		HANDSHAKE_FAILED
 	}
 
 }

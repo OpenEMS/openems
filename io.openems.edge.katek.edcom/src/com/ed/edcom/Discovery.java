@@ -79,7 +79,7 @@ public final class Discovery implements ServiceListener {
 			sInfo = mdnsService.list(SERVICE_TYPE);
 		}
 		sInfo = mdnsService.list(SERVICE_TYPE);
-		String fname = inverterName.replaceAll("-", "");
+		String fname = inverterName.replace("-", "");
 		String lcname = fname.toLowerCase();
 		for (ServiceInfo s : sInfo) {
 			if (s.getName().contains(fname) || s.getName().contains(lcname)) {

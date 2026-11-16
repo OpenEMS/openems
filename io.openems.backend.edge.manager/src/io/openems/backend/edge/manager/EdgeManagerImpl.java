@@ -30,7 +30,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -38,6 +37,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.common.authentication.SecretTokenVerifier;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edge.EdgeCache;
 import io.openems.backend.common.edge.EdgeManager;
@@ -64,6 +64,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.syncable.SyncableEntry;
+import io.openems.common.logger.ContextLogger;
 import io.openems.common.logger.DebugLoggable;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -84,11 +85,12 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	private static final String COMPONENT_ID = "edgewebsocket0";
 	private static final String SYNCABLE_REPOSITORY_EXECUTOR_ID = "Edge.Manager.SyncableRepository";
 
+	private final Logger log = new ContextLogger(EdgeManagerImpl.class, COMPONENT_ID);
+
 	protected final SystemLogHandler systemLogHandler;
 
 	protected final ScheduleHandler scheduleHandler;
 
-	private final Logger log = LoggerFactory.getLogger(EdgeManagerImpl.class);
 	private final DebugExecutor syncableRepositoryExecutor = new DebugExecutor(SYNCABLE_REPOSITORY_EXECUTOR_ID,
 			Executors.newSingleThreadExecutor(new ThreadFactoryBuilder() //
 					.setNameFormat(SYNCABLE_REPOSITORY_EXECUTOR_ID) //
@@ -119,6 +121,8 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Reference
 	protected SubscriptionManager subscriptionManager;
 
+	protected volatile SecretTokenVerifier tokenVerifier;
+
 	private final Consumer<SyncableRepository.ChangeEvent> syncableRepositoryChangeHandler = this::handleSyncableRepositoryChange;
 
 	private WebsocketServer server = null;
@@ -138,6 +142,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
+		this.tokenVerifier = new SecretTokenVerifier(config.secret());
 
 		if (this.metadata.isInitialized()) {
 			this.startServer();
@@ -211,7 +216,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 							"result");
 					result.complete(new GenericJsonrpcResponseSuccess(request.id, authenticatedRpcResponse));
 				} catch (OpenemsNamedException e) {
-					this.logError(this.log, e.getMessage());
+					this.log.error(e.getMessage());
 					result.completeExceptionally(e);
 				}
 			} else {
@@ -268,49 +273,6 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 				.map(wsData -> wsData.getEdgeClient(edgeId)) //
 				.filter(Objects::nonNull) //
 				.findFirst().orElse(null);
-	}
-
-	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
-	/**
-	 * Logs a info message with Edge-ID.
-	 * 
-	 * @param log     the {@link Logger}
-	 * @param edgeId  the Edge-ID
-	 * @param message the message
-	 */
-	protected void logInfo(Logger log, String edgeId, String message) {
-		if (edgeId == null) {
-			edgeId = "UNKNOWN";
-		}
-		super.logInfo(log, "[" + edgeId + "] " + message);
-	}
-
-	@Override
-	protected void logWarn(Logger log, String message) {
-		super.logWarn(log, message);
-	}
-
-	/**
-	 * Logs a warning message with Edge-ID.
-	 * 
-	 * @param log     the {@link Logger}
-	 * @param edgeId  the Edge-ID
-	 * @param message the message
-	 */
-	protected void logWarn(Logger log, String edgeId, String message) {
-		if (edgeId == null) {
-			edgeId = "UNKNOWN";
-		}
-		super.logWarn(log, "[" + edgeId + "] " + message);
-	}
-
-	@Override
-	protected void logError(Logger log, String message) {
-		super.logError(log, message);
 	}
 
 	@Override
@@ -384,9 +346,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer();
-			break;
+		case Metadata.Events.AFTER_IS_INITIALIZED -> this.startServer();
 		}
 	}
 
@@ -396,8 +356,9 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 		var result = channelAddresses.stream() //
 				.collect(toMap(//
 						Function.identity(), //
-						c -> JsonNull.INSTANCE, //
-						(t, u) -> u, TreeMap<ChannelAddress, JsonElement>::new));
+						_ -> JsonNull.INSTANCE, //
+						(_, u) -> u, //
+						TreeMap<ChannelAddress, JsonElement>::new));
 		var edgeCache = this.getEdgeCacheForEdgeId(edgeId);
 		if (edgeCache == null) {
 			return result;

@@ -10,17 +10,7 @@
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <oe-modal-line [name]="'GENERAL.MODE' | translate"></oe-modal-line>
-    <oe-modal-buttons
-      [formGroup]="formGroup"
-      controlName="mode"
-      [component]="component"
-      [buttons]="[
-        { name: ('GENERAL.ON' | translate), value: 'MANUAL_ON', icon: { color: 'success', name: 'play-outline' } },
-        { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: { color: 'primary', name: 'sunny' } },
-        { name: ('GENERAL.OFF' | translate), value: 'MANUAL_OFF', icon: { color: 'danger', name: 'power' } },
-      ]"
-    >
-    </oe-modal-buttons>
+    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="modeButtons"></oe-modal-buttons>
     <!-- TODO: with future version there will be a solution for returning the event from the generic modal-line, but at this moment, CustomEvent not working -->
     @if (formGroup.controls["mode"].value === Mode.AUTOMATIC) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -38,11 +28,7 @@
       <oe-modal-line
         [control]="{
           type: 'SELECT',
-          options: [
-            { value: 'LEVEL_1', name: 'Level 1' },
-            { value: 'LEVEL_2', name: 'Level 2' },
-            { value: 'LEVEL_3', name: 'Level 3' },
-          ],
+          options: levelOptions,
         }"
         name="Level"
         controlName="defaultLevel"

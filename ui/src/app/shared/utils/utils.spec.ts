@@ -20,6 +20,17 @@ describe("Utils", () => {
         expect(Utils.subtractSafely(1)).toEqual(1);
     });
 
+    it("#calculateSelfConsumption", () => {
+        expect(Utils.calculateSelfConsumption(null, null)).toEqual(null);
+        expect(Utils.calculateSelfConsumption(null, 1000)).toEqual(null);
+        expect(Utils.calculateSelfConsumption(500, null)).toEqual(null);
+        expect(Utils.calculateSelfConsumption(0, 0)).toEqual(0);
+        expect(Utils.calculateSelfConsumption(0, 1000)).toEqual(100);
+        expect(Utils.calculateSelfConsumption(250, 1000)).toEqual(75);
+        expect(Utils.calculateSelfConsumption(2000, 1000)).toEqual(0);
+        expect(Utils.calculateSelfConsumption(-500, 1000)).toEqual(100);
+    });
+
     const dummyConfig = DummyConfig.from(
         DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Wallbox"),
         DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", "Wallbox 2"),

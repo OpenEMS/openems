@@ -1,6 +1,6 @@
 package io.openems.backend.b2bwebsocket;
 
-import static io.openems.common.websocket.WebsocketUtils.getAsString;
+import static io.openems.common.websocket.WebsocketUtils.getAsStringOrNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -48,7 +48,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 	private OpenemsError doApply(WebSocket ws, Handshake handshake) {
 		// Read "Authorization" header for Simple HTTP authentication. Source:
 		// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-		final var authorization = getAsString(handshake, "authorization");
+		final var authorization = getAsStringOrNull(handshake, "authorization");
 		if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
 		}

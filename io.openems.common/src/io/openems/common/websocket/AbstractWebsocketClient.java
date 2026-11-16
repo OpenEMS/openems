@@ -70,7 +70,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketClient.class);
 	private final JettyWebSocket websocket;
 	private final URI serverUri;
-	private final Map<String, String> httpHeaders;
+	private volatile Map<String, String> httpHeaders;
 	private final Proxy proxy;
 	private final BooleanConsumer onConnectedChange;
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -124,6 +124,16 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		// Initialize reconnector
 		this.reconnectorConfig = reconnectorConfig;
 		this.reconnectorWorker = new ClientReconnectorWorker(this, reconnectorConfig);
+	}
+
+	/**
+	 * Updates the HTTP headers that are sent with the WebSocket handshake request,
+	 * e.g. to refresh an expiring token before a reconnect.
+	 *
+	 * @param httpHeaders the new HTTP headers
+	 */
+	public void setHttpHeaders(Map<String, String> httpHeaders) {
+		this.httpHeaders = Map.copyOf(httpHeaders);
 	}
 
 	/**

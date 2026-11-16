@@ -242,11 +242,10 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 						clusterComponents.add(t);
 					}
 					return !isCluster;
-				}).collect(Collectors.toList());
+				}).toList();
 
-		final var potentialIdsInCluster = new TreeSet<String>();
-		potentialIdsInCluster.addAll(evcsComponents.stream() //
-				.map(OpenemsComponent::id).toList());
+		final var potentialIdsInCluster = new TreeSet<>(//
+				evcsComponents.stream().map(OpenemsComponent::id).toList());
 		if (target == ConfigurationTarget.DELETE) {
 			potentialIdsInCluster.removeAll(Arrays.asList(addedEvcsIdsArray));
 		} else {
@@ -262,7 +261,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		}
 
 		// if there is exactly one cluster component overwrite its configuration
-		final var clusterId = clusterComponents.size() == 1 ? clusterComponents.get(0).id() : "evcsCluster0";
+		final var clusterId = clusterComponents.size() == 1 ? clusterComponents.getFirst().id() : "evcsCluster0";
 
 		final var existingEvcsIds = cm.getEdgeConfig().getComponent(clusterId) //
 				.flatMap(t -> t.getProperty("evcs.ids")) //
@@ -295,7 +294,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.map(OpenemsComponent::id) //
 				.collect(Collectors.toList());
 		final var addedEvcsIds = Arrays.stream(addedEvcsIdsArray) //
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 		if (target != ConfigurationTarget.DELETE) {
 			evcsIds.addAll(addedEvcsIds);
 		}

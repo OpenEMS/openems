@@ -7,6 +7,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.LIMIT_CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateApplyMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargePowerInChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischarge;
@@ -33,7 +34,10 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.meta.types.GridLimit;
+import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.energy.api.Environment;
+import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.periods.Periods;
 import io.openems.edge.ess.test.DummyHybridEss;
@@ -253,6 +257,65 @@ class UtilsTest {
 			final var result = calculateDischargeConsumption(balancingSetpoint, productionActivePower);
 
 			assertEquals(new Utils.ApplyMode(DISCHARGE_CONSUMPTION, expectedSetpoint), result);
+		}
+
+		@Test
+		void shouldDoBalancing_whenProductionActivePowerIsNull() {
+			final var result = calculateDischargeConsumption(3000, null);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, 3000), result);
+		}
+	}
+
+	@Nested
+	@DisplayName("calculateApplyMode()")
+	class CalculateApplyModeTest {
+
+		@Test
+		void shouldChargeFromGrid_whenProductionActivePowerIsNull() {
+			final var sum = new DummySum() //
+					.withGridActivePower(1000); // no withProductionActivePower -> null
+			final var ess = new DummyManagedSymmetricEss("ess0") //
+					.withActivePower(500) //
+					.withSoc(50);
+			final var coc = mock(EnergyScheduler.OptimizationContext.class);
+			when(coc.essChargePowerInChargeGrid()).thenReturn(5000);
+			when(coc.maxSocInChargeGrid()).thenReturn(100);
+			final var period = periodWithMode(CHARGE_GRID, coc);
+
+			final var result = calculateApplyMode(sum, ess, gridLimit(), period, null, CLOCK);
+
+			assertEquals(new Utils.ApplyMode(CHARGE_GRID, -5000), result);
+		}
+
+		@Test
+		void shouldDoBalancing_whenDischargeConsumptionAndProductionActivePowerIsNull() {
+			final var sum = new DummySum() //
+					.withGridActivePower(1000); // no withProductionActivePower -> null
+			final var ess = new DummyManagedSymmetricEss("ess0") //
+					.withActivePower(500) //
+					.withSoc(50);
+			final var period = periodWithMode(DISCHARGE_CONSUMPTION, mock(EnergyScheduler.OptimizationContext.class));
+
+			final var result = calculateApplyMode(sum, ess, gridLimit(), period, null, CLOCK);
+
+			assertEquals(new Utils.ApplyMode(BALANCING, 1500), result);
+		}
+
+		@SuppressWarnings("unchecked")
+		private static DifferentModes.Period<StateMachine, EnergyScheduler.OptimizationContext> periodWithMode(
+				StateMachine mode, EnergyScheduler.OptimizationContext coc) {
+			final var period = mock(DifferentModes.Period.class);
+			when(period.mode()).thenReturn(mode);
+			when(period.coc()).thenReturn(coc);
+			return period;
+		}
+
+		private static GridLimit gridLimit() {
+			return new GridLimit.Immutable(//
+					63, // fuseCurrent [A]
+					43000, 40850, JSCalendar.Tasks.empty(), true, // Grid-Buy
+					43000, 40850, false, 0); // Grid-Sell
 		}
 	}
 

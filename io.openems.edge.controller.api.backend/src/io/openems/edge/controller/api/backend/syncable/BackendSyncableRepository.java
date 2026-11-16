@@ -87,7 +87,7 @@ public class BackendSyncableRepository implements SyncableRepository {
 
 	protected void onBackendEvent(BackendEvent event) {
 		switch (event) {
-		case BackendEvent.BackendConnectionEstablishedEvent e -> {
+		case BackendEvent.BackendConnectionEstablishedEvent _ -> {
 			this.resendAllSubscriptions();
 		}
 		case BackendEvent.Notification(var notification) -> {

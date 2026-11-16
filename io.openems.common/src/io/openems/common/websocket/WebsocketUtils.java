@@ -13,11 +13,11 @@ public class WebsocketUtils {
 	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
 	 * "Field names are case-insensitive".
 	 *
-	 * @param handshake the {@link Handshake}
+	 * @param handshake the {@link Handshake}, or null
 	 * @param fieldName the name of the field
 	 * @return the field value; or null
 	 */
-	public static String getAsString(Handshake handshake, String fieldName) {
+	public static String getAsStringOrNull(Handshake handshake, String fieldName) {
 		return getAsOptionalString(handshake, fieldName).orElse(null);
 	}
 
@@ -29,11 +29,14 @@ public class WebsocketUtils {
 	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
 	 * "Field names are case-insensitive".
 	 *
-	 * @param handshake the {@link Handshake}
+	 * @param handshake the {@link Handshake}, or null
 	 * @param fieldName the name of the field
 	 * @return the field value as optional; empty if not found
 	 */
 	public static Optional<String> getAsOptionalString(Handshake handshake, String fieldName) {
+		if (handshake == null) {
+			return Optional.empty();
+		}
 		return handshake.getHeader(fieldName).map(String::trim);
 	}
 
@@ -92,7 +95,7 @@ public class WebsocketUtils {
 	 */
 	public static String parseRemoteIdentifier(WebSocket ws, Handshake handshake) {
 		for (var key : REMOTE_IDENTIFICATION_HEADERS) {
-			var value = getAsString(handshake, key);
+			var value = getAsStringOrNull(handshake, key);
 			if (value != null) {
 				return value;
 			}

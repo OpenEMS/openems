@@ -133,7 +133,7 @@ public class AppConfigValidator {
 						appConfigErrors.add("Missing dependency with Key[" + dependency.key + "] needed App["
 								+ appConfig.appId + "]");
 					} else {
-						checkProperties(errors, list.get(0).properties, appConfig, dependency.key);
+						checkProperties(errors, list.getFirst().properties, appConfig, dependency.key);
 					}
 				}
 

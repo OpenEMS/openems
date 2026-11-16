@@ -236,7 +236,7 @@ public class AutoKMeansClustererTest {
 		var columnNames = new ArrayList<String>();
 
 		if (!values.isEmpty()) {
-			int columnCount = values.get(0).size();
+			int columnCount = values.getFirst().size();
 			for (int i = 0; i < columnCount; i++) {
 				columnNames.add("c" + i);
 			}

@@ -62,8 +62,10 @@ export class ModalComponent extends AbstractModal {
 
     protected override onIsInitialized(): void {
         AssertionUtils.assertIsDefined(this.component);
-        this.chargePointComponent =
-            this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
+        this.chargePointComponent = this.config.getComponentFromOtherComponentsProperty(
+            this.component.id,
+            "chargePoint.id",
+        );
 
         const evseChargepoint: EvseChargepoint | null = EvseChargepoint.getEvseChargepoint(this.chargePointComponent);
         if (evseChargepoint == null || this.chargePointComponent == null) {
