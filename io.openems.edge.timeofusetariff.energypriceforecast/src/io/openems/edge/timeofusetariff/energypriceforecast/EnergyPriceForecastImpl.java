@@ -54,7 +54,7 @@ public class EnergyPriceForecastImpl extends AbstractTariffComponent implements 
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
-		if (config.refreshIntervalMinutes() < 5 || config.refreshIntervalMinutes() > 1440
+		if (config.refreshIntervalMinutes() < 15 || config.refreshIntervalMinutes() > 1440
 				|| config.maxForecastAgeHours() < 1 || config.maxForecastAgeHours() > 48) {
 			throw new IllegalArgumentException("Refresh interval or maximum forecast age is out of range");
 		}

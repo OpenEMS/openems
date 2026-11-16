@@ -12,7 +12,7 @@ Factory PID: `Tariff.SpotTariff.EnergyPriceForecast`.
 |`id` |`tariffForecast0` |Component ID
 |`enabled` |`true` |Enable the configured component
 |`service.ranking` |`-100` |Lower than providers of published prices, such as ENTSO-E (80), SMARD (90) and Backend (100)
-|`refreshIntervalMinutes` |`30` |Refresh interval per requested bidding zone; HTTP failures are retried after five minutes
+|`refreshIntervalMinutes` |`30` |Refresh interval per requested bidding zone, 15 to 1440 minutes; the forecast changes about hourly. HTTP failures are retried after five minutes
 |`maxForecastAgeHours` |`24` |Maximum age of the source forecast, including during HTTP failures
 |===
 

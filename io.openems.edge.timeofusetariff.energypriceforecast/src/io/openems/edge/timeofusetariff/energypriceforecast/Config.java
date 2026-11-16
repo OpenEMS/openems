@@ -17,7 +17,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Service Ranking", description = "Higher values are preferred. Keep this below providers of published prices.")
 	int service_ranking() default -100;
 
-	@AttributeDefinition(name = "Refresh interval", description = "Minutes between successful requests, per requested bidding zone.", min = "5", max = "1440")
+	@AttributeDefinition(name = "Refresh interval", description = "Minutes between successful requests, per requested bidding zone. The forecast changes about hourly.", min = "15", max = "1440")
 	int refreshIntervalMinutes() default 30;
 
 	@AttributeDefinition(name = "Maximum forecast age", description = "Maximum age in hours of the source forecast, including during API outages.", min = "1", max = "48")
