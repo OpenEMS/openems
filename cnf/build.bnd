@@ -25,6 +25,9 @@
 # Always use contracts
 -contract: *
 
+# Report duplicate and shadowed property definitions (bnd 7.5.0)
+-propertyconflicts: warning
+
 # OpenEMS bnd.bnd defaults
 buildpath: \
 	com.google.gson;version='2.15.0',\
@@ -67,3 +70,4 @@ testpath: \
 
 javac.source: 25
 javac.target: 25
+javac.release: 25
