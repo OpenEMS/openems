@@ -1,0 +1,7 @@
+= Ortsnetz-Auslastung
+
+Sends periodic grid voltage measurements to https://www.ortsnetz-auslastung.de/.
+
+The electricity data is read from the configured Electricity-Meter, the coordinates of the system location from the 'Meta' component. Sending is read-only: the received storage recommendation is not processed.
+
+See https://github.com/thomaslehmann1234/datenerfassung-ortsnetz-auslastung/blob/master/API.md for the API reference.
