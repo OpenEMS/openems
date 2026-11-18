@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,7 @@ import io.openems.common.utils.FunctionUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.WebSocket;
 import io.openems.common.websocket.WsData;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
@@ -39,7 +39,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			Consumer<EdgeConfig> onEdgeConfig, //
 			Runnable onChannelChange //
 	) {
-		super(name, serverUri, DEFAULT_DRAFT, httpHeaders, proxy, null /* onConnectedChange */,
+		super(name, serverUri, httpHeaders, proxy, null /* onConnectedChange */,
 				new ClientReconnectorWorker.Config(5, 10, 5, FunctionUtils::doNothing));
 		this.onOpen = new OnOpen(onStateChange);
 		this.onNotification = new OnNotification(onCurrentData, onEdgeConfig, onChannelChange);

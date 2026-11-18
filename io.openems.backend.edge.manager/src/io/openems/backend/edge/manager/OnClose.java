@@ -3,11 +3,11 @@ package io.openems.backend.edge.manager;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.common.logger.ContextLogger;
+import io.openems.common.websocket.WebSocket;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 

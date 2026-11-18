@@ -62,7 +62,6 @@
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
 	io.openems.core.logger;version=snapshot;startlevel=16,\
-	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.auth0-java-jwt;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
@@ -88,6 +87,11 @@
 	org.apache.felix.scr;version='[2.3.0,2.3.1)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.1.0,5.1.1)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
+	org.eclipse.jetty.alpn.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.common;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.server;version='[12.1.14,12.1.15)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.5,2.3.6)';startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.5,2.3.6)';startlevel=15,\

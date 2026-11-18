@@ -3,7 +3,6 @@ package io.openems.backend.edge.manager;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.jsonrpc.syncable.SyncableSubscriptionKey;
@@ -27,6 +26,7 @@ import io.openems.common.jsonrpc.response.SyncableSubscribeResponse;
 import io.openems.common.jsonrpc.syncable.SyncableProviderType;
 import io.openems.common.jsonrpc.type.CheckSetupPassword;
 import io.openems.common.logger.ContextLogger;
+import io.openems.common.websocket.WebSocket;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 

@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -30,6 +29,7 @@ import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnOpen;
+import io.openems.common.websocket.WebSocket;
 import io.openems.common.websocket.WsData;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
@@ -82,13 +82,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			return;
 		}
 
-		final var header = headerSupplier.get();
-
-		event.ws().clearHeaders();
-
-		for (final var entry : header.entrySet()) {
-			event.ws().addHeader(entry.getKey(), entry.getValue());
-		}
+		event.client().setHttpHeaders(headerSupplier.get());
 	}
 
 	/**
