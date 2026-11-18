@@ -215,7 +215,7 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	@Override
 	public Filter getFilter(String essId) {
 		synchronized (this.filters) {
-			return this.filters.computeIfAbsent(essId, e -> {
+			return this.filters.computeIfAbsent(essId, _ -> {
 				if (this.config.enablePid()) {
 					// build a PidFilter instance with the configured P, I and D variables
 					return new PidFilter(this.config.p(), this.config.i(), this.config.d());
