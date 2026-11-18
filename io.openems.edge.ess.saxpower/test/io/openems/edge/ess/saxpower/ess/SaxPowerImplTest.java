@@ -22,14 +22,16 @@ public class SaxPowerImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
-						.setTimeout(120) //
+						.setTimeout(60) //
 						.build())
 				.next(new TestCase() //
-						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600));
+						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600)
+						.input(SaxPower.ChannelId.TIMEOUT, 60)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 1));
 
 		sut.applyPower(0, 0);
 
-		assertEquals(Integer.valueOf(120), sut.getTimeoutChannel().getNextWriteValue().get());
+		assertEquals(Integer.valueOf(60), sut.getTimeoutChannel().getNextWriteValue().get());
 		assertEquals(Integer.valueOf(1), sut.getControlModeChannel().getNextWriteValue().get());
 		sut.deactivate();
 	}
@@ -43,9 +45,12 @@ public class SaxPowerImplTest {
 						.setId("ess0") //
 						.setModbusId("modbus0") //
 						.setModbusUnitId(100) //
+						.setTimeout(60)
 						.build()) //
 				.next(new TestCase() //
-						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600));
+						.input(SaxPower.ChannelId.REFERENCE_MAXIMUM_POWER, 4600)
+						.input(SaxPower.ChannelId.TIMEOUT, 60)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 1));
 
 		sut.applyPower(1000, 0);
 		assertEquals(Integer.valueOf(2173), sut.getTargetPowerChannel().getNextWriteValue().get());
@@ -55,6 +60,33 @@ public class SaxPowerImplTest {
 
 		sut.applyPower(-1000, 0);
 		assertEquals(Integer.valueOf(-2173), sut.getTargetPowerChannel().getNextWriteValue().get());
+
+		sut.deactivate();
+	}
+
+	@Test
+	public void testSwitchMode() throws Exception {
+		var sut = new SaxPowerImpl();
+		new ComponentTest(sut)
+				.addReference("setModbus", new DummyModbusBridge("modbus0"))
+				.activate(MyConfig.create()
+						.setId("ess0")
+						.setModbusId("modbus0")
+						.setModbusUnitId(100)
+						.setTimeout(60)
+						.build())
+				.next(new TestCase()
+						.input(SaxPower.ChannelId.TIMEOUT, 300)
+						.input(SaxPower.ChannelId.CONTROL_MODE, 0));
+
+		sut.applyPower(1000, 0);
+
+		new ComponentTest(sut)
+				.next(new TestCase()
+						.input(SaxPower.ChannelId.TIMEOUT, null)
+						.input(SaxPower.ChannelId.CONTROL_MODE, null));
+
+		sut.applyPower(1000, 0);
 
 		sut.deactivate();
 	}
