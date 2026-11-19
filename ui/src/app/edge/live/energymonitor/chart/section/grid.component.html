@@ -25,7 +25,7 @@
   }
   @if (isEnabled && squarePosition && square) {
     <svg:g attr.transform="translate({{squarePosition.x}},{{squarePosition.y}})">
-      <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y" text-anchor="middle" font-family="sans-serif" [attr.font-size]="square.valueText.fontsize" fill="var(--ion-text-color)">
+    <svg:text [attr.x]="square.valueText.x" [attr.y]="square.valueText.y" text-anchor="middle" font-family="sans-serif" [attr.font-size]="square.valueText.fontsize" fill="var(--ion-text-color)">
         @if (valueText) {
           <ng-container>{{valueText}}</ng-container>
         } @else {
