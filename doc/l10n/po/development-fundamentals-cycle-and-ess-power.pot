@@ -1,0 +1,393 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Cycle, Scheduler and ESS Power"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"xref:edge/architecture.adoc[Edge Architecture] explains the input-process-"
+"output model, the Scheduler and the Process Image. This page adds the "
+"details from the code. Responsible for the Cycle is the singleton component "
+"`+_cycle+` (`+io.openems.edge.core+`, classes `+CycleImpl+` and "
+"`+CycleWorker+`)."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Cycle time"
+msgstr ""
+
+#. type: #sec-cycle-time
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Default: **1000 ms** (`+Cycle.DEFAULT_CYCLE_TIME+`), adjustable in the "
+"component “Core Cycle” (field `+cycleTime+`)."
+msgstr ""
+
+#. type: #sec-cycle-time
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"`+_cycle/MeasuredCycleTime+` contains the time actually used by a Cycle."
+msgstr ""
+
+#. type: #sec-cycle-time
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"For troubleshooting, there is a log verbosity (`+CycleLogVerbosity+`): "
+"summary, phases or individual components, each with time measurement."
+msgstr ""
+
+#. type: #sec-cycle-time
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"At the beginning of each Cycle, the operating system's watchdog (systemd) is "
+"notified. If the Cycle hangs, systemd can restart the service, provided the "
+"watchdog is active in the service file."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Sequence of a Cycle"
+msgstr ""
+
+#. type: #sec-sequence-of-a-cycle
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"The order is in `+CycleWorker.forever()+`. All Cycle Events are sent "
+"synchronously via the Event Admin (`+EdgeEventConstants+`); the next step "
+"only starts when all receivers have finished."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid ""
+"| No.\n"
+"| Step\n"
+"| Typical use\n"
+"\n"
+"| 1\n"
+"| Event `+TOPIC_CYCLE_BEFORE_PROCESS_IMAGE+`\n"
+"| Drivers hand over read values; Modbus Bridge completes read tasks\n"
+"| 2\n"
+"| **Switch Process Image**: for each enabled component (except `+_sum+`) `+channel.nextProcessImage()+`\n"
+"| from here on `+value()+` returns the new values\n"
+"| 3\n"
+"| Calculate `+_sum+` (`+updateChannelsBeforeProcessImage()+`) and switch its Process Image\n"
+"| totals match the device values just adopted\n"
+"| 4\n"
+"| Event `+TOPIC_CYCLE_AFTER_PROCESS_IMAGE+`\n"
+"| Components calculate derived values; with strategy `+BALANCE+`, `+_power+` rebuilds the model here\n"
+"| 5\n"
+"| Event `+TOPIC_CYCLE_BEFORE_CONTROLLERS+`\n"
+"| preparations before the Controllers\n"
+"| 6\n"
+"| **Execute Scheduler and Controllers**\n"
+"| `+Controller.run()+` in Scheduler order\n"
+"| 7\n"
+"| Event `+TOPIC_CYCLE_AFTER_CONTROLLERS+`\n"
+"| evaluation of the Controller results\n"
+"| 8\n"
+"| Event `+TOPIC_CYCLE_BEFORE_WRITE+`\n"
+"| `+_power+` solves the power distribution and calls `+applyPower()+` of the ESS\n"
+"| 9\n"
+"| Event `+TOPIC_CYCLE_EXECUTE_WRITE+`\n"
+"| Drivers write setpoints to the devices\n"
+"| 10\n"
+"| Event `+TOPIC_CYCLE_AFTER_WRITE+`\n"
+"| clean-up; `+_power+` (solver v1) discards the constraints of this Cycle\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"An exception anywhere in this sequence only aborts the current Cycle; it is "
+"logged as “Error in Scheduler …” (with stack trace for "
+"`+NullPointerException+` and `+ClassCastException+`). The next Cycle starts "
+"normally."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Scheduler and Controllers"
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Without a Scheduler, no Controllers run; the log then reports “There are no "
+"Schedulers configured!”."
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Several Schedulers are possible; they run sorted by their Component-ID. Each "
+"Scheduler provides an ordered list of Controller IDs via `+getControllers()"
+"+`."
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Available Schedulers: `+allalphabetically+` (optionally a fixed list first, "
+"then all other Controllers alphabetically by ID), `+fixedorder+` (fixed "
+"list), `+daily+` (by time of day), `+jscalendar+` (by calendar rules)."
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"If a Controller is missing or the ID is not a Controller, the Scheduler sets "
+"its State-Channel `+ControllerIsMissing+`."
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"A disabled Controller is skipped; `+_cycle/IgnoreDisabledController+` is set."
+msgstr ""
+
+#. type: #sec-scheduler-and-controllers
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"If `+run()+` throws an exception, it is logged, the State-Channel "
+"`+RunFailed+` (level FAULT) of the Controller is set and the next Controller "
+"is executed."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Meaning of the order"
+msgstr ""
+
+#. type: #sec-meaning-of-the-order
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Controllers that set ESS setpoints work via **constraints** of the power "
+"distribution. An earlier Controller can set constraints that later ones must "
+"comply with. Example: a Controller for § 14a sets a maximum charging power; "
+"a self-consumption Controller running later then receives at most this "
+"value. Limiting Controllers therefore come **before** optimizing ones in the "
+"order. Details on § 14a are on the user page xref:user/storage-control/"
+"section-14a-enwg.adoc[§ 14a]."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "ESS Power (`+_power+`)"
+msgstr ""
+
+#. type: #sec-ess-power-power
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"ESS (`+ManagedSymmetricEss+`) do not have setpoints written directly. "
+"Controllers set constraints, and the component `+_power+` (bundle "
+"`+io.openems.edge.ess.core+`, “ESS Power”) solves them together for all ESS."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Setting constraints"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid ""
+"| Method on the ESS\n"
+"| Channel\n"
+"| Constraint\n"
+"\n"
+"| `+setActivePowerEqualsWithFilter(p)+`\n"
+"| `+SetActivePowerEquals+`\n"
+"| power = p, with control filter\n"
+"| `+setActivePowerEqualsWithoutFilter(p)+`\n"
+"| `+SetActivePowerEquals+`\n"
+"| power = p, without filter\n"
+"| `+setActivePowerLessOrEquals(p)+`\n"
+"| `+SetActivePowerLessOrEquals+`\n"
+"| power ≤ p\n"
+"| `+setActivePowerGreaterOrEquals(p)+`\n"
+"| `+SetActivePowerGreaterOrEquals+`\n"
+"| power ≥ p\n"
+"| accordingly `+…ReactivePower…+`\n"
+"| \n"
+"| reactive power\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Signs: **negative = charge, positive = discharge**. Writing to one of these "
+"Channels immediately creates a constraint at the solver via "
+"`+onChannelSetNextWrite+`."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"**With filter** for closed control loops that react to a grid meter (e.g. "
+"self-consumption optimization). The filter prevents oscillation."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"**Without filter** if the value comes directly from a higher-level "
+"Controller or from the user."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"For your own constraints, there is `+addPowerConstraint(…)+` or "
+"`+addPowerConstraintAndValidate(…)+`; the latter throws an exception if the "
+"constraint is incompatible with the previous ones."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"`+getPower().getMaxPower(…)+` and `+getMinPower(…)+` return the leeway that "
+"remains after the previous constraints."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Solving and applying"
+msgstr ""
+
+#. type: #sec-solving-and-applying
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Constraints only apply for one Cycle. Solver v1 discards them after writing "
+"(step 10) and creates the static limits of the ESS anew "
+"(`+getStaticConstraints()+`, e.g. permitted charging/discharging power); "
+"solver v2 rebuilds its model after the Process Image is switched (step 4). A "
+"Controller must therefore set its setpoints anew in every Cycle."
+msgstr ""
+
+#. type: #sec-solving-and-applying
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Solving takes place before writing (step 8). Each ESS receives the result "
+"via `+applyPower(activePower, reactivePower)+`; the driver converts it into "
+"device registers. Rounding is done to `+getPowerPrecision()+`."
+msgstr ""
+
+#. type: #sec-solving-and-applying
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"If no solution is possible, the State-Channel `+_power/NotSolved+` (level "
+"WARNING) is set."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Strategies and filters"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Default\n"
+"| Meaning\n"
+"\n"
+"| `+strategy+`\n"
+"| `+OPTIMIZE_BY_MOVING_TOWARDS_TARGET+`\n"
+"| distribution across several ESS. All strategies except `+BALANCE+` use solver v1 (linear optimization); `+BALANCE+` uses the newer solver v2 (`+TreeSolver+`).\n"
+"| `+enablePid+`\n"
+"| on\n"
+"| PID filter for “with filter” setpoints; parameters `+p+`, `+i+`, `+d+`\n"
+"| `+enablePT1Filter+`\n"
+"| off\n"
+"| PT1 filter instead of PID (only if PID is off), time constant `+pt1TimeConstant+`\n"
+"| `+symmetricMode+`\n"
+"| on\n"
+"| keeps asymmetric ESS symmetric\n"
+"| `+debugMode+`\n"
+"| off\n"
+"| additional log output of the solver\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#, no-wrap
+msgid "Notes for your own code"
+msgstr ""
+
+#. type: #sec-notes-for-your-own-code
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"In `+run()+`, only work with `+value()+`, not with `+getNextValue()+`; "
+"otherwise the Controller sees a value that other Controllers do not yet see "
+"in the same Cycle."
+msgstr ""
+
+#. type: #sec-notes-for-your-own-code
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"A value that a Controller writes to a Channel (`+_setNextValue+`) can only "
+"be read via `+value()+` in the next Cycle."
+msgstr ""
+
+#. type: #sec-notes-for-your-own-code
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+msgid ""
+"Slow work (network, calculations over many seconds) belongs in a separate "
+"thread or worker (`+AbstractWorker+`, `+AbstractCycleWorker+`), not in "
+"`+run()+` or a Cycle Event. All events run synchronously and extend the "
+"Cycle."
+msgstr ""

@@ -1,0 +1,691 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Implementing a Controller"
+msgstr "OpenEMS-Entwicklung: Eigene Komponente oder Controller"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"xref:edge/implement.adoc[Implementing a Device] is a step-by-step tutorial "
+"for a device. This page complements it with the parts of an OpenEMS "
+"Component and uses a Controller as a template: **Balancing** (self-"
+"consumption optimization, bundle "
+"`+io.openems.edge.controller.ess.balancing+`), which is small, complete and "
+"has a test. For charge points, `+CLAUDE.md+` names the bundles "
+"`+io.openems.edge.evse.chargepoint.keba+` and `+…mennekes+` as templates; "
+"for Modbus devices see xref:development/implementing/modbus-device-"
+"drivers.adoc[Modbus device drivers]."
+msgstr ""
+"xref:latest@edge/implement.adoc[Implementing a Device] ist eine Schritt-für-"
+"Schritt-Anleitung für ein Gerät. Diese Seite ergänzt sie um die Teile einer "
+"Komponente. Als Vorlage dient der Controller **Balancing** "
+"(Eigenverbrauchsoptimierung, Bundle "
+"`+io.openems.edge.controller.ess.balancing+`): klein, vollständig und mit "
+"Test. Für Ladepunkte nennt `+CLAUDE.md+` die Bundles "
+"`+io.openems.edge.evse.chargepoint.keba+` und `+…mennekes+` als Vorlagen, "
+"für Modbus-Geräte siehe xref:development/implementing/modbus-device-"
+"drivers.adoc[Modbus-Gerätetreiber]."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Files of a bundle"
+msgstr "Dateien eines Bundles"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"io.openems.edge.controller.ess.balancing/\n"
+"  bnd.bnd                         bundle name, -buildpath, -testpath\n"
+"  readme.adoc                     description for the documentation\n"
+"  src/io/openems/edge/controller/ess/balancing/\n"
+"    Config.java                   configuration fields\n"
+"    ControllerEssBalancing.java   interface with its own Channels\n"
+"    ControllerEssBalancingImpl.java  implementation\n"
+"  test/io/openems/edge/controller/ess/balancing/\n"
+"    MyConfig.java                 builder for the configuration in the test\n"
+"    BalancingImplTest.java        test\n"
+msgstr ""
+"io.openems.edge.controller.ess.balancing/\n"
+"  bnd.bnd                         Bundle-Name, -buildpath, -testpath\n"
+"  readme.adoc                     Beschreibung für die Dokumentation\n"
+"  src/io/openems/edge/controller/ess/balancing/\n"
+"    Config.java                   Konfigurationsfelder\n"
+"    ControllerEssBalancing.java   Interface mit eigenen Channels\n"
+"    ControllerEssBalancingImpl.java  Implementierung\n"
+"  test/io/openems/edge/controller/ess/balancing/\n"
+"    MyConfig.java                 Builder für die Konfiguration im Test\n"
+"    BalancingImplTest.java        Test\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"In `+bnd.bnd+`, `+-buildpath+` lists all required OpenEMS bundles in "
+"addition to `+${buildpath}+`, here `+io.openems.common+`, "
+"`+io.openems.edge.common+`, `+io.openems.edge.controller.api+`, "
+"`+io.openems.edge.ess.api+`, `+io.openems.edge.meter.api+`. `+${buildpath}+` "
+"and `+${testpath}+` are defined in `+cnf/build.bnd+` (Gson, Guava, OSGi "
+"annotations, logging, JUnit)."
+msgstr ""
+"In `+bnd.bnd+` stehen unter `+-buildpath+` neben `+${buildpath}+` alle "
+"benötigten OpenEMS-Bundles, hier `+io.openems.common+`, "
+"`+io.openems.edge.common+`, `+io.openems.edge.controller.api+`, "
+"`+io.openems.edge.ess.api+`, `+io.openems.edge.meter.api+`. `+${buildpath}+` "
+"und `+${testpath}+` sind in `+cnf/build.bnd+` definiert (Gson, Guava, OSGi-"
+"Annotationen, Logging, JUnit)."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Config.java"
+msgstr "Config.java"
+
+#. type: #sec-config-java
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"The configuration is an annotation with OSGi Metatype. The form in the "
+"Apache Felix Web Console and the fields shown by the UI are created from it."
+msgstr ""
+"Die Konfiguration ist eine Annotation mit OSGi-Metatype. Daraus entstehen "
+"das Formular in der Webkonsole und die Felder, die die UI anzeigt."
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"@ObjectClassDefinition(name = \"Controller Ess Balancing\",\n"
+"        description = \"Optimizes the self-consumption by keeping the grid meter on zero.\")\n"
+"@interface Config {\n"
+"    @AttributeDefinition(name = \"Component-ID\", description = \"Unique ID of this Component\")\n"
+"    String id() default \"ctrlBalancing0\";\n"
+msgstr ""
+"@ObjectClassDefinition(name = \"Controller Ess Balancing\",\n"
+"        description = \"Optimizes the self-consumption by keeping the grid meter on zero.\")\n"
+"@interface Config {\n"
+"    @AttributeDefinition(name = \"Component-ID\", description = \"Unique ID of this Component\")\n"
+"    String id() default \"ctrlBalancing0\";\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @AttributeDefinition(name = \"Alias\", description = \"Human-readable name ...\")\n"
+"    String alias() default \"\";\n"
+msgstr ""
+"    @AttributeDefinition(name = \"Alias\", description = \"Human-readable name ...\")\n"
+"    String alias() default \"\";\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @AttributeDefinition(name = \"Is enabled?\", description = \"Is this Component enabled?\")\n"
+"    boolean enabled() default true;\n"
+msgstr ""
+"    @AttributeDefinition(name = \"Is enabled?\", description = \"Is this Component enabled?\")\n"
+"    boolean enabled() default true;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @AttributeDefinition(name = \"Ess-ID\", description = \"ID of Ess device.\")\n"
+"    String ess_id();\n"
+msgstr ""
+"    @AttributeDefinition(name = \"Ess-ID\", description = \"ID of Ess device.\")\n"
+"    String ess_id();\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @AttributeDefinition(name = \"Grid-Meter-ID\", description = \"ID of the Grid-Meter.\")\n"
+"    String meter_id();\n"
+msgstr ""
+"    @AttributeDefinition(name = \"Grid-Meter-ID\", description = \"ID of the Grid-Meter.\")\n"
+"    String meter_id();\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @AttributeDefinition(name = \"Target Grid Setpoint\", description = \"...\")\n"
+"    int targetGridSetpoint() default 0;\n"
+msgstr ""
+"    @AttributeDefinition(name = \"Target Grid Setpoint\", description = \"...\")\n"
+"    int targetGridSetpoint() default 0;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    String webconsole_configurationFactory_nameHint() default \"Controller Ess Balancing [{id}]\";\n"
+"}\n"
+msgstr ""
+"    String webconsole_configurationFactory_nameHint() default \"Controller Ess Balancing [{id}]\";\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid "Every component has `+id+`, `+alias+` and `+enabled+`."
+msgstr "`+id+`, `+alias+`, `+enabled+` hat jede Komponente."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"An underscore in the method name becomes a dot in the property name: "
+"`+ess_id()+` reads the property `+ess.id+`."
+msgstr ""
+"Ein Unterstrich im Methodennamen wird zum Punkt im Property-Namen: `+ess_id()"
+"+` liest die Property `+ess.id+`."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"`+webconsole_configurationFactory_nameHint+` determines the display name in "
+"the Apache Felix Web Console."
+msgstr ""
+"`+webconsole_configurationFactory_nameHint+` bestimmt den Anzeigenamen in "
+"der Webkonsole."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Interface with its own Channels"
+msgstr "Interface mit eigenen Channels"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"public interface ControllerEssBalancing extends Controller, OpenemsComponent {\n"
+"    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {\n"
+"        DEBUG_SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)\n"
+"                .accessMode(AccessMode.READ_ONLY)),\n"
+"        SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)\n"
+"                .accessMode(AccessMode.WRITE_ONLY)\n"
+"                .onChannelSetNextWriteMirrorToDebugChannel(DEBUG_SET_GRID_ACTIVE_POWER));\n"
+"        ...\n"
+"    }\n"
+"}\n"
+msgstr ""
+"public interface ControllerEssBalancing extends Controller, OpenemsComponent {\n"
+"    public enum ChannelId implements io.openems.edge.common.channel.ChannelId {\n"
+"        DEBUG_SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)\n"
+"                .accessMode(AccessMode.READ_ONLY)),\n"
+"        SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)\n"
+"                .accessMode(AccessMode.WRITE_ONLY)\n"
+"                .onChannelSetNextWriteMirrorToDebugChannel(DEBUG_SET_GRID_ACTIVE_POWER));\n"
+"        ...\n"
+"    }\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Here there is a write-channel via which another Controller or an interface "
+"can specify the grid setpoint. `+onChannelSetNextWriteMirrorToDebugChannel+` "
+"mirrors the written value to a readable Channel so that it is visible in the "
+"history and UI."
+msgstr ""
+"Hier gibt es einen Write-Channel, über den ein anderer Controller oder eine "
+"Schnittstelle den Netz-Sollwert vorgeben kann. "
+"`+onChannelSetNextWriteMirrorToDebugChannel+` spiegelt den geschriebenen "
+"Wert in einen lesbaren Channel, damit er in Historie und UI sichtbar ist."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Implementation"
+msgstr "Implementierung"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"@Designate(ocd = Config.class, factory = true)\n"
+"@Component(\n"
+"        name = \"Controller.Symmetric.Balancing\",    // Factory-PID, never change\n"
+"        immediate = true,\n"
+"        configurationPolicy = ConfigurationPolicy.REQUIRE)\n"
+"@GenerateTargetsFromReferences({ \"ess\", \"meter\" })\n"
+"public class ControllerEssBalancingImpl extends AbstractOpenemsComponent\n"
+"        implements Controller, OpenemsComponent, ModbusSlave, ControllerEssBalancing {\n"
+msgstr ""
+"@Designate(ocd = Config.class, factory = true)\n"
+"@Component(\n"
+"        name = \"Controller.Symmetric.Balancing\",    // Factory-PID, nie ändern\n"
+"        immediate = true,\n"
+"        configurationPolicy = ConfigurationPolicy.REQUIRE)\n"
+"@GenerateTargetsFromReferences({ \"ess\", \"meter\" })\n"
+"public class ControllerEssBalancingImpl extends AbstractOpenemsComponent\n"
+"        implements Controller, OpenemsComponent, ModbusSlave, ControllerEssBalancing {\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,\n"
+"            target = \"(&(id=${config.ess_id})(enabled=true))\")\n"
+"    private ManagedSymmetricEss ess;\n"
+msgstr ""
+"    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,\n"
+"            target = \"(&(id=${config.ess_id})(enabled=true))\")\n"
+"    private ManagedSymmetricEss ess;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,\n"
+"            target = \"(&(id=${config.meter_id})(enabled=true))\")\n"
+"    private ElectricityMeter meter;\n"
+msgstr ""
+"    @Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,\n"
+"            target = \"(&(id=${config.meter_id})(enabled=true))\")\n"
+"    private ElectricityMeter meter;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "    private Config config;\n"
+msgstr "    private Config config;\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    public ControllerEssBalancingImpl() {\n"
+"        super(OpenemsComponent.ChannelId.values(),\n"
+"              Controller.ChannelId.values(),\n"
+"              ControllerEssBalancing.ChannelId.values());\n"
+"    }\n"
+msgstr ""
+"    public ControllerEssBalancingImpl() {\n"
+"        super(OpenemsComponent.ChannelId.values(),\n"
+"              Controller.ChannelId.values(),\n"
+"              ControllerEssBalancing.ChannelId.values());\n"
+"    }\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @Activate\n"
+"    private void activate(ComponentContext context, Config config) {\n"
+"        super.activate(context, config.id(), config.alias(), config.enabled());\n"
+"        this.config = config;\n"
+"    }\n"
+msgstr ""
+"    @Activate\n"
+"    private void activate(ComponentContext context, Config config) {\n"
+"        super.activate(context, config.id(), config.alias(), config.enabled());\n"
+"        this.config = config;\n"
+"    }\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @Override\n"
+"    @Deactivate\n"
+"    protected void deactivate() {\n"
+"        super.deactivate();\n"
+"    }\n"
+msgstr ""
+"    @Override\n"
+"    @Deactivate\n"
+"    protected void deactivate() {\n"
+"        super.deactivate();\n"
+"    }\n"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"    @Override\n"
+"    public void run() throws OpenemsNamedException {\n"
+"        if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {\n"
+"            return;\n"
+"        }\n"
+"        int target = this.getSetGridActivePowerNextWriteValue()\n"
+"                .orElse(this.config.targetGridSetpoint());\n"
+"        var power = this.meter.getActivePower().getOrError()\n"
+"                + this.ess.getActivePower().getOrError() - target;\n"
+"        this.ess.setActivePowerEqualsWithFilter(power);\n"
+"        this.ess.setReactivePowerEqualsWithoutFilter(0);\n"
+"    }\n"
+"}\n"
+msgstr ""
+"    @Override\n"
+"    public void run() throws OpenemsNamedException {\n"
+"        if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {\n"
+"            return;\n"
+"        }\n"
+"        int target = this.getSetGridActivePowerNextWriteValue()\n"
+"                .orElse(this.config.targetGridSetpoint());\n"
+"        var power = this.meter.getActivePower().getOrError()\n"
+"                + this.ess.getActivePower().getOrError() - target;\n"
+"        this.ess.setActivePowerEqualsWithFilter(power);\n"
+"        this.ess.setReactivePowerEqualsWithoutFilter(0);\n"
+"    }\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"(shortened; in the original, the calculation is in a static method "
+"`+calculateRequiredPower+`, which can be tested individually)"
+msgstr ""
+"(gekürzt; im Original steht die Rechnung in einer statischen Methode "
+"`+calculateRequiredPower+`, die sich einzeln testen lässt)"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "What the parts do"
+msgstr "Was die Teile bewirken"
+
+#. type: #sec-what-the-parts-do
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+configurationPolicy = REQUIRE+`**: the component is only created if a "
+"configuration exists."
+msgstr ""
+"**`+configurationPolicy = REQUIRE+`**: Die Komponente entsteht nur, wenn "
+"eine Konfiguration existiert."
+
+#. type: #sec-what-the-parts-do
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**Constructor**: pass all `+ChannelId+` enums of the implemented Natures. If "
+"one is missing, its Channels do not exist and access fails at runtime."
+msgstr ""
+"**Konstruktor**: Alle `+ChannelId+`-Enums der implementierten Natures "
+"übergeben. Fehlt eines, existieren dessen Channels nicht und der Zugriff "
+"scheitert zur Laufzeit."
+
+#. type: #sec-what-the-parts-do
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+implements+`**: list all Natures, including parent interfaces (see "
+"xref:development/fundamentals/components-and-channels.adoc[Components and "
+"Channels in code])."
+msgstr ""
+"**`+implements+`**: alle Natures aufzählen, auch Eltern-Interfaces (siehe "
+"xref:development/fundamentals/components-and-channels.adoc[Architektur])."
+
+#. type: #sec-what-the-parts-do
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+getOrError()+`**: throws an exception if the value is missing (e.g. "
+"meter not reachable). The Scheduler catches it and sets `+RunFailed+`. If "
+"you want to handle missing values differently, use `+get()+` (can be "
+"`+null+`) or `+orElse(…)+`."
+msgstr ""
+"**`+getOrError()+`**: wirft eine Ausnahme, wenn der Wert fehlt (z. B. Zähler "
+"nicht erreichbar). Der Scheduler fängt sie ab und setzt `+RunFailed+`. Wer "
+"mit fehlenden Werten anders umgehen will, nutzt `+get()+` (kann `+null+` "
+"sein) oder `+orElse(…)+`."
+
+#. type: #sec-what-the-parts-do
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**Setpoints** to ESS go through ESS Power; details under xref:development/"
+"fundamentals/cycle-and-ess-power.adoc[Cycle]."
+msgstr ""
+"**Sollwerte** an Speicher gehen über die Leistungsverteilung; Einzelheiten "
+"unter xref:development/fundamentals/cycle-and-ess-power.adoc[Zyklus]."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "References to other components"
+msgstr "Referenzen auf andere Komponenten"
+
+#. type: #sec-references-to-other-components
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"A Controller receives meters and ESS via OSGi `+@Reference+`. Which Instance "
+"is meant is specified in the configuration (`+ess_id+`). For OSGi to inject "
+"the correct Instance, the reference needs a **target filter** with this ID."
+msgstr ""
+"Ein Controller bekommt Zähler und Speicher über OSGi-`+@Reference+`. Welche "
+"Instanz gemeint ist, steht in der Konfiguration (`+ess_id+`). Damit OSGi die "
+"richtige Instanz injiziert, braucht die Referenz einen **Target-Filter** mit "
+"dieser ID."
+
+#. type: #sec-references-to-other-components
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**New way (139 classes):** `+@GenerateTargetsFromReferences+` from "
+"`+io.openems.core.referencetarget+`. `+target+` contains a placeholder `+$"
+"{config.ess_id}+`; a configuration plugin replaces it with the value of the "
+"property when loading the configuration. The annotation contains the names "
+"of the references (field name or, for setter methods such as `+setModbus+`, "
+"the reference name)."
+msgstr ""
+"**Neuer Weg (139 Klassen):** `+@GenerateTargetsFromReferences+` aus "
+"`+io.openems.core.referencetarget+`. In `+target+` steht ein Platzhalter `+$"
+"{config.ess_id}+`; ein Configuration-Plugin ersetzt ihn beim Laden der "
+"Konfiguration durch den Wert der Property. In der Annotation stehen die "
+"Namen der Referenzen (Feldname oder, bei Setter-Methoden wie `+setModbus+`, "
+"der Referenzname)."
+
+#. type: #sec-references-to-other-components
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**Old way (still in a few classes):** an additional property `+ess_target+` "
+"in the Config and the call `+OpenemsComponent.updateReferenceFilter(cm, "
+"servicePid(), \"ess\", config.ess_id())+` in `+activate()+`. This writes the "
+"filter to the configuration and triggers a reactivation."
+msgstr ""
+"**Alter Weg (noch in wenigen Klassen):** eine zusätzliche Property "
+"`+ess_target+` in der Config und im `+activate()+` der Aufruf "
+"`+OpenemsComponent.updateReferenceFilter(cm, servicePid(), \"ess\", "
+"config.ess_id())+`. Das schreibt den Filter in die Konfiguration und löst "
+"eine Neuaktivierung aus."
+
+#. type: #sec-references-to-other-components
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid "Options of the reference:"
+msgstr "Optionen der Referenz:"
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid ""
+"| Option\n"
+"| Effect\n"
+"\n"
+"| `+cardinality = MANDATORY+`\n"
+"| Without a matching component, the Controller is not activated.\n"
+"| `+cardinality = OPTIONAL+` / `+MULTIPLE+`\n"
+"| none or one / any number of components; with `+policy = DYNAMIC+`, the field must be `+volatile+` or a thread-safe list.\n"
+"| `+policy = STATIC+`\n"
+"| If the reference changes, the component is reactivated. Simple and safe.\n"
+"| `+policy = DYNAMIC+`\n"
+"| Reference is replaced at runtime, without reactivation.\n"
+"| `+policyOption = GREEDY+`\n"
+"| immediately binds a better matching component as soon as it appears.\n"
+msgstr ""
+"| Option\n"
+"| Wirkung\n"
+"\n"
+"| `+cardinality = MANDATORY+`\n"
+"| Ohne passende Komponente wird der Controller nicht aktiviert.\n"
+"| `+cardinality = OPTIONAL+` / `+MULTIPLE+`\n"
+"| keine oder eine / beliebig viele Komponenten; bei `+policy = DYNAMIC+` muss das Feld `+volatile+` bzw. eine thread-sichere Liste sein.\n"
+"| `+policy = STATIC+`\n"
+"| Ändert sich die Referenz, wird die Komponente neu aktiviert. Einfach und sicher.\n"
+"| `+policy = DYNAMIC+`\n"
+"| Referenz wird zur Laufzeit ausgetauscht, ohne Neuaktivierung.\n"
+"| `+policyOption = GREEDY+`\n"
+"| bindet sofort eine besser passende Komponente, sobald sie erscheint.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"The filter `+(enabled=true)+` ensures that disabled components are not bound."
+msgstr ""
+"Der Filter `+(enabled=true)+` sorgt dafür, dass deaktivierte Komponenten "
+"nicht gebunden werden."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Other common building blocks"
+msgstr "Weitere übliche Bausteine"
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+debugLog()+`**: returns a short string that “Controller Debug Log” "
+"outputs every second (e.g. `pass:c[\"L:\" + getActivePower().asString()]`)."
+msgstr ""
+"**`+debugLog()+`**: liefert eine kurze Zeichenkette, die „Controller Debug "
+"Log“ jede Sekunde ausgibt (z. B. `pass:c[\"L:\" + "
+"getActivePower().asString()]`)."
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+ModbusSlave+`**: makes Channels readable or writable via the Modbus/TCP "
+"API (`+getModbusSlaveTable()+`)."
+msgstr ""
+"**`+ModbusSlave+`**: macht Channels über die Modbus/TCP-API lesbar oder "
+"schreibbar (`+getModbusSlaveTable()+`)."
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**`+EventHandler+`**: for work outside `+run()+` in a Cycle Event; the "
+"topics are in the `+@Component+` property `+EventConstants.EVENT_TOPIC+`."
+msgstr ""
+"**`+EventHandler+`**: für Arbeit außerhalb von `+run()+` in einem Zyklus-"
+"Ereignis; die Topics stehen in der `+@Component+`-Property "
+"`+EventConstants.EVENT_TOPIC+`."
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**Clock**: `+componentManager.getClock()+` instead of `+Instant.now()+`; the "
+"clock can then be controlled in tests."
+msgstr ""
+"**Uhr**: `+componentManager.getClock()+` statt `+Instant.now()+`; in Tests "
+"lässt sich die Uhr dann steuern."
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"**Logging**: `+this.logInfo(log, …)+`, `+logWarn+`, `+logError+` from "
+"`+AbstractOpenemsComponent+` prefix the Component-ID."
+msgstr ""
+"**Logging**: `+this.logInfo(log, …)+`, `+logWarn+`, `+logError+` aus "
+"`+AbstractOpenemsComponent+` stellen die Komponenten-ID voran."
+
+#. type: #sec-other-common-building-blocks
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid "**`+readme.adoc+`**: is included in this documentation."
+msgstr "**`+readme.adoc+`**: wird in die offizielle Dokumentation übernommen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#, no-wrap
+msgid "Checklist for a new bundle"
+msgstr "Checkliste neues Bundle"
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Create the directory `+io.openems.edge.<area>.<name>+` with `+bnd.bnd+`, "
+"`+src+`, `+test+`, `+readme.adoc+` (the easiest way is to copy a similar "
+"bundle)."
+msgstr ""
+"Verzeichnis `+io.openems.edge.<bereich>.<name>+` mit `+bnd.bnd+`, `+src+`, "
+"`+test+`, `+readme.adoc+` anlegen (am einfachsten ein ähnliches Bundle "
+"kopieren)."
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Choose a unique Factory-PID in `+@Component(name = …)+`; scheme e.g. "
+"`+Controller.Ess.Xyz+`, `+Meter.Manufacturer.Type+`."
+msgstr ""
+"Factory-PID in `+@Component(name = …)+` eindeutig wählen; Schema z. B. "
+"`+Controller.Ess.Xyz+`, `+Meter.Hersteller.Typ+`."
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Write a test with `+ComponentTest+`/`+ControllerTest+` (xref:development/"
+"testing/component-tests.adoc[Component tests])."
+msgstr ""
+"Test mit `+ComponentTest+`/`+ControllerTest+` schreiben (xref:development/"
+"testing/component-tests.adoc[Tests])."
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid "Run `+./gradlew :<bundle>:test+` and `+:<bundle>:checkstyleMain+`."
+msgstr ""
+"`+./gradlew :<bundle>:test+` und `+:<bundle>:checkstyleMain+` ausführen."
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Enter the bundle in `+io.openems.edge.application/EdgeApp.bndrun+` under `+-"
+"runrequires+` so that it is part of the Edge JAR."
+msgstr ""
+"Bundle in `+io.openems.edge.application/EdgeApp.bndrun+` unter `+-"
+"runrequires+` eintragen, damit es in der Edge-JAR enthalten ist."
+
+#. type: #sec-checklist-for-a-new-bundle
+#: modules/ROOT/pages/development/implementing/controller.adoc
+msgid ""
+"Follow the xref:development/coding-guidelines.adoc[Coding Guidelines] and "
+"run `+./tools/prepare-commit.sh+`."
+msgstr ""
+"xref:latest@development/coding-guidelines.adoc[Coding Guidelines] beachten "
+"und `+./tools/prepare-commit.sh+` ausführen."

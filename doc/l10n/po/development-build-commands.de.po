@@ -1,0 +1,401 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title =
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "Build and run commands"
+msgstr "OpenEMS-Entwicklung: Build- und Startbefehle"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+#: modules/ROOT/pages/development/deployment/docker.adoc
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+msgid ""
+"__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 06.11.2026 · OpenEMS-Version 2026.12.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"This page is a quick reference for the commands. It complements the "
+"xref:development/overview.adoc[Developer Guide overview], xref:edge/"
+"build.adoc[Build OpenEMS Edge] and xref:ui/build.adoc[Build OpenEMS UI]. If "
+"you do not yet know OSGi, bnd and Gradle, start with xref:development/"
+"fundamentals/osgi-and-tools.adoc[OSGi and tools]."
+msgstr ""
+"Diese Seite ist die Kurzreferenz der Befehle. Sie ergänzt "
+"xref:latest@development/overview.adoc[Overview], xref:latest@edge/"
+"build.adoc[Build OpenEMS Edge] und xref:latest@ui/build.adoc[Build OpenEMS "
+"UI]. Wer OSGi, bnd und Gradle noch nicht kennt, beginnt mit xref:development/"
+"fundamentals/osgi-and-tools.adoc[OSGi und Werkzeuge]."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "Repository structure"
+msgstr "Aufbau des Repositorys"
+
+#. type: Table
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"| Path\n"
+"| Content\n"
+"\n"
+"| `+io.openems.edge.*+`\n"
+"| bundles of the Edge (devices, Controllers, core)\n"
+"| `+io.openems.backend.*+`\n"
+"| bundles of the Backend\n"
+"| `+io.openems.common*+`, `+io.openems.core.*+`, `+io.openems.shared.*+`\n"
+"| shared code\n"
+"| `+cnf/+`\n"
+"| bnd workspace configuration: dependencies (`+build.bnd+`), Checkstyle (`+checkstyle.xml+`)\n"
+"| `+io.openems.edge.application/EdgeApp.bndrun+`\n"
+"| start description of the Edge: framework, bundles, runtime parameters\n"
+"| `+ui/+`\n"
+"| Angular/Ionic UI\n"
+"| `+doc/+`\n"
+"| this documentation (Antora/AsciiDoc)\n"
+msgstr ""
+"| Pfad\n"
+"| Inhalt\n"
+"\n"
+"| `+io.openems.edge.*+`\n"
+"| Bundles der Edge (Geräte, Controller, Kern)\n"
+"| `+io.openems.backend.*+`\n"
+"| Bundles des Backends\n"
+"| `+io.openems.common*+`, `+io.openems.core.*+`, `+io.openems.shared.*+`\n"
+"| gemeinsamer Code\n"
+"| `+cnf/+`\n"
+"| bnd-Workspace-Konfiguration: Abhängigkeiten (`+build.bnd+`), Checkstyle (`+checkstyle.xml+`)\n"
+"| `+io.openems.edge.application/EdgeApp.bndrun+`\n"
+"| Startbeschreibung der Edge: Framework, Bundles, Laufzeit-Parameter\n"
+"| `+ui/+`\n"
+"| Angular/Ionic-Oberfläche\n"
+"| `+doc/+`\n"
+"| diese Dokumentation (Antora/AsciiDoc)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"Each bundle has the same structure: `+bnd.bnd+` (name, `+-buildpath+`, `+-"
+"testpath+`), `+src/+`, `+test/+` and `+readme.adoc+`."
+msgstr ""
+"Jedes Bundle hat dieselbe Struktur: `+bnd.bnd+` (Name, `+-buildpath+`, `+-"
+"testpath+`), `+src/+`, `+test/+` und `+readme.adoc+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "Building Edge and Backend"
+msgstr "Edge und Backend bauen"
+
+#. type: #sec-building-edge-and-backend
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid "All commands in the root directory of the repository:"
+msgstr "Alle Befehle im Wurzelverzeichnis des Repositorys:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"./gradlew buildEdge          # Fat-JAR of the Edge to build/openems-edge.jar\n"
+"./gradlew buildBackend       # Fat-JAR of the Backend to build/openems-backend.jar\n"
+"./gradlew buildBackendEdge   # Fat-JAR of the Backend-Edge to build/openems-backend-edge.jar\n"
+"./gradlew buildComponents    # compile all bundles without packing a JAR\n"
+"./gradlew :io.openems.edge.meter.janitza:jar             # JAR of a single bundle to <bundle>/generated/\n"
+"./gradlew :io.openems.edge.meter.janitza:test            # tests of a bundle\n"
+"./gradlew :io.openems.edge.meter.janitza:checkstyleMain  # Checkstyle of a bundle\n"
+"./gradlew checkstyleAll      # Checkstyle across all bundles\n"
+msgstr ""
+"./gradlew buildEdge          # Fat-JAR der Edge nach build/openems-edge.jar\n"
+"./gradlew buildBackend       # Fat-JAR des Backends nach build/openems-backend.jar\n"
+"./gradlew buildBackendEdge   # Fat-JAR der Backend-Edge nach build/openems-backend-edge.jar\n"
+"./gradlew buildComponents    # alle Bundles übersetzen, ohne JAR zu packen\n"
+"./gradlew :io.openems.edge.meter.janitza:jar             # JAR eines einzelnen Bundles nach <Bundle>/generated/\n"
+"./gradlew :io.openems.edge.meter.janitza:test            # Tests eines Bundles\n"
+"./gradlew :io.openems.edge.meter.janitza:checkstyleMain  # Checkstyle eines Bundles\n"
+"./gradlew checkstyleAll      # Checkstyle über alle Bundles\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The target path of the JARs can be changed via the Gradle property "
+"`+oems.edge.output+` or the environment variable `+OEMS_EDGE_OUTPUT+` (`+…"
+"backend…+` accordingly)."
+msgstr ""
+"Der Zielpfad der JARs lässt sich über die Gradle-Property "
+"`+oems.edge.output+` bzw. die Umgebungsvariable `+OEMS_EDGE_OUTPUT+` ändern "
+"(entsprechend `+…backend…+`)."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"Checkstyle runs with zero warnings allowed. Before a pull request, "
+"`+checkstyleMain+` should be free of errors for every changed bundle; see "
+"also the xref:development/coding-guidelines.adoc[Coding Guidelines]."
+msgstr ""
+"Checkstyle läuft mit null erlaubten Warnungen. Vor einem Pull Request sollte "
+"`+checkstyleMain+` für jedes geänderte Bundle fehlerfrei sein; siehe auch "
+"die xref:latest@development/coding-guidelines.adoc[Coding Guidelines]."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"A new bundle does not need to be entered in a list; Gradle finds all "
+"directories with `+bnd.bnd+`. To be part of the Edge JAR, however, it must "
+"be listed in `+EdgeApp.bndrun+` under `+-runrequires+`."
+msgstr ""
+"Ein neues Bundle muss nicht in eine Liste eingetragen werden; Gradle findet "
+"alle Verzeichnisse mit `+bnd.bnd+`. Damit es in der Edge-JAR landet, muss es "
+"aber in `+EdgeApp.bndrun+` unter `+-runrequires+` stehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "Starting the Edge locally"
+msgstr "Edge lokal starten"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "java -jar build/openems-edge.jar\n"
+msgstr "java -jar build/openems-edge.jar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"Without configuration, the Edge reports “There are no Schedulers "
+"configured!” every second. This is normal."
+msgstr ""
+"Ohne Konfiguration meldet die Edge jede Sekunde „There are no Schedulers "
+"configured!“. Das ist normal."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"**Where the configuration is located:** `+EdgeApp.bndrun+` sets `+c:/openems/"
+"config+` for the directory `+felix.cm.dir+` and `+openems.data.dir=c:/"
+"openems/data+` for data (e.g. rrd4j history). On macOS or Linux these are "
+"relative paths; a folder named `+c:+` is then created in the working "
+"directory. You can set your own paths at startup:"
+msgstr ""
+"**Wo die Konfiguration liegt:** Die Komponenten-Konfiguration speichert der "
+"OSGi Configuration Admin als Textdateien im Verzeichnis `+felix.cm.dir+`. In "
+"`+EdgeApp.bndrun+` ist dafür `+c:/openems/config+` eingetragen, für Daten "
+"(z. B. rrd4j-Historie) `+openems.data.dir=c:/openems/data+`. Unter macOS "
+"oder Linux sind das relative Pfade; es entsteht dann ein Ordner mit dem "
+"Namen `+c:+` im Arbeitsverzeichnis. Eigene Pfade setzt man beim Start:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"java -Dfelix.cm.dir=$HOME/openems/config \\\n"
+"     -Dopenems.data.dir=$HOME/openems/data \\\n"
+"     -jar build/openems-edge.jar\n"
+msgstr ""
+"java -Dfelix.cm.dir=$HOME/openems/config \\\n"
+"     -Dopenems.data.dir=$HOME/openems/data \\\n"
+"     -jar build/openems-edge.jar\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"**First configuration:** see xref:gettingstarted.adoc[Getting Started]. The "
+"Apache Felix Web Console runs at `+http://localhost:8080/system/console/"
+"configMgr+` (port from `+org.osgi.service.http.port+`). For experiments "
+"without hardware, there are simulator bundles "
+"(`+io.openems.edge.simulator+`)."
+msgstr ""
+"**Erste Konfiguration:** siehe xref:latest@gettingstarted.adoc[Getting "
+"Started]. Die Apache Felix Web Console läuft unter `+http://localhost:8080/"
+"system/console/configMgr+` (Port aus `+org.osgi.service.http.port+`). Für "
+"Versuche ohne Hardware gibt es Simulator-Bundles "
+"(`+io.openems.edge.simulator+`)."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "UI in development mode"
+msgstr "Oberfläche im Entwicklungsmodus"
+
+#. type: #sec-building-the-ui
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid "In the directory `+ui/+`:"
+msgstr "Im Verzeichnis `+ui/+`:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"npm ci\n"
+"npx ng serve -c openems-edge-dev       # connects to ws://<host>:8085 (Edge directly)\n"
+"npx ng serve -c openems-backend-dev    # connects to the local Backend\n"
+msgstr ""
+"npm ci\n"
+"npx ng serve -c openems-edge-dev       # verbindet mit ws://<host>:8085 (Edge direkt)\n"
+"npx ng serve -c openems-backend-dev    # verbindet mit dem lokalen Backend\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The target URLs are in `+ui/src/themes/openems/environments/edge-dev.ts+` "
+"and `+backend-dev.ts+`. Tests and lint:"
+msgstr ""
+"Die Ziel-URLs stehen in `+ui/src/themes/openems/environments/edge-dev.ts+` "
+"bzw. `+backend-dev.ts+`. Tests und Lint:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"npm test -- --watch=false --browsers=ChromeHeadlessCI\n"
+"npm run lint\n"
+msgstr ""
+"npm test -- --watch=false --browsers=ChromeHeadlessCI\n"
+"npm run lint\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"Changed texts in the UI must be added in `+ui/src/app/shared/i18n/+`; `+npm "
+"run lint+` checks the translation keys."
+msgstr ""
+"Geänderte Texte in der Oberfläche müssen in `+ui/src/app/shared/i18n/+` "
+"nachgetragen werden; `+npm run lint+` prüft die Übersetzungsschlüssel."
+
+#. type: Title ==
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "Building the UI"
+msgstr "Oberfläche bauen"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"npm ci\n"
+"npx ng build -c \"openems,openems-edge-prod,prod\"\n"
+msgstr ""
+"npm ci\n"
+"npx ng build -c \"openems,openems-edge-prod,prod\"\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The result is in `+ui/target/+`: static files for a web server. The "
+"configurations in `+ui/angular.json+` are combined:"
+msgstr ""
+"Das Ergebnis liegt in `+ui/target/+`: statische Dateien für einen Webserver. "
+"Die Konfigurationen in `+ui/angular.json+` werden kombiniert:"
+
+#. type: Table
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid ""
+"| Configuration\n"
+"| Effect\n"
+"\n"
+"| `+openems+`\n"
+"| theme from `+src/themes/openems/+`\n"
+"| `+prod+`\n"
+"| production build: AOT, minified, file names with hash, without source maps, with license file\n"
+"| `+openems-edge-prod+`\n"
+"| Edge directly via `+ws(s)://<host>:8075+`. The default port of `+Controller.Api.Websocket+` is 8085, so change it there.\n"
+"| `+openems-edge-docker+`\n"
+"| Edge via `+ws(s)://<host>/openems-edge+`; needs the nginx proxy of the UI image\n"
+"| `+openems-backend-prod+`\n"
+"| Backend via `+ws(s)://<host>:8082+`\n"
+"| `+openems-backend-docker+`\n"
+"| Backend via `+ws(s)://<host>/openems-backend+`\n"
+msgstr ""
+"| Konfiguration\n"
+"| Wirkung\n"
+"\n"
+"| `+openems+`\n"
+"| Theme aus `+src/themes/openems/+`\n"
+"| `+prod+`\n"
+"| Produktions-Build: AOT, minimiert, Dateinamen mit Hash, ohne Source-Maps, mit Lizenzdatei\n"
+"| `+openems-edge-prod+`\n"
+"| Edge direkt über `+ws(s)://<Host>:8075+`. Standard-Port von `+Controller.Api.Websocket+` ist 8085, also dort umstellen.\n"
+"| `+openems-edge-docker+`\n"
+"| Edge über `+ws(s)://<Host>/openems-edge+`; braucht den nginx-Proxy des UI-Images\n"
+"| `+openems-backend-prod+`\n"
+"| Backend über `+ws(s)://<Host>:8082+`\n"
+"| `+openems-backend-docker+`\n"
+"| Backend über `+ws(s)://<Host>/openems-backend+`\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The addresses are in `+ui/src/themes/openems/environments/*.ts+`. A build "
+"with `+-c \"openems,openems-edge-dev,prod\"+` is optimized and connects to "
+"port 8085. New apps in the App Center do not require a UI build (see "
+"xref:development/implementing/apps.adoc[Apps for the App Center])."
+msgstr ""
+"Die Adressen stehen in `+ui/src/themes/openems/environments/*.ts+`. Ein "
+"Build mit `+-c \"openems,openems-edge-dev,prod\"+` ist optimiert und "
+"verbindet sich mit Port 8085. Für neue Apps im App Center ist kein UI-Build "
+"nötig (siehe xref:development/implementing/apps.adoc[Apps für das App "
+"Center])."
+
+#. type: Plain text
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"As a Docker image, from the root directory of the repository (default "
+"configuration `+openems,openems-edge-docker,prod+`, see xref:ui/deploy/"
+"docker.adoc[Deploy UI to Docker]):"
+msgstr ""
+"Als Docker-Image, aus dem Wurzelverzeichnis des Repositorys (Standard-"
+"Konfiguration `+openems,openems-edge-docker,prod+`, siehe xref:latest@ui/"
+"deploy/docker.adoc[Deploy UI to Docker]):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/build/commands.adoc
+#, no-wrap
+msgid "docker build -f tools/docker/ui/Dockerfile.edge -t openems_ui_edge:custom .\n"
+msgstr "docker build -f tools/docker/ui/Dockerfile.edge -t openems_ui_edge:custom .\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/build/commands.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#, no-wrap
+msgid "Notes"
+msgstr "Hinweise"
+
+#. type: #sec-notes
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The Edge targets weak hardware (about 1 GB RAM, 2 cores). Computationally "
+"intensive logic does not belong in every Cycle."
+msgstr ""
+"Die Edge zielt auf schwache Hardware (etwa 1 GB RAM, 2 Kerne). "
+"Rechenintensive Logik gehört nicht in jeden Zyklus."
+
+#. type: #sec-notes
+#: modules/ROOT/pages/development/build/commands.adoc
+msgid ""
+"The repository contains `+CLAUDE.md+` and `+AGENTS.md+` with short rules for "
+"code style and tests."
+msgstr ""
+"Das Repository enthält `+CLAUDE.md+` und `+AGENTS.md+` mit Kurzregeln für "
+"Code-Stil und Tests."
