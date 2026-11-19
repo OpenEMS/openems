@@ -15,6 +15,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AuthenticateWithExternalAuthRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
@@ -60,6 +61,14 @@ public class AuthenticationRequestHandler implements JsonApi {
 
 			return this.handleAuthentication(call.get(OnRequest.WS_DATA_KEY), request.getId(),
 					this.userService.authenticate(request.password).orElse(null), UUID.randomUUID().toString());
+		});
+
+		builder.handleRequest(AuthenticateWithExternalAuthRequest.METHOD, call -> {
+			final var request = AuthenticateWithExternalAuthRequest.from(call.getRequest());
+			final var user = call.get(OnRequest.WS_DATA_KEY).getExternallyAuthenticatedUser().orElse(null);
+
+			return this.handleAuthentication(call.get(OnRequest.WS_DATA_KEY), request.getId(), user,
+					UUID.randomUUID().toString());
 		});
 
 		builder.handleRequest(LogoutRequest.METHOD, endpoint -> {

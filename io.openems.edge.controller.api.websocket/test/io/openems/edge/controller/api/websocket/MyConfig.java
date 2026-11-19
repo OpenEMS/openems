@@ -10,6 +10,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int port;
 		private int apiTimeout;
 		private boolean debugMode;
+		private boolean externalAuthEnabled;
+		private String[] externalAuthTrustedProxyCidrs = {};
+		private String externalAuthUserIdHeader = "X-OpenEMS-User";
+		private String externalAuthUserNameHeader = "X-OpenEMS-Name";
+		private String externalAuthRoleHeader = "X-OpenEMS-Role";
+		private String externalAuthDefaultRole = "guest";
 
 		private Builder() {
 		}
@@ -31,6 +37,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setExternalAuthEnabled(boolean externalAuthEnabled) {
+			this.externalAuthEnabled = externalAuthEnabled;
+			return this;
+		}
+
+		public Builder setExternalAuthTrustedProxyCidrs(String... externalAuthTrustedProxyCidrs) {
+			this.externalAuthTrustedProxyCidrs = externalAuthTrustedProxyCidrs;
+			return this;
+		}
+
+		public Builder setExternalAuthDefaultRole(String externalAuthDefaultRole) {
+			this.externalAuthDefaultRole = externalAuthDefaultRole;
 			return this;
 		}
 
@@ -68,6 +89,36 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
+	}
+
+	@Override
+	public boolean externalAuthEnabled() {
+		return this.builder.externalAuthEnabled;
+	}
+
+	@Override
+	public String[] externalAuthTrustedProxyCidrs() {
+		return this.builder.externalAuthTrustedProxyCidrs;
+	}
+
+	@Override
+	public String externalAuthUserIdHeader() {
+		return this.builder.externalAuthUserIdHeader;
+	}
+
+	@Override
+	public String externalAuthUserNameHeader() {
+		return this.builder.externalAuthUserNameHeader;
+	}
+
+	@Override
+	public String externalAuthRoleHeader() {
+		return this.builder.externalAuthRoleHeader;
+	}
+
+	@Override
+	public String externalAuthDefaultRole() {
+		return this.builder.externalAuthDefaultRole;
 	}
 
 }
