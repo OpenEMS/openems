@@ -5,6 +5,7 @@ import static io.openems.common.channel.Unit.SECONDS;
 import static io.openems.common.channel.Unit.WATT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
@@ -13,6 +14,8 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -64,6 +67,18 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SaxPower.class, accessMode, 40030) //
+				.channel(0, ChannelId.POWER_SCALE_FACTOR, ModbusType.INT16) //
+				.channel(19, ChannelId.POWER_TARGET, ModbusType.INT16) //
+				.channel(20, ChannelId.TIMEOUT, ModbusType.UINT16) //
+				.channel(21, ChannelId.CONTROL_MODE, ModbusType.UINT16) //
+				.channel(23, ChannelId.REFERENCE_MAXIMUM_POWER, ModbusType.UINT16) //
+				.channel(78, ChannelId.MAX_CHARGE_POWER, ModbusType.UINT16) //
+				.channel(79, ChannelId.MAX_DISCHARGE_POWER, ModbusType.UINT16) //
+				.build();
 	}
 
 	/**
