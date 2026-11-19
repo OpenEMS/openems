@@ -1,0 +1,121 @@
+= OpenEMS: JSON-RPC
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/external-interfaces/json-rpc.adoc[OpenEMS: JSON-RPC]
+
+__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+JSON-RPC is the **common “language”** that the parts of OpenEMS use to talk to each other: the web interface with the system, the system with the backend, and third-party systems (e.g. a home automation system) with the system. If you only operate OpenEMS via the web interface, you will not come into contact with it. It becomes interesting when you want to query values from your own programs or control the system.
+
+[#sec-the-principle]
+== The principle
+
+Each message is a small text in JSON format. There are three types:
+
+[cols="3*",options="header"]
+|===
+| Type
+| Meaning
+| Example
+
+| **Request**
+| “Please do something or give me something.”
+| “Give me the configuration.”
+| **Response**
+| Result or error message for a request
+| the configuration
+| **Notification**
+| Message without a response
+| “Here are the current measured values.”
+|===
+
+A request looks like this, for example:
+
+[source]
+----
+{"jsonrpc": "2.0", "id": "1", "method": "getEdgeConfig", "params": {}}
+----
+
+* `+method+` says **what** is wanted.
+* `+params+` contains the details.
+* `+id+` is a freely chosen identifier. The response carries the same `+id+`.
+
+[#sec-which-routes]
+== Which routes
+
+The same requests work via different routes:
+
+* **xref:user/external-interfaces/websocket.adoc[Websocket]** – the permanent connection of the web interface, with live values.
+* **xref:user/external-interfaces/rest-control.adoc[REST/HTTP]** – individual calls, ideal for scripts and home automation.
+* **Backend** – remote access via the central server (see xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend]).
+
+[#sec-what-you-can-do-with-it]
+== What you can do with it
+
+[cols="3*",options="header"]
+|===
+| Task
+| Request
+| Required role
+
+| View configuration and all value names
+| `+getEdgeConfig+`
+| Guest
+| Retrieve histories (e.g. power over the day)
+| `+queryHistoricTimeseriesData+`
+| logged in
+| Retrieve energy amounts (e.g. purchased today)
+| `+queryHistoricTimeseriesEnergy+`
+| logged in
+| Export history as Excel
+| `+queryHistoricTimeseriesExportXlxs+`
+| logged in
+| Change a setting permanently
+| `+updateComponentConfig+`
+| Owner
+| Retrieve schedule
+| `+getSchedule+` to `+_energy+`
+| –
+|===
+
+“Logged in” means: the source code does not require a specific role. Via REST, however, a login is always necessary, because REST checks the user name and password with every request.
+
+Some functions offer their own requests, e.g. the xref:user/schedule/overview.adoc[schedule] or the app center. Such requests are sent “wrapped” to the respective function (`+componentJsonApi+` with the ID of the function).
+
+[#sec-user-roles]
+== User roles
+
+Each request runs on behalf of a logged-in user. OpenEMS has four roles:
+
+[cols="3*",options="header"]
+|===
+| Role
+| for
+| may, among other things
+
+| Guest (GUEST)
+| Viewers
+| view values and histories
+| Owner (OWNER)
+| System operators
+| additionally change settings
+| Installer (INSTALLER)
+| Specialist companies
+| additionally see, install and remove certain apps in the app center
+| Admin (ADMIN)
+| Manufacturer / developer
+| everything
+|===
+
+Details for the web interface are on the xref:user/external-interfaces/websocket.adoc[Websocket] page.
+
+[#sec-good-to-know]
+== Good to know
+
+* **Changing a setting is not the same as setting a control value.** A setting is stored permanently. A control value only applies temporarily and must be sent again regularly. See xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON].
+* Do not change settings every minute: in the long term, this puts a strain on the memory of the device (see xref:user/external-interfaces/websocket.adoc#sec-note-do-not-write-the-configuration-frequently[Note]).

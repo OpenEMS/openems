@@ -1,0 +1,100 @@
+= OpenEMS: Grid-optimized charge
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/storage-control/grid-optimized-charge.adoc[OpenEMS: Netzdienliche Beladung]
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+Grid-optimized charge decides **when and how strongly the storage is charged with solar power**. It has two goals:
+
+. **Complying with the feed-in limit:** Many systems may only feed part of their power into the grid (e.g. 60 % or 70 %). Whatever exceeds this at midday is charged into the storage instead of being curtailed.
+. **Not filling the storage too early:** If the storage is already full in the morning, there is no room left for the midday peak, and solar power is lost. Charging is therefore distributed over the day. The storage should only be full towards the end of the surplus period.
+
+In OpenEMS, this function is called **Controller.Ess.GridOptimizedCharge** (usually with the ID `+ctrlGridOptimizedCharge0+`).
+
+[#sec-what-this-looks-like-over-the-day]
+== What this looks like over the day
+
+* In the **early morning** there is no significant surplus yet, and the function waits.
+* In the **morning** the storage charges at a reduced rate. The rest of the surplus is fed in, as far as the feed-in limit allows.
+* At **midday** the feed-in would exceed the limit. Now the storage charges at least enough for the limit to be complied with.
+* In the **afternoon**, up to the target time, the storage becomes full.
+
+If the two goals conflict, the **feed-in limit takes priority**.
+
+[#sec-the-target-time]
+== The target time
+
+What matters is when the storage should be full:
+
+* **Automatic** (default): OpenEMS looks at the xref:user/schedule/forecasts.adoc[forecast] and searches for the time from which solar production is expected to no longer exceed consumption. A safety buffer is subtracted from this time.
+* **Manual:** You specify a fixed time, e.g. 17:00.
+* **Off:** The storage does not delay charging. The feed-in limit is still complied with.
+
+The safety buffer is determined by the **risk propensity**:
+
+[cols="3*",options="header"]
+|===
+| Setting
+| Buffer
+| Effect
+
+| Low
+| 3 hours
+| The storage almost certainly becomes full, but slightly less room remains at midday.
+| Medium (default)
+| 2 hours
+| balanced
+| High
+| 1 hour
+| More room for midday peaks; on overcast days the storage may not become completely full.
+|===
+
+[#sec-when-the-function-does-not-intervene]
+== When the function does not intervene
+
+* If the storage cannot be controlled.
+* In island mode (emergency power).
+* As long as there has been no clear solar surplus yet on that day.
+* If the permitted feed-in is very small. Meaningful control is then not possible.
+
+What the function is currently doing is shown by the states “Charging delayed” and “Feed-in limitation”, e.g. “Charge limit active”, “no remaining time” or “End time not calculated”.
+
+[#sec-together-with-a-time-of-use-tariff]
+== Together with a time-of-use tariff
+
+If price control for a xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariff] is also active, grid-optimized charge **no longer works independently**. Otherwise, two functions would be adjusting the storage at the same time. Instead, the price control optimizer plans both together:
+
+* It can then also charge the storage in a “delayed” or “limited” manner.
+* The settings of grid-optimized charge remain effective: the risk propensity (as a reserve for the state of charge) or the fixed target time.
+* If price control is switched off, grid-optimized charge takes over again by itself.
+
+The result can be seen in the xref:user/schedule/overview.adoc[schedule].
+
+[#sec-settings]
+== Settings
+
+[cols="3*",options="header"]
+|===
+| Setting
+| Default
+| Meaning
+
+| Mode
+| Automatic
+| Automatic / Manual / Off
+| Risk propensity
+| Medium
+| see above
+| Target time
+| 17:00
+| only in Manual mode
+| Feed-in limit
+| –
+| is set centrally in the system settings (Meta), no longer in this function
+|===

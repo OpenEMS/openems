@@ -1,0 +1,154 @@
+= OpenEMS: § 14a EnWG
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/storage-control/section-14a-enwg.adoc[OpenEMS: § 14a EnWG]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+§ 14a des Energiewirtschaftsgesetzes (EnWG) regelt in Deutschland „steuerbare Verbrauchseinrichtungen“: Wärmepumpen, Wallboxen, Klimageräte und auch Stromspeicher, die aus dem Netz laden können. Der Netzbetreiber darf ihren Netzbezug bei drohender Überlastung vorübergehend begrenzen. Im Gegenzug gibt es reduzierte Netzentgelte; bei „Modul 3“ sind sie zeitvariabel.
+
+In OpenEMS gibt es dazu zwei Bausteine:
+
+. die **Leistungsbegrenzung des Speichers** auf ein Signal des Netzbetreibers hin,
+. **zeitvariable Netzentgelte (Modul 3)** als Teil der Strompreise bei xref:user/de/storage-control/time-of-use-tariffs.adoc[dynamischen Stromtarifen].
+
+[#sec-teil-1-leistungsbegrenzung-des-speichers]
+== Teil 1: Leistungsbegrenzung des Speichers
+
+[#sec-die-funktion]
+=== Die Funktion
+
+Die Begrenzung übernimmt der Controller **Controller.Ess.Limiter14a** (meist `+ctrlEssLimiter14a0+`). Er hat nur zwei Einstellungen:
+
+[cols="2*",options="header"]
+|===
+| Einstellung
+| Bedeutung
+
+| Ess-ID
+| der Speicher, der begrenzt wird (meist `+ess0+`)
+| Input Channel
+| der Eingang, an dem das Signal des Netzbetreibers anliegt, z. B. ein Kontakt einer Steuerbox
+|===
+
+[#sec-was-passiert-bei-einem-signal]
+=== Was passiert bei einem Signal
+
+Liegt das Signal des Netzbetreibers an, **begrenzt OpenEMS die Ladeleistung des Speichers auf höchstens 4,2 kW**. Genauer:
+
+* Die Speicherleistung darf nicht unter −4.200 W fallen. Beladen ist also mit höchstens 4,2 kW möglich.
+* **Entladen bleibt unbegrenzt möglich.**
+* Die Begrenzung gilt **für jede Beladung**, auch wenn der Strom aus der eigenen PV-Anlage kommt. OpenEMS unterscheidet hier nicht, woher die Ladeenergie stammt.
+* Sie greift nur im **Netzbetrieb**. Im Inselbetrieb (Notstrom) wird nicht begrenzt.
+* Die Begrenzung hat **Vorrang** vor allen anderen Speicher-Funktionen: Der §14a-Controller läuft in der festgelegten Reihenfolge als erster, noch vor Rundsteuerempfänger, Notstromreserve, Preissteuerung usw.
+
+[#sec-signal-logik]
+=== Signal-Logik
+
+Der Eingang wird **invertiert** ausgewertet (im Code als Besonderheit der Relaisplatine vermerkt): Die Begrenzung ist aktiv, wenn der Eingang „aus“ meldet. Liefert der Eingang gar keinen Wert, z. B. bei einer Störung, wird **nicht** begrenzt.
+
+[#sec-was-aufgezeichnet-wird]
+=== Was aufgezeichnet wird
+
+[cols="2*",options="header"]
+|===
+| Wert
+| Bedeutung
+
+| `+RestrictionMode+`
+| ob die Begrenzung gerade aktiv ist
+| `+CumulatedRestrictionTime+`
+| wie lange insgesamt begrenzt wurde (Sekunden)
+|===
+
+Beide Werte werden mit hoher Priorität in der xref:user/de/data/history-rrd4j.adoc[Historie] gespeichert. So lässt sich später nachweisen, wann und wie lange der Netzbetreiber eingegriffen hat.
+
+[#sec-anzeige-in-der-weboberflaeche]
+=== Anzeige in der Weboberfläche
+
+* Im **Netz-Widget** erscheint bei eingerichteter §14a-Funktion eine zusätzliche Zeile. Sie zeigt während einer Begrenzung den Wert „4,2 kW“ an.
+* In der **Netz-Historie** werden Zeiträume mit aktiver Begrenzung im Diagramm markiert, ähnlich wie Rundsteuerempfänger-Eingriffe und Inselbetrieb.
+
+[#sec-einrichtung]
+=== Einrichtung
+
+* **Als App:** „App.Ess.Limiter14a“ im App-Center. Man wählt den Speicher und einen Eingangskontakt. Es kann nur eine solche App geben.
+* **Bei FENECON-Home- und Commercial-Systemen:** In der System-App gibt es die Option „Hat Limitierer für §14a“. Ist sie gesetzt, wird die Begrenzung automatisch eingerichtet; als Eingang wird der erste digitale Eingang des Steuerrechners verwendet (`+…/DigitalInput1+`). Die Option ist nur wählbar, wenn der Steuerrechner eigene Schaltein- und -ausgänge hat (CM3, CM4, CM4S, CM4S Gen2 oder Gen3); sonst ist sie ausgegraut.
+
+[#sec-was-es-noch-nicht-gibt]
+=== Was es (noch) nicht gibt
+
+* **Wärmepumpe und Wallbox:** Im Code gibt es keine eigene §14a-Begrenzung für Wärmepumpen oder Ladepunkte. Die Funktion betrifft nur den Speicher. Für andere Geräte erfolgt die Begrenzung, wenn überhaupt, außerhalb von OpenEMS, z. B. direkt über den Steuereingang des Geräts.
+* **Energie-Optimierer:** Im Optimierer ist der Grenzwert von 4,2 kW zwar hinterlegt, wird aber im aktuellen Code nirgends verwendet. Der xref:user/de/schedule/overview.adoc[Fahrplan] berücksichtigt eine §14a-Begrenzung also nicht. Das wäre auch kaum möglich, weil ein Eingriff des Netzbetreibers nicht vorhersehbar ist.
+* **Laufender Betrieb mit Preissteuerung:** Im laufenden Betrieb wird die Begrenzung trotzdem eingehalten. Der §14a-Controller läuft vor der xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung]. Deren Sollwert wird deshalb auf höchstens 4,2 kW Ladeleistung begrenzt.
+* **Folge für den Fahrplan:** Ist für die Zeit eines Eingriffs „Beladung aus dem Netz“ geplant, wird weniger geladen als vorgesehen. Auch PV-Überschuss über 4,2 kW kann der Speicher dann nicht aufnehmen; er geht ins Netz oder wird bei einer Einspeisegrenze abgeregelt. Bei der nächsten Planung rechnet der Optimierer mit dem tatsächlichen Ladestand weiter.
+* **Fester Wert:** Die 4,2 kW sind fest im Code hinterlegt und nicht einstellbar.
+
+[#sec-teil-2-zeitvariable-netzentgelte-modul-3]
+== Teil 2: Zeitvariable Netzentgelte (Modul 3)
+
+Bei Modul 3 gelten je nach Uhrzeit unterschiedliche Netzentgelte:
+
+[cols="3*",options="header"]
+|===
+| Stufe
+| Abkürzung
+| typisch
+
+| Niedrigtarif
+| NT
+| nachts, z. B. 0–5 Uhr
+| Standardtarif
+| ST
+| übrige Zeit
+| Hochtarif
+| HT
+| abends, z. B. 17–21 Uhr
+|===
+
+[#sec-einrichtung-2]
+=== Einrichtung
+
+In der Tarif-App (z. B. für ENTSO-E-Börsenpreise) gibt es für die Gebotszone Deutschland die Frage **„Nutzen Sie zeitvariable Netzentgelte nach §14a EnWG (Modul 3)?“**. Wird sie bejaht, wählt man den Netzbetreiber aus:
+
+* Für einige große Netzbetreiber sind die Netzentgelte im Code **fest hinterlegt**: Bayernwerk, Netze BW, EWE Netz, MITNETZ, SH Netz, Westnetz, E.DIS, Avacon, LEW, „TE Netze“ (im Code `+TE_NETZE+`) und Netze ODR. Hinterlegt sind die Preise in ct/kWh und die Zeitfenster, jeweils pro Quartal.
+* Bei „Andere“ trägt man die Zeitfenster für NT und HT selbst ein; für Zeiten ohne Eintrag gilt ST.
+
+Die Netzentgelte werden dann als Nebenkosten zum Börsenpreis addiert. So fließen sie in den Strompreis ein, mit dem die xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung] plant. Netzladen wird dadurch z. B. in NT-Zeiten attraktiver und in HT-Zeiten unattraktiver.
+
+[#sec-gut-zu-wissen]
+=== Gut zu wissen
+
+* Die hinterlegten Netzentgelte gelten nur für die **im Code eingetragenen Quartale**. Ändert ein Netzbetreiber seine Preise oder kommt ein neues Jahr hinzu, muss OpenEMS aktualisiert werden. Für Zeiten ohne Eintrag kann der Preis nicht bestimmt werden.
+* Die Netzentgelte im Code sollten mit dem aktuellen Preisblatt des eigenen Netzbetreibers verglichen werden. Bei Abweichungen ist „Andere“ mit eigenen Zeitfenstern die sicherere Wahl.
+* Modul 3 beeinflusst nur die **Preisberechnung**. Mit der Leistungsbegrenzung aus Teil 1 hat es technisch nichts zu tun.
+
+[#sec-zusammenfassung]
+== Zusammenfassung
+
+[cols="3*",options="header"]
+|===
+| 
+| Leistungsbegrenzung
+| Zeitvariable Netzentgelte (Modul 3)
+
+| Zweck
+| Netzbezug auf Anweisung des Netzbetreibers drosseln
+| günstigere Netzentgelte zu bestimmten Zeiten nutzen
+| betrifft
+| nur den Speicher (Beladung höchstens 4,2 kW)
+| den Strompreis für die Preissteuerung
+| ausgelöst durch
+| Signal am Eingang (z. B. Steuerbox)
+| Uhrzeit (feste Zeitfenster)
+| Einrichtung
+| App „Limiter14a“ oder Option in der Home-/Commercial-App
+| Option in der Tarif-App, Auswahl des Netzbetreibers
+|===
