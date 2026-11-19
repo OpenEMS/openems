@@ -11,11 +11,11 @@ public record StringWithParams(String rawString, List<Parameter> parameter) {
 	private static final String VARIABLE_START = "${";
 	private static final String VARIABLE_END = "}";
 
-	public record Parameter(String topic, String variable) {
+	public record Parameter(String expression, String topic, String variable, List<String> transformers) {
 
 		@Override
 		public String toString() {
-			return this.topic() + "." + this.variable();
+			return this.expression;
 		}
 	}
 
@@ -94,9 +94,19 @@ public record StringWithParams(String rawString, List<Parameter> parameter) {
 
 			final var raw = string.substring(startIndex, endIndex);
 
-			final var variableParts = raw.split("\\.");
+			final var expressionParts = raw.split(";", -1);
+			final var variableParts = expressionParts[0].split("\\.");
 
-			parameters.add(new Parameter(variableParts[0], variableParts[1]));
+			final var transformers = new ArrayList<String>();
+			for (int i = 1; i < expressionParts.length; i++) {
+				final var transformer = expressionParts[i].trim();
+				if (transformer.isEmpty()) {
+					throw new IllegalArgumentException("Empty transformer in expression: " + raw);
+				}
+				transformers.add(transformer);
+			}
+
+			parameters.add(new Parameter(raw, variableParts[0], variableParts[1], List.copyOf(transformers)));
 		}
 
 		return parameters;
