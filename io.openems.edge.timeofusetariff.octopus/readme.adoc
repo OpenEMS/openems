@@ -1,0 +1,7 @@
+= Octopus Energy Dynamic (Grid-Buy)
+
+Retrieves the account-specific quarter-hourly prices of the dynamic tariff from the Octopus Energy Kraken GraphQL API (`Tariff.Octopus.Dynamic.GridBuy`). The gross prices in ct/kWh are converted to currency/MWh. Login uses the Octopus account email and password; the API token is obtained automatically and renewed when it expires. If the configured credentials are rejected, no further requests are sent until the configuration is changed.
+
+Only Germany is tested and enabled. The API endpoints for United Kingdom, France, Italy, Spain, Japan and USA are prepared, but not yet tested; for these countries the component sends no requests and reports a fault.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.octopus[Source Code icon:github[]]
