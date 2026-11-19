@@ -1,0 +1,399 @@
+= OpenEMS: Erzeugung, Verbrauch, Netz und Speicher
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/basics/energy-flows.adoc[OpenEMS: Production, consumption, grid and storage]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Diese Seite erklärt die Grundbegriffe, die in der Weboberfläche und in der Historie überall vorkommen, und woher die Werte kommen: **Was wird gemessen, was rechnet OpenEMS aus?** Das hilft vor allem dann, wenn Werte unplausibel erscheinen.
+
+[#sec-die-grundbegriffe]
+== Die Grundbegriffe
+
+[cols="2*",options="header"]
+|===
+| Begriff
+| Bedeutung
+
+| **Erzeugung**
+| Strom, den die eigenen Erzeuger liefern, meist die PV-Anlage. Umfasst AC-Erzeuger (PV-Wechselrichter, Erzeugungszähler) und DC-Erzeuger (PV-Module direkt am Hybrid-Wechselrichter).
+| **Netzbezug** (Bezug, Kauf)
+| Strom, der aus dem öffentlichen Netz ins Haus fließt.
+| **Netzeinspeisung** (Einspeisung, Verkauf)
+| Strom, der aus dem Haus ins öffentliche Netz fließt.
+| **Beladung**
+| Strom, der in den Hausspeicher (Batterie) fließt.
+| **Entladung**
+| Strom, der aus dem Hausspeicher kommt.
+| **Verbrauch**
+| Strom, den alle Verbraucher im Haus zusammen benötigen: Haushalt, Wärmepumpe, Wallbox usw.
+| **Ladezustand** (SoC)
+| Füllstand des Hausspeichers in Prozent.
+|===
+
+[#sec-leistung-und-energie]
+=== Leistung und Energie
+
+* **Leistung** (Watt, W / kW) ist der Augenblickswert: „gerade jetzt fließen 3 kW“.
+* **Energie** (Wattstunden, Wh / kWh) ist die Menge über eine Zeit: „heute wurden 12 kWh bezogen“.
+
+OpenEMS speichert Energie als fortlaufenden **Zählerstand**, wie der Stromzähler im Keller. Die Energie eines Tages ist der Unterschied der Zählerstände (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+
+[#sec-vorzeichen]
+=== Vorzeichen
+
+Einige Werte haben ein Vorzeichen, das die Richtung angibt:
+
+[cols="3*",options="header"]
+|===
+| Wert
+| positiv ({plus})
+| negativ (−)
+
+| Netzleistung
+| Bezug aus dem Netz
+| Einspeisung ins Netz
+| Speicherleistung
+| Entladung
+| Beladung
+| Erzeugung, Verbrauch
+| immer positiv
+| –
+|===
+
+[#sec-die-energiebilanz]
+== Die Energiebilanz
+
+Alles, was ins Haus hineinkommt, muss auch irgendwo hin. Daraus ergibt sich:
+
+[source]
+----
+Verbrauch = Erzeugung + Netzbezug − Netzeinspeisung + Entladung − Beladung
+----
+
+oder mit Vorzeichen:
+
+[source]
+----
+Verbrauch = Erzeugung + Netzleistung + Speicherleistung
+----
+
+Beispiel: PV liefert 5 kW, der Speicher lädt mit 2 kW (−2 kW), ins Netz gehen 1 kW (−1 kW). Verbrauch = 5 − 1 − 2 = 2 kW.
+
+[#sec-woher-die-werte-kommen]
+== Woher die Werte kommen
+
+[#sec-was-gemessen-wird]
+=== Was gemessen wird
+
+Gemessen wird nur an wenigen Stellen:
+
+[cols="2*",options="header"]
+|===
+| Messstelle
+| liefert
+
+| **Netzzähler** (am Hausanschluss)
+| Netzleistung je Phase, Zählerstände für Bezug und Einspeisung
+| **Erzeugungszähler** bzw. PV-Wechselrichter
+| AC-Erzeugung je Phase, Zählerstand der Erzeugung
+| **Hybrid-Wechselrichter** bzw. DC-Laderegler
+| DC-Erzeugung (PV direkt am Speichersystem)
+| **Speichersystem**
+| Lade-/Entladeleistung, Ladezustand, Kapazität
+| weitere Zähler (z. B. Wallbox, Wärmepumpe)
+| Leistung und Energie dieser einzelnen Verbraucher
+|===
+
+**Wichtig:** Ob ein Gerät seine Zählerstände (Energie) selbst misst oder ob OpenEMS sie aus der Leistung errechnet, hängt vom Gerät bzw. dessen Anbindung ab. Viele Speicher und manche Zähler liefern nur die Leistung. Dann zählt OpenEMS die Energie selbst hoch. Diese selbst gezählten Werte sind anfällig für Sprünge bei einem Neustart (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+
+[#sec-was-nie-gemessen-wird-der-verbrauch]
+=== Was nie gemessen wird: der Verbrauch
+
+**Der Gesamtverbrauch des Hauses wird in OpenEMS nicht gemessen, sondern immer berechnet**, nach der Energiebilanz oben:
+
+[source]
+----
+Verbrauch = Netzleistung + AC-Erzeugung + AC-Leistung des Speichersystems
+----
+
+Auch ein vorhandener Verbrauchszähler wird für diese Summe derzeit nicht verwendet.
+
+Daraus folgt: **Jeder Messfehler bei Netz, Erzeugung oder Speicher landet im Verbrauch.** Fehlt z. B. ein Erzeugungszähler in der Konfiguration oder misst der Netzzähler eine Phase falsch, ist der Verbrauch falsch, im Extremfall sogar negativ.
+
+[#sec-die-summenwerte-sum]
+== Die Summenwerte (_sum)
+
+OpenEMS fasst die Werte aller Geräte in der Komponente `+_sum+` zusammen. Diese Werte zeigt die Weboberfläche an, und sie werden in der Historie gespeichert. Jede Sekunde wird neu gerechnet.
+
+Erklärung der Herkunft:
+
+* **Summe der Geräte:** Die Werte aller passenden Geräte werden addiert. Gemessen wird also im Gerät; OpenEMS addiert nur.
+* **Berechnet:** Der Wert entsteht erst in `+_sum+` aus anderen Werten. Kein Gerät misst ihn.
+
+[#sec-leistungen]
+=== Leistungen
+
+[cols="3*",options="header"]
+|===
+| Kanal
+| Bedeutung
+| Herkunft
+
+| `+GridActivePower+` (und L1–L3)
+| Netzleistung ({plus} Bezug / − Einspeisung)
+| Summe der Netzzähler
+| `+ProductionAcActivePower+` (und L1–L3)
+| AC-Erzeugung
+| Summe der Erzeugungszähler / PV-Wechselrichter
+| `+ProductionDcActualPower+`
+| DC-Erzeugung
+| Summe der DC-Laderegler
+| `+ProductionActivePower+`
+| Gesamterzeugung
+| berechnet: AC {plus} DC
+| `+EssActivePower+`
+| Speicherleistung am Wechselrichter (AC; {plus} Entladung / − Beladung)
+| Summe der Speichersysteme
+| `+EssActivePowerL1+`–`+L3+`
+| Speicherleistung je Phase
+| Summe; bei Speichern ohne Phasenwerte **berechnet** (Gesamtleistung ÷ 3)
+| `+EssDischargePower+`
+| Batterieleistung ({plus} Entladung / − Beladung); bei Hybrid-Systemen auf der Batterieseite (DC)
+| Summe der Speichersysteme
+| `+EssSoc+`
+| Ladezustand
+| berechnet: bei mehreren Speichern nach Kapazität gewichtet; ist eine Kapazität unbekannt, einfacher Mittelwert
+| `+ConsumptionActivePower+` (und L1–L3)
+| Verbrauch
+| **berechnet:** Netz {plus} AC-Erzeugung {plus} AC-Speicherleistung
+| `+UnmanagedConsumptionActivePower+`
+| Verbrauch ohne gesteuerte Verbraucher (z. B. Wallboxen)
+| **berechnet:** Verbrauch − gemessene gesteuerte Verbraucher
+| `+GridGensetActivePower+`
+| Leistung eines Notstromaggregats
+| Summe der entsprechenden Zähler
+|===
+
+[#sec-energiefluesse-wohin-geht-der-strom]
+=== Energieflüsse („wohin geht der Strom?“)
+
+Für die Energiefluss-Grafik teilt OpenEMS die Leistungen auf: Wie viel Solarstrom geht ins Haus, wie viel in den Speicher, wie viel ins Netz? **Diese Werte sind vollständig berechnet**, es gibt dafür keine Messung.
+
+[cols="2*",options="header"]
+|===
+| Kanal
+| Bedeutung
+
+| `+ProductionToConsumptionPower+`
+| Solar → Haus
+| `+ProductionToEssPower+`
+| Solar → Speicher
+| `+ProductionToGridPower+`
+| Solar → Netz
+| `+GridToConsumptionPower+`
+| Netz → Haus
+| `+EssToConsumptionPower+`
+| Speicher → Haus
+| `+GridToEssPower+`
+| Netz → Speicher ({plus}) bzw. Speicher → Netz (−)
+|===
+
+Die Aufteilung folgt festen Regeln:
+
+. Entlädt der Speicher, versorgt er zuerst das Haus.
+. Lädt der Speicher, kommt die Ladung zuerst aus der Erzeugung.
+. Die übrige Erzeugung versorgt das Haus; was dann noch übrig ist, geht ins Netz.
+. Den Rest des Verbrauchs deckt das Netz.
+. Was dann noch an Netzleistung übrig bleibt, wird als Netz ↔ Speicher gewertet.
+
+[#sec-energien-zaehlerstaende]
+=== Energien (Zählerstände)
+
+[cols="3*",options="header"]
+|===
+| Kanal
+| Bedeutung
+| Herkunft
+
+| `+GridBuyActiveEnergy+`
+| Netzbezug
+| Summe der Netzzähler
+| `+GridSellActiveEnergy+`
+| Netzeinspeisung
+| Summe der Netzzähler
+| `+ProductionAcActiveEnergy+`
+| AC-Erzeugung
+| Summe der Erzeugungszähler
+| `+ProductionDcActiveEnergy+`
+| DC-Erzeugung
+| Summe der DC-Laderegler
+| `+ProductionActiveEnergy+`
+| Gesamterzeugung
+| berechnet: AC {plus} DC
+| `+EssActiveChargeEnergy+` / `+EssActiveDischargeEnergy+`
+| Speicher-Beladung / -Entladung am Wechselrichter (AC)
+| Summe der Speichersysteme
+| `+EssDcChargeEnergy+` / `+EssDcDischargeEnergy+`
+| Beladung / Entladung auf der Batterieseite (bei Hybrid-Systemen)
+| Summe der Speichersysteme
+| `+ConsumptionActiveEnergy+`
+| Verbrauch
+| **berechnet:** (Entladung {plus} Bezug {plus} Erzeugung) − (Beladung {plus} Einspeisung {plus} Eigenverbrauch der Erzeuger)
+| `+ProductionToConsumptionEnergy+`, `+ProductionToGridEnergy+`, `+ProductionToEssEnergy+`, `+GridToConsumptionEnergy+`, `+EssToConsumptionEnergy+`, `+GridToEssEnergy+`, `+EssToGridEnergy+`
+| Energieflüsse
+| **berechnet:** von OpenEMS aus den berechneten Flussleistungen hochgezählt
+|===
+
+Hinweis: Bei Netzzählern heißt der Bezug in OpenEMS intern „ProductionEnergy“ und die Einspeisung „ConsumptionEnergy“, aus Sicht des Zählers. In `+_sum+` sind die Namen eindeutig (Buy/Sell).
+
+[#sec-sonstige-werte]
+=== Sonstige Werte
+
+[cols="3*",options="header"]
+|===
+| Kanal
+| Bedeutung
+| Herkunft
+
+| `+GridMode+`
+| Netzbetrieb oder Inselbetrieb (Notstrom)
+| vom Speichersystem
+| `+GridBuyPrice+` / `+GridSellPrice+`
+| aktueller Bezugs- / Einspeisepreis
+| aus dem xref:user/de/storage-control/time-of-use-tariffs.adoc[Tarif]
+| `+EssCapacity+`
+| Kapazität aller Speicher
+| Summe der Speichersysteme
+| `+State+`
+| schwerster aktueller Fehlerzustand aller Komponenten
+| berechnet
+|===
+
+[#sec-wann-der-verbrauch-negativ-werden-kann]
+== Wann der Verbrauch negativ werden kann
+
+Physikalisch kann ein Haus keinen negativen Verbrauch haben. Weil der Verbrauch aber **berechnet** wird (Netz {plus} AC-Erzeugung {plus} AC-Speicherleistung), entstehen negative Werte, sobald eine dieser Größen fehlt, zu klein oder mit falschem Vorzeichen eingeht. Typische Fälle:
+
+[cols="3*",options="header"]
+|===
+| Fall
+| was passiert
+| Auswirkung
+
+| **Erzeuger fehlt in der Konfiguration**
+| Eine PV-Anlage speist ein, ist aber in OpenEMS nicht als Erzeuger eingerichtet. Der Netzzähler sieht die Einspeisung (negativ), die Erzeugung fehlt in der Rechnung.
+| Verbrauch zu niedrig; bei Einspeisung negativ
+| **Messwert fällt aus**
+| Ein Gerät liefert vorübergehend keinen Wert, z. B. bei einer Kommunikationsstörung. Fehlende Werte zählen in der Summe als 0. Fällt etwa der PV-Wechselrichter aus, während eingespeist wird, bleibt nur die negative Netzleistung übrig.
+| kurzzeitig oder dauerhaft negativ
+| **Falsche Richtung beim Netzzähler**
+| Stromwandler verkehrt herum montiert, Phasen vertauscht oder Zähler falsch eingestellt. Bezug und Einspeisung werden (teilweise) vertauscht gemessen.
+| Verbrauch zu niedrig oder negativ, oft nur auf einzelnen Phasen
+| **Netzzähler an der falschen Stelle**
+| Der Netzzähler sitzt so, dass er einen Teil des Hauses nicht erfasst, z. B. hinter einem Unterverteiler mit PV-Einspeisung.
+| Bilanz stimmt nicht, Verbrauch falsch
+| **Zeitversatz zwischen Geräten**
+| Die Geräte werden nacheinander abgefragt; ihre Werte stammen nicht exakt aus demselben Augenblick. Bei schnellen Wechseln (Wolke, Wallbox schaltet, Speicher regelt um) passen die Werte für Sekunden nicht zusammen.
+| kurze negative Spitzen in der Live-Ansicht, meist ohne Bedeutung für die Tageswerte
+| **Eigenverbrauch des Wechselrichters**
+| Nachts zieht ein PV-Wechselrichter etwas Strom. Ein Erzeugungszähler misst dann eine kleine negative Erzeugung.
+| Verbrauch um diesen Betrag zu niedrig (meist nur wenige Watt)
+| **Speicherleistung falsch**
+| Das Speichersystem meldet eine falsche AC-Leistung oder ein falsches Vorzeichen.
+| Verbrauch um diesen Betrag falsch
+|===
+
+Auch **negative Verbrauchs-Energie** in der Historie ist möglich. Dann ist meist ein Zählerstand von Netz, Erzeugung oder Speicher zurückgesprungen, z. B. nach einem Neustart (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+
+**Vorgehen bei negativem Verbrauch:** Netzleistung, Erzeugung und Speicherleistung einzeln ansehen. Passt jeder Wert für sich zur Realität, z. B. Netzleistung im Vergleich mit dem Stromzähler des Netzbetreibers? Tritt der Fehler nur auf einer Phase auf, liegt es fast immer an einem Stromwandler.
+
+[#sec-kaskadierte-zaehler]
+== Kaskadierte Zähler
+
+[#sec-was-bedeutet-kaskadiert]
+=== Was bedeutet „kaskadiert“?
+
+Zähler sind **kaskadiert** (hintereinander geschaltet), wenn ein Zähler im Stromkreis hinter einem anderen sitzt. Der vordere Zähler misst dann den Strom, der durch den hinteren fließt, **mit**.
+
+[source]
+----
+Netz ── Zähler A ──┬── Hausverbrauch
+                   └── Zähler B ── PV-Anlage 2
+----
+
+Zähler A misst alles, was durch ihn fließt, also auch den Anteil von Zähler B. Zähler B misst nur seinen Zweig.
+
+Typische Beispiele:
+
+* ein **Unterzähler** in einer Unterverteilung hinter dem Netzzähler,
+* zwei PV-Anlagen, deren **Erzeugungszähler** hintereinander liegen (z. B. PV 2 ist über die Leitung von PV 1 angeschlossen),
+* ein PV-Wechselrichter, der in OpenEMS **selbst** angebunden ist und zusätzlich über einen eigenen **Erzeugungszähler** gemessen wird.
+
+[#sec-wie-openems-summiert]
+=== Wie OpenEMS summiert
+
+OpenEMS weiß nicht, wie die Zähler verdrahtet sind. Es addiert stur **alle Zähler einer Art**:
+
+[cols="2*",options="header"]
+|===
+| Art des Zählers (Einstellung „Type“)
+| geht in die Summe ein als
+
+| Netz (GRID)
+| Netzleistung, Bezug, Einspeisung
+| Erzeugung (PRODUCTION); PV-Wechselrichter zählen automatisch als Erzeugung
+| Erzeugung
+| gesteuerter Verbraucher (MANAGED_CONSUMPTION_METERED), z. B. Wallbox
+| nur zur Berechnung des Verbrauchs ohne gesteuerte Verbraucher
+| Verbraucher (CONSUMPTION_METERED, CONSUMPTION_NOT_METERED)
+| **gar nicht** (wird nur angezeigt)
+| Erzeugung und Verbrauch (PRODUCTION_AND_CONSUMPTION)
+| **gar nicht** (derzeit nicht in der Summe berücksichtigt)
+|===
+
+[#sec-auswirkung-auf-die-gesamtwerte]
+=== Auswirkung auf die Gesamtwerte
+
+Sind zwei Zähler **derselben Art** kaskadiert, wird der gemeinsame Anteil **doppelt gezählt**:
+
+[cols="2*",options="header"]
+|===
+| Situation
+| Folge
+
+| Zwei Erzeugungszähler hintereinander, oder PV-Wechselrichter plus Erzeugungszähler für dieselbe Anlage
+| Erzeugung zu hoch → Verbrauch zu hoch, Energieflüsse falsch, Eigenverbrauchs- und Autarkiewerte zu gut
+| Netzzähler plus ein Unterzähler, der ebenfalls als Netz eingestellt ist
+| Netzleistung, Bezug und Einspeisung zu hoch → Verbrauch falsch, ggf. negativ, wenn eingespeist wird
+| Unterzähler als Verbraucher eingestellt
+| kein Problem: Verbraucherzähler gehen nicht in die Summe ein
+| Wallbox-Zähler als gesteuerter Verbraucher
+| kein Problem für die Gesamtwerte; er wird nur vom Verbrauch abgezogen, um den Verbrauch ohne Wallbox zu bestimmen
+|===
+
+[#sec-so-vermeidet-man-doppelzaehlung]
+=== So vermeidet man Doppelzählung
+
+* **Nur einen Zähler je Energiefluss** als Netz bzw. Erzeugung einstellen. Weitere Zähler im selben Zweig als Verbraucher einstellen (dann zählen sie nicht mit) oder in OpenEMS weglassen.
+* Ein PV-Wechselrichter, der direkt angebunden ist, braucht keinen zusätzlichen Erzeugungszähler, oder umgekehrt.
+* **Virtuelle Zähler** nutzen: Mit einem „Subtrahierenden virtuellen Zähler“ (`+Meter.Virtual.Subtract+`) lässt sich ein Zweig herausrechnen, z. B. „Zähler A minus Zähler B“. Mit einem „Addierenden virtuellen Zähler“ (`+Meter.Virtual.Add+`) lassen sich mehrere Zähler zusammenfassen. Virtuelle Zähler haben die Einstellung „Add to Sum“, standardmäßig **aus**: Sie gehen dann nicht in die Summe ein und verändern die Gesamtwerte nicht. Schaltet man „Add to Sum“ ein, zählt der virtuelle Zähler zusätzlich zu den echten Zählern. Soll er die echten Zähler in der Summe ersetzen, dürfen diese nicht ebenfalls als Netz bzw. Erzeugung eingestellt sein, sonst wird wieder doppelt gezählt.
+* Ebenso werden **Speicher-Cluster** (mehrere Speicher, die zu einem zusammengefasst sind) nicht zusätzlich gezählt. In die Summe gehen nur die einzelnen Speicher ein.
+
+**Prüfen:** Die Erzeugung, die OpenEMS anzeigt, mit der Anzeige des Wechselrichters oder des Erzeugungszählers vergleichen. Liegt sie deutlich darüber, die Punkte oben durchgehen. Die Gleichung „Erzeugung = Verbrauch {plus} Einspeisung“ hilft dabei nicht: OpenEMS berechnet den Verbrauch selbst aus Netz, Erzeugung und Speicher, deshalb geht sie immer auf, auch wenn doppelt gezählt wird.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* **Verbrauch und Energieflüsse sind Rechenergebnisse.** Wirken sie unplausibel, liegt die Ursache fast immer bei Netz-, Erzeugungs- oder Speicherwerten oder bei einer fehlenden bzw. falsch eingestellten Messstelle.
+* **Die Summenzählerstände sollen nur steigen.** Beim Start übernimmt OpenEMS den letzten gespeicherten Stand. Springt ein Gerätezähler zurück (z. B. nach einem Neustart), überträgt sich das auf die Summe. In der Historie erscheinen dann negative Werte (siehe xref:user/de/data/history-rrd4j.adoc[Historie]).
+* **Die sieben Energiefluss-Zähler** werden ausschließlich von OpenEMS hochgezählt. Läuft OpenEMS nicht, fehlt diese Energie dort ganz. Die Zähler von Netz, Erzeugung und Speicher holen sie dagegen nach, wenn die Geräte eigene Zählerstände liefern.
+* **Geräte aus der Summe ausnehmen:** Manche Geräte haben eine Einstellung, mit der sie nicht in `+_sum+` eingerechnet werden, z. B. ein Zähler, dessen Leistung schon in einem anderen enthalten ist. So werden Werte nicht doppelt gezählt.
+* **Werte selbst abfragen:** Alle hier genannten Kanäle lassen sich z. B. über xref:user/de/external-interfaces/rest-control.adoc[REST] lesen, etwa `+_sum/ConsumptionActivePower+`.

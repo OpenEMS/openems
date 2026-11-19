@@ -1,0 +1,393 @@
+= OpenEMS: Steuerbare Wechselrichter
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/devices/controllable-inverters.adoc[OpenEMS: Controllable inverters]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+OpenEMS bindet viele Wechselrichter ein. Bei manchen werden nur Messwerte **abgefragt** (Leistung, Energie, Ladezustand). Bei anderen kann OpenEMS das Gerät auch **steuern**: Es gibt dem Speicher Lade- und Entladeleistungen vor oder begrenzt die Leistung eines PV-Wechselrichters.
+
+Diese Seite zeigt, welche Wechselrichter im OpenEMS-Code steuerbar sind, getrennt nach Gerätearten. Grundlage ist eine Durchsicht des Codes. Mit echten Geräten wurde nicht getestet.
+
+[#sec-drei-geraetearten]
+== Drei Gerätearten
+
+[cols="3*",options="header"]
+|===
+| Geräteart
+| Anschlüsse
+| Was OpenEMS steuern kann
+
+| **Batterie-Wechselrichter** (ohne PV-Eingänge, „AC-gekoppelt“)
+| Batterie und Hausnetz. Die PV-Anlage hat einen **eigenen** PV-Wechselrichter.
+| Lade- und Entladeleistung des Speichers
+| **Hybridwechselrichter**
+| Batterie, Hausnetz **und** PV-Module (eigene PV-Eingänge bzw. MPP-Tracker)
+| Lade- und Entladeleistung; je nach Gerät auch Einspeisegrenze
+| **PV-Wechselrichter**
+| PV-Module und Hausnetz, keine Batterie
+| eine Obergrenze für die Wirkleistung
+|===
+
+[#sec-was-der-unterschied-in-der-praxis-bedeutet]
+=== Was der Unterschied in der Praxis bedeutet
+
+[cols="3*",options="header"]
+|===
+| 
+| Batterie-Wechselrichter {plus} separater PV-Wechselrichter
+| Hybridwechselrichter
+
+| **Weg des Solarstroms in den Speicher**
+| PV → Wechselstrom → Batterie-Wechselrichter → Gleichstrom → Batterie (zweimal gewandelt)
+| PV → Batterie direkt auf der Gleichstromseite
+| **Wie OpenEMS die PV-Leistung erfasst**
+| über den PV-Wechselrichter oder einen Zähler; zählt als **AC-Erzeugung**
+| über die PV-Eingänge des Hybridwechselrichters; in der Konfiguration als eigene Komponenten („Charger“ bzw. „DcCharger“) sichtbar; zählt als **DC-Erzeugung** (siehe xref:user/de/basics/energy-flows.adoc[Grundlagen])
+| **Einspeisebegrenzung**
+| nur über den PV-Wechselrichter (falls steuerbar) oder durch Laden des Speichers
+| der Hybridwechselrichter kann sie selbst einhalten; der Speicher lädt den Überschuss direkt
+| **Leistungsgrenze**
+| Speicher und PV haben getrennte Wechselrichter
+| Batterie- und PV-Leistung teilen sich die maximale Ausgangsleistung des Hybridwechselrichters
+| **Nachrüsten**
+| Speicher lässt sich zu einer bestehenden PV-Anlage ergänzen
+| PV und Speicher werden gemeinsam geplant
+|===
+
+[#sec-bezeichnung-in-openems-geraeteart]
+=== Bezeichnung in OpenEMS ≠ Geräteart
+
+OpenEMS baut einen Speicher auf zwei Arten auf:
+
+* als **eine** Speicher-Komponente (z. B. `+Ess.SMA.SunnyBoyStorage+`, `+SolarEdge.ESS+`), oder
+* aus **drei** Komponenten: einem „Battery-Inverter“, einer Batterie und einem allgemeinen Speicher (`+Ess.Generic.ManagedSymmetric+`), der beide verbindet und gesteuert wird.
+
+Diese technische Aufteilung sagt **nichts** über die Hardware aus. So heißt der Wechselrichter der FENECON-Home-Systeme in OpenEMS `+GoodWe.BatteryInverter+`, ist aber ein **Hybridwechselrichter** mit PV-Eingängen. Entscheidend ist, ob es Komponenten für die PV-Eingänge gibt.
+
+[#sec-batterie-wechselrichter-ohne-pv-eingaenge]
+== Batterie-Wechselrichter ohne PV-Eingänge
+
+[cols="4*",options="header"]
+|===
+| Hersteller
+| Gerät
+| Komponente in der Konfiguration
+| Steuerung abschaltbar über
+
+| SMA
+| Sunny Boy Storage
+| `+Ess.SMA.SunnyBoyStorage+`
+| „Read Only Modus“ (ab Werk aus)
+| SMA
+| Sunny Island
+| `+Ess.SMA.SunnyIsland+`
+| „Read Only Modus“ (ab Werk aus)
+| Victron
+| Multiplus 2 (ESS)
+| `+Victron.Ess+`
+| „Read Only Modus“ (ab Werk aus)
+| KACO
+| blueplanet gridsave (u. a. in FENECON Commercial 92)
+| `+Battery-Inverter.Kaco.BlueplanetGridsave+` {plus} Batterie {plus} `+Ess.Generic.ManagedSymmetric+`
+| –
+| REFU
+| REFUstore, REFUstore 88k
+| `+Battery-Inverter.Refu+`, `+Battery-Inverter.Refu.REFUstore88k+` {plus} Batterie {plus} allgemeiner Speicher
+| –
+| Sinexcel
+| Batterie-Wechselrichter
+| `+Battery-Inverter.Sinexcel+` {plus} Batterie {plus} allgemeiner Speicher
+| –
+| SAX Power
+| Speicher
+| `+Ess.SaxPower+`
+| –
+| GoodWe
+| Serie BT (GW5K/8K/10K-BT), z. B. FENECON Pro Hybrid GW ohne PV-Eingänge
+| `+GoodWe.Ess+`
+| Steuermodus (**ab Werk INTERNAL**)
+| FENECON
+| Mini
+| `+Fenecon.Mini.Ess+`
+| Read-Only
+| FENECON
+| Pro 9-12, einzeln oder als Cluster aus 2–3 Geräten
+| `+Fenecon.Pro.Ess+`, im Cluster zusammengefasst über `+Ess.Cluster+`
+| –
+|===
+
+* Die Kombinationen aus Batterie-Wechselrichter, Batterie und allgemeinem Speicher (KACO gridsave, REFU, Sinexcel) sind vor allem für gewerbliche Speicher gedacht.
+* **SMA Sunny Boy Storage:** Für eine feste Lade- oder Entladeleistung schaltet OpenEMS den Speicher in den Modus „Laden“ bzw. „Entladen“. Bei 0 W kehrt der Speicher zur internen Eigenverbrauchsregelung zurück. Für dieses Gerät gibt es eine App im App Center.
+* **Victron:** Der Multiplus hat selbst keine PV-Eingänge. Solarladeregler (MPPT) von Victron hängen auf der Gleichstromseite an der Batterie und werden als eigene Komponenten (`+Victron.DC-Charger+`) nur abgefragt. Gesteuert wird nur über `+Victron.Ess+`. Die einzelne Komponente `+Victron.Battery-Inverter+` ist laut Beschreibung nur zum Abfragen gedacht und schreibt keine Sollwerte.
+* **GoodWe BT:** siehe Abschnitt „GoodWe-Serie BT“ weiter unten.
+* **FENECON Pro 9-12:** Die System-Apps (für Installateure) richten den Speicher ohne PV-Eingänge ein. Sie legen zusätzlich einen Tiefentladeschutz an (Mindestladezustand fürs Entladen ab Werk 13 %, erzwungenes Laden unter 10 %). Dieselbe Komponente `+Fenecon.Pro.Ess+` wird auch für den Pro Hybrid verwendet, dort mit PV-Zähler.
+* **FENECON Mini:** Die Komponente `+Fenecon.Mini.PvMeter+` misst eine separat angeschlossene PV-Anlage; sie ist kein PV-Eingang des Speichers.
+
+[#sec-hybridwechselrichter]
+== Hybridwechselrichter
+
+[cols="5*",options="header"]
+|===
+| Hersteller
+| Gerät
+| Speicher-Komponente
+| PV-Eingänge in OpenEMS
+| Steuerung abschaltbar über
+
+| GoodWe / FENECON
+| FENECON Home 6/10/10 Gen2/15/20/30, Commercial 50 Gen3 und 100
+| `+GoodWe.BatteryInverter+` {plus} Batterie {plus} `+Ess.Generic.ManagedSymmetric+`
+| `+GoodWe.Charger…+`
+| Steuermodus (ab Werk SMART)
+| GoodWe
+| Serie ET (GW5K/8K/10K-ET), z. B. FENECON Pro Hybrid GW
+| `+GoodWe.Ess+`
+| `+GoodWe.Charger…+`
+| Steuermodus (**ab Werk INTERNAL**)
+| SMA
+| Sunny Tripower Smart Energy (STP SE)
+| `+Ess.SMA.StpSe.Inverter+` {plus} `+…Battery+`
+| `+Ess.SMA.StpSe.DcCharger+`
+| Steuermodus (ab Werk SMART)
+| Fronius
+| Symo Gen24 (Plus)
+| `+Ess.Fronius.Gen24.Inverter+` {plus} `+…Battery+`
+| `+Ess.Fronius.Gen24.DcCharger+`
+| Steuermodus (**ab Werk INTERNAL**)
+| Kostal
+| Plenticore mit Speicher
+| `+Kostal.Plenticore.Ess+`
+| `+Kostal.Plenticore.PV-Inverter+` (nur Abfrage)
+| Read-Only (**ab Werk an**) und Steuermodus (**ab Werk INTERNAL**)
+| SolarEdge
+| StorEdge / Hybrid
+| `+SolarEdge.ESS+`
+| `+SolarEdge.ESS.Charger+`
+| Steuermodus (**ab Werk INTERNAL**)
+| Sungrow
+| Hybridwechselrichter
+| `+Ess.Sungrow+`
+| `+Ess.Sungrow.DcCharger+`
+| Steuermodus (ab Werk SMART)
+| KACO
+| blueplanet hybrid 10
+| `+Kaco.BlueplanetHybrid10.Ess+`
+| `+Kaco.BlueplanetHybrid10.Charger+`
+| Read-Only (**ab Werk an**)
+| FENECON (ältere Geräte)
+| Pro Hybrid
+| `+Fenecon.Pro.Ess+`
+| `+Fenecon.Pro.PvMeter+`
+| –
+| FENECON (ältere Geräte)
+| Commercial 40
+| `+Ess.Fenecon.Commercial40+`
+| `+Ess.Fenecon.Commercial40.PV1+` / `+PV2+`
+| Read-Only
+|===
+
+[#sec-steuermodi]
+=== Steuermodi
+
+Viele Hybridwechselrichter haben eine Einstellung „Control Mode“: GoodWe, SMA STP SE, Fronius Gen24, Kostal Plenticore, SolarEdge und Sungrow. Hybridwechselrichter bringen meist eine eigene Eigenverbrauchsregelung mit. Der Steuermodus legt fest, wer regelt:
+
+[cols="3*",options="header"]
+|===
+| Modus
+| Wirkung
+| Voraussetzung
+
+| **INTERNAL**
+| Der Wechselrichter regelt selbst (Eigenverbrauchs- bzw. Automatikmodus). OpenEMS gibt **keine** Leistung vor.
+| Zähler des Herstellers am Netzanschluss
+| **SMART**
+| Der Wechselrichter regelt im Automatikmodus. OpenEMS greift nur ein, wenn eine Funktion etwas anderes verlangt, z. B. Laden aus dem Netz oder Entladesperre.
+| Zähler des Herstellers am Netzanschluss
+| **REMOTE**
+| OpenEMS gibt die Leistung vollständig vor. Laut Code langsamer als der interne Modus.
+| kein Herstellerzähler nötig
+|===
+
+Nicht jeder Treiber kennt alle drei Modi. **Wichtig:** Bei `+GoodWe.Ess+`, Fronius Gen24, Kostal Plenticore und SolarEdge steht der Modus ab Werk auf INTERNAL. Solange er nicht umgestellt wird, laufen xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung], Notstromreserve usw. ins Leere.
+
+[#sec-goodwe-in-fenecon-home-und-commercial]
+=== GoodWe in FENECON Home und Commercial
+
+Bei GoodWe ist die Steuerung am weitesten ausgebaut (siehe auch xref:user/de/systems/fenecon-home.adoc[FENECON Home]). Die System-Apps richten Wechselrichter, Batterie, Speicher und PV-Eingänge in einem Schritt ein.
+
+[cols="3*",options="header"]
+|===
+| Wechselrichter
+| Serie
+| System
+
+| FENECON FHI 10 DAH
+| ET
+| Home 10
+| FENECON ET Gen2 6K / 10K / 15K
+| EUB
+| Home 6, Home 10 Gen2, Home 15
+| FENECON FHI 20 DAH / FHI 30 DAH
+| ETT
+| Home 20, Home 30
+| FENECON 50K
+| ETF
+| Commercial 50 Gen3
+| FENECON 100K
+| NBC
+| Commercial 100
+|===
+
+Daneben erkennt der Treiber die GoodWe-Geräte GW5K/8K/10K der Serien ET (Hybrid) und BT (Batterie-Wechselrichter, siehe unten).
+
+* **Steuermodus:** ab Werk **SMART**; die System-Apps ändern ihn nicht. OpenEMS greift damit nur ein, wenn eine Funktion es verlangt, z. B. Preissteuerung, Notstromreserve oder xref:user/de/storage-control/section-14a-enwg.adoc[§14a].
+* **Weitere Einstellungen am Wechselrichter** (laut Einstellungen der Komponente): Einspeisegrenze (aus den Systemeinstellungen bzw. vom xref:user/de/storage-control/ripple-control-receiver.adoc[Rundsteuerempfänger]), Notstrom-Ausgang, Schattenmanagement der PV-Eingänge sowie Netzanschlussregeln (Länderkennung, VDE 4105 u. a.).
+* **Start/Stopp:** ab Werk AUTO.
+
+[#sec-goodwe-serie-bt]
+=== GoodWe-Serie BT
+
+Die GoodWe-Geräte der Serie BT sind Batterie-Wechselrichter **ohne PV-Eingänge**. Sie laden die Batterie nur über die Wechselstromseite. Im Code gibt es für sie **keine eigene Behandlung**: Überall, wo der Treiber nach Gerätetyp unterscheidet, werden BT und ET gleich behandelt. Unterschiede ergeben sich nur daraus, dass beim BT keine PV-Eingänge eingerichtet sind:
+
+[cols="3*",options="header"]
+|===
+| Punkt
+| ET (Hybrid)
+| BT (ohne PV-Eingänge)
+
+| PV-Eingänge in der Konfiguration
+| `+GoodWe.Charger…+`
+| keine (in der App „Hat DC-PV 1 (MPPT 1)“ und „Hat DC-PV 2 (MPPT 2)“ nicht ankreuzen)
+| Speicherleistung am Netz
+| Batterie- plus PV-Leistung
+| nur Batterieleistung
+| Höchste Ladeleistung aus dem Netz
+| maximale Batterieladeleistung minus aktuelle PV-Leistung
+| volle Batterieladeleistung (begrenzt durch Wechselrichter und Batterie)
+| Ladevorgabe von OpenEMS
+| Batterie laden mit Vorgabe plus PV-Leistung
+| Batterie laden genau mit der Vorgabe
+| Überschuss-Einspeisung (PV-Leistung, die die volle Batterie nicht mehr aufnehmen kann)
+| wird berechnet
+| entfällt
+| Einspeisegrenze
+| der Treiber `+GoodWe.Ess+` setzt keine; Einstellung am Wechselrichter
+| entfällt; die PV-Anlage hat einen eigenen Wechselrichter
+|===
+
+Das Verhalten passt damit zu einem Batterie-Wechselrichter. Zu beachten:
+
+* **Steuermodus:** `+GoodWe.Ess+` steht ab Werk auf INTERNAL, und die App „FENECON Pro Hybrid GW“ ändert das nicht. Dann regelt der Wechselrichter selbst, und OpenEMS steuert den Speicher nicht. Damit Preissteuerung, Notstromreserve usw. wirken, muss der Modus auf SMART oder REMOTE stehen.
+* **Eigene Regelung:** Im Modus INTERNAL bzw. SMART regelt der BT nach seinem eigenen Netzzähler. Dieser erfasst die gesamte Einspeisung, also auch die des separaten PV-Wechselrichters.
+* Ob ein BT die Lade- und Entladebefehle genauso umsetzt wie ein ET, lässt sich aus dem Code nicht ablesen. Das wäre am Gerät zu prüfen.
+
+[#sec-weitere-besonderheiten]
+=== Weitere Besonderheiten
+
+* **Kostal Plenticore:** Kleine Sollwerte um 0 W werden auf 0 W gesetzt (Toleranzband), damit der Speicher bei kleinen Netzschwankungen nicht ständig zwischen Laden und Entladen wechselt. Ein unveränderter Sollwert wird nur im Abstand des eingestellten Watchdog-Intervalls erneut geschrieben. Die PV-Leistung des Plenticore kann OpenEMS nicht begrenzen.
+* **KACO blueplanet hybrid 10:** Ab Firmware-Version 8 ignoriert der Wechselrichter Sollwerte, solange das Standard-Passwort eingestellt ist. OpenEMS meldet das als Warnung. Die PV-Leistung lässt sich über die Komponente `+Kaco.BlueplanetHybrid10.PvInverter+` begrenzen; sie hat keinen Read-Only-Schalter.
+* **Kostal PIKO** (`+Kostal.Piko.Ess+`) wird nur abgefragt.
+
+[#sec-pv-wechselrichter]
+== PV-Wechselrichter
+
+Bei PV-Wechselrichtern kann OpenEMS eine **Obergrenze für die Wirkleistung** setzen. Bei einem Batterie-Wechselrichter ohne PV-Eingänge ist das der einzige Weg, die PV-Einspeisung durch OpenEMS zu begrenzen. Genutzt wird die Obergrenze von zwei Funktionen:
+
+* **Controller.PvInverter.FixPowerLimit**: begrenzt einen Wechselrichter auf einen festen Wert.
+* **Controller.PvInverter.SellToGridLimit**: regelt den Wechselrichter so ab, dass am Netzanschluss eine Einspeisegrenze eingehalten wird.
+
+[cols="3*",options="header"]
+|===
+| Hersteller
+| Komponente
+| Weg
+
+| SMA
+| `+PV-Inverter.SMA.SunnyTripower+`
+| SunSpec
+| Fronius
+| `+PV-Inverter.Fronius+`
+| SunSpec
+| Kostal
+| `+PV-Inverter.Kostal+`, `+PV-Inverter.Kostal.Piko+`
+| SunSpec
+| KACO
+| `+PV-Inverter.KACO.blueplanet+`
+| SunSpec
+| SolarEdge
+| `+SolarEdge.PV-Inverter+`
+| SunSpec
+| Huawei
+| `+PV-Inverter.Huawei+`, `+PV-Inverter.Huawei.SmartLogger+`
+| eigener Treiber
+| Sungrow
+| `+PV-Inverter.Sungrow+`
+| eigener Treiber
+| Solar-Log
+| `+PV-Inverter.Solarlog+`
+| eigener Treiber; die Begrenzung wird an den Solar-Log übergeben
+| KACO
+| `+Kaco.BlueplanetHybrid10.PvInverter+`
+| PV-Teil des Hybridwechselrichters
+| Phoenix Contact
+| `+PLCnext.PvInverter.Device+`
+| eigener Treiber
+|===
+
+[#sec-ab-werk-nur-abfrage]
+=== Ab Werk nur Abfrage
+
+Bei allen PV-Wechselrichtern mit Read-Only-Einstellung (SMA, Fronius, Kostal, KACO blueplanet, SolarEdge, Huawei, Sungrow) ist **Read-Only ab Werk eingeschaltet**. Auch die Apps im App Center (SMA, Fronius, Kostal, KACO, SolarEdge) setzen diese Einstellung nicht um. Ein so eingerichteter Wechselrichter wird also zunächst **nur abgefragt**. Damit die Begrenzung wirkt, muss Read-Only in der Konfiguration der Komponente abgeschaltet werden.
+
+Fordert eine Funktion bei aktivem Read-Only eine Begrenzung an, wird sie nicht geschrieben. Die SunSpec-Treiber (SMA, Fronius, Kostal, KACO, SolarEdge) melden das über den Kanal `+ReadOnlyModePvLimitFailed+`.
+
+[#sec-nur-abfrage]
+== Nur Abfrage
+
+Folgende Komponenten schreiben **keine** Sollwerte oder Grenzwerte an das Gerät, auch wenn manche in OpenEMS formal als steuerbar eingeordnet sind:
+
+[cols="2*",options="header"]
+|===
+| Komponente
+| Geräteart
+
+| `+Victron.PV-Inverter+`, `+Victron.PvInverter.via.DCCharger+`
+| PV-Wechselrichter bzw. Solarladeregler
+| `+Victron.Battery-Inverter+`
+| Batterie-Wechselrichter (gesteuert wird über `+Victron.Ess+`)
+| `+Kostal.Plenticore.PV-Inverter+`
+| PV-Teil eines Hybridwechselrichters
+| `+Kostal.Piko.Ess+`
+| Hybridwechselrichter
+| `+Samsung.ESS+`
+| Hybridwechselrichter
+| Bosch BPT-S 5 Hybrid
+| Hybridwechselrichter
+| `+Meter.OpenDTU+`
+| Hoymiles-Mikrowechselrichter über OpenDTU
+|===
+
+Begrenzungen durch FixPowerLimit oder SellToGridLimit und Vorgaben der Speicher-Funktionen haben bei diesen Geräten keine Wirkung.
+
+[#sec-sonderfall-phoenix-contact-plcnext]
+== Sonderfall Phoenix Contact PLCnext
+
+`+PLCnext.ESS.Device+` und `+PLCnext.PvInverter.Device+` binden einen Speicher bzw. PV-Wechselrichter über eine PLCnext-Steuerung an. Sollwerte werden an die Steuerung übergeben. Welche Geräteart dahinter steckt, hängt von der Anlage ab.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* Ob ein Wechselrichter tatsächlich gesteuert wird, hängt fast immer von **einer Einstellung** ab: Read-Only bzw. Steuermodus. Nach der Einrichtung lohnt ein Blick darauf.
+* Ein **Hybridwechselrichter**, der selbst regelt (INTERNAL), braucht meist den Zähler des Herstellers am Netzanschluss. Für die Steuerung durch OpenEMS (REMOTE) ist dieser nicht nötig.
+* Bei einem **Batterie-Wechselrichter** mit separatem PV-Wechselrichter kann OpenEMS die Einspeisung nur begrenzen, wenn der PV-Wechselrichter steuerbar ist und Read-Only abgeschaltet ist. Sonst bleibt nur das Laden des Speichers.
+* Der xref:user/de/storage-control/ripple-control-receiver.adoc[dynamische Rundsteuerempfänger] gibt seine Grenze nur an GoodWe-Wechselrichter weiter. Bei anderen Herstellern muss die Einspeisebegrenzung anders gelöst werden, z. B. über SellToGridLimit oder direkt am Wechselrichter.
+* Steuern zwei Systeme denselben Speicher, etwa OpenEMS und eine Hersteller-App bzw. ein anderes Energiemanagement, arbeiten sie gegeneinander. Es sollte nur eines aktiv steuern.
+* Viele Treiber stammen aus der Community. Wie zuverlässig die Steuerung im Alltag arbeitet, hängt vom jeweiligen Treiber und von der Firmware des Geräts ab.

@@ -1,0 +1,269 @@
+= OSGi and tools
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:development/de/fundamentals/osgi-and-tools.adoc[OpenEMS-Entwicklung: OSGi und Werkzeuge]
+
+__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development version, branch develop)__
+
+This page is for readers who know **Java** but not the tools around OpenEMS: OSGi, bnd, Bndtools, Gradle, Maven. It explains what OpenEMS Edge is built on, which tools are involved and how they work together. Terms such as OpenEMS Component, Channel and Nature are defined in xref:coreconcepts.adoc[Core concepts & terminology]. Setting up the environment is described in the xref:development/overview.adoc[Developer Guide overview].
+
+[#sec-what-the-edge-is-built-on-osgi]
+== What the Edge is built on: OSGi
+
+A normal Java program has a `+main()+` method, and all classes share the classpath. The Edge is built differently: it is an **OSGi application**. OSGi is a standard for modular Java programs.
+
+[#sec-the-terms]
+=== The terms
+
+[cols="2*",options="header"]
+|===
+| OSGi term
+| Explained for Java developers
+
+| **Bundle**
+| A normal JAR file with additional entries in `+META-INF/MANIFEST.MF+`: name, version, which packages it makes available to others (`+Export-Package+`) and which it needs (`+Import-Package+`). Without an export, a package stays invisible to other bundles, even if it is `+public+`. Every directory `+io.openems.*+` in the repository becomes a bundle.
+| **Framework**
+| The program that loads, starts and stops bundles and creates a separate class loader for each bundle. OpenEMS uses **Apache Felix** (version 7.0.5). The `+main()+` method belongs to the framework, not to OpenEMS.
+| **Service**
+| An object that a bundle registers under an interface in a central directory (service registry). Other bundles obtain it via the interface without knowing the implementation. Example: a meter driver registers as `+ElectricityMeter+`; a Controller asks for “an `+ElectricityMeter+` with the ID meter0”.
+| **Declarative Services (DS)**
+| Instead of registering services by hand, you write annotations: `+@Component+` on the class, `+@Reference+` on fields to be filled with other services, `+@Activate+`/`+@Deactivate+` on start and stop methods. The DS runtime (Apache Felix SCR) creates the objects, wires them and removes them again when a dependency disappears. This is similar to dependency injection in Spring, but dynamic at runtime.
+| **Configuration Admin**
+| A service that stores configurations (lists of keys and values) and passes them to components. If you create a configuration, a component is created; if you change it, the component is reconfigured; if you delete it, the component disappears. The entire Edge is configured this way.
+| **Metatype**
+| Describes which fields a configuration has (name, type, default value, description). Input forms are generated from it automatically.
+| **Event Admin**
+| A simple message bus within the program. The Edge uses it to send the Cycle Events.
+|===
+
+[#sec-why-osgi]
+=== Why OSGi?
+
+* Device drivers, Controllers and interfaces are independent modules. A manufacturer's driver only knows the API (e.g. `+ElectricityMeter+`), not the other drivers.
+* Components can be created, changed and removed at runtime, without a restart. An energy management system needs this because the hardware differs from site to site.
+* The same class can be instantiated any number of times (two meters of the same type = two configurations).
+
+[#sec-additional-bundles-at-runtime]
+=== Additional bundles at runtime
+
+In addition to the OpenEMS bundles, the Edge contains third-party bundles. The list is in `+io.openems.edge.application/EdgeApp.bndrun+`. In this version of the code there are 296 bundles, 53 of them not from OpenEMS. The most important:
+
+[cols="3*",options="header"]
+|===
+| Bundle
+| Version
+| Purpose
+
+| `+org.apache.felix.framework+`
+| 7.0.5
+| the OSGi framework
+| `+org.apache.felix.scr+`
+| 2.2.18
+| Declarative Services (`+@Component+`, `+@Reference+`)
+| `+org.apache.felix.configadmin+`
+| 1.9.26
+| Configuration Admin, stores the configuration as files
+| `+org.apache.felix.metatype+`
+| 1.2.4
+| description of the configuration fields
+| `+org.apache.felix.eventadmin+`
+| 1.6.4
+| events, e.g. for the Cycle
+| `+org.apache.felix.fileinstall+`
+| 3.7.4
+| can load bundles and configurations from a directory
+| `+org.apache.felix.http.jetty12+`, `+…servlet-api+`
+| 2.0.8 / 6.1.0
+| embedded web server (Jetty) for Apache Felix Web Console and REST
+| `+org.apache.felix.webconsole+`, `+…plugins.ds+`, `+org.apache.felix.inventory+`
+| 5.0.18 / 2.3.0 / 2.0.0
+| Apache Felix Web Console: view and change bundles, components and configurations in the browser
+| `+org.ops4j.pax.logging.pax-logging-api+`, `+…-log4j2+`
+| 2.3.5
+| logging (SLF4J API, output via Log4j 2)
+| `+com.google.gson+`, `+com.google.guava+`
+| 2.15.0 / 33.7.2
+| JSON processing and helper classes; used in almost every OpenEMS bundle
+| `+com.fazecast.jSerialComm+`
+| 2.11.4
+| serial interfaces (RS485 for Modbus RTU)
+| `+bcprov+`, `+bcpkix+`, `+bcutil+`
+| 1.86.0
+| cryptography (Bouncy Castle)
+|===
+
+You do not need to download these bundles yourself; the build fetches them automatically (see next section).
+
+[#sec-the-tools-and-how-they-work-together]
+== The tools and how they work together
+
+[cols="3*",options="header"]
+|===
+| Tool
+| Needed?
+| What it does
+
+| **JDK 25**
+| yes
+| Java compiler and runtime. The code is compiled for Java 25 (`+cnf/build.bnd+`, `+gradle.properties+`).
+| **Git**
+| yes
+| Get the source code and manage changes.
+| **Gradle**
+| yes, included
+| The build tool: compiles, tests, checks the code style and packs the JAR. It does **not** need to be installed; the repository contains the Gradle wrapper `+./gradlew+` (Windows: `+gradlew.bat+`), which downloads the matching Gradle version (9.8.1) itself on first use.
+| **bnd**
+| yes, included
+| The OSGi tool library. It generates the OSGi manifests and component descriptions from the `+bnd.bnd+` files and annotations, resolves which bundles are needed at runtime and builds the executable JAR from them. bnd (version 7.4.0) is loaded automatically as a Gradle plugin.
+| **Bndtools**
+| only with Eclipse
+| An Eclipse plugin that integrates bnd into the IDE: import projects, edit `+EdgeApp.bndrun+` graphically, “Resolve” and “Run OSGi” at the push of a button, templates for new bundles.
+| **Maven**
+| no
+| Maven is **not** used as a build tool. There is, however, the file `+cnf/pom.xml+`: it lists all third-party libraries (around 115 entries) with their version. bnd reads it and downloads the libraries from **Maven Central**, the public library server. New third-party library = entry in `+cnf/pom.xml+`. The version updates in the repository (“Bump … in /cnf”) concern this file.
+| **Eclipse** or **IntelliJ IDEA**
+| recommended
+| IDE, see xref:development/ide/eclipse.adoc[Eclipse] and xref:development/ide/intellij.adoc[IntelliJ]. According to the xref:development/coding-guidelines.adoc[Coding Guidelines], Eclipse is the officially supported development environment.
+| **Node.js/npm**, **Angular CLI**
+| only for the UI
+| Build and start the UI, see xref:ui/setup-ide.adoc[Setup IDE].
+|===
+
+[#sec-from-source-code-to-the-running-edge]
+=== From source code to the running Edge
+
+. **Workspace settings** are in `+cnf/+`: `+build.bnd+` (Java version, default libraries `+${buildpath}+`/`+${testpath}+`, library sources), `+pom.xml+` (third-party libraries), `+checkstyle.xml+` (code style rules), `+formatter.properties+` (Eclipse formatter).
+. **Each bundle** has a `+bnd.bnd+`. Under `+-buildpath+` it states which other bundles and libraries the code may use. What is missing there is not found by the compiler, even if it is in the repository.
+. **Gradle** finds all directories with `+bnd.bnd+` via the bnd plugin and treats them as subprojects. When building, it compiles the code; bnd generates the manifest and puts the finished bundle under `+<bundle>/generated/+`.
+. **`+EdgeApp.bndrun+`** in the project `+io.openems.edge.application+` describes the executable program (structure see table below).
+. **`+./gradlew buildEdge+`** packs all `+-runbundles+` together with the framework into an executable Fat-JAR and copies it to `+build/openems-edge.jar+`.
+
+[cols="2*",options="header"]
+|===
+| Entry in `+EdgeApp.bndrun+`
+| Content
+
+| `+-runfw+`
+| the framework (Apache Felix)
+| `+-runproperties+`
+| start parameters: web server port 8080, configuration directory `+felix.cm.dir+`, data directory `+openems.data.dir+`
+| `+-runrequires+`
+| the desired bundles (around 200 entries, maintained by hand)
+| `+-runbundles+`
+| the complete list with all dependencies and fixed versions. It is **not written by hand**, but determined by bnd (“Resolve”).
+|===
+
+[#sec-setup]
+== Setup
+
+The Developer Guide describes the setup: xref:development/overview.adoc[Overview], xref:development/ide/eclipse.adoc[Eclipse], xref:development/ide/intellij.adoc[IntelliJ]. How to start the Edge for the first time and create a first configuration is described in xref:gettingstarted.adoc[Getting Started].
+
+Gradle explicitly requires Java 25 for compiling via a toolchain. Gradle looks for an installed JDK 25; an automatic download is not set up in the repository. If only a different JDK is installed, Gradle can start with it, but aborts when compiling. Several JDKs side by side are not a problem.
+
+[#sec-how-the-edge-is-configured]
+== How the Edge is configured
+
+The Edge has **no** configuration file in the sense of `+application.properties+`. Everything that makes up a system (which devices, which addresses, which control algorithms) is a list of **component configurations** in the Configuration Admin. The ways of changing it are described in xref:edge/configuration.adoc[Configuration].
+
+[#sec-structure-of-a-configuration]
+=== Structure of a configuration
+
+* Each Factory has a **Factory-PID**, e.g. `+Meter.Janitza.UMG96RME+` or `+Controller.Debug.Log+`. In the code it is in `+@Component(name = …)+`.
+* An Instance has a **Component-ID** (field `+id+`, e.g. `+meter0+`) and further fields from the respective `+Config+` class (e.g. `+modbus.id+`, `+modbusUnitId+`, `+type+`).
+* Components refer to each other via IDs: the meter names its Modbus Bridge (`+modbus.id=modbus0+`), the Controller its ESS and meter.
+* Some core components exist exactly once, with a fixed ID: `+_cycle+` (cycle time), `+_power+` (ESS Power), `+_meta+`, `+_sum+` etc.
+
+[#sec-where-the-configuration-is-stored]
+=== Where the configuration is stored
+
+The Configuration Admin stores each configuration as a text file in the directory `+felix.cm.dir+`. The dots of the PID become subfolders (e.g. `+org/apache/felix/http.config+` for the PID `+org.apache.felix.http+`); values are stored as `+key="value"+`, with a type identifier for non-text values. This behavior comes from Apache Felix and is not specific to OpenEMS.
+
+* Default according to `+EdgeApp.bndrun+`: `+c:/openems/config+`. On macOS/Linux this creates a folder named `+c:+` in the working directory (for `+io.openems.edge.application+` it is in `+.gitignore+`). It is better to set `+-Dfelix.cm.dir=…+` at startup.
+* On a device following xref:edge/deploy/systemd.adoc[Deploy on Debian/Ubuntu]: `+/etc/openems.d+`, JAR in `+/usr/lib/openems+`.
+* Data of the components (e.g. the local rrd4j history) is stored under `+openems.data.dir+`.
+* For an empty test environment, it is enough to delete the folder before starting.
+
+[#sec-creating-a-new-bundle]
+== Creating a new bundle
+
+[#sec-with-bndtools-templates]
+=== With Bndtools templates
+
+OpenEMS provides project templates for Bndtools (defined in `+io.openems.common/bnd.bnd+`, files under `+io.openems.common/resources/templates+`):
+
+[cols="2*",options="header"]
+|===
+| Template
+| Result
+
+| OpenEMS Controller
+| Controller with `+Config+`, `+…Impl+`, test
+| OpenEMS Device
+| device without a specific protocol
+| OpenEMS Modbus Device
+| device with Modbus connection
+| OpenEMS Api
+| API bundle with its own Nature
+|===
+
+xref:edge/implement.adoc[Implementing a Device] shows the steps in Eclipse. Without Eclipse, the easiest way is to copy a similar existing bundle and rename the package, classes and Factory-PID.
+
+[#sec-adding-the-bundle-to-the-edge]
+=== Adding the bundle to the Edge
+
+A new bundle is built, but is **not yet** part of the Edge. To add it:
+
+. Enter it in `+EdgeApp.bndrun+` under `+-runrequires+` (`+bnd.identity;id='io.openems.edge.…'+`). In Bndtools: drag the bundle from the __Repositories__ list to __Run Requirements__ and save.
+. Run **Resolve** so that bnd recalculates the list `+-runbundles+`: in Bndtools with the __Resolve__ button (adopt the result with __Update__), on the command line with `+./gradlew :io.openems.edge.application:resolve.EdgeApp+`.
+. Commit both changes to `+EdgeApp.bndrun+`.
+
+If a bundle is only entered in `+-runrequires+` and not resolved, it is missing from the JAR. If Resolve reports an error, a dependency is usually missing: a package that no bundle exports, or a third-party library that is not in `+cnf/pom.xml+`.
+
+[#sec-typical-pitfalls]
+== Typical pitfalls
+
+* **Class not found when compiling**, even though it is in the repository: the bundle is missing from the `+-buildpath+` of your own `+bnd.bnd+`.
+* **Package not found at runtime**: the other bundle does not export the package. In OpenEMS, packages are usually exported via `+package-info.java+` with `+@org.osgi.annotation.versioning.Version+` and `+@Export+`.
+* **Component does not start**, even though it is configured: a mandatory reference (`+@Reference+` with `+MANDATORY+`) is not satisfied, e.g. wrong ID in `+ess.id+`. In the Apache Felix Web Console under __OSGi → Components__ you can see which reference is missing.
+* **New component missing in the Apache Felix Web Console**: bundle not entered in `+EdgeApp.bndrun+` or not resolved again.
+* **Gradle aborts with a toolchain error**: JDK 25 is missing (see <<sec-setup,Setup>>).
+
+[#sec-eclipse-after-a-git-pull]
+=== Eclipse after a git pull
+
+A `+git pull+` changes the folders in the repository, but not the project list in Eclipse. Bundles that are added or removed must be updated in Eclipse by hand.
+
+[cols="3*",options="header"]
+|===
+| Message in Eclipse
+| Cause
+| Remedy
+
+| “Project 'io.openems.edge.core' is missing required Java project: 'io.openems.common.tariff.api'”, followed by hundreds of consequential errors (“… cannot be resolved to a type”, also for `+org.osgi+` and `+org.junit+`)
+| A bundle from the `+-buildpath+` is in the repository, but not imported into Eclipse.
+| __File → Import → General → Existing Projects into Workspace__, select the repository as root, tick all projects that are not grayed out, do **not** tick “Copy projects into workspace”.
+| “The project does not have a bnd.bnd file” and almost everywhere “The container 'Bnd Bundle Path' references non existing library '…/generated/….jar'”
+| Eclipse still has a project whose `+bnd.bnd+` no longer exists (e.g. a removed bundle whose `+bin+` and `+generated+` folders were left behind). In one observed case, Bndtools built no JARs while it was in the workspace, not even for `+io.openems.wrapper+` and `+io.openems.common+`.
+| Delete the project in Eclipse (right-click → __Delete__, do **not** tick “Delete project contents on disk”). In that case, the workspace built again afterwards.
+|===
+
+To check: every folder with `+bnd.bnd+` in the repository must exist as a project in Eclipse, plus `+cnf+`. Conversely, every Eclipse project except `+cnf+` needs a `+bnd.bnd+`.
+
+Further notes:
+
+* **Do not build with Gradle and Eclipse at the same time.** Both write to the same `+generated/+` folders. If you call `+./gradlew+` in between, select all projects in Eclipse afterwards and refresh them with F5.
+* **Wait after “Clean all”.** Clean deletes all generated JARs. While around 250 projects are rebuilt, the Problems view temporarily shows many errors. Only evaluate them after the build has finished (__Window → Show View → Progress__).
+* **Reading the error list:** The entries of type “Build Path Problem” and “Bndtools …” are important. The many “cannot be resolved” errors are almost always consequential errors.
+
+[#sec-read-on]
+== Read on
+
+* xref:development/fundamentals/components-and-channels.adoc[Components and Channels in code]
+* xref:development/fundamentals/cycle-and-ess-power.adoc[Cycle, Scheduler and ESS Power]: what happens every second
+* xref:development/implementing/controller.adoc[Implementing a Controller]
+* xref:edge/implement.adoc[Implementing a Device]: step-by-step example with a simulated meter

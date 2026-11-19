@@ -1,0 +1,71 @@
+= OpenEMS: Schedule
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:user/de/schedule/overview.adoc[OpenEMS: Fahrplan]
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+**OpenEMS has a schedule.** It shows what the system plans for the current and the next day, in quarter hours:
+
+* which **electricity price** applies,
+* how much **solar yield** and **consumption** are expected,
+* what the **storage** should do (e.g. “delayed discharge” or “charge from grid”),
+* and how **grid purchase** and **state of charge** develop as a result.
+
+For past periods of the day, the schedule shows the **measured values**. This way, one chart shows both what happened and what is planned.
+
+The schedule is more than the forecast: it uses the xref:user/schedule/forecasts.adoc[forecasts] and shows what OpenEMS does with them.
+
+[#sec-where-to-see-it]
+== Where to see it
+
+The web interface has its own **schedule page**. Since October 2026 it updates itself as soon as a new plan has been made. It also shows whether planning is in progress or has been completed.
+
+[#sec-how-it-is-created]
+== How it is created
+
+. OpenEMS collects forecasts, electricity prices (xref:user/storage-control/time-of-use-tariffs.adoc[tariffs]), the state of the storage and the grid limits.
+. An optimizer tries out many possible sequences and selects the cheapest one that complies with all limits.
+. The near future is planned in quarter hours, times further ahead in hours.
+. The plan is renewed regularly, about every quarter of an hour, and immediately when settings are changed.
+
+[#sec-what-is-included-in-the-plan]
+== What is included in the plan
+
+[cols="2*",options="header"]
+|===
+| Function
+| Role in the schedule
+
+| xref:user/storage-control/time-of-use-tariffs.adoc[Price control]
+| decides when the storage is conserved, charged or discharged
+| xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]
+| delays or limits charging (together with price control)
+| Charge points (wallbox)
+| plan the charging of vehicles
+| Heating elements (Askoma, my-PV)
+| plan the heating power
+| Emergency reserve, discharge limit, fixed storage power
+| are taken into account as constraints for the storage
+|===
+
+Since October 2026 the schedule is also calculated if none of these controlling functions is active.
+
+[#sec-how-to-read-the-schedule]
+== How to read the schedule
+
+* **Past:** measured values in 5-minute steps.
+* **Future:** plan in quarter hours. It is based on forecasts and can change with each new plan.
+* If reality differs from the forecast (e.g. clouds, unexpected consumption), OpenEMS adjusts the plan the next time it plans.
+* The period covers the current day and, as soon as available, the next one.
+* Without electricity prices and forecasts, no meaningful schedule can be created.
+
+[#sec-for-advanced-users]
+== For advanced users
+
+The schedule can also be retrieved via the interface, e.g. for your own evaluations. This is done with the request “getSchedule” to the component `+_energy+` (see xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]). For each quarter hour, the response contains prices, production, consumption, grid, storage and state of charge, as well as the planned state of each function involved.
