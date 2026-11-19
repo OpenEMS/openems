@@ -1,0 +1,492 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "OpenEMS: Time-of-use tariffs"
+msgstr "OpenEMS: Dynamische Stromtarife"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"With a time-variable (dynamic) electricity tariff, the price changes over "
+"the day, usually every quarter of an hour, linked to the exchange "
+"electricity price. OpenEMS can align the storage accordingly: **avoid "
+"expensive grid power, use cheap power**."
+msgstr ""
+"Bei einem dynamischen (zeitvariablen) Stromtarif ändert sich der Preis im "
+"Tagesverlauf, meist jede Viertelstunde, gekoppelt an den Börsenstrompreis. "
+"OpenEMS kann den Speicher danach ausrichten: **teuren Netzstrom vermeiden, "
+"günstigen nutzen**."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "What OpenEMS does"
+msgstr "Was OpenEMS dabei tut"
+
+#. type: #sec-what-openems-does
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"**Save the storage for expensive hours:** In cheap hours, the power comes "
+"from the grid and the storage is conserved. In expensive hours, the storage "
+"supplies the house."
+msgstr ""
+"**Speicher für teure Stunden aufheben:** In günstigen Stunden kommt der "
+"Strom aus dem Netz, der Speicher wird geschont. In teuren Stunden versorgt "
+"der Speicher das Haus."
+
+#. type: #sec-what-openems-does
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"**Charge from the grid** (optional): In particularly cheap hours, the "
+"storage is charged from the grid to bridge expensive hours later."
+msgstr ""
+"**Aus dem Netz laden** (optional): In besonders günstigen Stunden wird der "
+"Speicher aus dem Netz geladen, um später teure Stunden zu überbrücken."
+
+#. type: #sec-what-openems-does
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"**Sell to the grid** (optional): In particularly expensive hours, the "
+"storage can discharge into the grid."
+msgstr ""
+"**Ins Netz verkaufen** (optional): In besonders teuren Stunden kann der "
+"Speicher ins Netz entladen."
+
+#. type: #sec-what-openems-does
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"**Comply with limits:** The maximum grid purchase power and the feed-in "
+"limit of the system are always taken into account."
+msgstr ""
+"**Grenzen einhalten:** Die maximale Netzbezugsleistung und die "
+"Einspeisegrenze der Anlage werden immer berücksichtigt."
+
+#. type: #sec-what-openems-does
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"Charging from the grid is only worthwhile if the price difference is large "
+"enough. Energy is lost during charging and discharging, and OpenEMS takes "
+"this into account. It therefore rates power that takes the detour via the "
+"storage as around 17 % more expensive."
+msgstr ""
+"Laden aus dem Netz lohnt sich nur, wenn der Preisunterschied groß genug ist. "
+"Beim Laden und Entladen geht Energie verloren, und das rechnet OpenEMS ein. "
+"Dafür bewertet es Strom, der den Umweg über den Speicher nimmt, um rund 17 % "
+"teurer."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "Where the prices come from"
+msgstr "Woher die Preise kommen"
+
+#. type: #sec-where-the-prices-come-from
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"There are three sources for exchange prices (day-ahead). They can be set up "
+"at the same time:"
+msgstr ""
+"Für Börsenpreise (Day-Ahead) gibt es drei Quellen. Sie können gleichzeitig "
+"eingerichtet sein:"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid ""
+"| Source\n"
+"| Priority\n"
+"| Notes\n"
+"\n"
+"| OpenEMS backend\n"
+"| 1\n"
+"| requires a connection to the backend\n"
+"| SMARD (German Federal Network Agency)\n"
+"| 2\n"
+"| freely usable, only for Germany, Austria, Belgium, the Netherlands and the Czech Republic\n"
+"| ENTSO-E\n"
+"| 3\n"
+"| Europe-wide, requires your own free access key (token)\n"
+msgstr ""
+"| Quelle\n"
+"| Vorrang\n"
+"| Hinweise\n"
+"\n"
+"| OpenEMS-Backend\n"
+"| 1\n"
+"| setzt eine Verbindung zum Backend voraus\n"
+"| SMARD (Bundesnetzagentur)\n"
+"| 2\n"
+"| frei nutzbar, nur für Deutschland, Österreich, Belgien, Niederlande und Tschechien\n"
+"| ENTSO-E\n"
+"| 3\n"
+"| europaweit, benötigt einen eigenen kostenlosen Zugangsschlüssel (Token)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"A price source is set up via the app **“Spot Tariff Vendor”** (backend, "
+"ENTSO-E or SMARD); the tariff apps require it. Older ENTSO-E components are "
+"converted automatically. The former setting “Maximum grid purchase through "
+"storage charging” no longer exists; the grid purchase limit from the system "
+"settings applies."
+msgstr ""
+"Eine Preisquelle wird über die App **„Börsenpreis Anbieter“** eingerichtet "
+"(Backend, ENTSO-E oder SMARD); die Tarif-Apps setzen sie voraus. Ältere "
+"ENTSO-E-Komponenten werden automatisch umgestellt. Die frühere Einstellung "
+"„Maximaler Netzbezug durch Speicherbeladung“ gibt es nicht mehr; es gilt die "
+"Netzbezugsgrenze aus den Systemeinstellungen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"OpenEMS takes the prices from the source with the highest priority. **If "
+"values are missing there, it fills the gaps with the next source**. All "
+"prices are converted into the currency stored in the system settings."
+msgstr ""
+"OpenEMS nimmt die Preise der Quelle mit dem höchsten Vorrang. **Fehlen dort "
+"Werte, füllt es die Lücken mit der nächsten Quelle**. Alle Preise werden in "
+"die Währung umgerechnet, die in den Systemeinstellungen hinterlegt ist."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"In addition to exchange prices, there are ready-made connections to "
+"individual electricity providers, e.g. Tibber, aWATTar, Rabot Charge, "
+"Corrently, Octopus, Groupe E, Swisspower, LUOX or Stadtwerke Haßfurt."
+msgstr ""
+"Neben Börsenpreisen gibt es fertige Anbindungen an einzelne Stromanbieter, "
+"z. B. Tibber, aWATTar, Rabot Charge, Corrently, Octopus, Groupe E, "
+"Swisspower, LUOX oder die Stadtwerke Haßfurt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "From the exchange price to your own electricity price"
+msgstr "Vom Börsenpreis zum eigenen Strompreis"
+
+#. type: #sec-from-the-exchange-price-to-your-own-electricity-price
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"The exchange price is not the price you actually pay. The following are "
+"therefore specified for purchase:"
+msgstr ""
+"Der Börsenpreis ist nicht der Preis, den man tatsächlich zahlt. Deshalb "
+"werden für den Bezug angegeben:"
+
+#. type: #sec-from-the-exchange-price-to-your-own-electricity-price
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "the **bidding zone** (e.g. Germany/Luxembourg),"
+msgstr "die **Gebotszone** (z. B. Deutschland/Luxemburg),"
+
+#. type: #sec-from-the-exchange-price-to-your-own-electricity-price
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"the **additional costs** such as grid fees, taxes and levies, also staggered "
+"by time of day,"
+msgstr ""
+"die **Nebenkosten** wie Netzentgelte, Steuern und Abgaben, auch nach Uhrzeit "
+"gestaffelt,"
+
+#. type: #sec-from-the-exchange-price-to-your-own-electricity-price
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"optionally a **formula** for how the exchange price and additional costs are "
+"offset. Default: exchange price {plus} additional costs."
+msgstr ""
+"optional eine **Formel**, wie Börsenpreis und Nebenkosten verrechnet werden. "
+"Standard: Börsenpreis {plus} Nebenkosten."
+
+#. type: #sec-from-the-exchange-price-to-your-own-electricity-price
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"For feed-in, an exchange price or a fixed remuneration (e.g. according to "
+"the German EEG) can also be stored."
+msgstr ""
+"Für die Einspeisung kann ebenfalls ein Börsenpreis oder eine feste Vergütung "
+"(z. B. nach EEG) hinterlegt werden."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "Setting up price control"
+msgstr "Die Preissteuerung einrichten"
+
+#. type: #sec-setting-up-price-control
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "The function is called **Controller.Ess.Time-Of-Use-Tariff**."
+msgstr "Die Funktion heißt **Controller.Ess.Time-Of-Use-Tariff**."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "Operating mode"
+msgstr "Betriebsart"
+
+#. type: #sec-operating-mode
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "**Automatic** (default): OpenEMS plans by itself."
+msgstr "**Automatisch** (Standard): OpenEMS plant selbst."
+
+#. type: #sec-operating-mode
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "**Manual:** A permanently selected behavior is applied continuously."
+msgstr "**Manuell:** Ein fest gewähltes Verhalten wird dauerhaft angewendet."
+
+#. type: #sec-operating-mode
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"**Off:** normal self-consumption optimization without reference to prices."
+msgstr "**Aus:** normale Eigenverbrauchsoptimierung ohne Preisbezug."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "How far control may go"
+msgstr "Wie weit die Steuerung gehen darf"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Permitted behavior\n"
+"\n"
+"| Delay discharge (default)\n"
+"| Save the storage for expensive hours\n"
+"| Charge from grid\n"
+"| additionally charge from the grid in cheap hours\n"
+"| Discharge to grid\n"
+"| additionally sell to the grid in expensive hours\n"
+msgstr ""
+"| Einstellung\n"
+"| Erlaubtes Verhalten\n"
+"\n"
+"| Entladung verzögern (Standard)\n"
+"| Speicher für teure Stunden aufheben\n"
+"| Beladung aus dem Netz\n"
+"| zusätzlich in günstigen Stunden aus dem Netz laden\n"
+"| Entladung ins Netz\n"
+"| zusätzlich in teuren Stunden ins Netz verkaufen\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "The states you see"
+msgstr "Die Zustände, die man sieht"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid ""
+"| State\n"
+"| Meaning\n"
+"\n"
+"| Self-consumption optimization\n"
+"| normal operation: charge surplus, cover demand from the storage\n"
+"| Delayed discharge\n"
+"| Storage is conserved for more expensive times, the house draws grid power\n"
+"| Charge from grid\n"
+"| Storage is charged at a low price\n"
+"| Discharge to grid\n"
+"| Storage sells power at a high price\n"
+"| Peak shaving\n"
+"| Storage helps not to exceed the maximum grid purchase power\n"
+"| Avoid feed-in limit\n"
+"| Storage absorbs surplus so that the feed-in limit is complied with\n"
+"| Delayed / limited charging, discharge for consumption\n"
+"| only together with xref:user/storage-control/grid-optimized-charge.adoc[grid-optimized charge]\n"
+msgstr ""
+"| Zustand\n"
+"| Bedeutung\n"
+"\n"
+"| Eigenverbrauchsoptimierung\n"
+"| normaler Betrieb: Überschuss laden, Bedarf aus dem Speicher decken\n"
+"| Entladung verzögern\n"
+"| Speicher wird für teurere Zeiten geschont, das Haus bezieht Netzstrom\n"
+"| Beladung aus dem Netz\n"
+"| Speicher wird zu einem günstigen Preis geladen\n"
+"| Entladung ins Netz\n"
+"| Speicher verkauft Strom zu einem hohen Preis\n"
+"| Lastspitzenkappung\n"
+"| Speicher hilft, die maximale Netzbezugsleistung nicht zu überschreiten\n"
+"| Einspeiselimitierung vermeiden\n"
+"| Speicher nimmt Überschuss auf, damit die Einspeisegrenze eingehalten wird\n"
+"| Verzögert / gedrosselt laden, Entladen für Verbrauch\n"
+"| nur zusammen mit der xref:user/storage-control/grid-optimized-charge.adoc[netzdienlichen Beladung]\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"“Peak shaving” and “Avoid feed-in limit” are not planned. They occur at "
+"short notice if the planned state would otherwise violate a limit."
+msgstr ""
+"„Lastspitzenkappung“ und „Einspeiselimitierung vermeiden“ werden nicht "
+"geplant. Sie treten kurzfristig auf, wenn der geplante Zustand sonst eine "
+"Grenze verletzen würde."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#, no-wrap
+msgid "How OpenEMS plans"
+msgstr "Wie OpenEMS plant"
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"For the next few hours, an optimizer tries out many possible sequences: "
+"which state should apply when. It calculates each sequence with the "
+"xref:user/schedule/forecasts.adoc[forecasts] for solar yield and consumption "
+"and with the electricity prices. It selects the sequence that performs best "
+"in this order:"
+msgstr ""
+"Ein Optimierer probiert für die nächsten Stunden viele mögliche Abläufe "
+"durch: wann welcher Zustand gelten soll. Jeden Ablauf rechnet er mit den "
+"xref:user/schedule/forecasts.adoc[Prognosen] für Solarertrag und Verbrauch "
+"und mit den Strompreisen durch. Er wählt den Ablauf, der in dieser "
+"Reihenfolge am besten abschneidet:"
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "All limits are complied with and consumption is covered."
+msgstr "Alle Grenzen werden eingehalten, und der Verbrauch ist gedeckt."
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "**Electricity costs** are as low as possible."
+msgstr "Die **Stromkosten** sind möglichst niedrig."
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "Grid purchase is as low as possible."
+msgstr "Der Netzbezug ist möglichst gering."
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "Feed-in revenues are as high as possible."
+msgstr "Die Einspeiseerlöse sind möglichst hoch."
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid "There are as few changes between states as possible."
+msgstr "Es gibt möglichst wenige Wechsel zwischen den Zuständen."
+
+#. type: #sec-how-openems-plans
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"The plan is renewed regularly (about every quarter of an hour) so that new "
+"prices and more accurate forecasts are included. The result is the xref:user/"
+"schedule/overview.adoc[schedule]."
+msgstr ""
+"Die Planung wird regelmäßig (etwa jede Viertelstunde) erneuert, damit neue "
+"Preise und genauere Prognosen einfließen. Das Ergebnis ist der xref:user/"
+"schedule/overview.adoc[Fahrplan]."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"The plan is only as good as the forecasts. If the day differs greatly (e.g. "
+"unexpectedly high consumption), it may in hindsight not have been optimal."
+msgstr ""
+"Die Planung ist nur so gut wie die Prognosen. Weicht der Tag stark ab (z. B. "
+"unerwartet hoher Verbrauch), kann sie im Nachhinein nicht optimal gewesen "
+"sein."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"Without prices, for example if no source can be reached, price-optimized "
+"planning is not possible."
+msgstr ""
+"Ohne Preise, etwa wenn keine Quelle erreichbar ist, kann nicht "
+"preisoptimiert geplant werden."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"With price control in “Automatic” mode, the optimizer also takes over the "
+"task of grid-optimized charge."
+msgstr ""
+"Mit der Preissteuerung im Modus „Automatisch“ übernimmt der Optimierer auch "
+"die Aufgabe der netzdienlichen Beladung."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"The optimizer does not plan for a xref:user/storage-control/section-14a-"
+"enwg.adoc[§ 14a limitation] of the storage (maximum 4.2 kW charging power). "
+"It is nevertheless complied with during operation: during an intervention, "
+"the storage charges correspondingly less than planned."
+msgstr ""
+"Eine xref:user/storage-control/section-14a-enwg.adoc[§14a-Begrenzung] des "
+"Speichers (höchstens 4,2 kW Ladeleistung) plant der Optimierer nicht ein. Im "
+"laufenden Betrieb wird sie trotzdem eingehalten: Während eines Eingriffs "
+"lädt der Speicher entsprechend weniger als geplant."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"The level of a xref:user/storage-control/ripple-control-receiver.adoc[ripple "
+"control receiver] (0/30/60 %) is **not** taken into account by price "
+"control, neither in the schedule nor during operation. Only the feed-in "
+"limit from the system settings is taken into account. The inverter still "
+"complies with the ripple control limitation. During a limitation, however, "
+"PV power may be curtailed even though the storage could have absorbed it."
+msgstr ""
+"Die Stufe eines xref:user/storage-control/ripple-control-"
+"receiver.adoc[Rundsteuerempfängers] (0/30/60 %) wird von der Preissteuerung "
+"**nicht** berücksichtigt, weder im Fahrplan noch im laufenden Betrieb. "
+"Berücksichtigt wird nur die Einspeisegrenze aus den Systemeinstellungen. Die "
+"RSE-Begrenzung hält der Wechselrichter trotzdem ein. Während einer "
+"Begrenzung kann aber PV-Leistung abgeregelt werden, obwohl der Speicher sie "
+"hätte aufnehmen können."

@@ -1,0 +1,356 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Title =
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "OpenEMS: Forecasts for consumption and production"
+msgstr "OpenEMS: Prognosen für Verbrauch und Erzeugung"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"Several functions need a look into the future: xref:user/storage-control/"
+"grid-optimized-charge.adoc[Grid-optimized charge] wants to know when the "
+"solar surplus ends. xref:user/storage-control/time-of-use-tariffs.adoc[Price "
+"control] wants to know how much electricity is needed in the expensive "
+"hours. For this purpose, OpenEMS creates **forecasts for solar yield and "
+"consumption**, in quarter hours for today and tomorrow."
+msgstr ""
+"Mehrere Funktionen brauchen einen Blick in die Zukunft: Die xref:user/"
+"storage-control/grid-optimized-charge.adoc[netzdienliche Beladung] will "
+"wissen, wann der Solarüberschuss endet. Die xref:user/storage-control/time-"
+"of-use-tariffs.adoc[Preissteuerung] will wissen, wie viel Strom in den "
+"teuren Stunden gebraucht wird. Dafür erstellt OpenEMS **Prognosen für "
+"Solarertrag und Verbrauch**, jeweils in Viertelstunden für heute und morgen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "The available forecasting methods"
+msgstr "Die verfügbaren Prognoseverfahren"
+
+#. type: Table
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid ""
+"| Method\n"
+"| for\n"
+"| Idea\n"
+"\n"
+"| “Same as yesterday” (Persistence)\n"
+"| any values\n"
+"| Yesterday's curve repeats itself.\n"
+"| “Same weekday” (Similar Day)\n"
+"| Consumption\n"
+"| Average of the same weekdays over the last 4 weeks.\n"
+"| Daily profiles (Profile Clustering)\n"
+"| Consumption\n"
+"| Learns the typical daily routines of the household.\n"
+"| Weather model\n"
+"| Solar yield\n"
+"| Learns how much your own system delivers in which weather.\n"
+msgstr ""
+"| Verfahren\n"
+"| für\n"
+"| Idee\n"
+"\n"
+"| „Wie gestern“ (Persistence)\n"
+"| beliebige Werte\n"
+"| Der Verlauf von gestern wiederholt sich.\n"
+"| „Gleicher Wochentag“ (Similar Day)\n"
+"| Verbrauch\n"
+"| Durchschnitt der gleichen Wochentage der letzten 4 Wochen.\n"
+"| Tagesprofile (Profile Clustering)\n"
+"| Verbrauch\n"
+"| Lernt die typischen Tagesabläufe des Haushalts.\n"
+"| Wettermodell\n"
+"| Solarertrag\n"
+"| Lernt, wie viel die eigene Anlage bei welchem Wetter liefert.\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"Several methods can be set up. An order determines which one is asked first. "
+"If it returns nothing, the next one is used. If a total value (e.g. total "
+"production) has no forecast of its own, OpenEMS combines it from the "
+"forecasts of the individual producers."
+msgstr ""
+"Es können mehrere Verfahren eingerichtet sein. Eine Reihenfolge legt fest, "
+"welches zuerst gefragt wird. Liefert es nichts, kommt das nächste zum Zug. "
+"Fehlt für eine Gesamtgröße (z. B. Gesamterzeugung) eine eigene Prognose, "
+"setzt OpenEMS sie aus den Prognosen der einzelnen Erzeuger zusammen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "“Same as yesterday”"
+msgstr "„Wie gestern“"
+
+#. type: #sec-same-as-yesterday
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"The simplest method. It needs no learning phase and works from the second "
+"day. It cannot foresee weather changes, weekends or special days."
+msgstr ""
+"Das einfachste Verfahren. Es braucht keine Lernphase und funktioniert ab dem "
+"zweiten Tag. Wetterwechsel, Wochenenden oder besondere Tage kann es nicht "
+"vorhersehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "“Same weekday”"
+msgstr "„Gleicher Wochentag“"
+
+#. type: #sec-same-weekday
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"For a Monday, the average of the last four Mondays is used. This captures "
+"weekly rhythms, e.g. home office days or laundry days. After the clocks "
+"change, the pattern is shifted by one hour for a few weeks."
+msgstr ""
+"Für einen Montag wird der Durchschnitt der letzten vier Montage genommen. "
+"Damit werden Wochenrhythmen erfasst, z. B. Homeoffice-Tage oder Waschtag. "
+"Nach der Zeitumstellung ist das Muster für einige Wochen um eine Stunde "
+"verschoben."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "Daily profiles (consumption)"
+msgstr "Tagesprofile (Verbrauch)"
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"This method predicts **normal household consumption**. Controlled loads such "
+"as wallboxes are not included because OpenEMS plans them itself."
+msgstr ""
+"Dieses Verfahren sagt den **normalen Hausverbrauch** voraus. Gesteuerte "
+"Verbraucher wie Wallboxen sind nicht enthalten, weil OpenEMS sie selbst "
+"plant."
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid "**How it learns** (once a day, from the last 90 days):"
+msgstr "**So lernt es** (einmal täglich, aus den letzten 90 Tagen):"
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"The consumption curves of the individual days are compared and divided into "
+"groups of similar days, e.g. “working day”, “weekend at home”, “away”. This "
+"results in between 2 and 8 typical daily profiles."
+msgstr ""
+"Die Verbrauchskurven der einzelnen Tage werden verglichen und in Gruppen "
+"ähnlicher Tage eingeteilt, z. B. „Arbeitstag“, „Wochenende zu Hause“, "
+"„abwesend“. Es entstehen zwischen 2 und 8 typische Tagesprofile."
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"It then learns **when which profile occurs**: depending on the weekday, "
+"whether it is a working day, and the profile of the previous day."
+msgstr ""
+"Danach lernt es, **wann welches Profil auftritt**: abhängig vom Wochentag, "
+"davon, ob es ein Arbeitstag ist, und vom Profil des Vortags."
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"**How it forecasts:** For today and tomorrow, the most probable profile is "
+"selected. If the actual curve fits another profile significantly better in "
+"the course of the day, it switches."
+msgstr ""
+"**So prognostiziert es:** Für heute und morgen wird das wahrscheinlichste "
+"Profil gewählt. Passt der tatsächliche Verlauf im Lauf des Tages deutlich "
+"besser zu einem anderen Profil, wird gewechselt."
+
+#. type: #sec-daily-profiles-consumption
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"**Limits:** **Recurring** patterns are recognized. A one-off event (e.g. "
+"visitors, sauna on a single day) is not predicted. At least 30 days of "
+"history are necessary. After a new installation, the forecast is therefore "
+"initially unavailable or inaccurate."
+msgstr ""
+"**Grenzen:** Erkannt werden **wiederkehrende** Muster. Ein einmaliges "
+"Ereignis (z. B. Besuch, Sauna an einem einzelnen Tag) wird nicht "
+"vorhergesagt. Mindestens 30 Tage Verlauf sind nötig. Nach einer "
+"Neuinstallation ist die Prognose deshalb anfangs nicht verfügbar oder "
+"ungenau."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#, no-wrap
+msgid "Weather model (solar yield)"
+msgstr "Wettermodell (Solarertrag)"
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"The method learns from the past how much your **own system** produces in "
+"which weather. Solar irradiation (direct and diffuse), temperature, snow and "
+"time of day play a role. The orientation, shading and size of the system "
+"therefore do not have to be entered; they are contained in the learned data. "
+"The weather data comes from xref:user/schedule/weather.adoc[Open-Meteo]."
+msgstr ""
+"Das Verfahren lernt aus der Vergangenheit, wie viel die **eigene Anlage** "
+"bei welchem Wetter erzeugt. Dabei spielen Sonneneinstrahlung (direkt und "
+"diffus), Temperatur, Schnee und Tageszeit eine Rolle. Ausrichtung, "
+"Verschattung und Größe der Anlage müssen deshalb nicht eingegeben werden; "
+"sie stecken in den gelernten Daten. Die Wetterdaten kommen von xref:user/"
+"schedule/weather.adoc[Open-Meteo]."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"**Learning:** daily, from up to 90 days; at least 30 days are necessary."
+msgstr ""
+"**Lernen:** täglich, aus bis zu 90 Tagen; mindestens 30 Tage sind nötig."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid "**Forecast:** 2 days, with the current weather forecast."
+msgstr "**Vorhersage:** 2 Tage, mit der aktuellen Wettervorhersage."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"**Plausibility:** The forecast is smoothed and is never higher than the "
+"power that the system has actually reached in the last 90 days. The last "
+"four measured quarter hours are also included in the smoothing so that there "
+"is no jump at the transition from measurement to forecast."
+msgstr ""
+"**Plausibilität:** Die Vorhersage wird geglättet und nie höher als die "
+"Leistung, die die Anlage in den letzten 90 Tagen tatsächlich erreicht hat. "
+"In die Glättung fließen auch die letzten vier gemessenen Viertelstunden ein, "
+"damit es am Übergang von Messung zu Prognose keinen Sprung gibt."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"**Snow:** If the weather forecast currently reports snowfall and a snow "
+"cover for at least 90 % of the forecast period, the model switches to its "
+"own snow state."
+msgstr ""
+"**Schnee:** Meldet die Wettervorhersage gerade Schneefall und für mindestens "
+"90 % des Vorhersagezeitraums eine Schneedecke, wechselt das Modell in einen "
+"eigenen Schnee-Zustand."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid "In the first 24 hours it continues to calculate as usual."
+msgstr "In den ersten 24 Stunden rechnet es weiter wie sonst."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"After that it uses the curve of the previous day as the forecast (“same as "
+"yesterday”) if a forecast using this method is set up. Otherwise it "
+"continues to calculate as usual."
+msgstr ""
+"Danach nimmt es den Verlauf des Vortags als Prognose („wie gestern“), wenn "
+"eine Prognose nach diesem Verfahren eingerichtet ist. Sonst rechnet es "
+"weiter wie sonst."
+
+#. type: #sec-weather-model-solar-yield
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"It returns to the normal state as soon as, according to the forecast, there "
+"is no more snow and none will settle. Or if, after at least 24 hours, at "
+"least 30 % of a typical peak power was generated in 4 of the last 6 quarter "
+"hours. The typical peak power is the value that 95 % of all quarter hours in "
+"the last 90 days did not exceed."
+msgstr ""
+"Zurück in den Normalzustand geht es, sobald laut Vorhersage kein Schnee mehr "
+"liegt und keiner liegen bleibt. Oder wenn nach mindestens 24 Stunden in 4 "
+"der letzten 6 Viertelstunden mindestens 30 % einer üblichen Spitzenleistung "
+"erzeugt wurden. Als übliche Spitzenleistung gilt der Wert, den 95 % aller "
+"Viertelstunden der letzten 90 Tage nicht überschritten haben."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"The learned models are not stored permanently. After a restart, OpenEMS "
+"learns anew from the stored xref:user/data/history-rrd4j.adoc[history]. If "
+"there is no history, there is also no basis for forecasts."
+msgstr ""
+"Die gelernten Modelle werden nicht dauerhaft gespeichert. Nach einem "
+"Neustart lernt OpenEMS aus der gespeicherten xref:user/data/history-"
+"rrd4j.adoc[Historie] neu. Fehlt Historie, fehlt auch die Grundlage für "
+"Prognosen."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"OpenEMS records what it predicted 1, 3 or 6 hours beforehand, alongside what "
+"actually happened. This makes it possible to assess the forecast quality "
+"afterwards."
+msgstr ""
+"OpenEMS hält fest, was es 1, 3 oder 6 Stunden vorher vorhergesagt hat, und "
+"daneben, was tatsächlich eingetreten ist. So lässt sich die Prognosegüte im "
+"Nachhinein beurteilen."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+msgid ""
+"Poor forecasts have a direct effect on grid-optimized charge and price "
+"control."
+msgstr ""
+"Schlechte Prognosen wirken sich direkt auf die netzdienliche Beladung und "
+"die Preissteuerung aus."

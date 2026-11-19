@@ -1,0 +1,243 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "User Documentation"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/overview.adoc[Overview]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Basics"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/basics/energy-flows.adoc[Production, consumption, grid and storage]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Existing systems"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/systems/fenecon-home.adoc[FENECON Home]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Devices"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/devices/cluster.adoc[Cluster]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/devices/controllable-inverters.adoc[Controllable inverters]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Storage systems control"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/storage-control/ripple-control-receiver.adoc[Ripple control "
+"receiver]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/storage-control/section-14a-enwg.adoc[§ 14a EnWG]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "EV charging station control"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and "
+"phase switching (EVSE)]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control "
+"compared (OpenEMS, evcc, openWB)]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "I/O control"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid ""
+"xref:user/io-control/heat-pumps-and-heating-elements.adoc[Controlling heat "
+"pumps and heating elements]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Schedule"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/schedule/overview.adoc[Overview]"
+msgstr ""
+
+#. type: #sec-schedule
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+msgid ""
+"xref:user/schedule/forecasts.adoc[Forecasts for consumption and production]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/schedule/weather.adoc[Weather]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "External interfaces"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/external-interfaces/websocket.adoc[Websocket]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Cloud interfaces"
+msgstr ""
+
+#. type: #sec-see-also
+#: modules/ROOT/pages/user/_nav.adoc
+#: modules/ROOT/pages/user/troubleshooting/log-entries.adoc
+msgid ""
+"xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the "
+"backend]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Third-party systems"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/third-party/overview.adoc[Third-party systems on OpenEMS]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/third-party/evcc.adoc[evcc]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/third-party/home-assistant.adoc[Home Assistant integration]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/third-party/openwb.adoc[openWB]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Data"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/data/export.adoc[Exporting data]"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/data/history-rrd4j.adoc[Storing the history (rrd4j)]"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/_nav.adoc modules/ROOT/pages/user/overview.adoc
+#, no-wrap
+msgid "Troubleshooting"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/_nav.adoc
+msgid "xref:user/troubleshooting/log-entries.adoc[Understanding log entries]"
+msgstr ""

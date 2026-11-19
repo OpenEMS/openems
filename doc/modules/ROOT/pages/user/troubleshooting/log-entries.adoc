@@ -1,0 +1,409 @@
+= OpenEMS: Understanding log entries
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-11-02 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+The log of the system contains a great many entries, most of them harmless. This page explains how to read an entry, which types of entries exist and how to tell whether you need to do something. The examples come from logs of several systems; the list is not complete, but covers the frequent entries. A few messages depend on the language of the system; they are given here in their English version.
+
+[#sec-where-to-see-the-log]
+== Where to see the log
+
+In the web interface under **Settings → Log** (from the “Owner” role). The view continuously shows new entries, at most the last 200. At the top you can pause the display (“Automatic updating”), filter by **level** and search for text. The color shows the level: green = INFO, orange = WARN, red = ERROR, gray = DEBUG.
+
+“Condensed Output” only affects the status line (see <<sec-the-status-line,The status line>>): when switched on, it appears in one single long line; when switched off, each component gets its own line. The switch changes a setting of the system and therefore applies to all users.
+
+[#sec-structure-of-an-entry]
+== Structure of an entry
+
+Each entry has four parts:
+
+[cols="3*",options="header"]
+|===
+| Part
+| Example
+| Meaning
+
+| Time
+| `+2.11.2026, 15:18:41+`
+| when the entry was created
+| Level
+| `+WARN+`
+| INFO = note, WARN = something is missing or not working at the moment, ERROR = an operation has failed
+| Source
+| `+io.openems.edge.core.cycle.CycleWorker+`
+| the part of the program that writes the entry. The last part usually reveals the topic (see <<sec-where-an-entry-comes-from,Where an entry comes from>>).
+| Message
+| `+Error in Cycle-Step [Controller [ctrlBalancing0]]: …+`
+| the actual text, usually with the name of the affected component in square brackets
+|===
+
+The level alone does not say how important an entry is (see <<sec-what-is-important-and-what-is-not,What is important and what is not>>).
+
+[#sec-names-of-the-components]
+=== Names of the components
+
+The names in square brackets are the IDs of the components of the system. Frequent ones are:
+
+[cols="2*",options="header"]
+|===
+| Name
+| Component
+
+| `+_sum+`
+| Total values of the entire system
+| `+ess0+`
+| Storage system
+| `+battery0+`, `+batteryInverter0+`
+| Battery and battery inverter
+| `+charger0+`
+| PV input on the inverter
+| `+meter0+`, `+meter1+` …
+| Meters, `+meter0+` is usually the grid meter
+| `+pvInverter…+`
+| PV inverter
+| `+evcs…+`, `+evse…+`
+| Charging station
+| `+io0+`, `+ioShelly…+`
+| Relays and inputs/outputs, Shelly devices
+| `+modbus0+`, `+modbus1+` …
+| Modbus connections to devices (cable or network)
+| `+ctrl…+`
+| Controllers, e.g. `+ctrlBalancing0+` = self-consumption optimization
+| `+_componentManager+`, `+_appManager+`, `+_energy+`
+| internal management: components, apps, optimization
+|===
+
+[#sec-the-status-line]
+== The status line
+
+The long line `+[ctrlDebugLog0] …+` (level INFO) is a **snapshot of all components**. It repeats in every run of the control and is not an error message in itself. It is the best tool for seeing the state of the system at a glance.
+
+Structure per component: `component[values{vbar}State:state]`. An example:
+
+[source]
+----
+_sum[State:Info Ess SoC:100 %|L:1872 W Grid:24 W Production Total:1603 W Consumption:2904 W]
+ess0[Started|SoC:100 %|L:1872 W|Allowed:0;10000] meter0[L:24 W] ioShellyPlug[x|37 W]
+----
+
+[cols="2*",options="header"]
+|===
+| Item
+| Meaning
+
+| `+L:1872 W+`
+| current power. Signs as in xref:user/basics/energy-flows.adoc[Basics]: grid positive = purchase, negative = feed-in; storage positive = discharging, negative = charging.
+| `+L1:+`, `+L2:+`, `+L3:+`
+| Power on one phase, e.g. with single-phase devices
+| `+SoC:100 %+`
+| State of charge of the battery
+| `+UNDEFINED+`
+| **no value available**: The device is not currently supplying anything. Often a sign of a connection problem.
+| `+Allowed:0;10000+` (storage)
+| highest permitted power: first value charging (0 or negative), second discharging. `+0;10000+` = charging not possible at the moment (e.g. battery full), discharging up to 10,000 W.
+| `+Battery:+`, `+PV:+` (storage)
+| with hybrid inverters: power of the battery and DC PV power
+| `+Actual+`, `+Charge+`, `+Discharge+` (battery)
+| current voltage and current as well as the limits of the battery for charging and discharging
+| `+Running+`, `+Started+`, `+Stopped+`, `+Error+`
+| Operating state of the battery or storage
+| `+1- 2- 3- 4-+`, `+Read[xxxx]Write[----]+`
+| Relays, inputs and outputs: `+x+` = on, `+-+` = off, `+?+` = unknown
+| `[x{vbar}37 W]` (Shelly)
+| Switching state and power; `[?{vbar}UNDEFINED]` = the device does not respond
+| `+State:INFO: …+`, `+State:WARNING: …+`, `+State:FAULT: …+`
+| State message of the component in increasing severity
+|===
+
+[#sec-special-parts-of-the-status-line]
+=== Special parts of the status line
+
+[cols="3*",options="header"]
+|===
+| Part
+| Meaning
+| Important?
+
+| `+_sum[State:Info …]+` or `+_sum[State:Fault …]+`
+| State of the entire system: the **worst state of all components**. With “Fault”, at least one component has a fault.
+| Pointer: with “Fault”, search the line for `+FAULT+`
+| `+_componentManager[Defective: …]+` with `+State:FAULT: A configured OpenEMS Component was not activated+`
+| Components that **could not start**, with reason (see <<sec-components-do-not-start,Components do not start>>)
+| yes
+| `+_componentManager[State:INFO: OutOfMemory had happened. Found heap dump files.]+`
+| The working memory of the program has run full; this creates a memory dump file. The note remains as long as this file exists, so it does not mean that it is happening again right now. The system checks every 5 minutes and keeps only the newest file.
+| yes, if it happens repeatedly
+| `+_appManager[… State:INFO: Defective App detected]+`
+| An app no longer matches its expected setup (see <<sec-apps,Apps>>)
+| usually not
+| `+_energy[ScheduledPeriods:… SimulationsPerQuarter:…]+`
+| The optimization is calculating and has a schedule (see xref:user/schedule/overview.adoc[Schedule])
+| no, normal state
+| `+_energy[No Schedule available …]+`
+| The optimization has no schedule, usually because the storage is missing
+| consequence
+| `+ctrlBackend0[NOT CONNECTED …]+`, `+State:WARNING: UnableToSend+`
+| no connection to the backend (online monitoring)
+| yes, if online monitoring is used
+| `+BackendConnectionStateListenerImpl[State:NoConnection[durationWithoutConnection=PT71H35M…]]+`
+| Duration without backend connection, here around 71 hours (`+H+` hours, `+M+` minutes, `+S+` seconds)
+| as above
+| `+BackendConnectionStateListenerImpl[State:NoBackendInstance[]]+`
+| No backend connection is set up at all
+| no, if intended
+| `+State:INFO: CycleTimeIsTooShort+` (with a Modbus connection)
+| The queries of this connection take longer than one run of the control
+| only if permanent: too many or too slow devices on the connection
+| `+State:FAULT: Running the Controller failed+` (with a controller)
+| The controller aborted in the last run; the reason is in an entry “Error in Cycle-Step” or “Error in Controller”
+| consequence
+| `+Authentication failed+` (with an electricity tariff)
+| Login with the tariff provider has failed; prices may be missing or out of date (see xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs])
+| yes, if the tariff is used
+| `+A new Firmware Update is available.+` (Shelly)
+| new firmware for the device
+| no
+| `+scheduler0[State:INFO: A configured Controller is missing]+`
+| The scheduler lists a controller that is not running
+| consequence
+| `+State:FAULT: MQTT connection failed+`
+| no connection to the MQTT broker
+| yes, if a device is connected via it (e.g. xref:user/third-party/openwb.adoc[openWB])
+|===
+
+[#sec-types-of-entries]
+== Types of entries
+
+[#sec-connection-to-devices-failed-usually-the-cause]
+=== Connection to devices failed – usually the cause
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+State:WARNING: Modbus Communication failed+` (status line)
+| A device on a Modbus connection does not respond
+| `+ERROR … Execute failed FC3ReadHoldingRegisters [meter1;unitid=…] ModbusIOException: … Cannot read from serial port+`
+| Individual Modbus query failed. The component is in the brackets. `+FC3+`/`+FC4+` = read, `+FC16 WriteRegisters+` = write, e.g. setpoints to the inverter. “Cannot read from serial port” concerns a cable connection (RS485/USB), “Socket timeout” a network connection.
+| `+… ModbusSlaveException: Illegal Data Address+`
+| The device responds, but does not know the requested register: wrong device type set, different firmware or wrong Modbus address
+| `+Parsing Response failed. … Received message is too short.+`
+| The response of the device was incomplete, e.g. due to interference on the line
+| `+INFO … Open serial modbus connection to /dev/… ...+`
+| The system opens a cable Modbus connection. Once at startup is normal; frequent repetition means that the connection keeps breaking off (cable, adapter, device).
+| `+Failed to fetch status from shelly: … No route to host+` or `+Host is unreachable+`
+| The Shelly cannot be reached on the network: switched off, different IP address or Wi-Fi gone
+| `+Failed to fetch status from shelly: … Connect timed out+`, `+Read timed out+`, `+Connection reset+`
+| The Shelly responds too slowly or aborts; harmless if isolated
+| `+State:FAULT: SlaveCommunicationFailed+` (Shelly, status line)
+| The Shelly does not respond
+| `+INFO … Process for CycleEndpoint [… url=…] is still running. Task is not queued twice+`
+| The previous query to the device is still running; the device responds slowly or not at all
+| `+connection failed: MqttException+`, `+Attempting to reconnect to MQTT broker...+`
+| no connection to the MQTT broker; the system tries again
+| `+Error while sending MQTT topics+`
+| Values cannot be sent to an MQTT server
+| `+Failed to connect to OpenEMS Backend … Connection refused+`, `+Disconnected from OpenEMS Backend+`, `+Waiting till next WebSocket reconnect+`
+| Connection attempts to the backend fail; the system tries again at intervals (see xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend])
+| `+Unable to send message: Connection is closed. {…}+`
+| Data for the backend could not be sent because there is no connection
+| `+ERROR … Error while setting GPIO DIGITAL_OUTPUT_1+`
+| A switching output of the device could not be set, e.g. because the hardware is missing or faulty. The relay then does not switch.
+|===
+
+[#sec-control-does-not-receive-values-usually-a-consequence]
+=== Control does not receive values – usually a consequence
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+Error in Cycle-Step [Controller [ctrlBalancing0]]: Value for Channel [ess0/ActivePower] is invalid.+`
+| The controller needs a measured value that is currently missing (`+UNDEFINED+`) and skips this run
+| `+Error in Controller [ctrlGridOptimizedCharge0]. … Value for Channel [ess0/Soc] is invalid.+`
+| another form of the same entry
+| `+Grid-Mode is [UNDEFINED]+`
+| The controller does not know whether the system is on the grid or in island mode because the storage does not supply the grid mode. It warns and tries anyway; “is invalid” usually follows.
+| `+There is no grid active power present.+` and similar
+| A controller lacks grid, storage or state of charge values
+| `+No production forecast available. …+`
+| A PV forecast is missing for grid-optimized charge (see xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge])
+| `+State:FAULT: Start battery timeout passed!+` (storage)
+| The battery did not start within the intended time; the storage is not working. Often a consequence of a disturbed connection to the battery.
+| `+Grid mode not stable. …+` (battery inverter)
+| The inverter does not report stable grid operation; together with “Modbus Communication failed” usually a consequence of the missing connection
+| `+State:INFO: Communication failure+` (GoodWe inverter)
+| Message set by the inverter itself
+|===
+
+These entries disappear by themselves as soon as the cause has been eliminated.
+
+[#sec-component-not-found]
+=== Component not found
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+Unable to find OpenEMS Component with ID [io2]+`
+| A controller is set to a component that does not exist, is deactivated or has not started
+| `+Scheduler [scheduler0]: Controller [ctrlBalancing0] is missing.+`
+| The scheduler lists a controller that is not running, often because it could not start itself
+| `+[meter2] Activate DISABLED+`
+| The component is set up but deactivated. It supplies no values, and other components and programs cannot find it.
+|===
+
+[#sec-components-do-not-start]
+=== Components do not start
+
+`+_componentManager[Defective: …]+` states the reason for each component that could not start:
+
+[cols="2*",options="header"]
+|===
+| Reason
+| Meaning
+
+| `+Unsatisfied reference for Modbus ((&(id=modbus1)(enabled=true)))+`
+| The component needs another component, here the Modbus connection `+modbus1+`, which is missing or **deactivated**. The brackets show what is being searched for.
+| `+Unsatisfied reference for ess ((&(id=ess0)(enabled=true)))+`
+| needs the storage `+ess0+`, which is not running
+| `+Missing Bundle+`
+| The program part for this component is not installed
+|===
+
+Such a list is often a **chain**: If, for example, `+modbus1+` is deactivated, the battery, inverter and meters do not start, therefore neither does `+ess0+`, and therefore no controller that needs `+ess0+`. Look for the **first link** and fix it.
+
+[#sec-apps]
+=== Apps
+
+With “Defective App detected”, `+_appManager+` names the deviation:
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+Missing Component:ctrlIoHeatPump0+`
+| The app created a component that is missing today, e.g. deleted by hand
+| `+Property 'enabled': expected 'true', got 'false'+`
+| A setting deviates from the app's expectation, e.g. deactivated by hand
+| `+Property 'chargePoint.id': expected '"evcs0"', got '"…"'+`
+| The component was switched to another device by hand
+| `+… but property does not exist+`
+| The app expects a setting that the component does not (or no longer) know; can occur after software changes
+|===
+
+The system works as it is actually set. The entry only becomes important if the deviation is unintended; intended manual changes also trigger it.
+
+[#sec-access-from-outside]
+=== Access from outside
+
+These entries occur when another program accesses the system: the web interface in the browser, home automation such as xref:user/third-party/home-assistant.adoc[Home Assistant], xref:user/third-party/evcc.adoc[evcc] or a custom script.
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+Unable to read value for Channel [meter1/ActivePower]+`
+| A program connected via websocket requests a value that the system cannot supply: The component is deactivated or missing, it does not have this value, or the value can only be written, not read. The latter applies to pure control values, e.g. the setpoint power of the storage (`+ess0/SetActivePowerEquals+`): Anyone who activates it as an entity in Home Assistant for control triggers the entry continuously. Repeats in every run as long as the request exists. Remedy in the requesting program, e.g. deselect the component in Home Assistant. Example: For charging stations that cannot be controlled, the web interface requests the charging power limit (`+SetChargePowerLimit+`).
+| `+Unhandled Notification: {"method":"logMessage", … "msg":"[count=…;page=…;version=…] …"}+`
+| The web interface in the browser reports its own program error to the system; the system only writes it to the log. `+version=+` shows the version of the interface in the browser; if it differs from the state of the system, reload the page without cache.
+| `+writeError: status=500, message=… Authentication failed+`, `+REST call failed: Authentication failed+`
+| A program has called the REST interface without valid credentials (see xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON])
+| `+Authentication failed for user[…]: wrong password+`, `+Authentication failed with password only.+`
+| Login with wrong password
+| `+Authentication successful with password only for user [Owner].+`
+| successful login. With REST, the entry appears with **every** request; a program that queries regularly therefore generates a great many of them. Normal.
+| `+REST call by User [Owner]: GET Channel [_sum/…] Result […]+`
+| Every REST query with user, values and result. Only appears if debug mode is switched on at the REST interface. The queried values reveal which program is asking.
+| `+User [admin:Admin] connected.+`, `+… closed websocket connection.+`
+| Login or logout at the web interface; user and role in the brackets
+| `+JSON-RPC Error "…" for Request {…}+`
+| A request from the web interface has failed; the reason is in quotation marks. “Endpoint with method … is not defined!” means: This system does not offer the requested function.
+| `+Watchdog expired: 60s, limit: 60s+`
+| A program was connected to the system via Modbus/TCP, but did not ask anything for 60 seconds. The connection is disconnected; if the program asks again, it reconnects. Harmless.
+|===
+
+[#sec-purely-informative]
+=== Purely informative
+
+[cols="2*",options="header"]
+|===
+| Entry
+| Meaning
+
+| `+[predictor…] Prediction for [_sum/UnmanagedConsumptionActivePower]: Prediction{…}+`
+| Forecast in 15-minute steps (see xref:user/schedule/forecasts.adoc[Forecasts])
+| `+Failed to shift prediction for channel …+`
+| The forecast created for now a few hours ago could not be read from the history; the current forecast is not affected
+| `+Controller Ess SoH Cycle: not running+`
+| The calibration cycle of the battery is not running at the moment; normal state
+| `+[battery0] Changing StateMachine from [RUNNING] to [UNDEFINED]+`
+| State change of a component. Useful for troubleshooting: A sequence such as `+RUNNING+` → `+UNDEFINED+` at the battery and `+STARTED+` → `+ERROR+` at the storage shows **when** the storage failed; the entries shortly before usually name the reason.
+| `+[…] Activate+`, `+Modified+`, `+Deactivate+`
+| A component was started, changed or ended, e.g. at the start of the software or after a change to the settings
+| `+State:INFO: Surplus-Feed-To-Grid power is limited+`
+| The surplus feed-in with hybrid inverters is currently limited
+| `+Execute FC16WriteRegisters […]+` (INFO)
+| individual Modbus commands; only appear if more detailed logging is set at the Modbus connection
+| `+[validateApps] took … ms+`
+| Duration of the app check
+|===
+
+[#sec-where-an-entry-comes-from]
+== Where an entry comes from
+
+The **source** shows who triggered an entry. This is important because the cause lies in a different place depending on the origin:
+
+[cols="4*",options="header"]
+|===
+| Origin
+| Who triggers
+| Source contains
+| Where the cause lies
+
+| **Control**
+| the system itself, in every run
+| `+core.cycle+`, `+controller.ess+`, `+controller.io+`, `+controller.debuglog+`
+| usually with a device that supplies no values
+| **Management**
+| Start of the software, settings, apps
+| `+core.componentmanager+`, `+core.appmanager+`
+| in the settings of the system
+| **Devices and services**
+| the system queries devices or connects to services
+| `+bridge.modbus+`, `+bridge.http+`, `+bridge.mqtt+`, `+io.shelly+`, `+controller.api.backend+`, `+controller.api.mqtt+`
+| at the device, on the line or in the network
+| **Access from outside**
+| another program queries the system
+| `+controller.api.websocket+`, `+controller.api.rest+`, `+jetty+`, `+j2mod…TCPConnectionHandler+`
+| at the requesting program
+|===
+
+**Important with access from outside:** The entry does name a component of the system, but this is **not the cause**. With `+Unable to read value for Channel [meter1/ActivePower]+`, `+meter1+` is only what was asked for; it is the requesting program that needs changing, not the meter.
+
+[#sec-what-is-important-and-what-is-not]
+== What is important and what is not
+
+. **Cause before consequence.** Many entries are consequences of a single cause. Look at the causes first: connection failed (Modbus, Shelly, MQTT, backend), components do not start (`+Unsatisfied reference+`, `+Missing Bundle+`), battery does not start, `+OutOfMemory+`. The consequences (`+is invalid+`, `+Grid-Mode is [UNDEFINED]+`, `+is missing+`, `+No Schedule available+`, `+_sum State:Fault+`) disappear with the cause.
+. **Permanent or one-off?** The control runs about every second. An entry that appears once or only briefly after a restart is usually harmless because not all devices are ready at startup. What matters is what **keeps repeating**.
+. **Reading the level correctly.** `+FAULT+` in the status line and `+ERROR+` mean: something is not working. `+WARNING+`/`+WARN+`: something is missing; check whether it is a consequence. `+INFO+`: note. Exceptions: `+OutOfMemory+`, “Defective App detected” and “Authentication failed” are at INFO and may still require action.
+. **Does it affect me?** An unreachable Shelly on a socket that is not currently in use is unimportant. An unreachable grid meter or storage, on the other hand, paralyzes self-consumption optimization.
+. **Where does it come from?** Entries from access from outside are fixed in the requesting program, not in the system (see <<sec-where-an-entry-comes-from,Where an entry comes from>>).
+. **Quick check with the status line.** `+_sum[State:Info …]+` and values instead of `+UNDEFINED+` at the storage, grid meter and battery: The system is running. `+_sum[State:Fault …]+`: Search the line for `+FAULT+` and `+UNDEFINED+`; this shows the affected devices.
+
+[#sec-see-also]
+== See also
+
+* xref:user/basics/energy-flows.adoc[Basics] – terms and signs
+* xref:user/external-interfaces/websocket.adoc[Websocket] – the connection of the web interface, user roles
+* xref:user/third-party/home-assistant.adoc[Home Assistant]
+* xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend]

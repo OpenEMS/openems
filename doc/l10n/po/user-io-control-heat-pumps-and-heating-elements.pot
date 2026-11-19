@@ -1,0 +1,565 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Frequently asked questions"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "OpenEMS: Controlling heat pumps and heating elements"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Heat pumps and heating elements are good consumers of solar power: heat can "
+"be “saved” in a buffer tank or hot water. OpenEMS offers several controls "
+"for this. Which one is suitable depends on the device:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| Device\n"
+"| Activation\n"
+"| Function in OpenEMS\n"
+"\n"
+"| Heat pump with SG-Ready input\n"
+"| 2 relays\n"
+"| Controller.Io.HeatPump.SgReady\n"
+"| Heating element with 1–3 phases (simply on/off)\n"
+"| up to 3 relays\n"
+"| Controller.IO.HeatingElement\n"
+"| Heating element from Askoma or my-PV (e.g. AC-THOR, AC ELWA 2)\n"
+"| Network (Modbus), continuously variable\n"
+"| Heat.Askoma / Heat.MyPv\n"
+"| Electric underfloor or infrared heating in a room\n"
+"| Relay {plus} thermometer\n"
+"| Controller.IO.Heating.Room\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Heat pumps and heating elements can also be set up via the app center (apps "
+"for heat pump, heating element, Askoma, my-PV and combined heat and power "
+"plant). There is no app for room heating."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Heat pump with SG-Ready"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "The four states"
+msgstr ""
+
+#. type: #sec-the-four-states
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"SG-Ready is a widely used standard. The heat pump receives one of four "
+"states via two contacts:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| State\n"
+"| Relay 1\n"
+"| Relay 2\n"
+"| Meaning\n"
+"\n"
+"| **Lock**\n"
+"| on\n"
+"| off\n"
+"| Heat pump is locked (depending on the device, for about 2 hours at most)\n"
+"| **Normal**\n"
+"| off\n"
+"| off\n"
+"| normal, economical operation\n"
+"| **Recommendation**\n"
+"| off\n"
+"| on\n"
+"| use more electricity, e.g. slightly higher hot water or room temperature\n"
+"| **Switch-on command**\n"
+"| on\n"
+"| on\n"
+"| heat fully; depending on the device with auxiliary heating\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"What exactly the heat pump does in these states is determined by the "
+"manufacturer."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Manual or automatic"
+msgstr ""
+
+#. type: #sec-manual-or-automatic
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "**Manual:** A state is permanently specified."
+msgstr ""
+
+#. type: #sec-manual-or-automatic
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "**Automatic:** OpenEMS decides every second according to this order:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| Order\n"
+"| State\n"
+"| if …\n"
+"| Default values\n"
+"\n"
+"| 1\n"
+"| Lock\n"
+"| Grid purchase above the limit **and** storage state of charge below the limit\n"
+"| 5,000 W and 20 %, **switched off ex works**\n"
+"| 2\n"
+"| Switch-on command\n"
+"| Surplus above the limit **and** storage state of charge at least as high as the limit\n"
+"| 5,000 W and 10 %\n"
+"| 3\n"
+"| Recommendation\n"
+"| Surplus above the limit\n"
+"| 3,000 W\n"
+"| 4\n"
+"| Normal\n"
+"| otherwise\n"
+"| –\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"After each change, the state remains for at least 60 seconds so that the "
+"heat pump is not switched constantly."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "How the surplus is determined"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Surplus = feed-in to the grid − discharge power of the home storage + current consumption of the heat pump\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"The consumption of the heat pump is added so that it does not “switch itself "
+"off” as soon as it consumes the surplus."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**With its own meter** for the heat pump, the measured consumption is used."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Without a meter**, OpenEMS assumes that the heat pump consumes exactly the "
+"set threshold in the respective state."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Important:** The thresholds should not be lower than the actual "
+"consumption of the heat pump in the respective state, for “Switch-on "
+"command” including auxiliary heating. Otherwise, the system draws power from "
+"the grid after switching on."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Time schedule"
+msgstr ""
+
+#. type: #sec-time-schedule
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"A time schedule can be used to specify different behavior for certain times, "
+"e.g. “Switch-on command” on weekdays from 6 to 8 or “Automatic” at night. "
+"Outside the schedule entries, the normal setting applies. Since October "
+"2026, the time schedule and basic operating mode can be set by all users."
+msgstr ""
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "OpenEMS counts how long each state was active."
+msgstr ""
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"The configuration has a “Base Mode” setting. It is not evaluated in the "
+"current program code. “Mode” (manual/automatic) and the time schedule are "
+"effective."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Heating element via relay"
+msgstr ""
+
+#. type: #sec-heating-element-via-relay
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"This control is intended for heating elements whose phases are **switched on "
+"and off** individually. This results in levels:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| Level\n"
+"| switched on\n"
+"| Power at 2 kW per phase\n"
+"\n"
+"| 1\n"
+"| L1\n"
+"| 2 kW\n"
+"| 2\n"
+"| L1 {plus} L2\n"
+"| 4 kW\n"
+"| 3\n"
+"| L1 {plus} L2 {plus} L3\n"
+"| 6 kW\n"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Operating modes"
+msgstr ""
+
+#. type: #sec-operating-modes
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "**Manual on:** heats permanently at the set default level."
+msgstr ""
+
+#. type: #sec-operating-modes
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "**Manual off:** does not heat."
+msgstr ""
+
+#. type: #sec-operating-modes
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Automatic:** heats with as many levels as the surplus allows. In addition, "
+"a working method can be selected (see below)."
+msgstr ""
+
+#. type: #sec-operating-modes
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"The surplus is determined as for the heat pump: feed-in minus storage "
+"discharge plus current consumption of the heating element. A minimum time of "
+"60 seconds applies after each change."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Working methods in automatic mode"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| Working method\n"
+"| Behavior\n"
+"\n"
+"| **Surplus only** (default, “None” in the web interface)\n"
+"| Heating takes place exclusively with surplus, without any guarantee.\n"
+"| **Minimum duration**\n"
+"| The heating element should run for at least a certain time (default 1 hour) up to an end time (default 17:00). If the surplus is not sufficient for this, it heats at the default level in good time before the end time, using grid power if necessary.\n"
+"| **Minimum energy**\n"
+"| A certain amount of energy (default 10 kWh) should be reached by the end time. OpenEMS calculates from when it must heat without surplus to reach the target and switches up one level in the last half hour if necessary. If the target can no longer be reached, it heats at full power. A meter for the heating element is required for this.\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"If the surplus is sufficient during forced heating, heating still uses the "
+"surplus."
+msgstr ""
+
+#. type: #sec-time-schedule-2
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"If a time schedule is entered, the heating element in automatic mode only "
+"heats during the schedule entries, with the selected working method. With "
+"the minimum energy working method, each entry can have its own amount of "
+"energy. Afterwards the control shows “done” for half an hour."
+msgstr ""
+
+#. type: #sec-good-to-know-2
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Running times per phase and level as well as the total energy are counted."
+msgstr ""
+
+#. type: #sec-good-to-know-2
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"If a meter is present, OpenEMS initially briefly measures which power the "
+"individual phases really have."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Heating elements from Askoma and my-PV"
+msgstr ""
+
+#. type: #sec-heating-elements-from-askoma-and-my-pv
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"These heating elements are controlled via the network (Modbus) and can "
+"adjust their power **continuously**. They can therefore also use small "
+"surpluses precisely."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Modes"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid ""
+"| Mode\n"
+"| Behavior\n"
+"\n"
+"| **Off** (default)\n"
+"| The heating element is not controlled.\n"
+"| **Surplus**\n"
+"| The power follows the surplus about every 10 seconds, up to the set maximum power at most (default 3,000 W).\n"
+"| **Rapid heating**\n"
+"| Full power. After 10 hours, OpenEMS takes a 1-hour break for protection.\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"A time schedule can be used to apply a different mode at certain times, e.g. "
+"“Rapid heating” in the early morning."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "In the schedule"
+msgstr ""
+
+#. type: #sec-in-the-schedule
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Since September 2026, these heating elements are taken into account in the "
+"xref:user/schedule/overview.adoc[schedule]. OpenEMS calculates how much "
+"electricity they are expected to consume and how much heat the tank can "
+"still absorb. This results in more accurate planning for home storage and "
+"grid purchase."
+msgstr ""
+
+#. type: #sec-in-the-schedule
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Note:** The mode itself is not selected automatically. The set mode or the "
+"mode from the time schedule always applies."
+msgstr ""
+
+#. type: #sec-in-the-schedule
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"To calculate the residual heat, the effective tank volume (liters) can be "
+"entered. Alternatively, there is a read-only variant that only displays "
+"values and does not control anything."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Room heating (underfloor and infrared heating)"
+msgstr ""
+
+#. type: #sec-room-heating-underfloor-and-infrared-heating
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"This control maintains a set **floor and room temperature** in a room. It "
+"distinguishes two levels, “low” and “high”. A weekly schedule determines "
+"when each applies, e.g. “high” on weekdays from 5:30 to 8:00. This requires "
+"thermometers for floor and room as well as relays for the heaters. "
+"Additional heating in the room, such as a wood stove, can be taken into "
+"account."
+msgstr ""
+
+#. type: #sec-room-heating-underfloor-and-infrared-heating
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Solar surplus plays no role in this control. It only regulates according to "
+"temperature and time."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#, no-wrap
+msgid "Who has priority: home storage or heat?"
+msgstr ""
+
+#. type: #sec-who-has-priority-home-storage-or-heat
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid "The following applies to **all** controls on this page:"
+msgstr ""
+
+#. type: #sec-who-has-priority-home-storage-or-heat
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**The home storage has priority.** Power that is currently flowing into the "
+"home storage does not count as surplus. The heat pump and heating element "
+"only receive something when the storage no longer absorbs the surplus or is "
+"full."
+msgstr ""
+
+#. type: #sec-who-has-priority-home-storage-or-heat
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**The home storage is not discharged for heat in surplus mode.** If the "
+"storage discharges, this reduces the surplus."
+msgstr ""
+
+#. type: #sec-who-has-priority-home-storage-or-heat
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"With xref:user/ev-charging-control/surplus-charging.adoc[surplus charging of "
+"the electric car] it is the other way round: there the car has priority over "
+"the home storage."
+msgstr ""
+
+#. type: #sec-who-has-priority-home-storage-or-heat
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"Exceptions are explicitly forced states: SG-Ready “Switch-on command” or "
+"“Recommendation” in manual mode, heating element “manual on”, forced heating "
+"with minimum duration/minimum energy and “Rapid heating”. In these cases, "
+"power can also come from the grid or the storage."
+msgstr ""
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Why does the heating element not run even though power is being fed in?** "
+"The heating element only counts feed-in as surplus. If the storage is "
+"discharging at the same time, this power is subtracted. It is only switched "
+"on when the surplus is sufficient for a whole level (relay heating element: "
+"the set power per phase). A charging storage is not subtracted. However, it "
+"absorbs the surplus first, and only what it can no longer absorb is fed in."
+msgstr ""
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Why is power drawn from the grid after the heat pump is switched on?** The "
+"thresholds for Recommendation or Switch-on command are lower than the actual "
+"consumption. Increase the thresholds or set up a meter for the heat pump."
+msgstr ""
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Why does the state not change immediately?** A minimum time of 60 seconds "
+"applies after each change."
+msgstr ""
+
+#. type: #sec-frequently-asked-questions
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+msgid ""
+"**Why does the heating element heat with grid power in the evening?** With "
+"the minimum time or minimum energy working method, forced heating takes "
+"place before the end time if the target would otherwise not be reached."
+msgstr ""
