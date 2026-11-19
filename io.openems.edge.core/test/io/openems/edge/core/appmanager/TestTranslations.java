@@ -161,6 +161,7 @@ class TestTranslations {
 							"https://push.clever-pv.com/api/v1/first-id/electricMeters/fenecon/"
 									+ "second-id?code=code") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.ortsnetzAuslastung(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //

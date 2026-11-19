@@ -122,6 +122,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") //
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
 					.thenByFactoryId("Controller.Clever-PV") //
+					.thenByFactoryId("Controller.Ortsnetz-Auslastung") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
