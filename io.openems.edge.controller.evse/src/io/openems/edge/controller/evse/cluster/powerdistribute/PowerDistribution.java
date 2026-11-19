@@ -64,6 +64,9 @@ public class PowerDistribution {
 	 */
 	public void applyRamp(PowerDistributionRamp ramp) {
 		for (var entry : this.entries.getActiveEntries()) {
+			if (entry.hasExternalStaticSetPoint) {
+				continue;
+			}
 			entry.setPointInWatt = ramp.getRampedSetPoint(entry);
 		}
 	}
