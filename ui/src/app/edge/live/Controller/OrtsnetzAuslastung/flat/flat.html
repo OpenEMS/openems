@@ -1,0 +1,9 @@
+@if (isInitialized) {
+  <oe-flat-widget [modalComponent]="modalComponent" [icon]="icon" [title]="component.alias">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.GRID_STATUS' | translate" [value]="gridStatus" [converter]="CONVERT_GRID_STATUS"> </oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.STORAGE_RECOMMENDATION' | translate" [value]="storageRecommendation" [converter]="CONVERT_STORAGE_RECOMMENDATION"> </oe-flat-widget-line>
+    @if (hasProblem) {
+      <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.TRANSMISSION' | translate" [value]="'EDGE.INDEX.WIDGETS.ORTSNETZ_AUSLASTUNG.TRANSMISSION_PROBLEM' | translate"> </oe-flat-widget-line>
+    }
+  </oe-flat-widget>
+}

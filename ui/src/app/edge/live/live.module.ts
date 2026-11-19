@@ -33,6 +33,7 @@ import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/f
 import { ControllerIoHeatingElement } from "./Controller/Io/HeatingElement/Io_HeatingElement";
 import { Controller_Io_HeatingRoom } from "./Controller/Io/HeatingRoom/Io_HeatingRoom";
 import { ControllerIoHeatpumpModule } from "./Controller/Io/Heatpump/controller-io-heatpump";
+import { ControllerOrtsnetzAuslastung } from "./Controller/OrtsnetzAuslastung/ortsnetz-auslastung";
 import { Controller_Api_ModbusTcp } from "./Controller/ModbusTcpApi/modbusTcpApi.module";
 import { Controller_Asymmetric_PeakShavingComponent } from "./Controller/peak-shaving/Asymmetric/Asymmetric";
 import { Controller_Asymmetric_PeakShavingModalComponent } from "./Controller/peak-shaving/Asymmetric/modal/modal.component";
@@ -76,6 +77,7 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         Controller_Io_HeatingRoom,
         ControllerIoFixDigitalOutput,
         ControllerIoHeatpumpModule,
+        ControllerOrtsnetzAuslastung,
         EdgeOfflineModule,
         EnergymonitorModule,
         WeatherModule,
