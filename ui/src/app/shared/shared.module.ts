@@ -87,6 +87,7 @@ import tourLt from "./tour/i18n/lt.json";
 import tourNl from "./tour/i18n/nl.json";
 import tourSv from "./tour/i18n/sv.json";
 import { Language } from "./type/language";
+import { InetUtils } from "./utils/inet/inet.utils";
 
 export function registerTranslateExtension(translate: TranslateService) {
     return {
@@ -111,24 +112,16 @@ export function registerTranslateExtension(translate: TranslateService) {
     };
 }
 
-export function IpValidator(control: FormControl): ValidationErrors {
-    return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-        control.value,
-    )
-        ? null
-        : { ip: true };
+export function Ipv4Validator(control: FormControl): ValidationErrors {
+    return InetUtils.isIPv4(control.value) ? null : { ip: true };
 }
 
 export function SubnetmaskValidator(control: FormControl): ValidationErrors {
-    return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(
-        control.value,
-    )
-        ? null
-        : { subnetmask: true };
+    return InetUtils.isSubnetMask(control.value) ? null : { subnetmask: true };
 }
 
-export function IpValidatorMessage(err, field: FormlyFieldConfig) {
-    return `"${field.formControl.value}" is not a valid IP Address`;
+export function Ipv4ValidatorMessage(err, field: FormlyFieldConfig) {
+    return `"${field.formControl.value}" is not a valid IPv4-Address`;
 }
 
 export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
@@ -317,7 +310,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                 },
             ],
             validators: [
-                { name: "ip", validation: IpValidator },
+                { name: "ip", validation: Ipv4Validator },
                 { name: "subnetmask", validation: SubnetmaskValidator },
                 {
                     name: "person-name-prohibited-characters",
@@ -330,7 +323,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                 { name: "zip", validation: ZipCodeValidator },
             ],
             validationMessages: [
-                { name: "ip", message: IpValidatorMessage },
+                { name: "ip", message: Ipv4ValidatorMessage },
                 { name: "subnetmask", message: SubnetmaskValidatorMessage },
             ],
         }),
