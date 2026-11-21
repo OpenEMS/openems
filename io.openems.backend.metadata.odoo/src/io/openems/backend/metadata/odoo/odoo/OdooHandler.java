@@ -6,6 +6,7 @@ import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAs;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsEnum;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOptional;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOrElse;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
@@ -1004,6 +1005,15 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void registerUser(JsonObject jsonObject, OdooUserRole role, String oem) throws OpenemsNamedException {
+		switch (role) {
+		case INSTALLER, OWNER, GUEST -> doNothing();
+		case ADMIN -> {
+			// Security: ADMIN users cannot be created here
+			this.log.warn("Rejected registerUser attempt with ADMIN role: json={}", JsonUtils.hidePassword(jsonObject));
+			throw new OpenemsException("Role [admin] is not allowed for self-registration");
+		}
+		}
+
 		var emailOpt = getAsOptionalString(jsonObject, "email");
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
