@@ -321,13 +321,16 @@ public class JsonApiBuilder {
 		defBuilder.accept(endpointDef);
 		this.addEndpoint(new JsonApiEndpoint(method, (b, t) -> {
 			try {
+				for (var guard : endpointDef.getGuards()) {
+					guard.test(t);
+				}
 				final var call = t.mapRequest(handler.apply(t));
 				builder.apply(b).handle(call);
 				if (call.getResponse() != null) {
 					t.setResponse(responseMapper.apply(call.getResponse()));
 				}
 			} catch (Exception e) {
-				this.handleException(t, e);
+				t.setResponse(this.handleException(t, e));
 			}
 		}, endpointDef, subroutes));
 		return this;
