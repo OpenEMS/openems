@@ -2,6 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 
 public class ProHybrid10Components {
 
@@ -69,7 +70,7 @@ public class ProHybrid10Components {
 						.addProperty("enabled", true) //
 						.addPropertyIfNotNull("ip", ip) //
 						.addPropertyIfNotNull("serialnumber", serialNumber) //
-						.onlyIf(userkey != null && !userkey.equals("xxx"), b -> {
+						.onlyIf(userkey != null && !userkey.equals(CommonProps.MASKED_PASSWORD), b -> {
 							b.addProperty("userkey", userkey);
 						}) //
 						.build());

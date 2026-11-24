@@ -1,17 +1,17 @@
 {
     "IO_HEATING_ROOM": {
-        "MODE": {
-            "TITLE": "Mode de chauffage",
-            "MANUAL_LOW": "Bas",
-            "MANUAL_HIGH": "Élevé"
-        },
         "HOME": {
-            "POWER_CONSUMPTION": "Consommation électrique",
-            "FLOOR_ACTUAL": "Température du sol (réelle)",
-            "FLOOR_TARGET": "Température du sol (cible)",
             "AMBIENT_ACTUAL": "Température ambiante (réelle)",
             "AMBIENT_TARGET": "Température ambiante (cible)",
+            "FLOOR_ACTUAL": "Température du sol (réelle)",
+            "FLOOR_TARGET": "Température du sol (cible)",
+            "POWER_CONSUMPTION": "Consommation électrique",
             "UPCOMING_EVENTS": "Événements à venir"
+        },
+        "MODE": {
+            "MANUAL_HIGH": "Élevé",
+            "MANUAL_LOW": "Bas",
+            "TITLE": "Mode de chauffage"
         }
     }
 }

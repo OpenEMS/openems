@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.TreeBasedTable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -38,6 +36,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DurationUnit;
+import io.openems.common.types.DataTable;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.Channel;
@@ -156,7 +155,7 @@ public class SendChannelValuesWorker {
 									c -> c.value().asJson(), //
 									// simple/stupid merge function to avoid
 									// 'java.lang.IllegalArgumentException Duplicate Key'
-									(t, u) -> {
+									(t, _) -> {
 										this.parent.logWarn(this.log, "Duplicate Key [" + t.toString() + "]");
 										return t;
 									}));
@@ -168,8 +167,7 @@ public class SendChannelValuesWorker {
 		}
 	}
 
-	private TreeBasedTable<Long, String, JsonElement> collectAggregatedData(ZonedDateTime now,
-			List<OpenemsComponent> enabledComponents) {
+	private DataTable collectAggregatedData(ZonedDateTime now, List<OpenemsComponent> enabledComponents) {
 		final var endTime = now.truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES));
 		final var startTime = endTime.minusMinutes(AGGREGATION_MINUTES);
 
@@ -186,7 +184,7 @@ public class SendChannelValuesWorker {
 
 		final var sendAllChannels = this.sendValuesOfAllChannelsAggregated.getAndSet(false);
 
-		final var table = TreeBasedTable.<Long, String, JsonElement>create();
+		final var table = new DataTable();
 		enabledComponents.stream() //
 				.flatMap(component -> component.channels().stream()) //
 				.filter(channel -> // Ignore WRITE_ONLY Channels
@@ -383,25 +381,25 @@ public class SendChannelValuesWorker {
 			final var timestampMillis = this.timestamp.toEpochMilli() / cycleTime * cycleTime;
 
 			// Prepare message values
-			var sendValuesMap = new HashMap<String, JsonElement>();
+			var sendValuesData = new DataTable();
+			sendValuesData.reserveRow(timestampMillis, this.allValues.size());
 
 			// Collect Changed values
 			for (var entry : this.allValues.entrySet()) {
 				var channelAddress = entry.getKey();
 				var value = entry.getValue();
 				if (!Objects.equals(value, lastAllValues.get(channelAddress))) {
-					sendValuesMap.put(channelAddress, value);
+					sendValuesData.put(timestampMillis, channelAddress, value);
 				}
 			}
 
 			// Create JSON-RPC notification
-			var message = new TimestampedDataNotification();
-			message.add(timestampMillis, sendValuesMap);
+			var message = new TimestampedDataNotification(sendValuesData);
 
 			// Debug-Log
 			if (this.parent.parent.config.debugMode()) {
 				this.parent.parent.logInfo(this.parent.log,
-						"Sending [" + sendValuesMap.size() + " values]: " + sendValuesMap);
+						"Sending [" + sendValuesData.size() + " values]: " + sendValuesData);
 			}
 
 			// Try to send
@@ -436,8 +434,9 @@ public class SendChannelValuesWorker {
 
 		@Override
 		public void run() {
-			final var message = new AggregatedDataNotification();
-			message.add(this.timestamp.toEpochMilli(), this.allValues);
+			final var data = new DataTable();
+			data.putRow(this.timestamp.toEpochMilli(), this.allValues);
+			final var message = new AggregatedDataNotification(data);
 
 			final var wasSent = this.parent.parent.websocket.sendMessage(message);
 

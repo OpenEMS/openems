@@ -401,7 +401,7 @@ public class Rrd4jSupplier {
 		return result;
 	}
 
-	private class KeyLock {
+	private static class KeyLock {
 
 		private final Map<String, Object> locks = new ConcurrentHashMap<>();
 

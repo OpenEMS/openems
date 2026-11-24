@@ -75,20 +75,87 @@ export namespace SharedEvcs {
         });
     }
 
+    function isPartOfCluster(component: EdgeConfig.Component, config: EdgeConfig): boolean {
+        const clusterIds = config.getComponentIdsByFactory("Evcs.Cluster.PeakShaving");
+        const clusters: EdgeConfig.Component[] = clusterIds.map((id) => config.getComponentSafelyOrDefault(id));
+        return clusters.some((cluster) => {
+            const ids = cluster.getPropertyFromComponent<string[]>("evcs.ids");
+            return Array.isArray(ids) && ids.includes(component.id);
+        });
+    }
+
     export function getNavigationTree(
         translate: TranslateService,
         component: EdgeConfig.Component,
-    ): ConstructorParameters<typeof NavigationTree> {
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
+        const isComponentPartOfCluster = isPartOfCluster(component, config);
+        if (isComponentPartOfCluster) {
+            return null;
+        }
+
+        const isReadOnly =
+            config.getPropertyFromComponent<boolean>(config.getComponentSafelyOrDefault(component.id), "readOnly") ??
+            false;
+
         return new NavigationTree(
             component.id,
-            { baseString: "evcs/" + component.id },
-            { name: "oe-evcs", color: "success" },
+            { baseString: "controller/evcs/" + component.id },
+            { name: "oe-evcs", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
             [
-                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
+                ...(isReadOnly ? [] : [NavigationConstants.CommonNodes.SETTINGS(translate, component.id, "HIGH")]),
+                NavigationConstants.CommonNodes.HISTORY(translate, component.id, []),
             ],
             null,
         ).toConstructorParams();
+    }
+
+    export enum ChargingType {
+        UNDEFINED = -1,
+        CCS = 0,
+        CHADEMO = 1,
+        AC = 2,
+    }
+
+    export enum ChargeMode {
+        /** Manually charge. */
+        FORCE_CHARGE = "FORCE_CHARGE",
+
+        /** Automatically charge. */
+        EXCESS_POWER = "EXCESS_POWER",
+
+        /** No charge. */
+        OFF = "OFF",
+    }
+
+    export enum ChargeState {
+        /** State is undefined or unknown. */
+        UNDEFINED = -1,
+
+        /** Charging station is starting up. */
+        STARTING = 0,
+
+        /** Charging is not possible yet, e.g. the EV is unplugged, X1 or "ena" is not enabled, or RFID is not enabled. */
+        NOT_READY_FOR_CHARGING = 1,
+
+        /** Charging station is ready and waiting for a charging request from the EV. */
+        READY_FOR_CHARGING = 2,
+
+        /** The EV is currently charging. */
+        CHARGING = 3,
+
+        /** An error has occurred. */
+        ERROR = 4,
+
+        /** Authorization to start charging was rejected. */
+        AUTHORIZATION_REJECTED = 5,
+
+        /** The configured energy limit has been reached. */
+        ENERGY_LIMIT_REACHED = 6,
+
+        /** Charging has finished. */
+        CHARGING_FINISHED = 7,
     }
 }

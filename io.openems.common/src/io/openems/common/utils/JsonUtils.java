@@ -690,6 +690,35 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * Returns a deep copy of the given {@link JsonObject} with every "password"
+	 * member masked recursively, e.g. for logging.
+	 *
+	 * @param j the {@link JsonObject}; not modified
+	 * @return a copy with all "password" members set to "HIDDEN"
+	 */
+	public static JsonObject hidePassword(JsonObject j) {
+		final var copy = j.deepCopy();
+		hidePasswordRecursive(copy);
+		return copy;
+	}
+
+	private static void hidePasswordRecursive(JsonElement element) {
+		if (element.isJsonObject()) {
+			var obj = element.getAsJsonObject();
+			if (obj.has("password")) {
+				obj.addProperty("password", "HIDDEN");
+			}
+			for (var key : Set.copyOf(obj.keySet())) {
+				hidePasswordRecursive(obj.get(key));
+			}
+		} else if (element.isJsonArray()) {
+			for (var item : element.getAsJsonArray()) {
+				hidePasswordRecursive(item);
+			}
+		}
+	}
+
+	/**
 	 * Creates a JsonElement from the {@link Number} value.
 	 *
 	 * @param number the {@link Number}

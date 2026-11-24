@@ -34,27 +34,27 @@ public record OdooDeviceData(//
 
 			final var comment = json.getNullableJsonElementPath("comment")
 					.mapIfPresentOptional(path -> path.multiple(List.of(//
-							new JsonElementPath.Case<>(JsonElementPath::isBoolean, t -> null), //
-							new JsonElementPath.Case<>(t -> true /* default */, JsonElementPath::getAsString) //
+							new JsonElementPath.Case<>(JsonElementPath::isBoolean, _ -> null), //
+							new JsonElementPath.Case<>(_ -> true /* default */, JsonElementPath::getAsString) //
 			))).orElse("");
 
 			final var productType = json.getNullableJsonElementPath("producttype")
 					.mapIfPresentOptional(path -> path.multiple(List.of(//
-							new JsonElementPath.Case<>(JsonElementPath::isBoolean, t -> null), //
-							new JsonElementPath.Case<>(t -> true /* default */, JsonElementPath::getAsString) //
+							new JsonElementPath.Case<>(JsonElementPath::isBoolean, _ -> null), //
+							new JsonElementPath.Case<>(_ -> true /* default */, JsonElementPath::getAsString) //
 			))).orElse("");
 
 			final var lastMessage = json.getNullableJsonElementPath("lastmessage")
 					.mapIfPresent(path -> path.multiple(List.of(//
-							new JsonElementPath.Case<>(JsonElementPath::isBoolean, t -> null), //
-							new JsonElementPath.Case<>(t -> true /* default */,
+							new JsonElementPath.Case<>(JsonElementPath::isBoolean, _ -> null), //
+							new JsonElementPath.Case<>(_ -> true /* default */,
 									t -> t.getAsObject(OdooCommonSerializer.serializerOdooZonedDateTime())) //
 			)));
 
 			final var level = json.getNullableJsonElementPath("openems_sum_state_level")
 					.mapIfPresentOptional(path -> path.multiple(List.of(//
-							new JsonElementPath.Case<>(JsonElementPath::isBoolean, t -> null), //
-							new JsonElementPath.Case<>(t -> true /* default */, t -> t.getAsEnum(Level.class)) //
+							new JsonElementPath.Case<>(JsonElementPath::isBoolean, _ -> null), //
+							new JsonElementPath.Case<>(_ -> true /* default */, t -> t.getAsEnum(Level.class)) //
 			))).orElse(Level.OK);
 
 			return new OdooDeviceData(//

@@ -1,7 +1,7 @@
 package io.openems.edge.victron.meter.grid;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -137,23 +137,32 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedWordElement(2621), //
 								SCALE_FACTOR_2), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
+						// Victron "Energy/Forward" is the energy bought from the grid; for a grid meter
+						// OpenEMS defines it as Active Production Energy
+						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
 								new UnsignedDoublewordElement(2622), //
 								SCALE_FACTOR_1), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2,
+						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2,
 								new UnsignedDoublewordElement(2624), //
 								SCALE_FACTOR_1), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3,
+						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3,
 								new UnsignedDoublewordElement(2626), //
 								SCALE_FACTOR_1), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
+						// Victron "Energy/Reverse" is the energy sold to the grid; for a grid meter
+						// OpenEMS defines it as Active Consumption Energy
+						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
 								new UnsignedDoublewordElement(2628), //
 								SCALE_FACTOR_1), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2,
+						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2,
 								new UnsignedDoublewordElement(2630), //
 								SCALE_FACTOR_1), //
-						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3,
+						this.m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3,
 								new UnsignedDoublewordElement(2632), //
+								SCALE_FACTOR_1)), //
+				// Separate task: a missing register must not break the reading of the block
+				// above. Victron provides the frequency in [0.01 Hz]; OpenEMS expects [mHz].
+				new FC3ReadRegistersTask(2644, Priority.LOW, //
+						this.m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(2644), //
 								SCALE_FACTOR_1)) //
 		);
 	}

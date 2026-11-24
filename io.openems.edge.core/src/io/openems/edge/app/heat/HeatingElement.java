@@ -29,10 +29,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.PropsUtil;
@@ -40,6 +42,7 @@ import io.openems.edge.app.common.props.RelayProps;
 import io.openems.edge.app.common.props.RelayProps.RelayContactInformation;
 import io.openems.edge.app.common.props.RelayProps.RelayContactInformationProvider;
 import io.openems.edge.app.enums.MeterIntegration;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.heat.HeatingElement.HeatingElementParameter;
 import io.openems.edge.app.heat.HeatingElement.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -62,7 +65,9 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
@@ -110,17 +115,54 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 
 	private final AppManagerUtil appManagerUtil;
 
+	/**
+	 * The names of all six relay contact {@link Property Properties}, three for
+	 * Heating Element A and three for the optional Heating Element B. Used to
+	 * disable already selected relay contacts in the other select fields.
+	 */
+	private static final Nameable[] ALL_OUTPUT_CHANNELS = { //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L1"), //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L2"), //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L3"), //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L1_HEATING_ELEMENT_B"), //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L2_HEATING_ELEMENT_B"), //
+			Nameable.of("OUTPUT_CHANNEL_PHASE_L3_HEATING_ELEMENT_B"), //
+	};
+
+	private static final String HEATING_ELEMENT_LABEL_A = "App.Heat.HeatingElement.outputChannelPhaseLNHeatingElementA.label";
+	private static final String HEATING_ELEMENT_LABEL_B = "App.Heat.HeatingElement.outputChannelPhaseLNHeatingElementB.label";
+
 	public enum Property implements Type<Property, HeatingElement, HeatingElementParameter>, Nameable {
 
 		// Component-IDs
 		CTRL_IO_HEATING_ELEMENT_ID(AppDef.componentId("ctrlIoHeatingElement0")), //
 		// Properties
 		ALIAS(alias()), //
-		OUTPUT_CHANNEL_PHASE_L1(heatingElementRelayContactDef(1)), //
-		OUTPUT_CHANNEL_PHASE_L2(heatingElementRelayContactDef(2)), //
-		OUTPUT_CHANNEL_PHASE_L3(heatingElementRelayContactDef(3)), //
-		OUTPUT_CHANNEL_PHASE_GROUP(phaseGroup(OUTPUT_CHANNEL_PHASE_L1, //
-				OUTPUT_CHANNEL_PHASE_L2, OUTPUT_CHANNEL_PHASE_L3)), //
+		NUMBER_OF_HEATING_ELEMENTS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.setTranslatedLabelWithAppPrefix(".numberOfHeatingElements.label") //
+				.setTranslatedDescriptionWithAppPrefix(".numberOfHeatingElements.description") //
+				.setDefaultValue(NumberOfHeatingElements.ONE) //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(NumberOfHeatingElements.class), l);
+				}))), //
+		OUTPUT_CHANNEL_PHASE_L1(heatingElementRelayContactDef(1, HEATING_ELEMENT_LABEL_A, 1, //
+				ALL_OUTPUT_CHANNELS)), //
+		OUTPUT_CHANNEL_PHASE_L2(heatingElementRelayContactDef(2, HEATING_ELEMENT_LABEL_A, 2, //
+				ALL_OUTPUT_CHANNELS)), //
+		OUTPUT_CHANNEL_PHASE_L3(heatingElementRelayContactDef(3, HEATING_ELEMENT_LABEL_A, 3, //
+				ALL_OUTPUT_CHANNELS)), //
+		OUTPUT_CHANNEL_PHASE_L1_HEATING_ELEMENT_B(heatingElementBRelayContactDef(4, HEATING_ELEMENT_LABEL_B, 1)), //
+		OUTPUT_CHANNEL_PHASE_L2_HEATING_ELEMENT_B(heatingElementBRelayContactDef(5, HEATING_ELEMENT_LABEL_B, 2)), //
+		OUTPUT_CHANNEL_PHASE_L3_HEATING_ELEMENT_B(heatingElementBRelayContactDef(6, HEATING_ELEMENT_LABEL_B, 3)), //
+		OUTPUT_CHANNEL_PHASE_GROUP(phaseGroup(Map.of(//
+				OUTPUT_CHANNEL_PHASE_L1_HEATING_ELEMENT_B, isTwoHeatingElements(), //
+				OUTPUT_CHANNEL_PHASE_L2_HEATING_ELEMENT_B, isTwoHeatingElements(), //
+				OUTPUT_CHANNEL_PHASE_L3_HEATING_ELEMENT_B, isTwoHeatingElements()), //
+				OUTPUT_CHANNEL_PHASE_L1, OUTPUT_CHANNEL_PHASE_L2, OUTPUT_CHANNEL_PHASE_L3, //
+				OUTPUT_CHANNEL_PHASE_L1_HEATING_ELEMENT_B, OUTPUT_CHANNEL_PHASE_L2_HEATING_ELEMENT_B, //
+				OUTPUT_CHANNEL_PHASE_L3_HEATING_ELEMENT_B)), //
 		POWER_PER_PHASE(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setTranslatedLabelWithAppPrefix(".powerPerPhase.label") //
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
@@ -131,6 +173,29 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 						.setUnit(WATT, l)//
 						.setMin(0)//
 				))), //
+		POWER_PER_PHASE_HEATING_ELEMENT_B(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.setTranslatedLabelWithAppPrefix(".powerPerPhaseHeatingElementB.label") //
+				.setTranslatedDescriptionWithAppPrefix(".powerPerPhaseHeatingElementB.description") //
+				.setDefaultValue(2000) //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field//
+						.setInputType(NUMBER)//
+						.setUnit(WATT, l)//
+						.setMin(0)//
+				) //
+				.wrapField((app, property, l, parameter, field) -> field.onlyShowIf(isTwoHeatingElements())))), //
+		DISTRIBUTION(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.setTranslatedLabelWithAppPrefix(".distribution.label") //
+				.setTranslatedDescriptionWithAppPrefix(".distribution.description") //
+				.setDefaultValue(Distribution.SEQUENTIAL) //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field//
+							.setOptions(OptionsFactory.of(Distribution.class), l)//
+							.onlyShowIf(isTwoHeatingElements());
+				}))), //
 		HYSTERESIS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setTranslatedLabelWithAppPrefix(".hysteresis.label") //
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
@@ -177,7 +242,11 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 
 				return new HeatingElementParameter(//
 						createResourceBundle(t.language), //
-						createPhaseInformation(t.app.componentUtil, 3, //
+						// numberOfRelays is always 6 (3 for Heating Element A + 3 for the optional
+						// Heating Element B), independent of the currently selected
+						// NUMBER_OF_HEATING_ELEMENTS, since the relay contact properties for
+						// Heating Element B always exist (they are just hidden if not needed).
+						createPhaseInformation(t.app.componentUtil, 6, //
 								List.of(//
 										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true, deviceHardware), //
 										RelayProps.techbaseCm4Gen3Filter(t.language, true, deviceHardware), //
@@ -187,9 +256,51 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled,
 										new int[] { 1, 2, 3 }), //
 										PreferredRelay.of(4, new int[] { 1, 2, 3 }), //
-										PreferredRelay.of(8, new int[] { 4, 5, 6 }))) //
+										// Keep the existing defaults for Heating Element A and use the remaining
+										// contacts for Heating Element B.
+										PreferredRelay.of(8, new int[] { 4, 5, 6, 1, 2, 3 }))) //
 				);
 			};
+		}
+
+		/**
+		 * Gets the {@link BooleanExpression} which evaluates to true if
+		 * {@link #NUMBER_OF_HEATING_ELEMENTS} is set to
+		 * {@link NumberOfHeatingElements#TWO}.
+		 *
+		 * @return the {@link BooleanExpression}
+		 */
+		private static BooleanExpression isTwoHeatingElements() {
+			return Exp.currentModelValue(NUMBER_OF_HEATING_ELEMENTS) //
+					.equal(Exp.staticValue(NumberOfHeatingElements.TWO));
+		}
+
+		private static <P extends BundleProvider & RelayContactInformationProvider> //
+				AppDef<OpenemsApp, Nameable, P> heatingElementBRelayContactDef(//
+						int contactPosition, //
+						String translationKey, //
+						int phaseNumber //
+		) {
+			return AppDef.copyOfGeneric(
+					heatingElementRelayContactDef(contactPosition, translationKey, phaseNumber, ALL_OUTPUT_CHANNELS),
+					def -> def//
+							.wrapField((app, property, l, parameter, field) -> {
+								field.onlyShowIf(isTwoHeatingElements());
+							}));
+		}
+
+		private static <P extends BundleProvider & RelayContactInformationProvider> //
+				AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(//
+						int contactPosition, //
+						String translationKey, //
+						int phaseNumber, //
+						Nameable... allContacts //
+		) {
+			return AppDef.copyOfGeneric(relayContactDef(contactPosition, allContacts), b -> b //
+					.setTranslatedLabel(translationKey, phaseNumber)
+					.setTranslatedDescription("App.Heat.outputChannel.description") //
+					.setRequired(true) //
+					.setAutoGenerateField(false));
 		}
 
 	}
@@ -211,6 +322,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 			final var heatingElementId = this.getId(t, p, Property.CTRL_IO_HEATING_ELEMENT_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
+			final var numberOfHeatingElements = this.getEnum(p, NumberOfHeatingElements.class,
+					Property.NUMBER_OF_HEATING_ELEMENTS);
 			final var outputChannelPhaseL1 = this.getString(p, l, Property.OUTPUT_CHANNEL_PHASE_L1);
 			final var outputChannelPhaseL2 = this.getString(p, l, Property.OUTPUT_CHANNEL_PHASE_L2);
 			final var outputChannelPhaseL3 = this.getString(p, l, Property.OUTPUT_CHANNEL_PHASE_L3);
@@ -220,6 +333,26 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 			final var isElementMeasured = this.getBoolean(p, Property.IS_ELEMENT_MEASURED);
 			final var howMeasured = this.getEnum(p, MeterIntegration.class, Property.HOW_MEASURED);
 			var meterId = "";
+
+			// The relay contact properties of Heating Element B may not have a valid
+			// default value (e.g. if there is no free relay left), which is only a
+			// problem if Heating Element B is actually used; so these properties are
+			// only read if NUMBER_OF_HEATING_ELEMENTS is TWO.
+			String outputChannelPhaseL1HeatingElementB = null;
+			String outputChannelPhaseL2HeatingElementB = null;
+			String outputChannelPhaseL3HeatingElementB = null;
+			var powerPerPhaseHeatingElementB = 0;
+			var distribution = Distribution.SEQUENTIAL;
+			if (numberOfHeatingElements == NumberOfHeatingElements.TWO) {
+				outputChannelPhaseL1HeatingElementB = this.getString(p, l,
+						Property.OUTPUT_CHANNEL_PHASE_L1_HEATING_ELEMENT_B);
+				outputChannelPhaseL2HeatingElementB = this.getString(p, l,
+						Property.OUTPUT_CHANNEL_PHASE_L2_HEATING_ELEMENT_B);
+				outputChannelPhaseL3HeatingElementB = this.getString(p, l,
+						Property.OUTPUT_CHANNEL_PHASE_L3_HEATING_ELEMENT_B);
+				powerPerPhaseHeatingElementB = this.getInt(p, Property.POWER_PER_PHASE_HEATING_ELEMENT_B);
+				distribution = this.getEnum(p, Distribution.class, Property.DISTRIBUTION);
+			}
 
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
@@ -237,39 +370,76 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 			}
 
 			final var tmpMeterId = meterId;
+			final var componentConfig = buildJsonObject() //
+					.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
+					.addProperty("outputChannelPhaseL2", outputChannelPhaseL2) //
+					.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
+					.addProperty("powerPerPhase", powerPerPhase) //
+					.addProperty("minimumSwitchingTime", hysteresis) //
+					.addProperty("numberOfHeatingElements", numberOfHeatingElements.name());
+			if (numberOfHeatingElements == NumberOfHeatingElements.TWO) {
+				componentConfig //
+						.addProperty("outputChannelPhaseL1HeatingElementB", outputChannelPhaseL1HeatingElementB) //
+						.addProperty("outputChannelPhaseL2HeatingElementB", outputChannelPhaseL2HeatingElementB) //
+						.addProperty("outputChannelPhaseL3HeatingElementB", outputChannelPhaseL3HeatingElementB) //
+						.addProperty("powerPerPhaseHeatingElementB", powerPerPhaseHeatingElementB) //
+						.addProperty("distribution", distribution.name());
+			} else if (t != ConfigurationTarget.VALIDATE) {
+				this.componentManager.getEdgeConfig().getComponent(heatingElementId).ifPresent(component -> {
+					for (final var property : List.of("outputChannelPhaseL1HeatingElementB",
+							"outputChannelPhaseL2HeatingElementB", "outputChannelPhaseL3HeatingElementB")) {
+						if (component.getProperty(property).isPresent()) {
+							componentConfig.add(property, JsonNull.INSTANCE);
+						}
+					}
+				});
+			}
+			componentConfig.onlyIf(t != ConfigurationTarget.VALIDATE, b -> b.addProperty("meter.id", tmpMeterId));
+
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement", buildJsonObject() //
-							.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
-							.addProperty("outputChannelPhaseL2", outputChannelPhaseL2) //
-							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
-							.addProperty("powerPerPhase", powerPerPhase) //
-							.addProperty("minimumSwitchingTime", hysteresis) //
-							.onlyIf(t != ConfigurationTarget.VALIDATE, b -> b.addProperty("meter.id", tmpMeterId)) //
-							.build()) //
+					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement",
+							componentConfig.build()) //
 			);
 
 			final var componentIdOfRelay = outputChannelPhaseL1.substring(0, outputChannelPhaseL1.indexOf('/'));
 			final var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
 					componentIdOfRelay);
 
-			if (appIdOfRelay == null) {
-				// relay may be created but not as a app
-				return AppConfiguration.create() //
-						.addTask(Tasks.component(components)) //
-						.addDependencies(dependencies) //
-						.build();
+			if (appIdOfRelay != null) {
+				dependencies.add(new DependencyDeclaration("RELAY", //
+						DependencyDeclaration.CreatePolicy.NEVER, //
+						DependencyDeclaration.UpdatePolicy.NEVER, //
+						DependencyDeclaration.DeletePolicy.NEVER, //
+						DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+						DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+						DependencyDeclaration.AppDependencyConfig.create() //
+								.setSpecificInstanceId(appIdOfRelay) //
+								.build()) //
+				);
 			}
 
-			dependencies.add(new DependencyDeclaration("RELAY", //
-					DependencyDeclaration.CreatePolicy.NEVER, //
-					DependencyDeclaration.UpdatePolicy.NEVER, //
-					DependencyDeclaration.DeletePolicy.NEVER, //
-					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
-					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-					DependencyDeclaration.AppDependencyConfig.create() //
-							.setSpecificInstanceId(appIdOfRelay) //
-							.build()) //
-			);
+			if (numberOfHeatingElements == NumberOfHeatingElements.TWO) {
+				final var componentIdOfRelay2 = outputChannelPhaseL1HeatingElementB.substring(0,
+						outputChannelPhaseL1HeatingElementB.indexOf('/'));
+				if (!componentIdOfRelay2.equals(componentIdOfRelay)) {
+					final var appIdOfRelay2 = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+							componentIdOfRelay2);
+
+					if (appIdOfRelay2 != null) {
+						dependencies.add(new DependencyDeclaration("RELAY2", //
+								DependencyDeclaration.CreatePolicy.NEVER, //
+								DependencyDeclaration.UpdatePolicy.NEVER, //
+								DependencyDeclaration.DeletePolicy.NEVER, //
+								DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+								DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+								DependencyDeclaration.AppDependencyConfig.create() //
+										.setSpecificInstanceId(appIdOfRelay2) //
+										.build()) //
+						);
+					}
+				}
+
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
@@ -287,6 +457,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	public ValidatorConfig.Builder getValidateBuilder() {
 		final var deviceHardware = this.appManagerUtil
 				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+		// min. 3 relays for one heating element; 6 relays for 2 heating elements
 		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(//
 						checkRelayCount(3, //
@@ -314,16 +485,5 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	@Override
 	public AppManagerUtil getAppManagerUtil() {
 		return this.appManagerUtil;
-	}
-
-	private static <P extends BundleProvider & RelayContactInformationProvider> //
-			AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
-		return AppDef.copyOfGeneric(relayContactDef(contactPosition, Nameable.of("OUTPUT_CHANNEL_PHASE_L1"), //
-				Nameable.of("OUTPUT_CHANNEL_PHASE_L2"), Nameable.of("OUTPUT_CHANNEL_PHASE_L3")),
-				b -> b //
-						.setTranslatedLabelWithAppPrefix(".outputChannelPhaseL" + contactPosition + ".label") //
-						.setTranslatedDescription("App.Heat.outputChannel.description") //
-						.setRequired(true) //
-						.setAutoGenerateField(false));
 	}
 }

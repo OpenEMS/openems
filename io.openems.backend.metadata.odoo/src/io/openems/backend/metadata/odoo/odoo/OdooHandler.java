@@ -6,6 +6,7 @@ import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAs;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsEnum;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOptional;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOrElse;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
@@ -68,6 +69,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 
@@ -756,7 +758,7 @@ public class OdooHandler {
 					throw new RuntimeException(e);
 				}
 			});
-		}).thenAccept(ignore -> {
+		}).thenAccept(_ -> {
 			// empty
 		});
 	}
@@ -1003,6 +1005,15 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void registerUser(JsonObject jsonObject, OdooUserRole role, String oem) throws OpenemsNamedException {
+		switch (role) {
+		case INSTALLER, OWNER, GUEST -> doNothing();
+		case ADMIN -> {
+			// Security: ADMIN users cannot be created here
+			this.log.warn("Rejected registerUser attempt with ADMIN role: json={}", JsonUtils.hidePassword(jsonObject));
+			throw new OpenemsException("Role [admin] is not allowed for self-registration");
+		}
+		}
+
 		var emailOpt = getAsOptionalString(jsonObject, "email");
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
@@ -1035,7 +1046,7 @@ public class OdooHandler {
 			userFields.put("password", password);
 		}
 
-		getAsOptionalInt(jsonObject, "oauthProviderId").ifPresent(id -> {
+		getAsOptionalInt(jsonObject, "oauthProviderId").ifPresent(_ -> {
 			try {
 				final var oauthIds = OdooUtils.search(this.credentials, Field.AuthOAuthProvider.ODOO_MODEL,
 						new Domain(Field.AuthOAuthProvider.NAME, Operator.EQ, this.parent.getAuthOAuthProviderName()));
@@ -1741,7 +1752,7 @@ public class OdooHandler {
 	}
 
 	private <T> CompletableFuture<T> executeAdminRequest(Function<String, CompletableFuture<T>> request) {
-		return this.adminLoginFuture.exceptionallyCompose(t -> this.authenticateAsAdmin()) //
+		return this.adminLoginFuture.exceptionallyCompose(_ -> this.authenticateAsAdmin()) //
 				.thenCompose(token -> {
 					return request.apply(token).exceptionallyCompose(throwable -> {
 

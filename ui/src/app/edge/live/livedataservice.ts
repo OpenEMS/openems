@@ -76,7 +76,7 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public override refresh(ev: CustomEvent) {
         this.currentValue.set({ allComponents: {} });
-        this.edge?.subscribeChannels(this.websocket, this.subscribeId, this.subscribedChannelAddresses);
+        this.edge?.subscribeChannelsWithState(this.websocket, this.subscribeId, this.subscribedChannelAddresses);
         setTimeout(() => {
             (ev.target as HTMLIonRefresherElement).complete();
         }, 1000);

@@ -1,5 +1,5 @@
 <ion-grid class="ion-no-padding">
-  @if (message !== null) {
+  @if (message() !== null) {
     <ion-row class="ion-padding-half" style="width: 100vw">
       <ion-col size-sm="12" size-md="6" class="ion-align-content-center">
         @if (canUserSeeAllSystemsNavigation()) {
@@ -16,7 +16,7 @@
   <ion-row [style]="navigationService.position() === 'left' ? 'width: 80vw; margin-left: 20vw;' : 'width: 100vw;'" class="ion-no-margin-left">
     <ion-col size-md="12" class="ion-align-content-center">
       <ion-grid class="ion-no-padding-left-right">
-        <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message !== null">
+        <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message() !== null">
           @let showBackNavigation = navigationService.position() === "bottom" && parentNode() !== null;
           @if (showBackNavigation) {
             <ion-col size="1">
@@ -26,14 +26,21 @@
             </ion-col>
           }
           @let alignLeft = isSmartphone;
-          @let alignRight = !alignLeft && message !== null;
+          @let alignRight = !alignLeft && message() !== null;
           @let alignCenter = !alignLeft && !alignRight;
           <ion-col [size]="showBackNavigation ? 9 : 10" class="ion-text-align-center ion-no-padding-top ion-padding-left" [class.ion-text-align-left]="alignLeft" [class.ion-text-align-center]="alignCenter" [class.ion-text-align-right]="alignRight">
-            <ion-label style="line-height: 1.2" [class.ion-font-size-x-large]="showBackNavigation == false && (message !== null || navigationService.headerTitle())" class="oe-ci-font-family-bold ion-text-wrap ion-no-padding-top">
-              @if (message !== null) {
-                <span [innerHTML]="message"></span>
-              } @else {
-                {{ navigationService.headerTitle() }}
+            <ion-label
+              style="line-height: 1.2"
+              [class.ion-font-size-x-large]="showBackNavigation == false && (message() !== null || navigationService.headerTitle()?.text)"
+              class="ion-text-wrap ion-no-padding-top"
+              [ngClass]="{
+                'oe-ci-font-family-bold': navigationService.headerTitle()?.useCiFont || message() !== null,
+              }"
+            >
+              @if (message() !== null) {
+                <span [innerHTML]="message()"></span>
+              } @else if (navigationService.headerTitle()?.useCiFont) {
+                {{ navigationService.headerTitle()?.text }}
               }
             </ion-label>
           </ion-col>

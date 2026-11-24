@@ -12,6 +12,12 @@
             <PatternLayout pattern="%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n" />
         </File>
 
+        <!-- Migration files are stored in special log folder. The path can be specified with -Dopenems.log.dir=/var/log/openems
+        If path is not specified, temp directory is used. -->
+        <File name="MigrationFile" createOnDemand="true" fileName="${sys:openems.log.dir:-${sys:java.io.tmpdir}}/openems-migration.log">
+            <PatternLayout pattern="%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n" />
+        </File>
+
         <!-- PaxOsgi Appender -->
         <PaxOsgi name="paxosgi" />
     </Appenders>
@@ -22,6 +28,9 @@
         </Logger>
         <Logger name="io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable" level="info" additivity="true">
             <AppenderRef ref="FirmwareUpdateFile" />
+        </Logger>
+        <Logger name="io.openems.edge.core.componentmanager.migration.LegacyEntsoeComponentMigrator" level="info" additivity="true">
+           <AppenderRef ref="MigrationFile" />
         </Logger>
 
         <!-- Root Logger -->

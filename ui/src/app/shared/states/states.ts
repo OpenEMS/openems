@@ -17,16 +17,30 @@ export enum States {
 
 export namespace States {
     /**
-    * Evaluates whether "State 1" is equal or more privileged than "State 2".
-    *
-    * @param state1     the State 1
-    * @param state2     the State 2
-    * @return true if "State 1" is equal or more privileged than "State 2"
-    */
+     * Evaluates whether "State 1" is equal or more privileged than "State 2".
+     *
+     * @param state1 The State 1
+     * @param state2 The State 2
+     * @returns True if "State 1" is equal or more privileged than "State 2"
+     */
     export function isAtLeast(state1: States | null, state2: States | null): boolean {
         if (state1 == null || state2 == null) {
             return false;
         }
         return state1 >= state2;
+    }
+
+    /**
+     * Evaluates whether "State 1" is equal or less privileged than "State 2".
+     *
+     * @param state1 The State 1
+     * @param state2 The State 2
+     * @returns True if "State 1" is equal or less privileged than "State 2"
+     */
+    export function isAtMost(state1: States | null, state2: States | null): boolean {
+        if (state1 == null || state2 == null) {
+            return false;
+        }
+        return state1 <= state2;
     }
 }

@@ -134,19 +134,19 @@ export namespace SharedControllerHeat {
 
     export const getHeatModeButtons = (translate: TranslateService): ButtonLabel[] => [
         {
-            value: Mode.FAST_HEAT,
+            value: PropertyMode.FAST_HEAT,
             name: translate.instant("HEAT.SETTINGS.MODE.FAST_HEAT.TITLE"),
             description: translate.instant("HEAT.SETTINGS.MODE.FAST_HEAT.DESCRIPTION"),
             icon: { color: "success", name: "oe-consumption", size: "medium" },
         },
         {
-            value: Mode.SURPLUS,
+            value: PropertyMode.SURPLUS,
             name: translate.instant("HEAT.SETTINGS.MODE.SURPLUS.TITLE"),
             description: translate.instant("HEAT.SETTINGS.MODE.SURPLUS.DESCRIPTION"),
             icon: { color: "primary", name: "oe-production", size: "medium" },
         },
         {
-            value: Mode.OFF,
+            value: PropertyMode.OFF,
             name: translate.instant("HEAT.SETTINGS.MODE.OFF.TITLE"),
         },
     ];
@@ -227,15 +227,7 @@ export namespace SharedControllerHeat {
                     ],
                     null,
                 ),
-                new NavigationTree(
-                    component.id + "-settings",
-                    { baseString: "settings" },
-                    { name: "cog-outline" },
-                    translate.instant("MENU.SETTINGS"),
-                    "label",
-                    [],
-                    null,
-                ),
+                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
             );
         }
 
@@ -404,12 +396,6 @@ export enum ChannelMode {
 }
 
 export enum PropertyMode {
-    OFF = "OFF", //
-    FAST_HEAT = "FAST_HEAT", //
-    SURPLUS = "SURPLUS", //
-}
-
-export enum Mode {
     OFF = "OFF", //
     FAST_HEAT = "FAST_HEAT", //
     SURPLUS = "SURPLUS", //

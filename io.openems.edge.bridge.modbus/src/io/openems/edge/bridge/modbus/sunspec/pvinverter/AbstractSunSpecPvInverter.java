@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec.pvinverter;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_101;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_102;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_103;

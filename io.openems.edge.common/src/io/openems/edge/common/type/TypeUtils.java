@@ -744,54 +744,6 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Fits a value within a lower and upper boundary.
-	 *
-	 * @param lowLimit  the long lower boundary
-	 * @param highLimit the long upper boundary
-	 * @param value     the long actual value
-	 * @return the adjusted long value
-	 */
-	public static long fitWithin(long lowLimit, long highLimit, long value) {
-		if (lowLimit > highLimit) {
-			throw new IllegalArgumentException("lowLimit must be <= highLimit");
-		}
-		return Math.max(lowLimit, //
-				Math.min(highLimit, value));
-	}
-
-	/**
-	 * Fits a value within a lower and upper boundary.
-	 *
-	 * @param lowLimit  the double lower boundary
-	 * @param highLimit the double upper boundary
-	 * @param value     the double actual value
-	 * @return the adjusted double value
-	 */
-	public static double fitWithin(double lowLimit, double highLimit, double value) {
-		if (lowLimit > highLimit) {
-			throw new IllegalArgumentException("lowLimit must be <= highLimit");
-		}
-		return Math.max(lowLimit, //
-				Math.min(highLimit, value));
-	}
-
-	/**
-	 * Fits a value within a lower and upper boundary.
-	 *
-	 * @param lowLimit  the float lower boundary
-	 * @param highLimit the float upper boundary
-	 * @param value     the float actual value
-	 * @return the adjusted float value
-	 */
-	public static float fitWithin(float lowLimit, float highLimit, float value) {
-		if (lowLimit > highLimit) {
-			throw new IllegalArgumentException("lowLimit must be <= highLimit");
-		}
-		return Math.max(lowLimit, //
-				Math.min(highLimit, value));
-	}
-
-	/**
 	 * Safely returns the absolute value of an Integer value.
 	 *
 	 * @param value the Integer value, possibly null

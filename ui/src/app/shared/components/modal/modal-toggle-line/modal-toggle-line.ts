@@ -20,7 +20,7 @@ export class ModalToggleLineComponent extends AbstractModalLine {
         super.ngOnInit();
 
         this.formGroup.valueChanges.subscribe((value) => {
-            this.displayValue = this.togglePrefix(value);
+            this.displayValue.set(this.togglePrefix(value));
         });
     }
 

@@ -1,12 +1,8 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable } from "@angular/core";
 
 @Injectable({ providedIn: "root" })
 export class LayoutRefreshService {
     private queued = false;
-
-    constructor(
-        private zone: NgZone
-    ) { }
 
     request(msDelay: number): void {
         if (this.queued) {

@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -48,8 +49,10 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.io.heatingelement.Utils.CumulatedActiveTimes;
 import io.openems.edge.controller.io.heatingelement.Utils.HeatingPhases;
+import io.openems.edge.controller.io.heatingelement.enums.Distribution;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.NumberOfHeatingElements;
 import io.openems.edge.controller.io.heatingelement.enums.Status;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -74,11 +77,33 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	private static final double PERCENTAGE_ENERGYLIMIT_TO_NOT_TURN_UP = 0.01;
 	private static final Duration SHOWING_DONE_FOR_HALF_AN_HOUR = Duration.ofMinutes(30);
 	private static final int CALIBRATION_SECONDS = 4;
+	private static final double SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();
+	private static final Duration FORCE_HEATING_BUFFER = Duration.ofMinutes(10);
 
 	/*
 	 * Definitions for each phase.
 	 */
 	private final HeatingPhases phases;
+
+	/**
+	 * Ordered list of relay-output steps. Level N switches ON the first N steps of
+	 * this list. For {@link NumberOfHeatingElements#ONE} it is built from the three
+	 * existing phase outputs; for {@link NumberOfHeatingElements#TWO} it
+	 * additionally contains the three Steps of Heating Element B, interleaved
+	 * according to the configured {@link Distribution}.
+	 */
+	private List<HeatingElementStep> steps;
+
+	/**
+	 * True if only Heating Element A (the legacy 3-relay setup) is configured. In
+	 * that case Level 1-3 switching is still routed through {@link PhaseDef} to
+	 * preserve the existing calibration / average-power logic. For
+	 * {@link NumberOfHeatingElements#TWO}, switching always goes through
+	 * {@link #steps} directly, since {@link PhaseDef} is hard-wired to Heating
+	 * Element A's output channels and would not reflect the configured
+	 * {@link Distribution}.
+	 */
+	private boolean usePhaseBasicLogic;
 
 	/*
 	 * Cumulated active time for each level.
@@ -86,7 +111,14 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	private final CumulatedActiveTimes cumulatedActiveTimes = new CumulatedActiveTimes(
 			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL1_CUMULATED_TIME),
 			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL2_CUMULATED_TIME),
-			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME));
+			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME),
+			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL4_CUMULATED_TIME),
+			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL5_CUMULATED_TIME),
+			new CalculateActiveTime(this, ControllerIoHeatingElement.ChannelId.LEVEL6_CUMULATED_TIME));
+
+	// Ordered step durations also account for TWO/PARALLEL without using PhaseDef.
+	private final List<StepActiveDuration> stepDurations = List.of(new StepActiveDuration(), new StepActiveDuration(),
+			new StepActiveDuration(), new StepActiveDuration(), new StepActiveDuration(), new StepActiveDuration());
 
 	@Reference
 	protected ComponentManager componentManager;
@@ -142,10 +174,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 	/** Holds the minimum time the phases should be switched on in [Ws]. */
 	private long minimumTotalPhaseTime;
-	/** Current Level. */
-	private Level currentLevel = Level.LEVEL_0;
-	/** Last Level change time, used for the hysteresis. */
-	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
+	/** Tracks the currently applied Level and the symmetric SURPLUS hysteresis. */
+	private final Hysteresis hysteresis = new Hysteresis();
 	/** Last active task. */
 	private OneTask<Payload> lastTask = null;
 
@@ -180,8 +210,25 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	private void updateConfig(Config config) throws OpenemsException {
+	private void updateConfig(Config config) throws OpenemsNamedException {
+		var newSteps = StepBuilder.buildSteps(config);
+		if (this.steps != null) {
+			for (var step : this.steps) {
+				if (newSteps.stream().noneMatch(next -> next.outputChannel().equals(step.outputChannel()))) {
+					// Always write OFF: a pending ON may not yet be reflected in the read value.
+					try {
+						WriteChannel<Boolean> output = this.componentManager.getChannel(step.outputChannel());
+						output.setNextWriteValue(false);
+					} catch (OpenemsNamedException | IllegalArgumentException e) {
+						this.logWarn(this.log, "Unable to switch OFF removed output [" + step.outputChannel() + "]: "
+								+ e.getMessage());
+					}
+				}
+			}
+		}
 		this.config = config;
+		this.steps = newSteps;
+		this.usePhaseBasicLogic = config.numberOfHeatingElements() == NumberOfHeatingElements.ONE;
 		this.minimumTotalPhaseTime = calculateMinimumTotalPhaseTime(config);
 		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule(),
 				Payload.serializer());
@@ -194,7 +241,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 
-		// Handle Mode AUTOMATIC, MANUAL_OFF or MANUAL_ON
+		// Handle the selected operating mode.
 		var runState = switch (this.config.mode()) {
 		case AUTOMATIC //
 			-> this.modeAutomatic();
@@ -204,6 +251,11 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		}
 		case MANUAL_ON -> {
 			this.modeManualOn();
+			yield Status.ACTIVE;
+		}
+		case FAST_HEAT -> {
+			setValue(this, ControllerIoHeatingElement.ChannelId.WAITING_FOR_CALIBRATION, false);
+			this.applyLevel(Level.fromValue(this.steps.size()));
 			yield Status.ACTIVE;
 		}
 		};
@@ -218,7 +270,13 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		var phase1Time = (int) this.phases.phase1().getTotalDuration().getSeconds();
 		var phase2Time = (int) this.phases.phase2().getTotalDuration().getSeconds();
 		var phase3Time = (int) this.phases.phase3().getTotalDuration().getSeconds();
-		final var totalPhaseTime = phase1Time + phase2Time + phase3Time;
+		if (!this.usePhaseBasicLogic) {
+			var isParallel = this.config.distribution() == Distribution.PARALLEL;
+			phase1Time = this.getStepTime(0);
+			phase2Time = this.getStepTime(isParallel ? 2 : 1);
+			phase3Time = this.getStepTime(isParallel ? 4 : 2);
+		}
+		final var totalPhaseTime = this.getTotalHeatingTime();
 
 		// Update Channels
 		setValue(this, ControllerIoHeatingElement.ChannelId.STATUS, runState);
@@ -226,9 +284,22 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		setValue(this, ControllerIoHeatingElement.ChannelId.PHASE2_TIME, phase2Time);
 		setValue(this, ControllerIoHeatingElement.ChannelId.PHASE3_TIME, phase3Time);
 		setValue(this, ControllerIoHeatingElement.ChannelId.TOTAL_PHASE_TIME, totalPhaseTime);
-		setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL1_TIME, phase1Time - phase2Time);
-		setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL2_TIME, phase2Time - phase3Time);
-		setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL3_TIME, phase3Time);
+
+		if (this.usePhaseBasicLogic) {
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL1_TIME, phase1Time - phase2Time);
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL2_TIME, phase2Time - phase3Time);
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL3_TIME, phase3Time);
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL4_TIME, 0);
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL5_TIME, 0);
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL6_TIME, 0);
+		} else {
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL1_TIME, this.getStepTime(0) - this.getStepTime(1));
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL2_TIME, this.getStepTime(1) - this.getStepTime(2));
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL3_TIME, this.getStepTime(2) - this.getStepTime(3));
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL4_TIME, this.getStepTime(3) - this.getStepTime(4));
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL5_TIME, this.getStepTime(4) - this.getStepTime(5));
+			setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL6_TIME, this.getStepTime(5));
+		}
 
 		this.updateCumulatedActiveTime();
 
@@ -274,7 +345,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			this.gotCalibrationStarted = false;
 		}
 
-		if (waiting && this.isPowerCapturedByMeter()) {
+		if (waiting && this.isCalibrationSupported()) {
 			return this.calibrate();
 		}
 
@@ -303,9 +374,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			case WorkMode.NONE -> targetLevel;
 			};
 		}
-
-		targetLevel = this.runState == Status.ACTIVE_FORCED_LIMIT || this.runState == Status.ACTIVE_FORCED ? targetLevel
-				: this.applyHysteresis(targetLevel);
+		targetLevel = switch (this.runState) {
+		case ACTIVE_FORCED_LIMIT, ACTIVE_FORCED, UNREACHABLE -> targetLevel;
+		case UNDEFINED, INACTIVE, ACTIVE, DONE, CALIBRATION -> this.applyHysteresis(targetLevel);
+		};
 
 		this.applyLevel(targetLevel);
 		this.lastRunState = this.runState;
@@ -395,8 +467,17 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		 * currentDate is before the start point, and it wasn't already forced to heat.
 		 */
 		if (this.timeToForceHeat == null || (now.isBefore(this.timeToForceHeat) && !this.isForceHeatingActive)) {
-			this.timeToForceHeat = getTimeToForceHeat(this.energyLimit, this.getSessionEnergy().get(), this.phases,
-					this.endTimeWorkModeEnergy, now);
+			if (this.usePhaseBasicLogic) {
+				this.timeToForceHeat = getTimeToForceHeat(this.energyLimit, this.getSessionEnergy().orElse(0L),
+						this.phases, this.endTimeWorkModeEnergy, now);
+			} else {
+				var remainingEnergy = this.energyLimit - this.getSessionEnergy().orElse(0L);
+				var nominalPower = Math.max(this.getNominalLevelPower(Level.LEVEL_1), 1);
+				var heatingSeconds = (long) Math.ceil(remainingEnergy * SECONDS_PER_HOUR / nominalPower);
+				var seconds = heatingSeconds + FORCE_HEATING_BUFFER.toSeconds();
+				this.timeToForceHeat = this.endTimeWorkModeEnergy
+						.minusSeconds(Math.min(seconds, this.endTimeWorkModeEnergy.toSecondOfDay()));
+			}
 		}
 
 		if (this.checkIfEndTimeIsTommorow()) {
@@ -434,7 +515,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		 */
 		if (this.checkIfSessionUnreachable(totalRemainingTime)) {
 			this.runState = Status.UNREACHABLE;
-			return Level.LEVEL_3;
+			return Level.fromValue(this.steps.size());
 		}
 
 		/*
@@ -462,8 +543,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		this.runState = Status.ACTIVE_FORCED_LIMIT;
 		this.isForceHeatingActive = true;
 
-		long requiredPower = getRequiredPower(this.energyLimit, this.getSessionEnergy().get(), totalRemainingTime);
+		long requiredPower = getRequiredPower(this.energyLimit, this.getSessionEnergy().orElse(0L), totalRemainingTime);
 		Level requiredLevel = this.getRequiredLevel(requiredPower);
+		if (!this.usePhaseBasicLogic && this.getNominalLevelPower(requiredLevel) < requiredPower
+				&& requiredLevel.getValue() < this.steps.size()) {
+			requiredLevel = Level.fromValue(requiredLevel.getValue() + 1);
+		}
 
 		/*
 		 * It should always heat, except if the requiredPower is significant low, for
@@ -475,8 +560,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			requiredLevel = Level.LEVEL_1;
 		}
 
-		double threshold = requiredLevel == Level.LEVEL_1 ? this.phases.phase1().getAvgPower()
-				: this.phases.phase1().getAvgPower() + this.phases.phase2().getAvgPower();
+		double threshold = this.getRequiredLevelThreshold(requiredLevel);
 
 		/*
 		 * if the last half an hour begins, it checks if the requiredPower is more than
@@ -487,12 +571,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		 *
 		 */
 		if (totalRemainingTime.getSeconds() <= LAST_PHASE_DURATION_TO_TURN_UP.getSeconds() //
-				&& requiredLevel != Level.LEVEL_3 //
+				&& requiredLevel.getValue() < this.steps.size() //
 				&& threshold < requiredPower * LAST_PHASE_PERCENTAGE_TO_TURN_UP //
-				&& this.energyLimit - this.getSessionEnergy().get() > this.energyLimit
+				&& this.energyLimit - this.getSessionEnergy().orElse(0L) > this.energyLimit
 						* PERCENTAGE_ENERGYLIMIT_TO_NOT_TURN_UP) {
 
-			requiredLevel = Level.values()[requiredLevel.ordinal() + 1];
+			requiredLevel = Level.fromValue(requiredLevel.getValue() + 1);
 			this.isForceHeatingInTheEndActive = !this.isExcessPowerSufficient(requiredLevel, excesspowerLevel);
 		}
 
@@ -505,6 +589,29 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			return excesspowerLevel;
 		}
 		return requiredLevel;
+	}
+
+	/**
+	 * Gets the power threshold to compare the required power against when deciding
+	 * whether to turn up an additional Level in {@link #forcedToHeat}.
+	 *
+	 * <p>
+	 * For a calibrated single heating element (Level 1-3), the calibrated phase
+	 * average power is used, as before. Otherwise (e.g. Level 4-6 of a second
+	 * heating element, or no meter), the configured nominal Step power of the given
+	 * Level is used instead.
+	 *
+	 * @param requiredLevel the Level required to reach the energy limit
+	 * @return the threshold power in [W]
+	 */
+	private double getRequiredLevelThreshold(Level requiredLevel) {
+		if (!this.isCalibrationSupported()) {
+			return this.getNominalLevelPower(requiredLevel);
+		}
+		if (requiredLevel == Level.LEVEL_1) {
+			return this.phases.phase1().getAvgPower();
+		}
+		return (double) this.phases.phase1().getAvgPower() + this.phases.phase2().getAvgPower();
 	}
 
 	/**
@@ -539,7 +646,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		var power = 0;
 		if (!this.isPowerCapturedByMeter()) {
-			power = this.currentLevel.getValue() * this.config.powerPerPhase();
+			power = this.getNominalLevelPower(this.hysteresis.getCurrentLevel());
 		} else {
 			power = this.meter.getActivePower().orElse(0);
 		}
@@ -554,10 +661,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return the level that should be switched on
 	 */
 	private Level getRequiredLevel(long excessPower) {
-		if (this.isPowerCapturedByMeter()) {
+		if (this.isCalibrationSupported()) {
 			return getRequiredLevelFromAvgPowers(excessPower, this.phases);
 		}
-		return getRequiredLevelFromPower(excessPower, this.config.powerPerPhase());
+		return getRequiredLevelFromPower(excessPower, this.steps);
 	}
 
 	/**
@@ -659,7 +766,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 */
 	private boolean checkIfSessionDone(LocalTime nowTime) {
 		return nowTime.isAfter(this.endTimeWorkModeEnergy) || nowTime.equals(this.endTimeWorkModeEnergy)
-				|| this.energyLimit <= this.getSessionEnergy().get();
+				|| this.energyLimit <= this.getSessionEnergy().orElse(0L);
 	}
 
 	/**
@@ -669,8 +776,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return a boolean value if the session is unreachable
 	 */
 	private boolean checkIfSessionUnreachable(Duration totalRemainingTime) {
-		return Math.ceil((this.energyLimit - this.getSessionEnergy().get()) * 3600F
-				/ Math.max(totalRemainingTime.getSeconds(), 1)) > getTotalAvgPower(this.phases) * 1.1;
+		var maximumPower = this.usePhaseBasicLogic ? getTotalAvgPower(this.phases) * 1.1
+				: this.getNominalLevelPower(Level.fromValue(this.steps.size()));
+		return Math.ceil((this.energyLimit - this.getSessionEnergy().orElse(0L)) * 3600D
+				/ Math.max(totalRemainingTime.getSeconds(), 1)) > maximumPower;
 	}
 
 	/**
@@ -727,7 +836,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return a boolean value, true if it's higher than 40 percent.
 	 */
 	private boolean isPowerAbovePhase1Threshold(double requiredPower) {
-		return requiredPower > this.phases.phase1().getAvgPower() * 0.4;
+		return requiredPower > (this.usePhaseBasicLogic ? this.phases.phase1().getAvgPower()
+				: this.getNominalLevelPower(Level.LEVEL_1)) * 0.4;
 	}
 
 	/**
@@ -750,6 +860,26 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 */
 	private boolean isPowerCapturedByMeter() {
 		return this.meter != null;
+	}
+
+	/**
+	 * Helper method to check if the automatic calibration and the resulting
+	 * average-power based required-Level calculation are applicable.
+	 *
+	 * <p>
+	 * Calibration is only supported for {@link NumberOfHeatingElements#ONE},
+	 * because it relies on {@link PhaseDef}, which is hard-wired to Heating Element
+	 * A's three relay outputs and its calibrated average power per phase. For
+	 * {@link NumberOfHeatingElements#TWO} calibration is skipped and the required
+	 * Level is always derived from the configured Step powers instead (see
+	 * {@link Utils#getRequiredLevelFromPower}).
+	 *
+	 * @return true if calibration / average-power based Level calculation should be
+	 *         used.
+	 */
+	private boolean isCalibrationSupported() {
+		return this.isPowerCapturedByMeter() //
+				&& this.config.numberOfHeatingElements() == NumberOfHeatingElements.ONE;
 	}
 
 	/**
@@ -785,6 +915,9 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * <li>default level {@link Level#LEVEL_1}: return configured time
 	 * <li>default level {@link Level#LEVEL_2}: return configured time * 2
 	 * <li>default level {@link Level#LEVEL_3}: return configured time * 3
+	 * <li>default level {@link Level#LEVEL_4}: return configured time * 4
+	 * <li>default level {@link Level#LEVEL_5}: return configured time * 5
+	 * <li>default level {@link Level#LEVEL_6}: return configured time * 6
 	 * </ul>
 	 * <li>in {@link WorkMode#NONE}: always return 0
 	 * </ul>
@@ -800,6 +933,9 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			case LEVEL_1 -> config.minTime() * 3600L;
 			case LEVEL_2 -> (long) config.minTime() * 3600 * 2;
 			case LEVEL_3 -> (long) config.minTime() * 3600 * 3;
+			case LEVEL_4 -> (long) config.minTime() * 3600 * 4;
+			case LEVEL_5 -> (long) config.minTime() * 3600 * 5;
+			case LEVEL_6 -> (long) config.minTime() * 3600 * 6;
 			};
 		case ENERGY -> 0;
 		case NONE -> 0;
@@ -813,9 +949,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return the time or null, if the minimum has already been reached
 	 */
 	private LocalTime calculateLatestForceHeatingStartTime(LocalTime endTime) throws OpenemsException {
-		var totalPhaseTime = this.phases.phase1().getTotalDuration().getSeconds() //
-				+ this.phases.phase2().getTotalDuration().getSeconds() //
-				+ this.phases.phase3().getTotalDuration().getSeconds(); // [s]
+		var totalPhaseTime = this.getTotalHeatingTime();
 		var remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
 
 		// Minimum already reached
@@ -823,16 +957,14 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			return null;
 		}
 		switch (this.config.defaultLevel()) {
-		case LEVEL_0:
-		case LEVEL_1:
+		case LEVEL_0, LEVEL_1 -> {
 			// keep value
-			break;
-		case LEVEL_2:
-			remainingTotalPhaseTime /= 2;
-			break;
-		case LEVEL_3:
-			remainingTotalPhaseTime /= 3;
-			break;
+		}
+		case LEVEL_2 -> remainingTotalPhaseTime /= 2;
+		case LEVEL_3 -> remainingTotalPhaseTime /= 3;
+		case LEVEL_4 -> remainingTotalPhaseTime /= 4;
+		case LEVEL_5 -> remainingTotalPhaseTime /= 5;
+		case LEVEL_6 -> remainingTotalPhaseTime /= 6;
 		}
 		return endTime.minusSeconds(remainingTotalPhaseTime);
 	}
@@ -845,63 +977,85 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException    on error
 	 */
 	public void applyLevel(Level level) throws IllegalArgumentException, OpenemsNamedException {
-		// Update Channel
+		level = Level.fromValue(Math.min(level.getValue(), this.steps.size()));
 		setValue(this, ControllerIoHeatingElement.ChannelId.LEVEL, level);
-		this.currentLevel = level;
+		this.hysteresis.setCurrentLevel(level);
 
-		// Set phases accordingly
-		switch (level) {
-		case LEVEL_0 -> {
-			this.phases.phase1().switchOff();
-			this.phases.phase2().switchOff();
-			this.phases.phase3().switchOff();
+		var stepsOn = level.getValue();
+		var phaseDefs = List.of(this.phases.phase1(), this.phases.phase2(), this.phases.phase3());
+		for (var i = 0; i < this.steps.size(); i++) {
+			this.applyStep(i, i < stepsOn, phaseDefs);
 		}
-		case LEVEL_1 -> {
-			this.phases.phase1().switchOn();
-			this.phases.phase2().switchOff();
-			this.phases.phase3().switchOff();
-		}
-		case LEVEL_2 -> {
-			this.phases.phase1().switchOn();
-			this.phases.phase2().switchOn();
-			this.phases.phase3().switchOff();
-		}
-		case LEVEL_3 -> {
-			this.phases.phase1().switchOn();
-			this.phases.phase2().switchOn();
-			this.phases.phase3().switchOn();
-		}
+		for (var i = 0; i < this.stepDurations.size(); i++) {
+			this.stepDurations.get(i).update(i < stepsOn, this.componentManager.getClock());
 		}
 	}
 
+	private int getStepTime(int index) {
+		var duration = this.stepDurations.get(index);
+		return (int) duration.getTotalDuration(this.componentManager.getClock()).getSeconds();
+	}
+
+	private long getTotalHeatingTime() {
+		if (this.usePhaseBasicLogic) {
+			return this.phases.phase1().getTotalDuration().getSeconds()
+					+ this.phases.phase2().getTotalDuration().getSeconds()
+					+ this.phases.phase3().getTotalDuration().getSeconds();
+		}
+		long total = 0;
+		for (var i = 0; i < this.stepDurations.size(); i++) {
+			total += this.getStepTime(i);
+		}
+		return total;
+	}
+
+	private void applyStep(int index, boolean on, List<PhaseDef> phaseDefs) throws OpenemsNamedException {
+		if (this.usePhaseBasicLogic && index < phaseDefs.size()) {
+			var phaseDef = phaseDefs.get(index);
+			if (on) {
+				phaseDef.switchOn();
+			} else {
+				phaseDef.switchOff();
+			}
+			return;
+		}
+		var step = this.steps.get(index);
+		this.setOutput(step.outputChannel(), on);
+	}
+
 	/**
-	 * Applies the {@link #HYSTERESIS} to avoid too quick changes of Levels.
+	 * Calculates the nominal power for a given {@link Level}, i.e. the sum of the
+	 * nominal power of the first N steps, where N is the value of the Level.
+	 *
+	 * @param level the {@link Level}
+	 * @return the nominal power in [W]
+	 */
+	protected int getNominalLevelPower(Level level) {
+		return this.steps.stream() //
+				.limit(level.getValue()) //
+				.mapToInt(HeatingElementStep::nominalPower) //
+				.sum();
+	}
+
+	/**
+	 * Applies SURPLUS switching between the current and target {@link Level}, using
+	 * symmetric switching for {@link WorkMode#NONE} and retaining immediate
+	 * downward changes for the other work modes.
 	 *
 	 * @param targetLevel the target {@link Level}
-	 * @return boolean value if hysteresis needs to be applied;
+	 * @return the Level that should actually be applied
 	 */
 	private Level applyHysteresis(Level targetLevel) {
-		if (this.currentLevel != targetLevel) {
-			var now = LocalDateTime.now(this.componentManager.getClock());
-			var hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
-			if (this.lastLevelChange.plus(hysteresis).isBefore(now)) {
-				// no hysteresis applied
-				this.lastLevelChange = now;
-				this.currentLevel = targetLevel;
-				setValue(this, ControllerIoHeatingElement.ChannelId.AWAITING_HYSTERESIS, false);
+		var now = LocalDateTime.now(this.componentManager.getClock());
+		var minimumSwitchingTime = Duration.ofSeconds(this.config.minimumSwitchingTime());
+		var result = this.hysteresis.apply(targetLevel, now, minimumSwitchingTime, this.steps.size(),
+				this.config.workMode() == WorkMode.NONE);
 
-			} else {
-				// wait for hysteresis
-				setValue(this, ControllerIoHeatingElement.ChannelId.AWAITING_HYSTERESIS, true);
-				this.runState = this.lastRunState;
-				return this.currentLevel;
-			}
-
-		} else {
-			// Level was not changed
-			setValue(this, ControllerIoHeatingElement.ChannelId.AWAITING_HYSTERESIS, false);
+		setValue(this, ControllerIoHeatingElement.ChannelId.AWAITING_HYSTERESIS, result.awaitingHysteresis());
+		if (result.awaitingHysteresis()) {
+			this.runState = this.lastRunState;
 		}
-		return targetLevel;
+		return result.level();
 	}
 
 	/**
@@ -913,9 +1067,24 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void setOutput(SinglePhase phase, boolean value) throws IllegalArgumentException, OpenemsNamedException {
-		var channelAddress = this.getChannelAddressForPhase(phase);
+		this.setOutput(this.getChannelAddressForPhase(phase), value);
+	}
+
+	/**
+	 * Generic helper function to switch an output if it was not switched before.
+	 * Used by {@link PhaseDef} (via {@link #setOutput(SinglePhase, boolean)}) as
+	 * well as by {@link HeatingElementStep}.
+	 *
+	 * @param channelAddress the {@link ChannelAddress} of the output channel
+	 * @param value          The boolean value which must set on the output channel
+	 *                       address.
+	 * @throws OpenemsNamedException    on error.
+	 * @throws IllegalArgumentException on error.
+	 */
+	protected void setOutput(ChannelAddress channelAddress, boolean value)
+			throws IllegalArgumentException, OpenemsNamedException {
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(channelAddress);
-		var currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.getNextWriteValue().or(() -> outputChannel.value().asOptional());
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
 			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 			outputChannel.setNextWriteValue(value);
@@ -942,22 +1111,13 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * Update the total time of the level depending on the current level.
 	 */
 	private void updateCumulatedActiveTime() {
-		var level1Active = false;
-		var level2Active = false;
-		var level3Active = false;
-
-		switch (this.currentLevel) {
-		case LEVEL_0 -> {
-			// do nothing
-		}
-		case LEVEL_1 -> level1Active = true;
-		case LEVEL_2 -> level2Active = true;
-		case LEVEL_3 -> level3Active = true;
-		}
-
-		this.cumulatedActiveTimes.totalTimeLevel1().update(level1Active);
-		this.cumulatedActiveTimes.totalTimeLevel2().update(level2Active);
-		this.cumulatedActiveTimes.totalTimeLevel3().update(level3Active);
+		var currentLevel = this.hysteresis.getCurrentLevel();
+		this.cumulatedActiveTimes.totalTimeLevel1().update(currentLevel == Level.LEVEL_1);
+		this.cumulatedActiveTimes.totalTimeLevel2().update(currentLevel == Level.LEVEL_2);
+		this.cumulatedActiveTimes.totalTimeLevel3().update(currentLevel == Level.LEVEL_3);
+		this.cumulatedActiveTimes.totalTimeLevel4().update(currentLevel == Level.LEVEL_4);
+		this.cumulatedActiveTimes.totalTimeLevel5().update(currentLevel == Level.LEVEL_5);
+		this.cumulatedActiveTimes.totalTimeLevel6().update(currentLevel == Level.LEVEL_6);
 	}
 
 	@Override

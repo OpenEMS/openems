@@ -27,7 +27,9 @@ import en from "../i18n/en.json";
 import es from "../i18n/es.json";
 import fr from "../i18n/fr.json";
 import ja from "../i18n/ja.json";
+import lt from "../i18n/lt.json";
 import nl from "../i18n/nl.json";
+import sv from "../i18n/sv.json";
 
 export enum AlertingType {
     OFFLINE,
@@ -106,13 +108,21 @@ export class AlertingComponent implements OnDestroy {
         private translate: TranslateService,
         public formBuilder: FormBuilder,
     ) {
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         const context = effect(() => {
             const edge = this.service.currentEdge();
@@ -339,7 +349,7 @@ export class AlertingComponent implements OnDestroy {
         const formGroup = new FormGroup({});
         this.otherUserInformation = [];
 
-        const sorted = ArrayUtils.sortedAlphabetically(response, (e) => e.userLogin);
+        const sorted = ArrayUtils.sortAlphabetically(response, (e) => e.userLogin);
         sorted.forEach((r) => {
             const setting: AlertingSettingResponse = {
                 userLogin: r.userLogin,

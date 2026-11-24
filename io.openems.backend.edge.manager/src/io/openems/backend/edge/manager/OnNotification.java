@@ -1,9 +1,9 @@
 package io.openems.backend.edge.manager;
 
 import static io.openems.common.channel.Level.FAULT;
-import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsPrimitive;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.java_websocket.WebSocket;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.edge.jsonrpc.ConnectedEdges;
 import io.openems.backend.common.metadata.Edge;
@@ -33,22 +32,20 @@ import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.ScheduleNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.logger.ContextLogger;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SemanticVersion;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
-	private final Logger log = LoggerFactory.getLogger(OnNotification.class);
-
 	private final String name;
+	private final Logger log;
 	private final Supplier<EventAdmin> eventAdmin;
 	private final Supplier<UiWebsocket> uiWebsocket;
 	private final Supplier<TimedataManager> timedataManager;
 	private final Function<String, Optional<Edge>> getEdge;
 	private final BiConsumer<String, SystemLogNotification> handleSystemLogNotification;
 	private final BiConsumer<String, ScheduleNotification> handleScheduleNotification;
-	private final BiConsumer<Logger, String> logInfo;
-	private final BiConsumer<Logger, String> logWarn;
 
 	public OnNotification(//
 			String name, //
@@ -57,35 +54,55 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			Supplier<TimedataManager> timedataManager, //
 			Function<String, Optional<Edge>> getEdge, //
 			BiConsumer<String, SystemLogNotification> handleSystemLogNotification, //
-			BiConsumer<String, ScheduleNotification> handleScheduleNotification, //
-			BiConsumer<Logger, String> logInfo, //
-			BiConsumer<Logger, String> logWarn) {
+			BiConsumer<String, ScheduleNotification> handleScheduleNotification //
+	) {
 		this.name = name;
+		this.log = new ContextLogger(OnNotification.class, name);
 		this.eventAdmin = eventAdmin;
 		this.uiWebsocket = uiWebsocket;
 		this.timedataManager = timedataManager;
 		this.getEdge = getEdge;
 		this.handleSystemLogNotification = handleSystemLogNotification;
 		this.handleScheduleNotification = handleScheduleNotification;
-		this.logInfo = logInfo;
-		this.logWarn = logWarn;
+	}
+
+	protected Closeable startTimer(String method) {
+		return PrometheusMetrics.WEBSOCKET_REQUEST.labelValues(this.name, method).startTimer();
 	}
 
 	@Override
 	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
-		try (final var timer = PrometheusMetrics.WEBSOCKET_REQUEST
-				.labelValues(this.name, notification.getFullyQualifiedMethod()).startTimer()) {
+		final var method = notification.getMethod();
+		try (final var _ = this.startTimer(notification.getFullyQualifiedMethod())) {
 			WsData wsData = ws.getAttachment();
 
-			switch (notification.getMethod()) {
+			switch (method) {
 			case ConnectedEdges.Notification.METHOD //
 				-> this.handleConnectedEdgesNotification(ConnectedEdges.Notification.from(notification), wsData);
 			case EdgeRpcNotification.METHOD //
 				-> this.handleEdgeRpcNotification(EdgeRpcNotification.from(notification), wsData);
 			default //
-				-> this.logWarn.accept(this.log, "Unhandled Notification: " + notification);
+				-> this.log.warn("Unhandled Notification: {}", notification);
 			}
+		} catch (IOException e) {
+			this.log.debug("Failed to close timer for notification: {}", method, e);
 		}
+	}
+
+	protected BiConsumer<Double, String> getMetricsConsumer(String metric) {
+		final var metricCollector = switch (metric) {
+		case "Connections" -> PrometheusMetrics.WEBSOCKET_CONNECTION;
+		case "Pending" -> PrometheusMetrics.THREAD_POOL_QUEUE;
+		case "Active" -> PrometheusMetrics.THREAD_POOL_ACTIVE_COUNT;
+		case "Completed" -> PrometheusMetrics.THREAD_POOL_COMPLETED_TASKS;
+		case "PoolSize" -> PrometheusMetrics.THREAD_POOL_CURRENT_SIZE;
+		case "MaxPoolSize" -> PrometheusMetrics.THREAD_POOL_MAX_SIZE;
+		default -> null;
+		};
+		if (metricCollector == null) {
+			return null;
+		}
+		return (value, label) -> metricCollector.labelValues(label).set(value);
 	}
 
 	/**
@@ -101,28 +118,19 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 				metrics -> {
 
 					// TODO should be moved to generic metric component
-					metrics.getData().rowMap().entrySet().stream().flatMap(t -> t.getValue().entrySet().stream())
-							.forEach(t -> {
-								try {
-									final var channelAddress = ChannelAddress.fromString(t.getKey());
-									final var metricCollector = switch (channelAddress.getChannelId()) {
-									case "Connections" -> PrometheusMetrics.WEBSOCKET_CONNECTION;
-									case "Pending" -> PrometheusMetrics.THREAD_POOL_QUEUE;
-									case "Active" -> PrometheusMetrics.THREAD_POOL_ACTIVE_COUNT;
-									case "Completed" -> PrometheusMetrics.THREAD_POOL_COMPLETED_TASKS;
-									case "PoolSize" -> PrometheusMetrics.THREAD_POOL_CURRENT_SIZE;
-									case "MaxPoolSize" -> PrometheusMetrics.THREAD_POOL_MAX_SIZE;
-									default -> null;
-									};
-									if (metricCollector == null) {
-										return;
-									}
-									metricCollector.labelValues(channelAddress.getComponentId())
-											.set(t.getValue().getAsDouble());
-								} catch (OpenemsNamedException e) {
-									this.log.error(e.getMessage(), e);
-								}
-							});
+					metrics.getData().cellSet().forEach(cell -> {
+						try {
+							final var channelAddress = ChannelAddress.fromString(cell.getColumnKey());
+							final var metric = this.getMetricsConsumer(channelAddress.getChannelId());
+							if (metric != null) {
+								final var label = channelAddress.getComponentId();
+								final var value = cell.getValue().getAsDouble();
+								metric.accept(value, label);
+							}
+						} catch (OpenemsNamedException e) {
+							this.log.error(e.getMessage(), e);
+						}
+					});
 
 					final var timedataManager = this.timedataManager.get();
 					if (timedataManager != null) {
@@ -142,9 +150,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		var notification = n.getPayload();
 
 		// announce incoming message for this Edge
-		this.getEdge.apply(edgeId).ifPresent(edge -> {
-			announceOnline(edge);
-		});
+		this.getEdge.apply(edgeId).ifPresent(OnNotification::announceOnline);
 
 		// Handle notification
 		switch (notification.getMethod()) {
@@ -163,7 +169,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		case LogMessageNotification.METHOD //
 			-> this.handleLogMessageNotification(LogMessageNotification.from(notification), edgeId);
 		default //
-			-> this.logWarn.accept(this.log, "[" + edgeId + "] Unhandled Notification: " + notification);
+			-> this.log.warn("[{}] Unhandled Notification: {}", edgeId, notification);
 		}
 	}
 
@@ -175,14 +181,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 */
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, String edgeId) {
 		// Save config in metadata
-		var edgeOpt = this.getEdge.apply(edgeId);
-		if (edgeOpt.isPresent()) {
-			var edge = edgeOpt.get();
+		this.getEdge.apply(edgeId).ifPresent(edge -> {
 			EventBuilder.from(this.eventAdmin.get(), Events.ON_SET_CONFIG) //
 					.addArg(Events.OnSetConfig.EDGE, edge) //
 					.addArg(Events.OnSetConfig.CONFIG, message.getConfig()) //
 					.send(); //
-		}
+		});
 
 		// Forward to UI sessions
 		var uiWebsocket = this.uiWebsocket.get();
@@ -208,13 +212,18 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		final var edgeCache = edgeClient.getCache();
 		final var timedataManager = this.timedataManager.get();
 		if (timedataManager != null) {
-			// TODO java 21 switch case with type
-			if (message instanceof TimestampedDataNotification timestampNotification) {
-				edgeCache.updateCurrentData(timestampNotification);
-				timedataManager.write(edgeId, timestampNotification);
-			} else if (message instanceof AggregatedDataNotification aggregatedNotification) {
-				edgeCache.updateAggregatedData(aggregatedNotification);
-				timedataManager.write(edgeId, aggregatedNotification);
+			switch (message) {
+			case TimestampedDataNotification notification -> {
+				edgeCache.updateCurrentData(notification);
+				timedataManager.write(edgeId, notification);
+			}
+			case AggregatedDataNotification notification -> {
+				edgeCache.updateAggregatedData(notification);
+				timedataManager.write(edgeId, notification);
+			}
+			case ResendDataNotification _ -> {
+				// Nothing
+			}
 			}
 		}
 
@@ -225,24 +234,15 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		}
 
 		// Read some specific channels
-		var edgeOpt = this.getEdge.apply(edgeId);
-		if (edgeOpt.isPresent()) {
-			var edge = edgeOpt.get();
-			for (var entry : message.getParams().entrySet()) {
-				var d = getAsJsonObject(entry.getValue());
-
-				// set specific Edge values
-				if (d.has("_sum/State") && d.get("_sum/State").isJsonPrimitive()) {
-					var sumState = Level.fromJson(d, "_sum/State").orElse(FAULT);
-					edge.setSumState(sumState);
-				}
-
-				if (d.has("_meta/Version") && d.get("_meta/Version").isJsonPrimitive()) {
-					var version = getAsPrimitive(d, "_meta/Version").getAsString();
-					edge.setVersion(SemanticVersion.fromString(version));
-				}
-			}
-		}
+		this.getEdge.apply(edgeId).ifPresent(edge -> {
+			final var data = message.getData();
+			data.getLatestColumnValue("_sum/State") //
+					.map(json -> Level.fromJson(json).orElse(FAULT)) //
+					.ifPresent(edge::setSumState);
+			data.getLatestColumnValue("_meta/Version") //
+					.map(json -> SemanticVersion.fromString(json.getAsString())) //
+					.ifPresent(edge::setVersion);
+		});
 	}
 
 	/**
@@ -251,8 +251,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param message the {@link ResendDataNotification}
 	 * @param edgeId  the Edge-ID
 	 */
-	private void handleResendDataNotification(ResendDataNotification message, String edgeId)
-			throws OpenemsNamedException {
+	private void handleResendDataNotification(ResendDataNotification message, String edgeId) {
 		var timedataManager = this.timedataManager.get();
 		if (timedataManager != null) {
 			timedataManager.write(edgeId, message);
@@ -265,8 +264,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param message the {@link SystemLogNotification}
 	 * @param edgeId  the Edge-ID
 	 */
-	private void handleSystemLogNotification(SystemLogNotification message, String edgeId)
-			throws OpenemsNamedException {
+	private void handleSystemLogNotification(SystemLogNotification message, String edgeId) {
 		this.handleSystemLogNotification.accept(edgeId, message);
 	}
 
@@ -286,18 +284,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param message the {@link LogMessageNotification}
 	 * @param edgeId  the Edge-ID
 	 */
-	private void handleLogMessageNotification(LogMessageNotification message, String edgeId)
-			throws OpenemsNamedException {
-		this.logInfo.accept(this.log, "Edge [" + edgeId + "] " //
-				+ message.level.getName() + "-Message: " //
-				+ message.msg);
+	private void handleLogMessageNotification(LogMessageNotification message, String edgeId) {
+		this.log.info("Edge [{}] {}-Message: {}", edgeId, message.level.getName(), message.msg);
 	}
 
 	private void announceOnline(String edgeId) {
-		var edgeOpt = this.getEdge.apply(edgeId);
-		if (edgeOpt.isPresent()) {
-			announceOnline(edgeOpt.get());
-		}
+		this.getEdge.apply(edgeId).ifPresent(OnNotification::announceOnline);
 	}
 
 	protected static void announceOnline(Edge edge) {
@@ -306,11 +298,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	}
 
 	private void announceOffline(String edgeId) {
-		var edgeOpt = this.getEdge.apply(edgeId);
-		if (edgeOpt.isPresent()) {
-			var edge = edgeOpt.get();
-			edge.setOnline(false);
-		}
+		this.getEdge.apply(edgeId).ifPresent(OnNotification::announceOffline);
+	}
+
+	protected static void announceOffline(Edge edge) {
+		edge.setOnline(false);
 	}
 
 }

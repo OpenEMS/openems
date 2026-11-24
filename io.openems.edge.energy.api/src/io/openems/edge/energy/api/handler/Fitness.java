@@ -84,7 +84,7 @@ public record Fitness(//
 
 		/**
 		 * Compares this constraint value to another, respecting the
-		 * {@link CustomConstraint.Direction} defined.
+		 * {@link Fitness.CustomConstraint.Direction} defined.
 		 *
 		 * @param o the other {@link AppliedCustomConstraint} to compare to; must have
 		 *          the same {@link CustomConstraint} definition

@@ -1,5 +1,5 @@
 package io.openems.edge.controller.io.heatingelement;
- 
+
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE1_TIME;
@@ -21,9 +21,9 @@ import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
- 
+
 public class ControllerIoHeatingElementImplTest {
- 
+
 	@Test
 	public void test() throws Exception {
 		final var clock = createDummyClock();
@@ -82,26 +82,28 @@ public class ControllerIoHeatingElementImplTest {
 						.output(PHASE3_TIME, 0)) //
 				.next(new TestCase() //
 						// Grid active power : -4000, Excess power : 6000,
-						// from -> LEVEL_1 --to--> LEVEL_3, no of relais = 3
+						// Asymmetric SURPLUS switching activates at most one additional Level per
+						// minimumSwitchingTime, so LEVEL_3 is not applied immediately.
+						// from -> LEVEL_1 --to--> LEVEL_2, no of relais = 2
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, -4000) //
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
-						.output("io0", INPUT_OUTPUT2, true) //
+						.output("io0", INPUT_OUTPUT2, false) //
 						.output(PHASE1_TIME, 15 * 60) //
 						.output(PHASE2_TIME, 0) //
 						.output(PHASE3_TIME, 0)) //
 				.next(new TestCase() //
-						// Grid active power : -6000, Excess power : 12000,
-						// from -> LEVEL_3 --to--> LEVEL_3, no of relais = 3
+						// Grid active power : -6000, Excess power : 10000,
+						// from -> LEVEL_2 --to--> LEVEL_3, no of relais = 3
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, -6000) //
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, true) //
-						.output(PHASE1_TIME, 30 * 60) //
-						.output(PHASE2_TIME, 15 * 60) //
-						.output(PHASE3_TIME, 15 * 60)) //
+						.output(PHASE1_TIME, 1800) //
+						.output(PHASE2_TIME, 900) //
+						.output(PHASE3_TIME, 0)) //
 				.next(new TestCase() //
 						// Grid active power : -7000, Excess power : 13000,
 						// from -> LEVEL_3 --to--> LEVEL_3, no of relais = 3
@@ -110,9 +112,9 @@ public class ControllerIoHeatingElementImplTest {
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, true) //
-						.output(PHASE1_TIME, 45 * 60) //
-						.output(PHASE2_TIME, 30 * 60) //
-						.output(PHASE3_TIME, 30 * 60)) //
+						.output(PHASE1_TIME, 2700) //
+						.output(PHASE2_TIME, 1800) //
+						.output(PHASE3_TIME, 900)) //
 				.next(new TestCase() //
 						// Grid active power : 0, Excess power : 6000,
 						// from -> LEVEL_3 --to--> LEVEL_3, no of relais = 3
@@ -121,65 +123,66 @@ public class ControllerIoHeatingElementImplTest {
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, true) //
-						.output(PHASE1_TIME, 60 * 60) //
-						.output(PHASE2_TIME, 45 * 60) //
-						.output(PHASE3_TIME, 45 * 60)) //
+						.output(PHASE1_TIME, 3600) //
+						.output(PHASE2_TIME, 2700) //
+						.output(PHASE3_TIME, 1800)) //
 				.next(new TestCase() //
-						// Grid active power : 1, Excess power : 0,
-						// from -> LEVEL_3 --to--> LEVEL_0, no of relais = 0
+						// Grid active power : 1, Excess power : 5999,
+						// from -> LEVEL_3 --to--> LEVEL_2, no of relais = 2
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, 1) //
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 75 * 60) //
-						.output(PHASE2_TIME, 60 * 60) //
-						.output(PHASE3_TIME, 60 * 60)) //
+						.output(PHASE1_TIME, 4500) //
+						.output(PHASE2_TIME, 3600) //
+						.output(PHASE3_TIME, 2700)) //
 				.next(new TestCase() //
-						// Grid active power : 20000, Excess power : 0,
-						// from -> LEVEL_0 --to--> LEVEL_0, no of relais = 0
+						// Grid active power : 20000, Excess power : -16000,
+						// from -> LEVEL_2 --to--> LEVEL_0, no of relais = 0
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, 20000) //
 						.output("io0", INPUT_OUTPUT0, false) //
 						.output("io0", INPUT_OUTPUT1, false) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 90 * 60) //
-						.output(PHASE2_TIME, 75 * 60) //
-						.output(PHASE3_TIME, 60 * 60)) //
+						.output(PHASE1_TIME, 5400) //
+						.output(PHASE2_TIME, 4500) //
+						.output(PHASE3_TIME, 2700)) //
 				.next(new TestCase() //
-						// Grid active power : -4000, Excess power : 10000,
-						// from -> LEVEL_0 --to--> LEVEL_2, no of relais = 2
+						// Grid active power : -4000, Excess power : 4000,
+						// Asymmetric SURPLUS switching activates at most one additional Level per
+						// minimumSwitchingTime, so LEVEL_2 is not applied immediately.
+						// from -> LEVEL_0 --to--> LEVEL_1, no of relais = 1
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, -4000) //
 						.output("io0", INPUT_OUTPUT0, true) //
-						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT1, false) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 90 * 60) //
-						.output(PHASE2_TIME, 75 * 60) //
-						.output(PHASE3_TIME, 60 * 60)) //
+						.output(PHASE1_TIME, 5400) //
+						.output(PHASE2_TIME, 4500) //
+						.output(PHASE3_TIME, 2700)) //
 				.next(new TestCase() //
-						// Grid active power : 0, Excess power : 4000,
-						// from -> LEVEL_2 --to--> LEVEL_2, no of relais = 2
+						// Grid active power : 0, Excess power : 2000,
+						// from -> LEVEL_1 --to--> LEVEL_1, no of relais = 1
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, 0) //
 						.output("io0", INPUT_OUTPUT0, true) //
-						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT1, false) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 105 * 60) //
-						.output(PHASE2_TIME, 90 * 60) //
-						.output(PHASE3_TIME, 60 * 60)) //
+						.output(PHASE1_TIME, 6300) //
+						.output(PHASE2_TIME, 4500) //
+						.output(PHASE3_TIME, 2700)) //
 				.next(new TestCase() //
 						// Switch to next day
 						.timeleap(clock, 22, HOURS)//
 						.input(GRID_ACTIVE_POWER, 0) //
 						.output("io0", INPUT_OUTPUT0, true) //
-						.output("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT1, false) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 30 * 60) //
-						.output(PHASE2_TIME, 30 * 60) //
+						.output(PHASE1_TIME, 1800) //
+						.output(PHASE2_TIME, 0) //
 						.output(PHASE3_TIME, 0)) //
 				.deactivate();
 	}
- 
-}
 
+}

@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import static com.google.common.math.Quantiles.percentiles;
 import static io.openems.common.utils.DateUtils.durationUntilNextQuarter;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.AVOID_GRID_SELL_LIMIT;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import com.google.common.primitives.ImmutableIntArray;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.Environment;
@@ -66,13 +66,12 @@ public final class Utils {
 	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
 	static ApplyMode calculateApplyMode(//
-			Sum sum, ManagedSymmetricEss ess, Integer gridBuySoftLimit, int gridSellHardLimit,
+			Sum sum, ManagedSymmetricEss ess, GridLimit gridLimit,
 			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode, Clock clock) {
 		final Integer gridActivePower = sum.getGridActivePower().get();
 		final Integer essActivePower = ess.getActivePower().get();
-		final Integer productionActivePower = sum.getProductionActivePower().get();
 
-		if (gridActivePower == null || essActivePower == null || productionActivePower == null || period == null) {
+		if (gridActivePower == null || essActivePower == null || period == null) {
 			return new ApplyMode(BALANCING, null);
 		}
 
@@ -85,7 +84,7 @@ public final class Utils {
 		case BALANCING -> new ApplyMode(BALANCING, balancingSetpoint);
 		case DELAY_DISCHARGE -> calculateDelayDischarge(ess, essActivePower, balancingSetpoint);
 		case CHARGE_GRID, PEAK_SHAVING -> calculateChargeGrid(ess, essActivePower, gridActivePower, balancingSetpoint,
-				gridBuySoftLimit, optimizationContext);
+				gridLimit.activeGridBuySoftLimit(), optimizationContext);
 		case DISCHARGE_GRID -> calculateDischargeGrid(essActivePower, gridActivePower);
 		case DELAY_CHARGE -> calculateLimitCharge(ess, essActivePower, 0, balancingSetpoint);
 		case LIMIT_CHARGE -> {
@@ -93,10 +92,11 @@ public final class Utils {
 			yield calculateLimitCharge(ess, essActivePower, limitChargePower, balancingSetpoint);
 		}
 		case DISCHARGE_CONSUMPTION, AVOID_GRID_SELL_LIMIT ->
-			calculateDischargeConsumption(balancingSetpoint, productionActivePower);
+			calculateDischargeConsumption(balancingSetpoint, sum.getProductionActivePower().get());
 		};
 
-		return postProcessApplyMode(applyMode, balancingSetpoint, gridBuySoftLimit, gridSellHardLimit);
+		return postProcessApplyMode(applyMode, balancingSetpoint, gridLimit.activeGridBuySoftLimit(),
+				gridLimit.gridSellHardLimitWithBuffer());
 	}
 
 	static ApplyMode calculateChargeGrid(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
@@ -186,7 +186,11 @@ public final class Utils {
 	}
 
 	static ApplyMode calculateDischargeConsumption(//
-			int balancingSetpoint, int productionActivePower) {
+			int balancingSetpoint, Integer productionActivePower) {
+		if (productionActivePower == null) {
+			return new ApplyMode(BALANCING, balancingSetpoint);
+		}
+
 		final int dischargeConsumptionSetpoint = balancingSetpoint + productionActivePower;
 		return new ApplyMode(DISCHARGE_CONSUMPTION, dischargeConsumptionSetpoint);
 	}
@@ -273,7 +277,7 @@ public final class Utils {
 		return (int) round(//
 				refs.build().stream() //
 						// filter negative and very large values
-						.map(v -> fitWithin(0, maxEnergyInChargeGrid, v)) //
+						.map(v -> Math.clamp(v, 0, maxEnergyInChargeGrid)) //
 						.average() //
 						.orElse(maxEnergyInChargeGrid) //
 						* ESS_CHARGE_C_RATE);

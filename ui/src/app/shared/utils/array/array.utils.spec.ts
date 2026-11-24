@@ -14,12 +14,37 @@ describe("Array-Utils", () => {
         expect(ArrayUtils.findBiggestNumber([null, undefined])).toEqual(null);
     });
 
-    it("+sortAlphabeticaly", () => {
+    it("+sortAlphabetically", () => {
         const inputArr = ["A", null, "C", undefined, "B", "a", "1"];
         const sortedArr = ["1", "A", "a", "B", "C", null, undefined];
 
-        expect(ArrayUtils.sortedAlphabetically(inputArr, (a) => a)).toEqual(sortedArr);
-        expect(ArrayUtils.sortedAlphabetically(inputArr, (_a) => null)).toEqual(inputArr);
+        expect(ArrayUtils.sortAlphabetically(inputArr, (a) => a)).toEqual(sortedArr);
+        expect(ArrayUtils.sortAlphabetically(inputArr, (_) => null)).toEqual(inputArr);
+    });
+
+    it("+sortByTrailingNumber", () => {
+        const inputArr = [undefined, "component4", "component1", null, "component3", "component2"];
+        const sortedArr = ["component1", "component2", "component3", "component4", null, undefined];
+        const inputArr2 = ["2", "1", "3"];
+
+        expect(ArrayUtils.sortByTrailingNumber(inputArr, (a) => a)).toEqual(sortedArr);
+        expect(ArrayUtils.sortByTrailingNumber(inputArr2, (_) => null)).toEqual(inputArr2);
+    });
+
+    it("+getFirstSafely", () => {
+        expect(ArrayUtils.getFirstSafely([])).toEqual(null);
+        expect(ArrayUtils.getFirstSafely(null as unknown as string[])).toEqual(null);
+        expect(ArrayUtils.getFirstSafely(["foo"])).toEqual("foo");
+        expect(ArrayUtils.getFirstSafely(["foo", "bar"])).toEqual("foo");
+        expect(ArrayUtils.getFirstSafely([1, 2, 3])).toEqual(1);
+    });
+
+    it("+getLastSafely", () => {
+        expect(ArrayUtils.getLastSafely([])).toEqual(null);
+        expect(ArrayUtils.getLastSafely(null as unknown as string[])).toEqual(null);
+        expect(ArrayUtils.getLastSafely(["foo"])).toEqual("foo");
+        expect(ArrayUtils.getLastSafely(["foo", "bar"])).toEqual("bar");
+        expect(ArrayUtils.getLastSafely([1, 2, 3])).toEqual(3);
     });
 
     describe("ReducerFunctions", () => {

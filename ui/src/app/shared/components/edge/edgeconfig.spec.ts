@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Type } from "@angular/core";
 import { TimeUnit } from "chart.js";
 import { SumState } from "src/app/index/shared/sumState";
@@ -38,7 +37,8 @@ export namespace DummyConfig {
             values.lastmessage ?? new Date(),
             values.sumState ?? SumState.OK,
             values.firstSetupProtocol ?? new Date(0),
-            values.settings ?? null,
+            // Preserve absent settings despite the constructor's non-nullable type.
+            values.settings ?? null!,
         );
     }
 
@@ -52,7 +52,8 @@ export namespace DummyConfig {
         new Date(),
         SumState.OK,
         new Date(0),
-        null,
+        // Preserve the shared fixture without settings.
+        null!,
     );
     export function from(...components: Component[]): EdgeConfig {
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
@@ -60,7 +61,7 @@ export namespace DummyConfig {
                 c.factoryId = c.factory.id;
                 return { ...acc, [c.id]: c };
             }, {}),
-            factories: components?.reduce((p, c) => {
+            factories: components?.reduce<EdgeConfig["factories"]>((p, c) => {
                 p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, "", c.factory.natureIds);
                 return p;
             }, {}),
@@ -70,7 +71,17 @@ export namespace DummyConfig {
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
         const components = Object.values(edgeConfig?.components) ?? null;
 
-        const factories = {};
+        const factories: Record<
+            string,
+            {
+                componentIds: string[];
+                description: string;
+                id: string;
+                name: string;
+                natureIds: string[];
+                properties: EdgeConfig.Factory["properties"];
+            }
+        > = {};
         components.forEach((obj) => {
             if (factories[obj.factoryId]) {
                 factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];
@@ -1073,7 +1084,7 @@ type Factory = {
 
 export type Component = {
     id: string;
-    alias: string; // defaults to id
+    alias: string | undefined; // defaults to id
     factory: Factory;
     factoryId?: string; // generated
     properties: { [property: string]: any };
@@ -1549,9 +1560,10 @@ describe("PersistencePriority", () => {
         expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
         expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
         expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(null, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
+        // Deliberately bypass the input types to verify missing-priority handling.
+        expect(PersistencePriority.isLessThan(null!, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined!, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined!, null!)).toBe(false);
     });
 });
 
@@ -1576,5 +1588,47 @@ describe("hasPropertyValue", () => {
 
     it("#compareWrongTypes", () => {
         expect(component.hasPropertyValue("numberValueStrng", 42)).toBeTrue();
+    });
+});
+
+describe("getComponentFromOtherComponentsProperty", () => {
+    const ess = DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0");
+    const controller = DummyConfig.Component.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({
+        id: "ctrlEmergencyCapacityReserve0",
+        essId: "ess0",
+    });
+
+    it("returns the referenced component if the property points to an existing component", () => {
+        const config = DummyConfig.from(ess, controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBe(
+            config.components["ess0"],
+        );
+    });
+
+    it("returns null if the other component does not exist", () => {
+        const config = DummyConfig.from(ess);
+        expect(config.getComponentFromOtherComponentsProperty("unknown0", "ess.id")).toBeNull();
+    });
+
+    it("returns null if the property does not exist on the other component", () => {
+        const config = DummyConfig.from(ess, controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "meter.id")).toBeNull();
+    });
+
+    it("returns null if the property references a non-existing component", () => {
+        const config = DummyConfig.from(controller);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBeNull();
+    });
+
+    it("returns null if the property value is null", () => {
+        const controllerWithNullReference: Component = {
+            id: "ctrlEmergencyCapacityReserve0",
+            alias: "ctrlEmergencyCapacityReserve0",
+            factory: DummyConfig.Factory.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE,
+            properties: { "ess.id": null },
+            channels: {},
+        };
+        const config = DummyConfig.from(ess, controllerWithNullReference);
+        expect(config.getComponentFromOtherComponentsProperty("ctrlEmergencyCapacityReserve0", "ess.id")).toBeNull();
     });
 });

@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.Edge;
@@ -23,19 +23,13 @@ public class EdgeCache {
 	/**
 	 * Map Edge-ID (String) to Edge. Initialized with expected cache size.
 	 */
-	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
-
-	/**
-	 * Map Odoo-ID (Integer) to Edge-ID (String). Initialized with expected cache
-	 * size.
-	 */
-	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
+	private final Map<String, MyEdge> edgeIdToEdge = new ConcurrentHashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	/**
 	 * Map Apikey (String) to Edge-ID (String). Initialized with expected cache
 	 * size.
 	 */
-	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
+	private final Map<String, String> apikeyToEdgeId = new ConcurrentHashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	public EdgeCache(MetadataOdoo parent) {
 		this.parent = parent;
@@ -65,9 +59,8 @@ public class EdgeCache {
 		if (edge == null) {
 			// This is new -> create instance of Edge
 			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, producttype, lastmessage);
-			this.edgeIdToEdge.put(edgeId, edge);
-			this.odooIdToEdgeId.put(odooId, edgeId);
-			this.apikeyToEdgeId.put(apikey, edgeId);
+			this.edgeIdToEdge.putIfAbsent(edgeId, edge);
+			this.apikeyToEdgeId.putIfAbsent(apikey, edgeId);
 		} else {
 			// Edge exists -> update information
 			edge.setComment(comment);
@@ -85,22 +78,11 @@ public class EdgeCache {
 	 * @param edgeId the Edge-ID
 	 * @return the Edge, or null
 	 */
-	public synchronized MyEdge getEdgeFromEdgeId(String edgeId) {
-		return this.edgeIdToEdge.get(edgeId);
-	}
-
-	/**
-	 * Gets an Edge from its Odoo-ID.
-	 *
-	 * @param odooId the Odoo-ID
-	 * @return the Edge, or null
-	 */
-	public synchronized MyEdge getEdgeFromOdooId(int odooId) {
-		var edgeId = this.odooIdToEdgeId.get(odooId);
+	public MyEdge getEdgeFromEdgeId(String edgeId) {
 		if (edgeId == null) {
 			return null;
 		}
-		return this.getEdgeFromEdgeId(edgeId);
+		return this.edgeIdToEdge.get(edgeId);
 	}
 
 	/**
@@ -109,11 +91,11 @@ public class EdgeCache {
 	 * @param apikey the Apikey
 	 * @return the Edge, or null
 	 */
-	public synchronized MyEdge getEdgeForApikey(String apikey) {
-		var edgeId = this.apikeyToEdgeId.get(apikey);
-		if (edgeId == null) {
+	public MyEdge getEdgeForApikey(String apikey) {
+		if (apikey == null) {
 			return null;
 		}
+		var edgeId = this.apikeyToEdgeId.get(apikey);
 		return this.getEdgeFromEdgeId(edgeId);
 	}
 

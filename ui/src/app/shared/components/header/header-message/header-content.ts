@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { v4 as uuidv4 } from "uuid";
@@ -11,6 +11,7 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { TSignalValue } from "src/app/shared/type/utility";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { environment } from "src/environments";
 import { NavigationService } from "../../navigation/service/navigation.service";
@@ -23,7 +24,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 
 @Component({
     selector: "oe-header-message",
@@ -33,7 +36,7 @@ import nl from "./i18n/nl.json";
     providers: [LiveDataServiceProvider],
 })
 export class AppHeaderContentComponent {
-    protected message: string | null = null;
+    protected message = signal<string | null>(null);
     protected isSmartphone: boolean = false;
     protected image: OeImageComponent["img"] | null = null;
     protected readonly service = inject(Service);
@@ -60,13 +63,21 @@ export class AppHeaderContentComponent {
 
     constructor() {
         this.isSmartphone = this.platFormService.getDevice().isSmartphone();
-        Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    this.translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({
+            cs: cz,
+            de: de,
+            en: en,
+            es: es,
+            fr: fr,
+            ja: ja,
+            lt: lt,
+            nl: nl,
+            sv: sv,
+        }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                this.translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         effect(() => {
             const currentUser = this.userService.currentUser();
@@ -96,9 +107,8 @@ export class AppHeaderContentComponent {
         effect(() => {
             const currentValue = this.liveDataService.currentValue();
 
-            const currentUrl = this.routeService.currentUrl();
             const showMessage = StringUtils.isInArr(this.navigationService.position(), ["bottom", "left"]);
-            if (currentUrl?.split("/")?.reverse()?.[0] === "live") {
+            if (ArrayUtils.getLastSafely(StringUtils.splitBy(this.routeService.currentUrl(), "/") ?? []) === "live") {
                 this.setChannelValueToSumState(currentValue, showMessage);
                 return;
             }
@@ -112,7 +122,7 @@ export class AppHeaderContentComponent {
         show: boolean = true,
     ) {
         if (!show) {
-            this.message = null;
+            this.message.set(null);
             return;
         }
 
@@ -132,7 +142,6 @@ export class AppHeaderContentComponent {
         })();
 
         const message = key ? this.translate.instant(key) : null;
-
-        this.message = message != null && this.isSmartphone ? message.replace("\n", "<br/>") : message;
+        this.message.set(message != null && this.isSmartphone ? message.replace("\n", "<br/>") : message);
     }
 }

@@ -2,22 +2,22 @@
     "EDGE": {
         "CONFIG": {
             "APP": {
-                "STATUS_INSTALLED": "Geïnstalleerd",
+                "CATEGORY_FILTER": "App-categorieën",
                 "STATUS_AVAILABLE": "Beschikbaar",
-                "STATUS_INCOMPATIBLE": "Incompatibel",
                 "STATUS_FILTER": "Beschikbaarheid",
-                "CATEGORY_FILTER": "App-categorieën"
+                "STATUS_INCOMPATIBLE": "Incompatibel",
+                "STATUS_INSTALLED": "Geïnstalleerd"
             }
         }
     },
     "PROFILE": {
         "SYSTEM_LOCATION_VALIDATOR": {
-            "TITLE": "Systeemlocatie",
-            "SUCCESS_MESSAGE": "Systeemlocatie succesvol bijgewerkt."
+            "SUCCESS_MESSAGE": "Systeemlocatie succesvol bijgewerkt.",
+            "TITLE": "Systeemlocatie"
         },
         "SYSTEM_PROTOCOL": {
-            "LABEL": "Systeemprotocol",
             "DOWNLOAD": "Downloaden",
+            "LABEL": "Systeemprotocol",
             "TITLE": "Actueel"
         }
     }

@@ -103,7 +103,7 @@ public class BackendConnectionStateListenerImpl implements BackendConnectionStat
 			this.noConnectionWatch = null;
 			yield state;
 		}
-		case BackendConnectionState.NoConnection(var ignored) -> {
+		case BackendConnectionState.NoConnection(var _) -> {
 			if (this.noConnectionWatch == null) {
 				this.noConnectionWatch = Stopwatch.createStarted();
 			}

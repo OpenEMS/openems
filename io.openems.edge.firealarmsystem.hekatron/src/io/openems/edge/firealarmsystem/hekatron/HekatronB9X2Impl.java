@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -57,10 +56,9 @@ public class HekatronB9X2Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
 	@Deactivate
@@ -105,13 +103,13 @@ public class HekatronB9X2Impl extends AbstractOpenemsModbusComponent
 								.bit(0, HekatronB9X2.ChannelId.DETECTOR_1_ALARM)//
 								.bit(1, HekatronB9X2.ChannelId.DETECTOR_1_MALFUNCTION)//
 								.bit(2, HekatronB9X2.ChannelId.DETECTOR_1_SHUTDOWN)//
-								.bit(9, HekatronB9X2.ChannelId.DETECTOR_1_ALARM)//
+								.bit(9, HekatronB9X2.ChannelId.DETECTOR_1_ALARM_BIT9)//
 						), //
 						m(new BitsWordElement(16, this)//
 								.bit(0, HekatronB9X2.ChannelId.DETECTOR_2_ALARM)//
 								.bit(1, HekatronB9X2.ChannelId.DETECTOR_2_MALFUNCTION)//
 								.bit(2, HekatronB9X2.ChannelId.DETECTOR_2_SHUTDOWN)//
-								.bit(9, HekatronB9X2.ChannelId.DETECTOR_2_ALARM)//
+								.bit(9, HekatronB9X2.ChannelId.DETECTOR_2_ALARM_BIT9)//
 						), //
 						new DummyRegisterElement(17), //
 						m(new BitsWordElement(18, this) //
@@ -129,13 +127,13 @@ public class HekatronB9X2Impl extends AbstractOpenemsModbusComponent
 								.bit(0, HekatronB9X2.ChannelId.DETECTOR_1_ALARM)//
 								.bit(1, HekatronB9X2.ChannelId.DETECTOR_1_MALFUNCTION)//
 								.bit(2, HekatronB9X2.ChannelId.DETECTOR_1_SHUTDOWN)//
-								.bit(9, HekatronB9X2.ChannelId.DETECTOR_1_ALARM)//
+								.bit(9, HekatronB9X2.ChannelId.DETECTOR_1_ALARM_BIT9)//
 						), //
 						m(new BitsWordElement(1, this)//
 								.bit(0, HekatronB9X2.ChannelId.DETECTOR_2_ALARM)//
 								.bit(1, HekatronB9X2.ChannelId.DETECTOR_2_MALFUNCTION)//
 								.bit(2, HekatronB9X2.ChannelId.DETECTOR_2_SHUTDOWN)//
-								.bit(9, HekatronB9X2.ChannelId.DETECTOR_2_ALARM)//
+								.bit(9, HekatronB9X2.ChannelId.DETECTOR_2_ALARM_BIT9)//
 						), //
 						new DummyRegisterElement(2, 3), //
 						m(new BitsWordElement(4, this)//

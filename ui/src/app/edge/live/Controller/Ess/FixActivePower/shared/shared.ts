@@ -1,6 +1,5 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
 import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
@@ -17,13 +16,13 @@ export namespace SharedEssFixDigitalPowerControl {
         mode: Mode;
         powerDirection: PowerDirection;
         chargeOnceTargetSocEnable: boolean;
-        isEssDischargeToGridAllowed: boolean;
-        isEssChargeToGridAllowed: boolean;
         dischargeOnceTargetSocEnable: boolean;
+        isEssChargeFromGridAllowed: boolean | null;
+        isEssDischargeToGridAllowed: boolean | null;
     };
 
     // Creates a hide predicate that hides the field when the form mode does not match the given mode
-    const DONOT_HIDE_ON_MODE = (mode: Mode) => (el: FormModel) => el.mode !== mode;
+    const DO_NOT_HIDE_ON_MODE = (mode: Mode) => (el: FormModel) => el.mode !== mode;
 
     export const PROPERTY_MODE = "_PropertyMode";
     export const PROPERTY_POWER = "_PropertyPower";
@@ -45,11 +44,11 @@ export namespace SharedEssFixDigitalPowerControl {
         edge: Edge,
         unit: string,
         powerConverter: (value: number | null) => string,
+        navigateToGridSettings: () => void,
     ): OeFormlyView<FormModel> => {
         const isNewVersion =
             (edge.isVersionAtLeast(NEW_FEATURES_MIN_VERSION) || edge.isVersionAtLeast("2026.6.2-SNAPSHOT")) &&
             component.factoryId !== "Controller.Symmetric.FixReactivePower";
-
         return {
             title: component.alias,
             icon: {
@@ -60,95 +59,27 @@ export namespace SharedEssFixDigitalPowerControl {
             lines: [
                 ...getFormlySharedModeAndStateLines(translate, component, powerConverter),
                 ...getFormlySharedLines(translate, isNewVersion),
-                ...getFormlyManualOnView(translate, DONOT_HIDE_ON_MODE(Mode.MANUAL_ON), unit),
-                ...(isNewVersion ? getFormlyChargeOnceView(translate, DONOT_HIDE_ON_MODE(Mode.CHARGE_ONCE), unit) : []),
+                ...getFormlyManualOnView(translate, DO_NOT_HIDE_ON_MODE(Mode.MANUAL_ON), unit),
                 ...(isNewVersion
-                    ? getFormlyDischargeOnceView(translate, DONOT_HIDE_ON_MODE(Mode.DISCHARGE_ONCE), unit)
-                    : []),
-                ...(isNewVersion
-                    ? getSharedChargeConsumptionFromGridView(
+                    ? getFormlyChargeOnceView(
                           translate,
-                          (el) => el.mode !== Mode.MANUAL_ON && el.mode !== Mode.CHARGE_ONCE,
+                          DO_NOT_HIDE_ON_MODE(Mode.CHARGE_ONCE),
+                          unit,
+                          navigateToGridSettings,
                       )
                     : []),
                 ...(isNewVersion
-                    ? getSharedDischargeConsumptionFromGridView(
+                    ? getFormlyDischargeOnceView(
                           translate,
-                          (el) => el.mode !== Mode.MANUAL_ON && el.mode !== Mode.DISCHARGE_ONCE,
+                          DO_NOT_HIDE_ON_MODE(Mode.DISCHARGE_ONCE),
+                          unit,
+                          navigateToGridSettings,
                       )
                     : []),
             ],
             component: component,
             edge: edge,
         };
-    };
-
-    const getSharedChargeConsumptionFromGridView = (
-        translate: TranslateService,
-        hideCondition: (field: FormModel) => boolean,
-    ): OeFormlyView<FormModel>["lines"] => {
-        // Block is visible when mode is CHARGE_ONCE, or MANUAL_ON with CHARGE direction
-        const blockHide = (el: FormModel) =>
-            hideCondition(el) || (el.mode === Mode.MANUAL_ON && el.powerDirection !== "CHARGE");
-
-        // Info-line is additionally hidden when charge-from-grid is not allowed
-        const infoLineHide = (el: FormModel) => blockHide(el) || !el.isEssChargeToGridAllowed;
-
-        return [
-            {
-                type: "horizontal-line",
-                hide: blockHide,
-            },
-            {
-                type: "toggle-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID_ALLOWED"),
-                controlName: "isEssChargeToGridAllowed",
-                hide: blockHide,
-            },
-            {
-                type: "horizontal-line",
-                hide: infoLineHide,
-            },
-            {
-                type: "info-line",
-                html: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_CONSUMPTION"),
-                hide: infoLineHide,
-            },
-        ];
-    };
-
-    const getSharedDischargeConsumptionFromGridView = (
-        translate: TranslateService,
-        hideCondition: (field: FormModel) => boolean,
-    ): OeFormlyView<FormModel>["lines"] => {
-        // Block is visible when mode is DISCHARGE_ONCE, or MANUAL_ON with DISCHARGE direction
-        const blockHide = (el: FormModel) =>
-            hideCondition(el) || (el.mode === Mode.MANUAL_ON && el.powerDirection !== "DISCHARGE");
-
-        // Info-line is additionally hidden when discharge-to-grid is not allowed
-        const infoLineHide = (el: FormModel) => blockHide(el) || !el.isEssDischargeToGridAllowed;
-
-        return [
-            {
-                type: "horizontal-line",
-                hide: blockHide,
-            },
-            {
-                type: "toggle-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_ACTIVATE"),
-                controlName: "isEssDischargeToGridAllowed",
-                hide: blockHide,
-            },
-            {
-                type: "horizontal-line",
-                hide: infoLineHide,
-            },
-            {
-                type: "info-line",
-                html: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_DESCRIPTION"),
-                hide: infoLineHide,
-            },
-        ];
     };
 
     const getFormlyManualOnView = (
@@ -184,6 +115,7 @@ export namespace SharedEssFixDigitalPowerControl {
         translate: TranslateService,
         hideCondition: (field: FormModel) => boolean,
         unit: string,
+        navigateToGridSettings: () => void,
     ): OeFormlyView<FormModel>["lines"] => [
         {
             type: "input-line",
@@ -209,12 +141,23 @@ export namespace SharedEssFixDigitalPowerControl {
             },
             hide: (el) => hideCondition(el) || !el.chargeOnceTargetSocEnable,
         },
+        {
+            type: "info-line",
+            name: translate.instant("EDGE.INDEX.GRID.CHARGE_ONCE_GRID_PERMISSION_REQUIRED"),
+            link: {
+                text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                callback: navigateToGridSettings,
+            },
+            icon: { name: "oe-info", color: "primary", size: "large" },
+            hide: (el) => hideCondition(el) || el.isEssChargeFromGridAllowed !== false,
+        },
     ];
 
     const getFormlyDischargeOnceView = (
         translate: TranslateService,
         hideCondition: (field: FormModel) => boolean,
         unit: string,
+        navigateToGridSettings: () => void,
     ): OeFormlyView<FormModel>["lines"] => [
         {
             type: "input-line",
@@ -239,6 +182,16 @@ export namespace SharedEssFixDigitalPowerControl {
                 unit: "%",
             },
             hide: (el) => hideCondition(el) || !el.dischargeOnceTargetSocEnable,
+        },
+        {
+            type: "info-line",
+            name: translate.instant("EDGE.INDEX.GRID.DISCHARGE_ONCE_GRID_PERMISSION_REQUIRED"),
+            link: {
+                text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                callback: navigateToGridSettings,
+            },
+            icon: { name: "oe-info", color: "primary", size: "large" },
+            hide: (el) => hideCondition(el) || el.isEssDischargeToGridAllowed !== false,
         },
     ];
 
@@ -385,11 +338,10 @@ export namespace SharedEssFixDigitalPowerControl {
                 new ChannelAddress(EnerixControlComponent.id, PROPERTY_DISCHARGE_ONCE_TARGET_SOC),
             );
 
-            const meta = new MetaComponent(config);
-            if (meta != null) {
+            if (EnerixControlComponent.factoryId !== "Controller.Symmetric.FixReactivePower") {
                 channelAddresses.push(
-                    new ChannelAddress(meta.id, CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED),
-                    new ChannelAddress(meta.id, CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED),
+                    new ChannelAddress("_meta", CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED),
+                    new ChannelAddress("_meta", CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED),
                 );
             }
         }
@@ -402,9 +354,9 @@ export namespace SharedEssFixDigitalPowerControl {
             mode: new FormControl(null),
             powerDirection: new FormControl<PowerDirection>("DISCHARGE"),
             power: new FormControl(null),
-            chargeOncePower: new FormControl(null),
-            isEssChargeToGridAllowed: new FormControl(null),
+            isEssChargeFromGridAllowed: new FormControl(null),
             isEssDischargeToGridAllowed: new FormControl(null),
+            chargeOncePower: new FormControl(null),
             chargeOnceTargetSocEnable: new FormControl(null),
             chargeOnceTargetSoc: new FormControl(null),
             dischargeOncePower: new FormControl(null),

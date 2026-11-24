@@ -43,6 +43,7 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenems
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -126,6 +127,30 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	public synchronized void configurationEvent(ConfigurationEvent event) {
 		this.events.offer(event);
 		this.triggerNextRun();
+	}
+
+	/**
+	 * Applies a Configuration that was just written by the ComponentManager to the
+	 * {@link EdgeConfig} cache synchronously ("read your own writes").
+	 *
+	 * <p>
+	 * Without this, a newly created/updated Component only shows up in
+	 * {@link #getEdgeConfig()} after ConfigAdmin delivered the asynchronous
+	 * {@link ConfigurationEvent}. That delivery happens serially on a single thread
+	 * and has to compete for this Worker's lock with callers of
+	 * {@link #getEdgeConfig()}, which can take many seconds on loaded systems.
+	 *
+	 * <p>
+	 * The asynchronous {@link ConfigurationEvent} is still processed afterwards; it
+	 * re-reads the same PID and publishes the CONFIG_UPDATE event as before.
+	 *
+	 * @param pid the service.pid of the written Configuration
+	 */
+	public synchronized void applyWrittenConfiguration(String pid) {
+		if (this.cache == null || pid == null) {
+			return;
+		}
+		this.readConfigurations(this.cache, "(service.pid=" + pid + ")");
 	}
 
 	/**
@@ -558,7 +583,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 								}
 							}
 						}
-						return result.toArray(new String[result.size()]);
+						return result.toArray(String[]::new);
 					}
 				}
 			}
@@ -630,7 +655,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				JsonElement value = null;
 				if (property.isPassword()) {
 					// hide Password fields
-					value = new JsonPrimitive("xxx");
+					value = new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 
 				} else {
 					// get configured value

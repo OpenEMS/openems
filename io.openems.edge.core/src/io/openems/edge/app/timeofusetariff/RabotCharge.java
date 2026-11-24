@@ -71,7 +71,6 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 		ALIAS(CommonProps.alias()), //
 		@Deprecated
 		ZIP_CODE(defaultDef()), //
-		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 		;
 
 		private final AppDef<? super RabotCharge, ? super Property, ? super Type.Parameter.BundleParameter> def;
@@ -109,13 +108,11 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.RabotCharge",
 							JsonUtils.buildJsonObject() //

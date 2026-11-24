@@ -11,8 +11,6 @@ command="/usr/bin/java \
 -Dfelix.cm.dir=/var/opt/openems/config \
 -Dopenems.data.dir=/var/opt/openems/data \
 -Djava.net.preferIPv4Stack=true \
--XX:+ExitOnOutOfMemoryError \
--XX:+UseZGC -XX:+ZGenerational \
 $EXTRA_JVM_OPTS \
 -jar /opt/openems/openems-backend.jar"
 

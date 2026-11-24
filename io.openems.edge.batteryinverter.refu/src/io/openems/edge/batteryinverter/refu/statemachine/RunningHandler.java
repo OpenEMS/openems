@@ -10,7 +10,6 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.common.type.TypeUtils;
 
 public class RunningHandler extends StateHandler<State, Context> {
 
@@ -60,10 +59,8 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return;
 		}
 
-		float wSetPct = TypeUtils.fitWithin(-100F, 100F, //
-				(float) (context.setActivePower * 100.0 / maxApparentPower));
-		float varSetPct = TypeUtils.fitWithin(-100F, 100F,
-				(float) (context.setReactivePower * 100.0 / maxApparentPower));
+		float wSetPct = Math.clamp((float) (context.setActivePower * 100.0 / maxApparentPower), -100F, 100F);
+		float varSetPct = Math.clamp((float) (context.setReactivePower * 100.0 / maxApparentPower), -100F, 100F);
 
 		FloatWriteChannel wMaxLimPctChannel = inverter.getSunSpecChannelOrError(RefuSunSpecModel.S123.W_MAX_LIM_PCT);
 		wMaxLimPctChannel.setNextWriteValue(wSetPct);

@@ -8,7 +8,10 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
+import { Language } from "src/app/shared/type/language";
+import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
+import { environment } from "src/environments";
 import { AdministrationComponent } from "../administration/administration.component";
 import { PopoverComponent } from "../popover/popover";
 
@@ -44,7 +47,12 @@ export class ModalComponent extends AbstractModal {
     protected awaitingHysteresis: boolean | null = null;
     protected isReadWrite: boolean = true;
     protected helpKey: string | null = null;
-    private showKEBAwarining: boolean = false;
+    private showKEBAwarning: boolean = false;
+    private environment = environment;
+    private kebaP40HelpLink = DocsUtils.replaceDocsLanguage(
+        environment.links.REDIRECT.EVCS_KEBA_HELP,
+        Language.getDocsLang(this.translate.getCurrentLang()),
+    );
 
     private chargePoint: EvcsComponent | null = null;
 
@@ -159,7 +167,7 @@ export class ModalComponent extends AbstractModal {
         }
 
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
-        this.showKEBAwarining = this.helpKey === "REDIRECT.EVCS_KEBA";
+        this.showKEBAwarning = this.component.factoryId === "Evcs.Keba.P40";
         this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false; // 0 !== 3 -> true
         this.status = this.getState(
             this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false,
@@ -206,7 +214,6 @@ export class ModalComponent extends AbstractModal {
         if (this.formGroup == null || this.component == null || this.edge == null) {
             return;
         }
-
         this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
 
         const energyLimitCtrl = FormUtils.findFormControlSafely(

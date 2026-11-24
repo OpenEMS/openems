@@ -1,6 +1,7 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { ObjectUtils } from "../../utils/object/object-utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { OAuthCallBackComponent } from "../auth/oauthcallback.component";
@@ -165,16 +166,21 @@ export class RouteService {
             return;
         }
 
-        const initialUrl = this.router.lastSuccessfulNavigation()?.initialUrl ?? null;
-        const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
+        const initialUrl = this.router.url ?? null;
+        const isAuthenticatedNavi = (this.getCurrentUrlRouteSegments()?.length ?? 0) > 2;
         if (isAuthenticatedNavi && initialUrl != null) {
-            this.router.navigate([initialUrl.toString()]);
+            this.router.navigateByUrl(initialUrl);
             return;
+        }
+
+        // Make exceptional handling of login url
+        if (ArrayUtils.containsAll({ arr: this.getCurrentUrlRouteSegments(), strings: ["login"] })) {
+            this.router.navigate(["/overview"]);
         }
     }
 
     public getCurrentUrlRouteSegments(): string[] {
-        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading();
+        const cleanedCurrentUrl = this.getCurrentUrlWithoutLeading()?.split("?")[0];
         return (
             cleanedCurrentUrl?.split("/")?.reduce((acc: string[], curr) => {
                 const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;

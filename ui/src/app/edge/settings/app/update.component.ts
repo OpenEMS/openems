@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnInit, signal } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { AlertController } from "@ionic/angular";
+import { AlertController, ToggleCustomEvent } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/navigation-back-button";
+import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { RouteService } from "src/app/shared/service/route/route.service";
@@ -20,6 +21,7 @@ import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
 import { QueryAppInstancesByFilter } from "./jsonrpc/queryAppInstancesByFilter";
+import { prepareProperties } from "./jsonrpc/shared";
 import { SwitchArchitecture } from "./jsonrpc/switchArchitecture";
 import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
@@ -54,8 +56,8 @@ export class UpdateAppComponent implements OnInit {
     private static readonly SELECTOR = "app-update";
     public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
-    protected showSwitchArchitecture = false;
-    protected currentArchitecture: string | null = null;
+    protected showSwitchArchitecture = signal<boolean>(false);
+    protected currentArchitecture = signal<string | null>(null);
     protected instances = signal<MyInstance[]>([]);
     protected appName: string | null = null;
     protected isAppCenter: boolean = false;
@@ -68,6 +70,7 @@ export class UpdateAppComponent implements OnInit {
     private handlerId: string | null = null;
     private translateService = inject(TranslateService);
     private isRunning: boolean = false;
+    private switchArchitectureRequested = signal<boolean>(false);
 
     private readonly cdRef = inject(ChangeDetectorRef);
 
@@ -211,127 +214,33 @@ export class UpdateAppComponent implements OnInit {
         });
     }
 
-    protected canSwitchArchitecture(flag: Flag) {
-        if (this.edge == null) {
+    protected async submit(instance: MyInstance): Promise<void> {
+        const edge = this.edge;
+        if (edge == null) {
             return;
         }
-        if (!EdgePermission.hasSwitchArchitecture(this.edge)) {
-            this.showSwitchArchitecture = false;
-            return;
-        }
-        this.edge
-            .sendRequest(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: flag.handlerId,
-                    payload: new CanSwitchArchitecture.Request(flag.canSwitchMethod),
-                }),
-            )
-            .then((response) => {
-                const result = (response as CanSwitchArchitecture.Response).result;
-                this.switchMethod = flag.switchMethod;
-                this.handlerId = flag.handlerId;
-                this.showSwitchArchitecture = result.canSwitch;
-                this.currentArchitecture = result.current ?? null;
-                this.header = result.header;
-                this.info = result.info;
-                this.link = result.link;
-            })
-            .catch((reason) => {
-                console.log(reason);
-            });
-    }
 
-    protected switchArchitecture() {
-        const currentEdge = this.edge;
-        if (currentEdge == null) {
-            return;
-        }
-        this.instances().forEach((instance) => {
-            this.service.startSpinnerTransparentBackground(instance.instanceId);
-            instance.isUpdating = true;
-        });
-        if (this.handlerId == null || this.switchMethod == null) {
-            return;
-        }
-        currentEdge
-            .sendRequest(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: this.handlerId,
-                    payload: new SwitchArchitecture.Request(this.switchMethod),
-                }),
-            )
-            .then((response) => {
-                const navigationExtras = {
-                    state: { appInstanceChange: true },
-                    relativeTo: this.route,
-                };
-                this.router.navigate(["../"], navigationExtras);
-                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
-            })
-            .catch((reason) => {
-                const errorMessage = extractErrorMessage(reason);
-                this.service.toast(errorMessage, "danger");
-            })
-            .finally(() => {
-                this.instances().forEach((instance) => {
-                    this.service.stopSpinner(instance.instanceId);
-                    instance.isUpdating = false;
-                });
-            });
-    }
-
-    protected submit(instance: MyInstance) {
-        if (this.edge == null) {
-            return;
-        }
         this.service.startSpinnerTransparentBackground(instance.instanceId);
         instance.isUpdating = true;
-        // remove alias field from properties
-        const alias = instance.form.value["ALIAS"];
-        const clonedFields: Record<string, any> = {};
-        for (const item in instance.form.value) {
-            if (item != "ALIAS") {
-                clonedFields[item] = instance.form.value[item];
-            }
-        }
-        instance.form.markAsPristine();
-        this.edge
-            .sendRequest(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_appManager",
-                    payload: new UpdateAppInstance.Request({
-                        instanceId: instance.instanceId,
-                        alias: alias,
-                        properties: clonedFields,
-                    }),
-                }),
-            )
-            .then((response) => {
-                const result = (response as UpdateAppInstance.Response).result;
 
-                if (result.warnings && result.warnings.length > 0) {
-                    this.service.toast(result.warnings.join(";"), "warning");
-                } else {
-                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
-                }
-                instance.properties = result.instance.properties;
-                instance.properties["ALIAS"] = result.instance.alias;
-            })
-            .catch(
-                InstallAppComponent.errorToast(this.service, (error) =>
-                    this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", {
-                        error: error,
-                    }),
-                ),
-            )
-            .finally(() => {
-                instance.isUpdating = false;
-                this.service.stopSpinner(instance.instanceId);
-                this.cdRef.markForCheck();
-            });
+        try {
+            const warnings = instance.form.dirty ? await this.updateInstance(edge, instance) : [];
+            if (warnings == null) {
+                return;
+            }
+
+            const isSwitchSuccessful = !this.switchArchitectureRequested() || (await this.switchArchitecture(edge));
+
+            if (warnings.length > 0) {
+                this.service.toast(warnings.join(";"), "warning");
+            } else if (isSwitchSuccessful) {
+                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
+            }
+        } finally {
+            instance.isUpdating = false;
+            this.service.stopSpinner(instance.instanceId);
+            this.cdRef.markForCheck();
+        }
     }
 
     protected async submitDelete(instance: MyInstance) {
@@ -432,6 +341,126 @@ export class UpdateAppComponent implements OnInit {
             this.buildUiInstances(instancesFiltered, appAssistant);
             return;
         }
+    }
+
+    private canSwitchArchitecture(flag: Flag): void {
+        if (this.edge == null) {
+            return;
+        }
+        if (!EdgePermission.hasSwitchArchitecture(this.edge)) {
+            this.showSwitchArchitecture.set(false);
+            return;
+        }
+
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: flag.handlerId,
+                    payload: new CanSwitchArchitecture.Request(flag.canSwitchMethod),
+                }),
+            )
+            .then((response) => {
+                const result = (response as CanSwitchArchitecture.Response).result;
+                this.switchMethod = flag.switchMethod;
+                this.handlerId = flag.handlerId;
+                this.showSwitchArchitecture.set(result.canSwitch);
+                this.currentArchitecture.set(result.current ?? null);
+                this.header = result.header;
+                this.info = result.info;
+                this.link = result.link;
+                this.cdRef.markForCheck();
+            })
+            .catch((reason) => {
+                console.log(reason);
+            });
+    }
+
+    private setSwitchArchitecture(event: ToggleCustomEvent): void {
+        const isCurrentlyNew = this.currentArchitecture() === "NEW";
+        this.switchArchitectureRequested.set(event.detail.checked !== isCurrentlyNew);
+    }
+
+    /**
+     * Updates the given app instance.
+     *
+     * @param edge The current edge
+     * @param instance The instance to update
+     * @returns The warnings of the update; null if the update failed
+     */
+    private async updateInstance(edge: Edge, instance: MyInstance): Promise<string[] | null> {
+        const [err, response] = await JsonRpcUtils.handle(
+            edge.sendRequest<UpdateAppInstance.Response>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new UpdateAppInstance.Request({
+                        instanceId: instance.instanceId,
+                        alias: instance.form.value["ALIAS"],
+                        properties: prepareProperties(instance.form.value, instance.fields),
+                    }),
+                }),
+            ),
+        );
+
+        if (err != null || response == null) {
+            InstallAppComponent.errorToast(this.service, (error) =>
+                this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", {
+                    error: error,
+                }),
+            )(err);
+            return null;
+        }
+
+        const result = response.result;
+        instance.properties = result.instance.properties;
+        instance.properties["ALIAS"] = result.instance.alias;
+        instance.form.markAsPristine();
+        return result.warnings ?? [];
+    }
+
+    /**
+     * Switches the architecture of the app and navigates back on success.
+     *
+     * @param edge The current edge
+     * @returns True if the architecture was switched
+     */
+    private async switchArchitecture(edge: Edge): Promise<boolean> {
+        if (this.handlerId == null || this.switchMethod == null) {
+            return false;
+        }
+
+        this.instances().forEach((instance) => {
+            this.service.startSpinnerTransparentBackground(instance.instanceId);
+            instance.isUpdating = true;
+        });
+
+        const [err] = await JsonRpcUtils.handle(
+            edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: this.handlerId,
+                    payload: new SwitchArchitecture.Request(this.switchMethod),
+                }),
+            ),
+        );
+
+        this.instances().forEach((instance) => {
+            this.service.stopSpinner(instance.instanceId);
+            instance.isUpdating = false;
+        });
+
+        if (err != null) {
+            this.service.toast(extractErrorMessage(err), "danger");
+            return false;
+        }
+
+        this.switchArchitectureRequested.set(false);
+        this.router.navigate(["../"], {
+            state: { appInstanceChange: true },
+            relativeTo: this.route,
+        });
+        return true;
     }
 
     private buildUiInstances(

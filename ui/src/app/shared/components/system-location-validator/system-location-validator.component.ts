@@ -18,7 +18,9 @@ import en from "./i18n/en.json";
 import es from "./i18n/es.json";
 import fr from "./i18n/fr.json";
 import ja from "./i18n/ja.json";
+import lt from "./i18n/lt.json";
 import nl from "./i18n/nl.json";
+import sv from "./i18n/sv.json";
 import { GeoCodeJsonRpc } from "./json-rpc/geo-code-json-rpc";
 
 export type ComponentData = {
@@ -54,6 +56,16 @@ export type GeoResult = {
 
 export type ValidatorContext = "INSTALLATION" | "PROFILE";
 
+type Address = { street?: string; zip?: string; city?: string; country?: string };
+
+/** The address data of an installation, used to prefill the validated system location. */
+type SystemLocationSource = {
+    customer?: Address;
+    location?: Address & { isEqualToCustomerData?: boolean };
+};
+
+type GeoCodeOption = { label: string; value: number; default?: boolean };
+
 export type SaveResult =
     { status: "SUCCESS"; geoResult: GeoResult } | { status: "UNKNOWN_ADDRESS_SELECTED" } | { status: "INVALID" };
 
@@ -65,6 +77,7 @@ export type SaveResult =
     imports: [IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class SystemLocationValidatorComponent implements OnInit {
+    @Input() public systemLocation!: SystemLocationSource;
     @Input() public edge: Edge | null = null;
 
     @Input() public context: ValidatorContext = "PROFILE";
@@ -109,12 +122,16 @@ export class SystemLocationValidatorComponent implements OnInit {
         }
 
         const metaProperties = config.getComponentProperties("_meta");
+        const location =
+            (this.systemLocation?.location?.isEqualToCustomerData
+                ? this.systemLocation?.customer
+                : this.systemLocation?.location) ?? null;
 
         this.initialModel = {
-            street: "",
-            zip: metaProperties["postcode"] ?? "",
-            city: metaProperties["placeName"] ?? "",
-            country: "",
+            street: location?.street ?? "",
+            zip: location?.zip ?? metaProperties["postcode"] ?? "",
+            city: location?.city ?? metaProperties["placeName"] ?? "",
+            country: location?.country ?? "",
         };
 
         this.id = this.edge.getNameNumber();
@@ -225,7 +242,17 @@ export class SystemLocationValidatorComponent implements OnInit {
 
     private async initTranslationsAndFields() {
         const [error, translations] = await PromiseUtils.Functions.handle(
-            Language.normalizeAdditionalTranslationFiles({ cs: cz, de: de, en: en, es: es, fr: fr, ja: ja, nl: nl }),
+            Language.normalizeAdditionalTranslationFiles({
+                cs: cz,
+                de: de,
+                en: en,
+                es: es,
+                fr: fr,
+                ja: ja,
+                lt: lt,
+                nl: nl,
+                sv: sv,
+            }),
         );
 
         if (error) {
@@ -261,7 +288,7 @@ export class SystemLocationValidatorComponent implements OnInit {
     }
 
     private fillGeoCodeFields(results: GeoResult[]) {
-        const options: ComponentData[] = [];
+        const options: GeoCodeOption[] = [];
         let defaultIndex = 0;
 
         results.forEach((geoCode, index) => {
@@ -316,7 +343,7 @@ export class SystemLocationValidatorComponent implements OnInit {
                 key: "street",
                 type: "input",
                 templateOptions: {
-                    label: this.translate.instant("INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS"),
+                    label: this.translate.instant("GENERAL.ADDRESS.STREET_ADDRESS"),
                     required: true,
                 },
             },
@@ -324,7 +351,7 @@ export class SystemLocationValidatorComponent implements OnInit {
                 key: "zip",
                 type: "input",
                 templateOptions: {
-                    label: this.translate.instant("INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP"),
+                    label: this.translate.instant("GENERAL.ADDRESS.ZIP"),
                     required: true,
                 },
                 validators: { validation: ["zip"] },
@@ -333,7 +360,7 @@ export class SystemLocationValidatorComponent implements OnInit {
                 key: "city",
                 type: "input",
                 templateOptions: {
-                    label: this.translate.instant("INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY"),
+                    label: this.translate.instant("GENERAL.ADDRESS.CITY"),
                     required: true,
                 },
             },
@@ -341,7 +368,7 @@ export class SystemLocationValidatorComponent implements OnInit {
                 key: "country",
                 type: "select",
                 templateOptions: {
-                    label: this.translate.instant("INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY"),
+                    label: this.translate.instant("GENERAL.ADDRESS.COUNTRY"),
                     required: true,
                     options: COUNTRY_OPTIONS(this.translate),
                 },

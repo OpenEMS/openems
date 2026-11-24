@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
+import io.openems.common.websocket.ClientReconnectorWorker.WebsocketReconnectorEventType;
 import io.openems.common.websocket.CommonHttpHeader;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.OnNotification;
@@ -37,11 +38,11 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	protected WebsocketClient(ControllerApiBackendImpl parent, String name, URI serverUri,
 			Map<String, String> httpHeaders, Proxy proxy) {
 		super(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy, null,
-				ClientReconnectorWorker.DEFAULT_CONFIG.withEventHandler(e -> onReconnectEvent(parent, e)));
+				ClientReconnectorWorker.DEFAULT_CONFIG.withEventHandler(e -> onReconnectEvent(parent, e.type())));
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onError = new OnError(parent);
-		this.onClose = (ws, code, reason, remote) -> {
+		this.onClose = (_, code, reason, _) -> {
 			final var serverUriStr = serverUri.toString();
 			final var proxyStr = (proxy != AbstractWebsocketClient.NO_PROXY) ? " via Proxy" : "";
 
@@ -55,14 +56,13 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 			this.parent.getUnableToSendChannel().setNextValue(true);
 		};
-		this.onNotification = (websocket, notification) -> {
+		this.onNotification = (_, notification) -> {
 			parent.getEventHandler().emit(new BackendEvent.Notification(notification));
 		};
 	}
 
-	private static void onReconnectEvent(ControllerApiBackendImpl parent,
-			ClientReconnectorWorker.WebsocketReconnectorEvent event) {
-		if (event == ClientReconnectorWorker.WebsocketReconnectorEvent.CLOSE_FAILED) {
+	private static void onReconnectEvent(ControllerApiBackendImpl parent, WebsocketReconnectorEventType event) {
+		if (event == WebsocketReconnectorEventType.CLOSE_FAILED) {
 			ChannelUtils.setValue(parent, ControllerApiBackend.ChannelId.CONNECTION_CLOSE_FAILURE, true);
 		}
 	}

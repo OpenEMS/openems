@@ -817,4 +817,46 @@ public class JsonUtilsTest {
 		assertEquals("foo", r.get(0).getAsString());
 		assertEquals("bar", r.get(1).getAsString());
 	}
+
+	@Test
+	public void testHidePassword() {
+		var json = buildJsonObject() //
+				.addProperty("email", "max@example.com") //
+				.addProperty("password", "Secret123!") //
+				.build();
+
+		var hidden = JsonUtils.hidePassword(json);
+
+		assertEquals("HIDDEN", hidden.get("password").getAsString());
+		assertEquals("max@example.com", hidden.get("email").getAsString());
+		assertEquals("Secret123!", json.get("password").getAsString());
+
+		var withoutPassword = JsonUtils.hidePassword(buildJsonObject() //
+				.addProperty("email", "max@example.com") //
+				.build());
+		assertFalse(withoutPassword.has("password"));
+
+		// nested objects and arrays are masked recursively
+		var nested = buildJsonObject() //
+				.addProperty("password", "Secret123!") //
+				.add("user", buildJsonObject() //
+						.addProperty("email", "max@example.com") //
+						.addProperty("password", "NestedSecret!") //
+						.build()) //
+				.add("users", buildJsonArray() //
+						.add(buildJsonObject() //
+								.addProperty("password", "ArraySecret!") //
+								.build()) //
+						.build()) //
+				.build();
+
+		var hiddenNested = JsonUtils.hidePassword(nested);
+		assertEquals("HIDDEN", hiddenNested.get("password").getAsString());
+		assertEquals("HIDDEN", hiddenNested.getAsJsonObject("user").get("password").getAsString());
+		assertEquals("HIDDEN",
+				hiddenNested.getAsJsonArray("users").get(0).getAsJsonObject().get("password").getAsString());
+		assertEquals("NestedSecret!", nested.getAsJsonObject("user").get("password").getAsString());
+		assertEquals("ArraySecret!",
+				nested.getAsJsonArray("users").get(0).getAsJsonObject().get("password").getAsString());
+	}
 }

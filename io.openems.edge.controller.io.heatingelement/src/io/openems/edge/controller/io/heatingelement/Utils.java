@@ -2,6 +2,7 @@ package io.openems.edge.controller.io.heatingelement;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.List;
 
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -15,26 +16,39 @@ public class Utils {
 	}
 
 	public static record CumulatedActiveTimes(CalculateActiveTime totalTimeLevel1, CalculateActiveTime totalTimeLevel2,
-			CalculateActiveTime totalTimeLevel3) {
+			CalculateActiveTime totalTimeLevel3, CalculateActiveTime totalTimeLevel4,
+			CalculateActiveTime totalTimeLevel5, CalculateActiveTime totalTimeLevel6) {
 	}
 
 	/**
-	 * Calculates the required level based from a power value of a phase.
-	 * 
-	 * @param excessPower   the excess power in Watt
-	 * @param powerPerPhase the configurable power value of a phase in Watt
+	 * Calculates the required Level based on the cumulated nominal power of the
+	 * configured {@link HeatingElementStep}s.
+	 *
+	 * <p>
+	 * The result is the highest Level whose cumulated Step power (i.e. the sum of
+	 * the nominal power of the first N Steps) is still covered by the given excess
+	 * power. This works for any number of Steps and any (possibly asymmetric) Step
+	 * power, e.g. the 3 Steps of a single heating element or the 6 Steps of two
+	 * heating elements in SEQUENTIAL or PARALLEL Distribution.
+	 *
+	 * @param excessPower the excess power in Watt
+	 * @param steps       the ordered {@link HeatingElementStep}s
 	 * @return the required level
 	 */
-	public static Level getRequiredLevelFromPower(long excessPower, int powerPerPhase) {
-		if (excessPower >= powerPerPhase * 3L) {
-			return Level.LEVEL_3;
-		} else if (excessPower >= powerPerPhase * 2L) {
-			return Level.LEVEL_2;
-		} else if (excessPower >= powerPerPhase) {
-			return Level.LEVEL_1;
-		} else {
-			return Level.LEVEL_0;
+	public static Level getRequiredLevelFromPower(long excessPower, List<HeatingElementStep> steps) {
+		var levels = Level.values();
+		var requiredLevel = Level.LEVEL_0;
+		var cumulatedPower = 0L;
+		for (var i = 0; i < steps.size(); i++) {
+			cumulatedPower += steps.get(i).nominalPower();
+
+			if (excessPower < cumulatedPower) {
+				break;
+			}
+
+			requiredLevel = levels[i + 1];
 		}
+		return requiredLevel;
 	}
 
 	/**

@@ -62,10 +62,12 @@ public class AppHardyBarthReadOnly
 		// First ChargePoint
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setRequired(true) //
-				.setDefaultValue((app, property, l, parameter) -> //
-				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
-						TranslationUtil.getTranslation(parameter.bundle(), "right")))) //
-				.wrapField((app, property, l, parameter, field) -> field
+				.setDefaultValue((_, _, _, parameter) -> {
+					return new JsonPrimitive(
+							TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
+									TranslationUtil.getTranslation(parameter.bundle(), "right")));
+				}) //
+				.wrapField((app, _, l, parameter, field) -> field
 						.setDefaultValueCases(new DefaultValueOptions(Property.NUMBER_OF_CHARGING_STATIONS, //
 								new Case(1, app.getName(l)), //
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
@@ -77,20 +79,18 @@ public class AppHardyBarthReadOnly
 
 		// Second ChargePoint
 		ALIAS_CP_2(AppDef.copyOfGeneric(CommonProps.alias()) //
-				.setDefaultValue((app, property, l, parameter) -> //
-				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
-						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
-							.equal(Exp.staticValue(2)));
-				})//
+				.setDefaultValue((_, _, _, parameter) -> {
+					return new JsonPrimitive(
+							TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
+									TranslationUtil.getTranslation(parameter.bundle(), "left"))); //
+				}) //
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS).equal(Exp.staticValue(2))))//
 				.setRequired(true)), //
 		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.31") //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
-							.equal(Exp.staticValue(2)));
-				})//
+				.wrapField((_, _, _, _, field) -> field//
+						.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS).equal(Exp.staticValue(2))))//
 				.setRequired(true)), //
 		;
 

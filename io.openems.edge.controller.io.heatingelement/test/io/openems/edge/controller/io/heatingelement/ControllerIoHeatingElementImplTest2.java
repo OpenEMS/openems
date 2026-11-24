@@ -93,7 +93,7 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
 						.setMeterid("dummy-meter") //
-						.setScheduler("") // 
+						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
@@ -101,19 +101,21 @@ public class ControllerIoHeatingElementImplTest2 {
 				.next(new TestCase() //
 						.timeleap(clock, 6, MINUTES)//
 						.input(GRID_ACTIVE_POWER, -6000) //
+						// Asymmetric SURPLUS switching activates at most one additional Level per
+						// minimumSwitchingTime, so LEVEL_3 is not applied immediately.
 						.output("io0", INPUT_OUTPUT0, true) //
-						.output("io0", INPUT_OUTPUT1, true) //
-						.output("io0", INPUT_OUTPUT2, true) //
+						.output("io0", INPUT_OUTPUT1, false) //
+						.output("io0", INPUT_OUTPUT2, false) //
 						.output(TOTAL_PHASE_TIME, 0) //
 						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_100 /* 14:45 */)) //
 				.next(new TestCase() //
 						.timeleap(clock, 6, MINUTES)//
 						.input(GRID_ACTIVE_POWER, 0) //
 						.output("io0", INPUT_OUTPUT0, true) //
-						.output("io0", INPUT_OUTPUT1, true) //
-						.output("io0", INPUT_OUTPUT2, true) //
-						.output(TOTAL_PHASE_TIME, 1080 /* 6 minutes, all three phases */) //
-						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_460 /* 14:51 - six minutes later */)) //
+						.output("io0", INPUT_OUTPUT1, false) //
+						.output("io0", INPUT_OUTPUT2, false) //
+						.output(TOTAL_PHASE_TIME, 360 /* 6 minutes, phase1 only */) //
+						.output(FORCE_START_AT_SECONDS_OF_DAY, 53_220 /* 14:47 - two minutes later */)) //
 				.deactivate();
 	}
 
@@ -140,7 +142,7 @@ public class ControllerIoHeatingElementImplTest2 {
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
 						.setMeterid("dummy-meter") //
-						.setScheduler("") // 
+						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //

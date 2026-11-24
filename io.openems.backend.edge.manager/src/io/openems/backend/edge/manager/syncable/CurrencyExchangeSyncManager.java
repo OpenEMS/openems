@@ -27,7 +27,7 @@ public class CurrencyExchangeSyncManager {
 	@Reference
 	private SyncableRepository syncableRepository;
 
-	private final Consumer<Void> onExchangeRatesChangeFunc = v -> this.writeRatesIntoSyncable();
+	private final Consumer<Void> onExchangeRatesChangeFunc = _ -> this.writeRatesIntoSyncable();
 
 	@Activate
 	protected void activate() {

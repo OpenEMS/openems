@@ -136,7 +136,7 @@ public class ScheduleHandler {
 			String edgeId, //
 			UUID websocketId) {
 
-		this.subscriptions.compute(edgeId, (key, tokens) -> {
+		this.subscriptions.compute(edgeId, (_, tokens) -> {
 			if (tokens == null) {
 				// Create new Set for this Edge-ID
 				tokens = new HashSet<>();
@@ -164,7 +164,7 @@ public class ScheduleHandler {
 			String edgeId, //
 			Set<UUID> websocketIds) {
 
-		this.subscriptions.compute(edgeId, (key, tokens) -> {
+		this.subscriptions.compute(edgeId, (_, tokens) -> {
 			if (tokens == null) {
 				// There was no entry for this Edge-ID
 				return null;

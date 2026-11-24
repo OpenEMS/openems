@@ -136,7 +136,7 @@ public class ResolveOpenemsHardware implements Runnable {
 				return;
 			}
 
-			final var installedHardwareApp = hardwareApps.get(0);
+			final var installedHardwareApp = hardwareApps.getFirst();
 			if (installedHardwareApp.appId.equals(this.requireApp)) {
 				// installed hardware app matches the on in the properties file
 				this.appManagerImpl._setHardwareMismatch(false);

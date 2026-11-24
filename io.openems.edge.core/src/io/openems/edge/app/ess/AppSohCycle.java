@@ -72,8 +72,8 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 				.setTranslatedLabelWithAppPrefix(".logVerbosity.label") //
 				.setDefaultValue("NONE") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable,
-						(app, property, l, parameter, field) -> field.setOptions(List.of("NONE", "DEBUG_LOG")))//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> field//
+						.setOptions(List.of("NONE", "DEBUG_LOG")))//
 				.bidirectional(CTRL_ESS_SOH_CYCLE_ID, "logVerbosity", //
 						ComponentManagerSupplier::getComponentManager))), // , //
 		REFERENCE_CYCLE_ENABLED(AppDef.copyOfGeneric(defaultDef(), def -> def//
