@@ -557,7 +557,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.86</version>
+			<version>1.87</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -566,7 +566,16 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.86</version>
+			<version>1.87</version>
+		</dependency>
+		<dependency>
+			<!--
+			Bouncycastle for Eclipse Paho MQTTv5 Client (transitive of bcpkix-jdk18on, used at runtime)
+			Changelog: https://www.bouncycastle.org/download/bouncy-castle-java/#release-notes
+			-->
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcutil-jdk18on</artifactId>
+			<version>1.87</version>
 		</dependency>
 		<dependency>
 			<!--
