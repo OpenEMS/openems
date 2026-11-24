@@ -397,13 +397,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			if (!(e.getMessage().contains("Unable to write to Odoo") && e.getMessage().contains("res.partner"))) {
 				throw e;
 			}
-			// Hide password before logging (see JsonrpcUtils.simplifyJsonrpcMessage)
-			final var logJson = jsonObject.deepCopy();
-			if (logJson.has("password")) {
-				logJson.addProperty("password", "HIDDEN");
-			}
 			this.log.error("[ODOO_INTERNAL_ERROR] Unable to register user: {}. Retrying... {}", //
-					e.getMessage(), logJson, e);
+					e.getMessage(), JsonUtils.hidePassword(jsonObject), e);
 			try {
 				Thread.sleep(5_000);
 			} catch (InterruptedException ex) {
