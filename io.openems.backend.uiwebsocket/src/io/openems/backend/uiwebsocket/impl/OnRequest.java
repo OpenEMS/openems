@@ -299,8 +299,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, LogoutRequest request) {
-		wsData.logout();
 		final var token = wsData.getToken().orElse(null);
+		wsData.logout();
 		if (token == null) {
 			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		}
