@@ -73,6 +73,17 @@ public class UpdateComponentConfig implements EndpointRequestType<Request, Empty
 							.build());
 		}
 
+		/**
+		 * Checks if the Request only updates the 'alias' Property (e.g. renaming a
+		 * Component via UI).
+		 *
+		 * @return true if there is at least one Property and all are named 'alias'
+		 */
+		public boolean isAliasOnlyUpdate() {
+			return !this.properties().isEmpty() && this.properties().stream() //
+					.allMatch(p -> p.name().equals("alias"));
+		}
+
 	}
 
 }

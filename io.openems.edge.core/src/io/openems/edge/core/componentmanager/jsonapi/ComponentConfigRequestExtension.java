@@ -27,10 +27,10 @@ public class ComponentConfigRequestExtension implements ComponentJsonApiExtensio
 				endpoint -> endpoint.setDescription("""
 						Handles a CreateComponentConfigRequest.
 						""") //
-						.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
-								EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN)),
+						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)),
 				t -> {
-					componentManager.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
+					componentManager.handleCreateComponentConfigRequestGuarded(t.get(EdgeKeys.USER_KEY),
+							t.getRequest());
 
 					return EmptyObject.INSTANCE;
 				});
@@ -41,7 +41,8 @@ public class ComponentConfigRequestExtension implements ComponentJsonApiExtensio
 						""") //
 						.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER)),
 				t -> {
-					componentManager.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
+					componentManager.handleUpdateComponentConfigRequestGuarded(t.get(EdgeKeys.USER_KEY),
+							t.getRequest());
 
 					return EmptyObject.INSTANCE;
 				});
@@ -50,10 +51,10 @@ public class ComponentConfigRequestExtension implements ComponentJsonApiExtensio
 				endpoint -> endpoint.setDescription("""
 						Handles a DeleteComponentConfigRequest.
 						""") //
-						.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
-								EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN)),
+						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)),
 				t -> {
-					componentManager.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
+					componentManager.handleDeleteComponentConfigRequestGuarded(t.get(EdgeKeys.USER_KEY),
+							t.getRequest());
 
 					return EmptyObject.INSTANCE;
 				});

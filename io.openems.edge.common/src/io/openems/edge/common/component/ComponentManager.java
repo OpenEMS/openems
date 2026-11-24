@@ -297,32 +297,96 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 
 	/**
 	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
+	 *
+	 * <p>
+	 * Note: this 'NonGuarded' method does not apply the
+	 * {@link ComponentConfigGuard}.
+	 *
 	 * @param user    the user
 	 * @param request the {@link CreateComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleCreateComponentConfigRequest(User user, CreateComponentConfig.Request request)
+	public void handleCreateComponentConfigRequestNonGuarded(User user, CreateComponentConfig.Request request)
 			throws OpenemsNamedException;
 
 	/**
+	 * Handles a {@link CreateComponentConfigRequest}.
+	 *
+	 * <p>
+	 * Note: this 'Guarded' method applies the {@link ComponentConfigGuard}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link CreateComponentConfigRequest}
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void handleCreateComponentConfigRequestGuarded(User user, CreateComponentConfig.Request request)
+			throws OpenemsNamedException {
+		ComponentConfigGuard.assertAdminOnly(user, CreateComponentConfigRequest.METHOD, request.getComponentId());
+		this.handleCreateComponentConfigRequestNonGuarded(user, request);
+	}
+
+	/**
 	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
+	 *
+	 * <p>
+	 * Note: this 'NonGuarded' method does not apply the
+	 * {@link ComponentConfigGuard}.
+	 *
 	 * @param user    the user
 	 * @param request the {@link UpdateComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfig.Request request)
+	public void handleUpdateComponentConfigRequestNonGuarded(User user, UpdateComponentConfig.Request request)
 			throws OpenemsNamedException;
 
 	/**
+	 * Handles a {@link UpdateComponentConfigRequest}.
+	 *
+	 * <p>
+	 * Note: this 'Guarded' method applies the {@link ComponentConfigGuard}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link UpdateComponentConfigRequest}
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void handleUpdateComponentConfigRequestGuarded(User user, UpdateComponentConfig.Request request)
+			throws OpenemsNamedException {
+		var factoryPid = this.getEdgeConfig().getComponent(request.componentId()) //
+				.map(EdgeConfig.Component::getFactoryId) //
+				.orElse(null);
+		var allowedRequest = ComponentConfigGuard.assertUpdatableAndFilter(user, //
+				UpdateComponentConfigRequest.METHOD, factoryPid, request);
+		this.handleUpdateComponentConfigRequestNonGuarded(user, allowedRequest);
+	}
+
+	/**
 	 * Handles a {@link DeleteComponentConfigRequest}.
-	 * 
+	 *
+	 * <p>
+	 * Note: this 'NonGuarded' method does not apply the
+	 * {@link ComponentConfigGuard}.
+	 *
 	 * @param user    the user
 	 * @param request the {@link DeleteComponentConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
-	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfig.Request request)
+	public void handleDeleteComponentConfigRequestNonGuarded(User user, DeleteComponentConfig.Request request)
 			throws OpenemsNamedException;
+
+	/**
+	 * Handles a {@link DeleteComponentConfigRequest}.
+	 *
+	 * <p>
+	 * Note: this 'Guarded' method applies the {@link ComponentConfigGuard}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link DeleteComponentConfigRequest}
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void handleDeleteComponentConfigRequestGuarded(User user, DeleteComponentConfig.Request request)
+			throws OpenemsNamedException {
+		ComponentConfigGuard.assertAdminOnly(user, DeleteComponentConfigRequest.METHOD, request.componentId());
+		this.handleDeleteComponentConfigRequestNonGuarded(user, request);
+	}
 
 }

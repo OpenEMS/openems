@@ -335,7 +335,7 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 				new UpdateComponentConfigRequest.Property("predictor.ids", jsonIds) //
 		));
 
-		this.componentManager.handleUpdateComponentConfigRequest(user, request);
+		this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user, request);
 	}
 
 	private Map<OpenemsAppInstance, List<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent>> getAppsWithPredictorManagerComponent(

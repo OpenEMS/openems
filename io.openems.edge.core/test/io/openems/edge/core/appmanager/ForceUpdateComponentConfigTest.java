@@ -192,7 +192,7 @@ class ForceUpdateComponentConfigTest {
 					new UpdateComponentConfigRequest.Property("phaseRotation", PhaseRotation.L1_L2_L3.name()) //
 			);
 
-			this.testBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+			this.testBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 					new CreateComponentConfig.Request("Test.Force.Updating.Config", componentProperties));
 		}
 
@@ -231,7 +231,7 @@ class ForceUpdateComponentConfigTest {
 					new UpdateComponentConfigRequest.Property("phaseRotation", PhaseRotation.L1_L2_L3.name()) //
 			);
 
-			this.testBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+			this.testBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 					new CreateComponentConfig.Request("Test.Force.Updating.Config", componentProperties));
 		}
 
@@ -265,9 +265,9 @@ class ForceUpdateComponentConfigTest {
 						.withValue(2) //
 		)), ComponentDef.Configuration.defaultConfig());
 
-		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected);
 
-		verify(componentManager, times(0)).handleUpdateComponentConfigRequest(any(), any());
+		verify(componentManager, times(0)).handleUpdateComponentConfigRequestGuarded(any(), any());
 	}
 
 	@Test
@@ -284,9 +284,9 @@ class ForceUpdateComponentConfigTest {
 		final var expected = new ComponentDef("modbus0", "different Alias", "modbus.factory.id",
 				new ComponentProperties(List.of()), ComponentDef.Configuration.defaultConfig());
 
-		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected);
 
-		verify(componentManager, times(0)).handleUpdateComponentConfigRequest(any(), any());
+		verify(componentManager, times(0)).handleUpdateComponentConfigRequestGuarded(any(), any());
 	}
 
 	@Test
@@ -311,9 +311,9 @@ class ForceUpdateComponentConfigTest {
 								.withValue(2) //
 				)), ComponentDef.Configuration.defaultConfig());
 
-		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected);
 
-		verify(componentManager, times(1)).handleUpdateComponentConfigRequest(any(),
+		verify(componentManager, times(1)).handleUpdateComponentConfigRequestGuarded(any(),
 				eq(new UpdateComponentConfig.Request("modbus0", List.of(//
 						new UpdateComponentConfigRequest.Property("id", "modbus0"), //
 						new UpdateComponentConfigRequest.Property("alias", "Alias"), //

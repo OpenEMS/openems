@@ -666,7 +666,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 
-			this.componentManager.handleUpdateComponentConfigRequest(user, request);
+			this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user, request);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new OpenemsException("Could not update Scheduler!");

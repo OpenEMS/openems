@@ -84,7 +84,7 @@ public class TestScheduler {
 	}
 
 	public void setSchedulerIds(User user, String... ids) throws OpenemsNamedException {
-		this.componentManager.handleUpdateComponentConfigRequest(user,
+		this.componentManager.handleUpdateComponentConfigRequestGuarded(user,
 				new UpdateComponentConfig.Request("scheduler0", List.of(//
 						new UpdateComponentConfigRequest.Property("controllers.ids", Arrays.stream(ids) //
 								.map(JsonPrimitive::new) //

@@ -192,7 +192,7 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 		existingChannels.addAll(channelsToAdd);
 		existingChannels.removeAll(channelsToRemove);
 
-		componentManager.handleUpdateComponentConfigRequest(user,
+		componentManager.handleUpdateComponentConfigRequestNonGuarded(user,
 				new UpdateComponentConfig.Request(predictor.id(), List.of(//
 						new UpdateComponentConfigRequest.Property("channelAddresses", existingChannels.stream() //
 								.map(JsonPrimitive::new) //

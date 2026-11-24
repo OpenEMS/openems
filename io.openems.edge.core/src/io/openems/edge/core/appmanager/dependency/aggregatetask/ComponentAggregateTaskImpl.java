@@ -399,7 +399,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 	}
 
 	private void deleteComponent(User user, ComponentDef comp) throws OpenemsNamedException {
-		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(comp.id()));
+		this.componentManager.handleDeleteComponentConfigRequestNonGuarded(user, new DeleteComponentConfig.Request(comp.id()));
 	}
 
 	private void createComponent(User user, ComponentDef comp) throws OpenemsNamedException {
@@ -409,7 +409,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		properties.add(new Property("id", comp.id()));
 		properties.add(new Property("alias", comp.alias()));
 
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request(comp.factoryId(), properties));
 	}
 
@@ -438,7 +438,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				.collect(Collectors.toList());
 		properties.add(new Property("alias", myComp.alias()));
 
-		this.componentManager.handleUpdateComponentConfigRequest(user,
+		this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user,
 				new UpdateComponentConfig.Request(componentId, properties));
 	}
 

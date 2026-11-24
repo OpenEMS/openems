@@ -141,7 +141,7 @@ class TestTibber {
 
 		assertEquals("xxx", value.getAsString());
 
-		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new UpdateComponentConfig.Request(response.instance().properties
 						.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name()).getAsString(),
 						List.of(new UpdateComponentConfigRequest.Property("accessToken", ""))));
@@ -168,7 +168,7 @@ class TestTibber {
 
 		assertEquals("randomInitialFilter", value.getAsString());
 
-		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new UpdateComponentConfig.Request(response.instance().properties
 						.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name()).getAsString(),
 						List.of(new UpdateComponentConfigRequest.Property("filter", ""))));
@@ -181,7 +181,7 @@ class TestTibber {
 	}
 
 	private void createPredictor() throws Exception {
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Predictor.PersistenceModel", List.of(//
 						new UpdateComponentConfigRequest.Property("id", "predictor0"), //
 						new UpdateComponentConfigRequest.Property("channelAddresses", JsonUtils.buildJsonArray()//

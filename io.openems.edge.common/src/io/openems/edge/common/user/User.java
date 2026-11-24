@@ -14,6 +14,13 @@ import io.openems.common.utils.JsonUtils;
 public class User extends AbstractUser {
 
 	/**
+	 * Internal {@link User} for system-initiated calls (e.g. default configuration
+	 * or migrations). Has Role ADMIN and is therefore never restricted by Role
+	 * checks.
+	 */
+	public static final User INTERNAL = new User("INTERNAL", "Internal", Language.DEFAULT, Role.ADMIN);
+
+	/**
 	 * Constructs an {@link User}.
 	 *
 	 * @param id       the User-ID

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 @Component(immediate = true, scope = ServiceScope.SINGLETON)
@@ -149,7 +150,7 @@ public class ResolveOpenemsHardware implements Runnable {
 
 		this.log.trace("Try to install '" + this.requireApp + "'");
 		try {
-			this.appManagerImpl.handleAddAppInstanceRequest(null,
+			this.appManagerImpl.handleAddAppInstanceRequest(User.INTERNAL,
 					new AddAppInstance.Request(this.requireApp, null, null, JsonUtils.buildJsonObject() //
 							.build()),
 					true);

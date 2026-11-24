@@ -37,6 +37,7 @@ import io.openems.common.types.BiddingZone;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.services.syncable.SyncableRepository;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.backend.api.DataFetchType;
 import io.openems.edge.controller.api.backend.services.BackendConnectionState;
 import io.openems.edge.controller.api.backend.services.BackendConnectionStateListener;
@@ -242,7 +243,7 @@ public class LegacyEntsoeComponentMigrator {
 				.build();
 
 		this.log.info("Migrating TimeOfUseTariff.ENTSO-E to Tariff.BySpotTariff.GridBuy ...");
-		this.componentManager.handleDeleteComponentConfigRequest(null,
+		this.componentManager.handleDeleteComponentConfigRequestGuarded(User.INTERNAL,
 				new DeleteComponentConfig.Request(oldComponent.id()));
 		this.createConfiguration("Tariff.BySpotTariff.GridBuy", properties);
 		this.migratedComponentIds.add(oldComponent.id());
@@ -281,7 +282,7 @@ public class LegacyEntsoeComponentMigrator {
 				.build();
 
 		this.log.info("Migrating Tariff.ENTSO-E.GridSell to Tariff.BySpotTariff.GridSell ...");
-		this.componentManager.handleDeleteComponentConfigRequest(null,
+		this.componentManager.handleDeleteComponentConfigRequestGuarded(User.INTERNAL,
 				new DeleteComponentConfig.Request(oldComponent.id()));
 		this.createConfiguration("Tariff.BySpotTariff.GridSell", properties);
 		this.migratedComponentIds.add(oldComponent.id());
@@ -350,7 +351,7 @@ public class LegacyEntsoeComponentMigrator {
 							.map(p -> p.name() + ":" + p.value().toString()) //
 							.collect(Collectors.joining(", "))) //
 					.log();
-			this.componentManager.handleCreateComponentConfigRequest(null /* no user */,
+			this.componentManager.handleCreateComponentConfigRequestGuarded(User.INTERNAL, //
 					new CreateComponentConfig.Request(factoryPid, properties));
 		} catch (OpenemsError.OpenemsNamedException e) {
 			throw new Exception(String.format("Unable to create Component configuration for Factory [%s]", factoryPid),

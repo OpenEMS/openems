@@ -188,7 +188,7 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 			this.logInfo(this.log, "Create Component [" + createRequest.getComponentId() + "] from ["
 					+ createRequest.getFactoryPid() + "]");
 			simulatorComponentIds.add(createRequest.getComponentId());
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request(createRequest.getFactoryPid(), createRequest.getProperties()));
 		}
 		this.waitForComponentsToActivate(simulatorComponentIds);
@@ -384,7 +384,7 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent implements Simula
 	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {
 		this.logInfo(this.log, "Delete Component [" + componentId + "]");
 		var deleteComponentConfigRequest = new DeleteComponentConfig.Request(componentId);
-		this.componentManager.handleDeleteComponentConfigRequest(user, deleteComponentConfigRequest);
+		this.componentManager.handleDeleteComponentConfigRequestNonGuarded(user, deleteComponentConfigRequest);
 	}
 
 	/**

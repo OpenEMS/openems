@@ -1091,7 +1091,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			componentUpdateProps.add(new UpdateComponentConfigRequest.Property(key, properties.get(key)));
 		}
 		final var updateRequest = new UpdateComponentConfig.Request(from.componentId(), componentUpdateProps);
-		this.componentManager.handleUpdateComponentConfigRequest(user, updateRequest);
+		// guarded variant: the denylist must also apply when a component is updated
+		// directly via 'updateAppConfig' with an arbitrary componentId
+		this.componentManager.handleUpdateComponentConfigRequestGuarded(user, updateRequest);
 	}
 
 	/**
@@ -1188,8 +1190,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		this.waitingForModified = true;
 		var sortedApps = AppManagerImpl.sortApps(apps);
 		var p = new Property("apps", this.getJsonAppsString(sortedApps));
-		// user can be null using internal method
-		this.componentManager.handleUpdateComponentConfigRequest(user,
+		this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user,
 				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, List.of(p)));
 	}
 

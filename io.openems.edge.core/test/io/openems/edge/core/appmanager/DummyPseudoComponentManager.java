@@ -155,7 +155,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public void handleCreateComponentConfigRequest(//
+	public void handleCreateComponentConfigRequestNonGuarded(//
 			final User user, //
 			final CreateComponentConfig.Request request //
 	) throws OpenemsNamedException {
@@ -170,7 +170,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public void handleUpdateComponentConfigRequest(//
+	public void handleUpdateComponentConfigRequestNonGuarded(//
 			final User user, //
 			final UpdateComponentConfig.Request request //
 	) throws OpenemsNamedException {
@@ -211,7 +211,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	}
 
 	@Override
-	public void handleDeleteComponentConfigRequest(//
+	public void handleDeleteComponentConfigRequestNonGuarded(//
 			final User user, //
 			final DeleteComponentConfig.Request request //
 	) throws OpenemsNamedException {

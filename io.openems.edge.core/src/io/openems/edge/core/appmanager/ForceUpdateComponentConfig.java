@@ -18,7 +18,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ServiceUtils;
 import io.openems.edge.common.component.ComponentManager;
@@ -71,7 +70,6 @@ public class ForceUpdateComponentConfig implements Runnable {
 	 */
 	public static void checkForceUpdating(AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil,
 			ComponentManager componentManager) {
-		final var systemUser = new User("system", "System", Language.DEFAULT, Role.ADMIN);
 		for (var instance : appManagerImpl.getInstantiatedApps()) {
 			try {
 				final var appConfig = appManagerUtil.getAppConfiguration(ConfigurationTarget.UPDATE, instance,
@@ -80,12 +78,12 @@ public class ForceUpdateComponentConfig implements Runnable {
 				for (var appInstance : appManagerUtil.getAppsWithDependencyTo(instance)) {
 					appInstance.dependencies.forEach(dependency -> {
 						checkDependencyPropertyForceUpdate(appManagerImpl, appManagerUtil, instance, appInstance,
-								dependency, systemUser);
+								dependency);
 					});
 				}
 
 				for (var component : appConfig.getComponents()) {
-					checkConfigForceUpdate(componentManager, component, systemUser);
+					checkConfigForceUpdate(componentManager, component);
 				}
 			} catch (OpenemsError.OpenemsNamedException e) {
 				LOG.error("Unable to get AppConfiguration", e);
@@ -94,7 +92,7 @@ public class ForceUpdateComponentConfig implements Runnable {
 	}
 
 	@VisibleForTesting
-	static void checkConfigForceUpdate(ComponentManager componentManager, ComponentDef component, User systemUser) {
+	static void checkConfigForceUpdate(ComponentManager componentManager, ComponentDef component) {
 		var edgeConfigComponent = componentManager.getEdgeConfig().getComponent(component.id());
 
 		if (edgeConfigComponent.isPresent()
@@ -108,7 +106,7 @@ public class ForceUpdateComponentConfig implements Runnable {
 
 		if (component.config().forceUpdateOrCreate() && edgeConfigComponent.isEmpty()) {
 			final var props = mapToUpdateProperties(component.properties().values(), component.id(), component.alias());
-			sendCreateComponentRequest(systemUser, component.id(), component.factoryId(), props, componentManager);
+			sendCreateComponentRequestAsInternalUser(component.id(), component.factoryId(), props, componentManager);
 			return;
 		}
 
@@ -131,7 +129,7 @@ public class ForceUpdateComponentConfig implements Runnable {
 			final var props = mapToUpdateProperties(properties, component.id(),
 					edgeConfigComponent.map(EdgeConfig.Component::getAlias) //
 							.orElse(component.alias()));
-			sendUpdateComponentConfigRequest(systemUser, component.id(), props, componentManager);
+			sendUpdateComponentConfigRequestAsInternalUser(component.id(), props, componentManager);
 		}
 	}
 
@@ -154,7 +152,7 @@ public class ForceUpdateComponentConfig implements Runnable {
 	}
 
 	private static void checkDependencyPropertyForceUpdate(AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil,
-			OpenemsAppInstance instance, OpenemsAppInstance appInstance, Dependency dependency, User systemUser) {
+			OpenemsAppInstance instance, OpenemsAppInstance appInstance, Dependency dependency) {
 		try {
 			var dependencyAppConfig = appManagerUtil.getAppConfiguration(ConfigurationTarget.UPDATE, appInstance,
 					Language.DEFAULT);
@@ -179,7 +177,7 @@ public class ForceUpdateComponentConfig implements Runnable {
 				}
 
 				if (mustUpdate) {
-					sendUpdateAppRequest(systemUser, instance.alias, instance.instanceId, updatedProperties,
+					sendUpdateAppRequestAsInternalUser(instance.alias, instance.instanceId, updatedProperties,
 							appManagerImpl);
 				}
 			});
@@ -188,14 +186,14 @@ public class ForceUpdateComponentConfig implements Runnable {
 		}
 	}
 
-	private static void sendCreateComponentRequest(User user, //
+	private static void sendCreateComponentRequestAsInternalUser(//
 			String componentId, //
 			String factoryId, //
 			List<UpdateComponentConfigRequest.Property> properties, //
 			ComponentManager componentManager //
 	) {
 		try {
-			componentManager.handleCreateComponentConfigRequest(user, new CreateComponentConfig.Request(//
+			componentManager.handleCreateComponentConfigRequestGuarded(User.INTERNAL, new CreateComponentConfig.Request(//
 					factoryId, //
 					properties));
 			LOG.info("Creating component {}", componentId);
@@ -204,14 +202,13 @@ public class ForceUpdateComponentConfig implements Runnable {
 		}
 	}
 
-	private static void sendUpdateComponentConfigRequest(//
-			User user, //
+	private static void sendUpdateComponentConfigRequestAsInternalUser(//
 			String componentId, //
 			List<UpdateComponentConfigRequest.Property> properties, //
 			ComponentManager componentManager //
 	) {
 		try {
-			componentManager.handleUpdateComponentConfigRequest(user, new UpdateComponentConfig.Request(//
+			componentManager.handleUpdateComponentConfigRequestGuarded(User.INTERNAL, new UpdateComponentConfig.Request(//
 					componentId, //
 					properties));
 			LOG.info("Updating the config of {}", componentId);
@@ -220,15 +217,14 @@ public class ForceUpdateComponentConfig implements Runnable {
 		}
 	}
 
-	private static void sendUpdateAppRequest(//
-			final User user, //
+	private static void sendUpdateAppRequestAsInternalUser(//
 			final String alias, //
 			final UUID instanceId, //
 			final JsonObject properties, //
 			final AppManagerImpl appManagerImpl //
 	) {
 		try {
-			appManagerImpl.handleUpdateAppInstanceRequest(user,
+			appManagerImpl.handleUpdateAppInstanceRequest(User.INTERNAL,
 					new UpdateAppInstance.Request(instanceId, alias, properties));
 			LOG.info("Successfully updating the app {}", alias);
 		} catch (OpenemsError.OpenemsNamedException e) {

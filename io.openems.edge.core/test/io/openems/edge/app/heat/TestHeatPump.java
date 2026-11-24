@@ -1,7 +1,6 @@
 package io.openems.edge.app.heat;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -170,7 +169,7 @@ public class TestHeatPump {
 		final var meterProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", "meter4") //
 		);
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_OWNER,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Meter.Socomec.Threephase", meterProperties));
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,

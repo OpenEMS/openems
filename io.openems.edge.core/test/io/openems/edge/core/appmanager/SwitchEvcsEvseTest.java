@@ -63,7 +63,7 @@ public class SwitchEvcsEvseTest {
 		final var schedulerTask = this.amtb.addSchedulerByCentralOrderAggregateTask(componentTask);
 
 		this.cmSpy = spy(this.amtb.componentManger);
-		lenient().doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
+		lenient().doNothing().when(this.cmSpy).handleUpdateComponentConfigRequestNonGuarded(//
 				any(User.class), //
 				any(UpdateComponentConfig.Request.class));
 

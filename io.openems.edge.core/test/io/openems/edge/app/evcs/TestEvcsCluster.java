@@ -117,22 +117,22 @@ public class TestEvcsCluster {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs0"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.1") //
 				)));
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs0"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs0") //
 				)));
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs1"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.2") //
 				)));
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs1"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs1") //
@@ -169,7 +169,7 @@ public class TestEvcsCluster {
 		this.installKeba("1.1.1.1");
 
 		final var clusterId = "evcsCluster0";
-		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
+		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequestGuarded(DUMMY_ADMIN,
 				new CreateComponentConfig.Request("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", clusterId), //
 						new UpdateComponentConfigRequest.Property("enabled", false), //

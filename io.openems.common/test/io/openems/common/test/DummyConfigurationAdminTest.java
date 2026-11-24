@@ -15,10 +15,10 @@ public class DummyConfigurationAdminTest {
 	@Test
 	public void testListConfigurations() throws IOException, InvalidSyntaxException {
 		var sut = new DummyConfigurationAdmin();
-		sut.addConfiguration("foo", new DummyConfiguration() //
+		sut.addConfiguration(new DummyConfiguration() //
 				.addProperty("id", "foo") //
 				.addProperty("enabled", true));
-		sut.addConfiguration("bar", new DummyConfiguration() //
+		sut.addConfiguration(new DummyConfiguration() //
 				.addProperty("id", "bar") //
 				.addProperty("enabled", false));
 		{

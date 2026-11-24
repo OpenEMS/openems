@@ -1,7 +1,9 @@
 package io.openems.common.test;
 
 import static io.openems.common.utils.DictionaryUtils.getAsBoolean;
+import static io.openems.common.utils.DictionaryUtils.getAsOptionalString;
 import static io.openems.common.utils.DictionaryUtils.getAsString;
+import static io.openems.common.utils.StringUtils.isNullOrBlank;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -20,6 +22,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import io.openems.common.OpenemsConstants;
+
 /**
  * Simulates a ConfigurationAdmin for the OpenEMS Component test framework.
  */
@@ -30,9 +34,45 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		private final Hashtable<String, Object> properties = new Hashtable<>();
 		private int changeCount = 0;
 
+		/**
+		 * Sets the Factory-PID ('service.factoryPid' Property).
+		 *
+		 * @param factoryPid the Factory-PID
+		 * @return myself
+		 */
+		public DummyConfiguration setFactoryPid(String factoryPid) {
+			return this.addProperty(OpenemsConstants.PROPERTY_FACTORY_PID, factoryPid);
+		}
+
+		@Override
+		public String getFactoryPid() {
+			// null for Singleton Components, where the PID equals the Factory-PID
+			return getAsString(this.properties, OpenemsConstants.PROPERTY_FACTORY_PID);
+		}
+
+		/**
+		 * Sets the PID ('service.pid' Property).
+		 *
+		 * @param pid the PID
+		 * @return myself
+		 */
+		public DummyConfiguration setPid(String pid) {
+			return this.addProperty(OpenemsConstants.PROPERTY_PID, pid);
+		}
+
 		@Override
 		public String getPid() {
-			return "";
+			return getAsOptionalString(this.properties, OpenemsConstants.PROPERTY_PID) //
+					.orElse("");
+		}
+
+		/**
+		 * Gets the Component-ID ('id' Property).
+		 *
+		 * @return the Component-ID; null if not found
+		 */
+		public String getComponentId() {
+			return getAsString(this.properties, OpenemsConstants.PROPERTY_COMPONENT_ID);
 		}
 
 		@Override
@@ -52,6 +92,16 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 			return this;
 		}
 
+		/**
+		 * Gets a configuration property.
+		 *
+		 * @param key the property key
+		 * @return the property value; null if not found
+		 */
+		public Object getProperty(String key) {
+			return this.properties.get(key);
+		}
+
 		@Override
 		public void update(Dictionary<String, ?> properties) throws IOException {
 			var keys = properties.keys();
@@ -66,11 +116,6 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		@Override
 		public void update() throws IOException {
 			this.changeCount++;
-		}
-
-		@Override
-		public String getFactoryPid() {
-			return "";
 		}
 
 		@Override
@@ -221,15 +266,18 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	}
 
 	/**
-	 * Adds a simulated {@link DummyConfiguration}.
+	 * Adds a simulated {@link DummyConfiguration}, keyed by its Component-ID.
 	 *
-	 * @param key           the PID
-	 * @param configuration the {@link DummyConfiguration}.
-	 * @return myself
+	 * @param configuration the {@link DummyConfiguration}
+	 * @return the added {@link DummyConfiguration}
 	 */
-	public DummyConfigurationAdmin addConfiguration(String key, DummyConfiguration configuration) {
-		this.configurations.put(key, configuration);
-		return this;
+	public DummyConfiguration addConfiguration(DummyConfiguration configuration) {
+		final var componentId = configuration.getComponentId();
+		if (isNullOrBlank(componentId)) {
+			throw new IllegalArgumentException("Component-ID must be non-null and non-empty");
+		}
+		this.configurations.put(componentId, configuration);
+		return configuration;
 	}
 
 }

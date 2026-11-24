@@ -101,7 +101,7 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 		evseIds = new LinkedList<>(new LinkedHashSet<>(evseIds));
 
 		var jsonArray = JsonUtils.generateJsonArray(evseIds, s -> new JsonPrimitive(Objects.requireNonNull(s)));
-		this.componentManager.handleUpdateComponentConfigRequest(user, //
+		this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user, //
 				new UpdateComponentConfig.Request(clusterController.getId(),
 						List.of(new Property(CTRL_IDS, jsonArray))));
 	}

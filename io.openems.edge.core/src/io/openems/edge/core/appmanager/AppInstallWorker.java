@@ -19,6 +19,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundle;
 import io.openems.common.session.Language;
 import io.openems.common.worker.AbstractWorker;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class AppInstallWorker extends AbstractWorker {
@@ -97,7 +98,7 @@ public class AppInstallWorker extends AbstractWorker {
 				.map(j -> j.getAsString()) //
 				.orElse(app.getName(Language.DEFAULT));
 
-		this.parent.handleAddAppInstanceRequest(null,
+		this.parent.handleAddAppInstanceRequest(User.INTERNAL,
 				new AddAppInstance.Request(appId, this.keyForFreeApps, alias, requestProperties));
 	}
 

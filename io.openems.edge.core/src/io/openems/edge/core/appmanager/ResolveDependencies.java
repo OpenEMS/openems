@@ -38,7 +38,7 @@ public class ResolveDependencies implements Runnable {
 				return;
 			}
 
-			resolveDependencies(null, (AppManagerImpl) appManager, appManagerUtil);
+			resolveDependencies(User.INTERNAL, (AppManagerImpl) appManager, appManagerUtil);
 			LOG.info("Resolved dependencies.");
 		} catch (Exception e) {
 			// unable to get references or resolve

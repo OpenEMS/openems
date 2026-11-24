@@ -18,6 +18,7 @@ import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.User;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -174,7 +175,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.map(p -> p.name() + ":" + p.value().toString()) //
 							.collect(Collectors.joining(", "))) //
 					.log();
-			this.parent.handleCreateComponentConfigRequest(null /* no user */,
+			this.parent.handleCreateComponentConfigRequestGuarded(User.INTERNAL, //
 					new CreateComponentConfig.Request(factoryPid, properties));
 		} catch (OpenemsNamedException e) {
 			this.log.error("Unable to create Component configuration for Factory [{}]: {}", factoryPid, e.getMessage(),
@@ -202,7 +203,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.collect(Collectors.joining(", "))) //
 					.log();
 
-			this.parent.handleUpdateComponentConfigRequest(null /* no user */,
+			this.parent.handleUpdateComponentConfigRequestGuarded(User.INTERNAL, //
 					new UpdateComponentConfig.Request(componentId, properties));
 		} catch (OpenemsNamedException e) {
 			this.log.error("Unable to update Component configuration for Component [{}]: {}", componentId,
@@ -222,7 +223,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		try {
 			this.log.info("Deleting Component [{}]", componentId);
 
-			this.parent.handleDeleteComponentConfigRequest(null /* no user */,
+			this.parent.handleDeleteComponentConfigRequestGuarded(User.INTERNAL, //
 					new DeleteComponentConfig.Request(componentId));
 		} catch (OpenemsNamedException e) {
 			this.log.error("Unable to delete Component [{}]: {}", componentId, e.getMessage(), e);

@@ -85,9 +85,9 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("spotTariffProvider", mock(SpotTariffProvider.class)) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldComponent.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldComponent)));
 
 			test.deactivate();
@@ -106,14 +106,14 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("spotTariffProvider", mock(SpotTariffProvider.class)) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldBuy.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldBuy)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldSell.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_SELL_FACTORY_ID, oldSell)));
 
 			test.deactivate();
@@ -129,8 +129,8 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("oldEntsoeGridSell", gridSellComponent()) //
 					.activate(null);
 
-			verify(componentManager, never()).handleDeleteComponentConfigRequest(any(), any());
-			verify(componentManager, never()).handleCreateComponentConfigRequest(any(), any());
+			verify(componentManager, never()).handleDeleteComponentConfigRequestGuarded(any(), any());
+			verify(componentManager, never()).handleCreateComponentConfigRequestGuarded(any(), any());
 
 			test.deactivate();
 		}
@@ -150,9 +150,9 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("spotTariffProvider", mock(SpotTariffProvider.class)) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldComponent.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldComponent)));
 
 			test.deactivate();
@@ -168,12 +168,12 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("oldTouEntsoe", oldComponent) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectSpotTariffProvider(NEW_ENTSOE_SPOT_TARIFF_FACTORY_ID, ENTSOE_TOKEN)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldComponent.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldComponent)));
 
 			test.deactivate();
@@ -191,17 +191,17 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("oldEntsoeGridSell", oldSell) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectSpotTariffProvider(NEW_ENTSOE_SPOT_TARIFF_FACTORY_ID, ENTSOE_TOKEN)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldBuy.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldBuy)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldSell.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_SELL_FACTORY_ID, oldSell)));
 
 			test.deactivate();
@@ -222,9 +222,9 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("spotTariffProvider", mock(SpotTariffProvider.class)) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldComponent.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldComponent)));
 
 			test.deactivate();
@@ -241,8 +241,8 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("oldEntsoeGridSell", gridSellComponent()) //
 					.activate(null);
 
-			verify(componentManager, never()).handleDeleteComponentConfigRequest(any(), any());
-			verify(componentManager, never()).handleCreateComponentConfigRequest(any(), any());
+			verify(componentManager, never()).handleDeleteComponentConfigRequestGuarded(any(), any());
+			verify(componentManager, never()).handleCreateComponentConfigRequestGuarded(any(), any());
 
 			test.deactivate();
 		}
@@ -267,8 +267,8 @@ class LegacyEntsoeComponentMigratorTest {
 					.activate(null) //
 					.deactivate();
 
-			verify(componentManager, never()).handleDeleteComponentConfigRequest(any(), any());
-			verify(componentManager, never()).handleCreateComponentConfigRequest(any(), any());
+			verify(componentManager, never()).handleDeleteComponentConfigRequestGuarded(any(), any());
+			verify(componentManager, never()).handleCreateComponentConfigRequestGuarded(any(), any());
 		}
 
 		@Test
@@ -284,17 +284,17 @@ class LegacyEntsoeComponentMigratorTest {
 					.addReference("oldEntsoeGridSell", oldSell) //
 					.activate(null);
 
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectSpotTariffProvider(NEW_BACKEND_SPOT_TARIFF_FACTORY_ID, null)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldBuy.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_BUY_FACTORY_ID, oldBuy)));
 
-			verify(componentManager, times(1)).handleDeleteComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleDeleteComponentConfigRequestGuarded(any(),
 					eq(new DeleteComponentConfig.Request(oldSell.id())));
-			verify(componentManager, times(1)).handleCreateComponentConfigRequest(any(),
+			verify(componentManager, times(1)).handleCreateComponentConfigRequestGuarded(any(),
 					argThat(expectComponent(NEW_GRID_SELL_FACTORY_ID, oldSell)));
 
 			test.deactivate();

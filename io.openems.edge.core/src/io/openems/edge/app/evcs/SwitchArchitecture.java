@@ -248,7 +248,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("evcs_ids", ids) //
 			);
 
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evcs.Cluster.PeakShaving", //
 							clusterProps));
 
@@ -303,7 +303,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 		);
 
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Evcs.HardyBarth", evcsProperties));
 		// install evse cp
 		var ctrlEvcsId = this.getNextEvcsControllerId();
@@ -312,7 +312,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("alias", alias), //
 				new UpdateComponentConfigRequest.Property("evcs_id", evcsId) //
 		);
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Controller.Evcs", //
 						evcsCtrlProperties));
 		evcsIds.add(evcsId);
@@ -341,7 +341,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("ip", ipCp2), //
 					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 			);
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evcs.HardyBarth", evcsPropertiesCp2));
 
 			// install evse cp
@@ -351,7 +351,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("alias", aliasCp2), //
 					new UpdateComponentConfigRequest.Property("evcs_id", evcsIdCp2) //
 			);
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Controller.Evcs", //
 							evcsCtrlPropertiesCp2));
 			evcsIds.add(evcsIdCp2);
@@ -421,7 +421,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("readOnly", false), //
 					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 			);
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evcs.Keba.P40", //
 							evcsProperties));
 		}
@@ -433,7 +433,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("readOnly", false), //
 					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 			);
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evcs.Keba.KeContact", //
 							evcsProperties));
 		}
@@ -447,7 +447,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("alias", alias), //
 				new UpdateComponentConfigRequest.Property("evcs_id", evcsId) //
 		);
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Controller.Evcs", //
 						evcsCtrlProperties));
 		schedulerComponentsToUpdate.add(new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlEvcsId,
@@ -510,7 +510,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("ctrl_ids", clusterProperties.build()) //
 		);
 
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Evse.Controller.Cluster", //
 						clusterProps));
 
@@ -537,7 +537,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("chargePoint_id", evcsId), //
 				new UpdateComponentConfigRequest.Property("electricVehicle_id", vehicleId) //
 		);
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Evse.Controller.Single", //
 						singleProperties));
 		clusterProperties.add(ctrlSingleId);
@@ -565,7 +565,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("alias", vehicleAlias.getAsString()) //
 		);
 
-		this.componentManager.handleCreateComponentConfigRequest(user,
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 				new CreateComponentConfig.Request("Evse.ElectricVehicle.Generic", //
 						vehicleProperties));
 
@@ -627,7 +627,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("readOnly", false) //
 		);
 
-		this.componentManager.handleCreateComponentConfigRequest(user, //
+		this.componentManager.handleCreateComponentConfigRequestNonGuarded(user, //
 				new CreateComponentConfig.Request("Evse.ChargePoint.HardyBarth", cpProperties) //
 		);
 		var vehicleInstance = this.evseVehicle(user, response, i);
@@ -663,7 +663,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("readOnly", false) //
 			);
 
-			this.componentManager.handleCreateComponentConfigRequest(user, //
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user, //
 					new CreateComponentConfig.Request("Evse.ChargePoint.HardyBarth", cpPropertiesCp2) //
 			);
 
@@ -725,7 +725,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("wiring", EvseProps.DEFAULT_WIRING.name()) //
 			);
 
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evse.ChargePoint.Keba.Modbus", //
 							cpProperties));
 		}
@@ -740,7 +740,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new UpdateComponentConfigRequest.Property("ip", ip) //
 			);
 
-			this.componentManager.handleCreateComponentConfigRequest(user,
+			this.componentManager.handleCreateComponentConfigRequestNonGuarded(user,
 					new CreateComponentConfig.Request("Evse.ChargePoint.Keba.UDP", //
 							cpProperties));
 		}
@@ -775,7 +775,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		final var component = this.componentManager.getAllComponents().stream().filter(t -> t.id().equals(componentId))
 				.findAny();
 		if (component.isPresent()) {
-			this.componentManager.handleDeleteComponentConfigRequest(user,
+			this.componentManager.handleDeleteComponentConfigRequestNonGuarded(user,
 					new DeleteComponentConfig.Request(componentId));
 		}
 	}
