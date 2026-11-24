@@ -1,0 +1,9 @@
+{
+    "ALERTING": {
+        "CHECKBOX_HELP": "När händelsen inträffar får du ett e-postmeddelande efter den inställda fördröjningstiden.",
+        "DELAY": "Fördröjning",
+        "FAULT": "Fel",
+        "ONLINE_STATUS": "Online-status",
+        "OTHER_USERS": "Andra användare"
+    }
+}

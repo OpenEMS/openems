@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AlertController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { format } from "date-fns";
@@ -18,6 +19,7 @@ import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { SharedStorage } from "../shared/shared";
 
 @Component({
@@ -48,8 +50,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER = "_PropertyTargetTimeBuffer";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_EXPECTED_EPOCH_SECONDS = "ExpectedStartEpochSeconds";
     private static CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED = "IsEssChargeFromGridAllowed";
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
+    private readonly alertCtrl = inject(AlertController);
 
     private static CONTROL_NAME_PREFIX = (component: EdgeConfig.Component) => component.id + "-";
     private static FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED: (essComponent: EdgeConfig.Component) => string = (
@@ -86,24 +88,49 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static getMetaIsChargeFromGridAllowedFields(
         essComponent: EdgeConfig.Component,
         translate: TranslateService,
+        navigateToGridSettings: () => void,
     ): OeFormlyField[] {
-        const key = CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent);
-        const lines: OeFormlyField[] = [
-            { type: "horizontal-line" },
+        const reserveEnabledControl =
+            CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent);
+        const isEssChargeFromGridAllowed =
+            CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent);
+        const hideWhenReserveDisabled: NonNullable<OeFormlyField["hide"]> = (field) =>
+            field[reserveEnabledControl] == 0;
+
+        return [
             {
-                type: "toggle-line",
-                style: { name: { fontWeight: "bold" } },
-                controlName:
-                    CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(essComponent),
-                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE"),
+                type: "horizontal-line",
+                hide: hideWhenReserveDisabled,
             },
-            { type: "info-line", html: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING") },
-            { type: "horizontal-line" },
+            {
+                type: "info-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_ALLOWED_INFO"),
+                link: {
+                    text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                    callback: navigateToGridSettings,
+                },
+                icon: { name: "oe-info", color: "primary", size: "large" },
+                hide: (field) =>
+                    hideWhenReserveDisabled(field) ||
+                    NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], false) !== true,
+            },
+            {
+                type: "info-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_NOT_ALLOWED_INFO"),
+                link: {
+                    text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
+                    callback: navigateToGridSettings,
+                },
+                icon: { name: "oe-info", color: "primary", size: "large" },
+                hide: (field) =>
+                    hideWhenReserveDisabled(field) ||
+                    NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], true) !== false,
+            },
+            {
+                type: "horizontal-line",
+                hide: hideWhenReserveDisabled,
+            },
         ];
-        return lines.map((el) => {
-            el.hide = (field) => field[key] == 0;
-            return el;
-        });
     }
 
     private static getUpdateComponentPropertyEntry<T = string>(
@@ -401,11 +428,57 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         if (edge == null || formGroup == null) {
             return;
         }
-
         const updateArray: Map<string, Parameters<Edge["updateComponentConfig"]>[2]> = new Map();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
         const essComponents = SharedStorage.getEssComponents(config);
+
+        const requiresConfirmation = essComponents.some(
+            (essComponent) =>
+                formGroup.get(
+                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
+                )?.value === true,
+        );
+
+        if (requiresConfirmation) {
+            const alert = await this.alertCtrl.create({
+                header: this.translate.instant("EDGE.INDEX.RETROFITTING.OPTIMAL"),
+                message: this.translate.instant("EDGE.INDEX.RETROFITTING.WARNING_MESSAGE"),
+                inputs: [
+                    {
+                        type: "checkbox",
+                        label: this.translate.instant("EDGE.INDEX.RETROFITTING.WARNING_CHECK"),
+                        value: "confirmed",
+                    },
+                ],
+                buttons: [
+                    {
+                        text: this.translate.instant("GENERAL.CANCEL"),
+                        role: "cancel",
+                    },
+                    {
+                        text: this.translate.instant("GENERAL.APPLY"),
+                        role: "confirm",
+                        handler: (data) => {
+                            if (!data?.includes("confirmed")) {
+                                return false;
+                            }
+
+                            return true;
+                        },
+                    },
+                ],
+                cssClass: "alertController",
+            });
+
+            await alert.present();
+
+            const result = await alert.onDidDismiss();
+
+            if (result.role !== "confirm") {
+                return;
+            }
+        }
 
         for (const essComponent of essComponents) {
             const prepareBatteryExtensionCtrl = config
@@ -474,23 +547,6 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 ].filter((entry) => entry != null);
                 updateArray.set(emergencyReserveCtrl.id, updateObj);
             }
-
-            const meta = new MetaComponent(config);
-            if (meta) {
-                updateArray.set(
-                    meta.id,
-                    [
-                        CommonStorageSettingsComponent.getUpdateComponentPropertyEntry(
-                            "isEssChargeFromGridAllowed",
-                            formGroup.get(
-                                CommonStorageSettingsComponent.FORMCONTROL_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED(
-                                    essComponent,
-                                ),
-                            ),
-                        ),
-                    ].filter((el) => el != null),
-                );
-            }
         }
 
         for (const controllerId of updateArray.keys()) {
@@ -541,6 +597,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 },
                 {
                     type: "date-time-line",
+                    onlyFutureValuesAllowed: true,
                     defaultLabel: translate.instant("EDGE.INDEX.RETROFITTING.SELECT_A_DATE"),
                     label: (controlValue: string | number | null): string => {
                         if (typeof controlValue !== "string") {
@@ -713,7 +770,13 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     hide: (field) =>
                         field[CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent)] == 0,
                 },
-                ...CommonStorageSettingsComponent.getMetaIsChargeFromGridAllowedFields(essComponent, this.translate),
+                ...CommonStorageSettingsComponent.getMetaIsChargeFromGridAllowedFields(
+                    essComponent,
+                    this.translate,
+                    () => {
+                        void this.navigationService.navigateAbsoluteById("grid-settings");
+                    },
+                ),
             );
         }
 

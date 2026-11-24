@@ -45,7 +45,7 @@ public final class CommunicationProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.modbusIntegrationType") //
 				.setDefaultValue(ModbusType.TCP) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> field
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> field //
 						.setOptions(OptionsFactory.of(ModbusType.class), l)));
 	}
 
@@ -58,8 +58,8 @@ public final class CommunicationProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.ipAddress") //
 				.setDefaultValue("192.168.178.85") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setValidation(IP)));
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field.//
+						setValidation(IP)));
 	}
 
 	/**
@@ -75,7 +75,7 @@ public final class CommunicationProps {
 			PROP extends Nameable, PARAM extends BundleProvider> //
 			AppDef<APP, PROP, PARAM> excludingIp() {
 		return AppDef.copyOfGeneric(ip(),
-				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> {
+				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, _, _, param, f) -> {
 					try {
 						var ips = app.getHost().getSystemIPs();
 						if (ips.isEmpty()) {
@@ -104,8 +104,8 @@ public final class CommunicationProps {
 				.setTranslatedLabel("communication.port") //
 				.setTranslatedDescription("communication.port.description") //
 				.setDefaultValue(502) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(NUMBER) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(NUMBER) //
 						.setMin(0)));
 	}
 
@@ -119,8 +119,8 @@ public final class CommunicationProps {
 				.setTranslatedLabel("communication.modbusUnitId") //
 				.setTranslatedDescription("communication.modbusUnitId.description") //
 				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(NUMBER) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> field //
+						.setInputType(NUMBER) //
 						.setMin(0) //
 						.onlyPositiveNumbers()));
 	}
@@ -176,7 +176,7 @@ public final class CommunicationProps {
 					PROP connectionModubsType //
 	) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
-			def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, _, l, parameter, field) -> {
 				final var componentManager = app.getComponentManager();
 				final var componentUtil = app.getComponentUtil();
 

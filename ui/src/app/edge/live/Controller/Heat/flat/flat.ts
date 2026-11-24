@@ -48,7 +48,7 @@ export class ControllerHeatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, "ControlNotAllowed"),
             new ChannelAddress(this.component.id, "ActivePower"),
             new ChannelAddress(this.component.id, "Temperature"),
-            ...(this.component.factoryId === "Heat.Askoma" ? [new ChannelAddress(this.component.id, "_PropertyMode")] : []),
+            ...(this.component.factoryId === "Heat.Askoma" ? [new ChannelAddress(this.component.id, "Mode")] : []),
         ];
 
         return channelAddresses;

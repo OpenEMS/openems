@@ -22,141 +22,148 @@ export enum Theme {
     SYSTEM = "system",
 }
 
-export const EMPTY_DATASET = [{
-    label: "no Data available",
-    data: [],
-    hidden: false,
-}];
+export const EMPTY_DATASET = [
+    {
+        label: "no Data available",
+        data: [],
+        hidden: false,
+    },
+];
 
 export type Data = {
-    labels: Date,
+    labels: Date;
     datasets: {
-        backgroundColor: string,
-        borderColor: string,
-        data: number[],
-        label: string,
-        _meta: {}
-    }[]
+        backgroundColor: string;
+        borderColor: string;
+        data: number[];
+        label: string;
+        _meta: {};
+    }[];
 };
 
 export type TooltipItem = {
-    datasetIndex: number,
-    index: number,
-    x: number,
-    xLabel: Date,
-    value: number,
-    y: number,
-    yLabel: number
+    datasetIndex: number;
+    index: number;
+    x: number;
+    xLabel: Date;
+    value: number;
+    y: number;
+    yLabel: number;
 };
 
 export type YAxis = {
-
-    id?: string,
-    position: string,
-    stacked?: boolean,
+    id?: string;
+    position: string;
+    stacked?: boolean;
     scaleLabel: {
-        display: boolean,
-        labelString: string,
-        padding?: number,
-        fontSize?: number
-    },
+        display: boolean;
+        labelString: string;
+        padding?: number;
+        fontSize?: number;
+    };
     gridLines?: {
-        display: boolean
-    },
+        display: boolean;
+    };
     ticks: {
-        beginAtZero: boolean,
-        max?: number,
-        min?: number,
-        padding?: number,
-        stepSize?: number,
-        callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
-    }
+        beginAtZero: boolean;
+        max?: number;
+        min?: number;
+        padding?: number;
+        stepSize?: number;
+        callback?(
+            value: number | string,
+            index: number,
+            values: number[] | string[],
+        ): string | number | null | undefined;
+    };
 };
 
 export type ChartOptions = {
-    plugins: {},
+    plugins: {};
     layout?: {
         padding: {
-            left: number,
-            right: number,
-            top: number,
-            bottom: number
-        }
-    }
-    datasets: {},
-    responsive?: boolean,
-    maintainAspectRatio: boolean,
+            left: number;
+            right: number;
+            top: number;
+            bottom: number;
+        };
+    };
+    datasets: {};
+    responsive?: boolean;
+    maintainAspectRatio: boolean;
     legend: {
         labels: {
             font: {
-                family: string,
-            },
-            generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
-            filter?(legendItem: Chart.LegendItem, data: ChartData): any,
-        },
-        position: "bottom"
-        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void
-    },
+                family: string;
+            };
+            generateLabels?(chart: Chart.Chart): Chart.LegendItem[];
+            filter?(legendItem: Chart.LegendItem, data: ChartData): any;
+        };
+        position: "bottom";
+        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void;
+    };
     elements: {
         point: {
-            radius: number,
-            hitRadius: number,
-            hoverRadius: number
-        },
+            radius: number;
+            hitRadius: number;
+            hoverRadius: number;
+        };
         line: {
-            borderWidth: number,
-            tension: number
-        },
+            borderWidth: number;
+            tension: number;
+        };
         rectangle: {
-            borderWidth: number,
-        }
-    },
+            borderWidth: number;
+        };
+    };
     hover: {
-        mode: string,
-        intersect: boolean
-    },
+        mode: string;
+        intersect: boolean;
+    };
     scales: {
-        yAxes: YAxis[],
-        xAxes: [{
-            bounds?: string,
-            offset?: boolean,
-            stacked: boolean,
-            type: "time",
-            time: {
-                stepSize?: number,
-                unit?: string,
-                minUnit: string,
-                displayFormats: {
-                    millisecond: string,
-                    second: string,
-                    minute: string,
-                    hour: string,
-                    day: string,
-                    week: string,
-                    month: string,
-                    quarter: string,
-                    year: string
-                }
+        yAxes: YAxis[];
+        xAxes: [
+            {
+                bounds?: string;
+                offset?: boolean;
+                stacked: boolean;
+                type: "time";
+                time: {
+                    stepSize?: number;
+                    unit?: string;
+                    minUnit: string;
+                    displayFormats: {
+                        millisecond: string;
+                        second: string;
+                        minute: string;
+                        hour: string;
+                        day: string;
+                        week: string;
+                        month: string;
+                        quarter: string;
+                        year: string;
+                    };
+                };
+                ticks: {
+                    source?: string;
+                    maxTicksLimit?: number;
+                };
             },
-            ticks: {
-                source?: string,
-                maxTicksLimit?: number
-            },
-        }]
-    },
+        ];
+    };
     tooltips: {
-        mode: string,
-        intersect: boolean,
-        axis: string,
+        mode: string;
+        intersect: boolean;
+        axis: string;
         callbacks: {
-            label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: Chart.TooltipItem<any>[], data: Data): string,
-            afterTitle?(item: Chart.TooltipItem<any>[], data: Data): string | string[],
-            footer?(item: Chart.TooltipItem<any>[], data: ChartData): string | string[]
-        }
-        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number,
-    },
-    legendCallback?(chart: Chart.Chart): string
+            label?(tooltipItem: TooltipItem, data: Data): string;
+            title?(tooltipItems: Chart.TooltipItem<any>[], data: Data): string;
+            afterTitle?(item: Chart.TooltipItem<any>[], data: Data): string | string[];
+            footer?(item: Chart.TooltipItem<any>[], data: ChartData): string | string[];
+        };
+        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number;
+    };
+    legendCallback?(chart: Chart.Chart): string;
 };
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
@@ -164,8 +171,8 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     indexAxis: "x",
     // Important for point style on chart hover for line chart
     interaction: {
-        mode: "index",  // Detect x-axis alignment
-        intersect: false,  // Allow hovering over line, not just points
+        mode: "index", // Detect x-axis alignment
+        intersect: false, // Allow hovering over line, not just points
     },
     maintainAspectRatio: false,
     elements: {
@@ -205,12 +212,14 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
                 boxHeight: 7,
 
                 color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
-                generateLabels: (chart: Chart.Chart) => { return null; },
+                generateLabels: (chart: Chart.Chart) => {
+                    return null;
+                },
                 font: {
                     family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
                 },
             },
-            onClick: (event, legendItem, legend) => { },
+            onClick: (event, legendItem, legend) => {},
         },
         tooltip: {
             itemSort: (a, b) => {
@@ -235,10 +244,10 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
                 return Number.isFinite(value);
             },
             callbacks: {
-                label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
-                afterTitle: (items: Chart.TooltipItem<any>[]) => { },
-                labelColor: (context: Chart.TooltipItem<any>) => { },
+                label: (item: Chart.TooltipItem<any>) => {},
+                title: (tooltipItems: Chart.TooltipItem<any>[]) => {},
+                afterTitle: (items: Chart.TooltipItem<any>[]) => {},
+                labelColor: (context: Chart.TooltipItem<any>) => {},
             },
         },
     },
@@ -251,7 +260,6 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             bounds: "data",
             adapters: {
                 date: {
-
                     // TODO: get current locale
                     locale: de,
                 },
@@ -318,25 +326,27 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
     },
     scales: {
         yAxes: [],
-        xAxes: [{
-            ticks: {},
-            stacked: false,
-            type: "time",
-            time: {
-                minUnit: "hour",
-                displayFormats: {
-                    millisecond: "SSS [ms]",
-                    second: "HH:mm:ss a", // 17:20:01
-                    minute: "HH:mm", // 17:20
-                    hour: "HH:[00]", // 17:20
-                    day: "DD", // Sep 04 2015
-                    week: "ll", // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: "MM", // September
-                    quarter: "[Q]Q - YYYY", // Q3 - 2015
-                    year: "YYYY", // 2015,
+        xAxes: [
+            {
+                ticks: {},
+                stacked: false,
+                type: "time",
+                time: {
+                    minUnit: "hour",
+                    displayFormats: {
+                        millisecond: "SSS [ms]",
+                        second: "HH:mm:ss a", // 17:20:01
+                        minute: "HH:mm", // 17:20
+                        hour: "HH:[00]", // 17:20
+                        day: "DD", // Sep 04 2015
+                        week: "ll", // Week 46, or maybe "[W]WW - YYYY" ?
+                        month: "MM", // September
+                        quarter: "[Q]Q - YYYY", // Q3 - 2015
+                        year: "YYYY", // 2015,
+                    },
                 },
             },
-        }],
+        ],
     },
     tooltips: {
         mode: "index",
@@ -351,30 +361,37 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
     },
 };
 
-export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse["result"]) {
+export function calculateActiveTimeOverPeriod(
+    channel: ChannelAddress,
+    queryResult: QueryHistoricTimeseriesDataResponse["result"],
+) {
     const startDate = startOfDay(new Date(queryResult.timestamps[0]));
     const endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
-    queryResult.data[channel.toString()].forEach(value => {
+    queryResult.data[channel.toString()].forEach((value) => {
         activeSum += value;
     });
     const activePercent = activeSum / queryResult.timestamps.length;
-    return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
+    return differenceInMinutes(endDate, startDate) * activePercent * 60;
 }
 
 /**
-   * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
-   * Calculates timeFormat from passed Dates for xAxes of chart
-   *
-   * @param service the Service
-   * @param fromDate the From-Date
-   * @param toDate the To-Date
-   * @returns resolution and timeformat
-   */
-export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" } {
+ * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod && Calculates
+ * timeFormat from passed Dates for xAxes of chart
+ *
+ * @param service The Service
+ * @param fromDate The From-Date
+ * @param toDate The To-Date
+ * @returns Resolution and timeformat
+ */
+export function calculateResolution(
+    service: Service,
+    fromDate: Date,
+    toDate: Date,
+): { resolution: Resolution; timeFormat: "day" | "month" | "hour" | "year" } {
     const days = Math.abs(differenceInDays(toDate, fromDate));
     const isSmartphoneResolution = service.getIsSmartphoneResolution();
-    let result: { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" };
+    let result: { resolution: Resolution; timeFormat: "day" | "month" | "hour" | "year" };
 
     if (days <= 1) {
         if (isSmartphoneResolution) {
@@ -388,32 +405,24 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         } else {
             result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Hour
         }
-
     } else if (days <= 4) {
         if (isSmartphoneResolution) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
         } else {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "hour" }; // 1 Hour
         }
-
     } else if (days <= 6) {
-
-
         if (isSmartphoneResolution) {
             result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         } else {
             // >> show Hours
             result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         }
-
-
     } else if (days <= 31 && isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
         result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
-
     } else if (days <= 90) {
         result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
-
     } else if (days <= 144) {
         // >> show Days
         if (isSmartphoneResolution == true) {
@@ -423,7 +432,6 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         }
     } else if (days <= 365) {
         result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Day
-
     } else {
         // >> show Years
         result = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: "year" }; // 1 Month
@@ -433,14 +441,14 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 }
 
 /**
-  * Returns true if Chart Label should be visible. Defaults to true.
-  *
-  * Compares only the first part of the label string - without a value or ChronoUnit.Type.
-  *
-  * @param label the Chart label
-  * @param orElse the default, in case no value was stored yet in Session-Storage
-  * @returns true for visible labels; hidden otherwise
-  */
+ * Returns true if Chart Label should be visible. Defaults to true.
+ *
+ * Compares only the first part of the label string - without a value or ChronoUnit.Type.
+ *
+ * @param label The Chart label
+ * @param orElse The default, in case no value was stored yet in Session-Storage
+ * @returns True for visible labels; hidden otherwise
+ */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
     const labelWithoutUnit = "LABEL_" + label.split(":")[0];
     const value = sessionStorage.getItem(labelWithoutUnit);
@@ -454,8 +462,8 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
 /**
  * Stores if the Label should be visible or hidden in Session-Storage.
  *
- * @param label the Chart label
- * @param visible true to set the Label visibile; false to hide ite
+ * @param label The Chart label
+ * @param visible True to set the Label visibile; false to hide ite
  */
 export function setLabelVisible(label: string, visible: boolean | null): void {
     if (visible == null) {
@@ -466,12 +474,11 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
 }
 
 export type Resolution = {
-    value: number,
-    unit: ChronoUnit.Type
+    value: number;
+    unit: ChronoUnit.Type;
 };
 
 export namespace ChronoUnit {
-
     export enum Type {
         SECONDS = "Seconds",
         MINUTES = "Minutes",
@@ -484,9 +491,9 @@ export namespace ChronoUnit {
     /**
      * Evaluates whether "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2".
      *
-     * @param unit1     the ChronoUnit 1
-     * @param unit2     the ChronoUnit 2
-     * @return true if "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2"
+     * @param unit1 The ChronoUnit 1
+     * @param unit2 The ChronoUnit 2
+     * @returns True if "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2"
      */
     export function isAtLeast(unit1: Type, unit2: Type) {
         const currentUnit = Object.values(Type).indexOf(unit1);
@@ -497,28 +504,27 @@ export namespace ChronoUnit {
 
 export type ChartData = {
     channel: {
-        name: string,
-        powerChannel: ChannelAddress,
-        energyChannel: ChannelAddress
-    }[],
+        name: string;
+        powerChannel: ChannelAddress;
+        energyChannel: ChannelAddress;
+    }[];
     displayValue: {
         /** Name displayed in Label */
-        name: string,
-        /**  */
-        getValue: any,
+        name: string;
+        getValue: any;
 
-        hidden?: boolean,
-        /** color in rgb-Format */
+        hidden?: boolean;
+        /** Color in rgb-Format */
         color: string;
-    }[],
+    }[];
     tooltip: {
         /** Unit to be displayed as Tooltips unit */
-        unit: "%" | "kWh" | "kW",
+        unit: "%" | "kWh" | "kW";
         /** Format of Number displayed */
         formatNumber: string;
-    },
+    };
     /** Name to be displayed on the left y-axis */
-    yAxisTitle: string,
+    yAxisTitle: string;
 };
 
 export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.ChartOptions => ({
@@ -549,12 +555,14 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.
             position: "bottom",
             labels: {
                 color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
-                generateLabels: (chart: Chart.Chart) => { return null; },
+                generateLabels: (chart: Chart.Chart) => {
+                    return null;
+                },
                 font: {
                     family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
                 },
             },
-            onClick: (event, legendItem, legend) => { },
+            onClick: (event, legendItem, legend) => {},
         },
         tooltip: {
             intersect: false,
@@ -564,10 +572,10 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.
                 return Number.isFinite(value);
             },
             callbacks: {
-                label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
-                afterTitle: (items: Chart.TooltipItem<any>[]) => { },
-                labelColor: (context: Chart.TooltipItem<any>) => { },
+                label: (item: Chart.TooltipItem<any>) => {},
+                title: (tooltipItems: Chart.TooltipItem<any>[]) => {},
+                afterTitle: (items: Chart.TooltipItem<any>[]) => {},
+                labelColor: (context: Chart.TooltipItem<any>) => {},
             },
         },
         datalabels: {},

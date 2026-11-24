@@ -4,13 +4,13 @@
       <tr [style.text-indent]="textIndent">
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_left" [style]="lineStyle?.name ?? {}">
-          @if (displayName) {
-            {{ displayName }}
+          @if (displayName()) {
+            {{ displayName() }}
           }
         </td>
         <!-- Value of Parameter on the right side -->
-        @if (displayValue && !hideValue) {
-          <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_right" [style]="lineStyle?.value ?? {}" [innerHTML]="displayValue">
+        @if (displayValue() && !hideValue) {
+          <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_right" [style]="lineStyle?.value ?? {}" [innerHTML]="displayValue()">
             <!-- 'Normal' line, name and value  -->
           </td>
         }

@@ -39,9 +39,8 @@ public final class FeneconCommercialProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("Battery Start/Stop Target") //
 				.setDefaultValue("AUTO") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(List.of("START", "AUTO"));
-				}) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> field //
+						.setOptions(List.of("START", "AUTO"))) //
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)));
 	}
 
@@ -358,15 +357,19 @@ public final class FeneconCommercialProps {
 	/**
 	 * Creates a {@link AppDef} for an accordion.
 	 *
-	 * @param translationKeyLabel the translationKey for the label
-	 * @param consumer            consumer for addition settings
+	 * @param translationKeyLabel        the translationKey for the label
+	 * @param consumer                   consumer for addition settings
+	 * @param translationLabelParameters the possible parameter values of the
+	 *                                   translation
 	 * @return the {@link AppDef}
 	 */
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> accordion(//
 			String translationKeyLabel, //
-			AppDef.FieldValuesConsumer<OpenemsApp, Nameable, BundleProvider, AccordionBuilder> consumer) {
+			AppDef.FieldValuesConsumer<OpenemsApp, Nameable, BundleProvider, AccordionBuilder> consumer,
+			Object... translationLabelParameters //
+	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel(translationKeyLabel) //
+				.setTranslatedLabel(translationKeyLabel, translationLabelParameters) //
 				.setAutoGenerateField(false) //
 				.setField(JsonFormlyUtil::buildAccordionFromNameable, consumer));
 	}

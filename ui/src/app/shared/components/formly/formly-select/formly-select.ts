@@ -42,6 +42,10 @@ import { FormlySelectOptionsWithImageModalComponent } from "./formly-select-with
                 color: var(--ion-color-text) !important;
             }
 
+            .custom-ion-alert .alert-checkbox-label {
+                color: var(--ion-text-color);
+            }
+
             .custom-select-item {
                 --inner-padding-end: 0;
                 display: flex;

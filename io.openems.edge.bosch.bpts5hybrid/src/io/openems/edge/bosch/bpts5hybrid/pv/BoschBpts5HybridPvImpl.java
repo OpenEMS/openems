@@ -1,8 +1,8 @@
 package io.openems.edge.bosch.bpts5hybrid.pv;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
-import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 
 import java.io.IOException;
 

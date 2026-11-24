@@ -407,7 +407,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			return;
 		}
 
-		this._setCtrlIsBlockingEss(activePower == 0);
+		this._setCtrlIsBlockingEss(activePower == 0 && this.stateMachine.getCurrentState() == State.AT_TARGET_SOC);
 		this._setCtrlIsChargingEss(activePower < 0);
 		this._setCtrlIsDischargingEss(activePower > 0);
 	}

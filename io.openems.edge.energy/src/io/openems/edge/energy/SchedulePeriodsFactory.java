@@ -35,14 +35,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.timedata.Resolution;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
-import io.openems.edge.common.sum.Sum;
 import io.openems.common.jsonrpc.type.ScheduleUpdate.EshData;
 import io.openems.common.jsonrpc.type.ScheduleUpdate.Period;
 import io.openems.common.jsonrpc.type.ScheduleUpdate.PeriodType;
 import io.openems.common.jsonrpc.type.ScheduleUpdate.SumData;
+import io.openems.common.timedata.Resolution;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.EnergyFlow;

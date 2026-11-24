@@ -1,13 +1,16 @@
 package io.openems.backend.timedata.influx;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class ChannelFilterTest {
 
@@ -67,7 +70,7 @@ public class ChannelFilterTest {
 	}
 
 	@Test
-	public void testIsValidComponentId() throws Exception {
+	public void testIsValidComponentId() {
 		assertFalse(ChannelFilter.isValidComponentId(null));
 		assertTrue(ChannelFilter.isValidComponentId("_sum"));
 		assertFalse(ChannelFilter.isValidComponentId("pvInverter"));
@@ -82,22 +85,56 @@ public class ChannelFilterTest {
 		assertFalse(ChannelFilter.isValidComponentId("pvInvärter0"));
 	}
 
+	@ParameterizedTest
+	@ValueSource(strings = { "a1", "_a", "_sumS" })
+	public void testValidComponentIds(String componentId) {
+		assertTrue(ChannelFilter.isValidComponentId(componentId));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "", "a", "_", "_1", "_Sum", "_sum0", "1pv0", "pv0_", "pv_0", "p-v0", "pv0a" })
+	public void testInvalidComponentIds(String componentId) {
+		assertFalse(ChannelFilter.isValidComponentId(componentId));
+	}
+
 	@Test
-	@Ignore
-	public void testSimplePerformanceComponentIdValidation() throws Exception {
+	@Disabled("Performance test, disabled by default")
+	public void testSimplePerformanceComponentIdValidation() {
 		final var pattern = Pattern.compile("^([a-z][a-zA-Z0-9]+[0-9]+|_[a-z][a-zA-Z0-9]+[a-zA-Z])$").asPredicate();
+		final int runs = 1_000_000;
+		final int uniqueComponents = 100;
+
+		final var componentIds = new ArrayList<String>(uniqueComponents);
+		final var fakeComponentIds = new ArrayList<String>(uniqueComponents);
+
+		for (int i = 0; i < uniqueComponents; i++) {
+			componentIds.add("component" + i);
+			fakeComponentIds.add("component" + i + "-fake0");
+		}
 
 		// Pattern validation
 		final var startPattern = System.currentTimeMillis();
-		for (int i = 0; i < 1_000_000; i++) {
-			pattern.test("component" + i + "/Channel");
+		for (int i = 0; i < runs; i++) {
+			final int index = i % uniqueComponents;
+			if (!pattern.test(componentIds.get(index))) {
+				throw new IllegalStateException("Invalid component ID: " + componentIds.get(index));
+			}
+			if (pattern.test(fakeComponentIds.get(index))) {
+				throw new IllegalStateException("Valid component ID: " + fakeComponentIds.get(index));
+			}
 		}
 		final var endPattern = System.currentTimeMillis();
 
 		// Manually parsing
 		final var startManually = System.currentTimeMillis();
-		for (int i = 0; i < 1_000_000; i++) {
-			ChannelFilter.isValidComponentId("component" + i + "/Channel");
+		for (int i = 0; i < runs; i++) {
+			final int index = i % uniqueComponents;
+			if (!ChannelFilter.isValidComponentId(componentIds.get(index))) {
+				throw new IllegalStateException("Invalid component ID: " + componentIds.get(index));
+			}
+			if (ChannelFilter.isValidComponentId(fakeComponentIds.get(index))) {
+				throw new IllegalStateException("Valid component ID: " + fakeComponentIds.get(index));
+			}
 		}
 		final var endManually = System.currentTimeMillis();
 

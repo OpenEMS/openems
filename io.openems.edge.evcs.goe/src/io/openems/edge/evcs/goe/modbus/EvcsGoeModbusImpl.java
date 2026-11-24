@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.goe.modbus;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.evcs.api.Evcs.calculatePhasesFromActivePowerAndPhaseCurrents;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
@@ -24,7 +26,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -56,8 +57,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class EvcsGoeModbusImpl extends AbstractOpenemsModbusComponent implements EvcsGoeModbus, EvcsGoe, Evcs, ElectricityMeter,
-		ModbusComponent, EventHandler, TimedataProvider, OpenemsComponent {
+public class EvcsGoeModbusImpl extends AbstractOpenemsModbusComponent implements EvcsGoeModbus, EvcsGoe, Evcs,
+		ElectricityMeter, ModbusComponent, EventHandler, TimedataProvider, OpenemsComponent {
 
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			ACTIVE_PRODUCTION_ENERGY);
@@ -153,14 +154,11 @@ public class EvcsGoeModbusImpl extends AbstractOpenemsModbusComponent implements
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(108)),
 						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(110)),
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(112)),
-						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(114), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(116), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(118), //
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(120), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))); //
+						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(114), SCALE_FACTOR_1), //
+						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(116), SCALE_FACTOR_1), //
+						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(118), SCALE_FACTOR_1), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(120),
+								SCALE_FACTOR_MINUS_1))); //
 	}
 
 	@Override

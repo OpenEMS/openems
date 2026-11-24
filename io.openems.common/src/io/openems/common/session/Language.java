@@ -15,7 +15,9 @@ public enum Language {
 	NL(Locale.forLanguageTag("nl")), //
 	ES(Locale.forLanguageTag("es")), //
 	FR(Locale.FRENCH), //
-	JA(Locale.forLanguageTag("ja"));
+	JA(Locale.forLanguageTag("ja")), //
+	LT(Locale.forLanguageTag("lt")), //
+	SV(Locale.forLanguageTag("sv"));
 
 	public static final Language DEFAULT = Language.DE;
 

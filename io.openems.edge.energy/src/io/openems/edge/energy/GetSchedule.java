@@ -12,9 +12,9 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.type.AuthenticateWithToken;
+import io.openems.common.jsonrpc.type.ScheduleUpdate.Period;
 import io.openems.edge.energy.GetSchedule.Request;
 import io.openems.edge.energy.GetSchedule.Response;
-import io.openems.common.jsonrpc.type.ScheduleUpdate.Period;
 
 /**
  * Gets a Schedule.

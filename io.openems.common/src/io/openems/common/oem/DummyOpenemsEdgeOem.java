@@ -178,7 +178,19 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.FENECON.Pro.9.12", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.FENECON.Pro.9.12.Cluster", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.System.Fenecon.Home", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.Tariff.SpotTariff", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
@@ -395,6 +407,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.EN) //
 			) //
 			.put("App.LoadControl.ThresholdControl", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.LoadControl.BraiinsOs", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //

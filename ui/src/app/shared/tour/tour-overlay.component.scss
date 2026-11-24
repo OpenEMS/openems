@@ -1,0 +1,190 @@
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+// Catches clicks and touches on the page while the tour is active; only the tooltip stays interactive
+.tour-interaction-blocker {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
+.tour-highlight {
+    position: fixed;
+    z-index: 10001;
+    // Keeps the border inside the computed rectangle, so neighbouring highlights do not overlap
+    box-sizing: border-box;
+    border-radius: min(1.5vw, 1vh);
+    border: min(0.4vw, 0.4vh) solid var(--ion-color-primary);
+    box-shadow: 0 0 0 min(0.3vw, 0.3vh) rgb(0 32 78 / 18%);
+    pointer-events: none;
+    transition:
+        top 777ms ease,
+        left 777ms ease,
+        width 777ms ease,
+        height 777ms ease;
+}
+
+.tour-multi-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+.tour-tooltip {
+    position: fixed;
+    z-index: 10002;
+    box-sizing: border-box;
+    width: min(88vw, 60vh);
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: min(7.5vw, 3vh);
+    margin: 0;
+    border: min(0.15vw, 0.15vh) solid rgb(0 32 78 / 12%);
+    border-inline-start: min(1vw, 1vh) solid var(--ion-color-primary);
+    border-radius: min(1vw, 1vh);
+    background: var(--ion-background-color);
+    color: var(--ion-text-color);
+    box-shadow: 0 min(0.5vw, 0.5vh) min(2.5vw, 2.5vh) rgb(0 32 78 / 18%);
+    pointer-events: auto;
+    opacity: 0;
+    transform: scale(0.98);
+    transition:
+        top 444ms ease,
+        left 444ms ease,
+        opacity 120ms ease,
+        transform 120ms ease;
+}
+
+.tour-tooltip-card {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    --background: transparent;
+    --color: var(--ion-text-color);
+    box-shadow: none;
+}
+
+.tour-tooltip.visible {
+    opacity: 1;
+    transform: none;
+}
+
+.tour-content {
+    white-space: pre-line;
+
+    line-height: 1.55;
+}
+
+.tour-content p {
+    margin: 0 0 min(3vw, 3vh);
+}
+
+// Compact legend, so content blocks with many items keep the tooltip small
+.tour-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0.5rem 0;
+    padding: 0;
+    list-style: none;
+    white-space: normal;
+    font-size: 0.875em;
+    line-height: 1.4;
+}
+
+.tour-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.tour-legend-dot {
+    flex-shrink: 0;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+}
+
+.tour-handbook-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: fit-content;
+    margin-top: 0.75rem;
+    color: var(--ion-color-primary);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: normal;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+
+    ion-icon {
+        flex-shrink: 0;
+        font-size: 1.1em;
+    }
+}
+
+.tour-text-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.tour-avatar {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    color: var(--ion-card-border);
+}
+
+.tour-text {
+    flex: 1;
+    min-width: 0;
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+}
+
+// Presents the text as speech bubble of the theme avatar
+.tour-bubble {
+    position: relative;
+    padding: 0.75rem 1rem;
+    border: min(0.15vw, 0.15vh) solid var(--ion-card-border);
+    border-radius: 1vh;
+    background: var(--ion-card-background, var(--ion-background-color));
+
+    // Tail pointing towards the avatar
+    &::before {
+        content: "";
+        position: absolute;
+        top: 1rem;
+        left: -0.4rem;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-bottom: min(0.15vw, 0.15vh) solid var(--ion-card-border);
+        border-left: min(0.15vw, 0.15vh) solid var(--ion-card-border);
+        background: inherit;
+        transform: rotate(45deg);
+    }
+}
+
+.tour-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgb(0 0 0 / 55%);
+    backdrop-filter: blur(min(0.5vw, 0.5vh));
+    pointer-events: none;
+}

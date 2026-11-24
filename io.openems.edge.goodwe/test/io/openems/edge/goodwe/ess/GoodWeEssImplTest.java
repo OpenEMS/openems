@@ -1,8 +1,8 @@
 package io.openems.edge.goodwe.ess;
 
 import static io.openems.edge.goodwe.GoodWeConstants.DEFAULT_UNIT_ID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,10 +19,11 @@ import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 
-public class GoodWeEssImplTest {
+class GoodWeEssImplTest {
+
 
 	@Test
-	public void testEt() throws Exception {
+	void testEt() throws Exception {
 		var charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
@@ -69,7 +70,7 @@ public class GoodWeEssImplTest {
 	}
 
 	@Test
-	public void testBt() throws Exception {
+	void testBt() throws Exception {
 		var ess = new GoodWeEssImpl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //

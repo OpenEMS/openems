@@ -1,6 +1,9 @@
 package io.openems.edge.evse.chargepoint.mennekes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import io.openems.common.channel.Level;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -32,13 +36,15 @@ class EvseChargePointMennekesTest {
 
 	private EvseMennekesImpl mennekes;
 	private ComponentTest test;
+	private DummyModbusBridge modbusBridge;
 
 	@BeforeEach
 	void setup() throws Exception {
 		this.mennekes = new EvseMennekesImpl();
+		this.modbusBridge = MennekesTestFixtures.createMennekesModbusBridge();
 		this.test = new ComponentTest(this.mennekes) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", MennekesTestFixtures.createMennekesModbusBridge()) //
+				.addReference("setModbus", this.modbusBridge) //
 				.activate(MyConfig.create() //
 						.setId("component0") //
 						.setModbusId("modbus0") //
@@ -233,6 +239,130 @@ class EvseChargePointMennekesTest {
 
 		assertEquals(SingleOrThreePhase.THREE_PHASE, abilities.applySetPoint().phase());
 		assertEquals(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE, abilities.phaseSwitch().direction());
+	}
+
+	@Test
+	void testProfessionalUsesAmpereSetPointAndDoesNotSwitchPhases() throws Exception {
+		var professionalMennekes = new EvseMennekesImpl();
+		var professionalBridge = MennekesTestFixtures.createMennekesProfessionalModbusBridge() //
+				.withRegister(141, DeviceID.PROFESSIONAL.getValue());
+		var professionalTest = new ComponentTest(professionalMennekes) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("setModbus", professionalBridge) //
+				.activate(MyConfig.create() //
+						.setId("professional0") //
+						.setModbusId("modbus0") //
+						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
+						.setReadOnly(false) //
+						.setWiring(SingleOrThreePhase.THREE_PHASE) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build())
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase());
+
+		professionalTest.next(new TestCase()//
+				.output(Mennekes.ChannelId.DEVICE_ID, DeviceID.PROFESSIONAL) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L1, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L2, 6_000) //
+				.output(ElectricityMeter.ChannelId.CURRENT_L3, 6_000) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 4140) //
+				.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true));
+
+		var abilities = professionalMennekes.getChargePointAbilities();
+
+		assertInstanceOf(ApplySetPoint.Ability.Ampere.class, abilities.applySetPoint());
+		assertEquals(SingleOrThreePhase.THREE_PHASE, abilities.applySetPoint().phase());
+		assertEquals(6, abilities.applySetPoint().min());
+		assertEquals(16, abilities.applySetPoint().max());
+		assertNull(abilities.phaseSwitch());
+
+		professionalMennekes.apply(ChargePointActions.from(abilities) //
+				.setApplySetPointInAmpere(10) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE,
+						new ApplyPhaseSwitch.PhaseSwitchAbility.Internal())) //
+				.build());
+
+		assertEquals(10, professionalMennekes.getApplyCurrentLimitChannel().getNextWriteValueAndReset().orElseThrow());
+		assertFalse(professionalMennekes.getApplyPowerLimitChannel().getNextWriteValue().isPresent());
+
+		var abilitiesAfterApply = professionalMennekes.getChargePointAbilities();
+		assertEquals(SingleOrThreePhase.THREE_PHASE, abilitiesAfterApply.applySetPoint().phase());
+		assertNull(abilitiesAfterApply.phaseSwitch());
+	}
+
+	@Test
+	void testProfessionalLegacyTotalPowerFallbackUsesL1WhenL2AndL3AreUndefined() throws Exception {
+		var professionalMennekes = new EvseMennekesImpl();
+		var professionalBridge = MennekesTestFixtures.createMennekesProfessionalLegacyModbusBridge() //
+				.withRegister(141, DeviceID.PROFESSIONAL.getValue());
+		var professionalTest = new ComponentTest(professionalMennekes) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("setModbus", professionalBridge) //
+				.activate(MyConfig.create() //
+						.setId("professionalLegacy0") //
+						.setModbusId("modbus0") //
+						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
+						.setReadOnly(false) //
+						.setWiring(SingleOrThreePhase.THREE_PHASE) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build())
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase());
+
+		professionalTest.next(new TestCase()//
+				.output(Mennekes.ChannelId.DEVICE_ID, DeviceID.PROFESSIONAL) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 42L));
+
+		assertEquals(1380, professionalMennekes.getActivePowerL1().getOrError());
+		assertEquals(0, professionalMennekes.getActivePowerL2().getOrError());
+		assertEquals(0, professionalMennekes.getActivePowerL3().getOrError());
+		assertEquals(1380, professionalMennekes.getActivePower().getOrError());
+	}
+
+	@Test
+	void testProfessionalLegacyTotalPowerFallbackWithPhaseRotationNormalizesPlaceholderOnL1() throws Exception {
+		var professionalMennekes = new EvseMennekesImpl();
+		var professionalBridge = MennekesTestFixtures.createMennekesProfessionalLegacyModbusBridge() //
+				.withRegister(141, DeviceID.PROFESSIONAL.getValue());
+		var professionalTest = new ComponentTest(professionalMennekes) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("setModbus", professionalBridge) //
+				.activate(MyConfig.create() //
+						.setId("professionalLegacyRotated0") //
+						.setModbusId("modbus0") //
+						.setPhaseRotation(PhaseRotation.L2_L3_L1) //
+						.setReadOnly(false) //
+						.setWiring(SingleOrThreePhase.THREE_PHASE) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build())
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase()) //
+				.next(new TestCase());
+
+		professionalTest.next(new TestCase()//
+				.output(Mennekes.ChannelId.DEVICE_ID, DeviceID.PROFESSIONAL) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 1380) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 42L));
+
+		assertEquals(0, professionalMennekes.getActivePowerL1().getOrError());
+		assertEquals(1380, professionalMennekes.getActivePowerL2().getOrError());
+		assertEquals(0, professionalMennekes.getActivePowerL3().getOrError());
+		assertEquals(1380, professionalMennekes.getActivePower().getOrError());
 	}
 
 }

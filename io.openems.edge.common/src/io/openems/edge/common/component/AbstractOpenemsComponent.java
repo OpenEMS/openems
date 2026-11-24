@@ -24,6 +24,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.PropertyChannel;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsRuntimeException;
+import io.openems.common.jsonrpc.serialization.JsonObjectPathActual.JsonObjectPathActualNullable;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OpenemsType;
@@ -32,6 +33,9 @@ import io.openems.common.utils.ServiceUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StringEnumDoc;
+import io.openems.edge.common.channel.internal.AbstractDoc;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -330,9 +334,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		if (channel != null) {
 			return channel;
 		}
-
 		// Channel does not already exist -> create new Channel
-		final var doc = Doc.of(channelType) //
+
+		final var doc = createDoc(property, channelType) //
 				.remotePersistencePriority(PersistencePriority.HIGH) //
 				.localPersistencePriority(PersistencePriority.LOW);
 
@@ -351,6 +355,30 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 
 		return this.addChannel(new io.openems.edge.common.channel.ChannelId.ChannelIdImpl(channelName, doc));
+	}
+
+	private static AbstractDoc<?> createDoc(Property property, OpenemsType channelType) {
+		final var isSchemaSelect = JsonUtils.getAsOptionalString(property.schema, "type") //
+				.map(type -> "select".equals(type)) //
+				.orElse(false);
+		final String[] options = isSchemaSelect //
+				? new JsonObjectPathActualNullable(property.schema)
+						.mapIfPresent(s -> s.getNullableJsonObjectPath("templateOptions")) //
+						.mapIfPresent(to -> to.getNullableJsonArrayPath("options")) //
+						.mapIfPresent(os -> {
+							try {
+								return os.<String>getAsList(o -> o.getAsJsonObjectPath().getString("value")) //
+										.toArray(String[]::new);
+							} catch (Exception e) {
+								// errors can be ignored, as optional property
+								return null;
+							}
+						}) //
+				: null;
+
+		return options != null //
+				? new StringEnumDoc(options) //
+				: OpenemsTypeDoc.of(channelType);
 	}
 
 	/**

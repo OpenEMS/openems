@@ -11,6 +11,7 @@
                 "ERROR": "An error occurred during the SoH cycle. Please check the system logs for more details.",
                 "INFO": "Measures the battery capacity by performing a test cycle and thus calculates the state of health (SOH). The process can take several hours, depending on the battery type and size. It is recommended to only perform the test cycle when the battery is not in use.",
                 "MEASURED_CAPACITY": "Measured Capacity",
+                "PV_OFF_CONFIRMATION": "I hereby confirm that the PV system at the inverter has been switched off via the integrated DC switch.",
                 "RESTART_CONFIRMATION_TITLE": "Confirm perform again",
                 "RESTART_WARNING": "Restarting the SoH cycle will reset the current measurements and start a new cycle. Are you sure you want to restart?",
                 "SOH_PERCENT": "SoH",

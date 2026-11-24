@@ -26,15 +26,15 @@ image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
 +
 Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
 
-.. Configure Eclipse IDE to use JDK 21.
+.. Configure Eclipse IDE to use JDK 25.
 +
 - In the Menu select btn:[Windows] → btn:[Preferences]
 - Select btn:[Java] - btn:[Installed JREs] in the navigation tree
 - Press the btn:[Add...] button
 - Keep btn:[Standard VM] selected and press btn:[Next >]
-- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot`)
+- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot`)
 - Press the btn:[Finish] button
-- Back in the Preferences window, tick the newly added JDK 21 and press btn:[Apply and Close]
+- Back in the Preferences window, tick the newly added JDK 25 and press btn:[Apply and Close]
 +
 .Creating a workspace in Eclipse IDE
 image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]

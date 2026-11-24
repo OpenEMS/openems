@@ -66,10 +66,6 @@ export class HistoryComponent implements OnInit {
         });
     }
 
-    public ionViewWillEnter() {
-        this.layoutRefresh.request(500);
-    }
-
     updateOnWindowResize() {
         const ref = /* fix proportions */ Math.min(
             window.innerHeight - 150,

@@ -1,6 +1,6 @@
 {
     "SCHEDULER_JS_CALENDAR": {
-        "SELECTION_PLACEHOLDER": "Regelaar",
-        "SELECTION_LABEL": "Regelaar"
+        "SELECTION_LABEL": "Regelaar",
+        "SELECTION_PLACEHOLDER": "Regelaar"
     }
 }
