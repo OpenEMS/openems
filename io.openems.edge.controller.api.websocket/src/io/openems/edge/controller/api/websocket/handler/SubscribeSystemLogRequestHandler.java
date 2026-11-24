@@ -54,7 +54,7 @@ public class SubscribeSystemLogRequestHandler implements JsonApi, PaxAppender {
 		while (iter.hasNext()) {
 			final var wsData = iter.next();
 
-			if (wsData.getWebsocket().isFlushAndClose()) {
+			if (!wsData.getWebsocket().isOpen()) {
 				iter.remove();
 				continue;
 			}

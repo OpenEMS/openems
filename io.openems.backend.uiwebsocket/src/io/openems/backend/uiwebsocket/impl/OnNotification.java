@@ -1,6 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -8,6 +7,7 @@ import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.notification.LogMessageNotification;
+import io.openems.common.websocket.WebSocket;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 

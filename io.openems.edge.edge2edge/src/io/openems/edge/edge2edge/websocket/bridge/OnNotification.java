@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserChan
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.WebSocket;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 

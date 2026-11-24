@@ -1,6 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import org.java_websocket.WebSocket;
+import io.openems.common.websocket.WebSocket;
 
 public class OnClose implements io.openems.common.websocket.OnClose {
 

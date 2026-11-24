@@ -16,7 +16,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.java_websocket.util.NamedThreadFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -33,6 +32,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -92,7 +92,10 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	protected final ScheduleHandler scheduleHandler;
 
 	private final DebugExecutor syncableRepositoryExecutor = new DebugExecutor(SYNCABLE_REPOSITORY_EXECUTOR_ID,
-			Executors.newSingleThreadExecutor(new NamedThreadFactory(SYNCABLE_REPOSITORY_EXECUTOR_ID, true)));
+			Executors.newSingleThreadExecutor(new ThreadFactoryBuilder() //
+					.setNameFormat(SYNCABLE_REPOSITORY_EXECUTOR_ID) //
+					.setDaemon(true) //
+					.build()));
 
 	@Reference
 	protected volatile Metadata metadata;

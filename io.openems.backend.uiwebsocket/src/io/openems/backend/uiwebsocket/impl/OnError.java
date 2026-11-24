@@ -1,9 +1,9 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.common.websocket.WebSocket;
 
 public class OnError implements io.openems.common.websocket.OnError {
 

@@ -519,6 +519,11 @@
 	org.apache.felix.scr;version='[2.3.0,2.3.1)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.1.0,5.1.1)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
+	org.eclipse.jetty.alpn.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.client;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.common;version='[12.1.14,12.1.15)',\
+	org.eclipse.jetty.websocket.core.server;version='[12.1.14,12.1.15)',\
 	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[2.4.21,2.4.22)',\
