@@ -473,7 +473,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	}
 
 	private void updateMaximumSellToGridPower() {
-		final var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		final var gridSellHardLimit = this.meta.getGridLimit().gridSellHardLimit();
 		final Integer dynamicGridFeedInLimit;
 		var maxApparentPower = this.ess.getMaxApparentPower();
 		if (this.rcr != null && this.rcr.isEnabled() && maxApparentPower.isDefined()) {

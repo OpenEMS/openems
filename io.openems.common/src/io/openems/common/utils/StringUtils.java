@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
@@ -249,5 +250,23 @@ public class StringUtils {
 		}
 
 		return str.substring(startIdx + startCharacter.length(), endIdx);
+	}
+
+	/**
+	 * Checks if the given string starts with the specified prefix, ignoring case
+	 * considerations.
+	 *
+	 * @param str    the string to check
+	 * @param prefix the prefix to look for
+	 * @return true if the string starts with the prefix (case-insensitive), false
+	 *         otherwise
+	 */
+	public static boolean startsWithIgnoreCase(String str, String prefix) {
+		Objects.requireNonNull(str, "str must not be null");
+		Objects.requireNonNull(prefix, "prefix must not be null");
+		if (prefix.length() > str.length()) {
+			return false;
+		}
+		return str.regionMatches(true, 0, prefix, 0, prefix.length());
 	}
 }

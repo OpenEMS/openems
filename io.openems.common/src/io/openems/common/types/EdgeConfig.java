@@ -682,7 +682,7 @@ public class EdgeConfig {
 			var name = ocd.getName();
 			var description = ocd.getDescription();
 			List<Property> properties = new ArrayList<>(Factory.toProperties(ocd));
-			return new Factory(factoryId, name, description, properties.toArray(new Property[properties.size()]),
+			return new Factory(factoryId, name, description, properties.toArray(Property[]::new),
 					natureIds);
 		}
 
@@ -726,7 +726,8 @@ public class EdgeConfig {
 			private final boolean isRequired;
 			private final boolean isPassword;
 			private final JsonElement defaultValue;
-			private final JsonObject schema;
+
+			public final JsonObject schema;
 
 			public Property(String id, String name, String description, OpenemsType type, boolean isRequired,
 					boolean isPassword, JsonElement defaultValue, JsonObject schema) {

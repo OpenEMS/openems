@@ -119,7 +119,7 @@ public class AlpitronicEvcs
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY), def -> {
-					def.wrapField((app, property, l, parameter, field) -> {
+					def.wrapField((app, _, _, _, field) -> {
 						final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
 
 						if (existingEvcs.isEmpty()) {
@@ -146,7 +146,7 @@ public class AlpitronicEvcs
 		> chargePointAlias(int number) {
 			return AppDef.of(AlpitronicEvcs.class) //
 					.setTranslatedLabel("App.Evcs.chargingStation.label", number) //
-					.setDefaultValue((app, property, l, parameter) -> {
+					.setDefaultValue((_, _, _, parameter) -> {
 						return new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(),
 								"App.Evcs.Alpitronic.chargingStation.label", number));
 					}) //

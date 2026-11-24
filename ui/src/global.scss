@@ -70,10 +70,6 @@ input:-webkit-autofill:focus {
     }
 }
 
-.paragraph-space {
-    margin-top: 2rem;
-}
-
 .disabled {
     color: gray;
     pointer-events: none;
@@ -397,6 +393,7 @@ formly-input-section {
 .alertController {
     .alert-head {
         text-align: center !important;
+        color: var(--ion-text-color) !important;
 
         .alert-sub-title {
             font-size: large;
@@ -407,6 +404,14 @@ formly-input-section {
 
     .alert-message {
         text-align: center;
+    }
+
+    .alert-checkbox-label {
+        color: var(--ion-text-color) !important;
+    }
+
+    .alert-checkbox-icon {
+        border-color: var(--ion-color-primary) !important;
     }
 
     .alert-wrapper {
@@ -420,6 +425,17 @@ formly-input-section {
                 font-size: small;
             }
         }
+    }
+}
+
+:root[data-theme="dark"] .alertController {
+    .alert-message {
+        color: var(--ion-card-content);
+    }
+
+    .alert-checkbox-group {
+        border-top-color: #444444;
+        border-bottom-color: #444444;
     }
 }
 

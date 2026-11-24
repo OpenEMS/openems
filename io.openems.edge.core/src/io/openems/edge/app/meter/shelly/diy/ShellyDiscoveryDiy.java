@@ -74,6 +74,7 @@ public class ShellyDiscoveryDiy extends ShellyDiscovery<MdnsValueDiy> implements
 		case "PlusPlugS" -> ShellyTypeDiy.PLUS_PLUG_S;
 		case "OutdoorPlugSG3" -> ShellyTypeDiy.OUTDOOR_PLUG_S_GEN_3;
 		case "PlugSG3" -> ShellyTypeDiy.PLUG_S_GEN_3;
+		case "PlugMG3" -> ShellyTypeDiy.PLUG_M_GEN_3;
 		case null, default -> null;
 		};
 	}

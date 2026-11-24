@@ -184,14 +184,14 @@ public class ComponentUtilImplTest {
 	@Test
 	public void testGetAllRelayInfos() {
 		assertEquals(1, this.componentUtil.getAllRelayInfos().size());
-		assertEquals(10, this.componentUtil.getAllRelayInfos().get(0).channels().size());
+		assertEquals(10, this.componentUtil.getAllRelayInfos().getFirst().channels().size());
 	}
 
 	@Test
 	public void testGetAllRelayInfosWithExistingComponent() {
 		this.createTestComponent("io0/InputOutput1");
 		assertEquals(1, this.componentUtil.getAllRelayInfos().size());
-		assertEquals(10, this.componentUtil.getAllRelayInfos().get(0).channels().size());
+		assertEquals(10, this.componentUtil.getAllRelayInfos().getFirst().channels().size());
 	}
 
 	@Test

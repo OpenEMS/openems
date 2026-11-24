@@ -30,7 +30,7 @@ public class FeneconMiniComponents {
 						.addProperty("enabled", true) //
 						.addProperty("modbus.id", modbusId) //
 						.addProperty("phase", phase.toString()) //
-						.addProperty("readOnly", readOnly) //
+						.addProperty("readonly", readOnly) //
 						.build()), //
 				ComponentDef.Configuration.defaultConfig());
 	}

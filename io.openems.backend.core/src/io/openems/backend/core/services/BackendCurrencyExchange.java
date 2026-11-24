@@ -23,6 +23,7 @@ public class BackendCurrencyExchange extends AbstractCurrencyExchange {
 		currencyExchangeApi.getExchangeRates().subscribe(this.onNewExchangeRatesFunc);
 	}
 
+	@SuppressWarnings("unused")
 	private void unbindCurrencyExchangeApi(CurrencyExchangeApi currencyExchangeApi) {
 		currencyExchangeApi.getExchangeRates().unsubscribe(this.onNewExchangeRatesFunc);
 	}

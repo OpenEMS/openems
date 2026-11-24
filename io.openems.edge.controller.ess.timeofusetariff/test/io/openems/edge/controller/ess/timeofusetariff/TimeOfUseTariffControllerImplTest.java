@@ -71,7 +71,6 @@ public class TimeOfUseTariffControllerImplTest {
 						.setManualMode(BALANCING) //
 						.setControlMode(CHARGE_CONSUMPTION) //
 						.setEssMaxChargePower(5000) //
-						.setMaxChargePowerFromGrid(10000) //
 						.build()) //
 				.next(new TestCase());
 		return sut;

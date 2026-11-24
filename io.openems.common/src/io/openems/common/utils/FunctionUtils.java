@@ -121,6 +121,25 @@ public final class FunctionUtils {
 	}
 
 	/**
+	 * Helper method to create a {@link Supplier} that always returns {@code null}.
+	 *
+	 * <p>
+	 * Usage:
+	 *
+	 * <pre>
+	 * final Supplier&lt;String&gt; supplier = FunctionUtils::returnNothing;
+	 *
+	 * final ThrowingSupplier&lt;String, Exception&gt; supplier = FunctionUtils::returnNothing;
+	 * </pre>
+	 *
+	 * @param <T> the type of results supplied by the created supplier
+	 * @return a {@link Supplier} that always returns {@code null}
+	 */
+	public static <T> T returnNothing() {
+		return null;
+	}
+
+	/**
 	 * Helper method to create a {@link Supplier}.
 	 * 
 	 * <p>

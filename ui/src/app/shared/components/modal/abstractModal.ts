@@ -8,6 +8,7 @@ import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
@@ -15,7 +16,6 @@ import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
-
     @Input() public component: EdgeConfig.Component | null = null;
 
     /** Enum for User Role */
@@ -69,9 +69,8 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(async config => {
-
+        this.service.getCurrentEdge().then((edge) => {
+            this.service.getConfig().then(async (config) => {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
@@ -96,7 +95,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 }
 
                 // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe((currentData) => {
                     const allComponents = {};
                     for (const channelAddress of channelAddresses) {
                         const ca = channelAddress.toString();
@@ -118,26 +117,32 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         return;
     }
 
-    protected onIsInitialized() { }
+    protected onIsInitialized() {}
 
     /**
      * Called on every new data.
      *
-     * @param currentData new data for the subscribed Channel-Addresses
+     * @param currentData New data for the subscribed Channel-Addresses
      */
-    protected onCurrentData(currentData: CurrentData) {
-    }
+    protected onCurrentData(currentData: CurrentData) {}
 
     /**
-     * Gets the ChannelAddresses that should be subscribed.
+     * Gets the component passed into this modal.
+     *
+     * @returns {@link EdgeConfig.Component} The component passed into this modal
      */
+    protected getModalComponent(): EdgeConfig.Component {
+        const component = this.component;
+        AssertionUtils.assertIsDefined(component);
+        return component;
+    }
+
+    /** Gets the ChannelAddresses that should be subscribed. */
     protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
 
-    /**
-     * Gets the ChannelIds of the current Component that should be subscribed.
-     */
+    /** Gets the ChannelIds of the current Component that should be subscribed. */
     protected getChannelIds(): string[] {
         return [];
     }
@@ -145,9 +150,8 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     /**
      * Gets the FormGroup of the current Component
      *
-     *  FormControl keys need to directly map to component properties
-     *
-    */
+     * FormControl keys need to directly map to component properties
+     */
     protected getFormGroup(): FormGroup | null {
         return null;
     }

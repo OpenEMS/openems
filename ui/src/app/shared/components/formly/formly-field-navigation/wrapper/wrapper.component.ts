@@ -8,8 +8,9 @@ import { OeFormlyField } from "../../../shared/oe-formly-component";
     standalone: true,
     template: `
         <div
-            (ngDomChange)="onDomChange()"
             #projectedContent
+            (ngDomChange)="checkContent()"
+            [ngDomChangeObserveAttributes]="false"
             [class]="class() ?? ''"
             [style.padding-top]="hasContent() != null && hasContent() ? '1%' : '0'"
         >
@@ -20,16 +21,13 @@ import { OeFormlyField } from "../../../shared/oe-formly-component";
 })
 export class FormlyWrapperComponent {
     public readonly class = input<OeFormlyField["cssClass"]>();
-    protected readonly hasContent = signal<boolean | null>(null);
+    private readonly hasContent = signal<boolean | null>(null);
     private readonly content = viewChild.required<ElementRef<HTMLElement>>("projectedContent");
 
     constructor() {
         afterNextRender(() => {
             this.checkContent();
         });
-    }
-    protected onDomChange(): void {
-        this.checkContent();
     }
 
     private checkContent(): void {

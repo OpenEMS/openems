@@ -8,7 +8,6 @@ import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 
 import java.time.ZoneId;
-import java.util.Optional;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
@@ -24,6 +23,7 @@ import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -227,14 +227,6 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
-	 * rating of the fuses.
-	 *
-	 * @return the limit in A
-	 */
-	public int getGridConnectionPointFuseLimit();
-
-	/**
 	 * Returns the ISO 3166-1 alpha-2 country code of the system location.
 	 * 
 	 * <p>
@@ -294,62 +286,11 @@ public interface Meta extends ModbusSlave {
 	public ZoneId getTimezone();
 
 	/**
-	 * Returns the continuous hard limit for Grid-Sell Power in [W].
+	 * Returns the {@link GridLimit.Immutable}.
 	 *
-	 * @return minimal value between fuse limit and configured value
+	 * @return the {@link GridLimit.Immutable}.
 	 */
-	public int getGridSellHardLimit();
-
-	/**
-	 * Returns the directly configured dynamic Grid-Sell Power feed-in limit in [W],
-	 * i.e. the value configured for {@code maximumGridFeedInLimit} while
-	 * {@link GridFeedInLimitationType#DYNAMIC_LIMITATION} is active.
-	 *
-	 * <p>
-	 * Unlike {@link #getGridSellHardLimit()}, this value is not reduced to the
-	 * Grid-Connection-Point fuse limit. Home 30 uses it for its extended feed-in
-	 * parameter; other consumers should continue using the hard limit.
-	 *
-	 * @return the configured non-negative limit in [W], including zero export, or
-	 *         {@link Optional#empty()} if no valid dynamic limit is configured
-	 */
-	public Optional<Integer> getConfiguredMaximumGridFeedInLimit();
-
-	/**
-	 * Returns the continuous hard limit for Grid-Sell Power in [W] minus a safety
-	 * buffer to reduce the risk of PV curtailment.
-	 *
-	 * <p>
-	 * This value is derived from GridConnectionPointFuseLimit.
-	 *
-	 * @return the value
-	 */
-	public int getGridSellHardLimitWithBuffer();
-
-	/**
-	 * Returns the calculated Grid-Sell limits.
-	 *
-	 * @return the Grid-Sell limits
-	 */
-	GridSellLimit getGridSellLimit();
-
-	/**
-	 * Returns the continuous limit for ESS Discharge-to-Grid Power in [W].
-	 *
-	 * <p>
-	 * This value is derived from {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}
-	 * and gridSellHardLimit()
-	 *
-	 * @return the value
-	 */
-	public int getEssDischargeToGridLimit();
-
-	/**
-	 * Returns the {@link GridBuyLimit}.
-	 *
-	 * @return the {@link GridBuyLimit}.
-	 */
-	GridBuyLimit getGridBuyLimit();
+	GridLimit.Immutable getGridLimit();
 
 	/**
 	 * Returns whether the user has accepted, declined, or not yet decided on

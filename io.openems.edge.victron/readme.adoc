@@ -11,4 +11,30 @@ Open Issues:
 
 * only read only implementation is tested
 
+== Victron Meter Grid
+
+`Victron.Meter.Grid` reads a grid meter connected to a Victron GX device via its Modbus/TCP server (service `com.victronenergy.grid`, Unit-ID depending on the instance of the meter).
+
+[cols="1,2,2",options="header"]
+|===
+|Register |Victron |OpenEMS Channel
+
+|2600-2602 |`/Ac/L1-L3/Power`, int16, W |`ActivePowerL1-L3`
+|2609 |`/Serial`, string[7] |`SerialNumber`
+|2616, 2618, 2620 |`/Ac/L1-L3/Voltage`, uint16, 0.1 V |`VoltageL1-L3`
+|2617, 2619, 2621 |`/Ac/L1-L3/Current`, int16, 0.1 A |`CurrentL1-L3`
+|2622-2626 |`/Ac/L1-L3/Energy/Forward` ("Energy from net"), uint32, 0.01 kWh |`ActiveProductionEnergyL1-L3`
+|2628-2632 |`/Ac/L1-L3/Energy/Reverse` ("Energy to net"), uint32, 0.01 kWh |`ActiveConsumptionEnergyL1-L3`
+|2644 |`/Ac/Frequency`, uint16, 0.01 Hz |`Frequency`
+|===
+
+For a grid meter, OpenEMS defines energy bought from the grid as Active Production Energy and energy sold to the grid as Active Consumption Energy. The total energies are calculated as the sum of the phases.
+
+The frequency register 2644 is not part of register list 2.80; it was added in revision 49 of the register list. It is read in a separate task, so that an error when reading this register does not affect the other values.
+
+Protocol documentation (Victron "Modbus TCP register list"):
+
+* `doc/CCGX-Modbus-TCP-register-list-3.81.xlsx` (current)
+* `doc/CCGX-Modbus-TCP-register-list-2.80.xlsx`
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.victron[Source Code icon:github[]]

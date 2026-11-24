@@ -107,7 +107,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 				config.queryThreadPoolSize(), 0L, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue<>(config.queryThreadPoolMaxQueueSize()), //
 				Thread.ofVirtual().name("CoreJsonRpcRequestHandler.Timedata.Request-", 0).factory(), //
-				(r, executor) -> {
+				(_, _) -> {
 					// Custom RejectedExecutionHandler; avoid throwing a RejectedExecutionException
 					this.rejectedExecutionCount.incrementAndGet();
 				});

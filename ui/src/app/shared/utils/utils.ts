@@ -403,7 +403,7 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.getCurrentLanguage().key;
         return (value: number | null | undefined): string =>
             (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
     };
@@ -464,9 +464,16 @@ export class Utils {
      *
      * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
      * @param productionActivePower  the Production Power
-     * @returns  the Self-Consumption rate
+     * @returns  the Self-Consumption rate, or null if an input value is null
      */
-    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number {
+    public static calculateSelfConsumption(
+        sellToGrid: number | null,
+        productionActivePower: number | null,
+    ): number | null {
+        if (sellToGrid == null || productionActivePower == null) {
+            return null;
+        }
+
         if (productionActivePower <= 0) {
             /* avoid divide by zero; production == 0 -> selfconsumption 0 % */
             return 0;
@@ -668,6 +675,8 @@ export enum YAxisType {
     VOLTAGE,
     HEAT_PUMP,
     HEATING_ELEMENT,
+    /** Like {@link HEATING_ELEMENT}, but with a y-axis scaled for two heating elements (Levels 0-6) */
+    HEATING_ELEMENT_TWO,
     RESTRICTION,
     ENERIX_CONTROL,
     HIDE,

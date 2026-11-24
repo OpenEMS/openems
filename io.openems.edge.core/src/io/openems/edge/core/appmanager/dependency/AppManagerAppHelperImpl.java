@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
@@ -236,7 +235,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.getOtherAppConfigurations(ignoreInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new));
 
 		var errors = new LinkedList<String>();
-		var failedTasks = new LinkedList<AggregateTask<?>>();
 		final var language = user == null ? null : user.getLanguage();
 
 		// execute all tasks
@@ -247,20 +245,12 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				final var errorMessage = task.getGeneralFailMessage(language);
 				this.log.error(errorMessage, e);
 				errors.add(errorMessage);
-				failedTasks.add(task);
 			} catch (RuntimeException | Error e) {
 				this.log.error("Unexpected error during Task execution.", e);
 			}
 		}
 
 		if (!errors.isEmpty()) {
-			if (errors.size() == 1 //
-					&& ComponentAggregateTask.class.isAssignableFrom(failedTasks.get(0).getClass())) {
-				// Reported as a distinct, structured error since this is the one failure the UI
-				// can resolve on its own (by removing leftover/stale component config and
-				// retrying).
-				throw OpenemsError.EDGE_APP_COMPONENTS_UPDATE_FAILED.exception(errors.get(0));
-			}
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
@@ -1153,7 +1143,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		}
 		var neededApp = this.getAllInstances().stream().filter(t -> t.appId.equals(appId)).collect(Collectors.toList());
 		if (!neededApp.isEmpty()) {
-			return Optional.of(neededApp.get(0));
+			return Optional.of(neededApp.getFirst());
 		}
 		if (declaration.createPolicy == DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING) {
 			return Optional.empty();
@@ -1450,7 +1440,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			return null;
 		}
 		if (configs.size() == 1) {
-			return configs.get(0);
+			return configs.getFirst();
 		}
 
 		for (var config : configs) {
@@ -1464,7 +1454,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 		}
 
-		return configs.get(0);
+		return configs.getFirst();
 	}
 
 	private void foreachExistingDependency(OpenemsAppInstance instance, ConfigurationTarget target, Language l,
@@ -1608,7 +1598,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.collect(Collectors.toList()); //
 	}
 
-	private final class ReplacableIds {
+	private static final class ReplacableIds {
 		public final String predefinedId;
 		public final String defaultId;
 		public final String key;
@@ -1819,7 +1809,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private final AppManagerImpl getAppManagerImpl() {
 		var appManagerImpl = this.appManager;
 		if (appManagerImpl == null) {
-			appManagerImpl = this.componentManager.getEnabledComponentsOfType(AppManager.class).get(0);
+			appManagerImpl = this.componentManager.getEnabledComponentsOfType(AppManager.class).getFirst();
 		}
 		return (AppManagerImpl) appManagerImpl;
 	}
@@ -1835,7 +1825,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		// Language was not set -> fall back to default (currently GERMAN)
 		case null -> Language.DEFAULT;
 		// Translations are not available -> fall back to ENGLISH
-		case CS, ES, FR, NL, JA -> Language.EN;
+		case CS, ES, FR, NL, JA, LT, SV -> Language.EN;
 		case DE, EN -> language;
 		};
 

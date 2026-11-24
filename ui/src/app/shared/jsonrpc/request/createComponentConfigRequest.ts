@@ -13,7 +13,7 @@ import { JsonrpcRequest } from "../base";
  *     "factoryPid": string,
  *     "properties": [
  *       "name": string,
- *       "value": any
+ *       "value": unknown
  *     ]
  *   }
  * }
@@ -28,7 +28,7 @@ export class CreateComponentConfigRequest extends JsonrpcRequest {
             factoryPid: string;
             properties: {
                 name: string;
-                value: any;
+                value: unknown;
             }[];
         },
     ) {

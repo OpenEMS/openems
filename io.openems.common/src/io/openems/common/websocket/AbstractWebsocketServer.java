@@ -170,8 +170,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @return the debug metrics
 	 */
 	public Map<String, Number> debugMetrics() {
-		final var metrics = new HashMap<String, Number>();
-		metrics.putAll(ThreadPoolUtils.debugMetrics(this.executor));
+		final var metrics = new HashMap<String, Number>(ThreadPoolUtils.debugMetrics(this.executor));
 		metrics.put("Connections", this.connections.size());
 		return metrics;
 	}

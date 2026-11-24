@@ -284,7 +284,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		final var userObj = request.getUser();
 		final var user = io.openems.backend.authentication.api.model.request.RegisterUserRequest.serializer()
 				.deserialize(userObj);
-		this.log.info("Register User: json={}, obj={}", userObj.toString(), user);
+		this.log.info("Register User: json={}", JsonUtils.hidePassword(userObj));
 
 		return this.parent.userRegistrationService.registerUser(user).thenApply(unused -> {
 			return new GenericJsonrpcResponseSuccess(request.getId());

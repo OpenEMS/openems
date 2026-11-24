@@ -1,48 +1,42 @@
 package io.openems.edge.common.test;
 
+import static io.openems.edge.common.test.TestUtils.withValue;
+
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem;
+import io.openems.common.utils.IntUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
-import io.openems.edge.common.meta.GridBuyLimit;
-import io.openems.edge.common.meta.GridFeedInLimitationType;
-import io.openems.edge.common.meta.GridSellLimit;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implements Meta {
 
 	private final OpenemsEdgeOem oem = new DummyOpenemsEdgeOem();
+	private final DummyGridLimit gridLimit;
 
-	private int gridConnectionPointFuseLimit = 32; // [A]
 	private SubdivisionCode subdivisionCode;
 	private String placeName;
 	private String postcode;
 	private Coordinates coordinates;
 	private ZoneId timezone;
-	private int gridSellHardLimit;
-	private int gridSellHardLimitWithBuffer;
-	private GridBuyLimit gridBuyLimit = new GridBuyLimit(//
-			new GridBuyLimit.Hard(0), //
-			JSCalendar.Tasks.empty());
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
 	private Environment environment = Environment.STABLE;
-	private Optional<Integer> configuredMaximumGridFeedInLimit = Optional.empty();
 
 	public DummyMeta() {
 		super(Meta.SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, //
 				OpenemsComponent.ChannelId.values(), //
 				Meta.ChannelId.values());
+		this.gridLimit = new DummyGridLimit(this);
 	}
 
 	@Override
@@ -53,11 +47,6 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return Meta.getModbusSlaveTable(accessMode, this.oem);
-	}
-
-	@Override
-	public int getGridConnectionPointFuseLimit() {
-		return this.gridConnectionPointFuseLimit;
 	}
 
 	@Override
@@ -86,49 +75,13 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	@Override
-	public int getGridSellHardLimit() {
-		return this.gridSellHardLimit;
-	}
-
-	@Override
-	public int getGridSellHardLimitWithBuffer() {
-		return this.gridSellHardLimitWithBuffer;
-	}
-
-	@Override
-	public GridSellLimit getGridSellLimit() {
-		return new GridSellLimit(new GridSellLimit.Hard(//
-				this.gridSellHardLimit, //
-				this.gridSellHardLimitWithBuffer));
-	}
-
-	@Override
-	public int getEssDischargeToGridLimit() {
-		if (this.getIsEssDischargeToGridAllowed()) {
-			return this.getGridSellHardLimit();
-		}
-		return 0;
-	}
-
-	@Override
-	public GridBuyLimit getGridBuyLimit() {
-		return this.gridBuyLimit;
+	public GridLimit.Immutable getGridLimit() {
+		return this.gridLimit.toImmutable();
 	}
 
 	@Override
 	public Environment getEnvironment() {
 		return this.environment;
-	}
-
-	/**
-	 * Set the Grid-Connection-Point Fuse limit in [A].
-	 *
-	 * @param value the value in Ampere
-	 * @return myself
-	 */
-	public DummyMeta withGridConnectionPointFuseLimit(int value) {
-		this.gridConnectionPointFuseLimit = value;
-		return this.self();
 	}
 
 	/**
@@ -139,17 +92,6 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withCurrency(Currency value) {
 		TestUtils.withValue(this, Meta.ChannelId.CURRENCY, value);
-		return this.self();
-	}
-
-	/**
-	 * Set {@link Meta.ChannelId#IS_ESS_CHARGE_FROM_GRID_ALLOWED}.
-	 *
-	 * @param value the value
-	 * @return myself
-	 */
-	public DummyMeta withIsEssChargeFromGridAllowed(boolean value) {
-		TestUtils.withValue(this, Meta.ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED, value);
 		return this.self();
 	}
 
@@ -214,74 +156,6 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	/**
-	 * Sets the Grid-Sell Hard-Limit for this {@link DummyMeta} instance and returns
-	 * the instance itself.
-	 *
-	 * @param gridSellHardLimit the value
-	 * @return myself
-	 */
-	public DummyMeta withGridSellHardLimit(int gridSellHardLimit) {
-		this.gridSellHardLimit = gridSellHardLimit;
-		return this.self();
-	}
-
-	@Override
-	public Optional<Integer> getConfiguredMaximumGridFeedInLimit() {
-		return this.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION //
-				? this.configuredMaximumGridFeedInLimit.filter(limit -> limit >= 0) //
-				: Optional.empty();
-	}
-
-	/**
-	 * Sets the Grid-Sell Hard-Limit with safety buffer for this {@link DummyMeta}
-	 * instance and returns the instance itself.
-	 *
-	 * @param gridSellHardLimitWithBuffer the value
-	 * @return myself
-	 */
-	public DummyMeta withGridSellHardLimitWithBuffer(int gridSellHardLimitWithBuffer) {
-		this.gridSellHardLimitWithBuffer = gridSellHardLimitWithBuffer;
-		return this.self();
-	}
-
-	/**
-	 * Set {@link Meta.ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
-	 *
-	 * @param value the value
-	 * @return myself
-	 */
-	public DummyMeta withIsEssDischargeToGridAllowed(boolean value) {
-		TestUtils.withValue(this, Meta.ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED, value);
-		return this.self();
-	}
-
-	/**
-	 * Sets the {@link GridBuyLimit} for this {@link DummyMeta} instance and returns
-	 * the instance itself.
-	 *
-	 * @param gridBuyLimit the grid-buy limit
-	 * @return myself
-	 */
-	public DummyMeta withGridBuyLimit(GridBuyLimit gridBuyLimit) {
-		this.gridBuyLimit = gridBuyLimit;
-		return this.self();
-	}
-
-	/**
-	 * Sets the {@link GridBuyLimit} for this {@link DummyMeta} instance and returns
-	 * the instance itself.
-	 *
-	 * @param callback callback with {@link GridBuyLimit.Builder}
-	 * @return myself
-	 */
-	public DummyMeta withGridBuyLimit(Consumer<GridBuyLimit.Builder> callback) {
-		var b = GridBuyLimit.create();
-		callback.accept(b);
-		this.gridBuyLimit = b.build();
-		return this.self();
-	}
-
-	/**
 	 * Sets the {@link ThirdPartyUsageAcceptance} for this {@link DummyMeta}
 	 * instance and returns the instance itself.
 	 *
@@ -311,26 +185,88 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	/**
-	 * Set {@link Meta.ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 * Update the {@link GridLimit}.
 	 *
-	 * @param gridFeedInLimitationType grid feed in limitation type
+	 * @param callback callback for {@link DummyGridLimit}
 	 * @return myself
 	 */
-	public DummyMeta withGridFeedInLimitationType(GridFeedInLimitationType gridFeedInLimitationType) {
-		TestUtils.withValue(this, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE, gridFeedInLimitationType);
+	public DummyMeta withGridLimit(Consumer<DummyGridLimit> callback) {
+		callback.accept(this.gridLimit);
 		return this.self();
 	}
 
-	/**
-	 * Sets the directly configured dynamic Grid-Feed-In limit for a sum of all
-	 * three phases for this {@link DummyMeta} instance and returns the instance
-	 * itself.
-	 *
-	 * @param configuredMaximumGridFeedInLimit the value in [W]
-	 * @return myself
-	 */
-	public DummyMeta withConfiguredMaximumGridFeedInLimit(int configuredMaximumGridFeedInLimit) {
-		this.configuredMaximumGridFeedInLimit = Optional.of(configuredMaximumGridFeedInLimit);
-		return this.self();
+	public static class DummyGridLimit extends GridLimit.Mutable {
+
+		private final DummyMeta parent;
+
+		// Buy
+		private Integer gridBuyHardLimit;
+		private Integer gridBuyHardLimitWithBuffer;
+
+		// Sell
+		private Integer gridSellHardLimit;
+		private Integer gridSellHardLimitWithBuffer;
+
+		private DummyGridLimit(DummyMeta parent) {
+			this.parent = parent;
+		}
+
+		public DummyGridLimit setGridBuyHardLimit(Integer gridBuyHardLimit) {
+			this.gridBuyHardLimit = gridBuyHardLimit;
+			this.invalidateImmutable();
+			return this;
+		}
+
+		@Override
+		public synchronized int gridBuyHardLimit() {
+			return IntUtils.minInt(super.gridBuyHardLimit(), this.gridBuyHardLimit);
+		}
+
+		public DummyGridLimit setGridBuyHardLimitWithBuffer(Integer gridBuyHardLimitWithBuffer) {
+			this.gridBuyHardLimitWithBuffer = gridBuyHardLimitWithBuffer;
+			this.invalidateImmutable();
+			return this;
+		}
+
+		@Override
+		public synchronized int gridBuyHardLimitWithBuffer() {
+			return IntUtils.minInt(this.gridBuyHardLimit(), super.gridBuyHardLimitWithBuffer(),
+					this.gridBuyHardLimitWithBuffer);
+		}
+
+		public DummyGridLimit setGridSellHardLimit(int gridSellHardLimit) {
+			this.gridSellHardLimit = gridSellHardLimit;
+			this.invalidateImmutable();
+			return this;
+		}
+
+		@Override
+		public synchronized int gridSellHardLimit() {
+			return IntUtils.minInt(super.gridSellHardLimit(), this.gridSellHardLimit);
+		}
+
+		public DummyGridLimit setGridSellHardLimitWithBuffer(Integer gridSellHardLimitWithBuffer) {
+			this.gridSellHardLimitWithBuffer = gridSellHardLimitWithBuffer;
+			this.invalidateImmutable();
+			return this;
+		}
+
+		@Override
+		public synchronized int gridSellHardLimitWithBuffer() {
+			return IntUtils.minInt(this.gridSellHardLimit(), super.gridSellHardLimitWithBuffer(),
+					this.gridSellHardLimitWithBuffer);
+		}
+
+		@Override
+		public synchronized Mutable setEssChargeFromGridAllowed(boolean isEssChargeFromGridAllowed) {
+			withValue(this.parent, Meta.ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED, isEssChargeFromGridAllowed);
+			return super.setEssChargeFromGridAllowed(isEssChargeFromGridAllowed);
+		}
+
+		@Override
+		public synchronized Mutable setEssDischargeToGridAllowed(boolean isEssDischargeToGridAllowed) {
+			withValue(this.parent, Meta.ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED, isEssDischargeToGridAllowed);
+			return super.setEssDischargeToGridAllowed(isEssDischargeToGridAllowed);
+		}
 	}
 }

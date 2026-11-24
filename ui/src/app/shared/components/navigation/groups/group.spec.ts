@@ -15,7 +15,6 @@ import { NavigationService } from "../service/navigation.service";
 import { ControllerGroupListComponent } from "./group";
 
 describe("ControllerGroupListComponent", () => {
-    let component: ControllerGroupListComponent;
     let fixture: ComponentFixture<ControllerGroupListComponent>;
 
     let service: jasmine.SpyObj<Service>;
@@ -68,7 +67,6 @@ describe("ControllerGroupListComponent", () => {
         fixture = TestBed.createComponent(ControllerGroupListComponent);
         await fixture.whenStable();
         fixture.detectChanges();
-        component = fixture.componentInstance;
 
         router.navigate.and.resolveTo(true);
     });
@@ -124,12 +122,5 @@ describe("ControllerGroupListComponent", () => {
         routeService.getQueryParam.and.returnValue(factoryId);
         const groupedFactory = Widgets.GROUPED_FACTORIES[factoryId];
         expect(groupedFactory).toBeDefined();
-    });
-
-    it("should remove query parameters before navigating", async () => {
-        routeService.getCurrentUrl.and.returnValue("/controller/group?factoryId=Controller.Io.FixDigitalOutput");
-
-        await component.navigateTo("component-1");
-        expect(router.navigate).toHaveBeenCalledWith(["/controller/group", "component-1"]);
     });
 });

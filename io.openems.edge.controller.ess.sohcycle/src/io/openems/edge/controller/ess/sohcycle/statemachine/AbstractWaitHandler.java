@@ -22,11 +22,13 @@ public abstract class AbstractWaitHandler extends StateHandler<StateMachine.Stat
 
 	@Override
 	protected void onEntry(Context context) {
+		context.requestZeroBatteryPower();
 		this.stateEnteredAt = context.getClock().instant();
 	}
 
 	@Override
 	protected StateMachine.State runAndGetNextState(Context context) throws OpenemsError.OpenemsNamedException {
+		context.requestZeroBatteryPower();
 		final Instant targetTime = this.stateEnteredAt.plus(WAIT_DURATION_MINUTES, ChronoUnit.MINUTES);
 		final Instant now = context.getClock().instant();
 

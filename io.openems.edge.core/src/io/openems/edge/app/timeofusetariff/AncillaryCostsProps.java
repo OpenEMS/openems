@@ -134,7 +134,7 @@ public final class AncillaryCostsProps {
 				.setTranslatedLabel("App.TimeOfUseTariff.AncillaryCosts.dso.germany.label") //
 				.setTranslatedDescription("App.TimeOfUseTariff.AncillaryCosts.dso.germany.fixedTariffDescription")
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(GermanDSO.optionsFactory(), l);
 					if (paragraph14aCheckProperty != null) {
 						field.onlyShowIf(Exp.currentModelValue(paragraph14aCheckProperty).notNull());
@@ -162,12 +162,11 @@ public final class AncillaryCostsProps {
 	public static <APP extends OpenemsApp & ComponentManagerSupplier> AppDef<APP, Nameable, BundleProvider> tariffTable(
 			Nameable germanDsoProperty, Nameable timeOfUseTariffProviderId) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setDefaultValue((a, b, c, d) -> GermanDSO.getDefaultJson())//
+				.setDefaultValue((_, _, _, _) -> GermanDSO.getDefaultJson())//
 				.setTranslatedDescription("App.TimeOfUseTariff.AncillaryCosts.dso.germany.description")
-				.setField(JsonFormlyUtil::buildTariffTableFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.staticValue(GermanDSO.OTHER)//
-							.equal(Exp.currentModelValue(germanDsoProperty)));
-				}) //
+				.setField(JsonFormlyUtil::buildTariffTableFromNameable, (_, _, _, _, field) -> field //
+						.onlyShowIf(Exp.staticValue(GermanDSO.OTHER)//
+								.equal(Exp.currentModelValue(germanDsoProperty)))) //
 				.bidirectional(timeOfUseTariffProviderId, "ancillaryCosts",
 						ComponentManagerSupplier::getComponentManager, j -> {
 							// unwrapping the unstructured data into structured jsonObject and reading the

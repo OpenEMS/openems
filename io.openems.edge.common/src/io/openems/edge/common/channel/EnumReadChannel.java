@@ -47,14 +47,14 @@ public class EnumReadChannel extends AbstractReadChannel<EnumDoc, Integer> {
 		}
 
 		var currentValueOpt = this.value().asOptional();
-		if (currentValueOpt.isPresent() && currentValueOpt.get() != value) {
+		if (currentValueOpt.isPresent() && !currentValueOpt.get().equals(value)) {
 
 			/*
 			 * Same values in a row to change the value.
 			 */
 			this.lastValue = this.lastValue == null ? value : this.lastValue;
 
-			if (this.lastValue == value) {
+			if (this.lastValue.equals(value)) {
 				if (this.debounceCounter <= this.debounce) {
 					this.debounceCounter++;
 				}

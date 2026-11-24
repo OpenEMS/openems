@@ -33,6 +33,8 @@ export const BASE_TEST_BED: TestModuleMetadata = {
 };
 
 function setTranslateParams(): Promise<void> {
+    localStorage.LANGUAGE = "de";
+
     return new Promise<void>((res) => {
         const translateService = TestBed.inject(TranslateService);
         translateService.addLangs(["de"]);
@@ -88,6 +90,7 @@ export namespace TestingUtils {
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule(testModuleMetadata).compileComponents();
         await setTranslateParams();
+        localStorage.LANGUAGE = "de";
 
         // Inject services and return them as an object with service names as keys
         const result = services.reduce((arr, el) => {

@@ -314,7 +314,16 @@ public class Solver {
 			inv.setLastActivePower(powerTuple.getActivePower());
 		});
 
-		for (var ess : this.esssSupplier.get()) {
+		final var esss = this.esssSupplier.get();
+		var hasMetaEss = false;
+		for (var e : esss) {
+			if (e instanceof MetaEss) {
+				hasMetaEss = true;
+				break;
+			}
+		}
+
+		for (var ess : esss) {
 			if (ess instanceof MetaEss) {
 				// ignore MetaEss
 				continue;
@@ -411,7 +420,8 @@ public class Solver {
 					ess._setApplyPowerFailed(true);
 				}
 
-			} else {
+			} else if (!hasMetaEss) {
+				// Individual site only: every live ESS should have a solution
 				this.log.error("No Solution for [" + ess.id() + "] available!");
 			}
 		}

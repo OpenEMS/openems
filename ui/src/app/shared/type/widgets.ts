@@ -3,6 +3,7 @@ import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
 import { SharedControllerChpSoc } from "src/app/edge/live/Controller/ChpSoc/shared/shared";
 import { SharedControllerEnerixControl } from "src/app/edge/live/Controller/EnerixControl/shared/shared";
+import { SharedEvcs } from "src/app/edge/live/Controller/Evcs/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { ControllerBraiinsShared } from "src/app/edge/live/Controller/Io/Braiins/shared/shared";
@@ -52,6 +53,10 @@ export class Widgets {
         "Controller.BraiinsOS.Single": {
             grouped: ControllerBraiinsShared.getGroupedNavigationTree,
             single: ControllerBraiinsShared.getNavigationTree,
+        },
+        "io.openems.edge.evcs.api.Evcs": {
+            grouped: SharedEvcsApiCluster.getGroupedNavigationTree,
+            single: SharedEvcsApiCluster.getNavigationTree,
         },
     };
 
@@ -107,7 +112,7 @@ export class Widgets {
             case "Controller.ChannelThreshold":
                 return SharedControllerChannelThreshold.getNavigationTree(translate, component);
             case "io.openems.edge.evcs.api.Evcs":
-                return SharedEvcsApiCluster.getNavigationTree(translate, component.id, config);
+                return SharedEvcs.getNavigationTree(translate, component, config);
             default:
                 return null;
         }
@@ -157,8 +162,12 @@ export class Widgets {
                     continue;
                 }
 
-                const component = config.getComponentSafelyOrDefault(componentId);
-                if (component.isEnabled) {
+                const component = config.getComponent(componentId);
+                if (
+                    component.isEnabled &&
+                    component.factoryId != "Evcs.Cluster.PeakShaving" &&
+                    component.factoryId != "Evcs.Cluster.SelfConsumption"
+                ) {
                     list.push({
                         name: nature,
                         componentId: componentId,
@@ -215,6 +224,7 @@ export class Widgets {
 
             return w1.componentId.localeCompare(w1.componentId);
         });
+
         return new Widgets(list, classes);
     }
 
@@ -227,15 +237,20 @@ export class Widgets {
     ): ConstructorParameters<typeof NavigationTree>[] {
         const navigationTrees: ConstructorParameters<typeof NavigationTree>[] = [];
         const groupedComponentIdsByWidgetName: Partial<Record<Widget["name"], Widget["componentId"][]>> = {};
-
         for (const widget of widgets) {
             const groupedFactory = Widgets.GROUPED_FACTORIES[widget.name];
             if (groupedFactory != null) {
                 groupedComponentIdsByWidgetName[widget.name] ??= [];
                 const groupedComponentIds = groupedComponentIdsByWidgetName[widget.name];
-                if (groupedComponentIds != null) {
+                const factoryId = config.getComponentSafely(widget.componentId)?.factoryId;
+                if (
+                    groupedComponentIds != null &&
+                    factoryId !== "Evcs.Cluster.PeakShaving" &&
+                    factoryId != "Evcs.Cluster.SelfConsumption"
+                ) {
                     groupedComponentIds.push(widget.componentId);
                 }
+
                 continue;
             }
 

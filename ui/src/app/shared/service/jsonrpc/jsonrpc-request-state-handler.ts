@@ -11,41 +11,39 @@ import { Websocket } from "../websocket";
 @Injectable({ providedIn: "root" })
 export class JsonrpcRequestStateHandler {
     public async establishRequestMinState(request: JsonrpcRequest, websocket: Websocket): Promise<void> {
-        return new Promise<void>(async (resolve) => {
-            const authService = websocket.injector.get(AuthService);
-            const pagination = websocket.injector.get(Pagination);
-            const mostInnerReq = JsonRpcUtils.getMostInnerRequest(request);
+        const authService = websocket.injector.get(AuthService);
+        const pagination = websocket.injector.get(Pagination);
+        const mostInnerReq = JsonRpcUtils.getMostInnerRequest(request);
 
-            if (mostInnerReq == null) {
-                resolve();
-                return;
-            }
+        if (mostInnerReq == null) {
+            return;
+        }
 
-            if (States.isAtLeast(mostInnerReq.RequiredState, States.WEBSOCKET_CONNECTED)) {
-                await websocket.reconnectIfNeeded();
-            }
+        if (States.isAtLeast(websocket.state(), mostInnerReq.RequiredState)) {
+            return;
+        }
 
-            if (States.isAtLeast(mostInnerReq.RequiredState, States.AUTHENTICATED)) {
-                await authService.authenticate(websocket);
-            }
+        if (States.isAtLeast(mostInnerReq.RequiredState, States.WEBSOCKET_CONNECTED)) {
+            await websocket.reconnectIfNeeded();
+        }
 
-            const req = request as EdgeRpcRequest;
-            const edgeId = req.params.edgeId ?? null;
-            let edge: Edge | null = null;
-            if (edgeId == null) {
-                resolve();
-                return;
-            }
+        if (States.isAtLeast(mostInnerReq.RequiredState, States.AUTHENTICATED)) {
+            await authService.authenticate(websocket);
+        }
 
-            if (States.isAtLeast(mostInnerReq.RequiredState, States.EDGE_SELECTED)) {
-                edge = await pagination.getEdge(edgeId, websocket);
-            }
+        const req = request as EdgeRpcRequest;
+        const edgeId = req.params.edgeId ?? null;
+        let edge: Edge | null = null;
+        if (edgeId == null) {
+            return;
+        }
 
-            if (States.isAtLeast(mostInnerReq.RequiredState, States.EDGE_SUBSCRIBED)) {
-                await pagination.subscribeEdge(edge, websocket);
-            }
+        if (States.isAtLeast(mostInnerReq.RequiredState, States.EDGE_SELECTED)) {
+            edge = await pagination.getEdge(edgeId, websocket);
+        }
 
-            resolve();
-        });
+        if (States.isAtLeast(mostInnerReq.RequiredState, States.EDGE_SUBSCRIBED)) {
+            await pagination.subscribeEdge(edge, websocket);
+        }
     }
 }

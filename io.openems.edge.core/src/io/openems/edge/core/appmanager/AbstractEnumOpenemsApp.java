@@ -31,7 +31,7 @@ public abstract class AbstractEnumOpenemsApp<PROPERTY extends Enum<PROPERTY> & N
 	protected ThrowingTriFunction<ConfigurationTarget, Map<PROPERTY, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, m, l) -> {
 			final var map = new EnumMap<PROPERTY, JsonElement>(this.getPropertyClass());
-			m.forEach((k, v) -> map.put(k, v));
+			map.putAll(m);
 			return this.appConfigurationFactory().apply(t, map, l);
 		};
 	}

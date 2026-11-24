@@ -8,15 +8,12 @@ import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
-import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -88,28 +85,6 @@ public final class TimeOfUseProps {
 	 */
 	public static AppDef<OpenemsApp, Nameable, BundleProvider> paragraph14aCheck() {
 		return paragraph14aCheck(null);
-	}
-
-	/**
-	 * Creates a {@link AppDef} for max charge from grid.
-	 * 
-	 * @param <APP>            the type of the {@link OpenemsApp}
-	 * @param propOfController the {@link Nameable} to the id of the controller
-	 * @return the {@link AppDef}
-	 */
-	public static <APP extends OpenemsApp & ComponentManagerSupplier> AppDef<APP, Nameable, BundleProvider> maxChargeFromGrid(//
-			Nameable propOfController //
-	) {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabel("App.TimeOfUseTariff.maxChargeFromGrid.label") //
-				.setDefaultValue(20_000) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, params, field) -> {
-					field.setInputType(InputType.NUMBER);
-					field.setMin(0);
-					field.setUnit(Unit.WATT, l);
-				}) //
-				.bidirectional(propOfController, "maxChargePowerFromGrid",
-						ComponentManagerSupplier::getComponentManager));
 	}
 
 	private TimeOfUseProps() {

@@ -1,6 +1,7 @@
 package io.openems.edge.sma.ess.stpxx3se.batteryinverter;
 
 import static io.openems.common.utils.IntUtils.sumInteger;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.DIRECT_1_TO_1;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -31,7 +32,6 @@ import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
@@ -141,11 +141,11 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, DIRECT_1_TO_1,
+				DefaultSunSpecModel.S103.V_AR);
 
-		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, DIRECT_1_TO_1,
+				DefaultSunSpecModel.S121.W_MAX);
 
 		this.installListeners();
 		this._setInitializing(false);

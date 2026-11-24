@@ -13,6 +13,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { environment } from "src/environments";
 import { LiveDataService } from "../../../../livedataservice";
 import { SharedControllerIoHeatingElement } from "../shared/shared";
+import { HeatingElementComponent } from "../util/utils";
 
 @Component({
     selector: "oe-controller-io-heating-element-home",
@@ -27,6 +28,7 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
 
     public static generateView(translate: TranslateService, component: EdgeConfig.Component, mode: Mode): OeFormlyView {
         const lines: OeFormlyField[] = [];
+        const convertMode = HeatingElementComponent.createModeLabelConverter(translate);
 
         lines.push(
             {
@@ -44,10 +46,13 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
                 },
             },
             {
-                type: "channel-line",
+                type: "value-from-channels-line",
                 name: translate.instant("GENERAL.MODE"),
-                channel: component.id + "/_PropertyMode",
-                converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
+                channelsToSubscribe: [new ChannelAddress(component.id, "_PropertyMode")],
+                value: (currentData: CurrentData) => {
+                    const currentMode = currentData.allComponents[component.id + "/_PropertyMode"];
+                    return convertMode(currentMode);
+                },
             },
             {
                 type: "value-from-channels-line",

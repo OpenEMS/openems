@@ -256,7 +256,7 @@ public class Plot {
 		ImageIO.write(bi, type, outputFile);
 	}
 
-	private class Legend {
+	private static class Legend {
 		Rectangle rect;
 		Rectangle2D labelRect;
 		public int entryWidth;
@@ -673,7 +673,7 @@ public class Plot {
 
 	}
 
-	private class Axis {
+	private static class Axis {
 
 		private String name;
 		private AxisOptions opts = new AxisOptions();

@@ -56,7 +56,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 		assertEquals(2, sut.size()); // two sublists
 		assertEquals(66, sut.get(0).size()); // first task
 		assertEquals(1, sut.get(1).size()); // second task
-		assertEquals(StringWordElement.class, sut.get(1).get(0).getClass()); // second task
+		assertEquals(StringWordElement.class, sut.get(1).getFirst().getClass()); // second task
 	}
 
 	private static final int UNIT_ID = 1;

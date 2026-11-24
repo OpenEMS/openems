@@ -1,6 +1,8 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Converter } from "src/app/shared/components/shared/converter";
 
+export { HeatingElementComponent, HeatingElementLevelValue, HeatingElementMode, Level } from "./heating-element-component";
+
 export enum State {
     UNDEFINED = -1,
     INACTIVE = 0,
@@ -12,13 +14,6 @@ export enum State {
     CALIBRATION = 6,
 }
 
-export enum Level {
-    LEVEL_0 = 0,
-    LEVEL_1 = 1,
-    LEVEL_2 = 2,
-    LEVEL_3 = 3,
-}
-
 export enum Unit {
     KILO_WATT_HOURS = 1,
     HOUR = 2,
@@ -26,12 +21,12 @@ export enum Unit {
 
 /**
  * Checks if the current power is lower than 100W and returns the runState Inactive.
- * @param runState the current runState as an enum value of State.
- * @param activePower the power of the meter.
- * @returns the runState.
+ *
+ * @param runState The current runState as an enum value of State.
+ * @param activePower The power of the meter.
+ * @returns The runState.
  */
 export function getInactiveIfPowerIsLow(runState: State, activePower: number): State {
-
     if (activePower < 100 && runState !== State.DONE) {
         return State.INACTIVE;
     }
@@ -40,10 +35,10 @@ export function getInactiveIfPowerIsLow(runState: State, activePower: number): S
 
 /**
  * Returns a converter function that maps heating element run states using a TranslationService.
- * @param translate the TranslateService.
- * @returns a converter instance for heating element run states.
+ *
+ * @param translate The TranslateService.
+ * @returns A converter instance for heating element run states.
  */
 export function getRunStateConverter(translate: TranslateService): Converter {
     return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate);
 }
-

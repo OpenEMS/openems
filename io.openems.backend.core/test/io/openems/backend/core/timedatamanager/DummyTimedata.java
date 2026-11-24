@@ -143,7 +143,7 @@ public class DummyTimedata implements Timedata {
 							.<Entry<ZonedDateTime, Map<ChannelAddress, JsonElement>>, ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>//
 							toSortedMap(Entry::getKey, e -> e.getValue().entrySet().stream() //
 									.filter(t -> params.channels().contains(t.getKey())) //
-									.collect(toMap(Entry::getKey, Entry::getValue, (t, u) -> t, TreeMap::new)))));
+									.collect(toMap(Entry::getKey, Entry::getValue, (t, _) -> t, TreeMap::new)))));
 		}
 
 		public Builder setQueryFirstValueBefore(

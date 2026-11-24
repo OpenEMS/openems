@@ -91,14 +91,12 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setTranslatedLabelWithAppPrefix(".evcsIds.label") //
 				.setTranslatedDescriptionWithAppPrefix(".evcsIds.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
-					f.setOptions(
-							app.getComponentUtil().getEnabledComponentsOfStartingId("evcs").stream()
-									.filter(t -> !t.id().startsWith("evcsCluster")).toList(),
-							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
-							.isMulti(true);
-				}) //
-				.setDefaultValue((app, property, l, parameter) -> new JsonArray())//
+				.setField(JsonFormlyUtil::buildSelect, (app, _, _, _, field) -> field //
+						.setOptions(app.getComponentUtil().getEnabledComponentsOfStartingId("evcs").stream() //
+								.filter(t -> !t.id().startsWith("evcsCluster")) //
+								.toList(), DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
+						.isMulti(true)) //
+				.setDefaultValue((_, _, _, _) -> new JsonArray())//
 				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids", a -> a.componentManager)), //
 		MAX_HARDWARE_POWER_LIMIT_PER_PHASE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".maxChargeFromGrid.short.label") //
@@ -106,7 +104,8 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setDefaultValue(7000) //
 				.setRequired(true) //
 				.appendIsAllowedToEdit(AppDef.ofLeastRole(Role.INSTALLER)) //
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+				.setField(JsonFormlyUtil::buildInput, (_, _, l, _, field) -> field//
+						.setInputType(NUMBER)//
 						.setMin(0)//
 						.setUnit(Unit.WATT, l))//
 				.bidirectional(EVCS_CLUSTER_ID, "hardwarePowerLimitPerPhase",
@@ -243,11 +242,10 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 						clusterComponents.add(t);
 					}
 					return !isCluster;
-				}).collect(Collectors.toList());
+				}).toList();
 
-		final var potentialIdsInCluster = new TreeSet<String>();
-		potentialIdsInCluster.addAll(evcsComponents.stream() //
-				.map(OpenemsComponent::id).toList());
+		final var potentialIdsInCluster = new TreeSet<>(//
+				evcsComponents.stream().map(OpenemsComponent::id).toList());
 		if (target == ConfigurationTarget.DELETE) {
 			potentialIdsInCluster.removeAll(Arrays.asList(addedEvcsIdsArray));
 		} else {
@@ -263,7 +261,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		}
 
 		// if there is exactly one cluster component overwrite its configuration
-		final var clusterId = clusterComponents.size() == 1 ? clusterComponents.get(0).id() : "evcsCluster0";
+		final var clusterId = clusterComponents.size() == 1 ? clusterComponents.getFirst().id() : "evcsCluster0";
 
 		final var existingEvcsIds = cm.getEdgeConfig().getComponent(clusterId) //
 				.flatMap(t -> t.getProperty("evcs.ids")) //
@@ -296,7 +294,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.map(OpenemsComponent::id) //
 				.collect(Collectors.toList());
 		final var addedEvcsIds = Arrays.stream(addedEvcsIdsArray) //
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 		if (target != ConfigurationTarget.DELETE) {
 			evcsIds.addAll(addedEvcsIds);
 		}

@@ -324,7 +324,9 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent im
 				.map(ElectricityMeter::getActivePower) //
 				.map(Value::get).orElse(null);
 		if (meterPower != null) {
-			return meterPower;
+			return this.recommState.isActive() || this.forceOnState.isActive() //
+					? meterPower //
+					: 0;
 		}
 		var heatPumpPower = this.recommState.isActive() //
 				? this.config.automaticRecommendationSurplusPower()

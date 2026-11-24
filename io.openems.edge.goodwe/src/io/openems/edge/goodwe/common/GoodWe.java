@@ -47,6 +47,7 @@ import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
+import io.openems.edge.goodwe.common.enums.PvConnectMode;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 import io.openems.edge.goodwe.common.enums.UpsStandartVoltType;
@@ -835,6 +836,8 @@ public interface GoodWe extends OpenemsComponent {
 		BATTERY_MODE_PV_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		DCV_CHECK_OFF(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		PV_CONNECT_MODE(Doc.of(PvConnectMode.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		DEVICE_LICENCE(Doc.of(OpenemsType.STRING)//
@@ -2034,7 +2037,14 @@ public interface GoodWe extends OpenemsComponent {
 
 		GRID_MODE_FAULT(Doc.of(Level.WARNING)//
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
-				.translationKey(GoodWe.class, "GoodWe.GridMode.Fault"));
+				.translationKey(GoodWe.class, "GoodWe.GridMode.Fault")), //
+
+		/**
+		 * Diagnostic channel: unchanged raw value of register 35136, exposed before
+		 * model-specific mapping and filtering.
+		 */
+		RAW_GRID_MODE(Doc.of(OpenemsType.INTEGER)//
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

@@ -20,6 +20,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.MqttApi.Property;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -134,7 +135,7 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 			var uri = this.getValueOrDefault(p, Property.URI, "tcp://localhost:1883");
 
 			var username = EnumUtils.getAsString(p, Property.USERNAME);
-			var password = this.getValueOrDefault(p, Property.PASSWORD, "xxx");
+			var password = this.getValueOrDefault(p, Property.PASSWORD, CommonProps.MASKED_PASSWORD);
 
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlControllerApiMqtt0");
 

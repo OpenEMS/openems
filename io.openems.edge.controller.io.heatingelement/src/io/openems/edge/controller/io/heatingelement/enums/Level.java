@@ -19,7 +19,19 @@ public enum Level implements OptionsEnum {
 	/**
 	 * When grid-feed-in is more than 4000 W, all phases are switched on.
 	 */
-	LEVEL_3(3, "Switch-on all the three phase");
+	LEVEL_3(3, "Switch-on all the three phase"),
+	/**
+	 * Fourth Step is switched on.
+	 */
+	LEVEL_4(4, "Switch-on the fourth step"),
+	/**
+	 * Fifth Step is switched on.
+	 */
+	LEVEL_5(5, "Switch-on the fifth step"),
+	/**
+	 * Sixth Step is switched on.
+	 */
+	LEVEL_6(6, "Switch-on the sixth step");
 
 	private final int value;
 	private final String name;
@@ -42,5 +54,21 @@ public enum Level implements OptionsEnum {
 	@Override
 	public OptionsEnum getUndefined() {
 		return LEVEL_0;
+	}
+
+	/**
+	 * Gets the {@link Level} with the given value.
+	 *
+	 * @param value the value, e.g. as returned by {@link #getValue()}
+	 * @return the matching Level
+	 * @throws IllegalArgumentException if no Level has the given value
+	 */
+	public static Level fromValue(int value) {
+		for (var level : values()) {
+			if (level.value == value) {
+				return level;
+			}
+		}
+		throw new IllegalArgumentException("No Level with value [" + value + "]");
 	}
 }
