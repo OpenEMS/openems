@@ -83,6 +83,10 @@
                       <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html" [lineStyle]="line.lineStyle" [customClass]="line.customClass" [class]="line.cssClass" [link]="line.link"></oe-modal-info-line>
                     }
 
+                    @case ("card-line") {
+                      <oe-modal-card-line [text]="line.text" [html]="line.html" [icon]="line.icon" [cardStyle]="line.cardStyle" [link]="line.link"></oe-modal-card-line>
+                    }
+
                     <!-- OeFormlyField.HorizontalLine -->
                     @case ("horizontal-line") {
                       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -129,7 +133,7 @@
 
                     <!-- OeFormlyField.ToggleLine -->
                     @case ("toggle-line") {
-                      <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
+                      <oe-modal-line [name]="line.name" [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
                     }
 
                     @case ("toggle-line-with-formcontrol-value") {
@@ -149,7 +153,7 @@
                     }
 
                     @case ("name-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
+                      <oe-modal-line [class]="line.componentCssClass ?? ''" [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
                     }
                     @case ("time-line") {
                       <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form"></oe-time-line>

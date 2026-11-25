@@ -7,10 +7,12 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { PipeComponentsModule } from "../../pipe/pipe.module";
 import { OeImageComponent } from "../oe-img/oe-img";
+import { OeLinkComponent } from "../oe-link/oe-link";
 import { HelpButtonComponent } from "./help-button/help-button";
 import { HelpLinkComponent } from "./help-link/help-link";
 import { ModalComponent } from "./modal";
 import { ModalButtonsComponent } from "./modal-button/modal-button";
+import { ModalCardLineComponent } from "./modal-card-line/modal-card-line";
 import { ModalInfoLineComponent } from "./modal-info-line/modal-info-line";
 import { ModalLineComponent } from "./modal-line/modal-line";
 import { ModalLineItemComponent } from "./modal-line/modal-line-item/modal-line-item";
@@ -28,6 +30,8 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
         TranslateModule,
         HelpButtonComponent,
         OeImageComponent,
+        ModalCardLineComponent,
+        OeLinkComponent,
     ],
     declarations: [
         ModalButtonsComponent,
@@ -41,6 +45,8 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
         HelpLinkComponent,
     ],
     exports: [
+        ModalCardLineComponent,
+        OeLinkComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
         ModalLineComponent,
@@ -54,7 +60,7 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ModalComponentsModule { }
+export class ModalComponentsModule {}
 @NgModule({
     imports: [
         CommonModule,
@@ -66,11 +72,7 @@ export class ModalComponentsModule { }
         PipeComponentsModule,
         ModalComponentsModule,
     ],
-    exports: [
-        ModalComponentsModule,
-    ],
+    exports: [ModalComponentsModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-
-export class ModalModule { }
-
+export class ModalModule {}

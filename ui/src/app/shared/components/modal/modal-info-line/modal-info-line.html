@@ -30,11 +30,7 @@
       @let linkValue = link();
       @if (linkValue && (typeof linkValue.href === "string" || typeof linkValue.callback === "function")) {
         <ion-row class="ion-margin-top">
-          @if (typeof linkValue.href === "string") {
-            <a class="info-line-link" [href]="linkValue.href" target="_blank" rel="noopener noreferrer">{{ linkValue.text }}</a>
-          } @else if (typeof linkValue.callback === "function") {
-            <button type="button" class="info-line-link" (click)="linkValue.callback()">{{ linkValue.text }}</button>
-          }
+          <oe-link [link]="linkValue"></oe-link>
         </ion-row>
       }
     </ion-col>

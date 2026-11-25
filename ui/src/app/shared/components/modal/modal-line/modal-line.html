@@ -3,7 +3,7 @@
     @if (textIndent) {
       <tr [style.text-indent]="textIndent">
         <!-- Name of Parameter on the left side -->
-        <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_left" [style]="lineStyle?.name ?? {}">
+        <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_left" [class.toggle-name]="control?.type === 'TOGGLE'" [style]="lineStyle?.name ?? {}">
           @if (displayName()) {
             {{ displayName() }}
           }

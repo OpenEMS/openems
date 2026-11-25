@@ -157,6 +157,24 @@ export class OeFormlyViewTester {
                 };
             }
 
+            case "name-line": {
+                return {
+                    type: field.type,
+                    name: field.name,
+                };
+            }
+
+            case "card-line": {
+                return {
+                    type: field.type,
+                    text: field.text,
+                    html: field.html,
+                    icon: field.icon,
+                    cardStyle: field.cardStyle,
+                    link: field.link,
+                };
+            }
+
             /** OeFormlyField.SvgLine */
             case "image-line": {
                 return {
@@ -474,6 +492,8 @@ export namespace OeFormlyViewTester {
 
     export type Field =
         | Field.InfoLine
+        | Field.CardLine
+        | Field.NameLine
         | Field.Item
         | Field.ChannelLine
         | Field.ChildrenLine
@@ -488,6 +508,12 @@ export namespace OeFormlyViewTester {
         | Field.InputLine;
 
     export namespace Field {
+        export type CardLine = OeFormlyField.CardLine;
+        export type NameLine = {
+            type: "name-line";
+            name: OeFormlyField.NameLine["name"];
+        };
+
         export type InfoLine = {
             type: "info-line";
             name: OeFormlyField.InfoLine["name"];

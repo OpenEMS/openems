@@ -15,10 +15,11 @@ import { FormUtils } from "../../utils/form/form.utils";
 import { NumberUtils } from "../../utils/number/number-utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import type { InfoLineLink } from "../modal/modal-info-line/modal-info-line";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
+import type { CardStyle } from "../oe-card/oe-card";
 import { OeImageComponent } from "../oe-img/oe-img";
+import type { OeLink } from "../oe-link/oe-link";
 import { Stat } from "../stats/stats";
 import { Converter } from "./converter";
 import { DataService } from "./dataservice";
@@ -477,6 +478,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.InputLine
     | OeFormlyField.SelectLine
     | OeFormlyField.ToggleLine
+    | OeFormlyField.CardLine
     | OeFormlyField.ChildrenLine
     | OeFormlyField.NameLine
     | OeFormlyField.ChannelLine
@@ -545,7 +547,16 @@ export namespace OeFormlyField {
         customClass?: string;
         icon?: Icon;
         lineStyle?: string;
-        link?: InfoLineLink;
+        link?: OeLink;
+    };
+
+    export type CardLine = {
+        type: "card-line";
+        text?: string;
+        html?: string;
+        icon?: Icon;
+        cardStyle?: CardStyle;
+        link?: OeLink;
     };
 
     export type ImageLine = {
@@ -682,6 +693,7 @@ export namespace OeFormlyField {
         type: "name-line";
         name: string | { channel: ChannelAddress; converter: (value: any) => string };
         filter?: Filter;
+        componentCssClass?: string;
     };
 
     export type PercentageBarFromFormControlLine = {
@@ -736,4 +748,22 @@ export namespace OeFormlyField {
         /** Indicates whether only future values are allowed to be set */
         onlyFutureValuesAllowed?: boolean;
     };
+}
+
+export namespace OeFormlyAdvancedFields {
+    export const SECTION_TITLE_LINE = (name: string, style: OeFormlyField["style"] = {}): OeFormlyField => ({
+        type: "name-line",
+        name,
+        style: {
+            ...style,
+            name: {
+                color: "var(--ion-text-color-secondary)",
+                fontWeight: "600",
+                fontSize: "small",
+                textTransform: "uppercase",
+                ...style?.name,
+            },
+        },
+        componentCssClass: "ion-display-block ion-padding-top",
+    });
 }

@@ -5,7 +5,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 import { ChannelAddress } from "src/app/shared/shared";
 import { HistoryUtils } from "src/app/shared/utils/utils";
 import { DummyConfig } from "../../edge/edgeconfig.spec";
-import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
+import { OeFormlyAdvancedFields, OeFormlyField, OeFormlyView } from "../oe-formly-component";
 import { OeTester } from "./common";
 import { OeChartTester, OeFormlyViewTester } from "./tester";
 import { TestContext, TestingUtils } from "./utils.spec";
@@ -54,6 +54,70 @@ describe("OeFormlyViewTester range form values", () => {
 });
 
 describe("OeFormlyViewTester field filtering", () => {
+    it("preserves card content, styling and navigation", () => {
+        const callback = jasmine.createSpy("navigate");
+        const card: OeFormlyField.CardLine = {
+            type: "card-line",
+            text: "Information",
+            html: "<b>Information</b>",
+            icon: { name: "oe-info", color: "primary", size: "large" },
+            cardStyle: { "--background": "#ffffff", "--color": "#000000", borderRadius: "2em" },
+            link: { text: "Settings", callback },
+        };
+
+        expect(OeFormlyViewTester.apply({ title: "Test", lines: [card] }, {})).toEqual({
+            title: "Test",
+            lines: [card],
+        });
+    });
+
+    it("renders section titles as styled name lines", () => {
+        expect(OeFormlyAdvancedFields.SECTION_TITLE_LINE("Permissions")).toEqual({
+            type: "name-line",
+            name: "Permissions",
+            style: {
+                name: {
+                    color: "var(--ion-text-color-secondary)",
+                    fontWeight: "600",
+                    fontSize: "small",
+                    textTransform: "uppercase",
+                },
+            },
+            componentCssClass: "ion-display-block ion-padding-top",
+        });
+
+        const sectionTitle = OeFormlyAdvancedFields.SECTION_TITLE_LINE("Storage", {
+            name: { color: "var(--ion-color-primary)" },
+        });
+
+        expect(sectionTitle).toEqual({
+            type: "name-line",
+            name: "Storage",
+            style: {
+                name: {
+                    color: "var(--ion-color-primary)",
+                    fontWeight: "600",
+                    fontSize: "small",
+                    textTransform: "uppercase",
+                },
+            },
+            componentCssClass: "ion-display-block ion-padding-top",
+        });
+
+        expect(
+            OeFormlyViewTester.apply(
+                {
+                    title: "Test",
+                    lines: [sectionTitle],
+                },
+                {},
+            ),
+        ).toEqual({
+            title: "Test",
+            lines: [{ type: "name-line", name: "Storage" }],
+        });
+    });
+
     it("keeps supported fields", () => {
         expect(OeFormlyViewTester.apply({ title: "Test", lines: [{ type: "horizontal-line" }] }, {})).toEqual({
             title: "Test",

@@ -10,7 +10,7 @@ import { MetaComponent } from "src/app/shared/components/edge/config-components/
 import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyAdvancedFields, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
@@ -99,36 +99,28 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
 
         return [
             {
-                type: "horizontal-line",
-                hide: hideWhenReserveDisabled,
-            },
-            {
-                type: "info-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_ALLOWED_INFO"),
+                type: "card-line",
+                text: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_ALLOWED_INFO"),
+                icon: { name: "oe-info", size: "large", color: "primary" },
                 link: {
                     text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
                     callback: navigateToGridSettings,
                 },
-                icon: { name: "oe-info", color: "primary", size: "large" },
                 hide: (field) =>
                     hideWhenReserveDisabled(field) ||
                     NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], false) !== true,
             },
             {
-                type: "info-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_NOT_ALLOWED_INFO"),
+                type: "card-line",
+                text: translate.instant("EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_NOT_ALLOWED_INFO"),
+                icon: { name: "oe-info", size: "large", color: "primary" },
                 link: {
                     text: translate.instant("EDGE.INDEX.GRID.SETTINGS_LINK"),
                     callback: navigateToGridSettings,
                 },
-                icon: { name: "oe-info", color: "primary", size: "large" },
                 hide: (field) =>
                     hideWhenReserveDisabled(field) ||
                     NumberUtils.numberToBooleanOrElse(field[isEssChargeFromGridAllowed], true) !== false,
-            },
-            {
-                type: "horizontal-line",
-                hide: hideWhenReserveDisabled,
             },
         ];
     }
@@ -232,11 +224,20 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 });
             }
 
-            lines.push(...this.getEmergencyReserveForEss(essComponent, emergencyReserveCtrl, viewContext.config));
+            const essLines = this.getEmergencyReserveForEss(essComponent, emergencyReserveCtrl, viewContext.config);
 
             if (viewContext.edge.roleIsAtLeast(Role.INSTALLER)) {
-                lines.push(
+                essLines.push(
                     ...this.getPrepareBatteryExtensionForEss(essComponent, viewContext.config, viewContext.translate),
+                );
+            }
+
+            if (essLines.length > 0) {
+                lines.push(
+                    OeFormlyAdvancedFields.SECTION_TITLE_LINE(
+                        viewContext.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE"),
+                    ),
+                    ...essLines,
                 );
             }
         }
@@ -244,6 +245,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         return {
             lines: lines,
             title: viewContext.translate.instant("MENU.SETTINGS"),
+            useCiFont: true,
             component: new EdgeConfig.Component(),
             edge: viewContext.edge,
         };
@@ -570,7 +572,6 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     controlName:
                         CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_IS_RUNNING(essComponent),
                     name: translate.instant("EDGE.INDEX.RETROFITTING.OPTIMAL"),
-                    style: { name: { fontWeight: "bold" } },
                 },
                 {
                     type: "buttons-from-form-control-line",
@@ -738,7 +739,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     type: "toggle-line-with-formcontrol-value",
                     controlName: CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_ENABLED(essComponent),
                     name: this.translate.instant("EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE"),
-                    style: { name: { fontWeight: "bold" } },
+                    style: { name: { fontWeight: "600", fontSize: "medium" } },
                     togglePrefix: (value) => {
                         return Converter.STATE_IN_PERCENT(
                             value[CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_SOC(essComponent)],
@@ -747,15 +748,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 },
                 {
                     type: "info-line",
-                    icon: { color: "medium", name: "information-outline", size: "large" },
-                    name: [
-                        {
-                            text: this.translate.instant(
-                                "EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER",
-                            ),
-                            lineStyle: "font-size: smaller",
-                        },
-                    ],
+                    html: this.translate.instant("EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER"),
+                    lineStyle: "color: var(--ion-text-color-secondary);",
                 },
                 {
                     type: "range-button-from-form-control-line",

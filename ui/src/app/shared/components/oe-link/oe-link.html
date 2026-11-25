@@ -1,0 +1,6 @@
+@let currentLink = link();
+@if (currentLink.href) {
+  <a class="oe-link" [href]="currentLink.href" target="_blank" rel="noopener noreferrer">{{ currentLink.text }}</a>
+} @else if (currentLink.callback) {
+  <button type="button" class="oe-link" (click)="currentLink.callback()">{{ currentLink.text }}</button>
+}

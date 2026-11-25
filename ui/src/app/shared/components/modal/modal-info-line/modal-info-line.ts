@@ -1,19 +1,17 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { Icon } from "src/app/shared/type/widget";
-
-export type InfoLineLink = { text: string; href?: string; callback?: () => void };
+import type { OeLink } from "../../oe-link/oe-link";
 
 @Component({
     selector: "oe-modal-info-line",
     templateUrl: "./modal-info-line.html",
-    styleUrls: ["./modal-info-line.scss"],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalInfoLineComponent {
     protected readonly info = input<{ text: string; lineStyle?: string }[] | string>();
     protected readonly html = input<string>();
-    protected readonly link = input<InfoLineLink>();
+    protected readonly link = input<OeLink>();
 
     /** Icon, displayed on the left side */
     protected readonly icon = input<Icon>();

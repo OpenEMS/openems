@@ -1,0 +1,11 @@
+ion-card {
+    --background: var(--ion-color-primary-surface, var(--ion-background-color));
+    --color: var(--ion-color-primary-on-surface, var(--ion-text-color));
+    margin-inline: 0;
+    border-radius: 1em;
+    box-shadow: none;
+}
+
+ion-card-content {
+    color: var(--color);
+}

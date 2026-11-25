@@ -1,0 +1,22 @@
+<oe-card [cardStyle]="cardStyle()">
+  <ion-row class="ion-align-items-start">
+    @if (icon(); as cardIcon) {
+      <ion-col size="auto" class="ion-no-padding">
+        <ion-icon class="ion-margin-end" [name]="cardIcon.name" [size]="cardIcon.size" [color]="cardIcon.color" aria-hidden="true"></ion-icon>
+      </ion-col>
+    }
+    <ion-col class="ion-no-padding">
+      @if (html()) {
+        <ion-text><span [innerHTML]="html()"></span></ion-text>
+      } @else {
+        <p>{{ text() }}</p>
+      }
+      @let cardLink = link();
+      @if (cardLink && (cardLink.href || cardLink.callback)) {
+        <p class="ion-padding-top-half">
+          <oe-link [link]="cardLink"></oe-link>
+        </p>
+      }
+    </ion-col>
+  </ion-row>
+</oe-card>
