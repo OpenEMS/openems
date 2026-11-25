@@ -356,6 +356,13 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		try {
+			final var edgeId = this.odooHandler.getEdgeIdForSetupProtocol(setupProtocolId);
+			this.assertRoleIsAtLeast(user, edgeId, Role.OWNER, "getSetupProtocol");
+		} catch (OpenemsNamedException e) {
+			this.log.warn("Unable to authorize setup protocol download", e);
+			throw new OpenemsException("Access to setup protocol denied");
+		}
 		return this.odooHandler.getOdooSetupProtocolReport(setupProtocolId);
 	}
 
