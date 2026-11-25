@@ -204,7 +204,7 @@ public class AppManagerTestBundle {
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 
-		this.addCheckable(TestCheckable.COMPONENT_NAME, t -> new TestCheckable());
+		this.addCheckable(TestCheckable.COMPONENT_NAME, _ -> new TestCheckable());
 		this.addCheckable(CheckOr.COMPONENT_NAME, t -> new CheckOr(t, this.checkableFactory));
 		this.checkCardinality = this.addCheckable(CheckCardinality.COMPONENT_NAME,
 				t -> new CheckCardinality(this.sut, this.appManagerUtil, t));

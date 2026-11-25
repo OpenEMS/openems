@@ -153,7 +153,7 @@ public class SerialPortHandler implements AutoCloseable {
 
 			// Do not block further writes if no response required
 			if (response) {
-				futureListener.whenComplete((s, throwable) -> {
+				futureListener.whenComplete((_, _) -> {
 					var success = this.writeList.remove(futureListener);
 					this.log.info("Removed future listener. included={}", success);
 				});

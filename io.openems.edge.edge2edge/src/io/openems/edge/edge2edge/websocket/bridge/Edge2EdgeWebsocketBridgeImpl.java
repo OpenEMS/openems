@@ -1,5 +1,6 @@
 package io.openems.edge.edge2edge.websocket.bridge;
 
+import static io.openems.common.utils.StringUtils.isNullOrEmpty;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
@@ -81,7 +82,6 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, Edge2EdgeWebsocketBridge, ComponentJsonApi {
 
 	private record Subscriber(ChannelSubscriber channelSubscriber, Consumer<Map<ChannelAddress, JsonElement>> onData) {
-
 	}
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeWebsocketBridgeImpl.class);
@@ -93,10 +93,10 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 	private final AtomicInteger subscribeChannelsCounter = new AtomicInteger(1);
 	private final Map<ChannelAddress, Integer> subscribedChannels = new ConcurrentHashMap<>();
 
-	private List<Consumer<EdgeConfig>> onEdgeConfigChangeListener = new ArrayList<>();
-	private List<Runnable> onChannelChangeListener = new ArrayList<>();
-	private List<BiConsumer<ConnectionState, ConnectionState>> onConnectionStateChangeListener = new CopyOnWriteArrayList<>();
-	private List<Subscriber> subscriber = new CopyOnWriteArrayList<>();
+	private final List<Consumer<EdgeConfig>> onEdgeConfigChangeListener = new ArrayList<>();
+	private final List<Runnable> onChannelChangeListener = new ArrayList<>();
+	private final List<BiConsumer<ConnectionState, ConnectionState>> onConnectionStateChangeListener = new CopyOnWriteArrayList<>();
+	private final List<Subscriber> subscriber = new CopyOnWriteArrayList<>();
 	private ServiceRegistration<Updateable> updateableRegistration = null;
 	private ServiceRegistration<ClusterSlaveUpdateable> clusterSlaveUpdateableRegistration = null;
 	private ClusterSlaveUpdateable clusterSlaveUpdateable;
@@ -116,7 +116,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		final var channelSubscriber = new ChannelSubscriber();
 		final var sumStateChannel = new ChannelAddress("_sum", "State");
 		final var remoteHostname = new ChannelAddress("_host", "Hostname");
-		this.onConnectionStateChangeListener.add((prev, curr) -> {
+		this.onConnectionStateChangeListener.add((_, curr) -> {
 			this._setConnectionState(curr.option);
 
 			switch (curr) {
@@ -137,15 +137,19 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 			}
 			}
 		});
-		this.onConnectionStateChangeListener.add((prev, curr) -> {
+		this.onConnectionStateChangeListener.add((_, curr) -> {
 			if (curr != ConnectionState.AUTHENTICATING) {
 				return;
 			}
 
-			this.client
-					.sendRequest(
-							new AuthenticateWithPasswordRequest(Optional.of(this.id()), this.config.remotePassword()))
-					.thenCompose(response -> {
+			final var password = this.config.remotePassword();
+			if (isNullOrEmpty(password)) {
+				this.log.warn("No remote password configured - unable to authenticate to remote edge");
+				return;
+			}
+
+			this.client.sendRequest(new AuthenticateWithPasswordRequest(Optional.of(this.id()), password))
+					.thenCompose(_ -> {
 						return this.sendRequest(GenericJsonrpcRequest.createRequest(new SubscribeChannelUpdate(),
 								new SubscribeChannelUpdate.Request(true)));
 					}) //
@@ -163,7 +167,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 			this.handleRemoteHostname(values, remoteHostname);
 		});
 
-		this.getRemoteSumStateChannel().onChange((previousValue, newValue) -> {
+		this.getRemoteSumStateChannel().onChange((_, newValue) -> {
 			final var level = newValue.asOptional() //
 					.flatMap(Level::fromValue) //
 					.orElse(null);
@@ -233,7 +237,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		final var subscribeListener = channelSubscriber.addSubscribeListener(t -> {
 			var change = false;
 			for (var channelAddress : t) {
-				final var value = this.subscribedChannels.compute(channelAddress, (channel, current) -> {
+				final var value = this.subscribedChannels.compute(channelAddress, (_, current) -> {
 					if (current == null) {
 						return 1;
 					}
@@ -254,7 +258,7 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		final var unsubscribeListener = channelSubscriber.addUnsubscribeListener(t -> {
 			var change = false;
 			for (var channelAddress : t) {
-				final var value = this.subscribedChannels.compute(channelAddress, (channel, current) -> {
+				final var value = this.subscribedChannels.compute(channelAddress, (_, current) -> {
 					if (current == null) {
 						return null;
 					}
@@ -278,10 +282,10 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 
 		return () -> {
 			this.subscriber.remove(subscriber);
-			final var subscribedChannels = channelSubscriber.getSubscribedChannels();
+			final var tmpSubscribedChannels = channelSubscriber.getSubscribedChannels();
 			channelSubscriber.removeSubscribeListener(subscribeListener);
 			channelSubscriber.removeUnsubscribeListener(unsubscribeListener);
-			unsubscribeListener.accept(subscribedChannels);
+			unsubscribeListener.accept(tmpSubscribedChannels);
 		};
 	}
 
@@ -377,58 +381,60 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.delegate("remoteEdgeRpc", (b, call) -> {
-			final var user = call.get(EdgeKeys.USER_KEY);
-			try {
-				final var request = new ReplaceUser.Request(user.getRole(), user.getLanguage(),
-						call.getRequest().getParams().get("payload"));
+		builder.delegate("remoteEdgeRpc", //
+				(_, call) -> {
+					final var user = call.get(EdgeKeys.USER_KEY);
+					try {
+						final var request = new ReplaceUser.Request(user.getRole(), user.getLanguage(),
+								call.getRequest().getParams().get("payload"));
 
-				final var response = this.sendRequest(GenericJsonrpcRequest.createRequest(new ReplaceUser(), request))
-						.get();
-				call.setResponse(response);
-			} catch (InterruptedException | ExecutionException e) {
-				call.setResponse(
-						new JsonrpcResponseError(call.getRequest().getId(), new OpenemsException(e.getMessage())));
-			}
-		}, () -> {
-			final var subrequest = new Subrequest(new JsonObject());
-			subrequest.getSubrouteToBuilder().add(new Subroute(new String[] {}, null, () -> {
-				try {
-					var response = this.sendRequest(new GenericJsonrpcRequest("routes", new JsonObject())).get()
-							.getResult();
+						final var response = this
+								.sendRequest(GenericJsonrpcRequest.createRequest(new ReplaceUser(), request)).get();
+						call.setResponse(response);
+					} catch (InterruptedException | ExecutionException e) {
+						call.setResponse(new JsonrpcResponseError(call.getRequest().getId(),
+								new OpenemsException(e.getMessage())));
+					}
+				}, () -> {
+					final var subrequest = new Subrequest(new JsonObject());
+					subrequest.getSubrouteToBuilder().add(new Subroute(new String[] {}, null, () -> {
+						try {
+							var response = this.sendRequest(new GenericJsonrpcRequest("routes", new JsonObject())).get()
+									.getResult();
 
-					final var a = JsonrpcResponseSuccess.from(response.get("payload").getAsJsonObject());
+							final var a = JsonrpcResponseSuccess.from(response.get("payload").getAsJsonObject());
 
-					return a.getResult().get("endpoints").getAsJsonArray();
-				} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
-					this.log.info("Unable to get remote endpoints.", e);
-					return new JsonArray();
-				}
-			}));
-			return List.of(subrequest);
-		});
+							return a.getResult().get("endpoints").getAsJsonArray();
+						} catch (InterruptedException | ExecutionException | OpenemsNamedException e) {
+							this.log.info("Unable to get remote endpoints.", e);
+							return new JsonArray();
+						}
+					}));
+					return List.of(subrequest);
+				});
 
-		builder.handleRequest(new AuthenticateToRemoteEdge(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
-		}, call -> {
+		builder.handleRequest(new AuthenticateToRemoteEdge(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER));
+				}, call -> {
 
-			final var password = PasswordUtils.generateRandomPassword(24);
+					final var password = PasswordUtils.generateRandomPassword(24);
 
-			this.client
-					.sendRequest(GenericJsonrpcRequest.createRequest(new CreateAccountFromSetupKey(),
+					this.client.sendRequest(GenericJsonrpcRequest.createRequest(new CreateAccountFromSetupKey(),
 							new CreateAccountFromSetupKey.Request(call.getRequest().setupKey(), this.id(), password)))
-					.get();
+							.get();
 
-			this.saveRemotePassword(password);
+					this.saveRemotePassword(password);
 
-			return EmptyObject.INSTANCE;
-		});
+					return EmptyObject.INSTANCE;
+				});
 
-		builder.handleRequest(new GetConnectionState(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			return new GetConnectionState.Response(this.connectionState);
-		});
+		builder.handleRequest(new GetConnectionState(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, _ -> {
+					return new GetConnectionState.Response(this.connectionState);
+				});
 	}
 
 	private void saveRemotePassword(String password) {

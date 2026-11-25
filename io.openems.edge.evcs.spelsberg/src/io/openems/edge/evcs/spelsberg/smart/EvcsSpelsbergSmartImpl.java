@@ -305,7 +305,7 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	private void addPowerConsumptionCallback() {
-		final Consumer<Value<Integer>> setEnergyConsumptionCallback = ignore -> {
+		final Consumer<Value<Integer>> setEnergyConsumptionCallback = _ -> {
 			this._setEnergySession(getChargeEnergySession().get());
 		};
 

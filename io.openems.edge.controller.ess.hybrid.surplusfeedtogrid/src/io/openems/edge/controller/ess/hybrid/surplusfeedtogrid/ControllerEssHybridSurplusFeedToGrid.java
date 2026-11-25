@@ -10,7 +10,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssHybridSurplusFeedToGrid extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SURPLUS_FEED_TO_GRID_IS_LIMITED(Doc.of(Level.INFO) //
+		SURPLUS_FEED_TO_GRID_IS_LIMITED(Doc.of(Level.INFO)//
 				.text("Surplus-Feed-To-Grid power is limited"));
 
 		private final Doc doc;

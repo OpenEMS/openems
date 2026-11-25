@@ -77,8 +77,7 @@ public class HttpBridgeAuthenticationService<C> implements HttpBridgeService, Br
 			HttpBridgeServiceDefinition<T> serviceDefinition //
 	) {
 		return (HttpBridgeServiceDefinition<T>) this.mappedDefinitions.computeIfAbsent(serviceDefinition,
-				s -> (ignoredHttpBridge, executor, endpointFetcher) -> serviceDefinition.create(this, executor,
-						endpointFetcher));
+				_ -> (_, executor, endpointFetcher) -> serviceDefinition.create(this, executor, endpointFetcher));
 	}
 
 	@Override
@@ -109,7 +108,7 @@ public class HttpBridgeAuthenticationService<C> implements HttpBridgeService, Br
 			}
 
 			this.loginFuture = this.config.fetchAuthHeader().orTimeout(5, TimeUnit.MINUTES) //
-					.whenComplete((s, throwable) -> {
+					.whenComplete((_, throwable) -> {
 						if (throwable != null) {
 							this.raiseEvent(HttpBridgeAuthenticationEvents.AUTHENTICATION_FAILED, null);
 							return;
@@ -122,7 +121,7 @@ public class HttpBridgeAuthenticationService<C> implements HttpBridgeService, Br
 	}
 
 	private CompletableFuture<HttpResponse<String>> sendAuthenticatedRequest(Endpoint endpoint) {
-		return this.loginFuture.exceptionallyCompose(t -> this.authenticate()) //
+		return this.loginFuture.exceptionallyCompose(_ -> this.authenticate()) //
 				.thenCompose(
 						authParams -> this.bridgeHttp.request(this.config.applyAuthentication(endpoint, authParams)) //
 								.thenCompose(response -> {

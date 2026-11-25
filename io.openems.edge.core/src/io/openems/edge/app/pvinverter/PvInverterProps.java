@@ -53,7 +53,7 @@ public final class PvInverterProps {
 				.setTranslatedLabel("App.PvInverter.phase.label") //
 				.setTranslatedDescription("App.PvInverter.phase.description") //
 				.setDefaultValue(Phase.ALL) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(Phase.class), l);
 				}));
 	}

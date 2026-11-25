@@ -245,7 +245,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 		 * @return this
 		 */
 		public SchedulerOrderDefinition rest() {
-			return this.thenBy(t -> true);
+			return this.thenBy(_ -> true);
 		}
 
 		@Override
@@ -363,7 +363,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 			throws OpenemsNamedException {
 		final var allSchedulerComponents = StreamSupport
 				.stream(this.appManagerUtil
-						.appConfigs(this.appManagerUtil.getInstantiatedApps(), openemsAppInstance -> true)
+						.appConfigs(this.appManagerUtil.getInstantiatedApps(), _ -> true)
 						.spliterator(), false)
 				.map(t -> t.getValue().getConfiguration(SchedulerByCentralOrderAggregateTask.class)) //
 				.filter(Objects::nonNull) //

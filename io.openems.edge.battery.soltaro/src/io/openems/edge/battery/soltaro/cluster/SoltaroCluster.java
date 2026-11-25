@@ -63,17 +63,17 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		/*
 		 * EnumWriteChannels
 		 */
-		CLUSTER_START_STOP(Doc.of(ClusterStartStop.values()) //
+		CLUSTER_START_STOP(Doc.of(ClusterStartStop.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_1_USAGE(Doc.of(RackUsage.values()) //
+		RACK_1_USAGE(Doc.of(RackUsage.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_2_USAGE(Doc.of(RackUsage.values()) //
+		RACK_2_USAGE(Doc.of(RackUsage.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_3_USAGE(Doc.of(RackUsage.values()) //
+		RACK_3_USAGE(Doc.of(RackUsage.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_4_USAGE(Doc.of(RackUsage.values()) //
+		RACK_4_USAGE(Doc.of(RackUsage.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RACK_5_USAGE(Doc.of(RackUsage.values()) //
+		RACK_5_USAGE(Doc.of(RackUsage.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		/*
@@ -85,22 +85,22 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		 * IntegerReadChannels
 		 */
 		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
+		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.OHM)), //
 
 		/*
 		 * StateChannels
 		 */
 		// Sub Master Communication Failure Registers
-		SUB_MASTER_1_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
+		SUB_MASTER_1_COMMUNICATION_FAILURE(Doc.of(Level.WARNING)//
 				.text("Communication Failure to Sub Master 1")),
-		SUB_MASTER_2_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
+		SUB_MASTER_2_COMMUNICATION_FAILURE(Doc.of(Level.WARNING)//
 				.text("Communication Failure to Sub Master 2")),
-		SUB_MASTER_3_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
+		SUB_MASTER_3_COMMUNICATION_FAILURE(Doc.of(Level.WARNING)//
 				.text("Communication Failure to Sub Master 3")),
-		SUB_MASTER_4_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
+		SUB_MASTER_4_COMMUNICATION_FAILURE(Doc.of(Level.WARNING)//
 				.text("Communication Failure to Sub Master 4")),
-		SUB_MASTER_5_COMMUNICATION_FAILURE(Doc.of(Level.WARNING) //
+		SUB_MASTER_5_COMMUNICATION_FAILURE(Doc.of(Level.WARNING)//
 				.text("Communication Failure to Sub Master 5")),
 
 		;

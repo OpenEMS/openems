@@ -181,7 +181,7 @@ class TestHeatingElement {
 		final var relayApps = Stream.of("io0", "relayBoard0") //
 				.map(id -> DummyApp.create() //
 						.setAppId("App.Test.Relay." + id) //
-						.setConfiguration((t, p, l) -> AppConfiguration.create() //
+						.setConfiguration((_, _, _) -> AppConfiguration.create() //
 								.addTask(Tasks
 										.component(new EdgeConfig.Component(id, id, "IO.KMtronic", new JsonObject()))) //
 								.build()) //

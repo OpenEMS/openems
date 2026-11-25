@@ -108,10 +108,11 @@ public class QueryHistoricTimeseriesEnergyPerPeriod implements EndpointRequestTy
 							final var timestamp = timestamps.get(i);
 							final SortedMap<ChannelAddress, JsonElement> b = data.entrySet().stream() //
 									.collect(toMap(t -> t.getKey().get(),
-											t -> t.getValue().get(i).getAsJsonPrimitivePath().get(), (t, u) -> u,
+											t -> t.getValue().get(i).getAsJsonPrimitivePath().get(), (_, u) -> u,
 											TreeMap::new));
 							return Map.entry(timestamp, b);
-						}).collect(toMap(t -> t.getKey(), t -> t.getValue(), (t, u) -> u, TreeMap::new));
+						}) //
+						.collect(toMap(t -> t.getKey(), t -> t.getValue(), (_, u) -> u, TreeMap::new));
 
 				return new Response(resultMap);
 			}, obj -> {

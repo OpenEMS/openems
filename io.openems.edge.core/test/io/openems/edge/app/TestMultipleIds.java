@@ -77,7 +77,7 @@ public class TestMultipleIds extends AbstractEnumOpenemsApp<Property> implements
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, m, l) -> {
+		return (t, m, _) -> {
 			final var setIds = EnumUtils.getAsOptionalInt(m, Property.SET_IDS).orElse(1);
 
 			final var components = new ArrayList<EdgeConfig.Component>();

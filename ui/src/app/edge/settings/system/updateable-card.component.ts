@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FlatWidgetPercentagebarComponent } from "src/app/shared/components/flat/flat-widget-percentagebar/flat-widget-percentagebar";
 import { environment } from "src/environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
-import { UpdateableState } from "./system.component";
+import type { UpdateableState } from "./jsonrpc/getUpdateables";
 
 @Component({
     selector: "oe-updateable-card",

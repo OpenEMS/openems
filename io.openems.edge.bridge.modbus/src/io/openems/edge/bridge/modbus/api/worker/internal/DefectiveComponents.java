@@ -43,7 +43,7 @@ public class DefectiveComponents {
 	 */
 	public synchronized void add(String componentId) {
 		TypeUtils.assertNull("DefectiveComponents add() takes no null values", componentId);
-		this.nextTries.compute(componentId, (k, v) -> {
+		this.nextTries.compute(componentId, (_, v) -> {
 			var count = (v == null) ? 1 : v.count + 1;
 			var wait = Math.min(INCREASE_WAIT_SECONDS * count, MAX_WAIT_SECONDS);
 			this.traceLog(() -> //

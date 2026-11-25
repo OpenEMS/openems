@@ -54,8 +54,8 @@ public class EcbCurrencyExchangeApi implements CurrencyExchangeApi {
 
 		final var delayProvider = new DefaultDelayTimeProvider<HttpResponse<String>>(//
 				this::getInitialFetchDelay, //
-				e -> Delay.of(Duration.ofMinutes(5)), //
-				s -> Delay.of(Duration.ofHours(1)));
+				_ -> Delay.of(Duration.ofMinutes(5)), //
+				_ -> Delay.of(Duration.ofHours(1)));
 		this.timeService.subscribeTime(delayProvider, //
 				this::createPriceFetchEndpoint, //
 				this::handleEndpointResponse, //

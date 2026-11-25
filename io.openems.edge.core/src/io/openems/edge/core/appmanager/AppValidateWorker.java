@@ -169,7 +169,7 @@ public class AppValidateWorker extends AbstractWorker implements ConfigurationLi
 		final var handledKeys = Sets.newHashSet("UNKNOWNAPPS");
 		final var appInstances = this.appManagerUtil.getInstantiatedApps();
 
-		final var allConfigs = this.appManagerUtil.appConfigs(appInstances, openemsAppInstance -> true);
+		final var allConfigs = this.appManagerUtil.appConfigs(appInstances, _ -> true);
 		final var configsByInstance = StreamSupport.stream(allConfigs.spliterator(), false) //
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 

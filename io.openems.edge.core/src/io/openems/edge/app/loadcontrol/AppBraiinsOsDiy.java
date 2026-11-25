@@ -17,7 +17,6 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
@@ -34,7 +33,6 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
@@ -105,7 +103,7 @@ public class AppBraiinsOsDiy extends AbstractOpenemsAppWithProps<AppBraiinsOsDiy
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 			final var controllerId = this.getId(t, p, Property.COMPONENT_ID);
 			final var alias = this.getString(p, Property.ALIAS);
 			final var phase = this.getEnum(p, Phase.class, Property.PHASE);
@@ -138,15 +136,6 @@ public class AppBraiinsOsDiy extends AbstractOpenemsAppWithProps<AppBraiinsOsDiy
 	@Override
 	protected Property[] propertyValues() {
 		return Property.values();
-	}
-
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.build();
 	}
 
 }

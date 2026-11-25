@@ -73,7 +73,7 @@ public class Rrd4jReadHandlerTest {
 		final var dcm = new DummyComponentManager();
 		this.dummyComponent = new DummyComponent("comp0");
 		dcm.addComponent(this.dummyComponent);
-		final var rrd4jSupplier = new Rrd4jSupplier(this.factory, (t, u) -> {
+		final var rrd4jSupplier = new Rrd4jSupplier(this.factory, (t, _) -> {
 			return t.toString();
 		});
 
@@ -196,10 +196,11 @@ public class Rrd4jReadHandlerTest {
 					valueMap.put(this.dummyComponent.channel(DummyComponent.ChannelId.DUMMY_CHANNEL).address(),
 							new JsonPrimitive(t.b()));
 					return valueMap;
-				}, (t, u) -> u, TreeMap::new));
+				}, (_, u) -> u, TreeMap::new));
 	}
 
-	private static class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent> implements OpenemsComponent {
+	private static class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent>
+			implements OpenemsComponent {
 
 		public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			DUMMY_CHANNEL(Doc.of(OpenemsType.INTEGER)); //

@@ -64,7 +64,7 @@ public class AppShellyMeter
 						.onlyShowIf(
 								ShellyProps.buildShowConditionForShellyTypesWithNoTerminals(DEVICE, HARDWARE_TYPE)))), //
 
-		PHASE(MeterProps.singlePhase().wrapField((app, property, l, parameter, field) -> {
+		PHASE(MeterProps.singlePhase().wrapField((_, _, _, _, field) -> {
 			field.onlyShowIf(ShellyProps.buildShowConditionForShellyTypes(
 					List.of(ShellyTypeMeter.PRO_1PM, ShellyTypeMeter.PRO_2PM, ShellyTypeMeter.PRO_4PM), DEVICE,
 					HARDWARE_TYPE));

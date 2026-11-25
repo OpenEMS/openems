@@ -32,7 +32,7 @@ abstract class ChannelParameterProvider<V> implements ParameterProvider {
 	}
 
 	private BiConsumer<Value<V>, Value<V>> getChannelListener() {
-		return (oldValue, newValue) -> {
+		return (_, newValue) -> {
 			this.value.set(newValue.get());
 		};
 	}

@@ -109,7 +109,7 @@ public class ComponentChannelExtension implements ComponentJsonApiExtension<Comp
 
 		builder.handleRequest(new GetChannelCount(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
-		}, call -> {
+		}, _ -> {
 			final var numberOfChannels = componentManager.getAllComponents().stream() //
 					.mapToLong(t -> t.channels().size()) //
 					.sum();

@@ -136,7 +136,7 @@ public class IoShellyPro4PmTerminalImpl extends AbstractOpenemsComponent
 				var switchJson = JsonUtils.getAsJsonObject(json, "switch:" + this.terminal.getShellyIndex());
 				this.handler.processSwitchData(switchJson);
 			}
-			case Result.Error(var exception) -> {
+			case Result.Error(var _) -> {
 				// Exception is already logged by parent device
 				this.handler.resetSwitchData();
 			}

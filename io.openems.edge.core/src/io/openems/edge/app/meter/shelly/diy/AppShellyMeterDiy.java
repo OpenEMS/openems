@@ -52,7 +52,7 @@ public class AppShellyMeterDiy extends
 		DEVICE(ShellyProps.mdnsDevice(DISCOVERY_TYPE, ShellyDiscoveryDiy.ID)), //
 		HARDWARE_TYPE(ShellyProps.hardwareType(DISCOVERY_TYPE, ShellyTypeDiy.class)), //
 
-		IP(MeterProps.ip().wrapField((app, property, l, parameter, field) -> {
+		IP(MeterProps.ip().wrapField((_, _, _, _, field) -> {
 			field.onlyShowIf(Exp.currentModelValue(DISCOVERY_TYPE).equal(Exp.staticValue(DiscoveryType.STATIC)));
 		})), //
 		PHASE(MeterProps.singlePhase()), //

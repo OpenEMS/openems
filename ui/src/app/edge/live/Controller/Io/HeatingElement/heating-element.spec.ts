@@ -1,5 +1,5 @@
-import { EventEmitter } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { EventEmitter, signal } from "@angular/core";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
@@ -7,7 +7,7 @@ import { ModalComponent as OeModalComponent } from "src/app/shared/components/mo
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import sharedDe from "src/app/shared/i18n/de.json";
-import { Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
+import { CurrentData, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
 import { Role } from "src/app/shared/type/role";
 import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
@@ -47,6 +47,40 @@ function createEdgeWithVersion(version: any): Edge {
     const edge = DummyConfig.dummyEdge({ version });
     (edge as any).version = version;
     return edge;
+}
+
+class SettingsHarness extends ControllerIoHeatingElementSettingsComponent {
+    private testComponent!: EdgeConfig.Component;
+    private testEdge!: Edge;
+
+    public static create(component: EdgeConfig.Component, edge: Edge): SettingsHarness {
+        const instance = Object.create(SettingsHarness.prototype) as SettingsHarness;
+        instance.testComponent = component;
+        instance.testEdge = edge;
+        Object.defineProperty(instance, "form", { value: signal(instance.getFormGroup()) });
+        return instance;
+    }
+
+    public getForm(): FormGroup {
+        return this.form();
+    }
+
+    public receive(data: CurrentData): void {
+        this.onCurrentData(data);
+    }
+
+    public save(context: TestContext, component: EdgeConfig.Component, edge: Edge): void {
+        Object.defineProperty(this, "translate", { value: context.translate });
+        this.applyChanges(this.form(), context.service, context.service.websocket, component, edge);
+    }
+
+    protected override getComponent(): EdgeConfig.Component {
+        return this.testComponent;
+    }
+
+    protected override getEdge(): Edge {
+        return this.testEdge;
+    }
 }
 
 describe("Controller.Io.HeatingElement", () => {
@@ -226,6 +260,50 @@ describe("Controller.Io.HeatingElement", () => {
     });
 
     describe("New Navigation (Home & Settings) and submission guards", () => {
+        for (const mode of [
+            HeatingElementMode.FAST_HEAT,
+            HeatingElementMode.AUTOMATIC,
+            HeatingElementMode.MANUAL_OFF,
+        ]) {
+            it(`settings reads ${mode} without dirtying the form`, () => {
+                const component = createHeatingElementComponent();
+                const edge = createEdgeWithVersion(NEW_EDGE_VERSION);
+                const settings = SettingsHarness.create(component, edge);
+                settings.receive({ allComponents: { [component.id + "/_PropertyMode"]: mode } });
+
+                expect(settings.getForm().controls["mode"].value).toBe(mode);
+                expect(settings.getForm().pristine).toBeTrue();
+            });
+        }
+
+        it("settings saves the selected mode and reports the accepted update", async () => {
+            const component = createHeatingElementComponent();
+            const edge = createEdgeWithVersion(NEW_EDGE_VERSION);
+            const update = spyOn(edge, "updateComponentConfig").and.resolveTo();
+            const startSpinner = spyOn(testContext.service, "startSpinner");
+            const stopSpinner = spyOn(testContext.service, "stopSpinner");
+            const toast = spyOn(testContext.service, "toast").and.resolveTo();
+            const stoppedSpinner = new Promise<void>((resolve) => stopSpinner.and.callFake(() => resolve()));
+            const settings = SettingsHarness.create(component, edge);
+            const mode = HeatingElementMode.MANUAL_OFF;
+            settings.receive({
+                allComponents: { [component.id + "/_PropertyMode"]: HeatingElementMode.AUTOMATIC },
+            });
+            settings.getForm().controls["mode"].setValue(mode);
+            settings.getForm().controls["mode"].markAsDirty();
+
+            settings.save(testContext, component, edge);
+
+            expect(update).toHaveBeenCalledWith(testContext.service.websocket, component.id, [
+                { name: "mode", value: mode },
+            ]);
+            await stoppedSpinner;
+            expect(startSpinner).toHaveBeenCalledWith("formly-field-modal");
+            expect(toast).toHaveBeenCalledWith(testContext.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+            expect(stopSpinner).toHaveBeenCalledWith("formly-field-modal");
+            expect(settings.getForm().pristine).toBeTrue();
+        });
+
         it("continues displaying received mode and active level values (including FAST_HEAT and Level 0..6)", () => {
             const component = createHeatingElementComponent({ mode: Mode.AUTOMATIC });
             const view = ControllerIoHeatingElementHomeComponent.generateView(

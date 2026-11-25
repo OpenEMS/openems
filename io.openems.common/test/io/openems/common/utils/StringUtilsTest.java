@@ -4,6 +4,7 @@ import static io.openems.common.utils.StringUtils.definedOrElse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Assertions;
@@ -111,6 +112,17 @@ class StringUtilsTest {
 		assertNull(StringUtils.extractTextSurroundedBy("Zug[Baum]", "]", "["));
 		assertNull(StringUtils.extractTextSurroundedBy("Zug[Baum", "[", "]"));
 		assertNull(StringUtils.extractTextSurroundedBy("ZugBaum]", "[", "]"));
+	}
+
+	@Test
+	void testStartsWithIgnoreCase() {
+		assertTrue(StringUtils.startsWithIgnoreCase("Hello, its me", "hello"));
+		assertTrue(StringUtils.startsWithIgnoreCase("Hello, its me", "HELLO"));
+		assertFalse(StringUtils.startsWithIgnoreCase("Hello, its me", "its"));
+		assertFalse(StringUtils.startsWithIgnoreCase("Hello, its me", "ITS"));
+
+		assertThrows(NullPointerException.class, () -> StringUtils.startsWithIgnoreCase(null, "test"));
+		assertThrows(NullPointerException.class, () -> StringUtils.startsWithIgnoreCase("test", null));
 	}
 
 }

@@ -243,14 +243,11 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent
 			OptimizationState state) {
 
 		return switch (state) {
-		case OptimizationState.ReoptimizingCurrent ignored //
-		-> ScheduleUpdate.OptimizationStatus.REOPTIMIZING_CURRENT;
+		case OptimizationState.ReoptimizingCurrent _ -> ScheduleUpdate.OptimizationStatus.REOPTIMIZING_CURRENT;
 
-		case OptimizationState.OptimizingFuture ignored //
-		-> ScheduleUpdate.OptimizationStatus.OPTIMIZING_FUTURE;
+		case OptimizationState.OptimizingFuture _ -> ScheduleUpdate.OptimizationStatus.OPTIMIZING_FUTURE;
 
-		case OptimizationState.Optimized ignored //
-		-> ScheduleUpdate.OptimizationStatus.OPTIMIZED;
+		case OptimizationState.Optimized _ -> ScheduleUpdate.OptimizationStatus.OPTIMIZED;
 		};
 	}
 

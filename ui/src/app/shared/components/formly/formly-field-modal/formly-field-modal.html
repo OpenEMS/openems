@@ -33,6 +33,10 @@
               <oe-modal-horizontal-line></oe-modal-horizontal-line>
             }
 
+            @case ("name-line") {
+              <oe-modal-line [class]="line.componentCssClass ?? ''" [name]="line.name" [lineStyle]="line.style"></oe-modal-line>
+            }
+
             @case ("value-from-channels-line") {
               <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null" [name]="line.name"></oe-modal-value-line>
             }
@@ -62,7 +66,11 @@
             }
 
             @case ("toggle-line") {
-              <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
+              <oe-modal-line [name]="line.name" [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
+            }
+
+            @case ("card-line") {
+              <oe-modal-card-line [text]="line.text" [html]="line.html" [icon]="line.icon" [cardStyle]="line.cardStyle" [link]="line.link"></oe-modal-card-line>
             }
 
             @case ("input-line") {

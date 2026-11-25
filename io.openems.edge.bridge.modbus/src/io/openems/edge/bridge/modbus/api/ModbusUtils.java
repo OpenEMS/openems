@@ -116,7 +116,7 @@ public class ModbusUtils {
 	 */
 	public static Function<Runnable, Disposable> restartAfterChannelChange(Channel<?> channel) {
 		return restart -> {
-			final var onChangeListener = channel.onChange((value, value2) -> restart.run());
+			final var onChangeListener = channel.onChange((_, _) -> restart.run());
 
 			return () -> channel.removeOnChangeCallback(onChangeListener);
 		};
@@ -193,7 +193,7 @@ public class ModbusUtils {
 
 		return CompletableFuture //
 				.allOf(subResults) //
-				.thenApply(ignore -> {
+				.thenApply(_ -> {
 					// remove task
 					modbusProtocol.removeTask(task);
 

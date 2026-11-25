@@ -143,7 +143,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -184,7 +184,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().doCallRealMethod().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -226,7 +226,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -269,7 +269,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		sut.runOptimization(this.token);
 
@@ -302,7 +302,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> simulator));
+				_ -> simulator));
 
 		sut.runOptimization(this.token);
 
@@ -329,7 +329,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> null));
+				_ -> null));
 
 		sut.runOptimization(this.token);
 
@@ -352,7 +352,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -394,7 +394,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -439,7 +439,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());
@@ -484,7 +484,7 @@ class OptimizerTest {
 				this.clock, //
 				() -> this.worker, //
 				() -> this.scheduler, //
-				goc -> this.simulator));
+				_ -> this.simulator));
 
 		doNothing().when(sut) //
 				.restartOptimization(anyString(), anyBoolean());

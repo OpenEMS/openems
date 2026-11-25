@@ -153,7 +153,7 @@ public class BackendTariffProviderImpl extends AbstractTariffComponent
 
 		@Override
 		protected void onPostLoadInstance(BackendSpotTariff tariff) {
-			tariff.getLastUpdateStatus().subscribe(s -> BackendTariffProviderImpl.this.updateLoadedTariffInfos());
+			tariff.getLastUpdateStatus().subscribe(_ -> BackendTariffProviderImpl.this.updateLoadedTariffInfos());
 		}
 
 		@Override

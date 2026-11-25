@@ -5,6 +5,7 @@ import static io.openems.common.bridge.http.api.HttpMethod.PUT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
@@ -96,23 +97,23 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 					this.handleGetApiCallResponse(t, phaseRotation);
 					communicationFailed.accept(false);
 				}, //
-				t -> communicationFailed.accept(true));
+				_ -> communicationFailed.accept(true));
 		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		var delay = Delay.of(Duration.ofSeconds(HEART_BEAT_TIME));
 		var heartBeat = parent.isReadOnly() ? "off" : "on";
 		this.timeService.subscribeTime(//
 				new DefaultDelayTimeProvider<>(() -> Delay.immediate(), //
-						t -> delay, error -> delay),
+						_ -> delay, _ -> delay),
 				this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
 						.addProperty("salia/heartbeat", heartBeat) //
 						.build()),
-				t -> {
+				_ -> {
 					switch (this.logVerbosity) {
 					case NONE, DEBUG_LOG -> doNothing();
 					case WRITES, READS -> this.logInfo("Set heartbeat=" + heartBeat);
 					}
 				}, //
-				t -> {
+				_ -> {
 					doNothing();
 				});
 	}
@@ -159,7 +160,7 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 				.requestJson(this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
 						.addProperty("salia/chargemode", chargeMode) //
 						.build())) //
-				.thenAccept(t -> {
+				.thenAccept(_ -> {
 					switch (this.logVerbosity) {
 					case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
 					case WRITES, READS -> this.logInfo("Set chargemode=" + chargeMode);
@@ -190,7 +191,7 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 						.addProperty("salia/intctrl_limit", expectedInternalLimit.toString()) //
 						.addProperty("salia/manctrl_limit", expectedInternalLimit.toString()) //
 						.build())) //
-				.thenAccept(t -> {
+				.thenAccept(_ -> {
 					switch (this.logVerbosity) {
 					case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
 					case WRITES, READS -> this.logInfo("Set intctrl_limit=" + expectedInternalLimit);
@@ -338,7 +339,7 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 				.requestJson(this.createEndpoint(PUT, "/api", JsonUtils.buildJsonObject() //
 						.addProperty("salia/phase_switching/setphase", phase) //
 						.build())) //
-				.thenAccept(t -> {
+				.thenAccept(_ -> {
 					switch (this.logVerbosity) {
 					case NONE -> FunctionUtils.doNothing();
 					case DEBUG_LOG, WRITES, READS -> this.logInfo("Triggered PhaseSwitch to " + phase + " phase");
@@ -363,8 +364,7 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 		this.parent.channels() //
 				.stream() //
 				.map(Channel::channelId) //
-				.filter(PathProvider.class::isInstance) //
-				.map(PathProvider.class::cast) //
+				.gather(filterIsInstance(PathProvider.class)) //
 				// Do not overwrite manually managed channels with null.
 				.filter(c -> c.getPath().jsonPaths().length > 0) //
 				.forEach(c -> {

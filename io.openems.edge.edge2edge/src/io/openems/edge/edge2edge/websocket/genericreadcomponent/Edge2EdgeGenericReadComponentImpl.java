@@ -102,7 +102,7 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 				Edge2EdgeGenericReadComponent.ChannelId.values() //
 		);
 
-		this.bridgeStateHandler.addOnStateChangeListener((prev, current) -> {
+		this.bridgeStateHandler.addOnStateChangeListener((_, current) -> {
 			switch (current) {
 			case NOT_CONNECTED -> {
 				this._setRemoteNoComponentFault(false);
@@ -119,7 +119,7 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 			}
 		});
 
-		this.bridgeStateHandler.addOnSubscribeListener((bridge, channels) -> {
+		this.bridgeStateHandler.addOnSubscribeListener((_, channels) -> {
 			for (var channel : channels) {
 				this.createChannelIfNotExisting(channel);
 			}
@@ -131,7 +131,7 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 			this.channelSubscriber.setSubscribeChannels(c);
 		});
 
-		this.bridgeStateHandler.addOnUnsubscribeListener(bridge -> {
+		this.bridgeStateHandler.addOnUnsubscribeListener(_ -> {
 			final var unsubscribedChannels = this.channelSubscriber.unsubscribeAll();
 
 			// reset channel values
@@ -166,9 +166,8 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 		this.bridgeStateHandler.deactivate();
 	}
 
-	@SuppressWarnings("deprecation")
 	private void createChannelIfNotExisting(ChannelRecord channel) {
-		if (this._channel(channel.id()) != null) {
+		if (this.hasChannel(channel.id())) {
 			return;
 		}
 

@@ -88,7 +88,7 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 				.setTranslatedLabelWithAppPrefix(".targetSoc.label") //
 				.setDefaultValue(100)//
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildRangeFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildRangeFromNameable, (_, _, _, _, field) -> {
 					field.setMin(1);
 					field.setMax(100);
 				}))), //
@@ -99,14 +99,14 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 				.setRequired(true))), //
 		TARGET_TIME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".targetTime.label") //
-				.setField(JsonFormlyUtil::buildDateTimeFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildDateTimeFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(TARGET_SPECIFIED_TIME).notNull());
 				})//
 				.setRequired(true))), //
 		TARGET_TIME_BUFFER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".targetTimeBuffer.label") //
 				.setDefaultValue(0)//
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.MINUTE, l);
@@ -119,7 +119,7 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 		TERMINATION_BUFFER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".terminationBuffer.label") //
 				.setDefaultValue(0)//
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.MINUTE, l);

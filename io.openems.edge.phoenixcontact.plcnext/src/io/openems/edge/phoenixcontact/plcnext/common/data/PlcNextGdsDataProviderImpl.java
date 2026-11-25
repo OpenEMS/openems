@@ -68,7 +68,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig) {
 
 		return this.ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig) //
-				.thenCompose(ignore -> {
+				.thenCompose(_ -> {
 					var requestBody = this.buildPostBodyForRead(this.sessionId, variableIdentifiers, dataAccessConfig);
 					var dataEndPoint = this.buildDataEndpointRepresentation(this.tokenManager.getToken(), //
 							HttpMethod.POST, requestBody, dataAccessConfig);
@@ -93,7 +93,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 
 		} else {
 			return this.ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig) //
-					.thenCompose(ignore -> {
+					.thenCompose(_ -> {
 						var requestBody = this.buildPutBodyForWrite(this.sessionId, mappedVariables);
 						var dataEndPoint = this.buildDataEndpointRepresentation(this.tokenManager.getToken(),
 								HttpMethod.PUT, requestBody, dataAccessConfig);
@@ -142,7 +142,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 			result = this.tokenManager.fetchToken(authConfig);
 		}
 		if (this.canCreateSession(dataAccessConfig)) {
-			result = result.thenCompose(ignore -> this.createOrFetchSessionID(dataAccessConfig))
+			result = result.thenCompose(_ -> this.createOrFetchSessionID(dataAccessConfig))
 					.thenApply(createSessionResponse -> {
 						if (!createSessionResponse.sessionId.isBlank()) {
 							this.sessionId = createSessionResponse.sessionId();
@@ -266,8 +266,8 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		// trigger session maintenance
 		var delayTimeProvider = new DefaultDelayTimeProvider<HttpResponse<String>>(//
 				() -> sessionTimeout, //
-				error -> Delay.infinite(), //
-				result -> sessionTimeout);
+				_ -> Delay.infinite(), //
+				_ -> sessionTimeout);
 		var maintainSessionEndpoint = this.buildMaintainSessionEndpoint(//
 				this.tokenManager.getToken(), this.sessionId, config);
 		log.info("SessionID '{}': Maintaining session using endpoint URL: {}", this.sessionId,

@@ -28,7 +28,7 @@ public @interface Config {
 
 	@AttributeDefinition(name = "GridCode Setting", description = "GridCode Setting e.g. VDE-AR-N 4105 for germany.")
 	GridCode gridCode() default GridCode.VDE_4105;
-	
+
 	@AttributeDefinition(name = "Minimum DC-Voltage", description = "Minimum DC voltage, which may vary depending on the inverter and battery combination.")
 	int dcMinVoltage() default 650;
 

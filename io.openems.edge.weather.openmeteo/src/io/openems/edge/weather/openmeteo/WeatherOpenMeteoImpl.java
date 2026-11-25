@@ -261,7 +261,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(new DailyWeatherForecastEndpoint(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
-		}, call -> {
+		}, _ -> {
 			return new DailyWeatherForecastEndpoint.Response(//
 					this.getDailyWeatherForecast());
 		});

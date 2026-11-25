@@ -57,12 +57,12 @@ public class AppEvseCluster extends
 		EVSE_IDS(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".evseIds.label") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
+				.setField(JsonFormlyUtil::buildSelect, (app, _, _, _, f) -> {
 					f.setOptions(app.getComponentUtil().getEnabledComponentsOfStartingId("ctrlEvseSingle"),
 							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
 							.isMulti(true);
 				}) //
-				.setDefaultValue((app, property, l, parameter) -> new JsonArray())//
+				.setDefaultValue((_, _, _, _) -> new JsonArray())//
 				.bidirectional(EVSE_CLUSTER_ID, "ctrl.ids", ComponentManagerSupplier::getComponentManager))), //
 		;
 

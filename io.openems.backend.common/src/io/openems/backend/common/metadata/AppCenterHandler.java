@@ -31,6 +31,7 @@ import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse;
 import io.openems.common.jsonrpc.response.AppCenterGetRegisteredKeysResponse;
 import io.openems.common.jsonrpc.response.AppCenterIsAppFreeResponse;
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
+import io.openems.common.session.Role;
 
 public final class AppCenterHandler {
 
@@ -42,6 +43,7 @@ public final class AppCenterHandler {
 	 *                         other {@link EdgeRpcRequest}
 	 * @param request          the {@link AppCenterRequest}
 	 * @param user             the user
+	 * @param role             the role on the target edge
 	 * @param edgeId           the edge id
 	 * @return the {@link CompletableFuture}
 	 * @throws OpenemsNamedException on parse error
@@ -51,35 +53,51 @@ public final class AppCenterHandler {
 			final ThrowingFunction<EdgeRpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>, OpenemsNamedException> delegatedRequest, //
 			final AppCenterRequest request, //
 			final User user, //
+			final Role role, //
 			final String edgeId //
 	) throws OpenemsNamedException {
 		Objects.requireNonNull(metadata, "No AppCenter Metadata provided.");
 
 		return switch (request.getPayload().getMethod()) {
-		case AppCenterAddRegisterKeyHistoryRequest.METHOD -> handleAsync(metadata, request, //
-				AppCenterAddRegisterKeyHistoryRequest::from, //
-				(m, r) -> m.sendAddRegisterKeyHistory(edgeId, r.appId, r.key, user));
+		case AppCenterAddRegisterKeyHistoryRequest.METHOD -> {
+			role.assertIsAtLeast(AppCenterAddRegisterKeyHistoryRequest.METHOD, Role.OWNER);
+			yield handleAsync(metadata, request, //
+					AppCenterAddRegisterKeyHistoryRequest::from, //
+					(m, r) -> m.sendAddRegisterKeyHistory(edgeId, r.appId, r.key, user));
+		}
 
-		case AppCenterAddUnregisterKeyHistoryRequest.METHOD -> handleAsync(metadata, request, //
-				AppCenterAddUnregisterKeyHistoryRequest::from, //
-				(m, r) -> m.sendAddUnregisterKeyHistory(edgeId, r.appId, r.key, user));
+		case AppCenterAddUnregisterKeyHistoryRequest.METHOD -> {
+			role.assertIsAtLeast(AppCenterAddUnregisterKeyHistoryRequest.METHOD, Role.OWNER);
+			yield handleAsync(metadata, request, //
+					AppCenterAddUnregisterKeyHistoryRequest::from, //
+					(m, r) -> m.sendAddUnregisterKeyHistory(edgeId, r.appId, r.key, user));
+		}
 
-		case AppCenterGetRegisteredKeysRequest.METHOD -> handleAsync(metadata, request, //
-				AppCenterGetRegisteredKeysRequest::from, //
-				(m, r) -> m.sendGetRegisteredKeys(edgeId, r.appId), //
-				AppCenterGetRegisteredKeysResponse::new);
+		case AppCenterGetRegisteredKeysRequest.METHOD -> {
+			role.assertIsAtLeast(AppCenterGetRegisteredKeysRequest.METHOD, Role.OWNER);
+			yield handleAsync(metadata, request, //
+					AppCenterGetRegisteredKeysRequest::from, //
+					(m, r) -> m.sendGetRegisteredKeys(edgeId, r.appId), //
+					AppCenterGetRegisteredKeysResponse::new);
+		}
 
 		case AppCenterInstallAppWithSuppliedKeyRequest.METHOD -> handleAppCenterInstallAppWithSuppliedKeyRequest(//
 				request.getPayload(), //
 				delegatedRequest, //
 				metadata, //
 				user, //
+				role, //
 				edgeId //
 			);
 		case AppCenterIsAppFreeRequest.METHOD -> handleAsync(metadata, request, //
 				AppCenterIsAppFreeRequest::from, //
 				(m, r) -> m.isAppFree(user, r.appId), //
 				AppCenterIsAppFreeResponse::new);
+
+		case AppCenterIsKeyApplicableRequest.METHOD -> {
+			role.assertIsAtLeast(AppCenterIsKeyApplicableRequest.METHOD, Role.OWNER);
+			yield handleGeneric(metadata, request, edgeId);
+		}
 
 		default -> handleGeneric(metadata, request, edgeId);
 		};
@@ -90,8 +108,11 @@ public final class AppCenterHandler {
 			final ThrowingFunction<EdgeRpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>, OpenemsNamedException> delegatedRequest, //
 			final AppCenterMetadata.UiData metadata, //
 			final User user, //
+			final Role role, //
 			final String edgeId //
 	) throws OpenemsNamedException {
+		role.assertIsAtLeast(AppCenterInstallAppWithSuppliedKeyRequest.METHOD, Role.OWNER);
+
 		final var genericInstallRequest = AppCenterInstallAppWithSuppliedKeyRequest.from(request).installRequest;
 		final var componentRequest = ComponentJsonApiRequest.from(genericInstallRequest);
 		final var installAppRequest = AddAppInstanceRequest.from(componentRequest.getPayload());

@@ -52,7 +52,7 @@ public class GeocodingTest {
 
 		final var clock = createDummyClock();
 		final var fetcher = dummyEndpointFetcher();
-		fetcher.addEndpointHandler(t -> HttpResponse.ok(OPEN_CAGE_API_RESPONSE));
+		fetcher.addEndpointHandler(_ -> HttpResponse.ok(OPEN_CAGE_API_RESPONSE));
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//

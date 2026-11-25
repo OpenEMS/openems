@@ -164,30 +164,30 @@ public class SingleRack {
 				this.parent.map(this.channelIds.get(KEY_CURRENT), this.getSignedWordElement(0x101), SCALE_FACTOR_2), //
 				this.parent.map(this.channelIds.get(KEY_CHARGE_INDICATION), this.getUnsignedWordElement(0x102)), //
 				this.parent.map(this.channelIds.get(KEY_SOC), this.getUnsignedWordElement(0x103)). //
-						onUpdateCallback(val -> {
+						onUpdateCallback(_ -> {
 							this.parent.recalculateSoc();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_SOH), this.getUnsignedWordElement(0x104)), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_VOLTAGE_ID), this.getUnsignedWordElement(0x105)), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_VOLTAGE), this.getUnsignedWordElement(0x106)). //
-						onUpdateCallback(val -> {
+						onUpdateCallback(_ -> {
 							this.parent.recalculateMaxCellVoltage();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_VOLTAGE_ID), this.getUnsignedWordElement(0x107)), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_VOLTAGE), this.getUnsignedWordElement(0x108)). //
-						onUpdateCallback(val -> {
+						onUpdateCallback(_ -> {
 							this.parent.recalculateMinCellVoltage();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x109)), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE), this.getSignedWordElement(0x10A),
 						SCALE_FACTOR_MINUS_1). //
-						onUpdateCallback(val -> {
+						onUpdateCallback(_ -> {
 							this.parent.recalculateMaxCellTemperature();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x10B)), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE), this.getSignedWordElement(0x10C),
 						SCALE_FACTOR_MINUS_1). //
-						onUpdateCallback(val -> {
+						onUpdateCallback(_ -> {
 							this.parent.recalculateMinCellTemperature();
 						}) //
 		));

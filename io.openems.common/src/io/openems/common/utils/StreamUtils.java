@@ -74,7 +74,7 @@ public class StreamUtils {
 	 * @see StreamUtils#distinctByKey(Function, BinaryOperator)
 	 */
 	public static <T> Collector<T, ?, Stream<T>> distinctByKey(Function<? super T, ?> keyExtractor) {
-		return distinctByKey(keyExtractor, (t, t2) -> t);
+		return distinctByKey(keyExtractor, (t, _) -> t);
 	}
 
 	/**

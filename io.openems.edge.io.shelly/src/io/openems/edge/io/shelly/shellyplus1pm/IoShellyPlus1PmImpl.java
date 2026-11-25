@@ -203,7 +203,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			return;
 		}
 		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((response, error) -> {
+		this.httpBridge.get(url).whenComplete((_, error) -> {
 			if (error != null) {
 				this.logError(this.log, "HTTP request failed: " + error.getMessage());
 				this._setSlaveCommunicationFailed(true);

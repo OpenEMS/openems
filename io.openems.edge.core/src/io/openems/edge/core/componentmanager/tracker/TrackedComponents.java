@@ -52,7 +52,7 @@ public final class TrackedComponents implements TrackedComponentsView, TrackedCo
 			log.debug("Adding component {} with service ID {} to tracking.", componentId, servicePid);
 			this.componentsByServiceId.put(servicePid, componentId);
 			if (this.trackedComponents.containsKey(componentId)) {
-				this.duplicates.compute(componentId, (k, v) -> {
+				this.duplicates.compute(componentId, (_, v) -> {
 					final var list = v != null ? v : new ArrayList<OpenemsComponent>();
 					list.add(component);
 					return list;

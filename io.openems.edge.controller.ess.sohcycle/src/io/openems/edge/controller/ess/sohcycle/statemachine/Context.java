@@ -215,8 +215,8 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 	 * <p>
 	 * Unlike {@link #isDischargeBlocked()}, an undefined value does <b>not</b>
 	 * count as available here: leaving the {@code PREPARE_PRECHARGE} recovery
-	 * requires positive proof that discharging works again, not merely the
-	 * absence of an explicit block.
+	 * requires positive proof that discharging works again, not merely the absence
+	 * of an explicit block.
 	 *
 	 * @return {@code true} if discharge is explicitly possible right now
 	 */
@@ -230,9 +230,9 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 	 *
 	 * <p>
 	 * Per {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER},
-	 * {@code AllowedChargePower} is always zero or negative; a value of
-	 * {@code 0} means charging is currently not possible. An undefined value is
-	 * <b>not</b> treated as blocked, following the same convention as
+	 * {@code AllowedChargePower} is always zero or negative; a value of {@code 0}
+	 * means charging is currently not possible. An undefined value is <b>not</b>
+	 * treated as blocked, following the same convention as
 	 * {@link #isDischargeBlocked()}.
 	 *
 	 * @return {@code true} if charging is currently explicitly blocked
@@ -253,8 +253,8 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
 	}
 
 	/**
-	 * Marks the {@code PREPARE_PRECHARGE} recovery as used for the current SoH
-	 * run, preventing a second recovery attempt.
+	 * Marks the {@code PREPARE_PRECHARGE} recovery as used for the current SoH run,
+	 * preventing a second recovery attempt.
 	 */
 	public void markPreparePrechargeUsed() {
 		this.getParent().setPreparePrechargeUsed(true);

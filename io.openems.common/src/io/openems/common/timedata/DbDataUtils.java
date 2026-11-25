@@ -88,7 +88,7 @@ public final class DbDataUtils {
 			if (foundData == null) {
 				foundData = channels.stream() //
 						.collect(CollectorUtils.<ChannelAddress, ChannelAddress, JsonElement>//
-								toSortedMap(Function.identity(), t -> JsonNull.INSTANCE));
+								toSortedMap(Function.identity(), _ -> JsonNull.INSTANCE));
 			} else {
 				foundData = fillUpMissingValues(foundData, channels);
 			}
@@ -153,8 +153,8 @@ public final class DbDataUtils {
 									return JsonNull.INSTANCE;
 								}
 								return new JsonPrimitive(diff);
-							}, (t, u) -> u, TreeMap::new));
-				}, (t, u) -> u, TreeMap::new));
+							}, (_, u) -> u, TreeMap::new));
+				}, (_, u) -> u, TreeMap::new));
 
 		result.headMap(fromDate).clear();
 		return result;

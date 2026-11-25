@@ -279,6 +279,17 @@ public interface Metadata {
 	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException;
 
 	/**
+	 * Checks whether the user may submit the given setup protocol.
+	 *
+	 * @param user       the current user
+	 * @param jsonObject the setup protocol
+	 * @throws OpenemsNamedException if submission is not permitted or supported
+	 */
+	public default void assertCanSubmitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		throw new OpenemsException("Setup protocol authorization is not supported by this metadata provider");
+	}
+
+	/**
 	 * Submit the installation assistant protocol.
 	 *
 	 * @param user       {@link User} the current user

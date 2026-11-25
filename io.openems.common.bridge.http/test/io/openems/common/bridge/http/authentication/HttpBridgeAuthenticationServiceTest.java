@@ -71,7 +71,7 @@ class HttpBridgeAuthenticationServiceTest {
 		final var authService = new HttpBridgeAuthenticationService(testBundle.factory().get(),
 				new HttpBridgeAuthenticationServiceDefinition.HttpBridgeAuthenticationServiceConfigHttpHeader(
 						headerSupplier, HttpBridgeAuthenticationServiceDefinition.DEFAULT_SESSION_EXPIRED_PREDICATE
-								.or((stringHttpResponse, throwable) -> false)));
+								.or((_, _) -> false)));
 
 		testBundle.forceNextSuccessfulResult(HttpResponse.ok(null));
 		authService.get("http://test");

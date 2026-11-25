@@ -69,10 +69,10 @@ public class AppDef<APP extends OpenemsApp, //
 	@FunctionalInterface
 	public static interface FieldValuesPredicate<A, P, M> {
 
-		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_TRUE = (app, property,
-				l, parameter) -> true;
-		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_FALSE = (app,
-				property, l, parameter) -> false;
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_TRUE = (_, _, _,
+				_) -> true;
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_FALSE = (_, _, _,
+				_) -> false;
 
 		/**
 		 * A function with the values of the current field.
@@ -91,9 +91,9 @@ public class AppDef<APP extends OpenemsApp, //
 	public static interface FieldValuesBiPredicate<A, P, M, E> {
 
 		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> TRUE//
-				= (app, property, l, parameter, user) -> true;
+				= (_, _, _, _, _) -> true;
 		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> FALSE//
-				= (app, property, l, parameter, user) -> false;
+				= (_, _, _, _, _) -> false;
 
 		/**
 		 * A function with the values of the current field.
@@ -438,7 +438,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final AppDef<APP, PROPERTY, PARAMETER> setLabel(//
 			final String label //
 	) {
-		return this.setLabel((app, prop, t, param) -> label);
+		return this.setLabel((_, _, _, _) -> label);
 	}
 
 	/**
@@ -500,7 +500,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDescription(String description) {
-		this.description = (app, property, language, parameter) -> description;
+		this.description = (_, _, _, _) -> description;
 		return this;
 	}
 
@@ -573,7 +573,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final String s //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> s);
+		return this.setDefaultValue(JsonPrimitive::new, (_, _, _, _) -> s);
 	}
 
 	/**
@@ -599,7 +599,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Boolean b //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> b);
+		return this.setDefaultValue(JsonPrimitive::new, (_, _, _, _) -> b);
 	}
 
 	/**
@@ -612,7 +612,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Number n //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> n);
+		return this.setDefaultValue(JsonPrimitive::new, (_, _, _, _) -> n);
 	}
 
 	/**
@@ -625,7 +625,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Character c //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> c);
+		return this.setDefaultValue(JsonPrimitive::new, (_, _, _, _) -> c);
 	}
 
 	/**
@@ -698,7 +698,7 @@ public class AppDef<APP extends OpenemsApp, //
 			final String key, //
 			final Object... params //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, (app, prop, t, param) -> {
+		return this.setDefaultValue(JsonPrimitive::new, (_, _, _, param) -> {
 			return this.usingTranslation(param) //
 					.map(b -> TranslationUtil.getTranslation(b, key, params)) //
 					.orElse(null);
@@ -759,7 +759,7 @@ public class AppDef<APP extends OpenemsApp, //
 			final Supplier<T> fieldSupplier, //
 			final FieldValuesConsumer<APP, PROPERTY, PARAMETER, T> additionalSettings //
 	) {
-		return this.setField(ignore -> fieldSupplier.get(), additionalSettings);
+		return this.setField(_ -> fieldSupplier.get(), additionalSettings);
 	}
 
 	/**
@@ -785,7 +785,7 @@ public class AppDef<APP extends OpenemsApp, //
 	public final <T extends FormlyBuilder<?>> AppDef<APP, PROPERTY, PARAMETER> setField(//
 			final Supplier<T> fieldSupplier //
 	) {
-		return this.setField(ignore -> fieldSupplier.get(), null);
+		return this.setField(_ -> fieldSupplier.get(), null);
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {
@@ -938,7 +938,7 @@ public class AppDef<APP extends OpenemsApp, //
 			final String key, //
 			final Object... params //
 	) {
-		return (app, prop, t, param) -> {
+		return (_, _, _, param) -> {
 			return this.usingTranslation(param) //
 					.map(b -> TranslationUtil.getTranslation(b, key, params)) //
 					.orElse(null); //
@@ -949,7 +949,7 @@ public class AppDef<APP extends OpenemsApp, //
 			final String key, //
 			final Object... params //
 	) {
-		return (app, prop, t, param) -> {
+		return (app, _, _, param) -> {
 			return this.usingTranslation(param) //
 					.map(b -> TranslationUtil.getTranslation(b, app.getAppId() + key, params)) //
 					.orElseGet(() -> {
@@ -1136,7 +1136,7 @@ public class AppDef<APP extends OpenemsApp, //
 			final Function<? super APP, ComponentManager> componentManagerFunction, //
 			final Function<? super JsonElement, JsonElement> mapper //
 	) {
-		return this.bidirectional(t -> componentId, property, componentManagerFunction, mapper);
+		return this.bidirectional(_ -> componentId, property, componentManagerFunction, mapper);
 	}
 
 	/**
@@ -1253,7 +1253,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * @return the {@link FieldValuesBiPredicate}
 	 */
 	public static FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, User> ofLeastRole(Role role) {
-		return (app, property, l, parameter, user) -> user.getRole().isAtLeast(role);
+		return (_, _, _, _, user) -> user.getRole().isAtLeast(role);
 	}
 
 }

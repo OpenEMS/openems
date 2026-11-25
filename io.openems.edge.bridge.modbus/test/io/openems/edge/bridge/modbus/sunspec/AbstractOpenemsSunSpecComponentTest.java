@@ -77,23 +77,23 @@ public class AbstractOpenemsSunSpecComponentTest {
 								new int[] { 0x4D79, 0x204D, 0x616E, 0x7566, 0x6163, 0x7475, 0x7265, 0x7200, 0, 0, 0, 0,
 										0, 0, 0, 0 }, // S1_MN
 								new int[] { 0x4D79, 0x204D, 0x6F64, 0x656C, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // S1_MD
-								range(0, 43).map(i -> 0).toArray()) //
+								range(0, 43).map(_ -> 0).toArray()) //
 						.withRegisters(40070, 101, 50) // Block 101
 						.withRegisters(40072, //
 								new int[] { 123, 234, 345, 456, 1 }, //
-								range(0, 45).map(i -> 0).toArray()) //
+								range(0, 45).map(_ -> 0).toArray()) //
 						.withRegisters(40122, 103, 50) // Block 103
 						.withRegisters(40124, //
 								new int[] { 124, 235, 346, 457, 1 }, //
-								range(0, 45).map(i -> 0).toArray()) //
+								range(0, 45).map(_ -> 0).toArray()) //
 						.withRegisters(40174, 701, 121) // Block 701
 						.withRegisters(40176, //
 								new int[] { 1, }, //
-								range(0, 120).map(i -> 0).toArray()) //
+								range(0, 120).map(_ -> 0).toArray()) //
 						.withRegisters(40297, 702, 50) // Block 702
 						.withRegisters(40299, //
 								new int[] { 1, }, //
-								range(0, 49).map(i -> 0).toArray()) //
+								range(0, 49).map(_ -> 0).toArray()) //
 						.withRegisters(40375, 0xFFFF) // END_OF_MAP
 				) //
 				.activate(MyConfig.create() //

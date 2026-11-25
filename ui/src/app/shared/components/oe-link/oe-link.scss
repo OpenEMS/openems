@@ -1,11 +1,9 @@
-.info-line-link {
-    background: none;
+.oe-link {
+    padding: 0;
     border: 0;
+    background: none;
     color: var(--ion-color-primary);
     cursor: pointer;
-    display: inline-block;
     font: inherit;
-    margin: 0;
-    padding: 0;
     text-decoration: underline;
 }

@@ -198,12 +198,20 @@ public class ChannelSubscriber {
 	}
 
 	private void notifyChannelsSubscribed(Set<ChannelAddress> channels) {
+		if (channels.isEmpty()) {
+			return;
+		}
+
 		for (var subscriber : this.onChannelsSubscribed) {
 			subscriber.accept(channels);
 		}
 	}
 
 	private void notifyChannelsUnsubscribed(Set<ChannelAddress> channels) {
+		if (channels.isEmpty()) {
+			return;
+		}
+
 		for (var subscriber : this.onChannelsUnsubscribed) {
 			subscriber.accept(channels);
 		}

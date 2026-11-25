@@ -1,5 +1,6 @@
 import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import type { UpdateableState } from "src/app/edge/settings/system/jsonrpc/getUpdateables";
 import { EdgeConfig } from "src/app/shared/shared";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
@@ -290,6 +291,7 @@ export interface Environment {
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null;
     readonly ENVIRONMENT_PROVIDERS: EnvironmentProviders[];
     readonly CLEANED_FACTORIES: (config: EdgeConfig) => EdgeConfig["factories"];
+    readonly CLEANED_UPDATEABLES: (updateables: UpdateableState[]) => UpdateableState[];
 }
 
 /*

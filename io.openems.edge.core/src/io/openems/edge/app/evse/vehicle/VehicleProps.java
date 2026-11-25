@@ -21,7 +21,7 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.capacity.label");
 			def.setDefaultValue(50000);
-			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 				field.setInputType(InputType.NUMBER);
 				field.setUnit(Unit.WATT_HOURS, l);
 			});
@@ -38,7 +38,7 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.minPowerSinglePhase.label");
 			def.setDefaultValue(1380);
-			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 				field.setInputType(InputType.NUMBER);
 				field.setUnit(Unit.WATT, l);
 			});
@@ -55,7 +55,7 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.maxPowerSinglePhase.label");
 			def.setDefaultValue(7360);
-			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 				field.setInputType(InputType.NUMBER);
 				field.setUnit(Unit.WATT, l);
 			});
@@ -72,7 +72,7 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.minPowerThreePhase.label");
 			def.setDefaultValue(4140);
-			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 				field.setInputType(InputType.NUMBER);
 				field.setUnit(Unit.WATT, l);
 			});
@@ -90,7 +90,7 @@ public class VehicleProps {
 			def.setTranslatedDescription("App.Vehicle.maxPowerThreePhase.description");
 			def.setTranslatedLabel("App.Vehicle.maxPowerThreePhase.label");
 			def.setDefaultValue(11040);
-			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 				field.setInputType(InputType.NUMBER);
 				field.setUnit(Unit.WATT, l);
 			});

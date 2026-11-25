@@ -28,7 +28,7 @@ public class ShellyMdnsResolver {
 	public void subscribe() {
 		this.mdnsUnsubscribe = this.mDnsDiscovery.subscribeService("_shelly._tcp.local.", this.mdnsName, event -> {
 			switch (event) {
-			case MDnsDiscovery.MDnsEvent.ServiceAdded serviceAdded -> {
+			case MDnsDiscovery.MDnsEvent.ServiceAdded _ -> {
 				// Do nothing, wait for resolved event
 			}
 			case MDnsDiscovery.MDnsEvent.ServiceResolved serviceResolved -> {
@@ -40,7 +40,7 @@ public class ShellyMdnsResolver {
 						dynamicIp.getHostAddress());
 				this.setIpAddressFunction.accept(dynamicIp.getHostAddress());
 			}
-			case MDnsDiscovery.MDnsEvent.ServiceRemoved serviceRemoved -> {
+			case MDnsDiscovery.MDnsEvent.ServiceRemoved _ -> {
 				this.log.debug("Removed shelly mdns '{}'", this.mdnsName);
 				this.setIpAddressFunction.accept(null);
 			}

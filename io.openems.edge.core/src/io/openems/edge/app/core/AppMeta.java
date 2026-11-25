@@ -65,7 +65,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		CURRENCY(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".currency.label")
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					field.setOptions(Stream.of(CurrencyConfig.values()).map(Enum::name).toList());
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
@@ -73,7 +73,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		IS_ESS_CHARGE_FROM_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridCharge.label") //
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (_, property, _, parameter, field) -> {
 					var bundle = parameter.bundle();
 					field.setPopupInput(property, DisplayType.BOOLEAN);
 					field.setFieldGroup(JsonUtils.buildJsonArray()//
@@ -92,7 +92,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		IS_ESS_DISCHARGE_TO_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridDischarge.label") //
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (_, property, _, parameter, field) -> {
 					var bundle = parameter.bundle();
 					field.setPopupInput(property, DisplayType.BOOLEAN);
 					field.setFieldGroup(JsonUtils.buildJsonArray()//
@@ -112,7 +112,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.AMPERE, l);
@@ -123,7 +123,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		SUBDIVISION_CODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".subdivisionCode.label")
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					field.setOptions(Stream.of(SubdivisionCode.values()).map(Enum::name).toList());
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
@@ -131,7 +131,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		PLACE_NAME(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".placeName.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
@@ -140,7 +140,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 		GRID_FEED_IN_LIMITATION_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridFeedInLimitationType.label") //
 				.setDefaultValue(GridFeedInLimitationType.NO_LIMITATION) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelect, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(GridFeedInLimitationType.class), l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
@@ -149,7 +149,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		MAXIMUM_GRID_FEED_IN_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridFeedInLimit.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(GRID_FEED_IN_LIMITATION_TYPE)//
 							.notEqual(Exp.staticValue(GridFeedInLimitationType.NO_LIMITATION)));
 					field.setInputType(InputType.NUMBER);
@@ -161,7 +161,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		POSTCODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".postcode.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
@@ -169,7 +169,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		LATITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".latitude.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
@@ -179,7 +179,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		LONGITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".longitude.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
@@ -189,19 +189,25 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 		TIMEZONE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".timezone.label")
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
 				.bidirectional(COMPONENT_ID, "timezone", ComponentManagerSupplier::getComponentManager))), //
 
 		THIRD_PARTY_USAGE_ACCEPTANCE(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.appendIsAllowedToEdit((app, property, l, parameter, user) -> {
+				.appendIsAllowedToEdit((_, _, _, _, user) -> {
 					return user.getRole() == Role.OWNER;
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
 				.bidirectional(COMPONENT_ID, "thirdPartyUsageAcceptance",
 						ComponentManagerSupplier::getComponentManager))), //
+
+		STATIC_GRID_BUY_SOFT_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setDefaultValue(-1)//
+				.setMinRole(Role.OWNER)//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.OWNER))//
+				.bidirectional(COMPONENT_ID, "staticGridBuySoftLimit", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -238,7 +244,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, p, _) -> {
 
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
@@ -254,6 +260,11 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var longitude = this.getDouble(p, Property.LONGITUDE);
 			final var timezone = this.getString(p, Property.TIMEZONE);
 			final var thirdPartyUsageAcceptance = this.getString(p, Property.THIRD_PARTY_USAGE_ACCEPTANCE);
+			final var staticGridBuySoftLimitElement = p.get(Property.STATIC_GRID_BUY_SOFT_LIMIT);
+			final var staticGridBuySoftLimit = staticGridBuySoftLimitElement != null
+					&& staticGridBuySoftLimitElement.isJsonNull() //
+							? -1 //
+							: this.getInt(p, Property.STATIC_GRID_BUY_SOFT_LIMIT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -272,6 +283,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.addProperty("longitude", longitude)//
 							.addProperty("timezone", timezone)//
 							.addProperty("thirdPartyUsageAcceptance", thirdPartyUsageAcceptance)//
+							.addProperty("staticGridBuySoftLimit", staticGridBuySoftLimit)//
 							.build()));
 
 			return AppConfiguration.create() //

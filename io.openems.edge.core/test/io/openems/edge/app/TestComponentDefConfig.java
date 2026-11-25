@@ -108,7 +108,7 @@ public class TestComponentDefConfig
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 			var id = this.getId(t, p, Property.ID);
 			var testValue = this.getInt(p, Property.MIN_POWER_SINGLE_PHASE);
 

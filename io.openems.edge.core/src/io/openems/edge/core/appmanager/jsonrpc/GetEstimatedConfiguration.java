@@ -73,7 +73,7 @@ public class GetEstimatedConfiguration implements EndpointRequestType<Request, R
 		public static JsonSerializer<Response> serializer() {
 			return jsonObjectSerializer(Response.class, //
 					// TODO polymorphic serializer
-					json -> new Response(emptyList()), //
+					_ -> new Response(emptyList()), //
 					obj -> JsonUtils.buildJsonObject() //
 							.add("configurations", obj.configurations().stream() //
 									.map(t -> {

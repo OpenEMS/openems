@@ -239,17 +239,30 @@ export namespace SharedControllerIoHeatingElement {
     export function getNavigationTree(
         translate: TranslateService,
         component: EdgeConfig.Component,
+        edge: Edge,
     ): ConstructorParameters<typeof NavigationTree> {
+        const children: NavigationTree[] = [NavigationConstants.CommonNodes.HISTORY(translate, component.id)];
+        if (edge.role != null && new HeatingElementComponent(component, edge).canUseTwoHeatingElementsAndFastHeat()) {
+            children.push(
+                new NavigationTree(
+                    component.id + "-base-mode",
+                    { baseString: "base-mode" },
+                    { name: "repeat-outline", color: "production" },
+                    translate.instant("GENERAL.BASE_MODE"),
+                    "label",
+                    [],
+                    null,
+                ),
+            );
+        }
+        children.push(NavigationConstants.CommonNodes.SETTINGS(translate, component.id));
         return new NavigationTree(
             component.id,
             { baseString: "controller/heatingelement/" + component.id },
             { name: "oe-heating-element", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
-            [
-                NavigationConstants.CommonNodes.HISTORY(translate, component.id),
-                NavigationConstants.CommonNodes.SETTINGS(translate, component.id),
-            ],
+            children,
             null,
         ).toConstructorParams();
     }

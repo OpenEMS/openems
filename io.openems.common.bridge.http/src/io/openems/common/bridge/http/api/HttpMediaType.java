@@ -4,13 +4,15 @@ public final class HttpMediaType {
 
 	public static final class Application {
 
-		public static final String JSON = "application/json";
-		public static final String XML = "application/xml";
-		public static final String PDF = "application/pdf";
-		public static final String ZIP = "application/zip";
-		public static final String GZIP = "application/gzip";
-		public static final String OCTET_STREAM = "application/octet-stream";
-		public static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+		private static final String PREFIX = "application/";
+
+		public static final String JSON = PREFIX + "json";
+		public static final String XML = PREFIX + "xml";
+		public static final String PDF = PREFIX + "pdf";
+		public static final String ZIP = PREFIX + "zip";
+		public static final String GZIP = PREFIX + "gzip";
+		public static final String OCTET_STREAM = PREFIX + "octet-stream";
+		public static final String X_WWW_FORM_URLENCODED = PREFIX + "x-www-form-urlencoded";
 
 		private Application() {
 		}
@@ -18,12 +20,14 @@ public final class HttpMediaType {
 
 	public static final class Text {
 
-		public static final String PLAIN = "text/plain";
-		public static final String HTML = "text/html";
-		public static final String CSS = "text/css";
-		public static final String CSV = "text/csv";
-		public static final String JAVASCRIPT = "text/javascript";
-		public static final String MARKDOWN = "text/markdown";
+		private static final String PREFIX = "text/";
+
+		public static final String PLAIN = PREFIX + "plain";
+		public static final String HTML = PREFIX + "html";
+		public static final String CSS = PREFIX + "css";
+		public static final String CSV = PREFIX + "csv";
+		public static final String JAVASCRIPT = PREFIX + "javascript";
+		public static final String MARKDOWN = PREFIX + "markdown";
 
 		private Text() {
 		}

@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.mqtt;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -67,8 +68,7 @@ public class BridgeMqttImplTest {
 	public void testUnsubscribe() throws Exception {
 		var mqtt = new DummyBridgeMqtt("mqtt0");
 
-		var subscription = mqtt.subscribe("test/topic", msg -> {
-		});
+		var subscription = mqtt.subscribe("test/topic", _ -> doNothing());
 		assertTrue(mqtt.isSubscribed("test/topic"));
 
 		subscription.unsubscribe().get();

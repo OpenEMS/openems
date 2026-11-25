@@ -91,19 +91,19 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((app, _, _, _, field) -> {
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
@@ -115,7 +115,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 				.setTranslatedLabelWithAppPrefix(".productModel") //
 				.setDefaultValue(PqPlusModel.UMD_96.getValue()) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelect, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(PqPlusModel.class), l);
 				}))), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//

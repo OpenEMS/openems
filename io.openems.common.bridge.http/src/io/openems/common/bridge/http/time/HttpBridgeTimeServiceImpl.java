@@ -84,8 +84,7 @@ public class HttpBridgeTimeServiceImpl implements HttpBridgeService, HttpBridgeT
 		final var delay = endpoint.delayTimeProvider().onFirstRunDelay();
 
 		switch (delay) {
-		case DelayTimeProvider.Delay.InfiniteDelay infiniteDelay //
-			-> doNothing();
+		case DelayTimeProvider.Delay.InfiniteDelay _ -> doNothing();
 		case DelayTimeProvider.Delay.DurationDelay durationDelay -> {
 			final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 			endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));
@@ -130,8 +129,7 @@ public class HttpBridgeTimeServiceImpl implements HttpBridgeService, HttpBridgeT
 						final var nextDelay = getDelay(endpointCountdown.getTimeEndpoint(), result, error);
 
 						switch (nextDelay) {
-						case DelayTimeProvider.Delay.InfiniteDelay infiniteDelay //
-							-> doNothing();
+						case DelayTimeProvider.Delay.InfiniteDelay _ -> doNothing();
 						case DelayTimeProvider.Delay.DurationDelay durationDelay -> {
 							final var future = this.pool.schedule(this.createTask(endpointCountdown), durationDelay);
 							endpointCountdown.setShutdownCurrentTask(() -> future.cancel(false));

@@ -55,7 +55,7 @@ public class SimulatorTest {
 	public static final EnergyScheduleHandler.WithOnlyOneMode ESH0 = //
 			new OneMode.Builder<Integer, Void>("Controller.Dummy", "esh0") //
 					.setOptimizationContext(goc -> goc.ess().totalEnergy()) //
-					.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
+					.setSimulator((_, _, gsc, _, _, ef, _) -> {
 						var minEnergy = socToEnergy(gsc.goc.ess().totalEnergy(), 10 /* [%] */);
 						ef.setEssLessOrEquals(Math.max(0, gsc.ess.getInitialEnergy() - minEnergy));
 					}) //
@@ -107,7 +107,7 @@ public class SimulatorTest {
 	public static final EshWithDifferentModes<Esh2State, Void, Void> ESH2 = //
 			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
 					.setModes(() -> new SingleModes<Esh2State>(null, Esh2State.values())) //
-					.setInitialPopulationsProvider((goc, coc, modes) -> {
+					.setInitialPopulationsProvider((goc, _, _) -> {
 						return ImmutableSortedSet.of(//
 								new InitialPopulation<Esh2State>(goc.periods().stream() //
 										.map(p -> p.index() % 3 == 0 //

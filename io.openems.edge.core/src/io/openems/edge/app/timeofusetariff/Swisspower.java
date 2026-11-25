@@ -77,7 +77,7 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> {
 					field.setInputType(PASSWORD);
 				}) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",

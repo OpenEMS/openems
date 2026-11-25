@@ -35,23 +35,28 @@ public final class ModbusApiProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <APP extends OpenemsApp & ComponentUtilSupplier> AppDef<APP, Nameable, BundleProvider> pickModbusIds() {
-		return AppDef.copyOfGeneric(ComponentProps.pickOrderedArrayIds(ModbusSlave.class, component -> {
-			if ("_meta".equals(component.id())) {
-				return false;
-			}
-			return true;
-		}, (app, property, l, parameter, component) -> {
-			if ("_sum".equals(component.id())) {
-				final var lockedExpression = Exp.currentModelValue(property).asArray() //
-						.elementAt(0).equal(Exp.staticValue(component.id()));
-				return new SelectOptionExpressions(lockedExpression);
-			}
-			return null;
-		}, List.of((app, property, language, parameter) -> {
-			return JsonFormlyUtil.buildText() //
-					.setText(TranslationUtil.getTranslation(parameter.bundle(), "App.Api.Modbus.changeComponentHint"));
-		})), def -> def //
-				.setTranslatedLabel("component.id.plural") //
+		return AppDef.copyOfGeneric(ComponentProps.pickOrderedArrayIds(ModbusSlave.class, //
+				component -> {
+					if ("_meta".equals(component.id())) {
+						return false;
+					}
+					return true;
+				}, //
+				(_, property, _, _, component) -> {
+					if ("_sum".equals(component.id())) {
+						final var lockedExpression = Exp.currentModelValue(property).asArray() //
+								.elementAt(0).equal(Exp.staticValue(component.id()));
+						return new SelectOptionExpressions(lockedExpression);
+					}
+					return null;
+				}, //
+				List.of((_, _, _, parameter) -> {
+					return JsonFormlyUtil.buildText() //
+							.setText(TranslationUtil.getTranslation(parameter.bundle(),
+									"App.Api.Modbus.changeComponentHint"));
+				})), //
+				def -> def //
+						.setTranslatedLabel("component.id.plural") //
 		);
 	}
 
@@ -67,7 +72,7 @@ public final class ModbusApiProps {
 				.setTranslatedLabel("App.Api.apiTimeout.label") //
 				.setTranslatedDescription("App.Api.apiTimeout.description") //
 				.setDefaultValue(60) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(NUMBER) //
 							.setMin(0);
 				})); //
@@ -83,13 +88,14 @@ public final class ModbusApiProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Api.ModbusRtu.portName.label") //
 				.setTranslatedDescription("App.Api.ModbusRtu.portName.description") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, _) -> {
 					SerialPort[] ports = SerialPort.getCommPorts();
 					if (ports.length > 0) {
 						return new JsonPrimitive(ports[0].getSystemPortName());
 					}
 					return JsonNull.INSTANCE;
-				}).setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				}) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					SerialPort[] ports = SerialPort.getCommPorts();
 					var portNames = new ArrayList<String>();
 					for (var port : ports) {
@@ -110,7 +116,7 @@ public final class ModbusApiProps {
 				.setTranslatedLabel("App.Api.ModbusRtu.baudrate.label") //
 				.setTranslatedDescription("App.Api.ModbusRtu.baudrate.description") //
 				.setDefaultValue(9600) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(NUMBER) //
 							.setMin(0);
 				})); //
@@ -140,7 +146,7 @@ public final class ModbusApiProps {
 				.setTranslatedLabel("App.Api.ModbusRtu.stopbits.label") //
 				.setTranslatedDescription("App.Api.ModbusRtu.stopbits.description") //
 				.setDefaultValue("ONE") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					field.setOptions(List.of("ONE", "ONE_POINT_FIVE", "TWO"));
 				}));
 	}
@@ -156,7 +162,7 @@ public final class ModbusApiProps {
 				.setTranslatedLabel("App.Api.ModbusRtu.parity.label") //
 				.setTranslatedDescription("App.Api.ModbusRtu.parity.description") //
 				.setDefaultValue("NONE") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					field.setOptions(List.of("NONE", "ODD", "EVEN", "MARK", "SPACE"));
 				}));
 	}
@@ -172,7 +178,7 @@ public final class ModbusApiProps {
 	public static <APP extends OpenemsApp & ComponentUtilSupplier & ComponentManagerSupplier> AppDef<APP, Nameable, BundleProvider> componentIds(
 			Nameable componentName, boolean essDefault) {
 		return AppDef.copyOfGeneric(ModbusApiProps.pickModbusIds(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((app, _, _, _) -> {
 					final var jsonArrayBuilder = JsonUtils.buildJsonArray() //
 							.add("_sum");
 

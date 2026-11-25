@@ -7,6 +7,14 @@ import { ButtonLabel } from "../modal-button/modal-button";
 @Component({
     selector: "oe-modal-line",
     templateUrl: "./modal-line.html",
+    styles: [
+        `
+            .toggle-name {
+                font-weight: 600;
+                font-size: medium;
+            }
+        `,
+    ],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })

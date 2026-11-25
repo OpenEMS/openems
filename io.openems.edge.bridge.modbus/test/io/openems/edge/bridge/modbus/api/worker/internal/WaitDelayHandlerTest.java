@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
@@ -11,10 +12,8 @@ import com.google.common.collect.Lists;
 
 public class WaitDelayHandlerTest {
 
-	private static Runnable NO_OP = () -> {
-	};
-	private static Consumer<Long> CYCLE_DELAY = (value) -> {
-	};
+	private static Runnable NO_OP = () -> doNothing();
+	private static Consumer<Long> CYCLE_DELAY = _ -> doNothing();
 
 	@Test
 	public void test() {

@@ -29,4 +29,3 @@ public enum BatteryBalanceStatus implements OptionsEnum {
 		return NOT_MEASURED;
 	}
 }
-

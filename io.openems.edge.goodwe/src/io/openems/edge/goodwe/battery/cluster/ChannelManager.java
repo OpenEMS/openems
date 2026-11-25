@@ -118,8 +118,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	protected <T> void calculate(BinaryOperator<T> aggregator, Collection<Battery> batteries,
 			io.openems.edge.common.channel.ChannelId channelId) {
-		final Consumer<Value<T>> callback = (value) -> {
-
+		final Consumer<Value<T>> callback = _ -> {
 			final var result = batteries.stream() //
 					.map(battery -> {
 						final var channel = battery.<Channel<T>>channel(channelId);

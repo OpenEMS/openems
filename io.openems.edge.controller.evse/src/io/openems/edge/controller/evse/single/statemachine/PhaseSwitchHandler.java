@@ -85,7 +85,7 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<EvseSingleS
 
 	private SubStateMachine.State handleEntry(Context context) {
 		return switch (this.action.ability()) {
-		case Internal ignored -> {
+		case Internal _ -> {
 			final var targetPhase = this.getTargetPhase();
 			final var phaseSwitch = context.actions.abilities().phaseSwitch() != null
 					&& context.actions.abilities().phaseSwitch().direction() == this.action.direction() //
@@ -96,7 +96,7 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<EvseSingleS
 					.setApplyInternalPhaseSwitchPower(targetPhase.count));
 			yield SubStateMachine.State.PHASE_SWITCH_INTERNAL;
 		}
-		case ManualWithoutZeroSetPoint ignored -> SubStateMachine.State.ENSURE_CHARGE;
+		case ManualWithoutZeroSetPoint _ -> SubStateMachine.State.ENSURE_CHARGE;
 		case null, default -> SubStateMachine.State.STOP_CHARGE;
 		};
 	}

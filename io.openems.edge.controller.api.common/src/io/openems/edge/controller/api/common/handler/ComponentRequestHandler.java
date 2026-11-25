@@ -147,7 +147,7 @@ public class ComponentRequestHandler implements JsonApi {
 
 		this.updateLock.writeLock().lock();
 		try {
-			this.extensions.compute(extension.extendClass(), (clazz, componentJsonApiExtensions) -> {
+			this.extensions.compute(extension.extendClass(), (_, componentJsonApiExtensions) -> {
 				final var list = componentJsonApiExtensions == null//
 						? new ArrayList<ComponentJsonApiExtension<?>>()//
 						: new ArrayList<>(componentJsonApiExtensions);
@@ -205,7 +205,7 @@ public class ComponentRequestHandler implements JsonApi {
 		this.log.info("Unbind ComponentJsonApiExtension: {}", extension.getClass().getName());
 		this.updateLock.writeLock().lock();
 		try {
-			this.extensions.compute(extension.extendClass(), (clazz, componentJsonApiExtensions) -> {
+			this.extensions.compute(extension.extendClass(), (_, componentJsonApiExtensions) -> {
 				if (componentJsonApiExtensions == null || componentJsonApiExtensions.isEmpty()) {
 					return null;
 				}
@@ -249,20 +249,24 @@ public class ComponentRequestHandler implements JsonApi {
 					}).toList();
 		}, call -> {
 			final var request = ComponentJsonApiRequest.from(call.getRequest());
-			this.updateLock.readLock().lock();
-			try {
-				final var component = this.jsonApis.get(request.getComponentId());
-				if (component == null) {
-					throw new RuntimeException("Component with id '" + request.getComponentId() + "' was not found");
-				}
-				var mapped = call.mapRequest(request.getPayload());
-				component.apiBuilder().handle(mapped);
-
-				call.setResponse(mapped.getResponse());
-			} finally {
-				this.updateLock.readLock().unlock();
+			final var component = this.getBoundComponent(request.getComponentId());
+			if (component == null) {
+				throw new RuntimeException("Component with id '" + request.getComponentId() + "' was not found");
 			}
+			var mapped = call.mapRequest(request.getPayload());
+			component.apiBuilder().handle(mapped);
+
+			call.setResponse(mapped.getResponse());
 		});
+	}
+
+	private BoundComponentJsonApi getBoundComponent(String componentId) {
+		this.updateLock.readLock().lock();
+		try {
+			return this.jsonApis.get(componentId);
+		} finally {
+			this.updateLock.readLock().unlock();
+		}
 	}
 
 }

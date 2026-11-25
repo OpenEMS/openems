@@ -56,28 +56,24 @@ public final class ChannelUtils {
 			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
 	) {
 		final var currentValues = new ConcurrentHashMap<T, Tuple2<Value<V1>, Value<V2>>>();
-		final var subscription1 = ChannelUtils.<T, V1>subscribeOnUpdate(components, channelId1,
-				(current, changedValue) -> {
+		final var subscription1 = ChannelUtils.<T, V1>subscribeOnUpdate(components, channelId1, (_, changedValue) -> {
 
-					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
-						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
-								: valueValueTuple) //
-								.withA(changedValue.newValue());
-					});
+			currentValues.compute(changedValue.component(), (_, valueValueTuple) -> {
+				return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null) : valueValueTuple) //
+						.withA(changedValue.newValue());
+			});
 
-					onUpdate.accept(currentValues);
-				});
-		final var subscription2 = ChannelUtils.<T, V2>subscribeOnUpdate(components, channelId2,
-				(tValueMap, changedValue) -> {
+			onUpdate.accept(currentValues);
+		});
+		final var subscription2 = ChannelUtils.<T, V2>subscribeOnUpdate(components, channelId2, (_, changedValue) -> {
 
-					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
-						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
-								: valueValueTuple) //
-								.withB(changedValue.newValue());
-					});
+			currentValues.compute(changedValue.component(), (_, valueValueTuple) -> {
+				return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null) : valueValueTuple) //
+						.withB(changedValue.newValue());
+			});
 
-					onUpdate.accept(currentValues);
-				});
+			onUpdate.accept(currentValues);
+		});
 
 		return () -> {
 			subscription1.dispose();
@@ -152,9 +148,9 @@ public final class ChannelUtils {
 		final var currentValues = new ConcurrentHashMap<T, Tuple2<Value<V1>, Value<V2>>>();
 
 		final var subscription1 = ChannelUtils.<T, V1>subscribeOnSetNextValue(components, channelId1,
-				(current, changedValue) -> {
+				(_, changedValue) -> {
 
-					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+					currentValues.compute(changedValue.component(), (_, valueValueTuple) -> {
 						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
 								: valueValueTuple) //
 								.withA(changedValue.newValue());
@@ -163,9 +159,9 @@ public final class ChannelUtils {
 					onUpdate.accept(new HashMap<>(currentValues));
 				});
 		final var subscription2 = ChannelUtils.<T, V2>subscribeOnSetNextValue(components, channelId2,
-				(tValueMap, changedValue) -> {
+				(_, changedValue) -> {
 
-					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+					currentValues.compute(changedValue.component(), (_, valueValueTuple) -> {
 						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
 								: valueValueTuple) //
 								.withB(changedValue.newValue());

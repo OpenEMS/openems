@@ -78,8 +78,8 @@ public class JSCalendar<PAYLOAD> {
 
 	public static final JsonSerializer<Void> VOID_SERIALIZER = jsonObjectSerializer(//
 			Void.class, //
-			json -> null, //
-			obj -> null);
+			_ -> null, //
+			_ -> null);
 
 	/**
 	 * Helper utilities to handle lists of {@link Task}s.

@@ -69,7 +69,7 @@ public class EdgeRpcRequestHandler {
 		var resultFuture = switch (request.getMethod()) {
 		case AppCenterRequest.METHOD -> AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
 				t -> this.handleRequest(user, messageId, t), //
-				AppCenterRequest.from(request), user, edgeId);
+				AppCenterRequest.from(request), user, role, edgeId);
 
 		case QueryHistoricTimeseriesDataRequest.METHOD ->
 			this.handleQueryHistoricDataRequest(edgeId, user, QueryHistoricTimeseriesDataRequest.from(request));

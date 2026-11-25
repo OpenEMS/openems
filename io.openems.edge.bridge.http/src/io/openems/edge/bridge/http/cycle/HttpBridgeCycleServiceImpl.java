@@ -140,8 +140,7 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 				}
 				synchronized (item) {
 					if (item.isRunning()) {
-						this.log.info(
-								"Process for {} is still running. Task is not queued twice", item.cycleEndpoint);
+						this.log.info("Process for {} is still running. Task is not queued twice", item.cycleEndpoint);
 						if (!this.cycleEndpoints.offer(item.resetTo(1))) {
 							this.log.info("Unable to re-add {} to queue again.", item);
 						}

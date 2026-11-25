@@ -128,7 +128,7 @@ public class FeneconPro912Cluster extends
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<PropertyParent, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 
 			final var maxCountEss = 3;
 			final var gridMeterId = "meter0";

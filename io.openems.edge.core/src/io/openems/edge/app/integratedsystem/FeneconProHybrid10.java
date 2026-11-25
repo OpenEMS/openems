@@ -82,7 +82,7 @@ public class FeneconProHybrid10
 				.setTranslatedLabelWithAppPrefix(".userkey.label") //
 				.setTranslatedDescriptionWithAppPrefix(".userkey.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> {
 					field.setInputType(InputType.PASSWORD);
 				}) //
 				.bidirectional("kacoCore0", "userkey", ComponentManagerSupplier::getComponentManager, t -> {
@@ -94,6 +94,7 @@ public class FeneconProHybrid10
 								return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 							})//
 							.orElse(null);
+
 				})));
 
 		private final AppDef<? super FeneconProHybrid10, ? super Property, ? super Parameter.BundleParameter> def;
@@ -138,7 +139,7 @@ public class FeneconProHybrid10
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, p, l) -> {
 			final var serialNumber = this.getStringOrNull(p, l, Property.SERIAL_NUMBER);
 			final var ip = this.getStringOrNull(p, l, Property.IP);
 			final var userkey = this.getStringOrNull(p, l, Property.USER_KEY);

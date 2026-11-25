@@ -108,7 +108,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255)//
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					final var hardwareType = Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P40));
 					final var architectureType = Exp.currentModelValue(ARCHITECTURE_TYPE)//
@@ -117,13 +117,13 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				}))), //
 
 		READ_ONLY(EvcsProps.readOnly()//
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
 				})), //
 		HAS_S10_PHASE_SWITCHING(AppDef.copyOfGeneric(defaultDef())//
 				.setTranslatedLabel("App.Evse.Keba.s10phaseswitch.label") //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (_, _, _, _, field) -> {
 					final var hardwareType = Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P30));
 					final var architectureType = Exp.currentModelValue(ARCHITECTURE_TYPE)//
@@ -135,17 +135,17 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				.setRequired(true) //
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
 				.setTranslatedDescription("App.Evse.pickVehicleId.description") //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
 		CONFIGURE_VEHICLE(EvseProps.configureVehicle() //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())//
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
@@ -153,7 +153,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((app, _, _, _, field) -> {
 					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
 					if (existingEvcs.isEmpty()) {
 						return;

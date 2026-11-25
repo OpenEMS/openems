@@ -83,7 +83,7 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void installListener() {
-		final Consumer<Value<Long>> productionEnergySum = ignore -> {
+		final Consumer<Value<Long>> productionEnergySum = _ -> {
 			this._setActiveProductionEnergy(
 					TypeUtils.sum(this.getActiveProductionEnergyL1Channel().getNextValue().get(), //
 							this.getActiveProductionEnergyL2Channel().getNextValue().get(), //

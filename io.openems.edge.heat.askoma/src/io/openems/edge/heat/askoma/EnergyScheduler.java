@@ -59,8 +59,8 @@ public class EnergyScheduler {
 
 	public record OptimizationContext(JSCalendar.OneTasks<HeatAskomaPayload> oneTasks, //
 			Mode defaultMode, //
-			                          int maxHeatPower, //
-			                          Integer remainingHeatEnergy) { //
+			int maxHeatPower, //
+			Integer remainingHeatEnergy) { //
 	}
 
 	public static class ScheduleContext {
@@ -138,7 +138,7 @@ public class EnergyScheduler {
 
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.remainingHeatEnergy()))
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+				.setSimulator((id, period, _, coc, csc, ef, mode, _, _) -> {
 					if (coc == null) {
 						return mode;
 					}
@@ -146,9 +146,9 @@ public class EnergyScheduler {
 					var activeMode = payload != null ? payload.mode() : coc.defaultMode();
 					var maxHeatEnergy = period.duration().convertPowerToEnergy(coc.maxHeatPower());
 					var energy = switch (activeMode) {
-						case FAST_HEAT -> csc.limitToRemainingHeatEnergy(maxHeatEnergy);
-						case SURPLUS -> csc.limitToRemainingHeatEnergy(clamp(ef.getSurplus(), 0, maxHeatEnergy));
-						case OFF -> 0;
+					case FAST_HEAT -> csc.limitToRemainingHeatEnergy(maxHeatEnergy);
+					case SURPLUS -> csc.limitToRemainingHeatEnergy(clamp(ef.getSurplus(), 0, maxHeatEnergy));
+					case OFF -> 0;
 					};
 					var actualEnergy = ef.addManagedConsumption(id, energy);
 					if (activeMode != Mode.OFF) {

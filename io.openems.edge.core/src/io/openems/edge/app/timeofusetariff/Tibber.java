@@ -77,7 +77,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> {
 					field.setInputType(PASSWORD);
 				}) //
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",
@@ -99,7 +99,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
 				.setTranslatedDescriptionWithAppPrefix(".filterForHome.description") //
 				.setDefaultValue("") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull());
 				})//
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",

@@ -33,8 +33,8 @@ public interface OffGridBatteryInverter
 		 * <li>Range: 40-60
 		 * </ul>
 		 */
-		OFF_GRID_FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
+		OFF_GRID_FREQUENCY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.unit(Unit.HERTZ)),
 
 		/**
@@ -45,7 +45,7 @@ public interface OffGridBatteryInverter
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		INVERTER_STATE(Doc.of(OpenemsType.BOOLEAN) //
+		INVERTER_STATE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Is System ON?")), //
 		;
 

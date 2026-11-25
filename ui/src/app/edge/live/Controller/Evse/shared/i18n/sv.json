@@ -5,13 +5,6 @@
                 "LABEL": "Faktiskt läge"
             },
             "ENERGY_SINCE_START": "Energi sedan senaste laddningsstart",
-            "MODE": {
-                "FORCE": "Snabb",
-                "LABEL": "Grundläge",
-                "MINIMUM": "Minimal",
-                "SURPLUS": "PV",
-                "ZERO": "Av"
-            },
             "POWER": "Effekt",
             "STATE_MACHINE": {
                 "CHARGING": "Laddar",

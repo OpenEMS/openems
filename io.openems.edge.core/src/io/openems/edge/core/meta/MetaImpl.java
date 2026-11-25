@@ -100,13 +100,11 @@ public class MetaImpl extends AbstractOpenemsComponent
 					+ "(objectClass=io.openems.edge.evse.api.chargepoint.EvseChargePoint)" //
 					+ "(objectClass=io.openems.edge.heat.askoma.HeatAskoma)" //
 					+ "(objectClass=io.openems.edge.heat.mypv.HeatMyPv)))")
-	@SuppressWarnings("unused")
 	void bindBetaComponent(OpenemsComponent component) {
 		this.betaComponents.add(component);
 		this.updateEnvironmentStatus();
 	}
 
-	@SuppressWarnings("unused")
 	void unbindBetaComponent(OpenemsComponent component) {
 		this.betaComponents.remove(component);
 		this.updateEnvironmentStatus();
@@ -179,6 +177,11 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 		this.gridLimit //
 				.setFuseCurrent(config.gridConnectionPointFuseLimit()) //
+				.setStaticGridBuySoftLimit(//
+						// -1 for no fixed soft-limit //
+						config.staticGridBuySoftLimit() < 0 //
+								? null //
+								: config.staticGridBuySoftLimit()) //
 				.setGridBuySoftLimit(this.configuredGridBuySoftLimit) //
 				.setGridSellLimit(//
 						config.gridFeedInLimitationType().getGridFeedInLimitationType(), //

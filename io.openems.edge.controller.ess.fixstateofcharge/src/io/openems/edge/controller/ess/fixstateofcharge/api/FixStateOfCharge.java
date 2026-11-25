@@ -91,7 +91,7 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 * ESS is at target SoC. Discharging and charging is blocked by Controller.
 		 */
 		CTRL_IS_BLOCKING_ESS(Doc.of(Level.WARNING)//
-				.translationKey(FixStateOfCharge.class, "ctrlIsBlockingEss")),//
+				.translationKey(FixStateOfCharge.class, "ctrlIsBlockingEss")), //
 
 		/**
 		 * ESS is at below SoC. Ess is forced to charge with a minimum power.

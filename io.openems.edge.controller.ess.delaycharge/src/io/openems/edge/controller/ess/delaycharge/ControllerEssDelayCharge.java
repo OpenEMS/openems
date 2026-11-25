@@ -8,9 +8,9 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssDelayCharge extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")),
-		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
 				.text("Charge-Power limitation"));
 
 		private final Doc doc;

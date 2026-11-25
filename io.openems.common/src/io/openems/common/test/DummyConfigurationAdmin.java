@@ -241,7 +241,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	 * @return the {@link DummyConfiguration}
 	 */
 	public synchronized DummyConfiguration getOrCreateEmptyConfiguration(String id) {
-		return this.configurations.computeIfAbsent(id, ignore -> new DummyConfiguration());
+		return this.configurations.computeIfAbsent(id, _ -> new DummyConfiguration());
 	}
 
 	/**

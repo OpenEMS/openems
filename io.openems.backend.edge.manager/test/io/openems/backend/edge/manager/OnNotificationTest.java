@@ -53,6 +53,7 @@ public class OnNotificationTest {
 				FunctionUtils::returnNothing, //
 				FunctionUtils::returnNothing, //
 				() -> timedataManager, //
+				mock(), //
 				getEdge, //
 				FunctionUtils::doNothing, //
 				FunctionUtils::doNothing //

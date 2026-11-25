@@ -35,12 +35,17 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 public class GoodWeBatteryInverterUpdateable implements Updateable {
 
 	private static final int AVG_UPDATE_DURATION_IN_MINUTES = 35;
+
 	/**
 	 * How much minutes the inverter needs after the update was transferred to
 	 * update it's own firmware and sets the modbus registers to the new version
 	 * number.
+	 * 
+	 * <p>
+	 * We discovered that depending on the inverter type it takes between 5 and 10
+	 * minutes.
 	 */
-	private static final int APPLY_DURATION_IN_MINUTES = 10;
+	private static final int APPLY_DURATION_IN_MINUTES = 15;
 
 	private final Logger log;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
@@ -72,20 +77,20 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 		this.updateParamsProvider = updateParamsProvider;
 		this.setFirmwareVersionReadPriorityFunc = setFirmwareVersionReadPriorityFunc;
 
-		var goodWeTypeListener = goodWeType.onChange((oldValue, newValue) -> {
+		var goodWeTypeListener = goodWeType.onChange((_, newValue) -> {
 			this.goodWeType = newValue.asEnum();
 		});
 
-		var dspFirmwareVersionListener = dspFirmwareVersionMaster.onChange((oldValue, newValue) -> {
+		var dspFirmwareVersionListener = dspFirmwareVersionMaster.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withDspFirmwareVersion(newValue.get()));
 		});
-		var dspFirmwareBetaVersionListener = dspFirmwareBetaVersionMaster.onChange((oldValue, newValue) -> {
+		var dspFirmwareBetaVersionListener = dspFirmwareBetaVersionMaster.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withDspFirmwareVersionBeta(newValue.get()));
 		});
-		var armFirmwareVersionListener = armFirmwareVersion.onChange((oldValue, newValue) -> {
+		var armFirmwareVersionListener = armFirmwareVersion.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withArmFirmwareVersion(newValue.get()));
 		});
-		var armFirmwareBetaVersionListener = armFirmwareBetaVersion.onChange((oldValue, newValue) -> {
+		var armFirmwareBetaVersionListener = armFirmwareBetaVersion.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withArmFirmwareVersionBeta(newValue.get()));
 		});
 

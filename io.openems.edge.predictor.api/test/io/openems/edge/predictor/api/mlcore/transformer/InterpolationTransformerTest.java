@@ -18,7 +18,7 @@ public class InterpolationTransformerTest {
 
 		var series = new Series<Integer>(index, values);
 
-		Interpolator stubInterpolator = (pos, vals) -> 2.0;
+		Interpolator stubInterpolator = (_, _) -> 2.0;
 
 		var transformer = new InterpolationTransformer<Integer>(stubInterpolator);
 		var result = transformer.transform(series);
@@ -34,7 +34,7 @@ public class InterpolationTransformerTest {
 
 		var series = new Series<>(index, values);
 
-		Interpolator stubInterpolator = (pos, vals) -> {
+		Interpolator stubInterpolator = (_, _) -> {
 			throw new RuntimeException("Should not be called");
 		};
 

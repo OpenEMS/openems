@@ -122,7 +122,8 @@ public sealed interface GridLimit {
 		private int fuseCurrent = 0;
 
 		// Buy
-		private JSCalendar.Tasks<Power> gridBuySoft = JSCalendar.Tasks.empty();
+		private Integer staticGridBuySoftLimit = null;
+		private JSCalendar.Tasks<Power> gridBuySoftLimit = JSCalendar.Tasks.empty();
 		private boolean isEssChargeFromGridAllowed = false;
 
 		// Sell
@@ -143,9 +144,20 @@ public sealed interface GridLimit {
 			return this;
 		}
 
-		public synchronized GridLimit.Mutable setGridBuySoftLimit(JSCalendar.Tasks<Power> buySoft) {
-			if (this.gridBuySoft != buySoft) {
-				this.gridBuySoft = buySoft;
+		public synchronized GridLimit.Mutable setStaticGridBuySoftLimit(Integer power) {
+			if (power != null && power < 0) {
+				power = null;
+			}
+			if (!Objects.equals(this.staticGridBuySoftLimit, power)) {
+				this.staticGridBuySoftLimit = power;
+				this.invalidateImmutable();
+			}
+			return this;
+		}
+
+		public synchronized GridLimit.Mutable setGridBuySoftLimit(JSCalendar.Tasks<Power> gridBuySoftLimit) {
+			if (this.gridBuySoftLimit != gridBuySoftLimit) {
+				this.gridBuySoftLimit = gridBuySoftLimit;
 				this.invalidateImmutable();
 			}
 			return this;
@@ -198,24 +210,24 @@ public sealed interface GridLimit {
 
 		@Override
 		public synchronized JSCalendar.Tasks<Power> gridBuySoftLimit() {
-			final var hardLimitWithBuffer = this.gridBuyHardLimitWithBuffer();
-			final var src = this.gridBuySoft;
+			final var maxSoftLimit = IntUtils.minInt(this.gridBuyHardLimitWithBuffer(), this.staticGridBuySoftLimit);
+			final var src = this.gridBuySoftLimit;
 			final var result = JSCalendar.Tasks.<Power>create(src.clock);
 
-			// Make sure each value is <= Grid-Buy-Hard-Limit
+			// Make sure each value is <= Static Grid-Buy Soft-Limit and Grid-Buy-Hard-Limit
 			src.tasks.stream() //
 					.map(t -> {
-						return t.payload().power() > hardLimitWithBuffer //
+						return t.payload().power() > maxSoftLimit //
 								? JSCalendar.Task.createFrom(t) //
-										.setPayload(new Power(hardLimitWithBuffer)) //
+										.setPayload(new Power(maxSoftLimit)) //
 										.build()
 								: t;
 					}) //
 					.forEach(result::add);
 
-			// Add fallback of Grid-Buy-Hard-Limit to make sure each timestamp has a value
+			// Add fallback to make sure each timestamp has a value
 			result.add(t -> t //
-					.setPayload(new Power(hardLimitWithBuffer)));
+					.setPayload(new Power(maxSoftLimit)));
 
 			return result.build();
 		}

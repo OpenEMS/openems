@@ -539,7 +539,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	 * @param batteryInverter the {@link SymmetricBatteryInverter}
 	 */
 	public static void calculateApparentPowerFromActiveAndReactivePower(SymmetricBatteryInverter batteryInverter) {
-		final Consumer<Value<Integer>> calculateApparentPower = ignore -> {
+		final Consumer<Value<Integer>> calculateApparentPower = _ -> {
 			var activePower = batteryInverter.getActivePowerChannel().getNextValue().get();
 			var reactivePower = batteryInverter.getReactivePowerChannel().getNextValue().get();
 			final Integer apparentPower;

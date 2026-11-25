@@ -59,6 +59,17 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
         const SHOW_WARNING_MIN_GUARANTEE = (el: EvcsSettingsViewModel) => el.minGuarantee;
         const IS_NO_ENERGY_LIMIT = (el: EvcsSettingsViewModel) => IS_OFF_OR_NULL(el) || !el.energyLimit;
 
+        const hwPower = (property: string, phases: number, round: (v: number) => number): number | null => {
+            const total = component.getPropertyFromComponent<number>(property);
+            return total == null ? null : round(total / phases / 100) * 100;
+        };
+        // forceChargeMinPower is configured per phase, defaultChargeMinPower as total power
+        const minPowerPerPhase = hwPower("minHwPower", 3, Math.ceil);
+        const maxPowerPerPhase = hwPower("maxHwPower", 3, Math.floor);
+        const minPowerTotal = hwPower("minHwPower", 1, Math.ceil);
+        const maxPowerTotal = hwPower("maxHwPower", 1, Math.floor);
+        const hasHwPowerConfig = minPowerPerPhase != null || maxPowerPerPhase != null;
+
         const lines: OeFormlyField<EvcsSettingsViewModel>[] = [
             // Read-only status
             {
@@ -128,7 +139,11 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
             // ── Force charge settings ──────────────────────────────────
             {
                 type: "value-from-form-control-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING"),
+                name: translate.instant(
+                    hasHwPowerConfig
+                        ? "EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING_PER_PHASE"
+                        : "EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING",
+                ),
                 controlName: "forceChargeMinPower",
                 converter: Converter.POWER_IN_WATT,
                 hide: (el) => IS_NOT_FORCE_CHARGE(el) || ctrl == null,
@@ -137,8 +152,8 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
                 type: "range-button-from-form-control-line",
                 controlName: "forceChargeMinPower",
                 properties: {
-                    tickMin: minChargePower,
-                    tickMax: maxChargePower,
+                    tickMin: minPowerPerPhase ?? minChargePower,
+                    tickMax: maxPowerPerPhase ?? maxChargePower,
                     step: 100,
                     unit: "W",
                     pinFormatter: (val: number) => Converter.POWER_IN_WATT(val),
@@ -164,8 +179,8 @@ export class EvcsSettingsComponent extends AbstractFormlyComponent<EvcsSettingsV
                 type: "range-button-from-form-control-line",
                 controlName: "defaultChargeMinPower",
                 properties: {
-                    tickMin: minChargePower,
-                    tickMax: maxChargePower,
+                    tickMin: minPowerTotal ?? minChargePower,
+                    tickMax: maxPowerTotal ?? maxChargePower,
                     step: 100,
                     unit: "W",
                     pinFormatter: (val: number) => Converter.POWER_IN_WATT(val),

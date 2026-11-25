@@ -59,7 +59,8 @@ public class LoggerConfigurator {
 
 	static Optional<Dictionary<String, Object>> getCurrentConfiguration(Configuration config, Config logConfig) {
 		Optional<String> logConfigPath = Optional.ofNullable(logConfig.path()).map(s -> s.isBlank() ? null : s);
-		Optional<String> logConfigPathBySysVar = Optional.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_LOG_CONFIG_PATH_SYSVAR));
+		Optional<String> logConfigPathBySysVar = Optional
+				.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_LOG_CONFIG_PATH_SYSVAR));
 
 		if (logConfigPath.isPresent()) {
 			return fileConfiguration(config, logConfigPath.get());
@@ -94,8 +95,8 @@ public class LoggerConfigurator {
 	static Optional<Dictionary<String, Object>> fileConfiguration(Configuration config, String xmlConfigFile) {
 
 		final var file = DictionaryUtils.getAsOptionalString(config.getProperties(),
-		"org.ops4j.pax.logging.log4j2.config.file");
-		
+				"org.ops4j.pax.logging.log4j2.config.file");
+
 		if (file.filter(xmlConfigFile::equals).isPresent()) {
 			return Optional.empty();
 		}

@@ -35,7 +35,7 @@ public class StateMachineTest {
 
 		sm.run(new Context(null, clock, Mode.FORCE,
 				ChargePointActions.from(ability).setApplySetPointInAmpere(0).build(), null, new History(), null, false,
-				callback, setPhaseSwitchFailed -> FunctionUtils.doNothing()));
+				callback, _ -> FunctionUtils.doNothing()));
 		assertEquals(EvseSingleState.EV_NOT_CONNECTED, sm.getCurrentState());
 		assertEquals("EvNotConnected", sm.debugLog());
 	}

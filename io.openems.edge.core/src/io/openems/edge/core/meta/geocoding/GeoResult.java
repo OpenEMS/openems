@@ -93,7 +93,7 @@ public record GeoResult(//
 					timezone, //
 					currency, //
 					openStreetMapUrl);
-		}, obj -> {
+		}, _ -> {
 			throw new UnsupportedOperationException(
 					"Serialization is not supported by this deserializer, which only handles parsing OpenCage API JSON into GeoResult");
 		});

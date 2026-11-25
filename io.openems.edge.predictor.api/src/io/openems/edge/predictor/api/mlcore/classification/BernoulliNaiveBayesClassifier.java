@@ -94,7 +94,7 @@ public class BernoulliNaiveBayesClassifier implements Classifier {
 		for (int i = 0; i < labels.length; i++) {
 			int label = labels[i];
 
-			var counts = featureCountsPerClass.computeIfAbsent(label, t -> new double[numFeatures]);
+			var counts = featureCountsPerClass.computeIfAbsent(label, _ -> new double[numFeatures]);
 
 			for (int j = 0; j < numFeatures; j++) {
 				counts[j] += features[i][j];

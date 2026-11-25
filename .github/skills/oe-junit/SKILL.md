@@ -37,12 +37,11 @@ For small and clear changes, continue without waiting for confirmation.
 
 ## Framework Choice
 
-- Prefer JUnit Jupiter using the version already configured in the repository.
+- Use JUnit 5 (Jupiter) for all Java tests. Do not use JUnit 4.
 - Never mix JUnit 4 and Jupiter within one test class.
-- For new test classes, use JUnit Jupiter unless a technical constraint requires JUnit 4.
 - When modifying a small JUnit 4 class, ask whether the complete class should be migrated to Jupiter.
 - Recommend migration when it is low-risk and mainly requires changing imports, annotations, assertions, or straightforward parameterized tests.
-- Keep JUnit 4 when custom runners, complex rules, runtime constraints, or a large migration make it risky or out of scope.
+- Keep JUnit 4 only when custom runners, complex rules, runtime constraints, or a large migration make it risky or out of scope — and only with explicit developer approval.
 - Do not add unnecessary test dependencies.
 
 ## OpenEMS Test Patterns
@@ -50,7 +49,7 @@ For small and clear changes, continue without waiting for confirmation.
 - Prefer existing OpenEMS test infrastructure over custom fixtures or test harnesses.
 - Use `ComponentTest`, `TestCase`, channel assertions, and existing component mocks where applicable.
 - Build configs through existing builders such as `MyConfig.create().setId("id0").build()`.
-- Preserve intentional trailing `//` in fluent test chains.
+- Preserve intentional trailing `//` markers in fluent chains (see `.github/skills/oe-java-format/SKILL.md` for when to use them).
 - Avoid custom helper methods unless they clearly improve readability.
 - Prefer a little duplication over abstractions that hide setup, inputs, execution, or expected behavior.
 - Keep tests deterministic and close to the changed behavior.

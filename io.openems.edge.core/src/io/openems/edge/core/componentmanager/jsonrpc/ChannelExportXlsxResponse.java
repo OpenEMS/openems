@@ -140,8 +140,8 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 					.orElse("");
 
 			final var type = switch (doc) {
-			case StateChannelDoc sc -> "State";
-			case EnumDoc e -> "Enum";
+			case StateChannelDoc _ -> "State";
+			case EnumDoc _ -> "Enum";
 			default -> CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, doc.getType().toString());
 			};
 

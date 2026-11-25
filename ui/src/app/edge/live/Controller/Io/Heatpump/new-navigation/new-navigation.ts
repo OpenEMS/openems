@@ -39,7 +39,7 @@ export class ControllerIoHeatpumpHomeComponent extends AbstractFormlyComponent {
                 url: "icons/component/heatpump.svg",
                 width: 20,
                 height: 20,
-                color: "var(--ion-color-heatpump-base)",
+                color: "var(--ion-color-normal)",
                 style: {
                     maxWidth: "20rem",
                     justifySelf: "center",

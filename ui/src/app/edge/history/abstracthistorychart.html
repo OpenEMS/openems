@@ -3,6 +3,6 @@
 <div [style.height.px]="getChartHeight()" id="chart-area" class="semi-transparent-background">
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
   @if (!loading) {
-    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" type="line"></canvas>
+    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
   }
 </div>

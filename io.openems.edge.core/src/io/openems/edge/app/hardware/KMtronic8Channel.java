@@ -74,11 +74,11 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 						.setDefaultValue("192.168.1.199")//
 						.setRequired(true))), //
 		CHECK(AppDef.copyOfGeneric(//
-				CommonProps.installationHint((app, property, l, parameter) -> {
+				CommonProps.installationHint((_, _, _, parameter) -> {
 					return translate(parameter.bundle(), "App.Hardware.KMtronic8Channel.installationHint");
 				})) //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, l, _, field) -> {
 					field.requireTrue(l);//
 
 					// TODO find better way to distinguish if the current form is for installing or updating

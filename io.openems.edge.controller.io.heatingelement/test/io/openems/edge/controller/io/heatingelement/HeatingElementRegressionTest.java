@@ -175,16 +175,123 @@ class HeatingElementRegressionTest {
 	@ParameterizedTest
 	@EnumSource(NumberOfHeatingElements.class)
 	void fastHeatBypassesDelayWhileManualOnKeepsDefaultLevel(NumberOfHeatingElements number) throws Exception {
-		this.prepare(config(Distribution.SEQUENTIAL).setNumberOfHeatingElements(number) //
-				.setMode(Mode.MANUAL_ON).setDefaultLevel(Level.LEVEL_2).build(), false) //
-				.next(new TestCase().output(LEVEL, Level.LEVEL_2)) //
-				.modified(config(Distribution.SEQUENTIAL).setNumberOfHeatingElements(number) //
-						.setMode(Mode.FAST_HEAT).setDefaultLevel(Level.LEVEL_1).build()) //
+		this.prepare(config(Distribution.SEQUENTIAL)//
+						.setNumberOfHeatingElements(number) //
+				.setMode(Mode.MANUAL_ON)//
+						.setDefaultLevel(Level.LEVEL_2) //
+						.build(), false) //
+				.next(new TestCase() //
+						.output(LEVEL, Level.LEVEL_2)) //
+				.modified(config(Distribution.SEQUENTIAL) //
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.FAST_HEAT) //
+						.setDefaultLevel(Level.LEVEL_1) //
+						.build()) //
 				.next(new TestCase().output(LEVEL,
 						number == NumberOfHeatingElements.ONE ? Level.LEVEL_3 : Level.LEVEL_6)) //
-				.modified(config(Distribution.SEQUENTIAL).setNumberOfHeatingElements(number) //
-						.setMode(Mode.MANUAL_OFF).build()) //
+				.modified(config(Distribution.SEQUENTIAL) //
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.MANUAL_OFF) //
+						.build()) //
 				.next(new TestCase().output(LEVEL, Level.LEVEL_0));
+	}
+
+	@ParameterizedTest
+	@EnumSource(NumberOfHeatingElements.class)
+	void fastHeatRepeatsAfterProtectionPause(NumberOfHeatingElements number) throws Exception {
+		var maxLevel = number == NumberOfHeatingElements.ONE ? Level.LEVEL_3 : Level.LEVEL_6;
+		var config = config(Distribution.SEQUENTIAL) //
+				.setNumberOfHeatingElements(number) //
+				.setMode(Mode.FAST_HEAT);
+		var pauseTestCase = new TestCase() //
+				.timeleap(this.clock, 1, SECONDS) //
+				.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT0, true) //
+				.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT1, true) //
+				.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT2, true) //
+				.output(LEVEL, Level.LEVEL_0) //
+				.output(STATUS, Status.FAST_HEAT_PROTECTION_PAUSE) //
+				.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT0, false) //
+				.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT1, false) //
+				.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT2, false);
+		if (number == NumberOfHeatingElements.TWO) {
+			pauseTestCase //
+					.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT3, true) //
+					.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT4, true) //
+					.input("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT5, true) //
+					.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT3, false) //
+					.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT4, false) //
+					.output("io0", DummyInputOutput.ChannelId.INPUT_OUTPUT5, false);
+		}
+		var test = this.prepare(config.build(), false);
+		test.next(new TestCase() //
+				.output(LEVEL, maxLevel) //
+				.output(STATUS, Status.ACTIVE)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 17999, SECONDS) //
+						.output(LEVEL, maxLevel) //
+						.output(STATUS, Status.ACTIVE)) //
+				.modified(config //
+						.setDefaultLevel(Level.LEVEL_1) //
+						.build()) //
+				.next(pauseTestCase) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 1799, SECONDS) //
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.FAST_HEAT_PROTECTION_PAUSE)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 1, SECONDS) //
+						.output(LEVEL, maxLevel) //
+						.output(STATUS, Status.ACTIVE)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 5, HOURS) //
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.FAST_HEAT_PROTECTION_PAUSE));
+	}
+
+	@ParameterizedTest
+	@EnumSource(NumberOfHeatingElements.class)
+	void leavingFastHeatResetsHeatingAndProtectionPause(NumberOfHeatingElements number) throws Exception {
+		var maxLevel = number == NumberOfHeatingElements.ONE ? Level.LEVEL_3 : Level.LEVEL_6;
+		var config = config(Distribution.SEQUENTIAL) //
+				.setNumberOfHeatingElements(number);
+		var test = this.prepare(config.setMode(Mode.FAST_HEAT).build(), false);
+		test.next(new TestCase().output(LEVEL, maxLevel)) //
+				.next(new TestCase().timeleap(this.clock, 4, HOURS).output(LEVEL, maxLevel)) //
+				.modified(config(Distribution.SEQUENTIAL) //
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.MANUAL_OFF) //
+						.build()) //
+				.next(new TestCase().output(LEVEL, Level.LEVEL_0)) //
+				.modified(config(Distribution.SEQUENTIAL) //
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.FAST_HEAT) //
+						.build()) //
+				.next(new TestCase() //
+						.output(LEVEL, maxLevel)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 1, HOURS)
+						.output(LEVEL, maxLevel)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 4, HOURS) //
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.FAST_HEAT_PROTECTION_PAUSE)) //
+				.modified(config(Distribution.SEQUENTIAL) //
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.MANUAL_ON) //
+						.setDefaultLevel(Level.LEVEL_2).build()) //
+				.next(new TestCase() //
+						.output(LEVEL, Level.LEVEL_2) //
+						.output(STATUS, Status.ACTIVE)) //
+				.modified(config(Distribution.SEQUENTIAL)//
+						.setNumberOfHeatingElements(number) //
+						.setMode(Mode.FAST_HEAT)//
+						.build()) //
+				.next(new TestCase()//
+						.output(LEVEL, maxLevel) //
+						.output(STATUS, Status.ACTIVE)) //
+				.next(new TestCase().timeleap(this.clock, 5, HOURS) //
+						.output(LEVEL, Level.LEVEL_0) //
+						.output(STATUS, Status.FAST_HEAT_PROTECTION_PAUSE));
 	}
 
 	@ParameterizedTest

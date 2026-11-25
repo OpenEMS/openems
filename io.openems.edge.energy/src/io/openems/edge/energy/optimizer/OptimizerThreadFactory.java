@@ -10,7 +10,7 @@ public class OptimizerThreadFactory implements ThreadFactory {
 	private static final ThreadGroup threadGroup = new ThreadGroup("Optimizer");
 
 	public static final String KEY_OPTIMIZER_EXECUTOR = "Simulator[Executor]";
-	public static final String KEY_OPTIMIZER_SCHEDULER =  "Simulator[Scheduler]";
+	public static final String KEY_OPTIMIZER_SCHEDULER = "Simulator[Scheduler]";
 	public static final String KEY_JENETICS = "Simulator[Jenetics]";
 
 	private final String key;
@@ -22,7 +22,7 @@ public class OptimizerThreadFactory implements ThreadFactory {
 	public OptimizerThreadFactory(String key, int priority) {
 		this.key = key;
 		this.priority = priority;
-		this.poolCount = poolCounters.computeIfAbsent(key, k -> new AtomicInteger(0)).incrementAndGet();
+		this.poolCount = poolCounters.computeIfAbsent(key, _ -> new AtomicInteger(0)).incrementAndGet();
 	}
 
 	private String getNameForNewThread() {

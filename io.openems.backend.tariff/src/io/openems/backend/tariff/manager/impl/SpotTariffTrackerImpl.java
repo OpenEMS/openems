@@ -28,7 +28,7 @@ public class SpotTariffTrackerImpl implements SpotTariffTracker {
 	private final List<ProviderReference> providers = new ArrayList<>();
 
 	private final Consumer<TariffData> onPriceUpdateFunc = this::onPriceUpdate;
-	private final Consumer<Void> onExchangeRatesChanged = v -> this.onExchangeRateUpdate();
+	private final Consumer<Void> onExchangeRatesChanged = _ -> this.onExchangeRateUpdate();
 
 	private volatile boolean deactivated;
 	private boolean isCurrentlyChangingProviders;

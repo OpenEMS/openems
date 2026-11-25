@@ -154,7 +154,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 					? OptionsEnum.getOptionOrUndefined(SnowStateMachine.State.class, latestStateValue)
 					: SnowStateMachine.State.NORMAL;
 		})//
-				.exceptionally(ex -> SnowStateMachine.State.NORMAL)//
+				.exceptionally(_ -> SnowStateMachine.State.NORMAL)//
 				.thenAccept(snowState -> {
 					this.snowStateMachine = new SnowStateMachine(//
 							this.weather, //
@@ -421,7 +421,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(new GetPredictionEndpoint(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
+		}, _ -> {
 			return new GetPredictionEndpoint.Response(//
 					this.createNewPrediction(this.productionChannelAddress));
 		});

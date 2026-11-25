@@ -301,7 +301,17 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private void applyConfig(Config config) {
 		boolean isResultOfRpcRequest = false;
 
-		this.lockModifyingApps.lock();
+		boolean locked = false;
+		try {
+			locked = this.lockModifyingApps.tryLock(30, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+
+		if (!locked) {
+			this.log.error("applyConfig: could not acquire 'lockModifyingApps' within 30s - "
+					+ "applying configuration without lock to avoid blocking ConfigAdmin thread.");
+		}
 
 		try {
 			var apps = config.apps();
@@ -337,12 +347,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 								.map(OpenemsAppInstance::toJsonObject) //
 								.collect(JsonUtils.toJsonArray()))
 						+ Optional.ofNullable(this.lastUpdate.deletedApps) //
-								.map(deletedApps -> {
+								.map(_ -> {
 									return System.lineSeparator() + "Removed: " //
 											+ JsonUtils.prettyToString(this.lastUpdate.deletedApps.stream() //
 													.map(OpenemsAppInstance::toJsonObject) //
 													.collect(JsonUtils.toJsonArray()));
-								}).orElse(""));
+								}) //
+								.orElse(""));
 			}
 
 			this.instantiatedApps.clear();
@@ -358,9 +369,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 				this.lastUpdate = null;
 			}
 
+			if (locked) {
+				this.waitingForModifiedCondition.signal();
+				this.lockModifyingApps.unlock();
+			}
 			this.waitingForModified = false;
-			this.waitingForModifiedCondition.signal();
-			this.lockModifyingApps.unlock();
 		}
 	}
 
@@ -710,7 +723,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		var backendDeinstallFuture = this.backendUtil.addDeinstallAppInstanceHistory(user, removedInstance.appId,
 				removedInstance.instanceId);
-		backendDeinstallFuture.whenComplete((r, t) -> {
+		backendDeinstallFuture.whenComplete((_, t) -> {
 			if (t == null) {
 				return;
 			}
@@ -1190,8 +1203,14 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		this.waitingForModified = true;
 		var sortedApps = AppManagerImpl.sortApps(apps);
 		var p = new Property("apps", this.getJsonAppsString(sortedApps));
-		this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user,
-				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, List.of(p)));
+		try {
+			// user can be null using internal method
+			this.componentManager.handleUpdateComponentConfigRequestNonGuarded(user,
+					new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, List.of(p)));
+		} catch (OpenemsNamedException | RuntimeException e) {
+			this.waitingForModified = false;
+			throw e;
+		}
 	}
 
 	private static List<OpenemsAppInstance> sortApps(List<OpenemsAppInstance> apps) {
@@ -1232,10 +1251,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			ThrowingSupplier<Tuple2<F, T>, OpenemsNamedException> supplier, //
 			ThrowingConsumer<F, OpenemsNamedException> runFinally //
 	) throws OpenemsNamedException {
-		// try to get lock within 5 minutes otherwise just log a warning
+		// try to get the lock within 1 minute, otherwise fail the request
 		try {
-			if (!this.lockModifyingApps.tryLock(5, TimeUnit.MINUTES)) {
+			if (!this.lockModifyingApps.tryLock(1, TimeUnit.MINUTES)) {
 				this.log.warn("Wait time for 'lockModifyingApps' elapsed.");
+				throw new OpenemsException("Another app operation is currently running. Please try again later.");
 			}
 		} catch (InterruptedException e1) {
 			this.log.error(e1.getMessage(), e1);
@@ -1246,9 +1266,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		try {
 			if (this.waitingForModified) {
 				// wait if another request is waiting for the modification event to happen
-				// or continue after 5 minutes of waiting
-				if (!this.waitingForModifiedCondition.await(5, TimeUnit.MINUTES)) {
-					this.log.warn("Wait time for 'instantiatedAppsCondition' elapsed.");
+				// or continue after 30 seconds of waiting
+				if (!this.waitingForModifiedCondition.await(30, TimeUnit.SECONDS)) {
+					this.log.warn("Wait time for 'waitingForModifiedCondition' elapsed.");
 				}
 				// continue with executing the supplier
 			}

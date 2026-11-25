@@ -86,7 +86,7 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
         this.labels = this.data.getLabels24h();
         this.errorResponse = null;
         this.loading = true;
-        this.chartType = "line";
+        this.chartType = this.getScheduleChartType();
 
         this.options.scales.x = {
             type: "time",
@@ -152,9 +152,17 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
         }
         this.options.plugins.tooltip.filter = (item, _index, items) => item.datasetIndex === items.at(-1)?.datasetIndex;
 
+        this.configureScheduleChartOptions();
+
         this.stopSpinner();
         this.loading = false;
     }
+
+    protected getScheduleChartType(): "line" | "bar" {
+        return "line";
+    }
+
+    protected configureScheduleChartOptions(): void {}
 
     protected fillDatasets(): ChartDataset[] {
         const buildConf = this.buildDatasets();

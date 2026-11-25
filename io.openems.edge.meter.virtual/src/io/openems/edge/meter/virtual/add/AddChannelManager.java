@@ -84,7 +84,7 @@ public class AddChannelManager extends AbstractChannelListenerManager {
 	 */
 	private <T> void calculate(Function<List<T>, T> aggregator, //
 			List<? extends ElectricityMeter> meters, ElectricityMeter.ChannelId channelId) {
-		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<T>, Value<T>> callback = (_, _) -> {
 			@SuppressWarnings("unchecked")
 			var values = meters.stream() //
 					.map(m -> (Channel<T>) m.channel(channelId)) //

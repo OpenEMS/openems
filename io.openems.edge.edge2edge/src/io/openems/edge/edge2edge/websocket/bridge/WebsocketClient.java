@@ -45,7 +45,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onNotification = new OnNotification(onCurrentData, onEdgeConfig, onChannelChange);
 		this.onRequest = new OnRequest();
 		this.onError = new OnError();
-		this.onClose = (ws, code, reason, remote) -> {
+		this.onClose = (_, _, _, _) -> {
 			onStateChange.accept(ConnectionState.NOT_CONNECTED);
 			this.log.error("Disconnected from slave [" + serverUri.toString() //
 					+ (proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");

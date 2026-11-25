@@ -95,7 +95,7 @@ public class UtilsTest {
 				.setControllers("d", "f", null, "b");
 		final var list = Stream.of("a", "b", "c", "d", "e") //
 				.<EnergySchedulable>map(
-						id -> new DummyEnergySchedulable<EnergyScheduleHandler>("Controller.Dummy", id, (cmp) -> null)) //
+						id -> new DummyEnergySchedulable<EnergyScheduleHandler>("Controller.Dummy", id, _ -> null)) //
 				.toList();
 
 		var result = sortByScheduler(scheduler, list).stream() //

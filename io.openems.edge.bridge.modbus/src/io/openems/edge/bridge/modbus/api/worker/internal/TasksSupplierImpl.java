@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -96,13 +98,13 @@ public class TasksSupplierImpl implements TasksSupplier {
 		{
 			var t = this.getOneLowPriorityReadTask();
 			if (t != null) {
-				tasks.computeIfAbsent(t.a(), (ignore) -> new LinkedList<>()) //
+				tasks.computeIfAbsent(t.a(), _ -> new LinkedList<>()) //
 						.add(t.b());
 			}
 		}
 		// All High Priority ReadTasks + all WriteTasks
 		this.taskManagers.forEach((id, taskManager) -> {
-			var list = tasks.computeIfAbsent(id, (ignore) -> new LinkedList<>());
+			var list = tasks.computeIfAbsent(id, _ -> new LinkedList<>());
 			taskManager.getTasks().stream() //
 					.filter(t -> t instanceof WriteTask || t.getPriority() == Priority.HIGH) //
 					.forEach(list::add);
@@ -126,14 +128,14 @@ public class TasksSupplierImpl implements TasksSupplier {
 
 		var result = new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
-						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+						.gather(filterIsInstance(ReadTask.class)) //
 						// Sort HIGH priority to the end. Make sure to send requests to same unit in
 						// order.
 						.sorted(Comparator.comparing(Task::getPriority).reversed() //
 								.thenComparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)),
 				tasks.values().stream().flatMap(LinkedList::stream) //
-						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast) //
+						.gather(filterIsInstance(WriteTask.class)) //
 						.sorted(Comparator.comparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)));
 
@@ -163,7 +165,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 		// refill the queue
 		this.taskManagers.forEach((id, taskManager) -> {
 			taskManager.getTasks(Priority.LOW).stream() //
-					.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+					.gather(filterIsInstance(ReadTask.class)) //
 					.map(t -> new Tuple2<String, ReadTask>(id, t)) //
 					.forEach(this.nextLowPriorityTasks::add);
 		});

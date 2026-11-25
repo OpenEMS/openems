@@ -78,9 +78,9 @@ final class OptimizationStates {
 	static boolean isCurrentPeriodFixed(OptimizationState state) {
 		return switch (state) {
 		case null -> false; // no optimization is active -> nothing is fixed
-		case OptimizationState.ReoptimizingCurrent ignored -> false;
-		case OptimizationState.OptimizingFuture ignored -> true;
-		case OptimizationState.Optimized ignored -> true;
+		case OptimizationState.ReoptimizingCurrent _ -> false;
+		case OptimizationState.OptimizingFuture _ -> true;
+		case OptimizationState.Optimized _ -> true;
 		};
 	}
 }

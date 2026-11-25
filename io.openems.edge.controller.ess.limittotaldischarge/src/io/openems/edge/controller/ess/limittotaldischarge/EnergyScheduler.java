@@ -39,7 +39,7 @@ public class EnergyScheduler {
 							: null; //
 				})
 
-				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
+				.setSimulator((_, _, gsc, coc, _, ef, _) -> {
 					if (coc != null) {
 						ef.setEssLessOrEquals(max(0, gsc.ess.getInitialEnergy() - coc.minEnergy));
 					}

@@ -23,11 +23,11 @@ public class RelayContactFilterTest {
 
 	@BeforeEach
 	public void setUp() {
-		final Predicate<DigitalOutput> componentFilter = t -> true;
+		final Predicate<DigitalOutput> componentFilter = _ -> true;
 		final Function<DigitalOutput, String> componentAliasMapper = t -> t.alias();
-		final BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter = (t, u) -> true;
-		final BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper = (t, u) -> t.alias();
-		final BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons = (t, u) -> emptyList();
+		final BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter = (_, _) -> true;
+		final BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper = (t, _) -> t.alias();
+		final BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons = (_, _) -> emptyList();
 
 		this.relayContactFilter = RelayContactFilter.create() //
 				.withComponentFilter(componentFilter) //
@@ -45,7 +45,7 @@ public class RelayContactFilterTest {
 
 	@Test
 	public void testWithComponentFilter() {
-		final Predicate<DigitalOutput> componentFilter = t -> true;
+		final Predicate<DigitalOutput> componentFilter = _ -> true;
 		assertNotEquals(componentFilter, this.relayContactFilter.componentFilter());
 
 		final var relayContactFilter = this.relayContactFilter.withComponentFilter(componentFilter);
@@ -65,7 +65,7 @@ public class RelayContactFilterTest {
 
 	@Test
 	public void testWithChannelFilter() {
-		final BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter = (t, u) -> true;
+		final BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter = (_, _) -> true;
 		assertNotEquals(channelFilter, this.relayContactFilter.channelFilter());
 
 		final var relayContactFilter = this.relayContactFilter.withChannelFilter(channelFilter);
@@ -75,7 +75,7 @@ public class RelayContactFilterTest {
 
 	@Test
 	public void testWithChannelAliasMapper() {
-		final BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper = (t, u) -> t.alias();
+		final BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper = (t, _) -> t.alias();
 		assertNotEquals(channelAliasMapper, this.relayContactFilter.channelAliasMapper());
 
 		final var relayContactFilter = this.relayContactFilter.withChannelAliasMapper(channelAliasMapper);
@@ -85,7 +85,7 @@ public class RelayContactFilterTest {
 
 	@Test
 	public void testWithDisabledReasons() {
-		final BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons = (t, u) -> emptyList();
+		final BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons = (_, _) -> emptyList();
 		assertNotEquals(disabledReasons, this.relayContactFilter.disabledReasons());
 
 		final var relayContactFilter = this.relayContactFilter.withDisabledReasons(disabledReasons);

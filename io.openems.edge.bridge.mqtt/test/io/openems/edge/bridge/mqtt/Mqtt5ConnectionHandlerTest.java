@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.mqtt;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -85,8 +86,7 @@ public class Mqtt5ConnectionHandlerTest {
 		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
 
 		// Should not throw, just return early
-		handler.subscribe("test/topic", QoS.AT_LEAST_ONCE, msg -> {
-		});
+		handler.subscribe("test/topic", QoS.AT_LEAST_ONCE, _ -> doNothing());
 
 		assertFalse(handler.isConnected());
 	}

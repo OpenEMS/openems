@@ -35,7 +35,7 @@ public class EnergyScheduler {
 
 				.setScheduleContext(ScheduleContext::new)//
 
-				.setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
+				.setSimulator((_, period, gsc, coc, csc, ef, _) -> {
 					if (coc == null) {
 						return;
 					}

@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.battery.cluster;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,8 +97,7 @@ public abstract class AbstractGoodWeBatteryCluster extends AbstractOpenemsCompon
 		}
 
 		this.batteries.stream() //
-				.filter(StartStoppable.class::isInstance) //
-				.map(StartStoppable.class::cast) //
+				.gather(filterIsInstance(StartStoppable.class)) //
 				.forEach(battery -> {
 					try {
 						battery.setStartStop(target);

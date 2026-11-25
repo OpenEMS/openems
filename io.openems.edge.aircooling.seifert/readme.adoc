@@ -1,0 +1,62 @@
+= Aircooling Seifert
+
+Integration of Seifert air cooling units (enclosure/cabinet coolers) via Modbus.
+
+== Overview
+
+Provides integration with Seifert air cooling units that expose a Modbus register table (Carel-based controller). It reads temperatures, operating mode, output states, door contacts, warnings and faults, and writes the cooling/heating setpoints as well as the high/low temperature alarm setpoints from the configuration. Typical use is the climate control of battery or inverter cabinets.
+
+== Supported Devices
+
+.Seifert air cooling units
+* Type: Air cooling unit with cooling, heating, internal and ambient blowers
+* Communication: Modbus (RTU/TCP via a Modbus bridge)
+* Temperature values use a scale factor of 10 (e.g. `315` equals 31.5 °C)
+* Temperature unit is forced to Celsius on activation
+* https://www.seifert-systems.com[Seifert Systems icon:external-link[]]
+
+== Components
+
+=== <<_air_cooling_seifert,Air Cooling Seifert>>
+
+*Name*: Air Cooling Seifert
+
+*Factory-PID*: `Aircooling.Seifert`
+
+.Implemented Natures/Interfaces
+* Seifert
+* EventHandler
+* OpenemsComponent
+* ModbusComponent
+
+*Description*: Reads the status of a Seifert air cooling unit via Modbus and keeps its setpoints in sync with the configured values. The setpoints are written before each cycle's process image (`TOPIC_CYCLE_BEFORE_PROCESS_IMAGE`) unless a different write value was already set. The debug log shows the mode state, ambient temperature and internal (control sensor) temperature.
+
+*Use Cases*:
+
+* Cooling and heating of electrical cabinets
+* Monitoring of cooler faults and warnings
+* Door contact supervision
+
+.Channels (selection)
+* `MODE_STATE`: Off, Idle, Cooling, Heating, Testing
+* `AMBIENT_TEMPERATURE`, `CONTROL_SENSOR`, `INTERNAL_AIR_OUTLET_TEMP`
+* `OUTPUT_STATUS_HEATER`, `OUTPUT_STATUS_COMPRESSOR`, `OUTPUT_STATUS_INTERNAL_BLOWER`, `OUTPUT_STATUS_AMBIENT_BLOWER`
+* `DOOR_CONTACT_1_STATUS` to `DOOR_CONTACT_3_STATUS`
+* Faults: sensor faults, blower faults, compressor/ice algorithm, high/low internal temperature, phase failure, Carel/inverter communication failure, delta outlet-inlet temperature
+* Warnings: compressor, ambient blower, internal blower
+* Writable: `SET_COOLING_SETPOINT`, `SET_HEATING_SETPOINT`, `SET_HIGH_TEMP_ALARM_SETPOINT`, `SET_LOW_TEMP_ALARM_SETPOINT`, `SET_ENABLE_INPUT_1_INVERT`, `SET_ENABLE_TEMP_UNIT`
+
+.*Configuration*:
+* `id` (String): Unique ID of the component (default: `airCooling0`)
+* `alias` (String): Human-readable name (default: empty)
+* `enabled` (Boolean): Is this component enabled? (default: `true`)
+* `modbus_id` (String): ID of the Modbus bridge (default: `modbus0`)
+* `modbusUnitId` (Integer): Unit-ID of the Modbus device
+* `coolingSetpoint` (Integer): Cooling setpoint, factor 10, e.g. `315` for 31.5 °C
+* `heatingSetpoint` (Integer): Heating setpoint, factor 10
+* `highTempAlarmSetpoint` (Integer): High temperature alarm setpoint, factor 10
+* `lowTempAlarmSetpoint` (Integer): Low temperature alarm setpoint, factor 10
+
+[[_air_cooling_seifert]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.aircooling.seifert[Source Code icon:github[]]

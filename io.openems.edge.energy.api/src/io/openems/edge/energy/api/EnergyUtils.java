@@ -1,5 +1,7 @@
 package io.openems.edge.energy.api;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
@@ -111,8 +113,7 @@ public class EnergyUtils {
 	public static Stream<EnergyScheduleHandler.WithDifferentModes> filterEshsWithDifferentModes(
 			ImmutableList<EnergyScheduleHandler> eshs) {
 		return eshs.stream() //
-				.filter(EnergyScheduleHandler.WithDifferentModes.class::isInstance) //
-				.map(EnergyScheduleHandler.WithDifferentModes.class::cast);
+				.gather(filterIsInstance(EnergyScheduleHandler.WithDifferentModes.class));
 		// TODO only ESHs with actually more than one Mode
 	}
 }

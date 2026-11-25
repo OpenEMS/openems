@@ -1,14 +1,14 @@
 <formly-form [form]="form" [fields]="field.fieldGroup" [model]="model"></formly-form>
 
-@if (field && field.props && field.props.options[0].component) {
+@if (field && field.props && field.props.options[0].component && isInit()) {
   <oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)" [attr.data-tutorial-id]="props.options[0].tourId">
     @if ((props.attributes.title || props.attributes.helpKey) && !props.options[0].useCiFont) {
       <ion-toolbar color="transparent">
         <ion-grid class="ion-no-padding">
-          <ion-row class="ion-justify-content-center ion-align-items-center">
+          <ion-row [class.header-row-with-icon]="props.attributes.icon" class="ion-justify-content-center ion-align-items-center">
             @if (props.attributes.title) {
-              <ion-col class="ion-full-width ion-padding" [size]="props.attributes.icon ? 10 : 12">
-                <ion-row class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
+              <ion-col class="ion-full-width ion-padding" size="12">
+                <ion-row [class.custom-title-with-icon]="props.attributes.icon" class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
                   @if (props.attributes.icon) {
                     <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" [style.color]="props.options[0].icon.color" style="padding-right: 0.2rem"></ion-icon>
                   }
@@ -17,7 +17,7 @@
               </ion-col>
             }
 
-            <ion-col>
+            <ion-col [class.header-favorite-col]="props.attributes.icon">
               <ion-row class="ion-justify-content-end ion-align-items-center">
                 <oe-favorite-button [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'"></oe-favorite-button>
               </ion-row>
@@ -83,6 +83,10 @@
                       <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html" [lineStyle]="line.lineStyle" [customClass]="line.customClass" [class]="line.cssClass" [link]="line.link"></oe-modal-info-line>
                     }
 
+                    @case ("card-line") {
+                      <oe-modal-card-line [text]="line.text" [html]="line.html" [icon]="line.icon" [cardStyle]="line.cardStyle" [link]="line.link"></oe-modal-card-line>
+                    }
+
                     <!-- OeFormlyField.HorizontalLine -->
                     @case ("horizontal-line") {
                       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -129,7 +133,7 @@
 
                     <!-- OeFormlyField.ToggleLine -->
                     @case ("toggle-line") {
-                      <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
+                      <oe-modal-line [name]="line.name" [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
                     }
 
                     @case ("toggle-line-with-formcontrol-value") {
@@ -149,7 +153,7 @@
                     }
 
                     @case ("name-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
+                      <oe-modal-line [class]="line.componentCssClass ?? ''" [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
                     }
                     @case ("time-line") {
                       <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form"></oe-time-line>

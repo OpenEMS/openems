@@ -82,8 +82,8 @@ public class InfluxQlProxy extends QueryProxy {
 			// return a map which has for every channel JsonNull.INSTANCE
 			return channels.stream() //
 					.collect(Collectors.toMap(Function.identity(), //
-							t -> JsonNull.INSTANCE, //
-							(t, u) -> u, TreeMap::new));
+							_ -> JsonNull.INSTANCE, //
+							(_, u) -> u, TreeMap::new));
 		}
 
 		final var beforeValues = this.queryFirstValueBefore(bucket, influxConnection, measurement, influxEdgeId,
@@ -531,8 +531,8 @@ public class InfluxQlProxy extends QueryProxy {
 							var value = convertToJsonElement(record.getValueByKey(column));
 							final var existingValue = tableRow.get(channel);
 							if (existingValue != null) {
-								final var subMap = aggregations.computeIfAbsent(timestamp, t -> new TreeMap<>());
-								final var aggregate = subMap.computeIfAbsent(channel, t -> aggregateFunction.get());
+								final var subMap = aggregations.computeIfAbsent(timestamp, _ -> new TreeMap<>());
+								final var aggregate = subMap.computeIfAbsent(channel, _ -> aggregateFunction.get());
 								value = aggregate.apply(existingValue, value);
 							}
 
@@ -625,7 +625,7 @@ public class InfluxQlProxy extends QueryProxy {
 					final var record = t.second();
 					final var last = record.getValueByKey("LAST(" + channel.toString() + ")");
 					return convertToJsonElement(last);
-				}, (t, u) -> u, TreeMap::new));
+				}, (_, u) -> u, TreeMap::new));
 	}
 
 	// TODO move to common
@@ -669,7 +669,7 @@ public class InfluxQlProxy extends QueryProxy {
 					}
 				}) //
 				.filter(Objects::nonNull) //
-				.collect(Collectors.toMap(Pair::first, Pair::second, (t, u) -> u, TreeMap::new));
+				.collect(Collectors.toMap(Pair::first, Pair::second, (_, u) -> u, TreeMap::new));
 	}
 
 	/**
@@ -755,7 +755,7 @@ public class InfluxQlProxy extends QueryProxy {
 						return last;
 					}
 					return new JsonPrimitive(last.getAsDouble() - first.getAsDouble());
-				}, (t, u) -> u, TreeMap::new));
+				}, (_, u) -> u, TreeMap::new));
 	}
 
 	private static JsonElement assertPositive(Number number, Optional<Integer> influxEdgeId,

@@ -26,7 +26,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private double latitude = -999.0;
 		private double longitude = -999.0;
 		private String timezone = "";
-		private String gridSoftLimit = "[]";
+		private int staticGridBuySoftLimit = -1;
+		private String gridBuySoftLimit = "[]";
 		private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance = ThirdPartyUsageAcceptance.UNDECIDED;
 		private Environment environment = Environment.STABLE;
 		private EnvironmentStatus environmentStatus = EnvironmentStatus.STABLE;
@@ -94,8 +95,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setGridSoftLimit(String gridSoftLimit) {
-			this.gridSoftLimit = gridSoftLimit;
+		public Builder setStaticGridBuySoftLimit(int staticGridBuySoftLimit) {
+			this.staticGridBuySoftLimit = staticGridBuySoftLimit;
+			return this;
+		}
+
+		public Builder setGridBuySoftLimit(String gridBuySoftLimit) {
+			this.gridBuySoftLimit = gridBuySoftLimit;
 			return this;
 		}
 
@@ -201,8 +207,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int staticGridBuySoftLimit() {
+		return this.builder.staticGridBuySoftLimit;
+	}
+
+	@Override
 	public String gridBuySoftLimit() {
-		return this.builder.gridSoftLimit;
+		return this.builder.gridBuySoftLimit;
 	}
 
 	@Override

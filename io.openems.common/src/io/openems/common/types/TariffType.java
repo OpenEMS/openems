@@ -76,8 +76,8 @@ public sealed interface TariffType {
 
 	private static <T> JsonSerializer<T> emptySerializer(Supplier<T> createInstanceFunc) {
 		return jsonObjectSerializer(//
-				json -> createInstanceFunc.get(), //
-				obj -> buildJsonObject() //
+				_ -> createInstanceFunc.get(), //
+				_ -> buildJsonObject() //
 						.build());
 	}
 }

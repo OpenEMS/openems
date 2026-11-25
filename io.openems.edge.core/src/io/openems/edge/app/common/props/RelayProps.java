@@ -77,13 +77,13 @@ public final class RelayProps {
 
 		public RelayContactFilter {
 			if (componentFilter == null) {
-				componentFilter = t -> true;
+				componentFilter = _ -> true;
 			}
 			if (channelFilter == null) {
-				channelFilter = (t, d) -> true;
+				channelFilter = (_, _) -> true;
 			}
 			if (disabledReasons == null) {
-				disabledReasons = (t, d) -> emptyList();
+				disabledReasons = (_, _) -> emptyList();
 			}
 		}
 
@@ -95,7 +95,7 @@ public final class RelayProps {
 		 * @return a new {@link RelayContactFilter}
 		 */
 		public RelayContactFilter withComponentFilter(Predicate<DigitalOutput> componentFilter) {
-			return new RelayContactFilter(componentFilter == null ? t -> true : componentFilter,
+			return new RelayContactFilter(componentFilter == null ? _ -> true : componentFilter,
 					this.componentAliasMapper, this.channelFilter, this.channelAliasMapper, this.disabledReasons);
 		}
 
@@ -120,7 +120,7 @@ public final class RelayProps {
 		 */
 		public RelayContactFilter withChannelFilter(BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter) {
 			return new RelayContactFilter(this.componentFilter, this.componentAliasMapper,
-					channelFilter == null ? (t, u) -> true : channelFilter, this.channelAliasMapper,
+					channelFilter == null ? (_, _) -> true : channelFilter, this.channelAliasMapper,
 					this.disabledReasons);
 		}
 
@@ -147,7 +147,7 @@ public final class RelayProps {
 		public RelayContactFilter withDisabledReasons(
 				BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons) {
 			return new RelayContactFilter(this.componentFilter, this.componentAliasMapper, this.channelFilter,
-					this.channelAliasMapper, disabledReasons == null ? (t, u) -> emptyList() : disabledReasons);
+					this.channelAliasMapper, disabledReasons == null ? (_, _) -> emptyList() : disabledReasons);
 		}
 
 	}
@@ -370,7 +370,7 @@ public final class RelayProps {
 				.withChannelFilter((component, channel) -> //
 				!("io0".equals(component.id())
 						&& channelFilter.stream().anyMatch(c -> c.equals(channel.channelId().id())))) //
-				.withChannelAliasMapper((component, channel) -> relayAliasMapper(bundle, channel)) //
+				.withChannelAliasMapper((_, channel) -> relayAliasMapper(bundle, channel)) //
 				.withDisabledReasons((component, channel) -> {
 					if (!onlyHighVoltageRelays) {
 						return emptyList();
@@ -418,7 +418,7 @@ public final class RelayProps {
 			AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition,
 					Nameable... allContacts) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
-			def.setDefaultValue((app, property, l, parameter) -> {
+			def.setDefaultValue((_, _, _, parameter) -> {
 				final var preferredRelay = parameter.relayContactInformation().preferredRelays[contactPosition - 1];
 				final var value = preferredRelay == null ? JsonNull.INSTANCE : new JsonPrimitive(preferredRelay);
 				if (isMulti) {
@@ -431,7 +431,7 @@ public final class RelayProps {
 				}
 				return value;
 			});
-			def.setField(JsonFormlyUtil::buildSelectGroupFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildSelectGroupFromNameable, (_, property, _, parameter, field) -> {
 				field.setMulti(isMulti);
 				field.setMissingOptionsText(translate(parameter.bundle(), "relay.missingOptions"));
 
@@ -562,10 +562,10 @@ public final class RelayProps {
 					PROP... phaseDefs //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
-			def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+			def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, _, l, parameter, field) -> {
 				final var propertyToShowError = Arrays.stream(phaseDefs) //
 						.filter(phaseDef -> !activeConditions.containsKey(phaseDef)) //
-						.reduce((first, last) -> last) //
+						.reduce((_, last) -> last) //
 						.orElse(phaseDefs[phaseDefs.length - 1]);
 
 				for (var phaseDef : phaseDefs) {

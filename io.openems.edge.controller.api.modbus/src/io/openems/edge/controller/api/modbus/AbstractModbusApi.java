@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.modbus;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.controller.api.modbus.CommonConfig.DEFAULT_UNIT_ID;
 
 import java.time.Clock;
@@ -298,8 +299,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected void updateCycleValues() {
 		this.records.values() //
 				.stream() //
-				.filter(ModbusRecordCycleValue.class::isInstance) //
-				.map(ModbusRecordCycleValue.class::cast) //
+				.gather(filterIsInstance(ModbusRecordCycleValue.class)) //
 				.forEach(r -> {
 					var component = this.getPossiblyDisabledComponent(r.getComponentId());
 					if (component != null && component.isEnabled()) {
@@ -492,7 +492,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	private JsonrpcEndpointGuard componentMissingGuard() {
-		return call -> {
+		return _ -> {
 			if (this.getComponentMissingFault().get()) {
 				throw new OpenemsException(this.getComponentMissingFaultChannel().channelDoc().getText());
 			}
@@ -500,7 +500,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	private JsonrpcEndpointGuard componentNoModbusApiGuard() {
-		return call -> {
+		return _ -> {
 			if (this.getComponentNoModbusApiFault().get()) {
 				throw new OpenemsException(this.getComponentNoModbusApiFaultChannel().channelDoc().getText());
 			}

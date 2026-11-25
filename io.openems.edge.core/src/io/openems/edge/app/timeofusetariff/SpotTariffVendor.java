@@ -55,7 +55,7 @@ public class SpotTariffVendor
 				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
 				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildInput, (_, _, _, _, field) -> {
 					field.setInputType(PASSWORD);
 					field.onlyShowIf(Exp.currentModelValue(PRICE_SOURCE)
 							.equal(Exp.staticValue(SpotTariffVendorProps.SpotTariffPriceSource.ENTSOE)));
@@ -116,13 +116,12 @@ public class SpotTariffVendor
 						JsonUtils.buildJsonObject().build());
 			}
 			case ENTSOE -> {
-				yield new EdgeConfig.Component(spotTariffId, alias, "Tariff.SpotTariff.ENTSO-E", JsonUtils
-						.buildJsonObject() //
-						.onlyIf(accessToken != null && !accessToken.equals(CommonProps.MASKED_PASSWORD),
-								b -> {
+				yield new EdgeConfig.Component(spotTariffId, alias, "Tariff.SpotTariff.ENTSO-E",
+						JsonUtils.buildJsonObject() //
+								.onlyIf(accessToken != null && !accessToken.equals(CommonProps.MASKED_PASSWORD), b -> {
 									b.addProperty("securityToken", accessToken);
 								}) //
-						.build());
+								.build());
 			}
 			case SMARD -> {
 				yield new EdgeConfig.Component(spotTariffId, alias, "Tariff.SpotTariff.SMARD",

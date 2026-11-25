@@ -20,11 +20,11 @@ public interface ControllerEssLimiter14a extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		RESTRICTION_MODE(Doc.of(BOOLEAN) //
+		RESTRICTION_MODE(Doc.of(BOOLEAN)//
 				.persistencePriority(HIGH)), //
 
-		CUMULATED_RESTRICTION_TIME(Doc.of(LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		CUMULATED_RESTRICTION_TIME(Doc.of(LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)); //
 
 		private final Doc doc;

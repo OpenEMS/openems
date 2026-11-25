@@ -7,7 +7,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssAcIsland extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine"));
 
 		private final Doc doc;

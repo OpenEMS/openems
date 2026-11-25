@@ -108,7 +108,7 @@ public class QueryWithCurrentData {
 						return currentValue;
 					}
 					return new JsonPrimitive(currentValue.getAsDouble() - (previousValue.getAsDouble()));
-				}, (t, u) -> u, TreeMap::new));
+				}, (_, u) -> u, TreeMap::new));
 	}
 
 	/**
@@ -163,8 +163,8 @@ public class QueryWithCurrentData {
 					toSortedMap(Entry::getKey, entry -> entry.getValue().entrySet().stream() //
 							.filter(t -> availableChannels.contains(t.getKey())) //
 							.collect(CollectorUtils.<Entry<ChannelAddress, JsonElement>, ChannelAddress, JsonElement>//
-									toSortedMap(Entry::getKey, Entry::getValue, (t, u) -> t)),
-							(t, u) -> t));
+									toSortedMap(Entry::getKey, Entry::getValue, (t, _) -> t)),
+							(t, _) -> t));
 		}
 		final var data = new TreeMap<>(rawExistingData);
 		data.put(now, channelValues);

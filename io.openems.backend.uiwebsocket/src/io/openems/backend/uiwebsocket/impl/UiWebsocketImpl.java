@@ -250,7 +250,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	public void addEdgeSubscriptions(WsData wsData, Set<String> edgeIds) {
 		for (var edgeId : edgeIds) {
-			this.edgeSubscriptions.computeIfAbsent(edgeId, id -> ConcurrentHashMap.newKeySet()).add(wsData);
+			this.edgeSubscriptions.computeIfAbsent(edgeId, _ -> ConcurrentHashMap.newKeySet()).add(wsData);
 		}
 	}
 
@@ -278,7 +278,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	private void removeEdgeSubscription(String edgeId, WsData wsData) {
-		this.edgeSubscriptions.computeIfPresent(edgeId, (id, wsDatas) -> {
+		this.edgeSubscriptions.computeIfPresent(edgeId, (_, wsDatas) -> {
 			wsDatas.remove(wsData);
 			return wsDatas.isEmpty() ? null : wsDatas;
 		});

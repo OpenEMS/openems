@@ -127,7 +127,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 
 		WRAPPER_FIRST_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 1)
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, _, l, parameter, field) -> {
 					field.addWrapper(PANEL)//
 							.setFieldGroup(SubPropertyFirstChargepoint.fields(app, l, parameter))//
 							.setLabelExpression(Exp.ifElse(
@@ -140,7 +140,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 				})), //
 		WRAPPER_SECOND_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 2)
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, _, l, parameter, field) -> {
 					field.addWrapper(PANEL)//
 							.setFieldGroup(SubPropertySecondChargepoint.fields(app, l, parameter))//
 							.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
@@ -152,7 +152,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY),
 				def -> def //
 						.setDefaultValue(0) //
-						.wrapField((app, property, l, parameter, field) -> {
+						.wrapField((app, _, _, _, field) -> {
 							final var existingEvcs = EvcsProps.getEvcsComponents(app.componentUtil);
 							final var archTypeCheck = Exp.currentModelValue(ARCHITECTURE_TYPE)//
 									.equal(Exp.staticValue(EMobilityArchitectureType.EVCS));
@@ -173,7 +173,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 
 		), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
-		READ_ONLY(EvcsProps.readOnly().wrapField((app, property, l, parameter, field) -> {
+		READ_ONLY(EvcsProps.readOnly().wrapField((_, _, _, _, field) -> {
 			field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 					.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
 		})), //
@@ -207,10 +207,10 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setAutoGenerateField(false) //
 				.setRequired(true) //
-				.setDefaultValue((app, property, l, parameter) -> //
+				.setDefaultValue((_, _, _, parameter) -> //
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "right")))) //
-				.wrapField((app, property, l, parameter, field) -> field
+				.wrapField((app, _, l, parameter, field) -> field
 						.setDefaultValueCases(new DefaultValueOptions(Property.NUMBER_OF_CHARGING_STATIONS, //
 								new Case(1, app.getName(l)), //
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
@@ -220,7 +220,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 				.setDefaultValue("192.168.25.30")//
 				.setAutoGenerateField(false)//
 				.setRequired(true)), //
-		CONFIGURE_VEHICLE(EvseProps.configureVehicle().wrapField((app, property, l, parameter, field) -> {
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle().wrapField((_, _, _, _, field) -> {
 			field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 					.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 		})), //
@@ -229,7 +229,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 				.setAutoGenerateField(false) //
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
 				.setTranslatedDescription("App.Evse.pickVehicleId.description") //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
@@ -281,7 +281,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 	public enum SubPropertySecondChargepoint implements PropertyParent {
 		ALIAS_CP_2(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setAutoGenerateField(false) //
-				.setDefaultValue((app, property, l, parameter) -> //
+				.setDefaultValue((_, _, _, parameter) -> //
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "left"))))//
 				.setRequired(true)), //
@@ -294,7 +294,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 				.setAutoGenerateField(false) //
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
 				.setTranslatedDescription("App.Evse.pickVehicleId.description") //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //

@@ -131,8 +131,8 @@ class ModbusUtilsTest {
 		}).when(element).onUpdateCallback(any());
 
 		final var predicateCalls = new AtomicInteger(0);
-		Supplier<BiPredicate<ExecuteState, Object>> continuePredicateFactory = () -> (state,
-				value) -> predicateCalls.incrementAndGet() == 1;
+		Supplier<BiPredicate<ExecuteState, Object>> continuePredicateFactory = //
+				() -> (_, _) -> predicateCalls.incrementAndGet() == 1;
 
 		final var restartFunction = FunctionUtils.<Runnable, Disposable>alwaysReturn(FunctionUtils::doNothing);
 		final var taskFactory = FunctionUtils.<Consumer<ExecuteState>, Task>alwaysReturn(task);
@@ -167,7 +167,7 @@ class ModbusUtilsTest {
 		var factoryCalls = new AtomicInteger(0);
 		Supplier<BiPredicate<ExecuteState, Object>> continuePredicateFactory = () -> {
 			factoryCalls.incrementAndGet();
-			return (state, value) -> false;
+			return (_, _) -> false;
 		};
 
 		var restartRef = new AtomicReference<Runnable>();

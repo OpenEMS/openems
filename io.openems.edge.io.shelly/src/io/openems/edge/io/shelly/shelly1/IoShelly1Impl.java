@@ -176,7 +176,7 @@ public class IoShelly1Impl extends AbstractOpenemsComponent
 			return;
 		}
 		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((response, error) -> {
+		this.httpBridge.get(url).whenComplete((_, error) -> {
 			setValue(this, IoShelly1.ChannelId.SLAVE_COMMUNICATION_FAILED, error != null);
 			if (error != null) {
 				this.logError(this.log, "HTTP request failed: " + error.getMessage());

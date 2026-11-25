@@ -35,7 +35,7 @@ public final class TimeOfUseProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.TimeOfUseTariff.zipCode.label") //
 				.setTranslatedDescription("App.TimeOfUseTariff.zipCode.description") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(InputType.NUMBER);
 				}));
 	}
@@ -51,7 +51,7 @@ public final class TimeOfUseProps {
 				.setTranslatedLabelWithAppPrefix(prefix + ".label") //
 				.setTranslatedDescriptionWithAppPrefix(prefix + ".description") //
 				.setRequired(true)//
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(NUMBER); //
 					field.setUnit(CurrencyConfig.EUR.getUnderPart() + "/kWh");
 				}));
@@ -69,7 +69,7 @@ public final class TimeOfUseProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.TimeOfUseTariff.ENTSO-E.14aCheck.label")//
 				.setDefaultValue(false)//
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (_, _, _, _, field) -> {
 					if (biddingZoneProperty != null) {
 						final var isInBiddingZone = Exp.staticValue(EntsoE.BiddingZone.GERMANY)
 								.equal(Exp.currentModelValue(biddingZoneProperty));

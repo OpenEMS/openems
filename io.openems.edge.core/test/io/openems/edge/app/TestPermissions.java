@@ -62,7 +62,7 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 		EVERYONE(AppDef.copyOfGeneric(CommonProps.defaultDef())), //
 		UPDATE_ARRAY(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("component.id.plural") //
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (_, property, _, _, field) -> {
 					field.setPopupInput(property, DisplayType.STRING);
 
 					final var arrayBuilder = new ReorderArrayBuilder(property); //
@@ -70,7 +70,8 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 							.add(arrayBuilder.build());
 
 					field.setFieldGroup(fields.build());
-				})).setDefaultValue((app, property, l, parameter) -> {
+				})) //
+				.setDefaultValue((_, _, _, _) -> {
 					return JsonUtils.buildJsonArray().add("val1").add("val2").build();
 				})),
 
@@ -115,8 +116,7 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
-
+		return (t, p, _) -> {
 			final var components = new ArrayList<EdgeConfig.Component>();
 			// final var updateArray = this.getJsonArray(p, Property.UPDATE_ARRAY);
 			components.add(new EdgeConfig.Component(this.getId(t, p, Property.ADMIN_ONLY, "id0"), "alias", "factoryId", //

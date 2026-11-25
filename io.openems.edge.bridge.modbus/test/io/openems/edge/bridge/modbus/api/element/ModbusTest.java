@@ -52,7 +52,7 @@ public class ModbusTest<TASK extends Task, ELEMENT extends ModbusElement, CHANNE
 			extends ModbusTest<FC5WriteCoilTask, ELEMENT, CHANNEL> {
 		public FC5WriteCoil(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
-					(startAddress, priority) -> new FC5WriteCoilTask(startAddress, element), //
+					(startAddress, _) -> new FC5WriteCoilTask(startAddress, element), //
 					AccessMode.READ_WRITE, openemsType);
 		}
 	}
@@ -70,7 +70,7 @@ public class ModbusTest<TASK extends Task, ELEMENT extends ModbusElement, CHANNE
 			extends ModbusTest<FC6WriteRegisterTask, ELEMENT, CHANNEL> {
 		public FC6WriteRegister(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
-					(startAddress, priority) -> new FC6WriteRegisterTask(startAddress, element), //
+					(startAddress, _) -> new FC6WriteRegisterTask(startAddress, element), //
 					AccessMode.READ_WRITE, openemsType);
 		}
 	}
@@ -79,7 +79,7 @@ public class ModbusTest<TASK extends Task, ELEMENT extends ModbusElement, CHANNE
 			extends ModbusTest<FC16WriteRegistersTask, ELEMENT, CHANNEL> {
 		public FC16WriteRegisters(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
-					(startAddress, priority) -> new FC16WriteRegistersTask(startAddress, element), //
+					(startAddress, _) -> new FC16WriteRegistersTask(startAddress, element), //
 					AccessMode.READ_WRITE, openemsType);
 		}
 	}

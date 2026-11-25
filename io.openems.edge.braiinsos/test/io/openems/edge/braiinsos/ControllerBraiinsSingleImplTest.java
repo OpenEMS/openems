@@ -75,7 +75,7 @@ class ControllerBraiinsSingleImplTest {
 	void testRun_ShouldRetry_whenFailedModeChange() throws Exception {
 		final var api = mock(BraiinsApi.class);
 		final var callCount = new AtomicInteger();
-		when(api.callActionResume()).thenAnswer(ignore -> callCount.getAndIncrement() == 0 //
+		when(api.callActionResume()).thenAnswer(_ -> callCount.getAndIncrement() == 0 //
 				? CompletableFuture.failedFuture(new RuntimeException("boom")) //
 				: CompletableFuture.completedFuture(null));
 

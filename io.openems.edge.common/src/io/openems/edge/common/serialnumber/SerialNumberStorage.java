@@ -48,8 +48,8 @@ public interface SerialNumberStorage {
 	 * @see Channel#removeOnChangeCallback(BiConsumer)
 	 */
 	public default <T> BiConsumer<Value<T>, Value<T>> createOnChangeListener(Channel<?> channel) {
-		return (oldValue, newValue) -> {
-			newValue.ifPresent(v -> {
+		return (_, newValue) -> {
+			newValue.ifPresent(_ -> {
 				final var address = channel.address();
 				this.put(address.getComponentId(), address.getChannelId(), newValue.asJson());
 			});

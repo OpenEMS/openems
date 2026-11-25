@@ -41,7 +41,7 @@ public class DummySpotTariffProvider implements SpotTariffProvider {
 	}
 
 	private StoredSpotTariff getStoredTariff(BiddingZone biddingZone) {
-		return this.store.computeIfAbsent(biddingZone, b -> new StoredSpotTariff(new BehaviorSubject<>(null),
+		return this.store.computeIfAbsent(biddingZone, _ -> new StoredSpotTariff(new BehaviorSubject<>(null),
 				new BehaviorSubject<>(new TariffUpdateStatus.NotFetchedYet(Instant.now(this.clock)))));
 	}
 

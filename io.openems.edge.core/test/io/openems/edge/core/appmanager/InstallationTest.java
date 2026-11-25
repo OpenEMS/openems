@@ -98,7 +98,7 @@ public class InstallationTest {
 	@Test
 	public void testAppInstallationWithExceptionalConfiguration() throws Exception {
 		final var dummyApp = DummyApp.create() //
-				.setConfiguration((t, p, l) -> {
+				.setConfiguration((_, _, _) -> {
 					throw new OpenemsException("Configuration error");
 				}) //
 				.build();
@@ -119,7 +119,7 @@ public class InstallationTest {
 	@Test
 	public void testAppUpdateWithExceptionalConfiguration() throws Exception {
 		final var dummyApp = DummyApp.create() //
-				.setConfiguration((t, p, l) -> {
+				.setConfiguration((t, _, _) -> {
 					return switch (t) {
 					case UPDATE -> throw new OpenemsException("Configuration error");
 					default -> AppConfiguration.empty();
@@ -153,7 +153,7 @@ public class InstallationTest {
 			final OpenemsApp app, //
 			final ThrowingBiConsumer<AppManagerTestBundle, OpenemsApp, Exception> test //
 	) throws Exception {
-		final var appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
+		final var appManagerTestBundle = new AppManagerTestBundle(null, null, _ -> {
 			return ImmutableList.of(app);
 		}, null, new PseudoComponentManagerFactory());
 

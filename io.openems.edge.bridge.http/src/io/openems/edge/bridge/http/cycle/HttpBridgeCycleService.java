@@ -43,8 +43,8 @@ import io.openems.common.utils.JsonUtils;
  * <p>
  * If an endpoint does not require to be called every cycle it can also be
  * configured with e. g.
- * {@link HttpBridgeCycleService#subscribeCycle(int, String, Consumer)} where the first
- * value could be 5 then the request gets triggered every 5th cycle.
+ * {@link HttpBridgeCycleService#subscribeCycle(int, String, Consumer)} where
+ * the first value could be 5 then the request gets triggered every 5th cycle.
  */
 public interface HttpBridgeCycleService extends HttpBridgeService {
 
@@ -407,7 +407,7 @@ public interface HttpBridgeCycleService extends HttpBridgeService {
 	 * @return the removed {@link CycleEndpoint CycleEndpoints}
 	 */
 	public default Collection<CycleEndpoint> removeAllCycleEndpoints() {
-		return this.removeCycleEndpointIf(t -> true);
+		return this.removeCycleEndpointIf(_ -> true);
 	}
 
 	/**

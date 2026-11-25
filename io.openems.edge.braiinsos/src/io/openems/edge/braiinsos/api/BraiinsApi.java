@@ -68,7 +68,7 @@ public class BraiinsApi {
 		}
 
 		this.pollingEndpoint = this.timeService.subscribeTime(
-				new DefaultDelayTimeProvider<>(Delay::immediate, error -> POLLING_DELAY, response -> POLLING_DELAY),
+				new DefaultDelayTimeProvider<>(Delay::immediate, _ -> POLLING_DELAY, _ -> POLLING_DELAY),
 				this.createEndpoint(HttpMethod.GET, "/miner/stats", null), //
 				this::handleMinerStatsResponse, //
 				this::handleMinerStatsError);
@@ -127,7 +127,7 @@ public class BraiinsApi {
 	private CompletableFuture<Void> callAction(String url) {
 		return this.authenticationService //
 				.request(this.createEndpoint(HttpMethod.PUT, url, null)) //
-				.thenApply(msg -> null);
+				.thenApply(_ -> null);
 	}
 
 	private void handleMinerStatsResponse(HttpResponse<String> response) throws OpenemsNamedException {

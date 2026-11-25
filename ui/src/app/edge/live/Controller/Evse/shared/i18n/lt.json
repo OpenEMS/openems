@@ -5,13 +5,6 @@
                 "LABEL": "Dabartinis režimas"
             },
             "ENERGY_SINCE_START": "Energija nuo paskutinio įkrovimo pradžios",
-            "MODE": {
-                "FORCE": "Greitas",
-                "LABEL": "Pagrindinis režimas",
-                "MINIMUM": "Minimalus",
-                "SURPLUS": "PV",
-                "ZERO": "Išjungta"
-            },
             "POWER": "Galia",
             "STATE_MACHINE": {
                 "CHARGING": "Įkrovimas",

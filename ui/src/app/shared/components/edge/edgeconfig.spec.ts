@@ -475,6 +475,16 @@ export namespace DummyConfig {
             ],
         };
 
+        export const CONTROLLER_ESS_PREPARE_BATTERY_EXTENSION: Factory = {
+            id: "Controller.Ess.PrepareBatteryExtension",
+            natureIds: [
+                "io.openems.edge.controller.ess.fixstateofcharge.ControllerEssPrepareBatteryExtensionImpl",
+                "io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.controller.api.Controller",
+            ],
+        };
+
         export const CONTROLLER_ESS_GRIDOPTIMIZEDCHARGE: Factory = {
             id: "Controller.Ess.GridOptimizedCharge",
             natureIds: [
@@ -1009,6 +1019,17 @@ export namespace DummyConfig {
             id: id,
             alias: alias ?? id,
             factory: Factory.CONTROLLER_ESS_FIXACTIVEPOWER,
+            properties: {},
+            channels: {},
+        });
+
+        export const CONTROLLER_ESS_PREPARE_BATTERY_EXTENSION = (
+            id: string = "ctrlPrepareBatteryExtension0",
+            alias?: string,
+        ): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.CONTROLLER_ESS_PREPARE_BATTERY_EXTENSION,
             properties: {},
             channels: {},
         });

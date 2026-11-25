@@ -138,7 +138,7 @@ public class FeneconPro912
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 
 			final var gridMeterId = "meter0";
 			final var essId = "ess0";

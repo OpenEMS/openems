@@ -173,7 +173,7 @@ public class ControllerCleverPvImplTest {
 						.input("_sum", ESS_DISCHARGE_POWER, -300) //
 						.onAfterWriteCallbacks(executor::update)) //
 				.next(new TestCase() //
-						.also(testCase -> {
+						.also(_ -> {
 							executor.update();
 						}).onAfterWriteCallbacks(executor::update) //
 						.output("ctrlCleverPv0", REMOTE_CONTROL_MODE, NO_DISCHARGE)) //
@@ -246,7 +246,7 @@ public class ControllerCleverPvImplTest {
 						.input("_sum", ESS_DISCHARGE_POWER, -300) //
 						.onAfterWriteCallbacks(executor::update)) //
 				.next(new TestCase() //
-						.also(testCase -> {
+						.also(_ -> {
 							executor.update();
 							assertEquals("HTTP:200 OK|watt=1000, producingWatt=500, soc=25, powerStorageState=1, "
 									+ "chargingPower=-300", sut.debugLog());

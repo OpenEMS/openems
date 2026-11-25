@@ -7,7 +7,8 @@ import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleC
 import io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel;
 
 /**
- * Dummy implementation of {@link ControllerEssRippleControlReceiver} for testing.
+ * Dummy implementation of {@link ControllerEssRippleControlReceiver} for
+ * testing.
  */
 public class DummyRippleControlReceiver extends AbstractDummyOpenemsComponent<DummyRippleControlReceiver>
 		implements ControllerEssRippleControlReceiver {
@@ -47,4 +48,3 @@ public class DummyRippleControlReceiver extends AbstractDummyOpenemsComponent<Du
 		return this.self();
 	}
 }
-

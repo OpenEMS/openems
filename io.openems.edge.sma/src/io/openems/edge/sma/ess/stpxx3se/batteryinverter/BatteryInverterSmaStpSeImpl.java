@@ -166,7 +166,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	}
 
 	private void installBatteryListeners(SmaBattery sma) {
-		final Consumer<Value<Integer>> calculate = ignore -> {
+		final Consumer<Value<Integer>> calculate = _ -> {
 			this._setDcDischargePower(TypeUtils.subtract(//
 					sma.getCurBatDschChannel().getNextValue().get(), //
 					sma.getCurBatChaChannel().getNextValue().get())); //
@@ -178,7 +178,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	private void installListeners() {
 		// NOTE: Twice the same callback needed, as we have to install it on Integer-
 		// and Float-Channels
-		final Consumer<Value<Integer>> calculateInteger = ignore -> {
+		final Consumer<Value<Integer>> calculateInteger = _ -> {
 			Integer p1;
 			Integer p2;
 			try {
@@ -192,7 +192,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 			this._setActivePower(sumInteger(//
 					p1, p2, this.getDcDischargePowerChannel().getNextValue().get())); //
 		};
-		final Consumer<Value<Float>> calculateFloat = ignore -> {
+		final Consumer<Value<Float>> calculateFloat = _ -> {
 			Integer p1;
 			Integer p2;
 			try {

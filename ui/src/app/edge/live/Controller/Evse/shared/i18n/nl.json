@@ -5,13 +5,6 @@
                 "LABEL": "Actuele modus"
             },
             "ENERGY_SINCE_START": "Energie sinds de laatste laadstart",
-            "MODE": {
-                "FORCE": "Snel",
-                "LABEL": "Basismodus",
-                "MINIMUM": "Minimaal",
-                "SURPLUS": "PV",
-                "ZERO": "Uit"
-            },
             "POWER": "Vermogen",
             "STATE_MACHINE": {
                 "CHARGING": "Aan het laden",

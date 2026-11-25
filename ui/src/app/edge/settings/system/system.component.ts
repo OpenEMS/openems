@@ -13,8 +13,8 @@ import { ChangelogComponent } from "../../../changelog/view/component/changelog.
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, UserPermission, Utils, Websocket } from "../../../shared/shared";
 import { ExecuteUpdate } from "./jsonrpc/executeUpdate";
-import { GetUpdateables, Updateable } from "./jsonrpc/getUpdateables";
-import { GetUpdateState, UpdateState } from "./jsonrpc/getUpdateState";
+import { GetUpdateables, UpdateableState } from "./jsonrpc/getUpdateables";
+import { GetUpdateState } from "./jsonrpc/getUpdateState";
 import { MaintenanceComponent } from "./maintenance/maintenance";
 import { OeSystemUpdateComponent } from "./oe-system-update.component";
 import { UpdateableCardComponent } from "./updateable-card.component";
@@ -145,8 +145,7 @@ export class SystemComponent {
                 }),
             )
         ).result;
-
-        return result.updateables.map((u) => <UpdateableState>{ updateable: u });
+        return environment.CLEANED_UPDATEABLES(result.updateables.map((u) => <UpdateableState>{ updateable: u }));
     }
 
     private doesUpdateableRequireStateUpdate(updateable: UpdateableState): boolean {
@@ -189,8 +188,3 @@ export class SystemComponent {
         );
     }
 }
-
-export type UpdateableState = {
-    updateable: Updateable;
-    updateState?: UpdateState;
-};

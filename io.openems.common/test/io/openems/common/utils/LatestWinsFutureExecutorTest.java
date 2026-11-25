@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,15 +27,15 @@ class LatestWinsFutureExecutorTest {
 		executor.execute(() -> {
 			started.add("first");
 			return first;
-		}, (result, error) -> completed.add(result));
+		}, (result, _) -> completed.add(result));
 		executor.execute(() -> {
 			started.add("second");
 			return second;
-		}, (result, error) -> completed.add(result));
+		}, (result, _) -> completed.add(result));
 		executor.execute(() -> {
 			started.add("latest");
 			return latest;
-		}, (result, error) -> completed.add(result));
+		}, (result, _) -> completed.add(result));
 
 		assertEquals(List.of("first"), started);
 		first.complete("first");
@@ -53,10 +54,10 @@ class LatestWinsFutureExecutorTest {
 
 		executor.execute(() -> {
 			throw expectedError;
-		}, (result, error) -> actualError[0] = error);
+		}, (_, error) -> actualError[0] = error);
 
 		assertSame(expectedError, actualError[0]);
-		executor.execute(() -> CompletableFuture.completedFuture("next"), (result, error) -> {
+		executor.execute(() -> CompletableFuture.completedFuture("next"), (result, _) -> {
 			assertEquals("next", result);
 		});
 	}
@@ -71,16 +72,15 @@ class LatestWinsFutureExecutorTest {
 		executor.execute(() -> {
 			started.add("active");
 			return active;
-		}, (result, error) -> completed.add(result));
+		}, (result, _) -> completed.add(result));
 		executor.execute(() -> {
 			started.add("pending");
 			return CompletableFuture.completedFuture("pending");
-		}, (result, error) -> completed.add(result));
+		}, (result, _) -> completed.add(result));
 
 		executor.cancel();
 		assertThrows(RejectedExecutionException.class,
-				() -> executor.execute(() -> CompletableFuture.completedFuture("rejected"), (result, error) -> {
-				}));
+				() -> executor.execute(() -> CompletableFuture.completedFuture("rejected"), (_, _) -> doNothing()));
 		active.complete("active");
 
 		assertEquals(List.of("active"), started);

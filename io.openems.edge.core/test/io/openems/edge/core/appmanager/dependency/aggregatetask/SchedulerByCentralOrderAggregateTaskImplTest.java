@@ -39,10 +39,10 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 	@BeforeEach
 	public void setUp() throws Exception {
 		final var componentManagerFactory = new PseudoComponentManagerFactory();
-		this.testBundle = new AppManagerTestBundle(null, null, tb -> {
+		this.testBundle = new AppManagerTestBundle(null, null, _ -> {
 			return ImmutableList.of(DummyApp.create() //
 					.setAppId("appId") //
-					.setConfiguration((t, u, s) -> AppConfiguration.create() //
+					.setConfiguration((_, _, _) -> AppConfiguration.create() //
 							.addTask(Tasks.component(new EdgeConfig.Component("id0", "alias", "factoryId",
 									JsonUtils.buildJsonObject().build()))) //
 							.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent("id0", "factoryId", "appId"))) //
@@ -50,7 +50,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 					.build(),
 					DummyApp.create() //
 							.setAppId("appId2") //
-							.setConfiguration((t, u, s) -> AppConfiguration.create() //
+							.setConfiguration((_, _, _) -> AppConfiguration.create() //
 									.addTask(Tasks.component(new EdgeConfig.Component("id1", "alias", "factoryId1",
 											JsonUtils.buildJsonObject().build()))) //
 									.addTask(Tasks.schedulerByCentralOrder(

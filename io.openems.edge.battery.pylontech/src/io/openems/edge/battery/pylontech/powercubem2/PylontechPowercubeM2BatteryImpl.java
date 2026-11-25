@@ -390,7 +390,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	 * set in the PylontechBattery.java file
 	 */
 	protected static final Consumer<Channel<Integer>> UPDATE_NUMBER_OF_PILES_CALLBACK = channel -> {
-		channel.onChange((ignore, value) -> {
+		channel.onChange((_, _) -> {
 			((PylontechPowercubeM2BatteryImpl) channel.getComponent()).updateNumberOfPiles();
 		});
 	};

@@ -138,7 +138,7 @@ public class SmaBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void limitMinMaxVoltages() {
-		this.getCapacityChannel().onChange((o, n) -> {
+		this.getCapacityChannel().onChange((_, n) -> {
 			if (n == null || !n.isDefined()) {
 				return;
 			}

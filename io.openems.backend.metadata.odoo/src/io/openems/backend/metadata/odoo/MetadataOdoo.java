@@ -56,6 +56,7 @@ import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
+import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.mail.MailContext;
 import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.mail.SendMailException;
@@ -122,13 +123,13 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	private DebugExecutor refreshTokenExecutor;
 	private final ConcurrentHashMap<String, Boolean> pendingEdgeConfigIds = new ConcurrentHashMap<>();
 
-	private DebugExecutor requestExecutor;
+	protected DebugExecutor requestExecutor;
 
 	@Reference
 	private EventAdmin eventAdmin;
 
 	@Reference
-	private OpenemsBackendOem oem;
+	protected OpenemsBackendOem oem;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
@@ -355,12 +356,25 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
+		try {
+			final var edgeId = this.odooHandler.getEdgeIdForSetupProtocol(setupProtocolId);
+			this.assertRoleIsAtLeast(user, edgeId, Role.OWNER, "getSetupProtocol");
+		} catch (OpenemsNamedException e) {
+			this.log.warn("Unable to authorize setup protocol download", e);
+			throw new OpenemsException("Access to setup protocol denied");
+		}
 		return this.odooHandler.getOdooSetupProtocolReport(setupProtocolId);
 	}
 
 	@Override
 	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
 		return this.odooHandler.getSetupProtocolData(user, edgeId);
+	}
+
+	@Override
+	public void assertCanSubmitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		final var edgeId = getAsString(getAsJsonObject(jsonObject, ODOO_EDGE_NAME), "id");
+		this.assertRoleIsAtLeast(user, edgeId, Role.INSTALLER, SubmitSetupProtocolRequest.METHOD);
 	}
 
 	@Override

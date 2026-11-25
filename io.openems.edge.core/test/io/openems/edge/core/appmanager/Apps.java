@@ -1113,7 +1113,7 @@ public final class Apps {
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final AppBraiinsOsDiy braiinsOsMeterDiy(AppManagerTestBundle t) {
+	public static final AppBraiinsOsDiy braiinsOsDiy(AppManagerTestBundle t) {
 		return app(t, AppBraiinsOsDiy::new, "App.LoadControl.BraiinsOs");
 	}
 

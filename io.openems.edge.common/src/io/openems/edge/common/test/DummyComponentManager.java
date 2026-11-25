@@ -178,9 +178,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 			return new GetEdgeConfigResponse(call.getRequest().getId(), this.getEdgeConfig());
 		});
 
-		builder.handleRequest(new CreateComponentConfig(), endpoint -> {
-
-		}, call -> {
+		builder.handleRequest(new CreateComponentConfig(), call -> {
 			this.handleCreateComponentConfigRequestGuarded(call.get(EdgeKeys.USER_KEY), call.getRequest());
 			return EmptyObject.INSTANCE;
 		});

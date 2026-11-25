@@ -57,13 +57,14 @@ public class Context extends AbstractContext<BatteryBmwImpl> {
 
 		try {
 			CompletableFuture<HttpResponse<String>> futureResponse = http.request(endPoint);
-
-			futureResponse.thenAccept(response -> {
-				this.log.debug("Request succeeded for URI: {}", uri);
-			}).exceptionally(throwable -> {
-				this.log.error("Request failed for URI: {} - Error: {}", uri, throwable.getMessage());
-				return null;
-			});
+			futureResponse //
+					.thenAccept(_ -> {
+						this.log.debug("Request succeeded for URI: {}", uri);
+					})//
+					.exceptionally(throwable -> {
+						this.log.error("Request failed for URI: {} - Error: {}", uri, throwable.getMessage());
+						return null;
+					});
 
 		} catch (Exception e) {
 			this.log.error("POST request failed for URI: {} - Error: {}", uri, e.getMessage());

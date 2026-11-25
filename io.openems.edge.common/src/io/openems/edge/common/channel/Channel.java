@@ -126,6 +126,22 @@ public interface Channel<T> {
 	public Value<T> getNextValue();
 
 	/**
+	 * Resets this Channel to UNDEFINED ('null') with the next Cycle.
+	 *
+	 * <p>
+	 * Pending write values are kept; see
+	 * {@link WriteChannel#discardNextWriteValue()}.
+	 *
+	 * <p>
+	 * Note: Channels with a cumulated Unit (e.g. cumulated energy counters) are
+	 * intentionally not reset, to keep cumulated values steadily increasing. See
+	 * {@link AbstractReadChannel#_setNextValue(Object)}.
+	 */
+	default void resetToNull() {
+		this.setNextValue(null);
+	}
+
+	/**
 	 * Add an onSetNextValue callback. It is called, after a new NextValue was set.
 	 * Note that usually you should prefer the onUpdate() callback.
 	 *

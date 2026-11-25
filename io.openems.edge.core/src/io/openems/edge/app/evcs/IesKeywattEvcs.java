@@ -90,7 +90,7 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 				.setTranslatedDescriptionWithAppPrefix(".connector.description") //
 				.setDefaultValue(1) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> //
 				field.setInputType(NUMBER)//
 						.setMin(0))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//

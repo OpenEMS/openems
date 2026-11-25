@@ -179,8 +179,8 @@ class EvseChargePointHardyImplTest {
 		}
 
 		sut.test.next(new TestCase() //
-				.onBeforeProcessImage(
-						() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), PhaseRotation.L1_L2_L3)));
+				.onBeforeProcessImage(() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE),
+						PhaseRotation.L1_L2_L3)));
 
 		{
 			var cpa = sut.obj.getChargePointAbilities();
@@ -256,8 +256,8 @@ class EvseChargePointHardyImplTest {
 		void testStatus(String name, String json, String expectedRawValue, boolean expectedSupport) throws Exception {
 			final var sut = generateSut();
 			sut.test.next(new TestCase() //
-					.onBeforeProcessImage(
-							() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
+					.onBeforeProcessImage(() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(json),
+							PhaseRotation.L1_L2_L3)) //
 					.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, expectedRawValue) //
 					// An undefined or unknown value must not trigger a warning/fault channel.
 					.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
@@ -276,7 +276,7 @@ class EvseChargePointHardyImplTest {
 							.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, "idle") //
 					);
 			assertTrue(sut.obj.hasPhaseSwitchingApi());
-											assertEquals("idle", sut.obj.getSaliaPhaseSwitchingStatus().get());
+			assertEquals("idle", sut.obj.getSaliaPhaseSwitchingStatus().get());
 
 			sut.test //
 					.next(new TestCase() //
@@ -285,14 +285,14 @@ class EvseChargePointHardyImplTest {
 							.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, null) //
 					);
 			assertFalse(sut.obj.hasPhaseSwitchingApi());
-											assertNull(sut.obj.getSaliaPhaseSwitchingStatus().get());
+			assertNull(sut.obj.getSaliaPhaseSwitchingStatus().get());
 		}
 
 		@Test
 		void testMasterWithPhaseSwitchingApiSetsWarning() throws Exception {
 			final var sut = generateSut();
-			final var masterApiResponse = API_RESPONSE.replace("2310007", "2310006")
-					.replace("Salia PLCC Slave", "Salia PLCC Master");
+			final var masterApiResponse = API_RESPONSE.replace("2310007", "2310006").replace("Salia PLCC Slave",
+					"Salia PLCC Master");
 			sut.test.next(new TestCase() //
 					.onBeforeProcessImage(() -> sut.evseHandler
 							.handleGetApiCallResponse(HttpResponse.ok(masterApiResponse), PhaseRotation.L1_L2_L3)) //
@@ -310,19 +310,19 @@ class EvseChargePointHardyImplTest {
 		var httpBundle = createDelayedHttpBundle();
 		var sut = generateSut(httpBundle.factory(), false);
 
-		prepareTargetOutcome(httpBundle, ep -> new HttpResponse<>(HttpStatus.CREATED, "ok"));
+		prepareTargetOutcome(httpBundle, _ -> new HttpResponse<>(HttpStatus.CREATED, "ok"));
 		sut.obj.apply(actionsWithCurrent(10));
 		httpBundle.runTasksImmediately();
 		sut.test.next(new TestCase() //
 				.output(HardyBarth.ChannelId.TARGET_WRITE_FAILED, true));
 
-		prepareTargetOutcome(httpBundle, ep -> HttpResponse.ok("ok"));
+		prepareTargetOutcome(httpBundle, _ -> HttpResponse.ok("ok"));
 		sut.obj.apply(actionsWithCurrent(11));
 		httpBundle.runTasksImmediately();
 		sut.test.next(new TestCase() //
 				.output(HardyBarth.ChannelId.TARGET_WRITE_FAILED, false));
 
-		prepareTargetOutcome(httpBundle, ep -> {
+		prepareTargetOutcome(httpBundle, _ -> {
 			throw new HttpError.ResponseError(HttpStatus.INTERNAL_SERVER_ERROR, "boom");
 		});
 		sut.obj.apply(actionsWithCurrent(12));

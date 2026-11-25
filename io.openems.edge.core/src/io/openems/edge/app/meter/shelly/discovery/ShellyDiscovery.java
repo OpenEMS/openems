@@ -1,5 +1,6 @@
 package io.openems.edge.app.meter.shelly.discovery;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.net.Inet4Address;
@@ -112,8 +113,7 @@ public abstract class ShellyDiscovery<T> implements ComponentJsonApi {
 
 		this.subscription = this.mDnsDiscovery.subscribeService(SERVICE_TYPE, event -> {
 			switch (event) {
-			case MDnsDiscovery.MDnsEvent.ServiceAdded added -> {
-			}
+			case MDnsDiscovery.MDnsEvent.ServiceAdded _ -> doNothing();
 			case MDnsDiscovery.MDnsEvent.ServiceResolved resolved -> {
 				this.discoveredServices.put(resolved.serviceName(), resolved);
 			}

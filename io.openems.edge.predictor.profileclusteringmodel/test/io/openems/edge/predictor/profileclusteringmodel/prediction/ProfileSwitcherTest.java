@@ -97,7 +97,7 @@ public class ProfileSwitcherTest {
 				.boxed()//
 				.toList();
 		var values = IntStream.range(0, Profile.LENGTH)//
-				.mapToObj(i -> value)//
+				.mapToObj(_ -> value)//
 				.toList();
 		return new Series<>(index, values);
 	}

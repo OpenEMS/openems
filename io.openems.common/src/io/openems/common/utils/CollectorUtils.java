@@ -121,7 +121,7 @@ public final class CollectorUtils {
 			Function<? super T, ? extends K> keyMapper, //
 			Function<? super T, ? extends U> valueMapper //
 	) {
-		return toSortedMap(keyMapper, valueMapper, (t, u) -> {
+		return toSortedMap(keyMapper, valueMapper, (_, _) -> {
 			throw new IllegalStateException();
 		});
 	}

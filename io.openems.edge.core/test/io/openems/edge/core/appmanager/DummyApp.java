@@ -136,8 +136,8 @@ public class DummyApp implements OpenemsApp {
 					this.properties.toArray(OpenemsAppPropertyDefinition[]::new), //
 					this.appAssistant == null ? AppAssistant.create(name).build() : this.appAssistant, //
 					this.appDescriptor == null ? AppDescriptor.create().build() : this.appDescriptor, //
-					this.configuration == null ? (t, u, s) -> AppConfiguration.empty() : this.configuration, //
-					this.propName == null ? (t, u, s) -> t : this.propName);
+					this.configuration == null ? (_, _, _) -> AppConfiguration.empty() : this.configuration, //
+					this.propName == null ? (t, _, _) -> t : this.propName);
 		}
 
 	}

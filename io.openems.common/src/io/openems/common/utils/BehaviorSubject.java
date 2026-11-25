@@ -73,7 +73,7 @@ public class BehaviorSubject<T> {
 	 * @param value New value
 	 */
 	public void setValue(T value) {
-		this.updateValue(v -> value);
+		this.updateValue(_ -> value);
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class BehaviorSubject<T> {
 
 		this.subscribe(subscribeFunction);
 
-		return future.orTimeout(maxWait.toMillis(), TimeUnit.MILLISECONDS).whenComplete((val, ex) -> {
+		return future.orTimeout(maxWait.toMillis(), TimeUnit.MILLISECONDS).whenComplete((_, _) -> {
 			this.unsubscribe(subscribeFunction);
 		});
 	}
@@ -144,4 +144,11 @@ public class BehaviorSubject<T> {
 		return this.consumers.size();
 	}
 
+	@Override
+	public String toString() {
+		return "BehaviorSubject{"//
+				+ "value=" + this.value//
+				+ ", consumers=" + this.consumers.size()//
+				+ '}';
+	}
 }

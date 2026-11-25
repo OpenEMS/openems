@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -103,8 +105,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
 		return this.getEnabledComponents().stream() //
-				.filter(clazz::isInstance) //
-				.map(clazz::cast) //
+				.gather(filterIsInstance(clazz)) //
 				.collect(Collectors.toList());
 	}
 
@@ -353,7 +354,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 								}
 								return t;
 							}, //
-							(t, u) -> {
+							(_, u) -> {
 								// duplicates take second
 								return u;
 							}, //

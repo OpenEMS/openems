@@ -79,7 +79,7 @@ public class DifferentModes {
 		 * @return myself
 		 */
 		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setModes(Supplier<Modes<?, MODE>> supplier) {
-			this.modesFunction = (goc, context) -> supplier.get();
+			this.modesFunction = (_, _) -> supplier.get();
 			return this;
 		}
 
@@ -502,7 +502,7 @@ public class DifferentModes {
 		 * @return empty provider
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> empty() {
-			return (goc, coc, modes) -> ImmutableSortedSet.of();
+			return (_, _, _) -> ImmutableSortedSet.of();
 		}
 
 		/**
@@ -527,7 +527,7 @@ public class DifferentModes {
 		 * @return the same Mode
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT> PreProcessor<MODE, OPTIMIZATION_CONTEXT> doNothing() {
-			return (period, context, state) -> state;
+			return (_, _, state) -> state;
 		}
 
 		/**
@@ -553,7 +553,7 @@ public class DifferentModes {
 		 * @return zero cost
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
-			return (id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> mode;
+			return (_, _, _, _, _, _, mode, _, _) -> mode;
 		}
 
 		/**
@@ -586,7 +586,7 @@ public class DifferentModes {
 		 * @return an {@link Evaluator} that performs no action
 		 */
 		static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
-			return (parentComponentId, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+			return (_, _, _, _, _, _, _, _, _) -> {
 			};
 		}
 

@@ -80,7 +80,7 @@ public class CheckableFactory {
 			return null;
 		}
 
-		return new ClosableCheckable(service, t -> {
+		return new ClosableCheckable(service, _ -> {
 			cso.ungetService(service);
 		});
 	}

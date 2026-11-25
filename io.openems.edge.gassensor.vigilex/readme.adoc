@@ -1,0 +1,32 @@
+= Vigilex VIGI-DT1 Multi-Gas & Environmental Sensor
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.gassensor.vigilex[Source Code icon:github[]]
+
+Implements the Vigilex VIGI-DT1 Multi-Gas & Environmental Sensor for BESS (Battery Energy Storage Systems).
+
+== Measurements
+
+[cols="1,1,1"]
+|===
+|Channel |Unit |Description
+
+|HYDROGEN |% LEL |Hydrogen concentration (0…100 %LEL, resolution 0.01 %LEL)
+|VOC |VOC Index |Volatile Organic Compound index (0…500, baseline = 100)
+|TEMPERATURE |°C |Ambient temperature (-40…+85 °C)
+|HUMIDITY |% |Relative humidity (0…100 %RH)
+|===
+
+== Alarm Relays
+
+|===
+|Channel |Level |Description
+
+|RE1_STATE |WARNING |Relay RE1 active — first alarm threshold exceeded
+|RE2_STATE |FAULT |Relay RE2 active — second alarm threshold exceeded
+|===
+
+== Interface
+
+* Protocol: RS485 Modbus RTU
+* Baud rate: 19200, 8N1
+* Default Modbus Unit-ID: 1

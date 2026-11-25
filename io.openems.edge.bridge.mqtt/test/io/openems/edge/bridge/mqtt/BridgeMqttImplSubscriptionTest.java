@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.mqtt;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -104,8 +105,7 @@ public class BridgeMqttImplSubscriptionTest {
 	@Test
 	public void unsubscribingOneKeepsTheOtherAndTheBrokerSubscription() throws Exception {
 		var second = new ArrayList<String>();
-		var firstSubscription = this.bridge.subscribe("device/ack", QoS.AT_LEAST_ONCE, msg -> {
-		});
+		var firstSubscription = this.bridge.subscribe("device/ack", QoS.AT_LEAST_ONCE, _ -> doNothing());
 		final var secondSubscription = this.bridge.subscribe("device/ack", QoS.AT_LEAST_ONCE,
 				msg -> second.add(msg.payloadAsString()));
 
@@ -115,8 +115,7 @@ public class BridgeMqttImplSubscriptionTest {
 		assertEquals(List.of("ok"), second);
 
 		secondSubscription.unsubscribe().get();
-		assertEquals("the last one removes the broker subscription", List.of("device/ack"),
-				this.broker.unsubscribed);
+		assertEquals("the last one removes the broker subscription", List.of("device/ack"), this.broker.unsubscribed);
 	}
 
 	@Test

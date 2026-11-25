@@ -1,19 +1,17 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
@@ -23,7 +21,6 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 /**
  * Parameterized test for calculateSoh scenarios.
  */
-@RunWith(Parameterized.class)
 public class ContextCalculateSohParamTest {
 
 	private static final String ESS_ID = "ess0";
@@ -31,67 +28,55 @@ public class ContextCalculateSohParamTest {
 	private static final int DEFAULT_MAX_APPARENT_POWER = 10_000;
 	private static final int DEFAULT_CAPACITY = 10_000;
 
-	@Parameters(name = "{0}")
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-				{ "Valid capacity 95%", 9500L, DEFAULT_CAPACITY, 95, 95.0f },
-				{ "Valid capacity 80%", 8000L, DEFAULT_CAPACITY, 80, 80.0f },
-				{ "Valid capacity 50%", 5000L, DEFAULT_CAPACITY, 50, 50.0f },
-				{ "Valid capacity 100% new battery", 10500L, DEFAULT_CAPACITY, 100,  105.0f },
-				{ "Zero capacity returns null", 0L, DEFAULT_CAPACITY, null, null },
-				{ "Null capacity returns null", null, DEFAULT_CAPACITY, null, null },
-				{ "Null ESS capacity returns null", 9500L, null, null, null }
-		});
-	}
-
-	private final Long measuredCapacityWh;
-	private final Integer essCapacity;
-	private final Integer expectedSoh;
-	private final Float expectedSohRaw;
-
 	private ControllerEssSohCycleImpl controller;
 	private DummyManagedSymmetricEss ess;
 	private Config config;
 	private Clock clock;
 
-	public ContextCalculateSohParamTest(@SuppressWarnings("unused") String testName, Long measuredCapacityWh,
-			Integer essCapacity, Integer expectedSoh, Float expectedSohRaw) {
-		this.measuredCapacityWh = measuredCapacityWh;
-		this.essCapacity = essCapacity;
-		this.expectedSoh = expectedSoh;
-		this.expectedSohRaw = expectedSohRaw;
+	static Stream<Arguments> data() {
+		return Stream.of(//
+				Arguments.of(9500L, DEFAULT_CAPACITY, 95, 95.0f), // Valid capacity 95%
+				Arguments.of(8000L, DEFAULT_CAPACITY, 80, 80.0f), // Valid capacity 80%
+				Arguments.of(5000L, DEFAULT_CAPACITY, 50, 50.0f), // Valid capacity 50%
+				Arguments.of(10500L, DEFAULT_CAPACITY, 100, 105.0f), // Valid capacity 100% new battery
+				Arguments.of(0L, DEFAULT_CAPACITY, null, null), // Zero capacity returns null
+				Arguments.of(null, DEFAULT_CAPACITY, null, null), // Null capacity returns null
+				Arguments.of(9500L, null, null, null) // Null ESS capacity returns null
+		);
 	}
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.controller = new ControllerEssSohCycleImpl();
-		this.ess = new DummyManagedSymmetricEss(ESS_ID)
-				.withMaxApparentPower(DEFAULT_MAX_APPARENT_POWER)
-				.withCapacity(this.essCapacity);
 		this.clock = Clock.fixed(Instant.parse("2000-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		this.config = MyConfig.create()
-				.setId(CONTROLLER_ID)
-				.setEssId(ESS_ID)
-				.setRunning(true)
+		this.config = MyConfig.create() //
+				.setId(CONTROLLER_ID) //
+				.setEssId(ESS_ID) //
+				.setRunning(true) //
 				.build();
 	}
 
-	@Test
-	public void testCalculateSoh() {
+	@ParameterizedTest(name = "[{index}] measuredCapacityWh={0}, essCapacity={1}, expectedSoh={2}")
+	@MethodSource("data")
+	public void testCalculateSoh(Long measuredCapacityWh, Integer essCapacity, Integer expectedSoh,
+			Float expectedSohRaw) {
 		// Arrange
+		this.ess = new DummyManagedSymmetricEss(ESS_ID) //
+				.withMaxApparentPower(DEFAULT_MAX_APPARENT_POWER) //
+				.withCapacity(essCapacity);
 		var context = new Context(this.controller, this.config, this.clock, this.ess);
 
 		// Act
-		var sohResult = context.calculateSoh(this.measuredCapacityWh);
+		var sohResult = context.calculateSoh(measuredCapacityWh);
 
 		// Assert
-		if (this.expectedSoh == null) {
+		if (expectedSoh == null) {
 			assertTrue(sohResult.isEmpty());
 		} else {
 			assertTrue(sohResult.isPresent());
 			var result = sohResult.get();
-			assertEquals(this.expectedSoh, result.soh(), 0);
-			assertEquals(this.expectedSohRaw, result.sohRaw(), 0.01f);
+			assertEquals(expectedSoh, result.soh(), 0);
+			assertEquals(expectedSohRaw, result.sohRaw(), 0.01f);
 		}
 	}
 }

@@ -24,7 +24,7 @@ public class SpotTariffVendorProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Tariff.SpotTariff.vendorType.label") //
 				.setDefaultValue(SpotTariffPriceSource.BACKEND) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(SpotTariffPriceSource.class), l);
 				}));
 	}

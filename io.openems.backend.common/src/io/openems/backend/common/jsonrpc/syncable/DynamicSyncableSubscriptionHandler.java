@@ -13,12 +13,17 @@ import io.openems.common.utils.ThrottledLoopExecutor;
 public abstract class DynamicSyncableSubscriptionHandler<VALUE> implements SubscriptionHandler {
 	protected final SyncableKey<VALUE> key;
 	protected final BehaviorSubject<SyncableEntry<VALUE>> value = new BehaviorSubject<>(null);
+	private final List<EdgeClient> clients;
 
-	protected DynamicSyncableSubscriptionHandler(SyncableKey<VALUE> key, ThrottledLoopExecutor sendExecutor) {
+	protected DynamicSyncableSubscriptionHandler(//
+			SyncableKey<VALUE> key, //
+			ThrottledLoopExecutor sendExecutor, //
+			List<EdgeClient> clients //
+	) {
 		this.key = key;
+		this.clients = clients;
 
 		this.value.subscribe(newEntry -> {
-			var clients = this.getClients();
 			if (newEntry != null && !clients.isEmpty()) {
 				sendExecutor.add(clients, c -> c.send(new SyncableChangeNotification(newEntry)));
 			}
@@ -33,5 +38,7 @@ public abstract class DynamicSyncableSubscriptionHandler<VALUE> implements Subsc
 		return this.value;
 	}
 
-	protected abstract List<EdgeClient> getClients();
+	protected final List<EdgeClient> getClients() {
+		return this.clients;
+	}
 }

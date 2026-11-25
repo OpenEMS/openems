@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
 import static com.ghgande.j2mod.modbus.Modbus.ILLEGAL_ADDRESS_EXCEPTION;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
@@ -211,7 +212,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				throw new IllegalArgumentException("This modbus device is not SunSpec!");
 			}
 
-			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((result, error) -> {
+			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((_, error) -> {
 				if (error != null) {
 					this.log.error("Error during SunSpec initialization", error);
 					return;
@@ -524,7 +525,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			yield List.of(element);
 		}
 
-		case ChannelIdPoint cip -> List.of();
+		case ChannelIdPoint _ -> List.of();
 		};
 	}
 
@@ -596,8 +597,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			yield Stream.of(model.points()) //
 					.filter(p -> p.name().equals(scaleFactorName)) //
 					.map(SunSpecPoint::get) //
-					.filter(ScaleFactorPoint.class::isInstance) //
-					.map(ScaleFactorPoint.class::cast) //
+					.gather(filterIsInstance(ScaleFactorPoint.class)) //
 					.map(sfp -> new ElementToChannelScaleFactorConverter(this, svp, sfp.channelId)) //
 					// Found matching Scale-Factor Point in SunSpec Model
 					.findFirst()

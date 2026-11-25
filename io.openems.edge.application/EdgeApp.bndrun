@@ -45,6 +45,7 @@
 	bnd.identity;id='io.openems.core.logger',\
 	bnd.identity;id='io.openems.core.referencetarget',\
 	bnd.identity;id='io.openems.edge.aircooling.blueeplus',\
+	bnd.identity;id='io.openems.edge.aircooling.seifert',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -161,6 +162,7 @@
 	bnd.identity;id='io.openems.edge.firealarmsystem.hekatron',\
 	bnd.identity;id='io.openems.edge.fluidcooling.hydac',\
 	bnd.identity;id='io.openems.edge.fronius',\
+	bnd.identity;id='io.openems.edge.gassensor.vigilex',\
 	bnd.identity;id='io.openems.edge.goodwe',\
 	bnd.identity;id='io.openems.edge.heat.askoma',\
 	bnd.identity;id='io.openems.edge.heat.mypv',\
@@ -262,6 +264,7 @@
 	io.openems.core.logger;version=snapshot;startlevel=18,\
 	io.openems.core.referencetarget;version=snapshot;startlevel=17,\
 	io.openems.edge.aircooling.blueeplus;version=snapshot,\
+	io.openems.edge.aircooling.seifert;version=snapshot,\
 	io.openems.edge.application;version=snapshot;startlevel=19,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
@@ -385,6 +388,7 @@
 	io.openems.edge.firealarmsystem.hekatron;version=snapshot,\
 	io.openems.edge.fluidcooling.hydac;version=snapshot,\
 	io.openems.edge.fronius;version=snapshot,\
+	io.openems.edge.gassensor.vigilex;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.heat.api;version=snapshot,\
 	io.openems.edge.heat.askoma;version=snapshot,\

@@ -20,8 +20,8 @@ public class SunSpecComponentTest {
 		final Map<SunSpecModel, Priority> allModels = Stream.of(DefaultSunSpecModel.values()) //
 				.collect(Collectors.toMap(//
 						model -> model, //
-						model -> Priority.LOW, //
-						(a, b) -> a, TreeMap::new));
+						_ -> Priority.LOW, //
+						(a, _) -> a, TreeMap::new));
 
 		var component = new DummySunSpecComponent(allModels);
 		assertTrue(component.maximumTaskLenghth() <= 126);

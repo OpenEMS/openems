@@ -114,7 +114,7 @@ public class LegacyEntsoeComponentMigrator {
 	@Reference
 	private ComponentManager componentManager;
 
-	private final Consumer<BackendConnectionState> onConnectionStateChangeFunc = state -> this.tryToMigrate();
+	private final Consumer<BackendConnectionState> onConnectionStateChangeFunc = _ -> this.tryToMigrate();
 	private final Lazy<ExecutorService> migrationExecutor = Lazy.lazy(() -> Executors
 			.newSingleThreadExecutor(Thread.ofPlatform().name("LegacyEntsoeComponentMigrator").factory()));
 	private final Set<String> migratedComponentIds = new HashSet<>();
@@ -198,10 +198,10 @@ public class LegacyEntsoeComponentMigrator {
 			var subscription = this.syncableRepository.subscribe(new SyncableKey.SpotTariff(BiddingZone.GERMANY));
 			yield subscription.getEntry().waitForNonNullValue(Duration.ofSeconds(10)) //
 					.thenApply(value -> value.value() != null ? DataFetchType.FETCH_VIA_BACKEND : DataFetchType.WAITING) //
-					.exceptionally(ex -> DataFetchType.WAITING) //
-					.whenComplete((result, ex) -> subscription.dispose());
+					.exceptionally(_ -> DataFetchType.WAITING) //
+					.whenComplete((_, _) -> subscription.dispose());
 		}
-		case BackendConnectionState.NoConnection(Duration durationWithoutConnection) ->
+		case BackendConnectionState.NoConnection(Duration _) ->
 			CompletableFuture.completedFuture(DataFetchType.WAITING);
 		case BackendConnectionState.NoBackendInstance() ->
 			CompletableFuture.completedFuture(DataFetchType.FETCH_LOCALLY);

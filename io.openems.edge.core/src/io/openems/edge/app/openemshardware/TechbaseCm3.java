@@ -81,7 +81,7 @@ public class TechbaseCm3 extends AbstractOpenemsAppWithProps<TechbaseCm3, Proper
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, _, _) -> {
 			return AppConfiguration.create() //
 					.addDependencies(new DependencyDeclaration("IO_GPIO", //
 							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //

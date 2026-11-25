@@ -229,18 +229,18 @@ public final class Profile {
 
 			public Builder setApplyZeroSetPoint() throws IllegalArgumentException {
 				return this.setApplySetPoint(switch (this.abilities.applySetPoint) {
-				case ApplySetPoint.Ability.MilliAmpere ma -> new ApplySetPoint.Action.MilliAmpere(0);
-				case ApplySetPoint.Ability.Ampere a -> new ApplySetPoint.Action.Ampere(0);
-				case ApplySetPoint.Ability.Watt w -> new ApplySetPoint.Action.Watt(0);
+				case ApplySetPoint.Ability.MilliAmpere _ -> new ApplySetPoint.Action.MilliAmpere(0);
+				case ApplySetPoint.Ability.Ampere _ -> new ApplySetPoint.Action.Ampere(0);
+				case ApplySetPoint.Ability.Watt _ -> new ApplySetPoint.Action.Watt(0);
 				});
 			}
 
 			public Builder setApplyMinSetPoint() throws IllegalArgumentException {
 				final var min = this.abilities.applySetPoint.min();
 				return this.setApplySetPoint(switch (this.abilities.applySetPoint) {
-				case ApplySetPoint.Ability.MilliAmpere ma -> new ApplySetPoint.Action.MilliAmpere(min);
-				case ApplySetPoint.Ability.Ampere a -> new ApplySetPoint.Action.Ampere(min);
-				case ApplySetPoint.Ability.Watt w -> new ApplySetPoint.Action.Watt(min);
+				case ApplySetPoint.Ability.MilliAmpere _ -> new ApplySetPoint.Action.MilliAmpere(min);
+				case ApplySetPoint.Ability.Ampere _ -> new ApplySetPoint.Action.Ampere(min);
+				case ApplySetPoint.Ability.Watt _ -> new ApplySetPoint.Action.Watt(min);
 				});
 			}
 
@@ -261,9 +261,9 @@ public final class Profile {
 			public Builder setCorrectApplySetPointByWatt(int watt) {
 				final var value = this.abilities.applySetPoint().fromPower(watt);
 				switch (this.abilities.applySetPoint()) {
-				case ApplySetPoint.Ability.MilliAmpere ma -> this.setApplySetPointInMilliAmpere(value);
-				case ApplySetPoint.Ability.Ampere amp -> this.setApplySetPointInAmpere(value);
-				case ApplySetPoint.Ability.Watt w -> this.setApplySetPointInWatt(value);
+				case ApplySetPoint.Ability.MilliAmpere _ -> this.setApplySetPointInMilliAmpere(value);
+				case ApplySetPoint.Ability.Ampere _ -> this.setApplySetPointInAmpere(value);
+				case ApplySetPoint.Ability.Watt _ -> this.setApplySetPointInWatt(value);
 				}
 				return this;
 			}

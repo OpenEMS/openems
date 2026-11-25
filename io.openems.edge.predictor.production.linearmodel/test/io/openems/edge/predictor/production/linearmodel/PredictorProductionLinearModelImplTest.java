@@ -332,7 +332,7 @@ class PredictorProductionLinearModelImplTest {
 
 		@Override
 		public PredictionOrchestratorFactory predictionOrchestratorFactory() {
-			return context -> this.predictionOrchestrator;
+			return _ -> this.predictionOrchestrator;
 		}
 	}
 }

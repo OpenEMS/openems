@@ -11,13 +11,14 @@ import com.google.gson.JsonNull;
 
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.Tuple2;
 
 public class EdgeCache {
 
 	private final ChannelDataCache current = new ChannelDataCache();
 	private final ChannelDataCache aggregated = new ChannelDataCache();
 
-	public static record Pair<A, B>(A a, B b) {
+	public record TimestampedValue(long timestamp, JsonElement value) {
 
 	}
 
@@ -34,6 +35,22 @@ public class EdgeCache {
 		public final JsonElement getChannelValue(String address) {
 			synchronized (this) {
 				return this.data.get(address);
+			}
+		}
+
+		/**
+		 * Gets the channel value with last update timestamp from cache.
+		 *
+		 * @param address the Channel-Address of the channel
+		 * @return the {@link TimestampedValue} or null if it is not in cache
+		 */
+		public final TimestampedValue getChannelValueWithTimestamp(String address) {
+			synchronized (this) {
+				final var value = this.data.get(address);
+				if (value == null) {
+					return null;
+				}
+				return new TimestampedValue(this.timestamp, value);
 			}
 		}
 
@@ -90,6 +107,24 @@ public class EdgeCache {
 	}
 
 	/**
+	 * Gets the channel value with last update timestamp from cache.
+	 * 
+	 * @param address the Channel-Address of the channel
+	 * @return the {@link TimestampedValue} or null if it is not in cache
+	 */
+	public final TimestampedValue getChannelValueWithTimestamp(String address) {
+		final var result = this.current.getChannelValueWithTimestamp(address);
+		if (result != null) {
+			return result;
+		}
+		final var aggregatedResult = this.aggregated.getChannelValueWithTimestamp(address);
+		if (aggregatedResult != null) {
+			return aggregatedResult;
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the channel values from cache.
 	 *
 	 * @param addresses the Channel-Addresses of the channels
@@ -97,7 +132,7 @@ public class EdgeCache {
 	 *         cache); b) Set of Channel-Addresses that are only available as
 	 *         aggregated data
 	 */
-	public final Pair<Map<String, JsonElement>, Set<String>> getChannelValues(Set<String> addresses) {
+	public final Tuple2<Map<String, JsonElement>, Set<String>> getChannelValues(Set<String> addresses) {
 		final var result = new TreeMap<String, JsonElement>();
 		final var aggregatedChannelValues = new TreeSet<String>();
 		for (var address : addresses) {
@@ -114,7 +149,7 @@ public class EdgeCache {
 			}
 			result.put(address, JsonNull.INSTANCE);
 		}
-		return new Pair<>(result, aggregatedChannelValues);
+		return new Tuple2<>(result, aggregatedChannelValues);
 	}
 
 	/**

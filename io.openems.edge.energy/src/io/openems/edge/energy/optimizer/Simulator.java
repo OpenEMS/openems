@@ -304,7 +304,7 @@ public class Simulator {
 			var stream = engine.build()//
 					.stream(generateInitialPopulation(codec))//
 					.limit(Limits.bySteadyFitness(500))//
-					.limit(result -> !Thread.currentThread().isInterrupted());
+					.limit(_ -> !Thread.currentThread().isInterrupted());
 
 			if (evolutionStreamInterceptor != null) {
 				stream = evolutionStreamInterceptor.apply(stream);

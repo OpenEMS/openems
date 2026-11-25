@@ -14,6 +14,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 
 import io.openems.backend.common.edge.jsonrpc.ConnectedEdges;
+import io.openems.backend.common.edge.subscription.SubscriptionManager;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.Events;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -43,6 +44,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	private final Supplier<EventAdmin> eventAdmin;
 	private final Supplier<UiWebsocket> uiWebsocket;
 	private final Supplier<TimedataManager> timedataManager;
+	private final SubscriptionManager subscriptionManager;
 	private final Function<String, Optional<Edge>> getEdge;
 	private final BiConsumer<String, SystemLogNotification> handleSystemLogNotification;
 	private final BiConsumer<String, ScheduleNotification> handleScheduleNotification;
@@ -52,6 +54,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			Supplier<EventAdmin> eventAdmin, //
 			Supplier<UiWebsocket> uiWebsocket, //
 			Supplier<TimedataManager> timedataManager, //
+			SubscriptionManager subscriptionManager, //
 			Function<String, Optional<Edge>> getEdge, //
 			BiConsumer<String, SystemLogNotification> handleSystemLogNotification, //
 			BiConsumer<String, ScheduleNotification> handleScheduleNotification //
@@ -61,6 +64,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		this.eventAdmin = eventAdmin;
 		this.uiWebsocket = uiWebsocket;
 		this.timedataManager = timedataManager;
+		this.subscriptionManager = subscriptionManager;
 		this.getEdge = getEdge;
 		this.handleSystemLogNotification = handleSystemLogNotification;
 		this.handleScheduleNotification = handleScheduleNotification;
@@ -297,8 +301,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		edge.setLastmessage();
 	}
 
-	private void announceOffline(String edgeId) {
-		this.getEdge.apply(edgeId).ifPresent(OnNotification::announceOffline);
+	private void announceOffline(BackendEdgeClient backendEdgeClient) {
+		this.getEdge.apply(backendEdgeClient.getEdgeId()).ifPresent(OnNotification::announceOffline);
+		this.subscriptionManager.cleanupClient(backendEdgeClient);
 	}
 
 	protected static void announceOffline(Edge edge) {

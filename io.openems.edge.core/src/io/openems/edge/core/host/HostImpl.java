@@ -166,47 +166,54 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetNetworkConfig(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			return this.handleGetNetworkConfigRequest();
-		});
+		builder.handleRequest(new GetNetworkConfig(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, _ -> {
+					return this.handleGetNetworkConfigRequest();
+				});
 
-		builder.handleRequest(new SetNetworkConfig(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			this.handleSetNetworkConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
+		builder.handleRequest(new SetNetworkConfig(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, call -> {
+					this.handleSetNetworkConfigRequest(call.get(EdgeKeys.USER_KEY), call.getRequest());
 
-			return EmptyObject.INSTANCE;
-		});
+					return EmptyObject.INSTANCE;
+				});
 
-		builder.handleRequest(GetSystemUpdateStateRequest.METHOD, call -> {
-			return this.handleGetSystemUpdateStateRequest(call.get(EdgeKeys.USER_KEY),
-					GetSystemUpdateStateRequest.from(call.getRequest())).get();
-		});
+		builder.handleRequest(GetSystemUpdateStateRequest.METHOD, //
+				call -> {
+					return this.handleGetSystemUpdateStateRequest(call.get(EdgeKeys.USER_KEY),
+							GetSystemUpdateStateRequest.from(call.getRequest())).get();
+				});
 
-		builder.handleRequest(ExecuteSystemUpdateRequest.METHOD, call -> {
-			return this.handleExecuteSystemUpdateRequest(call.get(EdgeKeys.USER_KEY),
-					ExecuteSystemUpdateRequest.from(call.getRequest())).get();
-		});
+		builder.handleRequest(ExecuteSystemUpdateRequest.METHOD, //
+				call -> {
+					return this.handleExecuteSystemUpdateRequest(call.get(EdgeKeys.USER_KEY),
+							ExecuteSystemUpdateRequest.from(call.getRequest())).get();
+				});
 
-		builder.handleRequest(ExecuteSystemCommandRequest.METHOD, call -> {
-			return this.handleExecuteCommandRequest(call.get(EdgeKeys.USER_KEY),
-					ExecuteSystemCommandRequest.from(call.getRequest())).get();
-		});
+		builder.handleRequest(ExecuteSystemCommandRequest.METHOD, //
+				call -> {
+					return this.handleExecuteCommandRequest(call.get(EdgeKeys.USER_KEY),
+							ExecuteSystemCommandRequest.from(call.getRequest())).get();
+				});
 
-		builder.handleRequest(ExecuteSystemRestartRequest.METHOD, call -> {
-			return this.handleExecuteSystemRestartRequest(call.get(EdgeKeys.USER_KEY),
-					ExecuteSystemRestartRequest.from(call.getRequest())).get();
-		});
+		builder.handleRequest(ExecuteSystemRestartRequest.METHOD, //
+				call -> {
+					return this.handleExecuteSystemRestartRequest(call.get(EdgeKeys.USER_KEY),
+							ExecuteSystemRestartRequest.from(call.getRequest())).get();
+				});
 
-		builder.handleRequest(new GetNetworkInfo(), endpoint -> {
-			endpoint.setDescription("""
-					Gets the networkinfo.
-					""".stripIndent());
+		builder.handleRequest(new GetNetworkInfo(), //
+				endpoint -> {
+					endpoint.setDescription("""
+							Gets the networkinfo.
+							""".stripIndent());
 
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> this.operatingSystem.getNetworkInfo());
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, _ -> this.operatingSystem.getNetworkInfo());
 
 	}
 

@@ -89,11 +89,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	private final List<ControllerEssGridOptimizedCharge> ctrlGridOptimizedCharges = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = DYNAMIC, //
-			policyOption = GREEDY, //
-			cardinality = MULTIPLE, //
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
 			target = "(&(ess.id=${config.ess_id})(enabled=true))")
-	@SuppressWarnings("unused")
 	private void bindCtrlGridOptimizedCharge(ControllerEssGridOptimizedCharge ctrl) {
 		this.ctrlGridOptimizedCharges.add(ctrl);
 		this.energyScheduleHandler.triggerReschedule(//

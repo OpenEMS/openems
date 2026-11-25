@@ -167,7 +167,7 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
-    --ion-color-svg: #00204e;
+    --ion-color-svg: var(--ion-color-normal);
 
     --ion-color-label: var(--ion-text-color);
     --ion-color-background-pull-to-refresh: lightgray;
@@ -243,7 +243,7 @@
     --ion-color-toggle-unchecked-handle: #efefef;
     --ion-color-toggle-unchecked-track: #9c9c9c;
     --ion-color-toggle-active: var(--ion-color-toggle-checked-border);
-    --ion-color-svg: var(--ion-text-color); // dark mode color for svg in image-lines
+    --ion-color-svg: var(--ion-color-normal);
 
     --ion-color-background-menu: #1d2c42;
 

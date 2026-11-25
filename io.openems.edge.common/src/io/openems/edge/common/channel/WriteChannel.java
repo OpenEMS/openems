@@ -85,6 +85,17 @@ public interface WriteChannel<T> extends Channel<T> {
 	public Optional<T> getNextWriteValue();
 
 	/**
+	 * Discards a pending write value, so it is not forwarded to the device.
+	 *
+	 * <p>
+	 * Use with care: the value might be a command (e.g. stop). Call it at the start
+	 * of the Cycle, before Controllers set new write values.
+	 */
+	default void discardNextWriteValue() {
+		this.getNextWriteValueAndReset();
+	}
+
+	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
 	 * set.
 	 *

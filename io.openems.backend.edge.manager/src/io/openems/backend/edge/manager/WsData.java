@@ -4,12 +4,14 @@ import static com.google.common.collect.Sets.newHashSet;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.edge.EdgeCache;
@@ -22,10 +24,12 @@ import io.openems.common.utils.StringUtils;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private static final Logger LOG = LoggerFactory.getLogger(WsData.class);
+
 	/**
 	 * Authenticated Edges with EdgeCache of remote connections.
 	 */
-	private final ConcurrentMap<String, BackendEdgeClient> edges = Maps.newConcurrentMap();
+	private final ConcurrentMap<String, BackendEdgeClient> edges = new ConcurrentHashMap<>();
 
 	private String id;
 
@@ -60,7 +64,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @param metricsConsumer callback for metrics
 	 */
 	protected void handleConnectedEdgesNotification(ConnectedEdges.Notification notification,
-			Consumer<String> newOnline, Consumer<String> newOffline,
+			Consumer<String> newOnline, Consumer<BackendEdgeClient> newOffline,
 			Consumer<TimestampedDataNotification> metricsConsumer) {
 		var previousEdgeIds = newHashSet(this.edges.keySet());
 		for (var edgeId : notification.getEdgeIds()) {
@@ -74,8 +78,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 		// Handle Offline Edges
 		for (var edgeId : previousEdgeIds) {
-			this.updateEdgeStatus(edgeId, false);
-			newOffline.accept(edgeId);
+			final var previousEdge = this.updateEdgeStatus(edgeId, false);
+			if (previousEdge != null) {
+				newOffline.accept(previousEdge);
+			} else {
+				LOG.warn("Edge {} was reported as offline but not found in 'edges'.", edgeId);
+			}
 		}
 
 		// Handle Metrics
@@ -94,15 +102,17 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Updates the status of an Edge.
-	 * 
+	 *
 	 * @param edgeId   the Edge-ID
 	 * @param isOnline set online?
+	 * @return the {@link BackendEdgeClient} if online, if offline the previous
+	 *         {@link BackendEdgeClient} or null
 	 */
-	public void updateEdgeStatus(String edgeId, boolean isOnline) {
+	public BackendEdgeClient updateEdgeStatus(String edgeId, boolean isOnline) {
 		if (isOnline) {
-			this.edges.computeIfAbsent(edgeId, _ -> new BackendEdgeClient(edgeId, this));
+			return this.edges.computeIfAbsent(edgeId, _ -> new BackendEdgeClient(edgeId, this));
 		} else {
-			this.edges.remove(edgeId);
+			return this.edges.remove(edgeId);
 		}
 	}
 

@@ -25,7 +25,7 @@ public final class PeakShavingProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def.setTranslatedLabel("App.PeakShaving.power.label") //
 				.setTranslatedDescription("App.PeakShaving.power.description") //
 				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.setUnit(WATT, l);
@@ -52,7 +52,7 @@ public final class PeakShavingProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def.setTranslatedLabel("App.PeakShaving.rechargePower.label") //
 				.setTranslatedDescription("App.PeakShaving.rechargePower.description") //
 				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, l, _, field) -> {
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.setUnit(WATT, l);
@@ -86,8 +86,8 @@ public final class PeakShavingProps {
 					final P peakShavingPowerProp, //
 					final P rechargePowerProp //
 	) {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def.setField(JsonFormlyUtil::buildFieldGroupFromNameable,
-				(app, property, l, parameter, field) -> {
+		return AppDef.copyOfGeneric(defaultDef(),
+				def -> def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, _, l, parameter, field) -> {
 					final var validationText = TranslationUtil.getTranslation(parameter.bundle(),
 							"App.PeakShaving.peakShavingGreaterThanRecharge");
 					field.hideKey() //

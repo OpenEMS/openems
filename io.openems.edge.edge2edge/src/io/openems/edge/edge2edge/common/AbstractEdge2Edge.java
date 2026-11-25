@@ -105,7 +105,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 									}
 
 									// Found Component Block -> read each nature block
-									this.readNatureBlocks(startAddress).whenComplete((ignore, e2) -> {
+									this.readNatureBlocks(startAddress).whenComplete((_, e2) -> {
 										if (e2 != null) {
 											this._setMappingRemoteProtocolFault(true);
 											// TODO restart with timeout finding the component block on exception

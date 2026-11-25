@@ -135,7 +135,7 @@ class ForceUpdateComponentConfigTest {
 						""".stripIndent()).build(), t -> {
 					return ImmutableList.of(Apps.testForceUpdatingConfigProperties(t), this.app = DummyApp.create() //
 							.setAppId("App.Test.DummyWithForceDependency") //
-							.setConfiguration((configurationTarget, jsonObject, language) -> {
+							.setConfiguration((_, _, _) -> {
 								return AppConfiguration.create() //
 										.addDependency(new DependencyDeclaration("DEPENDENCY",
 												DependencyDeclaration.CreatePolicy.NEVER,

@@ -86,7 +86,7 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P40)));
 				}))), //

@@ -14,4 +14,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.prometheus.metrics-model,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.prometheus.metrics-config,\
+	io.prometheus.metrics-tracer-common,\
+	io.prometheus.metrics-tracer-initializer,\

@@ -27,20 +27,20 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("JsonTest.Unittest", serverUri, httpHeaders);
-		this.onOpen = (ws, handshake) -> {
+		this.onOpen = (_, _) -> {
 			return null;
 		};
-		this.onRequest = (ws, request) -> {
+		this.onRequest = (_, request) -> {
 			this.log.info("OnRequest: " + request);
 			return null;
 		};
-		this.onNotification = (ws, notification) -> {
+		this.onNotification = (_, notification) -> {
 			this.log.info("OnNotification: " + notification);
 		};
-		this.onError = (ws, ex) -> {
+		this.onError = (_, ex) -> {
 			this.log.info("onError: " + ex.getMessage());
 		};
-		this.onClose = (ws, code, reason, remote) -> {
+		this.onClose = (_, _, reason, _) -> {
 			this.log.info("onClose: " + reason);
 		};
 	}

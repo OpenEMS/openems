@@ -26,7 +26,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldAddPeriod_whenFirstPeriod() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
+			final var sut = new PeriodsBuilder(Environment.TEST, 96, _ -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 
 			final boolean p0Added = sut.tryAddPeriod(p0);
@@ -36,7 +36,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldAddEmptyPeriodsUntilLimitReached() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 2 /* small limit */, (t) -> 24);
+			final var sut = new PeriodsBuilder(Environment.TEST, 2 /* small limit */, _ -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithNoOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithNoOptionalValues());
 			final var p2 = new RawPeriod(time(0, 30), null, dataWithNoOptionalValues());
@@ -52,7 +52,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldStopAddingPeriods_whenPeriodIsNotCompatibleWithFirstPeriod() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
+			final var sut = new PeriodsBuilder(Environment.TEST, 96, _ -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithAllOptionalValues());
 			final var p2 = new RawPeriod(time(0, 30), null, dataWithOneMissingValue());
@@ -68,7 +68,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldThrowException_whenDuplicatedTimestamps() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
+			final var sut = new PeriodsBuilder(Environment.TEST, 96, _ -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithAllOptionalValues());
 			final var p2 = new RawPeriod(time(0, 15) /* duplicated */, null, dataWithAllOptionalValues());
@@ -91,7 +91,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldBuildPeriods() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 2);
+			final var sut = new PeriodsBuilder(Environment.TEST, 96, _ -> 2);
 			final var periods = List.of(//
 					new RawPeriod(time(0, 0), null, dataWithOneMissingValue()), //
 					new RawPeriod(time(0, 15), null, dataWithOneMissingValue()), //
@@ -134,7 +134,7 @@ public class PeriodsBuilderTest {
 
 		@Test
 		void shouldReturnEmptyPeriods_whenNoPeriodsAdded() {
-			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
+			final var sut = new PeriodsBuilder(Environment.TEST, 96, _ -> 24);
 
 			final var result = sut.build();
 

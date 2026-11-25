@@ -79,7 +79,7 @@ public final class ComparatorUtils {
 	 * @return the {@link Comparator}
 	 */
 	public static <T> Comparator<T> empty() {
-		return (o1, o2) -> 0;
+		return (_, _) -> 0;
 	}
 
 	private ComparatorUtils() {

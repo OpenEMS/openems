@@ -436,6 +436,28 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Gets the Edge-ID referenced by a stored setup protocol.
+	 *
+	 * @param setupProtocolId the Odoo setup protocol id
+	 * @return the referenced edge's name
+	 * @throws OpenemsNamedException if the protocol or its edge reference is
+	 *                               invalid
+	 */
+	public String getEdgeIdForSetupProtocol(int setupProtocolId) throws OpenemsNamedException {
+		final var protocol = OdooUtils.readOne(this.credentials, Field.SetupProtocol.ODOO_MODEL, setupProtocolId,
+				Field.SetupProtocol.EDGE);
+		final var odooEdgeId = OdooUtils.getOdooReferenceId(protocol.get(Field.SetupProtocol.EDGE.id()))
+				.filter(id -> id > 0)
+				.orElseThrow(() -> new OpenemsException("Setup protocol has no valid edge reference"));
+		final var edge = OdooUtils.readOne(this.credentials, Field.EdgeDevice.ODOO_MODEL, odooEdgeId,
+				Field.EdgeDevice.NAME);
+		if (!(edge.get(Field.EdgeDevice.NAME.id()) instanceof String edgeId) || edgeId.isBlank()) {
+			throw new OpenemsException("Referenced edge has no valid name");
+		}
+		return edgeId;
+	}
+
+	/**
 	 * Returns the Odoo report for a setup protocol.
 	 *
 	 * @param setupProtocolId the Odoo setup protocol id
@@ -748,19 +770,19 @@ public class OdooHandler {
 						.build()) //
 				.build();
 
-		return this.executeAdminRequest(session -> {
-			return this.executor.submit("updateEdgeSettings", () -> {
-				try {
-					return getAsJsonObject(
-							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/set_edge_settings",
+		return this //
+				.executeAdminRequest(session -> {
+					return this.executor.submit("updateEdgeSettings", () -> {
+						try {
+							return getAsJsonObject(OdooUtils.sendJsonrpcRequest(
+									this.credentials.url() + "/openems_backend/set_edge_settings",
 									"session_id=" + session, request).result);
-				} catch (OpenemsNamedException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		}).thenAccept(_ -> {
-			// empty
-		});
+						} catch (OpenemsNamedException e) {
+							throw new RuntimeException(e);
+						}
+					});
+				}) //
+				.thenAccept(_ -> doNothing());
 	}
 
 	private record StockLot(String category, String name, String serialNumber) {

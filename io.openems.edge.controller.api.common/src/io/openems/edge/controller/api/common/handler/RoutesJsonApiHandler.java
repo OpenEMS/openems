@@ -41,7 +41,7 @@ public class RoutesJsonApiHandler implements JsonApi {
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new Routes(), call -> {
+		builder.handleRequest(new Routes(), _ -> {
 			final var b = this.getBuilder();
 			if (b == null) {
 				throw new OpenemsException("Builder is not yet set.");
