@@ -85,8 +85,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.labelValues(this.parent.getId(), request.getFullyQualifiedMethod()).startTimer();
 
 		try {
-			return this.applyInternal(ws, request) //
-					.whenComplete((jsonrpcResponseSuccess, throwable) -> {
+			WsData wsData = ws.getAttachment();
+			return this.apply(wsData, request) //
+					.whenComplete((_, _) -> {
 						timer.close();
 					});
 		} catch (Exception e) {
@@ -95,10 +96,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 	}
 
-	private CompletableFuture<? extends JsonrpcResponseSuccess> applyInternal(WebSocket ws, JsonrpcRequest request)
+	CompletableFuture<? extends JsonrpcResponseSuccess> apply(WsData wsData, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		WsData wsData = ws.getAttachment();
-
 		// Start with authentication requests
 		switch (request.getMethod()) {
 		case AuthenticateWithTokenRequest.METHOD:
@@ -684,13 +683,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a {@link GetUserAlertingConfigsRequest}.
 	 *
 	 * @param user    {@link User} who called the request
-	 * @param request the {@link SetUserAlertingConfigsRequest}
+	 * @param request the {@link GetUserAlertingConfigsRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
 			GetUserAlertingConfigsRequest request) throws OpenemsNamedException {
 		var edgeId = request.getEdgeId();
+		this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, GetUserAlertingConfigsRequest.METHOD);
 
 		UserAlertingSettings currentUser = null;
 		List<UserAlertingSettings> otherUser = List.of();
@@ -730,6 +730,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetUserAlertingConfigsRequest(User user,
 			SetUserAlertingConfigsRequest request) throws OpenemsNamedException {
 		var edgeId = request.getEdgeId();
+		this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, SetUserAlertingConfigsRequest.METHOD);
 		var userId = user.getId();
 		var userSettings = request.getUserSettings();
 
