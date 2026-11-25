@@ -343,6 +343,7 @@
                         "INFO": "Šiame režime automobilio krovimas yra priverstinis, t. y. visada garantuojama, kad automobilis bus įkrautas, net jei krovimo stotelei reikia naudoti energiją iš tinklo.",
                         "MAX_CHARGING": "Maksimali krovimo galia",
                         "MAX_CHARGING_DETAILS": "Jei automobilis negali priimti įvestos maksimalios vertės, galia bus automatiškai apribota.",
+                        "MAX_CHARGING_PER_PHASE": "Maksimali krovimo galia vienai fazei",
                         "NAME": "Priverstinis krovimas",
                         "SHORT_NAME": "Rankiniu būdu"
                     },

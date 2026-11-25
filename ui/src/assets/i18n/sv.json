@@ -343,6 +343,7 @@
                         "INFO": "I detta läge tvingas bilens laddning fram, dvs. det garanteras alltid att bilen laddas, även om laddstationen behöver använda näteffekt.",
                         "MAX_CHARGING": "Maximal laddningseffekt",
                         "MAX_CHARGING_DETAILS": "Om bilen inte kan ladda med det angivna maxvärdet begränsas effekten automatiskt.",
+                        "MAX_CHARGING_PER_PHASE": "Maximal laddningseffekt per fas",
                         "NAME": "Tvingad laddning",
                         "SHORT_NAME": "Manuellt"
                     },

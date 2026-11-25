@@ -343,6 +343,7 @@
                         "INFO": "In diesem Modus wird die Beladung des Autos erzwungen, d.h. es wird immer garantiert, dass das Auto geladen wird, auch wenn die Ladesäule auf Netzstrom zugreifen muss.",
                         "MAX_CHARGING": "Maximale Ladeleistung",
                         "MAX_CHARGING_DETAILS": "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt.",
+                        "MAX_CHARGING_PER_PHASE": "Maximale Ladeleistung pro Phase",
                         "NAME": "Erzwungene Beladung",
                         "SHORT_NAME": "Manuell"
                     },

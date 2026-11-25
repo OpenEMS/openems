@@ -75,7 +75,7 @@ export class EvcsHomeComponent extends AbstractFormlyComponent<SharedEvcs.EvcsVi
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_POWER"),
                 channel: component.id + "/ActivePower",
                 converter: Converter.POWER_IN_WATT,
-                filter: (value: number | null) => value != null && value !== 0,
+                filter: (value: number | null) => value != null,
             },
             {
                 type: "channel-line",
@@ -139,7 +139,12 @@ export class EvcsHomeComponent extends AbstractFormlyComponent<SharedEvcs.EvcsVi
             {
                 hide: HIDE_WHEN_CHARGING_ENABLED_OR_NOT_FORCE_CHARGE,
                 type: "channel-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING"),
+                name: translate.instant(
+                    component.getPropertyFromComponent<number>("minHwPower") != null ||
+                        component.getPropertyFromComponent<number>("maxHwPower") != null
+                        ? "EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING_PER_PHASE"
+                        : "EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING",
+                ),
                 channel: ctrl.id + "/_PropertyForceChargeMinPower",
                 converter: Converter.POWER_IN_KILO_WATT,
             },

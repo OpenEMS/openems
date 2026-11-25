@@ -343,6 +343,7 @@
                         "INFO": "Dans ce mode, la recharge de la voiture est forcée, i.e. il est toujours garanti que la voiture sera chargée, même si la station de recharge à besoin de la puissance du réseau.",
                         "MAX_CHARGING": "Puissance de recharge maximum",
                         "MAX_CHARGING_DETAILS": "Si la voiture ne peut accepter la valeur maximum, la puissance sera automatiquement limitée.",
+                        "MAX_CHARGING_PER_PHASE": "Puissance de recharge maximale par phase",
                         "NAME": "Recharge forcée",
                         "SHORT_NAME": "Mannuellement"
                     },

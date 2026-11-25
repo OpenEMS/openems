@@ -343,6 +343,7 @@
                         "INFO": "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
                         "MAX_CHARGING": "Maximální síla náboje",
                         "MAX_CHARGING_DETAILS": "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen.",
+                        "MAX_CHARGING_PER_PHASE": "Maximální nabíjecí výkon na fázi",
                         "NAME": "Nucené nakládání",
                         "SHORT_NAME": "Ruční"
                     },

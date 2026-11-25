@@ -343,6 +343,7 @@
                         "INFO": "In this mode the loading of the car is enforced, i.e. it is always guaranteed that the car will be charged, even if the charging station needs to access grid power.",
                         "MAX_CHARGING": "Maximum charging power",
                         "MAX_CHARGING_DETAILS": "If the car can not load the entered maximum value, the power will be automatically limited.",
+                        "MAX_CHARGING_PER_PHASE": "Maximum charging power per phase",
                         "NAME": "Force charging",
                         "SHORT_NAME": "Manually"
                     },

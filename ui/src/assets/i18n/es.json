@@ -343,6 +343,7 @@
                         "INFO": "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
                         "MAX_CHARGING": "Fuerza de carga maxima:",
                         "MAX_CHARGING_DETAILS": "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente.",
+                        "MAX_CHARGING_PER_PHASE": "Potencia de carga máxima por fase",
                         "NAME": "Carga forzada",
                         "SHORT_NAME": "a mano"
                     },
