@@ -71,7 +71,7 @@ public abstract class ShellyDiscovery<T> implements ComponentJsonApi {
 	protected String buildDetail(MDnsDiscovery.MDnsEvent.ServiceResolved resolved) {
 		return "IP: " + resolved.addresses().stream() //
 				.map(Inet4Address::getHostAddress) //
-				.reduce((a, _) -> a + ", " + b).orElse("N/A") //
+				.reduce((a, b) -> a + ", " + b).orElse("N/A") //
 				+ resolved.properties().entrySet().stream() //
 						.map(e -> e.getKey() + ": " + e.getValue()) //
 						.collect(Collectors.joining(", ", ", ", ""));
