@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, Input, OnChanges, SimpleChanges, inject } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges, inject, signal } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { firstValueFrom } from "rxjs";
@@ -13,7 +13,7 @@ import { TIntRange } from "../../type/utility";
     styles: [
         `
             :host {
-                display: block;
+                display: grid;
             }
 
             .svg-container {
@@ -37,10 +37,10 @@ export class OeImageComponent implements OnChanges {
         style?: Exclude<Partial<CSSStyleDeclaration>, "objectFit" | "width" | "height" | "src">;
     } | null;
 
-    protected readonly FALLBACK_IMG_URL: string = "assets/img/image-not-found.png";
+    private readonly FALLBACK_IMG_URL: string = "assets/img/image-not-found.png";
 
-    protected renderedUrl: string = this.FALLBACK_IMG_URL;
-    protected inlineSvg: SafeHtml | null = null;
+    private readonly renderedUrl = signal<string | null>(null);
+    private readonly inlineSvg = signal<SafeHtml | null>(null);
 
     private readonly http = inject(HttpClient);
     private readonly sanitizer = inject(DomSanitizer);
@@ -51,25 +51,41 @@ export class OeImageComponent implements OnChanges {
         }
     }
 
-    protected onImgError(): void {
-        this.renderedUrl = this.FALLBACK_IMG_URL;
+    private onImgError(): void {
+        this.renderedUrl.set(this.FALLBACK_IMG_URL);
     }
 
     private async resolveImage(): Promise<void> {
-        const url = this.img?.url;
-        this.inlineSvg = null;
-        this.renderedUrl = url ?? this.FALLBACK_IMG_URL;
+        const url: string | null = this.img?.url ?? null;
 
-        if (url == null || !this.isSvg(url)) {
+        this.clearSignals();
+
+        if (url === null || !this.isSvg(url)) {
+            this.renderedUrl.set(url ?? this.FALLBACK_IMG_URL);
             return;
         }
 
         try {
             const svgText = await firstValueFrom(this.http.get(url, { responseType: "text" }));
-            this.inlineSvg = this.sanitizer.bypassSecurityTrustHtml(svgText);
+            if (this.isRequestOutdated(url)) {
+                return;
+            }
+            this.inlineSvg.set(this.sanitizer.bypassSecurityTrustHtml(svgText));
         } catch {
-            this.renderedUrl = this.FALLBACK_IMG_URL;
+            if (this.isRequestOutdated(url)) {
+                return;
+            }
+            this.onImgError();
         }
+    }
+
+    private clearSignals(): void {
+        this.inlineSvg.set(null);
+        this.renderedUrl.set(null);
+    }
+
+    private isRequestOutdated(url: string): boolean {
+        return url !== this.img?.url;
     }
 
     private isSvg(url: string): boolean {
