@@ -113,6 +113,7 @@ public final class AllowedChannels {
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitMinimumChargeLimit", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariff0/QuarterlyPrices", DataType.DOUBLE) //
 				.put("ctrlEssTimeOfUseTariff0/StateMachine", DataType.LONG) //
+				.put("ctrlEssSingle0/ActualMode", DataType.LONG) //
 				.putAll(multiChannels(evcs, "ChargePower", DataType.LONG)) //
 				.putAll(multiChannels(evcs, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels(evcs, "ActivePowerL", 1, 4, DataType.LONG)) //
