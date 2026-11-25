@@ -38,7 +38,7 @@ class GetSetupProtocolTest {
 
 	private static final int PROTOCOL_ID = 123;
 	private static final int ODOO_EDGE_ID = 456;
-	private static final String REPORT = "fems.report_fems_setup_protocol_template";
+	private static final String REPORT = "openems.report_openems_setup_protocol_template";
 	private static final byte[] PDF = { 1, 2, 3 };
 
 	private MetadataOdoo metadata;
