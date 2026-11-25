@@ -570,7 +570,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubmitSetupProtocolRequest(User user,
-			SubmitSetupProtocolRequest request) {
+			SubmitSetupProtocolRequest request) throws OpenemsNamedException {
+		this.parent.metadata.assertCanSubmitSetupProtocol(user, request.getJsonObject());
 
 		// TODO add oem
 		final var customer = request.getJsonObject().get("customer").getAsJsonObject();

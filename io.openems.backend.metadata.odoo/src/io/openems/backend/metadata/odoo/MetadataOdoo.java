@@ -56,6 +56,7 @@ import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
+import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.mail.MailContext;
 import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.mail.SendMailException;
@@ -361,6 +362,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
 		return this.odooHandler.getSetupProtocolData(user, edgeId);
+	}
+
+	@Override
+	public void assertCanSubmitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
+		final var edgeId = getAsString(getAsJsonObject(jsonObject, ODOO_EDGE_NAME), "id");
+		this.assertRoleIsAtLeast(user, edgeId, Role.INSTALLER, SubmitSetupProtocolRequest.METHOD);
 	}
 
 	@Override
