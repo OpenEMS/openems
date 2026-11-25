@@ -129,8 +129,8 @@ public class EnergyScheduler {
 					var config = configSupplier.get();
 					return new SingleModes<>(//
 							new Modes.Channels(//
-									new ChannelAddress(parent.id(),
-											TimeOfUseTariffController.ChannelId.STATE_MACHINE.id()),
+									new ChannelAddress(
+											parent.id(), TimeOfUseTariffController.ChannelId.STATE_MACHINE.id()),
 									null /* no ManagedConsumptionPower channel */), //
 							Arrays.stream(StateMachine.values()) //
 									.map(m -> new SingleMode<>(//

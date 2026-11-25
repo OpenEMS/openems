@@ -94,6 +94,7 @@ public class FeneconProHybrid10
 								return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 							})//
 							.orElse(null);
+
 				})));
 
 		private final AppDef<? super FeneconProHybrid10, ? super Property, ? super Parameter.BundleParameter> def;

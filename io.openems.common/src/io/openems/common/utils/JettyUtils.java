@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -23,6 +24,8 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class JettyUtils {
 
@@ -77,6 +80,23 @@ public class JettyUtils {
 	}
 
 	/**
+	 * Parses a request body to a {@link JsonObject}.
+	 *
+	 * @param request the {@link HttpServletRequest}
+	 * @return The parsed {@link JsonObject}
+	 * @throws OpenemsException if parsing fails
+	 */
+	public static JsonObject parseJson(HttpServletRequest request) throws OpenemsException {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
+			return parseToJsonObject(br.lines().collect(joining("\n")));
+
+		} catch (Exception e) {
+			throw new OpenemsException("Unable to parse: " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Sends an OK Response with the given data.
 	 *
 	 * @param response the {@link Response}
@@ -94,6 +114,22 @@ public class JettyUtils {
 		} catch (Exception e) {
 			throw new OpenemsException("Failed to write response: " + e.getMessage());
 		}
+		return true;
+	}
+
+	/**
+	 * Sends an OK Response with the given data.
+	 *
+	 * @param response the {@link HttpServletResponse}
+	 * @param data     the data to send
+	 * @return true if the response was sent successfully
+	 * @throws IOException if an error occurs
+	 */
+	public static boolean sendOkResponse(HttpServletResponse response, JsonElement data) throws IOException {
+		response.addHeader("Content-Type", "application/json");
+		response.setStatus(HttpStatus.OK_200);
+		var content = StandardCharsets.UTF_8.encode(data.toString());
+		response.getOutputStream().write(content);
 		return true;
 	}
 
@@ -123,6 +159,31 @@ public class JettyUtils {
 		} catch (Exception e) {
 			// best-effort: already on error path, ignore to avoid cascading failures
 		}
+	}
+
+	/**
+	 * Sends an Error Response from an Exception.
+	 *
+	 * @param response  the {@link HttpServletResponse}
+	 * @param jsonrpcId the JsonRpc Message-ID
+	 * @param ex        the {@link Throwable}
+	 * @throws IOException if an error occurs
+	 */
+	public static void sendErrorResponse(HttpServletResponse response, UUID jsonrpcId, Throwable ex)
+			throws IOException {
+		response.addHeader("Content-Type", "application/json");
+		response.setStatus(HttpStatus.BAD_REQUEST_400);
+		final JsonrpcResponseError message;
+		if (ex instanceof OpenemsNamedException one) {
+			if (one.getError() == OpenemsError.COMMON_AUTHENTICATION_FAILED) {
+				response.setStatus(HttpStatus.UNAUTHORIZED_401);
+			}
+			message = new JsonrpcResponseError(jsonrpcId, one);
+		} else {
+			message = new JsonrpcResponseError(jsonrpcId, ex.getMessage());
+		}
+		var content = StandardCharsets.UTF_8.encode(message.toString());
+		response.getOutputStream().write(content);
 	}
 
 }

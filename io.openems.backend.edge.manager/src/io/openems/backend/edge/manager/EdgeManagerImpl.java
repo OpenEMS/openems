@@ -4,6 +4,9 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toUnmodifiableMap;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Map;
 import java.util.Objects;
@@ -22,9 +25,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
@@ -97,7 +97,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Reference
 	protected volatile Metadata metadata;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(cardinality = OPTIONAL, policy = DYNAMIC, policyOption = GREEDY)
 	protected volatile AppCenterMetadata.EdgeData appCenterMetadata;
 
 	@Reference
@@ -109,7 +109,7 @@ public class EdgeManagerImpl extends AbstractOpenemsBackendComponent
 	@Reference
 	protected volatile EventAdmin eventAdmin;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(cardinality = OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
 
 	@Reference

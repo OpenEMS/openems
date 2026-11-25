@@ -255,7 +255,7 @@ public class StringUtils {
 	/**
 	 * Checks if the given string starts with the specified prefix, ignoring case
 	 * considerations.
-	 *
+	 * 
 	 * @param str    the string to check
 	 * @param prefix the prefix to look for
 	 * @return true if the string starts with the prefix (case-insensitive), false
@@ -269,4 +269,5 @@ public class StringUtils {
 		}
 		return str.regionMatches(true, 0, prefix, 0, prefix.length());
 	}
+
 }

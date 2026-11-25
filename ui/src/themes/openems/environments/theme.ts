@@ -1,5 +1,5 @@
-import { EdgeConfig } from "src/app/shared/shared";
 import type { UpdateableState } from "src/app/edge/settings/system/jsonrpc/getUpdateables";
+import { EdgeConfig } from "src/app/shared/shared";
 import { Environment, Theme } from "src/environments";
 import { OemMeta } from "./oem-meta";
 

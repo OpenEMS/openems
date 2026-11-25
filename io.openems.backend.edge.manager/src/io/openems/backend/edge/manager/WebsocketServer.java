@@ -26,6 +26,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 				() -> parent.eventAdmin, //
 				() -> parent.uiWebsocket, //
 				() -> parent.timedataManager, //
+				parent.subscriptionManager, //
 				parent.metadata::getEdge, //
 				parent.systemLogHandler::handleSystemLogNotification, //
 				parent.scheduleHandler::handleScheduleNotification);

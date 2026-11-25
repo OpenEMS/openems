@@ -68,7 +68,7 @@ public interface JsonSerializer<T> {
 		try {
 			return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
 		} catch (RuntimeException e) {
-			throw new JsonParseException(e);
+			throw new JsonParseException(e.getMessage(), e);
 		}
 	}
 

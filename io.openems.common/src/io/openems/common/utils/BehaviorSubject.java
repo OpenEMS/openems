@@ -144,4 +144,11 @@ public class BehaviorSubject<T> {
 		return this.consumers.size();
 	}
 
+	@Override
+	public String toString() {
+		return "BehaviorSubject{"//
+				+ "value=" + this.value//
+				+ ", consumers=" + this.consumers.size()//
+				+ '}';
+	}
 }

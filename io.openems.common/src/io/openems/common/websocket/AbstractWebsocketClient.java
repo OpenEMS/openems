@@ -13,7 +13,6 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.exceptions.InvalidDataException;
-import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.handshake.ServerHandshake;
@@ -36,7 +35,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	public static final Map<String, String> NO_HTTP_HEADERS = new HashMap<>();
 	public static final Proxy NO_PROXY = null;
-	public static final Draft DEFAULT_DRAFT = new Draft_6455(new PerMessageDeflateExtension());
+	public static final Draft DEFAULT_DRAFT = new Draft_6455();
 
 	protected final WebSocketClient ws;
 

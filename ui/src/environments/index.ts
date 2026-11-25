@@ -1,7 +1,7 @@
 import { EnvironmentProviders } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EdgeConfig } from "src/app/shared/shared";
 import type { UpdateableState } from "src/app/edge/settings/system/jsonrpc/getUpdateables";
+import { EdgeConfig } from "src/app/shared/shared";
 import { Filter } from "../app/index/filter/filter.component";
 import { DefaultTypes } from "../app/shared/type/defaulttypes";
 export { environment } from "./dummy";

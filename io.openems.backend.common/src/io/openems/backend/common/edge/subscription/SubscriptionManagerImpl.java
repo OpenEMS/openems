@@ -106,7 +106,9 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
 		try {
 			store.handler = factory.createGlobalHandler(key, this);
-			store.handler.subscribe();
+			if (store.handler != null) {
+				store.handler.subscribe();
+			}
 		} catch (Exception ex) {
 			this.log.error("Failed to initialize global handler with factory {} for subscription {}", factory, key, ex);
 		}
