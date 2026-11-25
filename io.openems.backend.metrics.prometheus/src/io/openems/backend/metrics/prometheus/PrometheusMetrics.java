@@ -3,6 +3,7 @@ package io.openems.backend.metrics.prometheus;
 import io.prometheus.metrics.core.metrics.Gauge;
 import io.prometheus.metrics.core.metrics.Histogram;
 import io.prometheus.metrics.core.metrics.Info;
+import io.prometheus.metrics.model.snapshots.Unit;
 
 public class PrometheusMetrics {
 
@@ -19,6 +20,7 @@ public class PrometheusMetrics {
 	public static final Histogram HTTP_REQUEST = Histogram.builder() //
 			.name("http_requests") //
 			.labelNames("component", "path") //
+			.unit(Unit.SECONDS) //
 			.build();
 
 	public static final Gauge HTTP_REQUEST_RESULT = Gauge.builder() //
