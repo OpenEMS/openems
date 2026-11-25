@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -589,12 +590,16 @@ public class ComponentUtilImpl implements ComponentUtil {
 		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
 		host.handleSetNetworkConfigRequest(user, new SetNetworkConfig.Request(interfaces));
 
-		// wait until its updated
+		final var timeoutAt = Instant.now().plusSeconds(30);
 		do {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Thread.currentThread().interrupt();
+				throw new OpenemsException("Interrupted while waiting for network configuration update");
+			}
+			if (Instant.now().isAfter(timeoutAt)) {
+				throw new OpenemsException("Timeout while waiting for network configuration to be applied");
 			}
 		} while (!ComponentUtilImpl.equals(interfaces, this.getInterfaces()));
 

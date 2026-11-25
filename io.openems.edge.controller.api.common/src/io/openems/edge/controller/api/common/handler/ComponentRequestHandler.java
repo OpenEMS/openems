@@ -249,20 +249,24 @@ public class ComponentRequestHandler implements JsonApi {
 					}).toList();
 		}, call -> {
 			final var request = ComponentJsonApiRequest.from(call.getRequest());
-			this.updateLock.readLock().lock();
-			try {
-				final var component = this.jsonApis.get(request.getComponentId());
-				if (component == null) {
-					throw new RuntimeException("Component with id '" + request.getComponentId() + "' was not found");
-				}
-				var mapped = call.mapRequest(request.getPayload());
-				component.apiBuilder().handle(mapped);
-
-				call.setResponse(mapped.getResponse());
-			} finally {
-				this.updateLock.readLock().unlock();
+			final var component = this.getBoundComponent(request.getComponentId());
+			if (component == null) {
+				throw new RuntimeException("Component with id '" + request.getComponentId() + "' was not found");
 			}
+			var mapped = call.mapRequest(request.getPayload());
+			component.apiBuilder().handle(mapped);
+
+			call.setResponse(mapped.getResponse());
 		});
+	}
+
+	private BoundComponentJsonApi getBoundComponent(String componentId) {
+		this.updateLock.readLock().lock();
+		try {
+			return this.jsonApis.get(componentId);
+		} finally {
+			this.updateLock.readLock().unlock();
+		}
 	}
 
 }

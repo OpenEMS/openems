@@ -1,6 +1,8 @@
 package io.openems.edge.app.meter.gridmeter;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92Master;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -41,6 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes an app for a Kdk grid meter.
@@ -165,6 +168,13 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 	@Override
 	public AppManagerUtil getAppManagerUtil() {
 		return this.appManagerUtil;
+	}
+
+	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setCompatibleCheckableConfigs(checkCommercial92() //
+						.or(checkCommercial92Master()));
 	}
 
 	@Override
