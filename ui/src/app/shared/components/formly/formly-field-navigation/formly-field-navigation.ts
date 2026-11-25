@@ -14,10 +14,28 @@ import { Service } from "src/app/shared/shared";
             ::ng-deep formly-form {
                 height: 100% !important;
             }
+            .header-row-with-icon {
+                position: relative;
+            }
             .custom-title {
                 color: var(--ion-text-color);
                 font-size: 1.25rem;
                 font-weight: 500;
+                margin-inline: auto;
+            }
+            .custom-title-with-icon {
+                max-width: 83.333%;
+            }
+            .header-favorite-col {
+                align-items: center;
+                bottom: 0;
+                display: flex;
+                flex: 0 0 auto;
+                max-width: none;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: auto;
             }
         `,
     ],
@@ -36,13 +54,6 @@ export class FormlyFieldNavigationComponent extends FieldWrapper {
 
     protected async navigateTo(componentId: string): Promise<void> {
         const edge = await this.service.getCurrentEdge();
-        await this.router.navigate([
-            "/device",
-            edge.id,
-            "live",
-            "evcs-cluster",
-            "evcs",
-            componentId,
-        ]);
+        await this.router.navigate(["/device", edge.id, "live", "evcs-cluster", "evcs", componentId]);
     }
 }

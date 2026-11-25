@@ -69,6 +69,8 @@ import { ControllerIoChannelSingleThresholdHomeComponent } from "src/app/edge/li
 import { ControllerIoChannelSingleThresholdSettingsComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/settings/settings";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
+import { ControllerIoHeatingElementBaseModeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/basemode/basemode";
+import { canActivateHeatingElementBaseMode } from "src/app/edge/live/Controller/Io/HeatingElement/basemode/basemode-guard";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
 import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
@@ -274,6 +276,11 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
             component: ControllerIoHeatingElementHomeComponent,
         },
         {
+            path: "controller/heatingelement/:componentId/base-mode",
+            component: ControllerIoHeatingElementBaseModeComponent,
+            canActivate: [canActivateHeatingElementBaseMode],
+        },
+        {
             path: "controller/heatingelement/:componentId/settings",
             component: ControllerIoHeatingElementSettingsComponent,
         },
@@ -448,6 +455,11 @@ const controllerRoutes: (suffix: string | null) => Routes = (prefix: string | nu
         {
             path: "controller/heatingelement/:componentId",
             component: ControllerIoHeatingElementHomeComponent,
+        },
+        {
+            path: "controller/heatingelement/:componentId/base-mode",
+            component: ControllerIoHeatingElementBaseModeComponent,
+            canActivate: [canActivateHeatingElementBaseMode],
         },
         {
             path: "controller/heatingelement/:componentId/settings",

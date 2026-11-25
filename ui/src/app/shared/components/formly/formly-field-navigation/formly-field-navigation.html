@@ -5,10 +5,10 @@
     @if ((props.attributes.title || props.attributes.helpKey) && !props.options[0].useCiFont) {
       <ion-toolbar color="transparent">
         <ion-grid class="ion-no-padding">
-          <ion-row class="ion-justify-content-center ion-align-items-center">
+          <ion-row [class.header-row-with-icon]="props.attributes.icon" class="ion-justify-content-center ion-align-items-center">
             @if (props.attributes.title) {
-              <ion-col class="ion-full-width ion-padding" [size]="props.attributes.icon ? 10 : 12">
-                <ion-row class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
+              <ion-col class="ion-full-width ion-padding" size="12">
+                <ion-row [class.custom-title-with-icon]="props.attributes.icon" class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
                   @if (props.attributes.icon) {
                     <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" [style.color]="props.options[0].icon.color" style="padding-right: 0.2rem"></ion-icon>
                   }
@@ -17,7 +17,7 @@
               </ion-col>
             }
 
-            <ion-col>
+            <ion-col [class.header-favorite-col]="props.attributes.icon">
               <ion-row class="ion-justify-content-end ion-align-items-center">
                 <oe-favorite-button [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'"></oe-favorite-button>
               </ion-row>

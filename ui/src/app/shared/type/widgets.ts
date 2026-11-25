@@ -100,7 +100,7 @@ export class Widgets {
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.IO.HeatingElement":
-                return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
+                return SharedControllerIoHeatingElement.getNavigationTree(translate, component, edge);
             case "Controller.Io.HeatPump.SgReady":
                 return SharedControllerIoHeatpump.getNavigationTree(translate, component, edge);
             case "Heat.Askoma":
