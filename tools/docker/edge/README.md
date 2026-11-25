@@ -39,6 +39,8 @@
 
     *for UI Image see [ui/README.md](../ui/README.md)*
 
+For a step-by-step guide to deploy uncommitted Windows changes to an Edge Docker container in a remote LXC, see [Deploy local changes to Docker in an LXC](./DEPLOY_LOCAL_CHANGES.md).
+
 ## Common Problems and Solutions
 
 ```bash

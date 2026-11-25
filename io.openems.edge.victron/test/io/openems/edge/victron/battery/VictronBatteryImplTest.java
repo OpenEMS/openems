@@ -19,10 +19,13 @@ public class VictronBatteryImplTest {
 	private static final ChannelAddress BATTERY_SOC = new ChannelAddress(BATTERY_ID, "Soc");
 	private static final ChannelAddress BATTERY_VOLTAGE = new ChannelAddress(BATTERY_ID, "Voltage");
 	private static final ChannelAddress BATTERY_CURRENT = new ChannelAddress(BATTERY_ID, "Current");
+	private static final ChannelAddress BATTERY_CAPACITY = new ChannelAddress(BATTERY_ID, "Capacity");
+	private static final ChannelAddress BATTERY_MIN_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MinCellVoltage");
+	private static final ChannelAddress BATTERY_MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID, "MaxCellVoltage");
 
 	/**
 	 * Creates a {@link ComponentTest} for a {@link VictronBatteryImpl}.
-	 * 
+	 *
 	 * @return a test
 	 * @throws Exception on error
 	 */
@@ -204,6 +207,31 @@ public class VictronBatteryImplTest {
 						.setAlias("Victron Battery") //
 						.setEnabled(true) //
 						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(VictronBatteryImpl.DEFAULT_UNIT_ID) //
+						.setEssId(ESS_ID) //
+						.setDebugMode(false) //
+						.build());
+	}
+
+	private static ComponentTest createAggregateBattery() throws Exception {
+		return new ComponentTest(new VictronBatteryImpl()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
+						.withRegisters(259, 5200) //
+						.withRegisters(261, 100, 250) //
+						.withRegisters(266, 0) //
+						.withRegisters(305, 580) //
+						.withRegisters(307, 500, 500, 1000) //
+						.withRegisters(1289, 16, 320, 340) //
+						.withRegisters(1297, 1, 1)) //
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setAlias("Victron Aggregate Battery") //
+						.setEnabled(true) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(99) //
+						.setBatterySource(BatterySource.DBUS_AGGREGATOR) //
+						.setNominalBatteryVoltage(51.2) //
+						.setDischargeMinVoltage(52.2) //
 						.setEssId(ESS_ID) //
 						.setDebugMode(false) //
 						.build());
@@ -216,7 +244,27 @@ public class VictronBatteryImplTest {
 				.next(new TestCase() //
 						.output(BATTERY_SOC, 85) //
 						.output(BATTERY_VOLTAGE, 52) // 5200 / 100 (SCALE_FACTOR_MINUS_2) = 52V
-						.output(BATTERY_CURRENT, 10)); // 100 / 10 (SCALE_FACTOR_MINUS_1) = 10A
+						.output(BATTERY_CURRENT, 10) // 100 / 10 (SCALE_FACTOR_MINUS_1) = 10A
+						.output(BATTERY_MIN_CELL_VOLTAGE, 3200) //
+						.output(BATTERY_MAX_CELL_VOLTAGE, 3400) //
+						.output(BATTERY_CAPACITY, 4800)); //
+	}
+
+	@Test
+	public void testAggregateBattery() throws Exception {
+		var componentTest = createAggregateBattery();
+		assertEquals(99, ((VictronBatteryImpl) componentTest.sut).getUnitId());
+
+		componentTest //
+				.next(new TestCase()) //
+				.next(new TestCase() //
+						.output(BATTERY_SOC, 0) //
+						.output(BATTERY_VOLTAGE, 52) //
+						.output(BATTERY_CURRENT, 10) //
+						.output(BATTERY_MIN_CELL_VOLTAGE, 3200) //
+						.output(BATTERY_MAX_CELL_VOLTAGE, 3400) //
+						.output(BATTERY_CAPACITY, 5120) //
+						.output(new ChannelAddress(BATTERY_ID, "DischargeMinVoltage"), 53));
 	}
 
 	@Test

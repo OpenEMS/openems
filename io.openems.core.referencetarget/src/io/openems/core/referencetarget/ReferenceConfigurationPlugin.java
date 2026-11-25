@@ -65,7 +65,7 @@ public class ReferenceConfigurationPlugin implements ConfigurationPlugin {
 				}
 
 				final var target = filter.targetTemplate().withParameters(valueMap);
-				properties.put(filter.property() + ".target", target);
+				setTargetProperty(properties, filter.property() + ".target", target);
 				if (this.log.isInfoEnabled()) {
 					this.log.info("Set targetTemplate filter for component='{}', property='{}' to '{}'",
 							identifierProvider.get(), filter.property(), target);
@@ -74,6 +74,15 @@ public class ReferenceConfigurationPlugin implements ConfigurationPlugin {
 		} catch (Exception e) {
 			this.log.error("Error during updating target", e);
 		}
+	}
+
+	static void setTargetProperty(Dictionary<String, Object> properties, String property, String target) {
+		for (var existingProperty : Collections.list(properties.keys())) {
+			if (existingProperty.equalsIgnoreCase(property)) {
+				properties.remove(existingProperty);
+			}
+		}
+		properties.put(property, target);
 	}
 
 	private List<PropertyFilter> getPropertyFilters(//
