@@ -179,6 +179,11 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 		this.gridLimit //
 				.setFuseCurrent(config.gridConnectionPointFuseLimit()) //
+				.setStaticGridBuySoftLimit(//
+						// -1 for no fixed soft-limit //
+						config.staticGridBuySoftLimit() < 0 //
+								? null //
+								: config.staticGridBuySoftLimit()) //
 				.setGridBuySoftLimit(this.configuredGridBuySoftLimit) //
 				.setGridSellLimit(//
 						config.gridFeedInLimitationType().getGridFeedInLimitationType(), //

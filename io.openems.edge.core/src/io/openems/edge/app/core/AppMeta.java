@@ -202,6 +202,12 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
 				.bidirectional(COMPONENT_ID, "thirdPartyUsageAcceptance",
 						ComponentManagerSupplier::getComponentManager))), //
+
+		STATIC_GRID_BUY_SOFT_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setDefaultValue(-1)//
+				.setMinRole(Role.OWNER)//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.OWNER))//
+				.bidirectional(COMPONENT_ID, "staticGridBuySoftLimit", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -254,6 +260,11 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var longitude = this.getDouble(p, Property.LONGITUDE);
 			final var timezone = this.getString(p, Property.TIMEZONE);
 			final var thirdPartyUsageAcceptance = this.getString(p, Property.THIRD_PARTY_USAGE_ACCEPTANCE);
+			final var staticGridBuySoftLimitElement = p.get(Property.STATIC_GRID_BUY_SOFT_LIMIT);
+			final var staticGridBuySoftLimit = staticGridBuySoftLimitElement != null
+					&& staticGridBuySoftLimitElement.isJsonNull() //
+							? -1 //
+							: this.getInt(p, Property.STATIC_GRID_BUY_SOFT_LIMIT);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -272,6 +283,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.addProperty("longitude", longitude)//
 							.addProperty("timezone", timezone)//
 							.addProperty("thirdPartyUsageAcceptance", thirdPartyUsageAcceptance)//
+							.addProperty("staticGridBuySoftLimit", staticGridBuySoftLimit)//
 							.build()));
 
 			return AppConfiguration.create() //
