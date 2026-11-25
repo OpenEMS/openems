@@ -81,7 +81,7 @@ Example with A = 2000 W per phase and B = 1000 W per phase:
 The same switching rules apply to both the 4-level and the 7-level configuration:
 
 * `OFF`: switch immediately to Level 0.
-* `FAST_HEAT`: switch immediately to the maximum available Level.
+* `FAST_HEAT`: switch immediately to the maximum available Level; after 5 hours of continuous heating, switch to Level 0 (`FAST_HEAT_PROTECTION_PAUSE`) for a 30-minute cooldown pause before resuming.
 * `SURPLUS`:
 ** when reducing power, switch immediately to the required lower Level;
 ** when increasing power, activate at most one additional Level after the configured `minimumSwitchingTime`.

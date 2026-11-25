@@ -38,11 +38,16 @@ public enum Status implements OptionsEnum {
 	 * The heating element can't reach the minimum limit on time.
 	 */
 	UNREACHABLE(5, "Unreachable"),
-	
+
 	/**
 	 * The heating element is calibrated to get the power of the levels.
 	 */
-	CALIBRATION(6, "Calibrating");
+	CALIBRATION(6, "Calibrating"),
+
+	/**
+	 * The heating element is paused to let its relays cool down.
+	 */
+	FAST_HEAT_PROTECTION_PAUSE(7, "Fast heat protection pause");
 
 	private final int value;
 	private final String name;

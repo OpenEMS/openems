@@ -16,6 +16,7 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -79,6 +80,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	private static final int CALIBRATION_SECONDS = 4;
 	private static final double SECONDS_PER_HOUR = Duration.ofHours(1).toSeconds();
 	private static final Duration FORCE_HEATING_BUFFER = Duration.ofMinutes(10);
+	private static final Duration FAST_HEAT_DURATION = Duration.ofHours(5);
+	private static final Duration FAST_HEAT_PROTECTION_PAUSE_DURATION = Duration.ofMinutes(30);
 
 	/*
 	 * Definitions for each phase.
@@ -182,6 +185,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	/** The configured endTime in the mode time. */
 	private LocalTime endTimeWorkModeTime;
 	private Config config;
+	private Instant fastHeatPhaseStartedAt;
+	private boolean fastHeatProtectionPaused;
 
 	public ControllerIoHeatingElementImpl() {
 		super(//
@@ -207,11 +212,16 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		this.resetFastHeat();
 		super.deactivate();
 	}
 
 	private void updateConfig(Config config) throws OpenemsNamedException {
-		var newSteps = StepBuilder.buildSteps(config);
+		final var newSteps = StepBuilder.buildSteps(config);
+		if (this.config != null && this.config.mode() != config.mode()) {
+			this.resetFastHeat();
+		}
+
 		if (this.steps != null) {
 			for (var step : this.steps) {
 				if (newSteps.stream().noneMatch(next -> next.outputChannel().equals(step.outputChannel()))) {
@@ -253,11 +263,7 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			this.modeManualOn();
 			yield Status.ACTIVE;
 		}
-		case FAST_HEAT -> {
-			setValue(this, ControllerIoHeatingElement.ChannelId.WAITING_FOR_CALIBRATION, false);
-			this.applyLevel(Level.fromValue(this.steps.size()));
-			yield Status.ACTIVE;
-		}
+		case FAST_HEAT -> this.modeFastHeat();
 		};
 
 		if (this.isPowerCapturedByMeter()) {
@@ -303,6 +309,27 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 		this.updateCumulatedActiveTime();
 
+	}
+
+	private Status modeFastHeat() throws OpenemsNamedException {
+		setValue(this, ControllerIoHeatingElement.ChannelId.WAITING_FOR_CALIBRATION, false);
+		var now = this.componentManager.getClock().instant();
+		var phaseStartedAt = this.fastHeatPhaseStartedAt != null ? this.fastHeatPhaseStartedAt : now;
+		var protectionPaused = this.fastHeatProtectionPaused;
+		var duration = protectionPaused ? FAST_HEAT_PROTECTION_PAUSE_DURATION : FAST_HEAT_DURATION;
+		if (!now.isBefore(phaseStartedAt.plus(duration))) {
+			protectionPaused = !protectionPaused;
+			phaseStartedAt = now;
+		}
+		this.applyLevel(protectionPaused ? Level.LEVEL_0 : Level.fromValue(this.steps.size()));
+		this.fastHeatPhaseStartedAt = phaseStartedAt;
+		this.fastHeatProtectionPaused = protectionPaused;
+		return protectionPaused ? Status.FAST_HEAT_PROTECTION_PAUSE : Status.ACTIVE;
+	}
+
+	private void resetFastHeat() {
+		this.fastHeatPhaseStartedAt = null;
+		this.fastHeatProtectionPaused = false;
 	}
 
 	/**
@@ -376,7 +403,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		}
 		targetLevel = switch (this.runState) {
 		case ACTIVE_FORCED_LIMIT, ACTIVE_FORCED, UNREACHABLE -> targetLevel;
-		case UNDEFINED, INACTIVE, ACTIVE, DONE, CALIBRATION -> this.applyHysteresis(targetLevel);
+		case UNDEFINED, INACTIVE, ACTIVE, DONE, CALIBRATION, FAST_HEAT_PROTECTION_PAUSE ->
+			this.applyHysteresis(targetLevel);
 		};
 
 		this.applyLevel(targetLevel);
@@ -394,12 +422,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 			this.updateEndTime();
 		}
 
-		if (ot == null && this.lastTask != null && now.isAfter(this.lastTask.end())) {
-			if (this.timestampTaskFinished == null) {
+		if (ot == null && this.lastTask != null && now.isAfter(this.lastTask.end())
+				&& this.timestampTaskFinished == null) {
 				this.timestampTaskFinished = now;
 				this.resetProps();
 			}
-		}
+
 
 		boolean lastTaskJustFinished = this.timestampTaskFinished != null //
 				&& now.isBefore(this.timestampTaskFinished.plusSeconds(SHOWING_DONE_FOR_HALF_AN_HOUR.getSeconds()));
