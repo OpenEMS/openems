@@ -76,7 +76,7 @@ public class Compulab extends AbstractOpenemsAppWithProps<Compulab, Property, Pa
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, _, _) -> {
 			return AppConfiguration.empty();
 		};
 	}

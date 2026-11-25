@@ -133,7 +133,7 @@ public class EvcsAblImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void installStateListener() {
-		this.channel(EvcsAbl.ChannelId.CHARGE_POINT_STATE).onUpdate(v -> {
+		this.channel(EvcsAbl.ChannelId.CHARGE_POINT_STATE).onUpdate(_ -> {
 			this.statusConverter.convertAblStatus();
 		});
 	}

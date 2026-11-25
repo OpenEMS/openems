@@ -99,7 +99,7 @@ public final class EnergyScheduler {
 					return new OptimizationContext(config.defaultMode(), config.consumptionW(), oneTasks);
 				})
 
-				.setSimulator((id, period, gsc, coc, csc, ef, scheduledMode, fitness, isFinalRun) -> {
+				.setSimulator((id, period, _, coc, _, ef, scheduledMode, _, _) -> {
 					if (coc == null) {
 						return scheduledMode;
 					}

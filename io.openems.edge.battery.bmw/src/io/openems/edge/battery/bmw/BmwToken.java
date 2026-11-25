@@ -43,7 +43,7 @@ public class BmwToken {
 			return; // Token is still valid, no need to refresh
 		}
 
-		this.timeService.subscribeJsonTime(new BmwTokenDelayProvider(), endpoint, (a, b) -> {
+		this.timeService.subscribeJsonTime(new BmwTokenDelayProvider(), endpoint, (a, _) -> {
 			if (a == null) {
 				return;
 			}

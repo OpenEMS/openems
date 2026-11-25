@@ -87,7 +87,7 @@ public class SmaEssSunnyBoyStorage extends
 				.setDescription("Nutzbare Netto-Kapazität der Batterie in Wh. SBS 2.5 = 2000 Wh") //
 				.setDefaultValue(2000) //
 				.setField(JsonFormlyUtil::buildInputFromNameable,
-						(app, prop, l, param, f) -> f.setInputType(InputType.NUMBER).setMin(0)))), //
+						(_, _, _, _, f) -> f.setInputType(InputType.NUMBER).setMin(0)))), //
 		READ_ONLY_MODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setLabel("Nur-Lesen-Modus")//
 				.setDescription("Aktiviert den Nur-Lesen-Modus; keine Sollwerte werden an das Gerät geschrieben.")//

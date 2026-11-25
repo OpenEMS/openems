@@ -185,8 +185,6 @@ public class IoShellyPro2PmTest {
 									"""));
 							dummyCycleSubscriber.triggerNextCycle();
 						}) //
-						.onAfterProcessImage(() -> {
-						}) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 44) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 44) //

@@ -22,7 +22,7 @@ public class AppPermissionTest {
 
 	@BeforeEach
 	public void beforeEach() throws Exception {
-		this.test = new AppManagerTestBundle(null, null, t -> {
+		this.test = new AppManagerTestBundle(null, null, _ -> {
 			return List.of(//
 					DummyApp.create() //
 							.setAppId("App.Dummy") //

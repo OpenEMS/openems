@@ -29,7 +29,7 @@ public final class JsonSerializerUtil {
 	public static <T> JsonSerializer<T> emptyObjectSerializer(//
 			Supplier<T> object //
 	) {
-		return jsonObjectSerializer(json -> object.get(), json -> new JsonObject());
+		return jsonObjectSerializer(_ -> object.get(), _ -> new JsonObject());
 	}
 
 	/**

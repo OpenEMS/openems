@@ -83,7 +83,7 @@ public class TestForceUpdatingConfigComponent extends
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 			var id = this.getId(t, p, Property.ID);
 			var phaseRotation = this.getEnum(p, PhaseRotation.class, Property.PHASE_ROTATION);
 

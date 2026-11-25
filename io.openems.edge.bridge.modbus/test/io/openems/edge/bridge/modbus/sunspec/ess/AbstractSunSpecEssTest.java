@@ -110,26 +110,22 @@ public class AbstractSunSpecEssTest {
 						.build())
 				.next(new TestCase()) //
 				.next(new TestCase()) //
-				.next(new TestCase() //
-						.also(t -> {
-							// read DefaultSunSpecModel.S_1
-							assertFalse(sut.isSunSpecInitializationCompleted());
-						})) //
-				.next(new TestCase() //
-						.also(t -> {
-							// read DefaultSunSpecModel.S_101
-							assertTrue(sut.isSunSpecInitializationCompleted());
-						})) //
-				.next(new TestCase() //
-						.also(t -> {
-							// Test getSunSpecChannel() returns Channel for known point
-							assertTrue(sut.<Channel<?>>getSunSpecChannel(DefaultSunSpecModel.S101.DCW).isPresent());
-						})) //
-				.next(new TestCase() //
-						.also(t -> {
-							// Test getSunSpecChannel() returns Optional.empty for unknown point
-							assertTrue(sut.<Channel<?>>getSunSpecChannel(DefaultSunSpecModel.S103.DCW).isEmpty());
-						})) //
+				.next(new TestCase().also(_ -> {
+					// read DefaultSunSpecModel.S_1
+					assertFalse(sut.isSunSpecInitializationCompleted());
+				})) //
+				.next(new TestCase().also(_ -> {
+					// read DefaultSunSpecModel.S_101
+					assertTrue(sut.isSunSpecInitializationCompleted());
+				})) //
+				.next(new TestCase().also(_ -> {
+					// Test getSunSpecChannel() returns Channel for known point
+					assertTrue(sut.<Channel<?>>getSunSpecChannel(DefaultSunSpecModel.S101.DCW).isPresent());
+				})) //
+				.next(new TestCase().also(_ -> {
+					// Test getSunSpecChannel() returns Optional.empty for unknown point
+					assertTrue(sut.<Channel<?>>getSunSpecChannel(DefaultSunSpecModel.S103.DCW).isEmpty());
+				})) //
 				.deactivate();
 	}
 
@@ -149,22 +145,19 @@ public class AbstractSunSpecEssTest {
 						.build())
 				.next(new TestCase()) //
 				.next(new TestCase()) //
-				.next(new TestCase() //
-						.also(t -> {
-							// read DefaultSunSpecModel.S_1
-							assertFalse(sut.isSunSpecInitializationCompleted());
-						})) //
-				.next(new TestCase() //
-						.also(t -> {
-							// read DefaultSunSpecModel.S_101
-							assertTrue(sut.isSunSpecInitializationCompleted());
-						})) //
-				.next(new TestCase() //
-						.also(t -> {
-							// Test getSunSpecChannelOrError() throws an error if Channel is not available.
-							assertThrows(OpenemsException.class,
-									() -> sut.<Channel<?>>getSunSpecChannelOrError(DefaultSunSpecModel.S103.DCW));
-						})) //
+				.next(new TestCase().also(_ -> {
+					// read DefaultSunSpecModel.S_1
+					assertFalse(sut.isSunSpecInitializationCompleted());
+				})) //
+				.next(new TestCase().also(_ -> {
+					// read DefaultSunSpecModel.S_101
+					assertTrue(sut.isSunSpecInitializationCompleted());
+				})) //
+				.next(new TestCase().also(_ -> {
+					// Test getSunSpecChannelOrError() throws an error if Channel is not available.
+					assertThrows(OpenemsException.class,
+							() -> sut.<Channel<?>>getSunSpecChannelOrError(DefaultSunSpecModel.S103.DCW));
+				})) //
 				.deactivate();
 	}
 }

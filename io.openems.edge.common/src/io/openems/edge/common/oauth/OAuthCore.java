@@ -69,52 +69,57 @@ public class OAuthCore implements ComponentJsonApi {
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetAllOAuthProvider(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			return new GetAllOAuthProvider.Response(this.oauthProvider.stream()//
-					.map(OAuthProvider::getMetaInfo) //
-					.toList());
-		});
-		builder.handleRequest(new GetOAuthConnectionState(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			final var oauthProvider = this.oauthProvider.stream()//
-					.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
-					.findAny().orElseThrow();
+		builder.handleRequest(new GetAllOAuthProvider(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, _ -> {
+					return new GetAllOAuthProvider.Response(this.oauthProvider.stream()//
+							.map(OAuthProvider::getMetaInfo) //
+							.toList());
+				});
+		builder.handleRequest(new GetOAuthConnectionState(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, call -> {
+					final var oauthProvider = this.oauthProvider.stream()//
+							.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
+							.findAny().orElseThrow();
 
-			return new GetOAuthConnectionState.Response(oauthProvider.getOAuthConnectionState().asEnum());
-		});
-		builder.handleRequest(new InitiateOAuthConnect(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			final var oauthProvider = this.oauthProvider.stream()//
-					.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
-					.findAny().orElseThrow();
+					return new GetOAuthConnectionState.Response(oauthProvider.getOAuthConnectionState().asEnum());
+				});
+		builder.handleRequest(new InitiateOAuthConnect(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, call -> {
+					final var oauthProvider = this.oauthProvider.stream()//
+							.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
+							.findAny().orElseThrow();
 
-			return oauthProvider.initiateConnect().get();
-		});
-		builder.handleRequest(new ConnectOAuth(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			final var oauthProvider = this.oauthProvider.stream()//
-					.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
-					.findAny().orElseThrow();
+					return oauthProvider.initiateConnect().get();
+				});
+		builder.handleRequest(new ConnectOAuth(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, call -> {
+					final var oauthProvider = this.oauthProvider.stream()//
+							.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
+							.findAny().orElseThrow();
 
-			return oauthProvider.connectCode(call.getRequest().state(), call.getRequest().code())
-					.thenApply(unused -> EmptyObject.INSTANCE).get();
-		});
-		builder.handleRequest(new DisconnectOAuthConnection(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, call -> {
-			final var oauthProvider = this.oauthProvider.stream()//
-					.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
-					.findAny().orElseThrow();
+					return oauthProvider.connectCode(call.getRequest().state(), call.getRequest().code())
+							.thenApply(_ -> EmptyObject.INSTANCE).get();
+				});
+		builder.handleRequest(new DisconnectOAuthConnection(), //
+				endpoint -> {
+					endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
+				}, call -> {
+					final var oauthProvider = this.oauthProvider.stream()//
+							.filter(t -> t.getMetaInfo().identifier().equals(call.getRequest().identifier())) //
+							.findAny().orElseThrow();
 
-			oauthProvider.disconnect();
+					oauthProvider.disconnect();
 
-			return EmptyObject.INSTANCE;
-		});
+					return EmptyObject.INSTANCE;
+				});
 	}
 
 }

@@ -78,7 +78,7 @@ public class TestADependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p, s) -> {
+		return (_, p, _) -> {
 
 			var createPolicy = Enum.valueOf(DependencyDeclaration.CreatePolicy.class,
 					EnumUtils.getAsOptionalString(p, Property.CREATE_POLICY)

@@ -99,7 +99,7 @@ public class SelfConsumptionOptimization
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, p, l) -> {
 
 			final var ctrlBalancingId = "ctrlBalancing0";
 

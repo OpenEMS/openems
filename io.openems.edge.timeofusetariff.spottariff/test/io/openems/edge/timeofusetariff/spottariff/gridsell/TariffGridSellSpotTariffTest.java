@@ -65,7 +65,7 @@ class TariffGridSellSpotTariffTest {
 
 		final var gridSellTariffComponent = new TariffGridSellSpotTariffImpl();
 		final var touTariffDataChangeCalls = new AtomicInteger(0);
-		gridSellTariffComponent.getTariffData().subscribe(tariffData -> touTariffDataChangeCalls.incrementAndGet());
+		gridSellTariffComponent.getTariffData().subscribe(_ -> touTariffDataChangeCalls.incrementAndGet());
 
 		new ComponentTest(gridSellTariffComponent) //
 				.addReference("tariffManager", tariffManager) //

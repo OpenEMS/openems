@@ -212,7 +212,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				throw new IllegalArgumentException("This modbus device is not SunSpec!");
 			}
 
-			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((result, error) -> {
+			return this.readNextBlock(40_002, expectedBlocks, 0).whenComplete((_, error) -> {
 				if (error != null) {
 					this.log.error("Error during SunSpec initialization", error);
 					return;
@@ -525,7 +525,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			yield List.of(element);
 		}
 
-		case ChannelIdPoint cip -> List.of();
+		case ChannelIdPoint _ -> List.of();
 		};
 	}
 

@@ -1,5 +1,6 @@
 package io.openems.edge.ess.core.power.v2;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
@@ -555,11 +556,9 @@ public class PowerDistributionHandlerV2Test {
 				.withAllowedDischargePower(10000)//
 				.withAllowedChargePower(-10000)//
 				.withMaxApparentPower(10000);
-		ess1.withSymmetricApplyPowerCallback(r -> {
-		});
+		ess1.withSymmetricApplyPowerCallback(_ -> doNothing());
 
-		var handler = new PowerDistributionHandlerV2(() -> List.of(ess1), notSolved -> {
-			/* ignored in tests */ });
+		var handler = new PowerDistributionHandlerV2(() -> List.of(ess1), _ -> doNothing());
 		handler.onAfterProcessImage();
 
 		// Add a constraint capping discharge to 3000 W

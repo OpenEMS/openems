@@ -24,7 +24,7 @@ public class HttpBridgeMetricService<T> implements HttpBridgeService {
 		this.metricGroups = new HashMap<>();
 		final var requestTimer = new ConcurrentHashMap<Long, Long>();
 		final var requestStartDisposable = bridgeHttp.subscribeEvent(EndpointFetcherEvents.REQUEST_START, eventData -> {
-			this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (endpoint, metricGroup) -> {
+			this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (_, metricGroup) -> {
 				if (metricGroup == null) {
 					metricGroup = new MetricGroup();
 				}
@@ -42,7 +42,7 @@ public class HttpBridgeMetricService<T> implements HttpBridgeService {
 					}
 					final var duration = Duration.ofMillis(System.currentTimeMillis() - startTime);
 
-					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (endpoint, metricGroup) -> {
+					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (_, metricGroup) -> {
 						if (metricGroup == null) {
 							metricGroup = new MetricGroup();
 						}
@@ -55,7 +55,7 @@ public class HttpBridgeMetricService<T> implements HttpBridgeService {
 
 		final var requestSuccessDisposable = bridgeHttp.subscribeEvent(EndpointFetcherEvents.REQUEST_SUCCESS,
 				eventData -> {
-					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (endpoint, metricGroup) -> {
+					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (_, metricGroup) -> {
 						if (metricGroup == null) {
 							metricGroup = new MetricGroup();
 						}
@@ -65,7 +65,7 @@ public class HttpBridgeMetricService<T> implements HttpBridgeService {
 
 		final var requestFailedDisposable = bridgeHttp.subscribeEvent(EndpointFetcherEvents.REQUEST_FAILED,
 				eventData -> {
-					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (endpoint, metricGroup) -> {
+					this.metricGroups.compute(groupingFunction.apply(eventData.endpoint()), (_, metricGroup) -> {
 						if (metricGroup == null) {
 							metricGroup = new MetricGroup();
 						}

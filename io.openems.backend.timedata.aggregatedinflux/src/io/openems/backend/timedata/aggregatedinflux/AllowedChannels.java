@@ -338,7 +338,9 @@ public final class AllowedChannels {
 		return IntStream.range(from, to) //
 				.mapToObj(componentNumber -> {
 					return component + componentNumber + "/" + channelOfComponent;
-				}).collect(Collectors.toMap(t -> t, t -> type)).entrySet();
+				}) //
+				.collect(Collectors.toMap(t -> t, _ -> type)) //
+				.entrySet();
 	}
 
 	protected static Iterable<Entry<String, DataType>> multiChannels(//
@@ -370,7 +372,10 @@ public final class AllowedChannels {
 							.mapToObj(channelNumber -> {
 								return component + componentNumber + "/" + channelOfComponent + channelNumber;
 							});
-				}).flatMap(t -> t).collect(Collectors.toMap(t -> t, t -> type)).entrySet();
+				}) //
+				.flatMap(t -> t) //
+				.collect(Collectors.toMap(t -> t, _ -> type)) //
+				.entrySet();
 	}
 
 }

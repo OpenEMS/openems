@@ -53,7 +53,7 @@ public class PredictorProfileClusteringModelImplTest {
 		sut.setPredictionPersistenceService(mock(PredictionPersistenceService.class));
 
 		var orchestrator = mock(PredictionOrchestrator.class);
-		var predictorConfig = new DummyPredictorConfig((ctx) -> orchestrator);
+		var predictorConfig = new DummyPredictorConfig(_ -> orchestrator);
 
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
@@ -142,7 +142,7 @@ public class PredictorProfileClusteringModelImplTest {
 		sut.setPredictionPersistenceService(mock(PredictionPersistenceService.class));
 
 		var orchestrator = mock(PredictionOrchestrator.class);
-		var predictorConfig = new DummyPredictorConfig((ctx) -> orchestrator);
+		var predictorConfig = new DummyPredictorConfig(_ -> orchestrator);
 
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

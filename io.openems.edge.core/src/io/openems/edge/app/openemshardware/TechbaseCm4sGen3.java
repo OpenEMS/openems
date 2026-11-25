@@ -84,7 +84,7 @@ public class TechbaseCm4sGen3
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> AppConfiguration.create() //
+		return (_, _, _) -> AppConfiguration.create() //
 				.addDependencies(new DependencyDeclaration("MASTER_BOX", //
 						DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 						DependencyDeclaration.UpdatePolicy.NEVER, //

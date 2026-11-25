@@ -77,13 +77,13 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		var result = this.execute.apply(task);
 
 		switch (result) {
-		case ExecuteState.Ok es ->
+		case ExecuteState.Ok _ ->
 			// no exception & at least one sub-task executed
 			this.markComponentAsDefective(task.getParent(), false);
-		case ExecuteState.NoOp es ->
+		case ExecuteState.NoOp _ ->
 			// did not execute anything
 			doNothing();
-		case ExecuteState.Error es -> {
+		case ExecuteState.Error _ -> {
 			this.markComponentAsDefective(task.getParent(), true);
 			// invalidate elements of this task
 			this.invalidate.accept(task.getElements());

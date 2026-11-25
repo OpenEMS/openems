@@ -57,7 +57,7 @@ class ComponentRequestHandlerTest {
 	void shouldUpdateComponentIdOnUpdateJsonApi() throws Exception {
 		// Arrange
 		var componentId = new AtomicReference<>("ess0");
-		when(this.componentJsonApi.id()).thenAnswer(invocation -> componentId.get());
+		when(this.componentJsonApi.id()).thenAnswer(_ -> componentId.get());
 
 		var ref = serviceRef(1L);
 		this.sut.bindJsonApi(this.componentJsonApi, ref);
@@ -78,7 +78,7 @@ class ComponentRequestHandlerTest {
 	void shouldOnlyUpdateMatchingServiceId() throws Exception {
 		// Arrange
 		var componentId = new AtomicReference<>("ess0");
-		when(this.componentJsonApi.id()).thenAnswer(invocation -> componentId.get());
+		when(this.componentJsonApi.id()).thenAnswer(_ -> componentId.get());
 
 		var otherApi = mock(ComponentJsonApi.class);
 		when(otherApi.id()).thenReturn("ess1");

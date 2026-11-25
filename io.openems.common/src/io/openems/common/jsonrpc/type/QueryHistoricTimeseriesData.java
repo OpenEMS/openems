@@ -114,10 +114,11 @@ public class QueryHistoricTimeseriesData implements EndpointRequestType<Request,
 							final var timestamp = timestamps.get(i);
 							final SortedMap<ChannelAddress, JsonElement> b = a.entrySet().stream() //
 									.collect(toMap(t -> t.getKey().get(),
-											t -> t.getValue().get(i).getAsJsonPrimitivePath().get(), (t, u) -> u,
+											t -> t.getValue().get(i).getAsJsonPrimitivePath().get(), (_, u) -> u,
 											TreeMap::new));
 							return Map.entry(timestamp, b);
-						}).collect(toMap(t -> t.getKey(), t -> t.getValue(), (t, u) -> u, TreeMap::new));
+						}) //
+						.collect(toMap(t -> t.getKey(), t -> t.getValue(), (_, u) -> u, TreeMap::new));
 
 				return new Response(resultMap);
 			}, obj -> {
@@ -160,7 +161,7 @@ public class QueryHistoricTimeseriesData implements EndpointRequestType<Request,
 					new JsonElementPath.Case<>(JsonElementPath::isNumber, t -> {
 						return ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(t.getAsInt() * -1));
 					}), //
-					new JsonElementPath.Case<>(t -> true, t -> {
+					new JsonElementPath.Case<>(_ -> true, t -> {
 						return TimeZone.getTimeZone(t.getAsString()).toZoneId();
 					}) //
 			));
@@ -181,7 +182,7 @@ public class QueryHistoricTimeseriesData implements EndpointRequestType<Request,
 					new JsonElementPath.Case<>(t -> /* t.isPresent() && */t.isJsonPrimitive(), t -> {
 						return new Resolution(t.getAsInt(), ChronoUnit.SECONDS);
 					}), //
-					new JsonElementPath.Case<>(t -> true, t -> {
+					new JsonElementPath.Case<>(_ -> true, t -> {
 						final var obj = t.getAsJsonObjectPath();
 						return new Resolution(obj.getInt("value"), obj.getEnum("unit", ChronoUnit.class));
 					}) //

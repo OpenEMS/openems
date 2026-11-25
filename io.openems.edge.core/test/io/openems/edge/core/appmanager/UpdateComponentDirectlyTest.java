@@ -22,7 +22,7 @@ public class UpdateComponentDirectlyTest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
+		this.appManagerTestBundle = new AppManagerTestBundle(null, null, _ -> {
 			return ImmutableList.of(//
 
 			);

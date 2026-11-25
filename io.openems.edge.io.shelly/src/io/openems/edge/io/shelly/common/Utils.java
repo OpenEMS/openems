@@ -1,5 +1,6 @@
 package io.openems.edge.io.shelly.common;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static java.util.Arrays.stream;
@@ -112,9 +113,7 @@ public class Utils {
 		}
 
 		final String url = baseUrl + "/rpc/Switch.Set?id=" + index + "&on=" + (writeValue.get() ? "true" : "false");
-		return httpBridge.get(url).thenAccept(stringHttpResponse -> {
-			// map to void
-		});
+		return httpBridge.get(url).thenAccept(_ -> doNothing());
 	}
 
 }

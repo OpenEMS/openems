@@ -5,7 +5,7 @@ import org.java_websocket.WebSocket;
 @FunctionalInterface
 public interface OnClose {
 
-	public static final OnClose NO_OP = (ws, code, reason, remote) -> {
+	public static final OnClose NO_OP = (_, _, _, _) -> {
 	};
 
 	/**

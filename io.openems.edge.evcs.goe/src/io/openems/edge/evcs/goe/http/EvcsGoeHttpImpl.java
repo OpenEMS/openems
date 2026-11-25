@@ -121,7 +121,7 @@ public class EvcsGoeHttpImpl extends AbstractOpenemsComponent
 		this.cycleService.subscribeCycle(1, //
 				this.createEndpoint(GET, this.goeApiV2.getStatusUrl()), //
 				t -> this.filterGoeRequestForFirmware(parseToJsonObject(t.data())),
-				t -> this._setChargingstationCommunicationFailed(true));
+				_ -> this._setChargingstationCommunicationFailed(true));
 		this._setMinimumPower(EvcsUtils.milliampereToWatt(this.config.minHwCurrent(), 3));
 		this._setMaximumPower(EvcsUtils.milliampereToWatt(this.config.maxHwCurrent(), 3));
 	}
@@ -174,7 +174,7 @@ public class EvcsGoeHttpImpl extends AbstractOpenemsComponent
 				this.cycleService.subscribeCycle(1, //
 						this.createEndpoint(GET, this.goeApiV2.getFilteredStatusUrl(legacy)), //
 						t -> this.handleStatusRequest(parseToJsonObject(t.data())),
-						t -> this._setChargingstationCommunicationFailed(true));
+						_ -> this._setChargingstationCommunicationFailed(true));
 			} catch (Exception e) {
 				this._setChargingstationCommunicationFailed(true);
 			}

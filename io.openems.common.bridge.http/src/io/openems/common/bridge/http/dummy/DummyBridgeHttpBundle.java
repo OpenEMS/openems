@@ -47,7 +47,7 @@ public record DummyBridgeHttpBundle(//
 	 * @param response the {@link HttpResponse} to return
 	 */
 	public void forceNextSuccessfulResult(HttpResponse<String> response) {
-		this.fetcher.addSingleUseEndpointHandler(t -> response);
+		this.fetcher.addSingleUseEndpointHandler(_ -> response);
 	}
 
 	/**
@@ -56,7 +56,7 @@ public record DummyBridgeHttpBundle(//
 	 * @param error the {@link HttpError} to throw
 	 */
 	public void forceNextFailedResult(HttpError error) {
-		this.fetcher.addSingleUseEndpointHandler(t -> {
+		this.fetcher.addSingleUseEndpointHandler(_ -> {
 			throw error;
 		});
 	}
@@ -154,7 +154,7 @@ public record DummyBridgeHttpBundle(//
 		 */
 		public AtomicBoolean toBeCalled() {
 			final var result = new AtomicBoolean(false);
-			this.request.thenAccept(e -> {
+			this.request.thenAccept(_ -> {
 				result.set(true);
 			});
 			return result;

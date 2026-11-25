@@ -36,7 +36,7 @@ class EventEmitterTest {
 		final var emitter = new EventEmitter<String>();
 
 		final var calledSubscription = new AtomicBoolean(false);
-		emitter.subscribe(value -> {
+		emitter.subscribe(_ -> {
 			calledSubscription.set(true);
 			throw new RuntimeException("Some test exception occurred.");
 		});

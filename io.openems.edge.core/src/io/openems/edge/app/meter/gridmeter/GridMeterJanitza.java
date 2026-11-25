@@ -95,7 +95,7 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 				.setTranslatedLabel("App.Meter.Janitza.productModel") //
 				.setDefaultValue(JanitzaMeter.JanitzaModel.UMG_96_RME.getValue()) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> //
+				.setField(JsonFormlyUtil::buildSelect, (_, _, l, _, field) -> //
 				field.setOptions(OptionsFactory.of(JanitzaMeter.JanitzaModel.class, JanitzaMeter.JanitzaModel.UMG_511),
 						l)))), //
 		INTEGRATION_TYPE(CommunicationProps.modbusType()//
@@ -107,12 +107,12 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> //
+				.wrapField((_, _, _, _, field) -> //
 				field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 						.equal(Exp.staticValue(ModbusType.TCP)))))), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> //
+				.wrapField((_, _, _, _, field) -> //
 				field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE).equal(Exp.staticValue(ModbusType.TCP)))))), //
 		INVERT(MeterProps.invert(METER_ID)//
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))), //

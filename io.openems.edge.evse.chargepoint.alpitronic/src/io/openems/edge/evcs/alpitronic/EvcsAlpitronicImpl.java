@@ -478,7 +478,7 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		if (this.detectedFirmwareVersion != null
 				&& !AlpitronicVersionUtils.isVersion25OrLater(this.detectedFirmwareVersion)) {
 			// Calculate power from voltage and current
-			final Consumer<Value<Double>> calculatePower = ignore -> {
+			final Consumer<Value<Double>> calculatePower = _ -> {
 				var voltage = this.getChargingVoltageChannel().getNextValue().get();
 				var current = this.getChargingCurrentChannel().getNextValue().get();
 				this._setActivePower(voltage != null && current != null ? TypeUtils.getAsType(OpenemsType.INTEGER,

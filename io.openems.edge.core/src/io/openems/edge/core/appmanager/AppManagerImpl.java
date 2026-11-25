@@ -347,12 +347,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 								.map(OpenemsAppInstance::toJsonObject) //
 								.collect(JsonUtils.toJsonArray()))
 						+ Optional.ofNullable(this.lastUpdate.deletedApps) //
-								.map(deletedApps -> {
+								.map(_ -> {
 									return System.lineSeparator() + "Removed: " //
 											+ JsonUtils.prettyToString(this.lastUpdate.deletedApps.stream() //
 													.map(OpenemsAppInstance::toJsonObject) //
 													.collect(JsonUtils.toJsonArray()));
-								}).orElse(""));
+								}) //
+								.orElse(""));
 			}
 
 			this.instantiatedApps.clear();
@@ -722,7 +723,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		var backendDeinstallFuture = this.backendUtil.addDeinstallAppInstanceHistory(user, removedInstance.appId,
 				removedInstance.instanceId);
-		backendDeinstallFuture.whenComplete((r, t) -> {
+		backendDeinstallFuture.whenComplete((_, t) -> {
 			if (t == null) {
 				return;
 			}

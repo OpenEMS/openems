@@ -22,7 +22,7 @@ public class SingleJsonApiBinderTest {
 
 		final var id = UUID.randomUUID();
 		final var response = new GenericJsonrpcResponseSuccess(id);
-		binder.bind(new DummyJsonApi(new JsonApiBuilder().handleRequest("method", call -> response)));
+		binder.bind(new DummyJsonApi(new JsonApiBuilder().handleRequest("method", _ -> response)));
 
 		final var handledResponse = binder
 				.handleRequest(new GenericJsonrpcRequest(id, "method", new JsonObject(), Optional.empty())).get();
@@ -35,7 +35,7 @@ public class SingleJsonApiBinderTest {
 
 		final var id = UUID.randomUUID();
 		final var response = new GenericJsonrpcResponseSuccess(id);
-		binder.bind(new DummyJsonApi(new JsonApiBuilder().handleRequest("method", call -> response)));
+		binder.bind(new DummyJsonApi(new JsonApiBuilder().handleRequest("method", _ -> response)));
 
 		final var handledResponse = binder
 				.handleRequest(new GenericJsonrpcRequest(id, "method", new JsonObject(), Optional.empty())).get();

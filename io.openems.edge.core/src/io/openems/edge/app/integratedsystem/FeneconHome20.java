@@ -235,10 +235,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					.setTranslatedLabel("App.IntegratedSystem.hasPv.label", oneBased, (oneBased + 1) / 2) //
 					.setDefaultValue(false) //
 			));
-			hasPv.def().setField(t -> JsonFormlyUtil.buildCheckboxFromNameable(t),
-					(app, property, l, parameter, field) -> {
-						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
-					});
+			hasPv.def().setField(t -> JsonFormlyUtil.buildCheckboxFromNameable(t), (_, _, _, _, field) -> {
+				field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
+			});
 
 			if (anyOldPvSelected == null) {
 				anyOldPvSelected = Exp.currentModelValue(hasPv).isNull();
@@ -248,9 +247,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var pvAlias = new ParentPropertyImpl(PV_ALIAS.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.pvAlias.label", oneBased) //
-					.setDefaultValueString((app, property, l, parameter) -> TranslationUtil
-							.getTranslation(parameter.bundle(), "App.IntegratedSystem.pvAlias.alias", oneBased)) //
-					.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					.setDefaultValueString((_, _, _, parameter) -> TranslationUtil.getTranslation(parameter.bundle(),
+							"App.IntegratedSystem.pvAlias.alias", oneBased)) //
+					.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 						field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
 					})));
 
@@ -264,16 +263,16 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			final var hasPv = new ParentPropertyImpl(HAS_MPPT.apply(i), AppDef.copyOfGeneric(defaultDef(), def -> def //
 					.setTranslatedLabel("App.IntegratedSystem.hasMppt.label", oneBased) //
 					.setDefaultValue(false) //
-					.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					.setField(JsonFormlyUtil::buildCheckboxFromNameable, (_, _, _, _, field) -> {
 						field.onlyShowIf(tempAnyOldPvSelected);
 					}) //
 			));
 			final var pvAlias = new ParentPropertyImpl(MPPT_ALIAS.apply(i),
 					AppDef.copyOfGeneric(defaultDef(), def -> def //
 							.setTranslatedLabel("App.IntegratedSystem.mpptAlias.label", oneBased) //
-							.setDefaultValueString((app, property, l, parameter) -> TranslationUtil.getTranslation(
+							.setDefaultValueString((_, _, _, parameter) -> TranslationUtil.getTranslation(
 									parameter.bundle(), "App.IntegratedSystem.mpptAlias.alias", oneBased)) //
-							.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+							.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 								field.onlyShowIf(Exp.currentModelValue(hasPv).notNull());
 							}) //
 					));

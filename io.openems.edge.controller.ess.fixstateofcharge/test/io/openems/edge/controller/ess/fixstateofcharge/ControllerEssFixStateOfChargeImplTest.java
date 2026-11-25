@@ -111,7 +111,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 30)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 30) ///
+						.input("ess0", SOC, 30) //
 						.output(STATE_MACHINE, State.AT_TARGET_SOC)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
@@ -172,7 +172,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", SOC, 30) //
 						.output(CTRL_ESS_CAPACITY, 8_000)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 30) ///
+						.input("ess0", SOC, 30) //
 						.input("ess0", CAPACITY, 8_000) //
 						.output(CTRL_ESS_CAPACITY, 8_000) //
 						.output(STATE_MACHINE, State.AT_TARGET_SOC)) //

@@ -137,7 +137,7 @@ public class EnergyScheduler {
 
 				.setScheduleContext(coc -> coc == null ? null : new ScheduleContext(coc.remainingHeatEnergy()))
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+				.setSimulator((id, period, _, coc, csc, ef, mode, _, _) -> {
 					if (coc == null) {
 						return mode;
 					}

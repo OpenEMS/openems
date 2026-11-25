@@ -133,7 +133,7 @@ public class Edge2EdgeWebsocketHybridEssImpl extends AbstractOpenemsComponent
 		);
 		this._setMaxApparentPower(Integer.MAX_VALUE); // has no effect, as long as AllowedCharge/DischargePower are null
 
-		this.bridgeStateHandler.addOnStateChangeListener((prev, current) -> {
+		this.bridgeStateHandler.addOnStateChangeListener((_, current) -> {
 			switch (current) {
 			case NOT_CONNECTED -> {
 				this._setRemoteNoComponentFault(false);
@@ -150,7 +150,7 @@ public class Edge2EdgeWebsocketHybridEssImpl extends AbstractOpenemsComponent
 			}
 		});
 
-		this.bridgeStateHandler.addOnSubscribeListener((bridge, channels) -> {
+		this.bridgeStateHandler.addOnSubscribeListener((_, channels) -> {
 			final var c = channels.stream() //
 					.filter(t -> t.accessMode() != AccessMode.WRITE_ONLY) //
 					.filter(t -> this.hasChannel(t.id()) || t.category() == ChannelCategory.STATE) //
@@ -168,7 +168,7 @@ public class Edge2EdgeWebsocketHybridEssImpl extends AbstractOpenemsComponent
 			this.channelSubscriber.setSubscribeChannels(c);
 		});
 
-		this.bridgeStateHandler.addOnUnsubscribeListener(bridge -> {
+		this.bridgeStateHandler.addOnUnsubscribeListener(_ -> {
 			this.channelSubscriber.unsubscribeAll();
 			this.resetAllChannelsToNull();
 		});

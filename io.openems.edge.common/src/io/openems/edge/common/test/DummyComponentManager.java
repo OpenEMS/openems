@@ -1,6 +1,7 @@
 package io.openems.edge.common.test;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.util.Collections.unmodifiableList;
 
 import java.io.IOException;
@@ -178,9 +179,7 @@ public class DummyComponentManager implements ComponentManager, ComponentJsonApi
 			return new GetEdgeConfigResponse(call.getRequest().getId(), this.getEdgeConfig());
 		});
 
-		builder.handleRequest(new CreateComponentConfig(), endpoint -> {
-
-		}, call -> {
+		builder.handleRequest(new CreateComponentConfig(), _ -> doNothing(), call -> {
 			this.handleCreateComponentConfigRequestGuarded(call.get(EdgeKeys.USER_KEY), call.getRequest());
 			return EmptyObject.INSTANCE;
 		});

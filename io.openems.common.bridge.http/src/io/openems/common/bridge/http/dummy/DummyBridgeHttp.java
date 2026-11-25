@@ -1,5 +1,7 @@
 package io.openems.common.bridge.http.dummy;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -55,9 +57,7 @@ public class DummyBridgeHttp implements BridgeHttp {
 	@Override
 	public <T> Disposable subscribeEvent(BridgeHttpEventDefinition<T> eventDefinition,
 			BridgeHttpEventListener<T> listener) {
-		return () -> {
-			// empty for dummy implementation
-		};
+		return () -> doNothing();
 	}
 
 	@Override

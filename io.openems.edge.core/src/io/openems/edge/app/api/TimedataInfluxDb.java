@@ -52,7 +52,7 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		QUERY_LANGUAGE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".queryLanguage.label") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, prop, l, params, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> {
 					final var options = new ArrayList<String>();
 					options.add("INFLUX_QL");
 					options.add("FLUX");
@@ -88,7 +88,7 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 				.setTranslatedDescriptionWithAppPrefix(".noOfCycles.description") //
 				.setTranslatedLabelWithAppPrefix(".noOfCycles.label") //
 				.setDefaultValue(1) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, first) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, first) -> {
 					first.setInputType(InputType.NUMBER);
 					first.setMin(1);
 				}))), //
@@ -96,7 +96,7 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 				.setTranslatedDescriptionWithAppPrefix(".maxQueueSize.description")//
 				.setTranslatedLabelWithAppPrefix(".maxQueueSize.label") //
 				.setDefaultValue(50) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, first) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, first) -> {
 					first.setInputType(InputType.NUMBER);
 				}))), //
 		IS_READ_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//

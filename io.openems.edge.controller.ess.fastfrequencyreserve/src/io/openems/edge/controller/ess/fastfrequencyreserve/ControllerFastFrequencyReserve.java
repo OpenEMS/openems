@@ -19,41 +19,41 @@ import io.openems.edge.controller.ess.fastfrequencyreserve.statemachine.StateMac
 public interface ControllerFastFrequencyReserve extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONTROL_MODE(Doc.of(ControlMode.values()) //
-				.initialValue(ControlMode.MANUAL_OFF) //
+		CONTROL_MODE(Doc.of(ControlMode.values())//
+				.initialValue(ControlMode.MANUAL_OFF)//
 				.text("Configured Control Mode")), //
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current State of State-Machine")), //
-		SCHEDULE_PARSE_FAILED(Doc.of(Level.FAULT) //
+		SCHEDULE_PARSE_FAILED(Doc.of(Level.FAULT)//
 				.text("Unable to parse Schedule")), //
-		NO_ACTIVE_SETPOINT(Doc.of(OpenemsType.BOOLEAN) //
+		NO_ACTIVE_SETPOINT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("No active Set-Point given")), //
-		DISCHARGE_POWER_SET_POINT(Doc.of(OpenemsType.INTEGER) //
+		DISCHARGE_POWER_SET_POINT(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_WRITE)),
-		NO_FREQUENCY_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+		NO_FREQUENCY_LIMIT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("No Frequency limit is given")), //
-		FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		NO_START_TIMESTAMP(Doc.of(OpenemsType.BOOLEAN) //
+		NO_START_TIMESTAMP(Doc.of(OpenemsType.BOOLEAN)//
 				.text("No start timestamp")), //
-		START_TIMESTAMP(Doc.of(OpenemsType.LONG) //
+		START_TIMESTAMP(Doc.of(OpenemsType.LONG)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		NO_DURATION(Doc.of(OpenemsType.BOOLEAN) //
+		NO_DURATION(Doc.of(OpenemsType.BOOLEAN)//
 				.text("No duration")), //
-		DURATION(Doc.of(OpenemsType.INTEGER) //
+		DURATION(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		ACTIVATION_TIME(Doc.of(ActivationTime.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		SUPPORT_DURATIN(Doc.of(SupportDuration.values())//
 				.accessMode(AccessMode.READ_WRITE)),
-		LAST_TRIGGERED_TIME(Doc.of(OpenemsType.STRING) //
+		LAST_TRIGGERED_TIME(Doc.of(OpenemsType.STRING)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.accessMode(AccessMode.READ_WRITE) //
+				.accessMode(AccessMode.READ_WRITE)//
 				.text("Last Triggered time in Human readable form")//
 
 		);

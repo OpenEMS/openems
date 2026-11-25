@@ -138,7 +138,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 		final var delay = DelayTimeProvider.Delay.of(Duration.ofSeconds(SEND_SECONDS));
 		final var delayTime = new DefaultDelayTimeProvider<HttpResponse<String>>(DelayTimeProvider.Delay::immediate,
-				t -> delay, t -> delay);
+				_ -> delay, _ -> delay);
 		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 
 		timeService.subscribeJsonTime(delayTime, () -> {

@@ -104,7 +104,7 @@ public class OAuthRegistryImpl implements OAuthRegistry, DebugLoggable {
 	}
 
 	private void incrementMetric(String name) {
-		this.metrics.computeIfAbsent(name, k -> new AtomicInteger(0)).incrementAndGet();
+		this.metrics.computeIfAbsent(name, _ -> new AtomicInteger(0)).incrementAndGet();
 	}
 
 	private CompletableFuture<OAuthTokens> fetchTokensHttpBridge(String identifier, List<String> scopes,

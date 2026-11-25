@@ -10,7 +10,7 @@ import io.openems.common.exceptions.OpenemsError;
 @FunctionalInterface
 public interface OnOpen extends BiFunction<WebSocket, Handshakedata, OpenemsError> {
 
-	public static final OnOpen NO_OP = (ws, handshakedata) -> {
+	public static final OnOpen NO_OP = (_, _) -> {
 		return null;
 	};
 

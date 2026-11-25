@@ -100,7 +100,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		);
 	}
 
-	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
+	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (_, _) -> {
 		this.timeService.removeAllTimeEndpoints();
 		this.timeService.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
 				this::createSwisspowerEndpoint, //

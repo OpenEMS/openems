@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.FINISHED;
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WRITE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,10 +22,8 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class CycleTasksManagerTest {
 
-	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT = (cycleTimeIsTooShort) -> {
-	};
-	public static final Consumer<Long> CYCLE_DELAY = (cycleDelay) -> {
-	};
+	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT = _ -> doNothing();
+	public static final Consumer<Long> CYCLE_DELAY = _ -> doNothing();
 	private static final Config CONFIG = new Config("foo", "bar", true, LogVerbosity.NONE, 1);
 	public static final Supplier<Config.LogHandler> LOG_HANDLER = () -> CONFIG.log;
 

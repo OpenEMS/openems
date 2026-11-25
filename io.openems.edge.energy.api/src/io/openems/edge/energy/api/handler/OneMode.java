@@ -20,10 +20,10 @@ public class OneMode {
 	public static final class Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
 			AbstractEnergyScheduleHandler.Builder<Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = (id, period, gsc, coc, csc, ef,
-				fitness) -> doNothing();
-		private Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator = (id, period, gsc, coc, csc, ef,
-				fitness) -> doNothing();
+		private Simulator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = //
+				(_, _, _, _, _, _, _) -> doNothing();
+		private Evaluator<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator = //
+				(_, _, _, _, _, _, _) -> doNothing();
 
 		/**
 		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
@@ -58,7 +58,7 @@ public class OneMode {
 		 */
 		public Builder<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setScheduleContext(
 				Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscFunction = gsc -> cscSupplier.get();
+			this.cscFunction = _ -> cscSupplier.get();
 			return this;
 		}
 

@@ -76,7 +76,7 @@ public class PrepareBatteryExtension
 				.setTranslatedLabelWithAppPrefix(".targetSoc.label") //
 				.setDefaultValue(30) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildRange, (app, prop, l, param, field) -> {
+				.setField(JsonFormlyUtil::buildRange, (_, _, _, _, field) -> {
 					field.setMin(0)//
 							.setMax(100);
 				}));

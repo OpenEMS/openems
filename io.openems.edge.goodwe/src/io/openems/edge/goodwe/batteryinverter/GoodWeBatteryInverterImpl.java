@@ -2978,7 +2978,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void registerListenersForSafetyParameters() {
 		this.unregisterListenersForSafetyParameters();
 
-		BiConsumer<Value<?>, Value<?>> enqueue = (v1, v2) -> {
+		BiConsumer<Value<?>, Value<?>> enqueue = (_, _) -> {
 			ScheduledFuture<?> prev = this.pendingPowerSettingsTask.getAndSet(//
 					this.powerSettingExecutor.schedule(//
 							this::addPowerSettingTasks, //

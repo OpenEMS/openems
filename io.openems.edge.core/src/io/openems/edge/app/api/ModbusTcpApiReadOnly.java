@@ -66,7 +66,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 		// Properties
 		ALIAS(alias()), //
 		ACTIVE(AppDef.of(ModbusTcpApiReadOnly.class) //
-				.setDefaultValue((app, prop, l, param) -> {
+				.setDefaultValue((app, _, _, _) -> {
 					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.ModbusTcp.ReadWrite").size() == 0;
 					return new JsonPrimitive(active);

@@ -35,8 +35,8 @@ public class SpotTariffTrackerImpl implements SpotTariffTracker, SingletonPool.S
 
 	private final Consumer<TariffData> onPriceUpdateFunc = this::onPriceUpdate;
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChangeFunc = //
-			(o, n) -> this.onCurrencyOrExchangeRateUpdate();
-	private final Consumer<Void> onExchangeRatesChanged = v -> this.onCurrencyOrExchangeRateUpdate();
+			(_, _) -> this.onCurrencyOrExchangeRateUpdate();
+	private final Consumer<Void> onExchangeRatesChanged = _ -> this.onCurrencyOrExchangeRateUpdate();
 
 	private boolean isCurrentlyChangingProviders;
 	private TariffData lastSetTariffData;

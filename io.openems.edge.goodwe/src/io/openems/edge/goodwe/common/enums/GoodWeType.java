@@ -80,7 +80,7 @@ public enum GoodWeType implements OptionsEnum {
 
 	private GoodWeType(int value, String option, Series series, int maxDcCurrent) {
 		// No serial number filter and battery dependency
-		this(value, option, series, (notUsed) -> maxDcCurrent, (t) -> false, (t) -> false, null, null);
+		this(value, option, series, _ -> maxDcCurrent, _ -> false, _ -> false, null, null);
 	}
 
 	@Override

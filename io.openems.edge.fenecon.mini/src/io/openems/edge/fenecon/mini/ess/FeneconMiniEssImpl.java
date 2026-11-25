@@ -138,7 +138,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 
 		// Calculate Allowed Charge and Discharge Power
-		final Consumer<Value<Integer>> calculateAllowedChargeDischargePower = ignore -> {
+		final Consumer<Value<Integer>> calculateAllowedChargeDischargePower = _ -> {
 			var voltage = this.getBecu1TotalVoltageChannel().getNextValue();
 			var chargeCurrent = this.getBecu1AllowedChargeCurrentChannel().getNextValue();
 			var dischargeCurrent = this.getBecu1AllowedDischargeCurrentChannel().getNextValue();

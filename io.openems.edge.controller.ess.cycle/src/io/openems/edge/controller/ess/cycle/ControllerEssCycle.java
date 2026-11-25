@@ -15,9 +15,9 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		AWAITING_HYSTERESIS(Doc.of(StateMachine.State.values()) //
+		AWAITING_HYSTERESIS(Doc.of(StateMachine.State.values())//
 				.text("Awaiting for active hysteresis, to change the state.")), //
-		COMPLETED_CYCLES(Doc.of(OpenemsType.INTEGER) //
+		COMPLETED_CYCLES(Doc.of(OpenemsType.INTEGER)//
 				.text("Number of cycles completed")); //
 
 		private final Doc doc;

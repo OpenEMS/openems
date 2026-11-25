@@ -89,7 +89,7 @@ public class TestForceUpdatingConfigProperties extends
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 			var id = this.getId(t, p, Property.ID);
 			var minPower = this.getInt(p, Property.MIN_POWER);
 			var maxPower = this.getInt(p, Property.MAX_POWER);

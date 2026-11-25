@@ -67,7 +67,7 @@ public class MasterBox2v0 extends AbstractOpenemsAppWithProps<MasterBox2v0, Mast
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setTranslatedLabel("App.Hardware.hardwareType.label") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, _, _, field) -> //
 				field.setOptions(Arrays.stream(GpioHardwareType.values())//
 						.map(Enum::name)//
 						.toList()))//

@@ -38,7 +38,7 @@ class CurrencyExchangeTest {
 		assertTrue(exchange.getExchangeRate(eur, rub).isEmpty());
 
 		final var hasCalledChange = new AtomicBoolean(false);
-		exchange.onExchangeRatesChanged().subscribe(v -> {
+		exchange.onExchangeRatesChanged().subscribe(_ -> {
 			hasCalledChange.set(true);
 		});
 		exchange.setExchangeRate(eur, rub, 10.0);

@@ -770,19 +770,19 @@ public class OdooHandler {
 						.build()) //
 				.build();
 
-		return this.executeAdminRequest(session -> {
-			return this.executor.submit("updateEdgeSettings", () -> {
-				try {
-					return getAsJsonObject(
-							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/set_edge_settings",
+		return this //
+				.executeAdminRequest(session -> {
+					return this.executor.submit("updateEdgeSettings", () -> {
+						try {
+							return getAsJsonObject(OdooUtils.sendJsonrpcRequest(
+									this.credentials.url() + "/openems_backend/set_edge_settings",
 									"session_id=" + session, request).result);
-				} catch (OpenemsNamedException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		}).thenAccept(_ -> {
-			// empty
-		});
+						} catch (OpenemsNamedException e) {
+							throw new RuntimeException(e);
+						}
+					});
+				}) //
+				.thenAccept(_ -> doNothing());
 	}
 
 	private record StockLot(String category, String name, String serialNumber) {

@@ -35,6 +35,6 @@ public class ResultTest {
 		assertTrue(result.isError());
 		assertFalse(result.isOk());
 		assertTrue(result.get().isEmpty());
-		assertTrue(result.map(x -> "mapped").isError());
+		assertTrue(result.map(_ -> "mapped").isError());
 	}
 }

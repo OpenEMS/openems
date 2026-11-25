@@ -179,8 +179,8 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		protected final String parentId;
 
 		protected Serializer<?> serializer = null;
-		protected Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction = goc -> null;
-		protected Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction = coc -> null;
+		protected Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction = _ -> null;
+		protected Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction = _ -> null;
 
 		/**
 		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
@@ -240,7 +240,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		 * @return myself
 		 */
 		public final BUILDER setOptimizationContext(Supplier<OPTIMIZATION_CONTEXT> cocSupplier) {
-			this.cocFunction = gsc -> cocSupplier.get();
+			this.cocFunction = _ -> cocSupplier.get();
 			return this.self();
 		}
 
@@ -262,7 +262,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 		 * @return myself
 		 */
 		public final BUILDER setScheduleContext(Supplier<SCHEDULE_CONTEXT> cscSupplier) {
-			this.cscFunction = gsc -> cscSupplier.get();
+			this.cscFunction = _ -> cscSupplier.get();
 			return this.self();
 		}
 	}

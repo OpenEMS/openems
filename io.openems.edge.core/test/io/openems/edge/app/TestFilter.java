@@ -91,7 +91,7 @@ public class TestFilter extends AbstractOpenemsAppWithProps<TestFilter, Property
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (t, p, _) -> {
 			final var id = this.getId(t, p, Property.ID);
 			final var factoryId = this.getString(p, Property.COMPONENT_FACTORY_ID);
 			final var components = new ArrayList<EdgeConfig.Component>();

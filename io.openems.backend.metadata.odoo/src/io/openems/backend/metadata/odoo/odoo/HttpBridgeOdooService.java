@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonElement;
@@ -153,9 +155,7 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 	private <REQUEST> CompletableFuture<Void> sendRequest(String path, JsonSerializer<REQUEST> requestJsonSerializer,
 			REQUEST request) {
 		return this.sendRequest(path, requestJsonSerializer, EmptyObject.serializer(), request) //
-				.thenAccept(_ -> {
-					// empty
-				});
+				.thenAccept(_ -> doNothing());
 	}
 
 	@Override

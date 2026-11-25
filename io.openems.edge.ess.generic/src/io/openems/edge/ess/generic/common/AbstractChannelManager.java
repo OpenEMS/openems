@@ -97,15 +97,15 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		 * Battery
 		 */
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
+				_ -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
+				_ -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
+				_ -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
-				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
+				_ -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.VOLTAGE, //
-				ignored -> this.allowedChargeDischargeHandler //
+				_ -> this.allowedChargeDischargeHandler //
 						.calculateEssProtectionLimits(battery, inverter));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
@@ -132,8 +132,8 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		 * ESS / Parent
 		 */
 		if (this.parent instanceof StartStoppable) {
-			this.addOnChangeListener(this.parent, StartStoppable.ChannelId.START_STOP, (ignored0,
-					ignored1) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
+			this.addOnChangeListener(this.parent, StartStoppable.ChannelId.START_STOP, //
+					(_, _) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		}
 	}
 

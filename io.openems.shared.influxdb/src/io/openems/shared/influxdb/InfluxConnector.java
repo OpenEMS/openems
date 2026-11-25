@@ -100,7 +100,7 @@ public class InfluxConnector {
 		this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue<Runnable>(maxQueueSize), //
 				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build(), //
-				(r, executor) -> {
+				(_, _) -> {
 					// Custom RejectedExecutionHandler; avoid throwing a RejectedExecutionException
 					this.rejectedExecutionCount.incrementAndGet();
 				});

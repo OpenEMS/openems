@@ -25,46 +25,46 @@ public interface ControllerEssEmergencyCapacityReserve extends Controller, Opene
 		/**
 		 * Current state of the StateMachine.
 		 */
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine") //
+		STATE_MACHINE(Doc.of(State.values())//
+				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
 
 		/**
 		 * Holds {@link ManagedSymmetricEss.ChannelId#SET_ACTIVE_POWER_LESS_OR_EQUALS}
 		 * for debug purpose.
 		 */
-		DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS(Doc.of(INTEGER) //
-				.unit(WATT) //
+		DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("The debug SetActivePowerLessOrEquals")), //
 
 		/**
 		 * Holds target power to reach.
 		 */
-		DEBUG_TARGET_POWER(Doc.of(FLOAT) //
-				.unit(WATT) //
-				.text("The debug target power to reach") //
-				.persistencePriority(HIGH) //
+		DEBUG_TARGET_POWER(Doc.of(FLOAT)//
+				.unit(WATT)//
+				.text("The debug target power to reach")//
+				.persistencePriority(HIGH)//
 		), //
 
 		/**
 		 * Holds power to increase/decrease ramp for every cycle.
 		 */
-		DEBUG_RAMP_POWER(Doc.of(FLOAT) //
-				.unit(WATT) //
+		DEBUG_RAMP_POWER(Doc.of(FLOAT)//
+				.unit(WATT)//
 				.text("The debug ramp power to decrease power")), //
 
 		/**
 		 * Configured reserve SoC is out of range [5,100].
 		 */
-		RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE(Doc.of(Level.WARNING) //
+		RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE(Doc.of(Level.WARNING)//
 				.text("Reserve SoC does not fit in range 5 to 100")),
 
 		/**
 		 * Holds the actual reserve soc value. Holds null if reserve soc is disabled.
 		 */
-		ACTUAL_RESERVE_SOC(Doc.of(INTEGER) //
-				.unit(PERCENT) //
-				.text("The reserve soc value") //
+		ACTUAL_RESERVE_SOC(Doc.of(INTEGER)//
+				.unit(PERCENT)//
+				.text("The reserve soc value")//
 				.persistencePriority(HIGH)); //
 
 		private final Doc doc;

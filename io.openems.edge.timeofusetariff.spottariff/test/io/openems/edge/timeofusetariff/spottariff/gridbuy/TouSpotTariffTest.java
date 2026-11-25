@@ -135,7 +135,7 @@ class TouSpotTariffTest {
 
 		final var gridBuyTariffComponent = new TouSpotTariffImpl();
 		final var touTariffDataChangeCalls = new AtomicInteger(0);
-		gridBuyTariffComponent.getTariffData().subscribe(tariffData -> touTariffDataChangeCalls.incrementAndGet());
+		gridBuyTariffComponent.getTariffData().subscribe(_ -> touTariffDataChangeCalls.incrementAndGet());
 
 		new ComponentTest(gridBuyTariffComponent) //
 				.addReference("tariffManager", tariffManager) //

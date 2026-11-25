@@ -156,7 +156,7 @@ public class AutoKMeansClusterer implements Clusterer {
 		Stream.concat(centroids.stream(), upperQuantileCentroids.stream())//
 				.filter(c -> c == null || c.length != dim)//
 				.findAny()//
-				.ifPresent(c -> {
+				.ifPresent(_ -> {
 					throw new IllegalArgumentException("Each centroid must be non-null and have the same length");
 				});
 	}

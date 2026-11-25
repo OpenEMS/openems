@@ -276,7 +276,7 @@ public class HydacImpl extends AbstractOpenemsModbusComponent
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(EndpointRequestType.ofEmpty("clearErrorRequest"),
 				endpoint -> endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.INSTALLER)), //
-				call -> {
+				_ -> {
 					this.clearCoolingUnitErrors();
 					return EmptyObject.INSTANCE;
 				});

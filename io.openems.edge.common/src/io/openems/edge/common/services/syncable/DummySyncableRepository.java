@@ -13,13 +13,13 @@ public class DummySyncableRepository implements SyncableRepository {
 	private final Map<SyncableKey<?>, BehaviorSubject<SyncableEntry<?>>> storedValues = new HashMap<>();
 
 	public <T> void setEntry(SyncableKey<T> key, SyncableEntry<T> entry) {
-		final var stored = this.storedValues.computeIfAbsent(key, k -> new BehaviorSubject<>(null));
+		final var stored = this.storedValues.computeIfAbsent(key, _ -> new BehaviorSubject<>(null));
 		stored.setValue(entry);
 	}
 
 	@Override
 	public <T> SyncableSubscription<T> subscribe(SyncableKey<T> key) {
-		final var stored = this.storedValues.computeIfAbsent(key, k -> new BehaviorSubject<>(null));
+		final var stored = this.storedValues.computeIfAbsent(key, _ -> new BehaviorSubject<>(null));
 		@SuppressWarnings("unchecked")
 		var storedCasted = (BehaviorSubject<SyncableEntry<T>>) (BehaviorSubject<?>) stored;
 		return new DummySyncableSubscription<>(storedCasted);

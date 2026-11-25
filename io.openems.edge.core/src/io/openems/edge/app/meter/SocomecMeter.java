@@ -84,19 +84,19 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 				.setDefaultValue(ModbusType.RTU))), //
 		IP(MeterProps.ip() //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP)));
 				})), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP)));
 				})), //
 		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def//
 				.setRequired(true)//
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.RTU)));
 				})//

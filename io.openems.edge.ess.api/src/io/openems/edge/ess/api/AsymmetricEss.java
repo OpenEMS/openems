@@ -30,9 +30,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("""
 						AC-side power of Energy Storage System on phase L1. \
 						Includes excess DC-PV production for hybrid inverters. \
@@ -47,9 +47,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("""
 						AC-side power of Energy Storage System on phase L2. \
 						Includes excess DC-PV production for hybrid inverters. \
@@ -64,9 +64,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("""
 						AC-side power of Energy Storage System on phase L3. \
 						Includes excess DC-PV production for hybrid inverters. \
@@ -81,8 +81,8 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L2.
@@ -94,8 +94,8 @@ public interface AsymmetricEss extends SymmetricEss {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L3.
@@ -381,7 +381,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	 */
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power
-		final Consumer<Value<Integer>> activePowerSum = ignore -> {
+		final Consumer<Value<Integer>> activePowerSum = _ -> {
 			ess._setActivePower(sumInteger(//
 					ess.getActivePowerL1Channel().getNextValue().get(), //
 					ess.getActivePowerL2Channel().getNextValue().get(), //
@@ -392,7 +392,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		ess.getActivePowerL3Channel().onSetNextValue(activePowerSum);
 
 		// Reactive Power
-		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
+		final Consumer<Value<Integer>> reactivePowerSum = _ -> {
 			ess._setReactivePower(sumInteger(//
 					ess.getReactivePowerL1Channel().getNextValue().get(), //
 					ess.getReactivePowerL2Channel().getNextValue().get(), //

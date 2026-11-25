@@ -104,7 +104,7 @@ public final class PredefinedOrder<T> implements Comparator<T> {
 	 * @return this
 	 */
 	public PredefinedOrder<T> rest() {
-		return this.thenBy(t -> true);
+		return this.thenBy(_ -> true);
 	}
 
 	@Override
@@ -154,9 +154,8 @@ public final class PredefinedOrder<T> implements Comparator<T> {
 			final PositionReturnType result = predicate.apply(o);
 
 			switch (result) {
-			case PositionReturnType.Next next -> doNothing();
-
-			case PositionReturnType.Remove remove -> {
+			case PositionReturnType.Next _ -> doNothing();
+			case PositionReturnType.Remove _ -> {
 				return EMPTY_INT_ARRAY;
 			}
 			case PositionReturnType.Right right -> {

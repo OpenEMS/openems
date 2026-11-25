@@ -172,8 +172,8 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Gets the {@link Class#getDeclaredMethod} in the given {@link Class}
-	 * or any of its superclasses.
+	 * Gets the {@link Class#getDeclaredMethod} in the given {@link Class} or any of
+	 * its superclasses.
 	 * 
 	 * @param clazz      the given {@link Class}
 	 * @param methodName the name of the declared method

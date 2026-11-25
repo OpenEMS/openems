@@ -90,7 +90,7 @@ public record SimulationResult(//
 
 		protected synchronized void addMode(ZonedDateTime time, EnergyScheduleHandler.WithDifferentModes esh,
 				int postProcessedMode) {
-			var modes = this.modesPerEsh.computeIfAbsent(esh, e -> new TreeMap<ZonedDateTime, Integer>());
+			var modes = this.modesPerEsh.computeIfAbsent(esh, _ -> new TreeMap<ZonedDateTime, Integer>());
 			modes.put(time, postProcessedMode);
 		}
 	}
@@ -181,8 +181,8 @@ public record SimulationResult(//
 		final var quarterSchedule = IntStream.range(0, goc.periods().size()) //
 				.flatMap(periodIndex -> switch (goc.periods().get(periodIndex)) {
 				case GlobalOptimizationContext.Period.Hour ph //
-					-> ph.quarterPeriods().stream().mapToInt(ignore -> periodIndex); // repeat
-				case GlobalOptimizationContext.Period.Quarter pq //
+					-> ph.quarterPeriods().stream().mapToInt(_ -> periodIndex); // repeat
+				case GlobalOptimizationContext.Period.Quarter _ //
 					-> IntStream.of(periodIndex);
 				}) //
 				.map(periodIndex -> periodIndex < schedule.length //

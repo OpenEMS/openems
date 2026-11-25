@@ -354,7 +354,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 								}
 								return t;
 							}, //
-							(t, u) -> {
+							(_, u) -> {
 								// duplicates take second
 								return u;
 							}, //

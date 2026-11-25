@@ -120,12 +120,12 @@ public class BridgeHttpImpl implements BridgeHttp, BridgeHttpEventRaiser {
 			BridgeHttpEventDefinition<T> eventDefinition, //
 			BridgeHttpEventListener<T> listener //
 	) {
-		final var list = this.listeners.computeIfAbsent(eventDefinition, eventDef -> new CopyOnWriteArrayList<>());
+		final var list = this.listeners.computeIfAbsent(eventDefinition, _ -> new CopyOnWriteArrayList<>());
 
 		list.add(listener);
 
 		return () -> {
-			this.listeners.computeIfPresent(eventDefinition, (eventDef, eventListener) -> {
+			this.listeners.computeIfPresent(eventDefinition, (_, eventListener) -> {
 				if (eventListener.remove(listener)) {
 					if (eventListener.isEmpty()) {
 						return null;

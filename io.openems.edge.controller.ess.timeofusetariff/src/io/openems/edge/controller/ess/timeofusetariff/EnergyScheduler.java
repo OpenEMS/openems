@@ -129,8 +129,8 @@ public class EnergyScheduler {
 					var config = configSupplier.get();
 					return new SingleModes<>(//
 							new Modes.Channels(//
-									new ChannelAddress(
-											parent.id(), TimeOfUseTariffController.ChannelId.STATE_MACHINE.id()),
+									new ChannelAddress(parent.id(),
+											TimeOfUseTariffController.ChannelId.STATE_MACHINE.id()),
 									null /* no ManagedConsumptionPower channel */), //
 							Arrays.stream(StateMachine.values()) //
 									.map(m -> new SingleMode<>(//
@@ -140,7 +140,7 @@ public class EnergyScheduler {
 									.collect(toImmutableList()));
 				})
 
-				.setInitialPopulationsProvider((goc, coc, modes) -> {
+				.setInitialPopulationsProvider((goc, _, modes) -> {
 					// Prepare Initial Population with cheapest grid-buy price per valley set to
 					// DELAY_DISCHARGE or CHARGE_GRID
 					final var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
@@ -169,7 +169,7 @@ public class EnergyScheduler {
 					return OptimizationContext.from(goc, targetSocBuffer, manualTargetTime);
 				})
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+				.setSimulator((_, period, gsc, coc, _, ef, mode, fitness, isFinalRun) -> {
 					if (mode == null) {
 						mode = BALANCING;
 					}
@@ -194,7 +194,7 @@ public class EnergyScheduler {
 					return mode;
 				})
 
-				.setEvaluator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+				.setEvaluator((_, period, gsc, coc, _, ef, _, fitness, _) -> {
 					var targetTime = coc.targetTimeByDay().get(period.time().toLocalDate());
 					if (targetTime == null) {
 						return;

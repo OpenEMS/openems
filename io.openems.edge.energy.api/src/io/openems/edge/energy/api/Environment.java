@@ -17,7 +17,7 @@ public enum Environment {
 	/**
 	 * Only for testing, not used in production.
 	 */
-	TEST(p -> 1.),
+	TEST(_ -> 1.),
 
 	;
 

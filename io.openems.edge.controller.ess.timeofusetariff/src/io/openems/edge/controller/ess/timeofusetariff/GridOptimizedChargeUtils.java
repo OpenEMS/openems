@@ -72,7 +72,7 @@ final class GridOptimizedChargeUtils {
 		final var surplusQuartersByDay = getSurplusQuartersByDay(allQuartersByDay);
 
 		final var targetTimeByDay = allQuartersByDay.keySet().stream()//
-				.collect(Collectors.toMap(day -> day, day -> targetTime));
+				.collect(Collectors.toMap(day -> day, _ -> targetTime));
 
 		final var futureSurplusCounts = computeFutureSurplusCounts(allQuartersByDay, surplusQuartersByDay,
 				targetTimeByDay);

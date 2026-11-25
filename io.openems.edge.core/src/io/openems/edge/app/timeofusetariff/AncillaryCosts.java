@@ -79,7 +79,7 @@ public class AncillaryCosts extends
 				.setTranslatedLabelWithAppPrefix(".fixedTariff.label") //
 				.setTranslatedDescriptionWithAppPrefix(".fixedTariff.description") //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.setInputType(NUMBER);
 					field.setMin(0);
 					field.setUnit(CurrencyConfig.EUR.getUnderPart() + "/kWh");

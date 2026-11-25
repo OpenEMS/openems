@@ -77,20 +77,20 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 		this.updateParamsProvider = updateParamsProvider;
 		this.setFirmwareVersionReadPriorityFunc = setFirmwareVersionReadPriorityFunc;
 
-		var goodWeTypeListener = goodWeType.onChange((oldValue, newValue) -> {
+		var goodWeTypeListener = goodWeType.onChange((_, newValue) -> {
 			this.goodWeType = newValue.asEnum();
 		});
 
-		var dspFirmwareVersionListener = dspFirmwareVersionMaster.onChange((oldValue, newValue) -> {
+		var dspFirmwareVersionListener = dspFirmwareVersionMaster.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withDspFirmwareVersion(newValue.get()));
 		});
-		var dspFirmwareBetaVersionListener = dspFirmwareBetaVersionMaster.onChange((oldValue, newValue) -> {
+		var dspFirmwareBetaVersionListener = dspFirmwareBetaVersionMaster.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withDspFirmwareVersionBeta(newValue.get()));
 		});
-		var armFirmwareVersionListener = armFirmwareVersion.onChange((oldValue, newValue) -> {
+		var armFirmwareVersionListener = armFirmwareVersion.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withArmFirmwareVersion(newValue.get()));
 		});
-		var armFirmwareBetaVersionListener = armFirmwareBetaVersion.onChange((oldValue, newValue) -> {
+		var armFirmwareBetaVersionListener = armFirmwareBetaVersion.onChange((_, newValue) -> {
 			this.updateVersion(goodWeVersion -> goodWeVersion.withArmFirmwareVersionBeta(newValue.get()));
 		});
 

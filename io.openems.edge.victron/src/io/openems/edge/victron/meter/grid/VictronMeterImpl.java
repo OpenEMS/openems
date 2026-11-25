@@ -94,7 +94,7 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void installListeners() {
-		final Consumer<Value<Long>> consumptionEnergySum = ignore -> {
+		final Consumer<Value<Long>> consumptionEnergySum = _ -> {
 			var res = TypeUtils.sum(this.getActiveConsumptionEnergyL1Channel().getNextValue().get(), //
 					this.getActiveConsumptionEnergyL2Channel().getNextValue().get(), //
 					this.getActiveConsumptionEnergyL3Channel().getNextValue().get());
@@ -104,7 +104,7 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 		this.getActiveConsumptionEnergyL2Channel().onSetNextValue(consumptionEnergySum);
 		this.getActiveConsumptionEnergyL3Channel().onSetNextValue(consumptionEnergySum);
 
-		final Consumer<Value<Long>> productionEnergySum = ignore -> {
+		final Consumer<Value<Long>> productionEnergySum = _ -> {
 			var res = TypeUtils.sum(this.getActiveProductionEnergyL1Channel().getNextValue().get(), //
 					this.getActiveProductionEnergyL2Channel().getNextValue().get(), //
 					this.getActiveProductionEnergyL3Channel().getNextValue().get());

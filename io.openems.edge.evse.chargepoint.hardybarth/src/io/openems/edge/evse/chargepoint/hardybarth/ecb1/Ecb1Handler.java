@@ -74,7 +74,7 @@ public class Ecb1Handler {
 		this.cycleService.subscribeCycle(1, //
 				this.baseUrl + "/chargecontrols/" + chargeControlId, //
 				response -> this.handleChargeControlResponse(response.data()), //
-				error -> this.parent.onCommunicationFailed(true));
+				_ -> this.parent.onCommunicationFailed(true));
 
 		// Subscribe for meter data (every cycle)
 		this.cycleService.subscribeCycle(1, //
@@ -107,7 +107,7 @@ public class Ecb1Handler {
 		try {
 			this.targetExecutor.execute(//
 					() -> this.dispatchTarget(currentA), //
-					(response, error) -> {
+					(_, error) -> {
 						if (error == null) {
 							this.lastTargetCurrentA = currentA;
 						}

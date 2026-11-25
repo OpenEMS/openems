@@ -22,7 +22,7 @@ public class FeneconMiniProps {
 				.setTranslatedLabel("App.FENECON.Mini.essPhase.label") //
 				.setTranslatedDescription("App.FENECON.Mini.essPhase.description") //
 				.setDefaultValue(Phase.L1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(Phase.class, Phase.ALL), l);
 				}));
 	}

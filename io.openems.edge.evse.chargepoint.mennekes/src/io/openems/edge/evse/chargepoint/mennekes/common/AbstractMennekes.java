@@ -35,9 +35,9 @@ public abstract class AbstractMennekes extends AbstractEvseChargePointBender imp
 	}
 
 	private void addLegacyProfessionalTotalPowerFallback() {
-		this.getActivePowerL1Channel().onSetNextValue(ignore -> this.normalizeLegacyProfessionalPhasePowerL1());
-		this.getActivePowerL2Channel().onSetNextValue(ignore -> this.normalizeLegacyProfessionalPhasePowerL2());
-		this.getActivePowerL3Channel().onSetNextValue(ignore -> this.normalizeLegacyProfessionalPhasePowerL3());
+		this.getActivePowerL1Channel().onSetNextValue(_ -> this.normalizeLegacyProfessionalPhasePowerL1());
+		this.getActivePowerL2Channel().onSetNextValue(_ -> this.normalizeLegacyProfessionalPhasePowerL2());
+		this.getActivePowerL3Channel().onSetNextValue(_ -> this.normalizeLegacyProfessionalPhasePowerL3());
 	}
 
 	private void normalizeLegacyProfessionalPhasePowerL1() {

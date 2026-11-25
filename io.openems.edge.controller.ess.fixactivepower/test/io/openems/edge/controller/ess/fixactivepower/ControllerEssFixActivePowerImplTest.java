@@ -127,8 +127,7 @@ class ControllerEssFixActivePowerImplTest {
 						.setChargeOncePower(2000) //
 						.build()) //
 				.next(new TestCase() //
-						.onAfterProcessImage(
-								() -> assertTrue(sut.debugLog().startsWith("ChargeOnce:2000 W|Target:")))) //
+						.onAfterProcessImage(() -> assertTrue(sut.debugLog().startsWith("ChargeOnce:2000 W|Target:")))) //
 				.modified(this.baseConfig(Mode.DISCHARGE_ONCE) //
 						.setDischargeOncePower(3000) //
 						.build()) //

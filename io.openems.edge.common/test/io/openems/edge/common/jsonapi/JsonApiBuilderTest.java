@@ -30,7 +30,7 @@ public class JsonApiBuilderTest {
 		final var builder = new JsonApiBuilder();
 
 		final var testMethod = "method";
-		builder.handleRequest(testMethod, t -> null);
+		builder.handleRequest(testMethod, _ -> null);
 
 		assertEquals(1, builder.getEndpoints().size());
 		final var addedEndpoint = builder.getEndpoints().get(testMethod);
@@ -116,12 +116,12 @@ public class JsonApiBuilderTest {
 		final var dummyDescription = "description";
 		builder.delegate(testMethod, endpoint -> {
 			endpoint.setDescription(dummyDescription);
-		}, call -> {
+		}, _ -> {
 			return new GenericJsonrpcRequest("method2", new JsonObject());
 		}, Function.identity(), Function.identity(), () -> emptyList());
 
 		final var isMethod2Called = new AtomicBoolean(false);
-		builder.handleRequest("method2", call -> {
+		builder.handleRequest("method2", _ -> {
 			isMethod2Called.set(true);
 			return null;
 		});
@@ -143,15 +143,15 @@ public class JsonApiBuilderTest {
 
 		final var testMethod = "method";
 		builder.delegate(testMethod, endpoint -> {
-			endpoint.setGuards(call -> {
+			endpoint.setGuards(_ -> {
 				throw new OpenemsException("Access denied");
 			});
-		}, call -> {
+		}, _ -> {
 			return new GenericJsonrpcRequest("method2", new JsonObject());
 		}, Function.identity(), Function.identity(), () -> emptyList());
 
 		final var isMethod2Called = new AtomicBoolean(false);
-		builder.handleRequest("method2", call -> {
+		builder.handleRequest("method2", _ -> {
 			isMethod2Called.set(true);
 			return null;
 		});
@@ -190,7 +190,7 @@ public class JsonApiBuilderTest {
 		final var builder = new JsonApiBuilder();
 
 		final var testMethod = "method";
-		builder.handleRequest(testMethod, t -> null);
+		builder.handleRequest(testMethod, _ -> null);
 
 		assertEquals(1, builder.getEndpoints().size());
 

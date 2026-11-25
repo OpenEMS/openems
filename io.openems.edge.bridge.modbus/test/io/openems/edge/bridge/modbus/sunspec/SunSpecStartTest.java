@@ -51,27 +51,27 @@ public class SunSpecStartTest {
 						.build())
 				.next(new AbstractComponentTest.TestCase()) //
 				.next(new AbstractComponentTest.TestCase()) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_701));
 					assertTrue(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertTrue(sut.areRequiredModelsRead());
 					assertTrue(sut.isSunSpecInitializationCompleted());
@@ -111,28 +111,28 @@ public class SunSpecStartTest {
 						.build())
 				.next(new AbstractComponentTest.TestCase()) //
 				.next(new AbstractComponentTest.TestCase()) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_701));
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertFalse(sut.areRequiredModelsRead());
 					assertTrue(sut.isSunSpecInitializationCompleted());
 				})) //
@@ -173,27 +173,27 @@ public class SunSpecStartTest {
 						.build())
 				.next(new AbstractComponentTest.TestCase()) //
 				.next(new AbstractComponentTest.TestCase()) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_701));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertFalse(sut.areRequiredModelsRead());
 					assertTrue(sut.isSunSpecInitializationCompleted());
@@ -206,33 +206,33 @@ public class SunSpecStartTest {
 							.withRegisters(40297, 702, 50) // Block 702
 							.withRegisters(40349, 0xFFFF, 0); // END_OF_MAP
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_702));
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_701));
 					assertTrue(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertTrue(sut.areRequiredModelsRead());
 					assertTrue(sut.isSunSpecInitializationCompleted());
@@ -272,27 +272,27 @@ public class SunSpecStartTest {
 						.build())
 				.next(new AbstractComponentTest.TestCase()) //
 				.next(new AbstractComponentTest.TestCase()) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_1));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_101));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_103));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertFalse(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertFalse(sut.areRequiredModelsRead());
 					assertFalse(sut.isSunSpecInitializationCompleted());
 				})) //
-				.next(new AbstractComponentTest.TestCase().also(t -> {
+				.next(new AbstractComponentTest.TestCase().also(_ -> {
 					assertTrue(sut.hasModelRead(DefaultSunSpecModel.S_702));
 					assertTrue(sut.areRequiredModelsRead());
 					assertTrue(sut.isSunSpecInitializationCompleted());

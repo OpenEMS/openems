@@ -10,4 +10,3 @@ public enum LogVerbosity {
 	 */
 	DEBUG_LOG;
 }
-

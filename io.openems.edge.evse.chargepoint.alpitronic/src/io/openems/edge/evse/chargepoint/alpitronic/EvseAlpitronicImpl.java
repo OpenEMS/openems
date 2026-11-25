@@ -332,7 +332,7 @@ public class EvseAlpitronicImpl extends EvseAlpitronic implements EvseChargePoin
 	private void addCalculatePowerListeners() {
 
 		// Calculate power from voltage and current
-		final Consumer<Value<Integer>> calculatePower = ignore -> {
+		final Consumer<Value<Integer>> calculatePower = _ -> {
 			setValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER,
 					TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(//
 							this.getVoltageChannel().getNextValue().get(), //

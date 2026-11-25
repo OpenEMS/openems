@@ -111,7 +111,7 @@ class RelayPropsPhaseGroupTest {
 
 		@Override
 		public Function<GetParameterValues<TestC>, TestRelayParameter> getParamter() {
-			return t -> new TestRelayParameter(new String[] { null, null, null }, List.of(), List.of());
+			return _ -> new TestRelayParameter(new String[] { null, null, null }, List.of(), List.of());
 		}
 	}
 

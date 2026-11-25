@@ -212,7 +212,7 @@ public class GoodWeStsBoxUpdateable implements Updateable {
 			future.complete(null);
 		}
 
-		return future.whenComplete((unused, throwable) -> {
+		return future.whenComplete((_, throwable) -> {
 			this.version.unsubscribe(listener);
 			if (throwable == null) {
 				progress.setPercentage(100, "Finished waiting");

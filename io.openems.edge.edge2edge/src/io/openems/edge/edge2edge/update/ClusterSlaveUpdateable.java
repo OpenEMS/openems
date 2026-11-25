@@ -85,7 +85,7 @@ public class ClusterSlaveUpdateable implements Updateable {
 				GenericJsonrpcRequest.createRequest(//
 						new ExecuteSystemUpdate(), //
 						new ExecuteSystemUpdate.Request(false))))
-				.whenComplete((response, error) -> {
+				.whenComplete((_, error) -> {
 					if (error == null || this.isSlaveDisconnected(error)) {
 						return;
 					}

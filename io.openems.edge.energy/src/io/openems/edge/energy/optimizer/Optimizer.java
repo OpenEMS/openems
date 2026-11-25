@@ -280,7 +280,7 @@ public class Optimizer {
 							this.optimizationState.get()), //
 					null, //
 					stream -> stream//
-							.limit(result -> !token.isCancelled()), //
+							.limit(_ -> !token.isCancelled()), //
 					result -> this.handleOptimizationResult(//
 							result, //
 							simulator, //

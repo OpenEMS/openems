@@ -62,19 +62,19 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(40000, 0x5375, 0x6e53) // isSunSpec
 						.withRegisters(40002, 1, 66) // Block 1
-						.withRegisters(40004, IntStream.range(0, 66).map(i -> 0).toArray()) //
+						.withRegisters(40004, IntStream.range(0, 66).map(_ -> 0).toArray()) //
 						.withRegisters(40070, 103, 50) // Block 103
-						.withRegisters(40072, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40072, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40122, 121, 50) // Block 121
-						.withRegisters(40124, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40124, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40174, 64201, 50) // Block 64201
-						.withRegisters(40176, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40176, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40226, 64202, 50) // Block 64202
-						.withRegisters(40228, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40228, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40278, 64203, 50) // Block 64203
-						.withRegisters(40280, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40280, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40330, 64204, 50) // Block 64204
-						.withRegisters(40332, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40332, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40382, 0xFFFF, 0)); // END_OF_MAP
 
 		test.activate(MyConfig.create() //

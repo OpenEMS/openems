@@ -321,7 +321,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
 			Consumer<HttpError> onError //
 	) {
-		return this.subscribeTime(t -> delay.getDelay(), t -> delay.getDelay(), url, onResult, onError);
+		return this.subscribeTime(_ -> delay.getDelay(), _ -> delay.getDelay(), url, onResult, onError);
 	}
 
 	/**
@@ -343,7 +343,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 			String url, //
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult //
 	) {
-		return this.subscribeTime(t -> delay.getDelay(), t -> delay.getDelay(), url, onResult,
+		return this.subscribeTime(_ -> delay.getDelay(), _ -> delay.getDelay(), url, onResult,
 				FunctionUtils::doNothing);
 	}
 
@@ -546,7 +546,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the removed {@link TimeEndpoint TimeEndpoints}
 	 */
 	default Collection<TimeEndpoint<?>> removeAllTimeEndpoints() {
-		return this.removeTimeEndpointIf(t -> true);
+		return this.removeTimeEndpointIf(_ -> true);
 	}
 
 	/**

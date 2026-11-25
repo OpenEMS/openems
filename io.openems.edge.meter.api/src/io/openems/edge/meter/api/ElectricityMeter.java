@@ -87,8 +87,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		ACTIVE_POWER(new IntegerDoc() //
-				.unit(Unit.WATT) //
+		ACTIVE_POWER(new IntegerDoc()//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -100,8 +100,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Power L2.
@@ -112,8 +112,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Power L3.
@@ -124,8 +124,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power.
@@ -135,8 +135,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * </ul>
 		 */
-		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L1.
@@ -146,8 +146,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * </ul>
 		 */
-		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L2.
@@ -157,8 +157,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * </ul>
 		 */
-		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L3.
@@ -168,8 +168,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * </ul>
 		 */
-		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage.
@@ -180,8 +180,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage L1.
@@ -192,8 +192,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L2.
@@ -204,8 +204,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L3.
@@ -216,8 +216,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current.
@@ -228,8 +228,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L1.
@@ -240,8 +240,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L2.
@@ -252,8 +252,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L3.
@@ -264,8 +264,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Frequency.
@@ -276,8 +276,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIHERTZ) //
+		FREQUENCY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIHERTZ)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Production Energy.
@@ -290,8 +290,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L1.
@@ -304,8 +304,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L2.
@@ -318,8 +318,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L3.
@@ -332,8 +332,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Consumption Energy.
@@ -346,8 +346,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L1.
@@ -360,8 +360,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L2.
@@ -374,8 +374,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L3.
@@ -388,8 +388,8 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
-		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),; //
 
 		private final Doc doc;
@@ -1478,7 +1478,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculateSumActivePowerFromPhases(ElectricityMeter meter) {
-		final Consumer<Value<Integer>> calculate = ignore -> {
+		final Consumer<Value<Integer>> calculate = _ -> {
 			meter._setActivePower(sumInteger(//
 					meter.getActivePowerL1Channel().getNextValue().get(), //
 					meter.getActivePowerL2Channel().getNextValue().get(), //
@@ -1498,7 +1498,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculateSumReactivePowerFromPhases(ElectricityMeter meter) {
-		final Consumer<Value<Integer>> calculate = ignore -> {
+		final Consumer<Value<Integer>> calculate = _ -> {
 			meter._setReactivePower(sumInteger(//
 					meter.getReactivePowerL1Channel().getNextValue().get(), //
 					meter.getReactivePowerL2Channel().getNextValue().get(), //
@@ -1518,7 +1518,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculateSumCurrentFromPhases(ElectricityMeter meter) {
-		final Consumer<Value<Integer>> calculate = ignore -> {
+		final Consumer<Value<Integer>> calculate = _ -> {
 			meter._setCurrent(sumInteger(//
 					meter.getCurrentL1Channel().getNextValue().get(), //
 					meter.getCurrentL2Channel().getNextValue().get(), //
@@ -1538,7 +1538,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculateAverageVoltageFromPhases(ElectricityMeter meter) {
-		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
+		final Consumer<Value<Integer>> calculateAverageVoltage = _ -> {
 			meter._setVoltage(TypeUtils.averageRounded(//
 					meter.getVoltageL1Channel().getNextValue().get(), //
 					meter.getVoltageL2Channel().getNextValue().get(), //
@@ -1560,7 +1560,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculateSumActiveProductionEnergyFromPhases(ElectricityMeter meter) {
-		final Consumer<Value<Long>> calculate = ignore -> {
+		final Consumer<Value<Long>> calculate = _ -> {
 			meter._setActiveProductionEnergy(TypeUtils.sum(//
 					meter.getActiveProductionEnergyL1Channel().getNextValue().get(), //
 					meter.getActiveProductionEnergyL2Channel().getNextValue().get(), //

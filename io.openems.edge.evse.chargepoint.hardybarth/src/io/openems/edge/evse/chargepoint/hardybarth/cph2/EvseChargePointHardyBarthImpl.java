@@ -91,7 +91,7 @@ public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent impl
 
 		this.handler = new EvseHandler(this, config.ip(), this.oem.getHardyBarthApiToken(), config.phaseRotation(),
 				config.logVerbosity(), this::logInfo, this.httpBridgeFactory, this.httpBridgeCycleServiceDefinition, //
-				communicationFailed -> doNothing());
+				_ -> doNothing());
 	}
 
 	@Deactivate

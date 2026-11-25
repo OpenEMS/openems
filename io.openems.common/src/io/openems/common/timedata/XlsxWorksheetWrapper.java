@@ -26,8 +26,8 @@ public class XlsxWorksheetWrapper {
 	 * @return the XlsxCellWrapper
 	 */
 	public XlsxCellWrapper getCellWrapper(int r, int c) {
-		final var columns = this.cellMap.computeIfAbsent(r, row -> new HashMap<>());
-		return columns.computeIfAbsent(c, col -> new XlsxCellWrapper(r, c, this.ws.style(r, c)));
+		final var columns = this.cellMap.computeIfAbsent(r, _ -> new HashMap<>());
+		return columns.computeIfAbsent(c, _ -> new XlsxCellWrapper(r, c, this.ws.style(r, c)));
 	}
 
 	public void setAll() {

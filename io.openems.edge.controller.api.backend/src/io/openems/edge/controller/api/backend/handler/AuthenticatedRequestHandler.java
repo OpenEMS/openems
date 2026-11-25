@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.backend.handler;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -43,9 +45,7 @@ public class AuthenticatedRequestHandler implements JsonApi {
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder b) {
-		b.delegate(AuthenticatedRpcRequest.METHOD, _ -> {
-
-		}, t -> {
+		b.delegate(AuthenticatedRpcRequest.METHOD, _ -> doNothing(), t -> {
 			final var authenticatedRpcRequest = AuthenticatedRpcRequest.from(t.getRequest(), User::from);
 			t.put(EdgeKeys.USER_KEY, authenticatedRpcRequest.getUser());
 			return authenticatedRpcRequest.getPayload();

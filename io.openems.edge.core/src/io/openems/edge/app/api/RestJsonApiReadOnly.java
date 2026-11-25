@@ -69,7 +69,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 		// Properties
 		ALIAS(alias()), //
 		ACTIVE(AppDef.of(RestJsonApiReadOnly.class) //
-				.setDefaultValue((app, prop, l, param) -> {
+				.setDefaultValue((app, _, _, _) -> {
 					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.Rest.ReadWrite").isEmpty();
 					return new JsonPrimitive(active);

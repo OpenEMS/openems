@@ -13,7 +13,7 @@ public class DummySerialNumberStorage implements SerialNumberStorage {
 
 	@Override
 	public void put(String componentId, String channelId, JsonElement value) {
-		this.values.computeIfAbsent(componentId, t -> new TreeMap<>()).put(channelId, value);
+		this.values.computeIfAbsent(componentId, _ -> new TreeMap<>()).put(channelId, value);
 	}
 
 }

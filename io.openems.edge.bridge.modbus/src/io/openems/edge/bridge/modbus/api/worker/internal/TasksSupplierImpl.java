@@ -98,13 +98,13 @@ public class TasksSupplierImpl implements TasksSupplier {
 		{
 			var t = this.getOneLowPriorityReadTask();
 			if (t != null) {
-				tasks.computeIfAbsent(t.a(), (ignore) -> new LinkedList<>()) //
+				tasks.computeIfAbsent(t.a(), _ -> new LinkedList<>()) //
 						.add(t.b());
 			}
 		}
 		// All High Priority ReadTasks + all WriteTasks
 		this.taskManagers.forEach((id, taskManager) -> {
-			var list = tasks.computeIfAbsent(id, (ignore) -> new LinkedList<>());
+			var list = tasks.computeIfAbsent(id, _ -> new LinkedList<>());
 			taskManager.getTasks().stream() //
 					.filter(t -> t instanceof WriteTask || t.getPriority() == Priority.HIGH) //
 					.forEach(list::add);

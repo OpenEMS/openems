@@ -101,7 +101,7 @@ public class EnergyScheduler {
 					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads);
 				})
 
-				.setModes((goc, coc) -> coc.modes()) //
+				.setModes((_, coc) -> coc.modes()) //
 
 				.setScheduleContext(coc -> {
 					return new ClusterScheduleContext(coc.clusterConfig.singleParams.entrySet().stream() //
@@ -124,7 +124,7 @@ public class EnergyScheduler {
 							.orElse(null);
 				}) //
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+				.setSimulator((_, period, _, coc, csc, ef, mode, _, _) -> {
 					var ed = EshUtils.EnergyDistribution.fromSimulator(period, coc, csc, mode);
 					ed.initializeSetPoints();
 					ed.distributeSurplusEnergy(DistributionStrategy.EQUAL_POWER);

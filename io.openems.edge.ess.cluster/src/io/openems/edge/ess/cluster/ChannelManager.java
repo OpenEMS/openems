@@ -75,7 +75,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * @param esss the List of {@link SymmetricEss}
 	 */
 	private void calculateGridMode(List<SymmetricEss> esss) {
-		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<Integer>, Value<Integer>> callback = (_, _) -> {
 			var gridModes = esss.stream() //
 					.map(SymmetricEss::getGridMode) //
 					.toList();
@@ -96,7 +96,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		final var startStoppableEss = esss.stream() //
 				.gather(filterIsInstance(StartStoppable.class)) //
 				.toList();
-		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<Integer>, Value<Integer>> callback = (_, _) -> {
 			final var essMap = startStoppableEss.stream() //
 					.collect(groupingBy(StartStoppable::getStartStop));
 
@@ -122,7 +122,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 * @param esss the List of {@link SymmetricEss}
 	 */
 	private void calculateSoc(List<SymmetricEss> esss) {
-		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<Integer>, Value<Integer>> callback = (_, _) -> {
 			this.parent._setSoc(new CalculateSoc() //
 					.add(esss) //
 					.calculate());
@@ -150,7 +150,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	private <T> void calculate(BiFunction<T, T, T> aggregator, List<SymmetricEss> esss,
 			SymmetricEss.ChannelId channelId) {
-		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<T>, Value<T>> callback = (_, _) -> {
 			T result = null;
 			for (SymmetricEss ess : esss) {
 				Channel<T> channel = ess.channel(channelId);
@@ -174,7 +174,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	private <T> void calculate(BiFunction<T, T, T> aggregator, List<SymmetricEss> esss,
 			ManagedSymmetricEss.ChannelId channelId) {
-		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<T>, Value<T>> callback = (_, _) -> {
 			T result = null;
 			for (SymmetricEss ess : esss) {
 				if (ess instanceof ManagedSymmetricEss mse) {
@@ -206,7 +206,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	private <T> void calculate(BiFunction<T, T, T> aggregator, List<SymmetricEss> esss,
 			AsymmetricEss.ChannelId asymmetricChannelId, Function<T, T> divideFunction,
 			SymmetricEss.ChannelId symmetricChannelId) {
-		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
+		final BiConsumer<Value<T>, Value<T>> callback = (_, _) -> {
 			T result = null;
 			for (SymmetricEss ess : esss) {
 				if (ess instanceof AsymmetricEss ae) {

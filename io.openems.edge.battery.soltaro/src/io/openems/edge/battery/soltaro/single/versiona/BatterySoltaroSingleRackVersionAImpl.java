@@ -143,28 +143,27 @@ public class BatterySoltaroSingleRackVersionAImpl extends AbstractOpenemsModbusC
 	}
 
 	private void initializeCallbacks() {
-		this.channel(BatterySoltaroSingleRackVersionA.ChannelId.BMS_CONTACTOR_CONTROL)
-				.onChange((oldValue, newValue) -> {
-					ContactorControl cc = newValue.asEnum();
+		this.channel(BatterySoltaroSingleRackVersionA.ChannelId.BMS_CONTACTOR_CONTROL).onChange((_, newValue) -> {
+			ContactorControl cc = newValue.asEnum();
 
-					switch (cc) {
-					case CONNECTION_INITIATING:
-						// TODO start stop is not implemented;
-						this._setStartStop(StartStop.UNDEFINED);
-						break;
-					case CUT_OFF:
-						// TODO start stop is not implemented;
-						this._setStartStop(StartStop.STOP);
-						this.isStopping = false;
-						break;
-					case ON_GRID:
-						// TODO start stop is not implemented; mark as started if 'readyForWorking'
-						this._setStartStop(StartStop.START);
-						break;
-					default:
-						break;
-					}
-				});
+			switch (cc) {
+			case CONNECTION_INITIATING:
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.UNDEFINED);
+				break;
+			case CUT_OFF:
+				// TODO start stop is not implemented;
+				this._setStartStop(StartStop.STOP);
+				this.isStopping = false;
+				break;
+			case ON_GRID:
+				// TODO start stop is not implemented; mark as started if 'readyForWorking'
+				this._setStartStop(StartStop.START);
+				break;
+			default:
+				break;
+			}
+		});
 	}
 
 	@Override

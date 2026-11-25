@@ -15,7 +15,7 @@ public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		DEBUG_SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_ONLY)), //
 		SET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY) //

@@ -16,7 +16,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 public interface OnRequest extends
 		ThrowingBiFunction<WebSocket, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>, OpenemsNamedException> {
 
-	public static final OnRequest NO_OP = (ws, request) -> {
+	public static final OnRequest NO_OP = (_, request) -> {
 		return completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 	};
 

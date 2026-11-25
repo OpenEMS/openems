@@ -257,7 +257,7 @@ public class Rrd4jReadHandler {
 						}
 
 						// return timestamps in milliseconds
-						resultMap.computeIfAbsent(timestamp * 1000, t -> new TreeMap<>()) //
+						resultMap.computeIfAbsent(timestamp * 1000, _ -> new TreeMap<>()) //
 								.put(channelAddress, new JsonPrimitive(value));
 					}
 				}
@@ -344,7 +344,7 @@ public class Rrd4jReadHandler {
 						var dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC) //
 								.withZoneSameInstant(timezone);
 
-						final var tableRow = table.computeIfAbsent(dateTime, t -> new TreeMap<>());
+						final var tableRow = table.computeIfAbsent(dateTime, _ -> new TreeMap<>());
 
 						final var value = result[i];
 						tableRow.put(channelAddress, Double.isNaN(value) //
@@ -434,7 +434,7 @@ public class Rrd4jReadHandler {
 						}
 						return JsonNull.INSTANCE;
 					}
-				}, (t, u) -> t, TreeMap::new));
+				}, (t, _) -> t, TreeMap::new));
 
 		// If no Channel can be read successfully: throw exception
 		if (result.values().stream().allMatch(JsonElement::isJsonNull)) {
@@ -475,10 +475,10 @@ public class Rrd4jReadHandler {
 					try {
 						return this.queryHistoricEnergy(rrdDbId, range.from(), range.to(), channels, debugMode);
 					} catch (OpenemsNamedException e) {
-						return channels.stream().collect(Collectors.toMap(Function.identity(),
-								channel -> JsonNull.INSTANCE, (t, u) -> t, TreeMap::new));
+						return channels.stream().collect(Collectors.toMap(Function.identity(), _ -> JsonNull.INSTANCE,
+								(t, _) -> t, TreeMap::new));
 					}
-				}, (t, u) -> t, TreeMap::new));
+				}, (t, _) -> t, TreeMap::new));
 	}
 
 	protected static record Range(ZonedDateTime from, ZonedDateTime to) {

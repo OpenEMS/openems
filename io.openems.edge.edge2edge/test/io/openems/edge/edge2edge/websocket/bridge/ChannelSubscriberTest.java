@@ -39,6 +39,7 @@ class ChannelSubscriberTest {
 		assertThat(this.channelSubscriber.getSubscribedChannels(), hasItem(equalTo(DUMMY_CHANNEL_1)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testSubscribeChannelsList() {
 		this.channelSubscriber.subscribeChannels(List.of(DUMMY_CHANNEL_1));
@@ -49,6 +50,7 @@ class ChannelSubscriberTest {
 				hasItems(equalTo(DUMMY_CHANNEL_1), equalTo(DUMMY_CHANNEL_2), equalTo(DUMMY_CHANNEL_2)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testSubscribeChannelsSet() {
 		this.channelSubscriber.subscribeChannels(Set.of(DUMMY_CHANNEL_1));
@@ -59,6 +61,7 @@ class ChannelSubscriberTest {
 				hasItems(equalTo(DUMMY_CHANNEL_1), equalTo(DUMMY_CHANNEL_2), equalTo(DUMMY_CHANNEL_3)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testSubscribeChannel() {
 		this.channelSubscriber.subscribeChannel(DUMMY_CHANNEL_1);
@@ -88,6 +91,7 @@ class ChannelSubscriberTest {
 		assertTrue(this.channelSubscriber.getSubscribedChannels().isEmpty());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testUnsubscribeAll() {
 		this.channelSubscriber.setSubscribeChannels(Set.of(DUMMY_CHANNEL_1, DUMMY_CHANNEL_2));

@@ -54,8 +54,8 @@ public final class DummyValidator {
 			final String invertedErrorMessage//
 	) {
 		return testCheckable(check, //
-				errorMessage == null ? null : l -> errorMessage, //
-				invertedErrorMessage == null ? null : l -> invertedErrorMessage //
+				errorMessage == null ? null : _ -> errorMessage, //
+				invertedErrorMessage == null ? null : _ -> invertedErrorMessage //
 		);
 	}
 

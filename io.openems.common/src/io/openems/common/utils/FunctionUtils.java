@@ -26,7 +26,7 @@ public final class FunctionUtils {
 	 *         {@link Function#apply(Object)} is called
 	 */
 	public static <T, R> Function<T, R> alwaysReturn(R value) {
-		return i -> value;
+		return _ -> value;
 	}
 
 	/**
@@ -41,7 +41,7 @@ public final class FunctionUtils {
 	 *         {@link ThrowingFunction#apply(Object)} is called
 	 */
 	public static <T, R, E extends Exception> ThrowingFunction<T, R, E> alwaysReturnThrowing(R value) {
-		return i -> value;
+		return _ -> value;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public final class FunctionUtils {
 	 *         called
 	 */
 	public static <T, R, E extends Exception> ThrowingFunction<T, R, E> alwaysThrow(E exception) {
-		return i -> {
+		return _ -> {
 			throw exception;
 		};
 	}

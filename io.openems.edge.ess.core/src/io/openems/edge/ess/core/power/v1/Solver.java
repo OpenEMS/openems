@@ -1,5 +1,6 @@
 package io.openems.edge.ess.core.power.v1;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.ess.core.power.Utils.fillMetaEssDebugChannels;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
@@ -56,8 +57,7 @@ public class Solver {
 	private final Optimizers optimizers = new Optimizers();
 	private final boolean debugMode;
 
-	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
-	};
+	private OnSolved onSolvedCallback = (_, _, _) -> doNothing();
 
 	private final ThrowingFunction<List<Inverter>, PointValuePair, Exception> solveWithDisabledInverters;
 

@@ -40,7 +40,7 @@ class TariffManualEeg2025GridSellTest {
 
 		final var eeg2025component = new TariffManualEeg2025GridSellImpl();
 		final var touTariffDataChangeCalls = new AtomicInteger(0);
-		eeg2025component.getTariffData().subscribe(tariffData -> touTariffDataChangeCalls.incrementAndGet());
+		eeg2025component.getTariffData().subscribe(_ -> touTariffDataChangeCalls.incrementAndGet());
 
 		new ComponentTest(eeg2025component) //
 				.addReference("tariffManager", tariffManager) //

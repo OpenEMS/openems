@@ -25,7 +25,7 @@ public class Utils {
 				ZonedDateTime.now(), // lastMessage
 				null, // firstSetupProtocol
 				ControllerApiWebsocket.SUM_STATE, //
-                null // settings
+				null // settings
 		);
 	}
 

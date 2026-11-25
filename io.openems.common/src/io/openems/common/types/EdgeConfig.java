@@ -440,7 +440,7 @@ public class EdgeConfig {
 		public Component(String id, String alias, String factoryId, JsonObject properties) {
 			this(NO_SERVICE_PID, id, alias, factoryId,
 					properties.entrySet().stream()
-							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (o1, o2) -> o1, TreeMap::new)),
+							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (o1, _) -> o1, TreeMap::new)),
 					new TreeMap<>());
 		}
 
@@ -682,8 +682,7 @@ public class EdgeConfig {
 			var name = ocd.getName();
 			var description = ocd.getDescription();
 			List<Property> properties = new ArrayList<>(Factory.toProperties(ocd));
-			return new Factory(factoryId, name, description, properties.toArray(Property[]::new),
-					natureIds);
+			return new Factory(factoryId, name, description, properties.toArray(Property[]::new), natureIds);
 		}
 
 		/**

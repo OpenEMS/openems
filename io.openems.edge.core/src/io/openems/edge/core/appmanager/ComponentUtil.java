@@ -134,11 +134,11 @@ public interface ComponentUtil {
 	 */
 	public default List<RelayInfo> getAllRelayInfos(List<String> ignoreIds) {
 		return this.getAllRelayInfos(ignoreIds, //
-				t -> true, //
+				_ -> true, //
 				c -> c.id(), //
-				(t, u) -> true, //
-				(t, u) -> u.address().toString(), //
-				(t, u) -> emptyList() //
+				(_, _) -> true, //
+				(_, u) -> u.address().toString(), //
+				(_, _) -> emptyList() //
 		);
 	}
 
@@ -194,7 +194,7 @@ public interface ComponentUtil {
 				componentFilter, //
 				c -> c.id(), //
 				channelFilter, //
-				(t, u) -> u.address().toString(), //
+				(_, u) -> u.address().toString(), //
 				disabledReasons //
 		);
 	}

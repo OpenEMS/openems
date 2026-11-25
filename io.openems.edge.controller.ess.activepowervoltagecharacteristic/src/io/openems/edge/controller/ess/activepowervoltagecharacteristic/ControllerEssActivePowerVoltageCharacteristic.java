@@ -11,7 +11,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssActivePowerVoltageCharacteristic extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER) //
+		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 		VOLTAGE_RATIO(Doc.of(OpenemsType.FLOAT)), //
 		;

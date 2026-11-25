@@ -260,15 +260,15 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	 * Sets and updates the power and current channels.
 	 */
 	private void setUpdatedCurrentAndPowerChannels() {
-		this.getSofwareVersionCheckSumChannel().onSetNextValue(value -> {
+		this.getSofwareVersionCheckSumChannel().onSetNextValue(_ -> {
 			this.updateCtRatio();
 		});
 
-		this.getPrimaryCurrentChannel().onSetNextValue(value -> {
+		this.getPrimaryCurrentChannel().onSetNextValue(_ -> {
 			this.updateCtRatio();
 		});
 
-		this.getSecondaryCurrentChannel().onSetNextValue(value -> {
+		this.getSecondaryCurrentChannel().onSetNextValue(_ -> {
 			this.updateCtRatio();
 		});
 

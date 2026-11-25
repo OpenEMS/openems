@@ -60,17 +60,17 @@ public class BatteryInverterRefuImplTest {
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(40000, 0x5375, 0x6e53) // SunSpec identifier
 						.withRegisters(40002, 1, 66) // Block 1
-						.withRegisters(40004, IntStream.range(0, 66).map(i -> 0).toArray()) //
+						.withRegisters(40004, IntStream.range(0, 66).map(_ -> 0).toArray()) //
 						.withRegisters(40070, 103, 50) // Block 103
-						.withRegisters(40072, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40072, IntStream.range(0, 50).map(_ -> 0).toArray()) //
 						.withRegisters(40122, 120, 26) // Block 120
-						.withRegisters(40124, IntStream.range(0, 26).map(i -> 0).toArray()) //
+						.withRegisters(40124, IntStream.range(0, 26).map(_ -> 0).toArray()) //
 						.withRegisters(40150, 121, 30) // Block 121
-						.withRegisters(40152, IntStream.range(0, 30).map(i -> 0).toArray()) //
+						.withRegisters(40152, IntStream.range(0, 30).map(_ -> 0).toArray()) //
 						.withRegisters(40182, 123, 24) // Block 123
-						.withRegisters(40184, IntStream.range(0, 24).map(i -> 0).toArray()) //
+						.withRegisters(40184, IntStream.range(0, 24).map(_ -> 0).toArray()) //
 						.withRegisters(40208, 64800, 14) // Block 64800
-						.withRegisters(40210, IntStream.range(0, 14).map(i -> 0).toArray()) //
+						.withRegisters(40210, IntStream.range(0, 14).map(_ -> 0).toArray()) //
 						.withRegisters(40224, 0xFFFF, 0)) // End of SunSpec map
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //

@@ -18,7 +18,7 @@ public record HttpBridgeAuthenticationServiceDefinition<T>(//
 ) implements HttpBridgeServiceDefinition<HttpBridgeAuthenticationService<T>> {
 
 	public static final BiPredicate<HttpResponse<String>, Throwable> DEFAULT_SESSION_EXPIRED_PREDICATE//
-			= (response, t) -> t instanceof HttpError.ResponseError httpError
+			= (_, t) -> t instanceof HttpError.ResponseError httpError
 					&& httpError.status.code() == HttpStatus.UNAUTHORIZED.code();
 
 	public record HttpBridgeAuthenticationServiceConfigHttpHeader(//

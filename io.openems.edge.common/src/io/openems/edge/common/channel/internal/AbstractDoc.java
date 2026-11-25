@@ -167,7 +167,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	@Override
 	public AbstractDoc<T> text(String text) {
-		this.getTextFunction = lang -> {
+		this.getTextFunction = _ -> {
 			return text;
 		};
 		return this.self();
@@ -248,7 +248,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	@SuppressWarnings("unchecked")
 	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelChange(Consumer<COMPONENT> callback) {
 		this.onInitCallback.add(channel -> {
-			channel.onChange((ignore, value) -> {
+			channel.onChange((_, _) -> {
 				callback.accept((COMPONENT) channel.getComponent());
 			});
 		});
@@ -270,7 +270,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelChange(
 			BiConsumer<COMPONENT, Value<T>> callback) {
 		this.onInitCallback.add(channel -> {
-			channel.onChange((ignore, value) -> {
+			channel.onChange((_, value) -> {
 				callback.accept((COMPONENT) channel.getComponent(), value);
 			});
 		});

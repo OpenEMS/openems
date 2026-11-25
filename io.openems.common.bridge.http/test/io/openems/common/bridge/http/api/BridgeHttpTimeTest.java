@@ -49,7 +49,7 @@ public class BridgeHttpTimeTest {
 	void testSubscribeTime() throws Exception {
 		final var counter = new AtomicInteger(0);
 		final var httpTimeBridge = this.bridgeHttp.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
-		httpTimeBridge.subscribeTime(fixedDelay(Duration.ofMinutes(1)), "dummy", result -> {
+		httpTimeBridge.subscribeTime(fixedDelay(Duration.ofMinutes(1)), "dummy", _ -> {
 			counter.incrementAndGet();
 		});
 

@@ -81,7 +81,7 @@ public class JSCalendarApi {
 			return new GetTask.Response<PAYLOAD>(task);
 		});
 
-		builder.handleRequest(new GetAllTasks<PAYLOAD>(payloadSerializer), call -> {
+		builder.handleRequest(new GetAllTasks<PAYLOAD>(payloadSerializer), _ -> {
 			return new GetAllTasks.Response<PAYLOAD>(tasksSupplier.get().tasks);
 		});
 

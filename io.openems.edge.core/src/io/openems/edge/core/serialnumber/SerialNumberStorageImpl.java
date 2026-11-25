@@ -121,7 +121,7 @@ public final class SerialNumberStorageImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void put(String componentId, String channelId, JsonElement value) {
-		final var previousValue = this.data.computeIfAbsent(componentId, t -> new ConcurrentHashMap<>()) //
+		final var previousValue = this.data.computeIfAbsent(componentId, _ -> new ConcurrentHashMap<>()) //
 				.put(channelId, value);
 
 		if (value.equals(previousValue)) {
@@ -245,7 +245,7 @@ public final class SerialNumberStorageImpl extends AbstractOpenemsComponent
 		 */
 		public void applyTo(Map<String, Map<String, JsonElement>> data) {
 			for (var entry : this.addedOrModifiedValues()) {
-				data.computeIfAbsent(entry.getKey().getComponentId(), t -> new ConcurrentHashMap<>()) //
+				data.computeIfAbsent(entry.getKey().getComponentId(), _ -> new ConcurrentHashMap<>()) //
 						.put(entry.getKey().getChannelId(), entry.getValue());
 			}
 

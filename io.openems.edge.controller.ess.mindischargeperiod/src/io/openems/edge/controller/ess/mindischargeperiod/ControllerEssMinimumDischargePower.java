@@ -8,9 +8,9 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssMinimumDischargePower extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		TIME_PASSED(Doc.of(OpenemsType.INTEGER) //
+		TIME_PASSED(Doc.of(OpenemsType.INTEGER)//
 				.text("Current time passed in the discharge period"));
 
 		private final Doc doc;

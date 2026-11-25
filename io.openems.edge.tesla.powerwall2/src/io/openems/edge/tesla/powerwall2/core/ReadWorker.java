@@ -129,7 +129,7 @@ public class ReadWorker extends AbstractCycleWorker {
 		var url = URI.create(this.baseUrl + path).toURL();
 		var connection = (HttpsURLConnection) url.openConnection();
 		connection.setSSLSocketFactory(this.sslSocketFactory);
-		connection.setHostnameVerifier((hostname, session) -> true);
+		connection.setHostnameVerifier((_, _) -> true);
 		return connection;
 	}
 

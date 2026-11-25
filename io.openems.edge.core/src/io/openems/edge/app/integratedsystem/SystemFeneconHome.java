@@ -83,7 +83,7 @@ public class SystemFeneconHome extends
 		LED_ORDER(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".ledOrder.label") //
 				.setDefaultValue(TranslatableLedOrder.DEFAULT_RED_BLUE_GREEN) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(TranslatableLedOrder.optionsFactory(), l);
 				})));
 

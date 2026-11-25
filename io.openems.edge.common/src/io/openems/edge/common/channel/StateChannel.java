@@ -37,7 +37,7 @@ public class StateChannel extends BooleanReadChannel {
 		public void accept(Channel<Boolean> channel) {
 			// Create shared onChangeCallback
 			final var parent = channel.getComponent();
-			final BiConsumer<Value<Boolean>, Value<Boolean>> onChangeCallback = (oldValue, newValue) -> {
+			final BiConsumer<Value<Boolean>, Value<Boolean>> onChangeCallback = (_, _) -> {
 				List<String> activeSourceStates = new ArrayList<>();
 				for (ChannelId sourceChannelId : this.sourceChannelIds) {
 					Channel<Boolean> sourceChannel = parent.channel(sourceChannelId);

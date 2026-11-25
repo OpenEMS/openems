@@ -92,7 +92,7 @@ public class TestMapPropName extends AbstractOpenemsAppWithProps<TestMapPropName
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
+		return (_, _, _) -> {
 			return AppConfiguration.create() //
 					.build();
 		};

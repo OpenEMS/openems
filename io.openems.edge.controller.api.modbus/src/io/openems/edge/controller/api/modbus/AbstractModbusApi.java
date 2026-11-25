@@ -492,7 +492,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	private JsonrpcEndpointGuard componentMissingGuard() {
-		return call -> {
+		return _ -> {
 			if (this.getComponentMissingFault().get()) {
 				throw new OpenemsException(this.getComponentMissingFaultChannel().channelDoc().getText());
 			}
@@ -500,7 +500,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	private JsonrpcEndpointGuard componentNoModbusApiGuard() {
-		return call -> {
+		return _ -> {
 			if (this.getComponentNoModbusApiFault().get()) {
 				throw new OpenemsException(this.getComponentNoModbusApiFaultChannel().channelDoc().getText());
 			}

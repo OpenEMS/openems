@@ -33,7 +33,7 @@ public class ShellyProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("communication.discoveryType.label") //
 				.setDefaultValue(DiscoveryType.MDNS) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(DiscoveryType.class), l);
 				}));
 	}
@@ -55,7 +55,7 @@ public class ShellyProps {
 			String apiComponentId) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Meter.Shelly.device.label") //
-				.setField(JsonFormlyUtil::buildLazySelect, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildLazySelect, (_, _, _, parameter, field) -> {
 					field.onlyShowIf(
 							Exp.currentModelValue(discoveryTypeProp).equal(Exp.staticValue(DiscoveryType.MDNS)));
 					field.setRequestParams(apiComponentId, GetDiscoveredDevices.METHOD);
@@ -82,7 +82,7 @@ public class ShellyProps {
 			Nameable discoveryTypeProp, Class<T> shellyTypeClass) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Meter.Shelly.hardwareType") //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.onlyShowIf(
 							Exp.currentModelValue(discoveryTypeProp).equal(Exp.staticValue(DiscoveryType.STATIC)));
 					field.setOptions(OptionsFactory.of(shellyTypeClass), l);
@@ -111,7 +111,7 @@ public class ShellyProps {
 
 		return AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabel("App.Meter.Shelly.terminal.alias", terminal) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(buildShowConditionForShellyTypes(shellyTypes, deviceProp, hardwareTypeProp));
 				}) //
 				.setRequired(true));
@@ -140,7 +140,7 @@ public class ShellyProps {
 		return MeterProps.type(MeterType.GRID) //
 				.setDefaultValue(MeterType.CONSUMPTION_METERED) //
 				.setTranslatedLabel("App.Meter.Shelly.terminal.type", terminal) //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(buildShowConditionForShellyTypes(shellyTypes, deviceProp, hardwareTypeProp));
 				});
 	}

@@ -120,7 +120,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 			return;
 		}
 		this.config = config;
-		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).onChange((oldValue, newValue) -> {
+		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).onChange((_, newValue) -> {
 			@SuppressWarnings("unchecked")
 			var valueOpt = (Optional<Integer>) newValue.asOptional();
 			if (!valueOpt.isPresent()) {

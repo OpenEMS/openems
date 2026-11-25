@@ -413,7 +413,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data,
 				XlsxExportDetailData detailComponents, ResourceBundle translationBundle) throws OpenemsNamedException {
 			return XlsxUtils.addGenericData(ws, data, detailComponents, 10, translationBundle,
-					XlsxExportCategory.PRODUCTION, "production", (t, d) -> t.alias() + " [W]", 1);
+					XlsxExportCategory.PRODUCTION, "production", (t, _) -> t.alias() + " [W]", 1);
 		}
 
 		protected static int addConsumptionData(Worksheet ws,
@@ -421,7 +421,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				XlsxExportDetailData detailComponents, int righestColumn, ResourceBundle translationBundle)
 				throws OpenemsNamedException {
 			return XlsxUtils.addGenericData(ws, data, detailComponents, righestColumn, translationBundle,
-					XlsxExportCategory.CONSUMPTION, "consumption", (t, d) -> t.alias() + " [W]", 1);
+					XlsxExportCategory.CONSUMPTION, "consumption", (t, _) -> t.alias() + " [W]", 1);
 		}
 
 		protected static int addTimeOfUseTariffData(Worksheet ws,
@@ -430,7 +430,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				throws OpenemsNamedException {
 			final var unit = "[" + detailComponents.currency().getUnderPart() + "/kWh]";
 			return XlsxUtils.addGenericData(ws, data, detailComponents, righestColumn, translationBundle,
-					XlsxExportCategory.TIME_OF_USE_TARIFF, "timeOfUse", (t, d) -> t.alias() + " " + unit,
+					XlsxExportCategory.TIME_OF_USE_TARIFF, "timeOfUse", (t, _) -> t.alias() + " " + unit,
 					1000f / detailComponents.currency().getRatio());
 		}
 

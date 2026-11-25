@@ -1036,7 +1036,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 				continue;
 			}
 
-			final var modbusUnitIdObj = find(props, t -> "modbusUnitId".equals(t), t -> true);
+			final var modbusUnitIdObj = find(props, t -> "modbusUnitId".equals(t), _ -> true);
 			if (modbusUnitIdObj == null) {
 				continue;
 			}

@@ -123,7 +123,7 @@ public class ClusterMasterSlavesUpdateable implements Updateable {
 		final Map<ClusterSlaveUpdateable, GetUpdateState.UpdateState> slaveStates = this.slaves.stream() //
 				.collect(Collectors.toMap(Function.identity(), //
 						slave -> slave.getUpdateState(lang), //
-						(existing, replacement) -> existing, //
+						(existing, _) -> existing, //
 						LinkedHashMap::new));
 
 		final var errorSlaveStates = this.filterForError(slaveStates);
@@ -197,7 +197,7 @@ public class ClusterMasterSlavesUpdateable implements Updateable {
 				.filter(entry -> entry.getValue() instanceof GetUpdateState.UpdateState.Error).collect(Collectors.toMap(//
 						Map.Entry::getKey, //
 						entry -> (GetUpdateState.UpdateState.Error) entry.getValue(), //
-						(existing, replacement) -> existing, //
+						(existing, _) -> existing, //
 						LinkedHashMap::new));
 	}
 
@@ -286,8 +286,8 @@ public class ClusterMasterSlavesUpdateable implements Updateable {
 			this.addUpdateLog(String.format("Slave %s failed: %s", this.currentSlave.getName(), errorMessage));
 			this.advance();
 		}
-		case GetUpdateState.UpdateState.Unknown unknown -> this.handleAwaitingStartup();
-		case GetUpdateState.UpdateState.Available available -> this.handleAwaitingStartup();
+		case GetUpdateState.UpdateState.Unknown _ -> this.handleAwaitingStartup();
+		case GetUpdateState.UpdateState.Available _ -> this.handleAwaitingStartup();
 		}
 	}
 

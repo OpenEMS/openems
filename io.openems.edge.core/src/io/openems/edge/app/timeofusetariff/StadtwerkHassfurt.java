@@ -77,7 +77,7 @@ public class StadtwerkHassfurt extends
 				.setTranslatedDescriptionWithAppPrefix(".tariffType.description") //
 				.setRequired(true)//
 				.setDefaultValue(TariffType.STROM_FLEX)//
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(TariffType.optionsFactory(), l);
 				}))), //
 		;

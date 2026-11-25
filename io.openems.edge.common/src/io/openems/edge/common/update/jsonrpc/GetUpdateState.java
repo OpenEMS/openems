@@ -178,8 +178,8 @@ public class GetUpdateState implements EndpointRequestType<Request, Response> {
 			 */
 			public static JsonSerializer<GetUpdateState.UpdateState.Unknown> serializer() {
 				return jsonObjectSerializer(GetUpdateState.UpdateState.Unknown.class, //
-						json -> new GetUpdateState.UpdateState.Unknown(), //
-						obj -> JsonUtils.buildJsonObject() //
+						_ -> new GetUpdateState.UpdateState.Unknown(), //
+						_ -> JsonUtils.buildJsonObject() //
 								.addProperty("type", Unknown.getTypeName()) //
 								.build());
 			}

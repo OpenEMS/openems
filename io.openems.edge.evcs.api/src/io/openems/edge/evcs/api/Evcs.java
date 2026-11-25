@@ -59,7 +59,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Type: Status
 		 * </ul>
 		 */
-		STATUS(Doc.of(Status.values()) //
+		STATUS(Doc.of(Status.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -74,7 +74,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Type: ChargingType
 		 * </ul>
 		 */
-		CHARGING_TYPE(Doc.of(ChargingType.values()) //
+		CHARGING_TYPE(Doc.of(ChargingType.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -91,8 +91,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		PHASES(Doc.of(Phases.values()) //
-				.debounce(5) //
+		PHASES(Doc.of(Phases.values())//
+				.debounce(5)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -115,8 +115,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		FIXED_MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		FIXED_MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -138,8 +138,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		FIXED_MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		FIXED_MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -161,8 +161,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -184,8 +184,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -198,8 +198,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -212,8 +212,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MINIMUM_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -226,8 +226,8 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -239,10 +239,10 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 		 * <li>Level: FAULT
 		 * </ul>
 		 */
-		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Chargingstation Communication Failed " //
-						+ "| Keine Verbindung zur Ladestation " //
+		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Chargingstation Communication Failed "//
+						+ "| Keine Verbindung zur Ladestation "//
 						+ "| Bitte überprüfen Sie die Kommunikationsverbindung zu der Ladestation")); //
 
 		private final Doc doc;
@@ -663,7 +663,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	// Suggestion: method should work on value()
 	public static void addCalculatePowerLimitListeners(Evcs evcs) {
 
-		final Consumer<Value<Integer>> calculateHardwarePowerLimits = ignore -> {
+		final Consumer<Value<Integer>> calculateHardwarePowerLimits = _ -> {
 
 			Phases phases = evcs.getPhasesChannel().getNextValue().asEnum();
 			int fixedMaximum = evcs.getFixedMaximumHardwarePowerChannel().getNextValue()
@@ -690,7 +690,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	 * @param evcs the evcs
 	 */
 	public static void calculateUsedPhasesFromCurrent(Evcs evcs) {
-		final Consumer<Value<Integer>> calculatePhases = ignore -> {
+		final Consumer<Value<Integer>> calculatePhases = _ -> {
 			var phases = evaluatePhaseCountFromCurrent(//
 					evcs.getCurrentL1().get(), evcs.getCurrentL2().get(), evcs.getCurrentL3().get());
 			if (phases == null) {
@@ -760,7 +760,7 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	 * @param evcs the evcs
 	 */
 	public static void calculatePhasesFromActivePowerAndPhaseCurrents(Evcs evcs) {
-		final Consumer<Value<Integer>> calculatePhasePowers = ignore -> {
+		final Consumer<Value<Integer>> calculatePhasePowers = _ -> {
 			var currentL1 = evcs.getCurrentL1().get();
 			var currentL2 = evcs.getCurrentL2().get();
 			var currentL3 = evcs.getCurrentL3().get();

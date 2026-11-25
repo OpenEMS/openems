@@ -78,7 +78,7 @@ public class FeneconProHybridGw
 		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef //
 				.setLabel("DC-PV 1 Alias") //
 				.setDefaultValue("charger0") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV1).notNull());
 				}))), //
 
@@ -90,7 +90,7 @@ public class FeneconProHybridGw
 		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), appdef -> appdef //
 				.setLabel("DC-PV 2 Alias") //
 				.setDefaultValue("charger1") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV2).notNull());
 				})));
 

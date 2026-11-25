@@ -78,18 +78,18 @@ public abstract class AbstractTariffComponent extends AbstractOpenemsComponent
 
 			if (tariffInfo.lastUpdateStatus() != null) {
 				switch (tariffInfo.lastUpdateStatus()) {
-				case TariffUpdateStatus.FailedWithException(var time, var ex) -> {
+				case TariffUpdateStatus.FailedWithException(var time, var _) -> {
 					updateFailures.add(tariffInfo.lastUpdateStatus());
 					lastUpdateTime = DateUtils.max(lastUpdateTime, time);
 				}
-				case TariffUpdateStatus.FailedWithHttpError(var time, var status, var body) -> {
+				case TariffUpdateStatus.FailedWithHttpError(var time, var _, var _) -> {
 					updateFailures.add(tariffInfo.lastUpdateStatus());
 					lastUpdateTime = DateUtils.max(lastUpdateTime, time);
 				}
 				case TariffUpdateStatus.Successful(var time) -> {
 					lastUpdateTime = DateUtils.max(lastUpdateTime, time);
 				}
-				case TariffUpdateStatus.NotFetchedYet(var time) -> {
+				case TariffUpdateStatus.NotFetchedYet(var _) -> {
 					hasNoPrices = true;
 				}
 				}

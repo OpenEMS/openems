@@ -190,7 +190,7 @@ public class PeriodsBuilder {
 
 	private static Function<Double, PeriodData.Price> createPriceFactory(Double min, Double max) {
 		if (min == null || max == null) {
-			return price -> null;
+			return _ -> null;
 		}
 
 		final double positiveShift = calculatePositiveShift(min, max);

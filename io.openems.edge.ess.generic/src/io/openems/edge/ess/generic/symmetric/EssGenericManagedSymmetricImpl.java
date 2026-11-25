@@ -217,7 +217,7 @@ public class EssGenericManagedSymmetricImpl
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(new EssErrorAcknowledgeRequest(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
-		}, call -> {
+		}, _ -> {
 			this.executeErrorAcknowledge();
 			return EmptyObject.INSTANCE;
 		});

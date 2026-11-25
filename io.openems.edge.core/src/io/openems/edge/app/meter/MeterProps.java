@@ -31,7 +31,7 @@ public final class MeterProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
 				def -> def.setTranslatedLabel("App.Meter.mountType.label") //
 						.setDefaultValue(MeterType.PRODUCTION) //
-						.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+						.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 							field.setOptions(optionsFactory, l);
 						}));
 	}
@@ -113,7 +113,7 @@ public final class MeterProps {
 				.setTranslatedLabel("phase.label") //
 				.setTranslatedDescription("phase.description") //
 				.setDefaultValue(Phase.L1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (_, _, l, _, field) -> {
 					field.setOptions(OptionsFactory.of(Phase.class, Phase.ALL), l);
 				}));
 	}

@@ -1,5 +1,7 @@
 package io.openems.common.websocket;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import org.java_websocket.WebSocket;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -9,8 +11,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 @FunctionalInterface
 public interface OnNotification extends ThrowingBiConsumer<WebSocket, JsonrpcNotification, OpenemsNamedException> {
 
-	public static final OnNotification NO_OP = (ws, notification) -> {
-	};
+	public static final OnNotification NO_OP = (_, _) -> doNothing();
 
 	/**
 	 * Handles a JSON-RPC notification.

@@ -33,17 +33,17 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
-@GenerateTargetsFromReferences({"ess", "meter"})
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerEssActivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
 		implements ControllerEssActivePowerVoltageCharacteristic, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssActivePowerVoltageCharacteristicImpl.class);
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
 			target = "(&(id=${config.meter_id})(enabled=true))")
 	private ElectricityMeter meter;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY,
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
 			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 

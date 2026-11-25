@@ -147,7 +147,7 @@ public class ComponentRequestHandler implements JsonApi {
 
 		this.updateLock.writeLock().lock();
 		try {
-			this.extensions.compute(extension.extendClass(), (clazz, componentJsonApiExtensions) -> {
+			this.extensions.compute(extension.extendClass(), (_, componentJsonApiExtensions) -> {
 				final var list = componentJsonApiExtensions == null//
 						? new ArrayList<ComponentJsonApiExtension<?>>()//
 						: new ArrayList<>(componentJsonApiExtensions);
@@ -205,7 +205,7 @@ public class ComponentRequestHandler implements JsonApi {
 		this.log.info("Unbind ComponentJsonApiExtension: {}", extension.getClass().getName());
 		this.updateLock.writeLock().lock();
 		try {
-			this.extensions.compute(extension.extendClass(), (clazz, componentJsonApiExtensions) -> {
+			this.extensions.compute(extension.extendClass(), (_, componentJsonApiExtensions) -> {
 				if (componentJsonApiExtensions == null || componentJsonApiExtensions.isEmpty()) {
 					return null;
 				}

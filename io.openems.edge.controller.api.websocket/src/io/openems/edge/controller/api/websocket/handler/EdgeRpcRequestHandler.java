@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.websocket.handler;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -41,12 +43,10 @@ public class EdgeRpcRequestHandler implements JsonApi {
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.delegate(EdgeRpcRequest.METHOD, endpoint -> {
-
-		}, call -> {
+		builder.delegate(EdgeRpcRequest.METHOD, _ -> doNothing(), call -> {
 			return EdgeRpcRequest.from(call.getRequest()).getPayload();
 
-		}, b -> {
+		}, _ -> {
 			return this.binder.getJsonApiBuilder();
 
 		}, response -> {

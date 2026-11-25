@@ -248,9 +248,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 					return this.parent.metadata.getUserByExternalId(result.userId()).thenApply(user -> {
 						return user.withToken(result.token());
 					});
-				}).thenCompose(user -> {
+				}) //
+				.thenCompose(user -> {
 					return this.handleAuthentication(wsData, request.getId(), user);
-				}).exceptionallyCompose(throwable -> {
+				}) //
+				.exceptionallyCompose(_ -> {
 					return CompletableFuture.failedFuture(OpenemsError.COMMON_AUTHENTICATION_FAILED.exception());
 				});
 	}
@@ -285,9 +287,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.deserialize(userObj);
 		this.log.info("Register User: json={}", JsonUtils.hidePassword(userObj));
 
-		return this.parent.userRegistrationService.registerUser(user).thenApply(unused -> {
-			return new GenericJsonrpcResponseSuccess(request.getId());
-		});
+		return this.parent.userRegistrationService //
+				.registerUser(user) //
+				.thenApply(_ -> {
+					return new GenericJsonrpcResponseSuccess(request.getId());
+				});
 	}
 
 	/**
@@ -303,7 +307,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		if (token == null) {
 			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		}
-		return this.parent.userAuthPasswordService.logout(token).thenApply(unused -> {
+		return this.parent.userAuthPasswordService.logout(token).thenApply(_ -> {
 			return new GenericJsonrpcResponseSuccess(request.getId());
 		});
 	}
@@ -581,8 +585,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.serializer().deserialize(customer) //
 				.withIncludePasswordInRegistrationEmail(true);
 
-		return this.parent.userRegistrationService.registerUserIfNotExist(registrationRequest) //
-				.thenApply(unused -> {
+		return this.parent.userRegistrationService //
+				.registerUserIfNotExist(registrationRequest) //
+				.thenApply(_ -> {
 
 					try {
 						final var protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
@@ -816,8 +821,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	) throws OpenemsNamedException {
 		var edgeId = request.getEdgeId();
 		this.parent.metadata.assertRoleIsEqual(user, edgeId, Role.OWNER, UpdateEdgeSettingsRequest.METHOD);
-		return this.parent.metadata.updateEdgeSettings(edgeId, request.getSettings()).thenApply(ignore -> {
-			return new GenericJsonrpcResponseSuccess(request.getId());
-		});
+		return this.parent.metadata //
+				.updateEdgeSettings(edgeId, request.getSettings()) //
+				.thenApply(_ -> {
+					return new GenericJsonrpcResponseSuccess(request.getId());
+				});
 	}
 }

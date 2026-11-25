@@ -35,7 +35,7 @@ public final class JsonObjectPathActual {
 				Collector<Entry<StringPath<S>, JsonElementPath>, A, R> collector //
 		) {
 			return this.element.entrySet().stream() //
-					.map(t -> Map.<StringPath<S>, JsonElementPath>entry(
+					.map(_ -> Map.<StringPath<S>, JsonElementPath>entry(
 							new StringPathActual.StringPathActualNonNull<S>(t.getKey(), keyParser::parse),
 							new JsonElementPathActual.JsonElementPathActualNonNull(t.getValue()))) //
 					.collect(collector);

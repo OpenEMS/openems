@@ -71,13 +71,13 @@ public class OldTouEntsoeImpl extends AbstractTariffComponent implements OldTouE
 	private OpenemsEdgeOem oem;
 
 	private final Consumer<TariffData> onNewSpotTariffDataFunc = this::onNewSpotTariffData;
-	private final Consumer<TariffUpdateStatus> onNewTariffUpdateStatusFunc = status -> this
-			.updateInfosAboutLoadedTariffs();
+	private final Consumer<TariffUpdateStatus> onNewTariffUpdateStatusFunc = //
+			_ -> this.updateInfosAboutLoadedTariffs();
 
 	private final BehaviorSubject<TariffData> tariffData = new BehaviorSubject<>(null);
 	private final BehaviorSubject<TariffUpdateStatus> updateStatus = new BehaviorSubject<>(null);
-	private final BehaviorSubject<List<TariffProvider.LoadedTariffInfo>> infosAboutLoadedTariffs = new BehaviorSubject<>(
-			List.of());
+	private final BehaviorSubject<List<TariffProvider.LoadedTariffInfo>> infosAboutLoadedTariffs = //
+			new BehaviorSubject<>(List.of());
 
 	private PriceCalculatorXY priceCalculator;
 	private EntsoeTariffProvider provider;

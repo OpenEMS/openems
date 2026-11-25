@@ -40,7 +40,7 @@ public class ReplaceUserJsonApiHandler implements JsonApi {
 
 			return new EdgeRpcRequest(ControllerApiWebsocket.EDGE_ID,
 					GenericJsonrpcRequest.from(request.request().getAsJsonObject()));
-		}, b -> this.builder, Function.identity(), Collections::emptyList);
+		}, _ -> this.builder, Function.identity(), Collections::emptyList);
 	}
 
 	public void setBuilder(JsonApiBuilder builder) {

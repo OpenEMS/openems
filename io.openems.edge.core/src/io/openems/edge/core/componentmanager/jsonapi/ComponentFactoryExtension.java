@@ -31,7 +31,7 @@ public class ComponentFactoryExtension implements ComponentJsonApiExtension<Comp
 						Handles a GetAllComponentFactories.
 						""") //
 						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)), //
-				call -> {
+				_ -> {
 					final var edgeConfig = service.getEdgeConfig();
 
 					return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()

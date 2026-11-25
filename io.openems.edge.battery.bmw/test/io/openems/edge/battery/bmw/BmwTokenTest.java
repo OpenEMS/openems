@@ -156,7 +156,7 @@ public class BmwTokenTest {
 		final var executor = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(clock, true);
 
 		// Mock server returns invalid JSON
-		fetcher.addEndpointHandler(t -> {
+		fetcher.addEndpointHandler(_ -> {
 			return HttpResponse.ok("invalid-json-response");
 		});
 

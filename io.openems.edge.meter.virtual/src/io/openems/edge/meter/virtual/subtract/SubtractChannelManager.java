@@ -59,7 +59,7 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 
 	private void activateSubtractInteger(OpenemsComponent minuend /* nullable */, List<OpenemsComponent> subtrahends,
 			ElectricityMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
-		final Consumer<Value<Integer>> callback = (ignore) -> {
+		final Consumer<Value<Integer>> callback = _ -> {
 			// Subtrahends
 			Integer subtrahendsSum = null;
 			for (OpenemsComponent subtrahend : subtrahends) {
@@ -102,20 +102,16 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 
 		// Minuend
 		switch (minuend) {
-		case ElectricityMeter meter //
-			-> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
-		case SymmetricEss ess //
-			-> this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		case ElectricityMeter _ -> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
+		case SymmetricEss _ -> this.addOnSetNextValueListener(minuend, essChannelId, callback);
 		case null, default -> doNothing();
 		}
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
 			switch (subtrahend) {
-			case ElectricityMeter meter //
-				-> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
-			case SymmetricEss ess //
-				-> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			case ElectricityMeter _ -> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
+			case SymmetricEss _ -> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
 			default -> doNothing();
 			}
 		}
@@ -123,7 +119,7 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 
 	private void activateSubtractLong(OpenemsComponent minuend /* nullable */, List<OpenemsComponent> subtrahends,
 			ElectricityMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
-		final Consumer<Value<Integer>> callback = (ignore) -> {
+		final Consumer<Value<Integer>> callback = _ -> {
 			// Minuend
 			Long result = switch (minuend) {
 			case ElectricityMeter meter -> {
@@ -158,20 +154,16 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 
 		// Minuend
 		switch (minuend) {
-		case ElectricityMeter meter //
-			-> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
-		case SymmetricEss ess //
-			-> this.addOnSetNextValueListener(minuend, essChannelId, callback);
+		case ElectricityMeter _ -> this.addOnSetNextValueListener(minuend, meterChannelId, callback);
+		case SymmetricEss _ -> this.addOnSetNextValueListener(minuend, essChannelId, callback);
 		case null, default -> doNothing();
 		}
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
 			switch (subtrahend) {
-			case ElectricityMeter meter //
-				-> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
-			case SymmetricEss ess //
-				-> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
+			case ElectricityMeter _ -> this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
+			case SymmetricEss _ -> this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
 			default -> doNothing();
 			}
 		}

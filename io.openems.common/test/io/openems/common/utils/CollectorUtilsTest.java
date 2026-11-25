@@ -35,7 +35,7 @@ public class CollectorUtilsTest {
 	public void testToSortedMap() {
 		final SortedMap<String, String> sortedMap = Stream.of("abc-def", "hij-klm") //
 				.map(t -> t.split("-")) //
-				.collect(toSortedMap(t -> t[0], t -> t[1], (t, u) -> t));
+				.collect(toSortedMap(t -> t[0], t -> t[1], (t, _) -> t));
 
 		assertEquals("abc", sortedMap.firstKey());
 		assertEquals("def", sortedMap.firstEntry().getValue());
@@ -47,7 +47,7 @@ public class CollectorUtilsTest {
 	public void testToNavigableMap() {
 		final NavigableMap<String, String> navigableMap = Stream.of("abc-def", "hij-klm") //
 				.map(t -> t.split("-")) //
-				.collect(toNavigableMap(t -> t[0], t -> t[1], (t, u) -> t));
+				.collect(toNavigableMap(t -> t[0], t -> t[1], (t, _) -> t));
 
 		assertEquals("abc", navigableMap.firstKey());
 		assertEquals("def", navigableMap.firstEntry().getValue());

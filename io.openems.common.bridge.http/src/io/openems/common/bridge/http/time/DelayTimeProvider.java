@@ -64,7 +64,7 @@ public interface DelayTimeProvider<T> {
 				return switch (delay) {
 				case DurationDelay durationDelay //
 					-> new DurationDelay(this.duration.plus(durationDelay.getDuration()));
-				case InfiniteDelay infiniteDelay //
+				case InfiniteDelay _ //
 					-> delay.plus(this);
 				};
 			}
@@ -123,8 +123,8 @@ public interface DelayTimeProvider<T> {
 	static DelayTimeProvider<Object> abortOnSuccess(Delay onErrorDelay) {
 		return new DefaultDelayTimeProvider<>(//
 				Delay::immediate, // onFirstRunDelay
-				(error) -> onErrorDelay, //
-				(result) -> Delay.infinite() // onSuccessRunDelay
+				_ -> onErrorDelay, //
+				_ -> Delay.infinite() // onSuccessRunDelay
 		);
 	}
 

@@ -268,7 +268,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			case FeneconBatteryUpdateEvent.UpdateRunning() -> {
 				setValue(BatteryFeneconHomeImpl.this, BatteryFeneconHome.ChannelId.RUNNING_FIRMWARE_UPDATE, true);
 			}
-			case FeneconBatteryUpdateEvent.UpdateFailed(var ex) -> {
+			case FeneconBatteryUpdateEvent.UpdateFailed(var _) -> {
 				setValue(BatteryFeneconHomeImpl.this, BatteryFeneconHome.ChannelId.RUNNING_FIRMWARE_UPDATE, false);
 				this.detectHardwareType();
 			}

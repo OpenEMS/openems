@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.influxdb;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.util.Collections.emptySortedMap;
 
 import java.net.URI;
@@ -93,9 +94,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
 				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(), 5,
 				config.maxQueueSize(), //
-				(e) -> {
-					// ignore
-				});
+				_ -> doNothing());
 	}
 
 	@Override

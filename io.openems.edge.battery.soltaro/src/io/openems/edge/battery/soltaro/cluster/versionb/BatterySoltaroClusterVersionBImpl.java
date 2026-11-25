@@ -584,7 +584,7 @@ public class BatterySoltaroClusterVersionBImpl extends AbstractOpenemsModbusComp
 								SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
-								.onUpdateCallback(val -> {
+								.onUpdateCallback(_ -> {
 									this.recalculateSoc();
 								}), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //

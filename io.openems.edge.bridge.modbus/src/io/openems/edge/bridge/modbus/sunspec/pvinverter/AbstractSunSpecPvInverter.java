@@ -250,7 +250,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 				case L3 -> SinglePhase.L3;
 				};
 				if (phase != null) {
-					SinglePhaseMeter.calculateSinglePhaseFromActivePower(this, meter -> phase);
+					SinglePhaseMeter.calculateSinglePhaseFromActivePower(this, _ -> phase);
 				}
 			}
 			case SPLIT_PHASE, THREE_PHASE -> {

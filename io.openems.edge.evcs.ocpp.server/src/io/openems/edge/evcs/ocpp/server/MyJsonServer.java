@@ -164,7 +164,7 @@ public class MyJsonServer {
 	 */
 	public void sendDefault(UUID session, Request request) {
 		try {
-			this.send(session, request).whenComplete((confirmation, throwable) -> {
+			this.send(session, request).whenComplete((confirmation, _) -> {
 				this.logDebug(confirmation.toString());
 			});
 		} catch (OccurenceConstraintException e) {

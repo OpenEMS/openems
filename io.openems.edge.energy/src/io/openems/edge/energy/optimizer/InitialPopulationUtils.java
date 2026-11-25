@@ -93,7 +93,7 @@ public class InitialPopulationUtils {
 
 	protected static InitialPopulation.Transition generateAllDefault(GlobalOptimizationContext goc) {
 		return new InitialPopulation.Transition(goc.periods().stream() //
-				.mapToInt(p -> 0) // Index "0" is default Mode for all ESHs
+				.mapToInt(_ -> 0) // Index "0" is default Mode for all ESHs
 				.toArray()); //
 	}
 }

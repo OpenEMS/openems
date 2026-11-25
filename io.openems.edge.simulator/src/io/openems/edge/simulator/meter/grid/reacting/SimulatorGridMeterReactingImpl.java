@@ -121,7 +121,7 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private final Consumer<Value<Integer>> updateChannelsCallback = value -> {
+	private final Consumer<Value<Integer>> updateChannelsCallback = _ -> {
 		Integer activePower = null;
 
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {

@@ -34,7 +34,7 @@ public class DataTable extends ForwardingTable<Long, String, JsonElement> {
 	 * @param expectedColumns the expected number of channels in this row
 	 */
 	public void reserveRow(long timestamp, int expectedColumns) {
-		this.rows.compute(timestamp, (ignore, existingRow) -> {
+		this.rows.compute(timestamp, (_, existingRow) -> {
 			if (existingRow == null) {
 				return HashMap.newHashMap(expectedColumns);
 			}

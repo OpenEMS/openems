@@ -17,9 +17,9 @@ public enum EssType {
 	 */
 	public static EssType getEssType(ManagedSymmetricEss ess) {
 		return switch (ess) {
-		case MetaEss me -> META;
-		case ManagedSinglePhaseEss mspe -> SINGLE_PHASE;
-		case ManagedAsymmetricEss mae -> ASYMMETRIC;
+		case MetaEss _ -> META;
+		case ManagedSinglePhaseEss _ -> SINGLE_PHASE;
+		case ManagedAsymmetricEss _ -> ASYMMETRIC;
 		default -> SYMMETRIC;
 		};
 	}

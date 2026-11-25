@@ -130,7 +130,8 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 		this.subscriptions.stream().map(holder -> holder.topicFilter).distinct().forEach(topicFilter -> {
 			try {
-				this.connectionHandler.subscribe(topicFilter, this.qosOf(topicFilter), this.createDispatcher(topicFilter));
+				this.connectionHandler.subscribe(topicFilter, this.qosOf(topicFilter),
+						this.createDispatcher(topicFilter));
 				if (this.config.debugMode()) {
 					this.log.debug("Re-subscribed to topic: {}", topicFilter);
 				}

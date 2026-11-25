@@ -78,8 +78,8 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 			 */
 			public static JsonSerializer<Internal> serializer() {
 				return jsonObjectSerializer(//
-						json -> new Internal(), //
-						obj -> buildJsonObject() //
+						_ -> new Internal(), //
+						_ -> buildJsonObject() //
 								.build());
 			}
 		}
@@ -93,14 +93,13 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 			 */
 			public static JsonSerializer<Manual> serializer() {
 				return jsonObjectSerializer(//
-						json -> new Manual(), //
-						obj -> buildJsonObject() //
+						_ -> new Manual(), //
+						_ -> buildJsonObject() //
 								.build());
 			}
 		}
 
 		record ManualWithoutZeroSetPoint() implements PhaseSwitchAbility {
-
 
 			/**
 			 * Returns a {@link JsonSerializer} for {@link ManualWithoutZeroSetPoint}.
@@ -109,8 +108,8 @@ public record ApplyPhaseSwitch(PhaseSwitchDirection direction, PhaseSwitchAbilit
 			 */
 			public static JsonSerializer<ManualWithoutZeroSetPoint> serializer() {
 				return jsonObjectSerializer(//
-						json -> new ManualWithoutZeroSetPoint(), //
-						obj -> buildJsonObject() //
+						_ -> new ManualWithoutZeroSetPoint(), //
+						_ -> buildJsonObject() //
 								.build());
 			}
 		}

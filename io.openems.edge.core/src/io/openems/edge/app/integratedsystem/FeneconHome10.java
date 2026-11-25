@@ -137,7 +137,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		// Battery Inverter
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true) //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					final var safetyCountry = parameter.defaultValues().safetyCountry();
 					if (safetyCountry == null) {
 						return JsonNull.INSTANCE;
@@ -150,7 +150,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		RIPPLE_CONTROL_RECEIVER_ACTIV(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".rippleControlReceiver.label") //
 				.setTranslatedDescriptionWithAppPrefix(".rippleControlReceiver.description") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
 				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
@@ -158,11 +158,11 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		MAX_FEED_IN_POWER(defaultDef()), //
 		// hidden until external limitation is implemented
 		FEED_IN_TYPE(AppDef.copyOfGeneric(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
+				.wrapField((_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
 				})).appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
 				}))), //
 
@@ -171,7 +171,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 		// External AC PV
 		HAS_AC_METER(AppDef.copyOfGeneric(hasAcMeter(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasAcMeter());
 				}))), //
 		AC_METER_TYPE(acMeterType(HAS_AC_METER)), //
@@ -179,52 +179,52 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		// DC PV Charger 1
 		HAS_DC_PV1(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".hasDcPV1.label") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger1());
 				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 1 Alias") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().charger1Alias());
 				}) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV1).notNull());
 				}))), //
 
 		// DC PV Charger 2
 		HAS_DC_PV2(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".hasDcPV2.label") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger2());
 				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 2 Alias") //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().charger2Alias());
 				}) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+				.setField(JsonFormlyUtil::buildInputFromNameable, (_, _, _, _, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HAS_DC_PV2).notNull());
 				}))), //
 
 		// Emergency Reserve SoC
 		HAS_EMERGENCY_RESERVE(AppDef.copyOfGeneric(hasEmergencyReserve(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasEmergencyReserve());
 				}))), //
 		EMERGENCY_RESERVE_ENABLED(AppDef.copyOfGeneric(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().emergencyReserveEnabled());
 				}))), //
 		EMERGENCY_RESERVE_SOC(AppDef.copyOfGeneric(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().emergencyReserveSoc());
 				}))), //
 
 		// Shadow management
 		SHADOW_MANAGEMENT_DISABLED(AppDef.copyOfGeneric(shadowManagementDisabled(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
+				.setDefaultValue((_, _, _, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().shadowManagementDisabled());
 				}))), //
 		;
