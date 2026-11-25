@@ -34,6 +34,7 @@ export enum WidgetFactory {
     "Controller.Ess.FixActivePower",
     "Controller.Ess.GridOptimizedCharge",
     "Controller.Ess.Limiter14a",
+    "Controller.Ess.PrepareBatteryExtension",
     "Controller.Ess.RippleControlReceiver",
     "Controller.Ess.Time-Of-Use-Tariff.Discharge",
     "Controller.Ess.Time-Of-Use-Tariff",

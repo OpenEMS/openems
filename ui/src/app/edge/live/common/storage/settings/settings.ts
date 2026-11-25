@@ -48,6 +48,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME = "_PropertyTargetTime";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_SOC = "_PropertyTargetSoc";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER = "_PropertyTargetTimeBuffer";
+    private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TERMINATION_BUFFER = "_PropertyTerminationBuffer";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_EXPECTED_EPOCH_SECONDS = "ExpectedStartEpochSeconds";
     private static CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED = "IsEssChargeFromGridAllowed";
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
@@ -79,6 +80,10 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         essComponent: EdgeConfig.Component,
     ) => string = (essComponent) =>
         CommonStorageSettingsComponent.CONTROL_NAME_PREFIX(essComponent) + "prepareBatteryExtensionTargetTimeBuffer";
+    private static FORMCONTROL_PREPARE_BATTERY_EXTENSION_TERMINATION_BUFFER: (
+        essComponent: EdgeConfig.Component,
+    ) => string = (essComponent) =>
+        CommonStorageSettingsComponent.CONTROL_NAME_PREFIX(essComponent) + "prepareBatteryExtensionTerminationBuffer";
     private static FORMCONTROL_PREPARE_BATTERY_EXTENSION_EXPECTED_EPOCH_SECONDS: (
         essComponent: EdgeConfig.Component,
     ) => string = (essComponent) =>
@@ -160,6 +165,12 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 );
                 formGroup.addControl(
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_BUFFER(
+                        essComponent,
+                    ),
+                    new FormControl(null),
+                );
+                formGroup.addControl(
+                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TERMINATION_BUFFER(
                         essComponent,
                     ),
                     new FormControl(null),
@@ -327,6 +338,17 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                         CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER,
                     ),
                 );
+                this.setFormControlSafelyWithChannel(
+                    this.form(),
+                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TERMINATION_BUFFER(
+                        essComponent,
+                    ),
+                    currentData,
+                    new ChannelAddress(
+                        prepareBatteryExtensionCtrl.id,
+                        CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TERMINATION_BUFFER,
+                    ),
+                );
                 this.setFormControlSafelyWithBooleanChannel(
                     this.form(),
                     CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_SPECIFIED(
@@ -384,8 +406,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                     CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_SOC,
                     CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME,
                     CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER,
+                    CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TERMINATION_BUFFER,
                     CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_SPECIFIED,
-                    CommonStorageSettingsComponent.CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_SOC,
                 ];
                 channelAddresses.push(
                     ...allChannels.map((channelId) => new ChannelAddress(prepareBatteryExtensionCtrl.id, channelId)),
@@ -654,6 +676,13 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                                 )
                             ];
 
+                        const terminationBuffer =
+                            field[
+                                CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TERMINATION_BUFFER(
+                                    essComponent,
+                                )
+                            ];
+
                         if (epochSeconds == null || targetTimeDate == null) {
                             return translate.instant(
                                 "EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE",
@@ -665,7 +694,10 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                             targetDate: format(targetTimeDate, DateTimeFormats.DAY_MONTH_YEAR),
                             targetTime: format(targetTimeDate, DateTimeFormats.HOUR_MINUTE),
                             targetSoc: targetSoc,
-                            targetTimeBuffer: targetTimeBuffer,
+                            targetTimeBuffer:
+                                terminationBuffer == null || targetTimeBuffer == null
+                                    ? null
+                                    : terminationBuffer + targetTimeBuffer,
                         });
                     },
                     hide: (field) =>
@@ -699,7 +731,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                                 ],
                             targetTimeBuffer:
                                 field[
-                                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TARGET_TIME_BUFFER(
+                                    CommonStorageSettingsComponent.FORMCONTROL_PREPARE_BATTERY_EXTENSION_TERMINATION_BUFFER(
                                         essComponent,
                                     )
                                 ],
