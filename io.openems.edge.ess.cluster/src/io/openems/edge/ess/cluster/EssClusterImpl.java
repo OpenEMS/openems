@@ -1,5 +1,6 @@
 package io.openems.edge.ess.cluster;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -135,8 +136,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	 */
 	protected static int calculateMinPowerPrecision(List<SymmetricEss> esss) {
 		return Math.max(1, esss.stream() //
-				.filter(ManagedSymmetricEss.class::isInstance) //
-				.map(ManagedSymmetricEss.class::cast) //
+				.gather(filterIsInstance(ManagedSymmetricEss.class)) //
 				.mapToInt(ManagedSymmetricEss::getPowerPrecision) //
 				.min() //
 				.orElse(1));
@@ -180,8 +180,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 		}
 
 		this.esss.stream() //
-				.filter(StartStoppable.class::isInstance) //
-				.map(StartStoppable.class::cast) //
+				.gather(filterIsInstance(StartStoppable.class)) //
 				.forEach(ess -> {
 					try {
 						ess.setStartStop(target);

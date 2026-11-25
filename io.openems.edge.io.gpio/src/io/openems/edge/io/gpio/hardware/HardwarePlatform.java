@@ -1,5 +1,7 @@
 package io.openems.edge.io.gpio.hardware;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +27,7 @@ public interface HardwarePlatform {
 	 */
 	public default List<WriteChannelId> getWriteChannelIds() {
 		return this.getAllChannelIds().stream()//
-				.filter(WriteChannelId.class::isInstance)//
-				.map(WriteChannelId.class::cast)//
+				.gather(filterIsInstance(WriteChannelId.class))//
 				.toList();
 	}
 
@@ -38,8 +39,7 @@ public interface HardwarePlatform {
 	 */
 	public default List<ReadChannelId> getReadChannelIds() {
 		return this.getAllChannelIds().stream()//
-				.filter(ReadChannelId.class::isInstance)//
-				.map(ReadChannelId.class::cast)//
+				.gather(filterIsInstance(ReadChannelId.class))//
 				.toList();
 	}
 

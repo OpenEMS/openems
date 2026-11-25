@@ -3,6 +3,7 @@ package io.openems.edge.energy.optimizer;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -138,8 +139,7 @@ public record SimulationResult(//
 						}));
 
 		var eshsWithOnlyOneMode = goc.eshs().stream() //
-				.filter(EnergyScheduleHandler.WithOnlyOneMode.class::isInstance)
-				.map(EnergyScheduleHandler.WithOnlyOneMode.class::cast) //
+				.gather(filterIsInstance(EnergyScheduleHandler.WithOnlyOneMode.class)) //
 				.collect(toImmutableSet());
 
 		return new SimulationResult(//

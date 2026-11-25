@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.common.utils.MapUtils.mapValue;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
@@ -873,8 +874,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		final var invalidCombination = batteryCluster.getBatteries().stream() //
 				.filter(StartStoppable::isStarted) //
-				.filter(BatteryFeneconHome.class::isInstance) //
-				.map(BatteryFeneconHome.class::cast) //
+				.gather(filterIsInstance(BatteryFeneconHome.class)) //
 				.anyMatch(b -> this.getGoodweType().isInvalidBattery.test(b.getBatteryHardwareType()));
 
 		this._setImpossibleFeneconHomeCombination(invalidCombination);

@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.common;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.sumInt;
@@ -1426,8 +1427,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	private void setMultipleStringChannels() {
 
 		this.chargers.stream() //
-				.filter(GoodWeChargerTwoString.class::isInstance) //
-				.map(GoodWeChargerTwoString.class::cast) //
+				.gather(filterIsInstance(GoodWeChargerTwoString.class)) //
 				.forEach(charger -> {
 					var pvPort = charger.pvPort();
 

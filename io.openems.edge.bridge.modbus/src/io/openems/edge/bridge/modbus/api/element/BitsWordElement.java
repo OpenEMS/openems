@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -249,8 +251,7 @@ public class BitsWordElement extends AbstractSingleWordElement<BitsWordElement, 
 		Stream.of(this.channels) //
 				.filter(Objects::nonNull) //
 				.map(ChannelWrapper::channel) //
-				.filter(WriteChannel.class::isInstance) //
-				.map(WriteChannel.class::cast) //
+				.gather(filterIsInstance(WriteChannel.class)) //
 				.forEach(WriteChannel::getNextWriteValueAndReset);
 	}
 

@@ -1,5 +1,6 @@
 package io.openems.edge.ess.core.power;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
 import java.util.Arrays;
@@ -27,8 +28,7 @@ public class Utils {
 	 */
 	public static void fillMetaEssDebugChannels(List<ManagedSymmetricEss> esss) {
 		esss.stream() //
-				.filter(MetaEss.class::isInstance) //
-				.map(MetaEss.class::cast) //
+				.gather(filterIsInstance(MetaEss.class)) //
 				.forEach(metaEss -> {
 					final var children = getChildren(esss, metaEss).toList();
 					setValue(metaEss, ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER,

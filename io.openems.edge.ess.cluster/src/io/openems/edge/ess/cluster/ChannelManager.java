@@ -1,5 +1,6 @@
 package io.openems.edge.ess.cluster;
 
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.ess.api.CalculateGridMode.aggregateGridModes;
 import static java.util.Collections.emptyList;
@@ -93,8 +94,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	private void calculateStartStop(List<SymmetricEss> esss) {
 		final var startStoppableEss = esss.stream() //
-				.filter(StartStoppable.class::isInstance) //
-				.map(StartStoppable.class::cast) //
+				.gather(filterIsInstance(StartStoppable.class)) //
 				.toList();
 		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
 			final var essMap = startStoppableEss.stream() //

@@ -5,6 +5,7 @@ import static io.openems.common.bridge.http.api.HttpMethod.PUT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
@@ -363,8 +364,7 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 		this.parent.channels() //
 				.stream() //
 				.map(Channel::channelId) //
-				.filter(PathProvider.class::isInstance) //
-				.map(PathProvider.class::cast) //
+				.gather(filterIsInstance(PathProvider.class)) //
 				// Do not overwrite manually managed channels with null.
 				.filter(c -> c.getPath().jsonPaths().length > 0) //
 				.forEach(c -> {

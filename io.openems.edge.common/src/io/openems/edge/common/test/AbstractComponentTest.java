@@ -1,6 +1,7 @@
 package io.openems.edge.common.test;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
@@ -884,8 +885,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		case Collection<?> os -> //
 			os.stream() //
-					.filter(OpenemsComponent.class::isInstance) //
-					.map(OpenemsComponent.class::cast) //
+					.gather(filterIsInstance(OpenemsComponent.class)) //
 					.forEach(this::addComponent);
 
 		case null, default -> doNothing();
@@ -908,8 +908,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		// Is a DummyComponentManager present -> add this Component
 		this.osgiComponentTester.references.stream() //
-				.filter(DummyComponentManager.class::isInstance) //
-				.map(DummyComponentManager.class::cast) //
+				.gather(filterIsInstance(DummyComponentManager.class)) //
 				.forEach(dcm -> dcm.addComponent(component));
 
 		return this.self();

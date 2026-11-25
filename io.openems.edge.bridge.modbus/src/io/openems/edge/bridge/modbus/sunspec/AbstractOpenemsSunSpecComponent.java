@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
 import static com.ghgande.j2mod.modbus.Modbus.ILLEGAL_ADDRESS_EXCEPTION;
+import static io.openems.common.utils.GathererUtils.filterIsInstance;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
@@ -596,8 +597,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			yield Stream.of(model.points()) //
 					.filter(p -> p.name().equals(scaleFactorName)) //
 					.map(SunSpecPoint::get) //
-					.filter(ScaleFactorPoint.class::isInstance) //
-					.map(ScaleFactorPoint.class::cast) //
+					.gather(filterIsInstance(ScaleFactorPoint.class)) //
 					.map(sfp -> new ElementToChannelScaleFactorConverter(this, svp, sfp.channelId)) //
 					// Found matching Scale-Factor Point in SunSpec Model
 					.findFirst()
