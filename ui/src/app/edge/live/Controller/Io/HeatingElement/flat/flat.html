@@ -11,6 +11,16 @@
         <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate" [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT"></oe-flat-widget-line>
       }
     </ng-container>
+    @if (hasWaterThermometer) {
+      <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_ACTUAL' | translate" [channelAddress]="component.id + '/WaterActual'" [converter]="CONVERT_TEMPERATURE"></oe-flat-widget-line>
+      <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.WATER_TARGET' | translate" [channelAddress]="component.id + '/WaterTarget'" [converter]="CONVERT_TEMPERATURE"></oe-flat-widget-line>
+      @if (sensorNotAvailable) {
+        <ion-text color="warning" translate> EDGE.INDEX.WIDGETS.HEATINGELEMENT.SENSOR_NOT_AVAILABLE </ion-text>
+      }
+      @if (legionellaFailed) {
+        <ion-text color="warning" translate> EDGE.INDEX.WIDGETS.HEATINGELEMENT.LEGIONELLA_FAILED </ion-text>
+      }
+    }
     @if (activePower && activePower !== 0 && runState === State.CALIBRATION) {
       <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
       <ion-text translate> EDGE.INDEX.WIDGETS.HEATINGELEMENT.CALIBRATION_DESCRIPTION </ion-text>
