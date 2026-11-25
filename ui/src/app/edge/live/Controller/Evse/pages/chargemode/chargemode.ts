@@ -43,8 +43,9 @@ export class ChargeModeComponent extends AbstractFormlyComponent<EvcsChargeModeV
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
-        const hasKebaComponent: boolean =
-            (edge.getCurrentConfig()?.getComponentsByFactory("Evse.ChargePoint.Keba.Modbus")?.length ?? 0) > 0;
+        const chargePoint: EdgeConfig.Component | null =
+            edge.getCurrentConfig()?.getComponentFromOtherComponentsProperty(component.id, "chargePoint.id") ?? null;
+        const isKebaP40Component: boolean = chargePoint?.factoryId === "Evse.ChargePoint.Keba.Modbus";
 
         const lines: OeFormlyField<EvcsChargeModeViewModel>[] = [
             {
@@ -93,7 +94,7 @@ export class ChargeModeComponent extends AbstractFormlyComponent<EvcsChargeModeV
                 }),
                 customClass: "ion-border-danger ion-font-color-danger ion-font-size-larger",
                 hide: (el) =>
-                    (el.mode !== Mode.SURPLUS && el.mode !== Mode.ZERO) || component == null || !hasKebaComponent,
+                    (el.mode !== Mode.SURPLUS && el.mode !== Mode.ZERO) || component == null || !isKebaP40Component,
             },
         ];
         return {

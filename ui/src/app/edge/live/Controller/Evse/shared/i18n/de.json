@@ -5,13 +5,6 @@
                 "LABEL": "Aktiver Modus"
             },
             "ENERGY_SINCE_START": "Energie seit Ladebeginn",
-            "MODE": {
-                "FORCE": "Schnell",
-                "LABEL": "Grundmodus",
-                "MINIMUM": "Minimal",
-                "SURPLUS": "PV",
-                "ZERO": "Aus"
-            },
             "POWER": "Leistung",
             "STATE_MACHINE": {
                 "CHARGING": "Lädt",

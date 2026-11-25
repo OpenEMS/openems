@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { AfterViewChecked, ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { FieldWrapper } from "@ngx-formly/core";
@@ -40,9 +40,20 @@ import { Service } from "src/app/shared/shared";
         `,
     ],
 })
-export class FormlyFieldNavigationComponent extends FieldWrapper {
+export class FormlyFieldNavigationComponent extends FieldWrapper implements AfterViewChecked {
     protected service: Service = inject(Service);
     protected router: Router = inject(Router);
+
+    private readonly isInit = signal<boolean>(false);
+
+    /**
+     * Defers rendering of the navigation view until after the first change detection cycle.
+     *
+     * Without this, fields hidden via {@link OeFormlyField} briefly appear and disappear on page load.
+     */
+    ngAfterViewChecked() {
+        this.isInit.set(true);
+    }
 
     protected onSubmit(): void {
         this.field!.props!.onSubmit(this.form);

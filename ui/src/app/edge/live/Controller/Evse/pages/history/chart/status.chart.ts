@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -38,22 +38,22 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 return [
                     {
-                        name: translate.instant("EVSE_SINGLE.HOME.MODE.ZERO"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.ZERO"),
                         converter: () => this.getDataset(data, 0),
                         color: ChartConstants.Colors.BLUE_GREY,
                     },
                     {
-                        name: translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM"),
                         converter: () => this.getDataset(data, 1),
                         color: ChartConstants.Colors.GREEN,
                     },
                     {
-                        name: translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.SURPLUS"),
                         converter: () => this.getDataset(data, 2),
                         color: ChartConstants.Colors.BLUE,
                     },
                     {
-                        name: translate.instant("EVSE_SINGLE.HOME.MODE.FORCE"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE"),
                         converter: () => this.getDataset(data, 3),
                         color: ChartConstants.Colors.RED,
                     },

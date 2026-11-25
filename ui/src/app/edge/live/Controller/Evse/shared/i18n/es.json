@@ -5,13 +5,6 @@
                 "LABEL": "Modo actual"
             },
             "ENERGY_SINCE_START": "Energía desde el último inicio de carga",
-            "MODE": {
-                "FORCE": "Rápido",
-                "LABEL": "Modo básico",
-                "MINIMUM": "Mínimo",
-                "SURPLUS": "PV",
-                "ZERO": "Apagado"
-            },
             "POWER": "Potencia",
             "STATE_MACHINE": {
                 "CHARGING": "Cargando",

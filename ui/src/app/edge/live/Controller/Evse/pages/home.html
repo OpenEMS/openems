@@ -7,7 +7,7 @@
         </ion-col>
         @if (!imgDidLoad) {
           <ion-col size-md="4" size-xs="9">
-            <oe-modal-line [name]="'EVSE_SINGLE.HOME.MODE.LABEL' | translate" [converter]="CONVERT_TO_MODE_LABEL" [channelAddress]="component.id + '/_PropertyMode'"> </oe-modal-line>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE' | translate" [converter]="CONVERT_TO_MODE_LABEL" [channelAddress]="component.id + '/_PropertyMode'"> </oe-modal-line>
             <oe-modal-line [name]="'EVSE_SINGLE.HOME.ACTUAL_MODE.LABEL' | translate" [converter]="CONVERT_TO_ACTUAL_MODE_LABEL" [channelAddress]="component.id + '/ActualMode'"> </oe-modal-line>
             <oe-modal-line [name]="'EVSE_SINGLE.HOME.STATE_MACHINE.LABEL' | translate" [converter]="CONVERT_TO_STATE_MACHINE_LABEL" [channelAddress]="component.id + '/StateMachine'"> </oe-modal-line>
             @if (chargePointComponent) {

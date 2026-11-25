@@ -5,13 +5,6 @@
                 "LABEL": "Actual Mode"
             },
             "ENERGY_SINCE_START": "Energy since the last charge start",
-            "MODE": {
-                "FORCE": "Fast",
-                "LABEL": "Base Mode",
-                "MINIMUM": "Minimal",
-                "SURPLUS": "PV",
-                "ZERO": "Off"
-            },
             "POWER": "Power",
             "STATE_MACHINE": {
                 "CHARGING": "Charging",

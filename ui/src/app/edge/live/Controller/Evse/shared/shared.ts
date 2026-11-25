@@ -153,13 +153,13 @@ export namespace ControllerEvseSingleShared {
             return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case Mode.ZERO:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.ZERO");
                     case Mode.SURPLUS:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.SURPLUS");
                     case Mode.MINIMUM:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM");
                     case Mode.FORCE:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE");
                     default:
                         return Converter.HIDE_VALUE(value);
                 }
@@ -178,7 +178,7 @@ export namespace ControllerEvseSingleShared {
             return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case "DISABLE":
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                        return translate.instant("GENERAL.OFF");
                     case "FORCE_SINGLE_PHASE":
                         return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
                     case "FORCE_THREE_PHASE":
@@ -201,13 +201,13 @@ export namespace ControllerEvseSingleShared {
             return Converter.IF_NUMBER(raw, (value) => {
                 switch (value) {
                     case 0:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.ZERO");
                     case 1:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM");
                     case 2:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.SURPLUS");
                     case 3:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
+                        return translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE");
                     default:
                         return Converter.HIDE_VALUE(value);
                 }
@@ -367,7 +367,7 @@ export namespace ControllerEvseSingleShared {
         // Set datasets
         datasets.push({
             type: "bar",
-            label: "No Charge",
+            label: translate.instant("EDGE.INDEX.WIDGETS.EVCS.ZERO"),
             data: barZero,
             order: 1,
         });
@@ -378,7 +378,7 @@ export namespace ControllerEvseSingleShared {
 
         datasets.push({
             type: "bar",
-            label: "Minimum",
+            label: translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM"),
             data: barMinimum,
             order: 1,
         });
@@ -389,7 +389,7 @@ export namespace ControllerEvseSingleShared {
 
         datasets.push({
             type: "bar",
-            label: "Surplus PV",
+            label: translate.instant("EDGE.INDEX.WIDGETS.EVCS.SURPLUS"),
             data: barSurplus,
             order: 1,
         });
@@ -400,7 +400,7 @@ export namespace ControllerEvseSingleShared {
 
         datasets.push({
             type: "bar",
-            label: "Force Charge",
+            label: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE"),
             data: barForce,
             order: 1,
         });

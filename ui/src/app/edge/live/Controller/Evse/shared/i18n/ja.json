@@ -5,13 +5,6 @@
                 "LABEL": "現在のモード"
             },
             "ENERGY_SINCE_START": "最後の充電開始からのエネルギー",
-            "MODE": {
-                "FORCE": "急速",
-                "LABEL": "基本モード",
-                "MINIMUM": "最小",
-                "SURPLUS": "PV",
-                "ZERO": "オフ"
-            },
             "POWER": "電力",
             "STATE_MACHINE": {
                 "CHARGING": "充電中",

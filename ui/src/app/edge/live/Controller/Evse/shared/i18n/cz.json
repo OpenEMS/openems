@@ -5,13 +5,6 @@
                 "LABEL": "Aktivní režim"
             },
             "ENERGY_SINCE_START": "Energie od začátku nabíjení",
-            "MODE": {
-                "FORCE": "Rychlé",
-                "LABEL": "Základní režim",
-                "MINIMUM": "Minimální",
-                "SURPLUS": "PV",
-                "ZERO": "Vypnuto"
-            },
             "POWER": "Výkon",
             "STATE_MACHINE": {
                 "CHARGING": "Nabíjí se",
