@@ -222,11 +222,6 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 	}
 
 	@SuppressWarnings("deprecation")
-	private boolean hasChannel(String channelId) {
-		return this._channel(channelId) != null;
-	}
-
-	@SuppressWarnings("deprecation")
 	private void createChannelIfNotExisting(GetChannelsOfComponent.ChannelRecord channel) {
 		if (this._channel(channel.id()) != null) {
 			return;

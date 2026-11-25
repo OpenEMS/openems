@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +25,7 @@ import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannel;
 import io.openems.edge.common.channel.internal.StateCollectorChannelDoc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -207,6 +209,69 @@ public interface OpenemsComponent {
 	 */
 	default <T extends Channel<?>> T channelOrNull(io.openems.edge.common.channel.ChannelId channelId) {
 		return this.channelOrNull(channelId.id());
+	}
+
+	/**
+	 * Checks if a Channel with the given ID exists.
+	 * 
+	 * @param channelId the Channel-ID as a string
+	 * @return true if the Channel exists, false otherwise
+	 */
+	default boolean hasChannel(String channelId) {
+		return this._channel(channelId) != null;
+	}
+
+	/**
+	 * Resets all Channels except {@link ChannelId#STATE} to UNDEFINED ('null').
+	 *
+	 * @see #resetChannelsToNull(Predicate)
+	 */
+	default void resetAllChannelsToNull() {
+		this.resetChannelsToNull(channel -> channel.channelId() != ChannelId.STATE);
+	}
+
+	/**
+	 * Resets all Channels matching the filter to UNDEFINED ('null') with the next
+	 * Cycle.
+	 *
+	 * <p>
+	 * ATTENTION: Channels derived via onSetNextValue-Callbacks should return null
+	 * if the referred value is null. Otherwise, the derived Channel will not be
+	 * reset to null.
+	 *
+	 * <p>
+	 * Note: Channels with a cumulated Unit (e.g. cumulated energy counters) are
+	 * intentionally not reset, to keep cumulated values steadily increasing.
+	 *
+	 * @param filter only Channels matching this filter are reset
+	 */
+	default void resetChannelsToNull(Predicate<Channel<?>> filter) {
+		var channels = this.channels().stream() //
+				.filter(filter) //
+				.toList();
+		channels.forEach(OpenemsComponent::tryResetToNull);
+	}
+
+	/**
+	 * Discards the pending write values of all {@link WriteChannel}s.
+	 *
+	 * @see WriteChannel#discardNextWriteValue()
+	 */
+	default void discardAllNextWriteValues() {
+		for (var channel : this.channels()) {
+			if (channel instanceof WriteChannel<?> writeChannel) {
+				writeChannel.discardNextWriteValue();
+			}
+		}
+	}
+
+	private static void tryResetToNull(Channel<?> channel) {
+		try {
+			channel.resetToNull();
+		} catch (RuntimeException e) {
+			LoggerFactory.getLogger(OpenemsComponent.class).warn("Unable to reset Channel [{}] to null: {}",
+					channel.address(), e.getMessage(), e);
+		}
 	}
 
 	/**
