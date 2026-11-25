@@ -162,6 +162,7 @@
 	bnd.identity;id='io.openems.edge.firealarmsystem.hekatron',\
 	bnd.identity;id='io.openems.edge.fluidcooling.hydac',\
 	bnd.identity;id='io.openems.edge.fronius',\
+	bnd.identity;id='io.openems.edge.gassensor.vigilex',\
 	bnd.identity;id='io.openems.edge.goodwe',\
 	bnd.identity;id='io.openems.edge.heat.askoma',\
 	bnd.identity;id='io.openems.edge.heat.mypv',\
@@ -387,6 +388,7 @@
 	io.openems.edge.firealarmsystem.hekatron;version=snapshot,\
 	io.openems.edge.fluidcooling.hydac;version=snapshot,\
 	io.openems.edge.fronius;version=snapshot,\
+	io.openems.edge.gassensor.vigilex;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.heat.api;version=snapshot,\
 	io.openems.edge.heat.askoma;version=snapshot,\
