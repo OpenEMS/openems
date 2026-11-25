@@ -1,5 +1,6 @@
 package io.openems.edge.edge2edge.websocket.bridge;
 
+import static io.openems.common.utils.StringUtils.isNullOrEmpty;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
@@ -81,7 +82,6 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 		implements OpenemsComponent, Edge2EdgeWebsocketBridge, ComponentJsonApi {
 
 	private record Subscriber(ChannelSubscriber channelSubscriber, Consumer<Map<ChannelAddress, JsonElement>> onData) {
-
 	}
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeWebsocketBridgeImpl.class);
@@ -93,10 +93,10 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 	private final AtomicInteger subscribeChannelsCounter = new AtomicInteger(1);
 	private final Map<ChannelAddress, Integer> subscribedChannels = new ConcurrentHashMap<>();
 
-	private List<Consumer<EdgeConfig>> onEdgeConfigChangeListener = new ArrayList<>();
-	private List<Runnable> onChannelChangeListener = new ArrayList<>();
-	private List<BiConsumer<ConnectionState, ConnectionState>> onConnectionStateChangeListener = new CopyOnWriteArrayList<>();
-	private List<Subscriber> subscriber = new CopyOnWriteArrayList<>();
+	private final List<Consumer<EdgeConfig>> onEdgeConfigChangeListener = new ArrayList<>();
+	private final List<Runnable> onChannelChangeListener = new ArrayList<>();
+	private final List<BiConsumer<ConnectionState, ConnectionState>> onConnectionStateChangeListener = new CopyOnWriteArrayList<>();
+	private final List<Subscriber> subscriber = new CopyOnWriteArrayList<>();
 	private ServiceRegistration<Updateable> updateableRegistration = null;
 	private ServiceRegistration<ClusterSlaveUpdateable> clusterSlaveUpdateableRegistration = null;
 	private ClusterSlaveUpdateable clusterSlaveUpdateable;
@@ -142,9 +142,13 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 				return;
 			}
 
-			this.client
-					.sendRequest(
-							new AuthenticateWithPasswordRequest(Optional.of(this.id()), this.config.remotePassword()))
+			final var password = this.config.remotePassword();
+			if (isNullOrEmpty(password)) {
+				this.log.warn("No remote password configured - unable to authenticate to remote edge");
+				return;
+			}
+
+			this.client.sendRequest(new AuthenticateWithPasswordRequest(Optional.of(this.id()), password))
 					.thenCompose(response -> {
 						return this.sendRequest(GenericJsonrpcRequest.createRequest(new SubscribeChannelUpdate(),
 								new SubscribeChannelUpdate.Request(true)));
@@ -278,10 +282,10 @@ public class Edge2EdgeWebsocketBridgeImpl extends AbstractOpenemsComponent
 
 		return () -> {
 			this.subscriber.remove(subscriber);
-			final var subscribedChannels = channelSubscriber.getSubscribedChannels();
+			final var tmpSubscribedChannels = channelSubscriber.getSubscribedChannels();
 			channelSubscriber.removeSubscribeListener(subscribeListener);
 			channelSubscriber.removeUnsubscribeListener(unsubscribeListener);
-			unsubscribeListener.accept(subscribedChannels);
+			unsubscribeListener.accept(tmpSubscribedChannels);
 		};
 	}
 

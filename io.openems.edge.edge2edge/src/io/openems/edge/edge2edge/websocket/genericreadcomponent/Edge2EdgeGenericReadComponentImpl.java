@@ -166,9 +166,8 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 		this.bridgeStateHandler.deactivate();
 	}
 
-	@SuppressWarnings("deprecation")
 	private void createChannelIfNotExisting(ChannelRecord channel) {
-		if (this._channel(channel.id()) != null) {
+		if (this.hasChannel(channel.id())) {
 			return;
 		}
 

@@ -151,17 +151,8 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 		});
 
 		this.bridgeStateHandler.addOnUnsubscribeListener(bridge -> {
-			final var unsubscribedChannels = this.channelSubscriber.unsubscribeAll();
-
-			// reset channel values
-			for (var channelAddress : unsubscribedChannels) {
-				try {
-					final var channel = this.channel(channelAddress.getChannelId());
-					channel.setNextValue(null);
-				} catch (IllegalArgumentException e) {
-					// channel does not exist
-				}
-			}
+			this.channelSubscriber.unsubscribeAll();
+			this.resetAllChannelsToNull();
 		});
 	}
 
@@ -221,9 +212,8 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 		return 1;
 	}
 
-	@SuppressWarnings("deprecation")
 	private void createChannelIfNotExisting(GetChannelsOfComponent.ChannelRecord channel) {
-		if (this._channel(channel.id()) != null) {
+		if (this.hasChannel(channel.id())) {
 			return;
 		}
 

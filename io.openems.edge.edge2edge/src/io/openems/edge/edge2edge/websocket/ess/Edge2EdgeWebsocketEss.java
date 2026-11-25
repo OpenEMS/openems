@@ -5,12 +5,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Edge2EdgeWebsocketEss extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 
 		private final Doc doc;
 
-		private ChannelId(Doc doc) {
+		ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 
