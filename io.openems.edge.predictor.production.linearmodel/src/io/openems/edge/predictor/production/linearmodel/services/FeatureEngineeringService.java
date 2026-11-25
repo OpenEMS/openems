@@ -1,5 +1,6 @@
 package io.openems.edge.predictor.production.linearmodel.services;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -18,15 +19,7 @@ public class FeatureEngineeringService {
 	 * @return the transformed {@link DataFrame}
 	 */
 	public DataFrame<ZonedDateTime> transformForTraining(DataFrame<ZonedDateTime> rawFeatureTargetMatrix) {
-		var pipeline = new DataFrameTransformerPipeline<ZonedDateTime>(List.of(//
-				new TimeOfDaySinCosFeatureTransformer<>(//
-						ColumnNames.TIME_SIN, //
-						ColumnNames.TIME_COS, //
-						dt -> dt.getHour() * 60 + dt.getMinute())));
-
-		var transformedFeatureTargetMatrix = pipeline.transform(rawFeatureTargetMatrix);
-
-		return transformedFeatureTargetMatrix;
+		return transform(rawFeatureTargetMatrix);
 	}
 
 	/**
@@ -37,14 +30,22 @@ public class FeatureEngineeringService {
 	 * @return the transformed {@link DataFrame}
 	 */
 	public DataFrame<ZonedDateTime> transformForPrediction(DataFrame<ZonedDateTime> rawFeatureMatrix) {
-		var pipeline = new DataFrameTransformerPipeline<ZonedDateTime>(List.of(//
+		return transform(rawFeatureMatrix);
+	}
+
+	private static DataFrame<ZonedDateTime> transform(DataFrame<ZonedDateTime> rawFeatureMatrix) {
+		var pipeline = new DataFrameTransformerPipeline<>(List.of(//
 				new TimeOfDaySinCosFeatureTransformer<>(//
 						ColumnNames.TIME_SIN, //
 						ColumnNames.TIME_COS, //
-						dt -> dt.getHour() * 60 + dt.getMinute())));
+						FeatureEngineeringService::utcMinuteOfDay)));
 
-		var transformedFeatureMatrix = pipeline.transform(rawFeatureMatrix);
+		return pipeline.transform(rawFeatureMatrix);
+	}
 
-		return transformedFeatureMatrix;
+	private static int utcMinuteOfDay(ZonedDateTime timestamp) {
+		// UTC keeps the learned time-of-day relationship stable across DST changes.
+		var utcTime = timestamp.withZoneSameInstant(ZoneOffset.UTC);
+		return utcTime.getHour() * 60 + utcTime.getMinute();
 	}
 }
