@@ -1,4 +1,5 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
+import type { UpdateState } from "./getUpdateState";
 
 /**
  * Gets all Updateables.
@@ -53,4 +54,9 @@ export type Updateable = {
     description: string;
     requiredMinRole?: string | null;
     avgDurationInMinutes?: number;
+};
+
+export type UpdateableState = {
+    updateable: Updateable;
+    updateState?: UpdateState;
 };
