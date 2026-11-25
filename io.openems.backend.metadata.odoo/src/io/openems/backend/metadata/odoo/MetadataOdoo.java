@@ -122,13 +122,13 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	private DebugExecutor refreshTokenExecutor;
 	private final ConcurrentHashMap<String, Boolean> pendingEdgeConfigIds = new ConcurrentHashMap<>();
 
-	private DebugExecutor requestExecutor;
+	protected DebugExecutor requestExecutor;
 
 	@Reference
 	private EventAdmin eventAdmin;
 
 	@Reference
-	private OpenemsBackendOem oem;
+	protected OpenemsBackendOem oem;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
