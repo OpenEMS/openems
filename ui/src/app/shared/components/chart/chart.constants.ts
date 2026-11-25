@@ -2,7 +2,7 @@
 
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
-import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
+import { Chart, ChartComponentLike, ChartDataset, ChartOptions, ChartType, LegendItem, Plugin, PointStyle, } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
@@ -11,6 +11,19 @@ import { ArrayUtils } from "../../utils/array/array.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
 import { ChartTypes } from "./chart.types";
+
+type ScheduleModeBandPluginOptions = {
+    enabled?: boolean;
+    bandHeight?: number;
+    onHeightChange?: (height: number) => void;
+};
+
+declare module "chart.js" {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface PluginOptionsByType<TType extends ChartType> {
+        scheduleModeBand?: ScheduleModeBandPluginOptions;
+    }
+}
 
 function getYAxisTitle(
     title: YAxisType,
@@ -58,6 +71,37 @@ export namespace ChartConstants {
     export const REQUEST_TIMEOUT = 500;
 
     export class Plugins {
+        public static readonly SCHEDULE_MODE_BAND: Plugin<ChartType, ScheduleModeBandPluginOptions> = {
+            id: "scheduleModeBand",
+            defaults: {
+                enabled: false,
+            },
+            afterLayout: (chart, _args, options) => {
+                if (options.enabled !== true || options.bandHeight == null || options.onHeightChange == null) {
+                    return;
+                }
+                const layoutHeight = chart.height - chart.chartArea.height;
+                const height = Math.ceil(options.bandHeight + layoutHeight);
+                options.onHeightChange(height);
+            },
+            beforeDatasetsDraw: ({ ctx, chartArea }, _args, options) => {
+                if (options.enabled !== true) {
+                    return;
+                }
+                const radius = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(chartArea.left, chartArea.top, chartArea.width, chartArea.height, radius);
+                ctx.clip();
+            },
+            afterDatasetsDraw: ({ ctx }, _args, options) => {
+                if (options.enabled !== true) {
+                    return;
+                }
+                ctx.restore();
+            },
+        };
+
         public static Legend = class {
             public static POINT_STYLE = (
                 dataset: ChartDataset,

@@ -32,6 +32,7 @@ export abstract class AbstractHistoryChart {
     public datasets: Chart.ChartDataset[] = [];
     public options: Chart.ChartOptions | null = null;
     public colors: HistoryChartColor[] = [];
+    protected chartType: "line" | "bar" = "line";
     protected edge: Edge | null = null;
     protected errorResponse: JsonrpcResponseError | null = null;
 
