@@ -35,12 +35,17 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 public class GoodWeBatteryInverterUpdateable implements Updateable {
 
 	private static final int AVG_UPDATE_DURATION_IN_MINUTES = 35;
+
 	/**
 	 * How much minutes the inverter needs after the update was transferred to
 	 * update it's own firmware and sets the modbus registers to the new version
 	 * number.
+	 * 
+	 * <p>
+	 * We discovered that depending on the inverter type it takes between 5 and 10
+	 * minutes.
 	 */
-	private static final int APPLY_DURATION_IN_MINUTES = 10;
+	private static final int APPLY_DURATION_IN_MINUTES = 15;
 
 	private final Logger log;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
