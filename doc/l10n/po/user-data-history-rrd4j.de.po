@@ -1,0 +1,372 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "OpenEMS: Storing the history (rrd4j)"
+msgstr "OpenEMS: Speicherung der Historie (rrd4j)"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"OpenEMS stores measured values directly on the device so that the web "
+"interface can display histories and energy amounts: power curves, “purchased "
+"today”, monthly and annual values. The storage is handled by **rrd4j**, a "
+"database with a fixed size. In addition, the history can also be kept in an "
+"InfluxDB or in the backend. This page deals with the local storage on the "
+"device."
+msgstr ""
+"OpenEMS speichert Messwerte direkt auf dem Gerät, damit die Weboberfläche "
+"Verläufe und Energiemengen anzeigen kann: Leistungskurven, „heute bezogen“, "
+"Monats- und Jahreswerte. Die Speicherung übernimmt **rrd4j**, eine Datenbank "
+"mit fester Größe. Daneben kann die Historie auch in einer InfluxDB oder im "
+"Backend liegen. Diese Seite behandelt den lokalen Speicher auf dem Gerät."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"The second part explains **why energy values in the history are sometimes "
+"wrong** (negative values, huge outliers, zero values). It is based on the "
+"source code."
+msgstr ""
+"Der zweite Teil erklärt, **warum Energiewerte in der Historie manchmal nicht "
+"stimmen** (negative Werte, riesige Ausreißer, Nullwerte). Er beruht auf dem "
+"Quellcode."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "What is stored"
+msgstr "Was gespeichert wird"
+
+#. type: Table
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid ""
+"| Type\n"
+"| Examples\n"
+"| Interval\n"
+"| Retention\n"
+"\n"
+"| Instantaneous values\n"
+"| Power, voltage, temperature, state of charge\n"
+"| Average per 5 minutes\n"
+"| approx. **450 days**\n"
+"| Meter readings\n"
+"| Energy (purchase, feed-in, production …), operating hours\n"
+"| one value per hour\n"
+"| approx. **450 days**\n"
+msgstr ""
+"| Art\n"
+"| Beispiele\n"
+"| Raster\n"
+"| Aufbewahrung\n"
+"\n"
+"| Momentanwerte\n"
+"| Leistung, Spannung, Temperatur, Ladezustand\n"
+"| Mittelwert je 5 Minuten\n"
+"| ca. **450 Tage**\n"
+"| Zählerstände\n"
+"| Energie (Bezug, Einspeisung, Erzeugung …), Betriebsstunden\n"
+"| ein Wert je Stunde\n"
+"| ca. **450 Tage**\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Older values are overwritten automatically.** After about 15 months they "
+"are no longer available in this storage. If you want a longer history, you "
+"also need an InfluxDB or the backend."
+msgstr ""
+"**Ältere Werte werden automatisch überschrieben.** Nach etwa 15 Monaten sind "
+"sie in diesem Speicher nicht mehr vorhanden. Wer eine längere Historie "
+"möchte, braucht zusätzlich eine InfluxDB oder das Backend."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Not every value** is stored, only the important ones. The “Persistence "
+"Priority” setting (default: HIGH) determines this. More stored values mean "
+"more write accesses and, on flash memory (SD card, eMMC), more wear."
+msgstr ""
+"Es wird **nicht jeder Wert** gespeichert, sondern nur die wichtigen. Die "
+"Einstellung „Persistence Priority“ (Standard: HIGH) bestimmt das. Mehr "
+"gespeicherte Werte bedeuten mehr Schreibzugriffe und auf Flash-Speichern (SD-"
+"Karte, eMMC) mehr Verschleiß."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"Each value has its own file on the device. New files are only created as "
+"long as at least 100 MB are free."
+msgstr ""
+"Für jeden Wert gibt es eine eigene Datei auf dem Gerät. Neue Dateien werden "
+"nur angelegt, solange noch mindestens 100 MB frei sind."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "How energy amounts are created"
+msgstr "Wie Energiemengen entstehen"
+
+#. type: #sec-how-energy-amounts-are-created
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"The web interface shows energy amounts such as “12.3 kWh purchased today”. "
+"What is stored, however, is a **meter reading**, similar to the electricity "
+"meter in the basement. The energy amount of a period is the difference "
+"between the meter reading at the end and the one before the beginning:"
+msgstr ""
+"Die Weboberfläche zeigt Energiemengen wie „heute 12,3 kWh bezogen“. "
+"Gespeichert ist aber ein **Zählerstand**, ähnlich dem Stromzähler im Keller. "
+"Die Energiemenge eines Zeitraums ist der Unterschied zwischen dem "
+"Zählerstand am Ende und dem vor Beginn:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Energy today = meter reading now − meter reading yesterday at midnight\n"
+msgstr "Energie heute = Zählerstand jetzt − Zählerstand gestern um Mitternacht\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"This is only correct **as long as the meter reading rises steadily**. Any "
+"jump in the meter reading appears directly as a wrong energy value."
+msgstr ""
+"Das stimmt nur, **solange der Zählerstand gleichmäßig steigt**. Jeder Sprung "
+"im Zählerstand erscheint direkt als falscher Energiewert."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid "Where the meter readings come from:"
+msgstr "Woher die Zählerstände kommen:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"Many devices have their **own meter** (e.g. the grid meter). It continues to "
+"run correctly even when OpenEMS restarts."
+msgstr ""
+"Viele Geräte haben einen **eigenen Zähler** (z. B. der Netzzähler). Er läuft "
+"auch bei einem Neustart von OpenEMS korrekt weiter."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"For devices that only report power, **OpenEMS counts itself**: power times "
+"time. After a restart, OpenEMS continues from the last stored meter reading."
+msgstr ""
+"Bei Geräten, die nur die Leistung melden, **zählt OpenEMS selbst**: Leistung "
+"mal Zeit. Nach einem Neustart setzt OpenEMS beim zuletzt gespeicherten "
+"Zählerstand wieder an."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"The **total values** of the system (total purchase, total production, "
+"storage, energy flows such as “solar → house”, 17 values in total) are "
+"formed from the meters of the individual devices."
+msgstr ""
+"Die **Summenwerte** der Anlage (Gesamtbezug, Gesamterzeugung, Speicher, "
+"Energieflüsse wie „Solar → Haus“, insgesamt 17 Werte) werden aus den Zählern "
+"der einzelnen Geräte gebildet."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Typical error patterns"
+msgstr "Typische Fehlerbilder"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Negative values after a restart"
+msgstr "Negative Werte nach einem Neustart"
+
+#. type: #sec-negative-values-after-a-restart
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**What it looks like:** A day or month shows negative energy, often in large "
+"amounts."
+msgstr ""
+"**So sieht es aus:** Ein Tag oder Monat zeigt negative Energie, oft in "
+"großer Höhe."
+
+#. type: #sec-negative-values-after-a-restart
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Why:** If OpenEMS cannot read the last meter reading in time after a "
+"restart (waiting time 15 seconds) or no file exists for it yet, the self-"
+"counted meter starts again at 0. The meter reading jumps down, and the "
+"difference becomes negative. The total values adopt such jumps. Although the "
+"description in the source code says that only rising values are adopted, "
+"this is not checked."
+msgstr ""
+"**Warum:** Wenn OpenEMS nach einem Neustart den letzten Zählerstand nicht "
+"rechtzeitig lesen kann (Wartezeit 15 Sekunden) oder dafür noch keine Datei "
+"existiert, beginnt der selbst gezählte Zähler wieder bei 0. Der Zählerstand "
+"springt nach unten, und die Differenz wird negativ. Die Summenwerte "
+"übernehmen solche Sprünge. In der Beschreibung im Quellcode steht zwar, dass "
+"nur steigende Werte übernommen werden, geprüft wird das aber nicht."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Huge value, followed by a negative one"
+msgstr "Riesiger Wert, danach ein negativer"
+
+#. type: #sec-huge-value-followed-by-a-negative-one
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**What it looks like:** An hour or day shows a completely unrealistic energy "
+"amount, the following period a negative value."
+msgstr ""
+"**So sieht es aus:** Eine Stunde oder ein Tag zeigt eine völlig "
+"unrealistische Energiemenge, die folgende Periode einen negativen Wert."
+
+#. type: #sec-huge-value-followed-by-a-negative-one
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Why:** The **highest** meter reading is stored per hour. A single wrong, "
+"too high measured value of a device (e.g. due to a transmission error) thus "
+"becomes the hourly value. An hour later the meter is correct again, and "
+"therefore lower."
+msgstr ""
+"**Warum:** Pro Stunde wird der **höchste** Zählerstand gespeichert. Ein "
+"einziger falscher, zu hoher Messwert eines Geräts (z. B. durch einen "
+"Übertragungsfehler) wird so zum Stundenwert. Eine Stunde später stimmt der "
+"Zähler wieder, liegt also niedriger."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Small negative values"
+msgstr "Kleine negative Werte"
+
+#. type: #sec-small-negative-values
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid "**What it looks like:** Occasional slightly negative values."
+msgstr "**So sieht es aus:** Vereinzelt leicht negative Werte."
+
+#. type: #sec-small-negative-values
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Why:** Some devices report a meter reading that jumps back briefly by a "
+"few watt hours. This can be smoothed harmlessly."
+msgstr ""
+"**Warum:** Manche Geräte melden einen Zählerstand, der kurz um wenige "
+"Wattstunden zurückspringt. Das lässt sich harmlos glätten."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Unrealistically high value on the first day"
+msgstr "Unrealistisch hoher Wert am ersten Tag"
+
+#. type: #sec-unrealistically-high-value-on-the-first-day
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**What it looks like:** On the day a device was added (or after a long "
+"break), a huge energy amount appears."
+msgstr ""
+"**So sieht es aus:** Am Tag, an dem ein Gerät hinzukam (oder nach einer "
+"langen Pause), erscheint eine riesige Energiemenge."
+
+#. type: #sec-unrealistically-high-value-on-the-first-day
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Why:** If there is no meter reading before the period, the entire meter "
+"reading is counted as energy. If a new device already has a high meter "
+"reading, the result is wrong."
+msgstr ""
+"**Warum:** Gibt es vor dem Zeitraum keinen Zählerstand, wird der ganze "
+"Zählerstand als Energie gezählt. Bringt ein neues Gerät bereits einen hohen "
+"Zählerstand mit, ist das Ergebnis falsch."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Energy 0 although the power curve looks normal"
+msgstr "Energie 0, obwohl die Leistungskurve normal aussieht"
+
+#. type: #sec-energy-0-although-the-power-curve-looks-normal
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"**Possible cause:** The meter reading was not counted further during this "
+"time, e.g. because a device did not supply any values after a restart. Since "
+"the history can also come from an InfluxDB or the backend, **first clarify "
+"which source the display comes from.**"
+msgstr ""
+"**Mögliche Ursache:** Der Zählerstand wurde in dieser Zeit nicht "
+"weitergezählt, z. B. weil ein Gerät nach einem Neustart keine Werte "
+"lieferte. Da die Historie auch aus einer InfluxDB oder dem Backend stammen "
+"kann, **zuerst klären, aus welcher Quelle die Anzeige stammt.**"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Missing values after time problems"
+msgstr "Fehlende Werte nach Zeitproblemen"
+
+#. type: #sec-missing-values-after-time-problems
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"If the clock of the device was once in the future (e.g. wrong time at "
+"startup), values with an “older” time are **discarded without a message** "
+"until the clock reaches this time again. Gaps arise during this time."
+msgstr ""
+"Stand die Uhr des Geräts einmal in der Zukunft (z. B. falsche Uhrzeit beim "
+"Start), werden Werte mit „älterer“ Zeit **ohne Meldung verworfen**, bis die "
+"Uhr diesen Zeitpunkt wieder erreicht. In dieser Zeit entstehen Lücken."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#, no-wrap
+msgid "Gaps during standstill"
+msgstr "Lücken bei Stillstand"
+
+#. type: #sec-gaps-during-standstill
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+msgid ""
+"If OpenEMS is not running, nothing is stored. For devices with their own "
+"meter, the energy of this time appears collectively after the restart. For "
+"devices whose energy OpenEMS counts itself from the power, it is missing "
+"entirely."
+msgstr ""
+"Läuft OpenEMS nicht, wird nichts gespeichert. Bei Geräten mit eigenem Zähler "
+"erscheint die Energie dieser Zeit gesammelt nach dem Neustart. Bei Geräten, "
+"deren Energie OpenEMS selbst aus der Leistung zählt, fehlt sie ganz."

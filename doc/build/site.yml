@@ -9,7 +9,13 @@ content:
     - url: ./../../
       edit_url: https://github.com/OpenEMS/openems/tree/develop/{path}
       branches: HEAD
-      start_path: doc
+      start_paths:
+        - doc
+        - doc/l10n/de
+
+antora:
+  extensions:
+    - '@antora/collector-extension'
 
 ui:
   bundle:

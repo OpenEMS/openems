@@ -1,0 +1,560 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "OpenEMS: Ripple control receiver"
+msgstr "OpenEMS: Rundsteuerempfänger"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"With a **ripple control receiver** (RCR), the grid operator can remotely "
+"limit the feed-in of a PV system, e.g. in the event of grid overload. The "
+"usual levels are **0 %, 30 % and 60 %** of the system power (as well as 100 "
+"% = no limitation). For this purpose, the receiver switches contacts that "
+"are evaluated by the energy management system."
+msgstr ""
+"Mit einem **Rundsteuerempfänger** (RSE) kann der Netzbetreiber die "
+"Einspeisung einer PV-Anlage aus der Ferne begrenzen, z. B. bei "
+"Netzüberlastung. Üblich sind die Stufen **0 %, 30 % und 60 %** der "
+"Anlagenleistung (sowie 100 % = keine Begrenzung). Der Empfänger schaltet "
+"dafür Kontakte, die das Energiemanagement auswertet."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The ripple control receiver is not the same as xref:user/storage-control/"
+"section-14a-enwg.adoc[§ 14a control]: the RCR limits **feed-in**, § 14a "
+"limits **grid purchase** (for the storage: the charging power)."
+msgstr ""
+"Der Rundsteuerempfänger ist nicht dasselbe wie die xref:user/storage-control/"
+"section-14a-enwg.adoc[§14a-Steuerung]: Der RSE begrenzt die **Einspeisung**, "
+"§14a den **Netzbezug** (beim Speicher: die Ladeleistung)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "Two variants"
+msgstr "Zwei Varianten"
+
+#. type: #sec-two-variants
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid "OpenEMS has two ways of integrating a ripple control receiver:"
+msgstr "OpenEMS kennt zwei Arten, einen Rundsteuerempfänger einzubinden:"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid ""
+"| Variant\n"
+"| Connection\n"
+"| Who limits\n"
+"\n"
+"| **Ripple control receiver** (“external limitation”)\n"
+"| on the **inverter**\n"
+"| the inverter itself; OpenEMS only switches on its RCR function\n"
+"| **Dynamic ripple control receiver**\n"
+"| on the **inputs of the control computer**\n"
+"| OpenEMS: it calculates the permitted feed-in and passes it on to the inverter\n"
+msgstr ""
+"| Variante\n"
+"| Anschluss\n"
+"| Wer begrenzt\n"
+"\n"
+"| **Rundsteuerempfänger** („externe Limitierung“)\n"
+"| am **Wechselrichter**\n"
+"| der Wechselrichter selbst; OpenEMS schaltet nur dessen RSE-Funktion ein\n"
+"| **Dynamischer Rundsteuerempfänger**\n"
+"| an den **Eingängen des Steuerrechners**\n"
+"| OpenEMS: Es berechnet die erlaubte Einspeisung und gibt sie an den Wechselrichter weiter\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"For FENECON Home and Commercial systems, you select the variant in the "
+"system app under “External limitation”: **No limitation**, **Ripple control "
+"receiver** or **Dynamic ripple control receiver**."
+msgstr ""
+"Bei FENECON-Home- und Commercial-Systemen wählt man die Variante in der "
+"System-App unter „Externe Limitierung“: **Keine Limitierung**, "
+"**Rundsteuerempfänger** oder **Dynamischer Rundsteuerempfänger**."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The **Home 10** (generation 1) only has a checkbox “Ripple control receiver "
+"active?”; this corresponds to the first variant. The dynamic ripple control "
+"receiver is not offered for the Home 10."
+msgstr ""
+"Beim **Home 10** (Generation 1) gibt es nur ein Häkchen „Rundsteuerempfänger "
+"aktiviert?“; das entspricht der ersten Variante. Der dynamische "
+"Rundsteuerempfänger wird beim Home 10 nicht angeboten."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The dynamic ripple control receiver is set up by the apps for **Home 6, Home "
+"10 Gen2, Home 15, Home 20, Home 30** and for the Commercial systems 50 Gen3 "
+"and 100. A prerequisite is a control computer with its own digital inputs."
+msgstr ""
+"Den dynamischen Rundsteuerempfänger richten die Apps für **Home 6, Home 10 "
+"Gen2, Home 15, Home 20, Home 30** und für die Commercial-Systeme 50 Gen3 und "
+"100 ein. Voraussetzung ist ein Steuerrechner mit eigenen digitalen Eingängen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "Dynamic ripple control receiver in detail"
+msgstr "Dynamischer Rundsteuerempfänger im Detail"
+
+#. type: #sec-dynamic-ripple-control-receiver-in-detail
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The function is called **Controller.Ess.RippleControlReceiver** (usually "
+"`+ctrlEssRippleControlReceiver0+`)."
+msgstr ""
+"Die Funktion heißt **Controller.Ess.RippleControlReceiver** (meist "
+"`+ctrlEssRippleControlReceiver0+`)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#, no-wrap
+msgid "Connection"
+msgstr "Anschluss"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid ""
+"| Input (default)\n"
+"| Level\n"
+"| Permitted feed-in\n"
+"\n"
+"| `+…/DigitalInput2+`\n"
+"| 0 %\n"
+"| no feed-in\n"
+"| `+…/DigitalInput3+`\n"
+"| 30 %\n"
+"| 30 %\n"
+"| `+…/DigitalInput4+`\n"
+"| 60 %\n"
+"| 60 %\n"
+"| no input active\n"
+"| 100 %\n"
+"| no limitation by the RCR\n"
+msgstr ""
+"| Eingang (Standard)\n"
+"| Stufe\n"
+"| erlaubte Einspeisung\n"
+"\n"
+"| `+…/DigitalInput2+`\n"
+"| 0 %\n"
+"| keine Einspeisung\n"
+"| `+…/DigitalInput3+`\n"
+"| 30 %\n"
+"| 30 %\n"
+"| `+…/DigitalInput4+`\n"
+"| 60 %\n"
+"| 60 %\n"
+"| kein Eingang aktiv\n"
+"| 100 %\n"
+"| keine Begrenzung durch den RSE\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"On these systems, the first digital input is reserved for xref:user/storage-"
+"control/section-14a-enwg.adoc[§ 14a control]."
+msgstr ""
+"Der erste digitale Eingang ist bei diesen Systemen für die xref:user/storage-"
+"control/section-14a-enwg.adoc[§14a-Steuerung] reserviert."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"If several inputs are active at the same time, the **strictest** level "
+"applies: 0 % before 30 % before 60 %."
+msgstr ""
+"Sind mehrere Eingänge gleichzeitig aktiv, gilt die **strengste** Stufe: 0 % "
+"vor 30 % vor 60 %."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The inputs are evaluated **inverted** (noted in the code as a peculiarity of "
+"the relay board): a level is active when the input reports “off”. If an "
+"input does not supply any value, it is considered inactive."
+msgstr ""
+"Die Eingänge werden **invertiert** ausgewertet (im Code als Eigenheit der "
+"Relaisplatine vermerkt): Eine Stufe ist aktiv, wenn der Eingang „aus“ "
+"meldet. Liefert ein Eingang keinen Wert, gilt er als nicht aktiv."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid "In **island mode** there is no limitation."
+msgstr "Im **Inselbetrieb** wird nicht begrenzt."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "What the percentages refer to"
+msgstr "Worauf sich die Prozente beziehen"
+
+#. type: #sec-what-the-percentages-refer-to
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The percentages refer to the **maximum apparent power of the storage/hybrid "
+"inverter**:"
+msgstr ""
+"Die Prozentwerte beziehen sich auf die **maximale Scheinleistung des "
+"Speicher-/Hybrid-Wechselrichters**:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid ""
+"permitted feed-in = maximum inverter power × level\n"
+"Example: 10 kVA inverter, level 30 %  →  maximum 3,000 W feed-in\n"
+msgstr ""
+"erlaubte Einspeisung = maximale Wechselrichterleistung × Stufe\n"
+"Beispiel: 10 kVA-Wechselrichter, Stufe 30 %  →  höchstens 3.000 W Einspeisung\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"If the maximum inverter power is not (yet) known, OpenEMS sets **0 W** as "
+"the limit as a precaution when a level is active."
+msgstr ""
+"Ist die maximale Wechselrichterleistung (noch) nicht bekannt, setzt OpenEMS "
+"bei aktiver Stufe vorsichtshalber **0 W** als Grenze."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"If a general feed-in limit (e.g. 60 % rule from the system settings) applies "
+"at the same time, the **smaller** of the two values is used."
+msgstr ""
+"Gilt gleichzeitig eine allgemeine Einspeisegrenze (z. B. 60 %-Regel aus den "
+"Systemeinstellungen), wird der **kleinere** der beiden Werte verwendet."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "What happens to the surplus"
+msgstr "Was mit dem Überschuss passiert"
+
+#. type: #sec-what-happens-to-the-surplus
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid "The permitted feed-in has an effect on two levels:"
+msgstr "Die erlaubte Einspeisung wirkt auf zwei Ebenen:"
+
+#. type: #sec-what-happens-to-the-surplus
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"**Inverter:** The limit is transferred to the inverter as a feed-in "
+"limitation. It controls the PV power so that no more is fed in at the grid "
+"connection."
+msgstr ""
+"**Wechselrichter:** Die Grenze wird als Einspeisebegrenzung an den "
+"Wechselrichter übertragen. Er regelt die PV-Leistung so, dass am "
+"Netzanschluss nicht mehr eingespeist wird."
+
+#. type: #sec-what-happens-to-the-surplus
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"**Storage:** xref:user/storage-control/grid-optimized-charge.adoc[Grid-"
+"optimized charge] adopts the feed-in permitted by the RCR as its limit. The "
+"storage then charges the part of the PV power that may not be fed in. This "
+"way, as little solar power as possible is lost through curtailment. If "
+"xref:user/storage-control/time-of-use-tariffs.adoc[price control] is active, "
+"grid-optimized charge is switched off (see next section)."
+msgstr ""
+"**Speicher:** Die xref:user/storage-control/grid-optimized-"
+"charge.adoc[netzdienliche Beladung] übernimmt die vom RSE erlaubte "
+"Einspeisung als ihre Grenze. Der Speicher lädt dann den Teil der PV-"
+"Leistung, der nicht eingespeist werden darf. So geht möglichst wenig "
+"Solarstrom durch die Abregelung verloren. Ist die xref:user/storage-control/"
+"time-of-use-tariffs.adoc[Preissteuerung] aktiv, ist die netzdienliche "
+"Beladung abgeschaltet (siehe nächster Abschnitt)."
+
+#. type: #sec-what-happens-to-the-surplus
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"PV power is only actually curtailed when the storage is full or cannot "
+"charge fast enough."
+msgstr ""
+"Erst wenn der Speicher voll ist oder nicht schnell genug laden kann, wird "
+"die PV-Leistung tatsächlich abgeregelt."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "Interaction with price control"
+msgstr "Zusammenspiel mit der Preissteuerung"
+
+#. type: #sec-interaction-with-price-control
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"If xref:user/storage-control/time-of-use-tariffs.adoc[price control] is "
+"active, **neither planning nor ongoing control** takes the RCR level into "
+"account:"
+msgstr ""
+"Ist die xref:user/storage-control/time-of-use-tariffs.adoc[Preissteuerung] "
+"aktiv, berücksichtigt **weder die Planung noch die laufende Steuerung** die "
+"RSE-Stufe:"
+
+#. type: #sec-interaction-with-price-control
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"**Planning:** In the xref:user/schedule/overview.adoc[schedule], the energy "
+"optimizer only calculates with the feed-in limit from the system settings or "
+"the fusing of the grid connection. An RCR level could not be planned in "
+"advance anyway because it cannot be foreseen."
+msgstr ""
+"**Planung:** Der Energie-Optimierer rechnet im xref:user/schedule/"
+"overview.adoc[Fahrplan] nur mit der Einspeisegrenze aus den "
+"Systemeinstellungen bzw. der Absicherung des Netzanschlusses. Eine RSE-Stufe "
+"ließe sich ohnehin nicht vorab planen, weil sie nicht vorhersehbar ist."
+
+#. type: #sec-interaction-with-price-control
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"**Ongoing operation:** Price control protects a feed-in limit by having the "
+"storage charge more (“Avoid feed-in limit”). It also only uses the limit "
+"from the system settings, not the RCR level."
+msgstr ""
+"**Laufender Betrieb:** Die Preissteuerung schützt eine Einspeisegrenze, "
+"indem sie den Speicher mehr laden lässt („Einspeiselimitierung vermeiden“). "
+"Dabei verwendet sie ebenfalls nur die Grenze aus den Systemeinstellungen, "
+"nicht die RSE-Stufe."
+
+#. type: #sec-interaction-with-price-control
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The limitation itself nevertheless remains effective because the inverter "
+"complies with it. However, PV power may be curtailed that the storage could "
+"have absorbed. This applies, for example, if the schedule currently provides "
+"for delayed or limited charging because the storage is only to be charged "
+"later."
+msgstr ""
+"Die Begrenzung selbst bleibt trotzdem wirksam, weil der Wechselrichter sie "
+"einhält. Es kann aber PV-Leistung abgeregelt werden, die der Speicher hätte "
+"aufnehmen können. Das gilt z. B. dann, wenn der Fahrplan gerade verzögertes "
+"oder gedrosseltes Laden vorsieht, weil der Speicher erst später geladen "
+"werden soll."
+
+#. type: #sec-interaction-with-price-control
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"Without price control (or in “Off” mode), grid-optimized charge is at work, "
+"and it takes the RCR level into account."
+msgstr ""
+"Ohne Preissteuerung (bzw. im Modus „Aus“) arbeitet die netzdienliche "
+"Beladung, und sie berücksichtigt die RSE-Stufe."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "What is recorded"
+msgstr "Was aufgezeichnet wird"
+
+#. type: Table
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid ""
+"| Value\n"
+"| Meaning\n"
+"\n"
+"| `+RestrictionMode+`\n"
+"| current level: no limitation, 0 %, 30 % or 60 %\n"
+"| `+CumulatedRestrictionTime+`\n"
+"| total duration of all limitations in seconds (across all levels)\n"
+msgstr ""
+"| Wert\n"
+"| Bedeutung\n"
+"\n"
+"| `+RestrictionMode+`\n"
+"| aktuelle Stufe: keine Begrenzung, 0 %, 30 % oder 60 %\n"
+"| `+CumulatedRestrictionTime+`\n"
+"| Gesamtdauer aller Begrenzungen in Sekunden (über alle Stufen zusammen)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"Both values are stored with high priority in the xref:user/data/history-"
+"rrd4j.adoc[history]. This makes it possible to trace when and for how long "
+"the grid operator limited feed-in."
+msgstr ""
+"Beide Werte werden mit hoher Priorität in der xref:user/data/history-"
+"rrd4j.adoc[Historie] gespeichert. Damit lässt sich nachvollziehen, wann und "
+"wie lange der Netzbetreiber die Einspeisung begrenzt hat."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#, no-wrap
+msgid "Display in the web interface"
+msgstr "Anzeige in der Weboberfläche"
+
+#. type: #sec-display-in-the-web-interface
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"In the **grid widget**, a line “Feed-in limitation” appears during a "
+"limitation with the permitted feed-in in percent and a note about the ripple "
+"control receiver."
+msgstr ""
+"Im **Netz-Widget** erscheint während einer Begrenzung eine Zeile "
+"„Einspeiselimitierung“ mit der erlaubten Einspeisung in Prozent und dem "
+"Hinweis auf den Rundsteuerempfänger."
+
+#. type: #sec-display-in-the-web-interface
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"In the **grid history**, periods with limitation are marked in the chart, as "
+"are § 14a interventions and island mode."
+msgstr ""
+"In der **Netz-Historie** werden Zeiträume mit Begrenzung im Diagramm "
+"markiert, ebenso wie §14a-Eingriffe und Inselbetrieb."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "Order"
+msgstr "Reihenfolge"
+
+#. type: #sec-order
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The RCR controller runs in the fixed order of control functions directly "
+"after the § 14a limitation and before all other storage functions."
+msgstr ""
+"Der RSE-Controller läuft in der festen Reihenfolge der Regelfunktionen "
+"direkt nach der §14a-Begrenzung und vor allen anderen Speicher-Funktionen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#, no-wrap
+msgid "Variant “Ripple control receiver on the inverter”"
+msgstr "Variante „Rundsteuerempfänger am Wechselrichter“"
+
+#. type: #sec-variant-ripple-control-receiver-on-the-inverter
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"With this variant, the receiver is connected directly to the inverter. "
+"OpenEMS only switches on the “Ripple Control Receiver” function in its "
+"settings. The limitation is carried out by the inverter itself. It follows "
+"that:"
+msgstr ""
+"Bei dieser Variante ist der Empfänger direkt am Wechselrichter "
+"angeschlossen. OpenEMS schaltet in dessen Einstellungen nur die Funktion "
+"„Ripple Control Receiver“ ein. Die Begrenzung führt der Wechselrichter "
+"selbst durch. Daraus folgt:"
+
+#. type: #sec-variant-ripple-control-receiver-on-the-inverter
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid "OpenEMS does **not** know the current level and does not record it."
+msgstr "OpenEMS kennt die aktuelle Stufe **nicht** und zeichnet sie nicht auf."
+
+#. type: #sec-variant-ripple-control-receiver-on-the-inverter
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"Grid-optimized charge knows nothing about the limitation. The storage "
+"therefore does not specifically charge the part that may not be fed in. The "
+"inverter curtails the PV power directly."
+msgstr ""
+"Die netzdienliche Beladung weiß nichts von der Begrenzung. Der Speicher lädt "
+"deshalb nicht gezielt den Teil, der nicht eingespeist werden darf. Der "
+"Wechselrichter regelt die PV-Leistung direkt ab."
+
+#. type: #sec-variant-ripple-control-receiver-on-the-inverter
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"For the combination with a storage system, the **dynamic** variant is "
+"therefore the better choice if the system supports it."
+msgstr ""
+"Für die Kombination mit einem Speicher ist deshalb die **dynamische** "
+"Variante die bessere Wahl, sofern das System sie unterstützt."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"In OpenEMS, the percentage levels refer to the power of the **storage/hybrid "
+"inverter**, not to the installed PV power (kWp). For systems whose PV power "
+"differs significantly, this may differ from the specification of the grid "
+"operator. If in doubt, clarify with the grid operator or installer."
+msgstr ""
+"Die Prozentstufen beziehen sich in OpenEMS auf die Leistung des **Speicher-/"
+"Hybrid-Wechselrichters**, nicht auf die installierte PV-Leistung (kWp). Bei "
+"Anlagen, deren PV-Leistung deutlich davon abweicht, kann das von der Vorgabe "
+"des Netzbetreibers abweichen. Im Zweifel mit dem Netzbetreiber bzw. "
+"Installateur klären."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The assignment of the inputs is fixed: input 2 = 0 %, input 3 = 30 %, input "
+"4 = 60 %. The wiring must match."
+msgstr ""
+"Die Zuordnung der Eingänge ist fest: Eingang 2 = 0 %, Eingang 3 = 30 %, "
+"Eingang 4 = 60 %. Die Verdrahtung muss dazu passen."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+msgid ""
+"The RCR only limits feed-in. Self-consumption and storage charging remain "
+"possible."
+msgstr ""
+"Der RSE begrenzt nur die Einspeisung. Eigenverbrauch und Speicherbeladung "
+"bleiben möglich."

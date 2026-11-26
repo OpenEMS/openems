@@ -1,0 +1,402 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr "Einrichtung"
+
+#. type: Title =
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "OpenEMS: Control via REST/JSON"
+msgstr "OpenEMS: Steuern über REST/JSON"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"Via the REST interface, third-party systems such as a home automation system "
+"(Home Assistant, ioBroker, Node-RED …) or your own scripts can **read values "
+"from OpenEMS and control the system**. Simple HTTP calls are sufficient."
+msgstr ""
+"Über die REST-Schnittstelle können Fremdsysteme wie eine Hausautomation "
+"(Home Assistant, ioBroker, Node-RED …) oder eigene Skripte **Werte aus "
+"OpenEMS lesen und die Anlage steuern**. Es genügen einfache HTTP-Aufrufe."
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "There are two variants:"
+msgstr "Es gibt zwei Varianten:"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid ""
+"| Function\n"
+"| allows\n"
+"\n"
+"| Controller.Api.Rest.ReadOnly\n"
+"| reading only\n"
+"| Controller.Api.Rest.ReadWrite\n"
+"| reading and controlling\n"
+msgstr ""
+"| Funktion\n"
+"| erlaubt\n"
+"\n"
+"| Controller.Api.Rest.ReadOnly\n"
+"| nur lesen\n"
+"| Controller.Api.Rest.ReadWrite\n"
+"| lesen und steuern\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "**Port:** 8084 by default."
+msgstr "**Port:** standardmäßig 8084."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**Login:** with the password of an OpenEMS user. The user name is arbitrary; "
+"`+x+` is common. What is allowed depends on the role of the user."
+msgstr ""
+"**Anmeldung:** mit dem Passwort eines OpenEMS-Benutzers. Der Benutzername "
+"ist beliebig, üblich ist `+x+`. Was erlaubt ist, hängt von der Rolle des "
+"Benutzers ab."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "**Api-Timeout:** 60 seconds by default (explanation below)."
+msgstr "**Api-Timeout:** standardmäßig 60 Sekunden (Erklärung unten)."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"Tip: If you only want to read current values, use the ReadOnly variant. The "
+"address `+/jsonrpc+` does not work there, not even for pure queries such as "
+"histories; this requires the ReadWrite variant and at least the Owner role "
+"(see xref:user/data/export.adoc[Exporting data])."
+msgstr ""
+"Tipp: Wer nur aktuelle Werte lesen will, sollte die ReadOnly-Variante "
+"verwenden. Die Adresse `+/jsonrpc+` funktioniert dort nicht, auch nicht für "
+"reine Abfragen wie Verläufe; dafür ist die ReadWrite-Variante und mindestens "
+"die Rolle Eigentümer nötig (siehe xref:user/data/export.adoc[Daten "
+"exportieren])."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "Reading values"
+msgstr "Werte lesen"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/rest/channel/_sum/EssSoc\n"
+msgstr "http://x:PASSWORT@IP-DER-ANLAGE:8084/rest/channel/_sum/EssSoc\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "returns, for example, the state of charge of the storage with its unit:"
+msgstr "liefert z. B. den Ladezustand des Speichers mit Einheit:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "{\"type\":\"INTEGER\",\"accessMode\":\"RO\",\"text\":\"\",\"unit\":\"%\",\"value\":57}\n"
+msgstr "{\"type\":\"INTEGER\",\"accessMode\":\"RO\",\"text\":\"\",\"unit\":\"%\",\"value\":57}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"Wildcards can be used to query several values at once, e.g. the power of all "
+"meters: `+/rest/channel/meter.*/ActivePower+`."
+msgstr ""
+"Mit Platzhaltern lassen sich mehrere Werte auf einmal abfragen, z. B. die "
+"Leistung aller Zähler: `+/rest/channel/meter.*/ActivePower+`."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "Frequently used values:"
+msgstr "Häufig genutzte Werte:"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid ""
+"| Address\n"
+"| Meaning\n"
+"\n"
+"| `+_sum/GridActivePower+`\n"
+"| Grid power (positive = purchase, negative = feed-in)\n"
+"| `+_sum/ProductionActivePower+`\n"
+"| Solar power\n"
+"| `+_sum/ConsumptionActivePower+`\n"
+"| Consumption\n"
+"| `+_sum/EssSoc+`\n"
+"| State of charge of the storage\n"
+"| `+_sum/EssDischargePower+`\n"
+"| Storage power (positive = discharging)\n"
+msgstr ""
+"| Adresse\n"
+"| Bedeutung\n"
+"\n"
+"| `+_sum/GridActivePower+`\n"
+"| Netzleistung (positiv = Bezug, negativ = Einspeisung)\n"
+"| `+_sum/ProductionActivePower+`\n"
+"| Solarleistung\n"
+"| `+_sum/ConsumptionActivePower+`\n"
+"| Verbrauch\n"
+"| `+_sum/EssSoc+`\n"
+"| Ladezustand des Speichers\n"
+"| `+_sum/EssDischargePower+`\n"
+"| Speicherleistung (positiv = Entladen)\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "Controlling: two fundamentally different routes"
+msgstr "Steuern: zwei grundverschiedene Wege"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Setting a control value\n"
+"| Changing a setting\n"
+"\n"
+"| Example\n"
+"| “Charge the storage with 2 kW now”, “Relay 1 on”\n"
+"| “Switch off price control”, “Set risk propensity to High”\n"
+"| Duration\n"
+"| **temporary**\n"
+"| **permanent**, also after a restart\n"
+"| Role\n"
+"| Owner (via this route)\n"
+"| Owner\n"
+"| Suitable for\n"
+"| frequent, ongoing control\n"
+"| rare changes\n"
+msgstr ""
+"| \n"
+"| Steuerwert setzen\n"
+"| Einstellung ändern\n"
+"\n"
+"| Beispiel\n"
+"| „Speicher jetzt mit 2 kW laden“, „Relais 1 ein“\n"
+"| „Preissteuerung ausschalten“, „Risikobereitschaft auf Hoch“\n"
+"| Dauer\n"
+"| **vorübergehend**\n"
+"| **dauerhaft**, auch nach Neustart\n"
+"| Rolle\n"
+"| Eigentümer (über diesen Weg)\n"
+"| Eigentümer\n"
+"| Geeignet für\n"
+"| häufige, laufende Steuerung\n"
+"| seltene Änderungen\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "Setting a control value"
+msgstr "Steuerwert setzen"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid ""
+"POST http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/rest/channel/ess0/SetActivePowerEquals\n"
+"Body: {\"value\": -2000}\n"
+msgstr ""
+"POST http://x:PASSWORT@IP-DER-ANLAGE:8084/rest/channel/ess0/SetActivePowerEquals\n"
+"Inhalt: {\"value\": -2000}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"(For the storage, a negative value means charging, a positive value "
+"discharging.)"
+msgstr ""
+"(Beim Speicher bedeutet ein negativer Wert Laden, ein positiver Entladen.)"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**Important – the Api-Timeout:** A control value only applies as long as it "
+"is renewed regularly. If no new value arrives within the Api-Timeout "
+"(default 60 seconds), OpenEMS discards it and the system returns to its "
+"normal behavior."
+msgstr ""
+"**Wichtig – der Api-Timeout:** Ein gesetzter Steuerwert gilt nur, solange er "
+"regelmäßig erneuert wird. Kommt innerhalb des Api-Timeouts (Standard 60 "
+"Sekunden) kein neuer Wert, verwirft OpenEMS ihn, und die Anlage kehrt zu "
+"ihrem normalen Verhalten zurück."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"This is a **protective function**: if the home automation system fails, the "
+"storage does not remain permanently on an old command."
+msgstr ""
+"Das ist eine **Schutzfunktion**: Fällt die Hausautomation aus, bleibt der "
+"Speicher nicht dauerhaft auf einem alten Befehl stehen."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**If you want to control permanently, you must send the value regularly**, "
+"significantly more often than the timeout, e.g. every 10 to 30 seconds."
+msgstr ""
+"**Wer dauerhaft steuern will, muss den Wert regelmäßig senden**, deutlich "
+"häufiger als der Timeout, z. B. alle 10 bis 30 Sekunden."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "An empty value cancels the command immediately."
+msgstr "Ein leerer Wert hebt den Befehl sofort auf."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"Only values intended for control can be set. For pure measured values, the "
+"message “is not a Write Channel” appears. Other functions and limits "
+"continue to apply, e.g. the emergency reserve or the grid limits. A command "
+"is therefore not always implemented in full."
+msgstr ""
+"Nur Werte, die zum Steuern gedacht sind, können gesetzt werden. Bei reinen "
+"Messwerten kommt die Meldung „is not a Write Channel“. Andere Funktionen und "
+"Grenzen gelten weiter, z. B. die Notstromreserve oder die Netzgrenzen. Ein "
+"Befehl wird deshalb nicht immer vollständig umgesetzt."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "Changing a setting"
+msgstr "Einstellung ändern"
+
+#. type: #sec-changing-a-setting
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"Settings are changed via the address `+/jsonrpc+` (see xref:user/external-"
+"interfaces/json-rpc.adoc[JSON-RPC]):"
+msgstr ""
+"Einstellungen werden über die Adresse `+/jsonrpc+` geändert (siehe xref:user/"
+"external-interfaces/json-rpc.adoc[JSON-RPC]):"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid ""
+"POST http://x:PASSWORD@IP-OF-THE-SYSTEM:8084/jsonrpc\n"
+"Body:\n"
+"{\n"
+"  \"method\": \"updateComponentConfig\",\n"
+"  \"params\": {\n"
+"    \"componentId\": \"ctrlEssTimeOfUseTariff0\",\n"
+"    \"properties\": [ { \"name\": \"mode\", \"value\": \"OFF\" } ]\n"
+"  }\n"
+"}\n"
+msgstr ""
+"POST http://x:PASSWORT@IP-DER-ANLAGE:8084/jsonrpc\n"
+"Inhalt:\n"
+"{\n"
+"  \"method\": \"updateComponentConfig\",\n"
+"  \"params\": {\n"
+"    \"componentId\": \"ctrlEssTimeOfUseTariff0\",\n"
+"    \"properties\": [ { \"name\": \"mode\", \"value\": \"OFF\" } ]\n"
+"  }\n"
+"}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"The change is saved and applies immediately. **Do not change settings every "
+"minute.** Each change is written to the memory of the device, and on SD "
+"cards or eMMC frequent writing leads to wear in the long term. Control "
+"values are intended for ongoing control."
+msgstr ""
+"Die Änderung wird gespeichert und gilt sofort. **Einstellungen nicht im "
+"Minutentakt ändern.** Jede Änderung wird auf den Speicher des Geräts "
+"geschrieben, und bei SD-Karten oder eMMC führt häufiges Schreiben auf Dauer "
+"zu Verschleiß. Für laufende Steuerung sind Steuerwerte gedacht."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#, no-wrap
+msgid "Common problems"
+msgstr "Häufige Probleme"
+
+#. type: #sec-common-problems
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**Command only works for one minute:** This is the Api-Timeout. The value "
+"must be sent again regularly."
+msgstr ""
+"**Befehl wirkt nur eine Minute:** Das ist der Api-Timeout. Der Wert muss "
+"regelmäßig erneut gesendet werden."
+
+#. type: #sec-common-problems
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**“is not a Write Channel”:** The value is read-only. Often a setting is "
+"what is actually meant."
+msgstr ""
+"**„is not a Write Channel“:** Der Wert ist nur lesbar. Oft ist eigentlich "
+"eine Einstellung gemeint."
+
+#. type: #sec-common-problems
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "**Access denied:** The role of the user is not sufficient."
+msgstr "**Zugriff verweigert:** Die Rolle des Benutzers reicht nicht aus."
+
+#. type: #sec-common-problems
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid "**“Read-Only mode”:** Only the ReadOnly variant is set up."
+msgstr "**„Read-Only mode“:** Es ist nur die ReadOnly-Variante eingerichtet."
+
+#. type: #sec-common-problems
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+msgid ""
+"**Wrong address:** Settings go to `+/jsonrpc+`. The documentation in the "
+"source code incorrectly mentions `+/rest/jsonrpc+`."
+msgstr ""
+"**Falsche Adresse:** Einstellungen gehen an `+/jsonrpc+`. Die Dokumentation "
+"im Quellcode nennt fälschlich `+/rest/jsonrpc+`."

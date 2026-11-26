@@ -1,0 +1,378 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Limits"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Typical questions"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid "OpenEMS: evcc"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"evcc is software for PV surplus charging of electric cars. It controls "
+"wallboxes itself and needs grid, PV and storage values for this. For OpenEMS "
+"(and FENECON FEMS), evcc comes with **two templates** for meters: one via "
+"the REST interface, one via Modbus/TCP. With both, evcc can additionally "
+"**control the OpenEMS storage to a certain extent**."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"There is no connection in the opposite direction (OpenEMS reads or controls "
+"evcc) in the OpenEMS code."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"The basis is the templates and source code of evcc as well as the OpenEMS "
+"source code. Nothing has been tried out here. The page xref:user/third-party/"
+"overview.adoc[Third-party systems on OpenEMS] gives a comparison with Home "
+"Assistant and openWB."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid "The two templates"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| “OpenEMS / FENECON – REST-API”\n"
+"| “OpenEMS / FENECON – Modbus-API”\n"
+"\n"
+"| Route\n"
+"| HTTP to `+/rest/channel/…+`\n"
+"| Modbus/TCP\n"
+"| Prerequisite in OpenEMS (read only)\n"
+"| REST/JSON API read access\n"
+"| Modbus/TCP interface read access\n"
+"| Prerequisite (controlling the storage)\n"
+"| REST/JSON API read/write access\n"
+"| Modbus/TCP interface read/write access\n"
+"| Login\n"
+"| User “x” and password (basic authentication)\n"
+"| none\n"
+"| Address\n"
+"| Host name; without a port the request goes to port 80\n"
+"| Host name and port\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Note on the port:** The REST template appends `+/rest/…+` directly to the "
+"entered host name. Without a port, evcc therefore queries port 80. On "
+"OpenEMS, the REST interface is on port 8084 by default; the address must "
+"then be entered with `+:8084+`. The template also specifies a default "
+"password, which must match your own system."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"For FENECON systems, evcc points out that a paid write app is required for "
+"storage control."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"In evcc, you create a separate meter with the same template for each use: "
+"**grid**, **PV** and **battery**."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Which values are read"
+msgstr ""
+
+#. type: #sec-which-values-are-read
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid "Both templates only read total values (`+_sum+`):"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid ""
+"| Use in evcc\n"
+"| Value\n"
+"| Channel in OpenEMS\n"
+"| Modbus register (default)\n"
+"\n"
+".2+| Grid\n"
+"| Power\n"
+"| `+_sum/GridActivePower+`\n"
+"| 315\n"
+"| Purchase meter reading\n"
+"| `+_sum/GridBuyActiveEnergy+`\n"
+"| 359\n"
+".2+| PV\n"
+"| Power\n"
+"| `+_sum/ProductionActivePower+`\n"
+"| 327\n"
+"| Meter reading\n"
+"| `+_sum/ProductionActiveEnergy+`\n"
+"| 367\n"
+".2+| Battery\n"
+"| Power\n"
+"| `+_sum/EssDischargePower+`\n"
+"| 415\n"
+"| State of charge\n"
+"| `+_sum/EssSoc+`\n"
+"| 302\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"evcc queries the values in its control cycle (default 30 seconds); the REST "
+"template keeps each value in the cache for 1 second. Each value is a "
+"separate request."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid "For the grid, only the purchase is read, not the feed-in."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Modbus registers:** The register numbers are defaults. In OpenEMS, the "
+"addresses depend on which components are entered in the Modbus interface and "
+"in what order; the Modbus app offers its register table as an Excel file. "
+"Recalculated from the code: The defaults match if `+_sum+` is entered as the "
+"first component and `+ess0+` as the second component in the Modbus "
+"interface. The registers for grid, PV and storage power and the state of "
+"charge are then in `+_sum+`. The control register 710 only hits “discharge "
+"power at most” of `+ess0+` if its table begins with the usual sections, e.g. "
+"with the FENECON Home. With storage systems with an additional section for "
+"separate three-phase values (e.g. FENECON Pro, Victron), it is located "
+"elsewhere. Therefore compare with your own register table before use."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid "What evcc can control"
+msgstr ""
+
+#. type: #sec-what-evcc-can-control
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"If the controllable battery is specified in the battery use (REST: component "
+"ID, e.g. `+ess0+`; Modbus: switch “controls battery component”), evcc can "
+"put the storage into three operating modes. The same control value is always "
+"written, the **upper limit of the storage power** "
+"(`+SetActivePowerLessOrEquals+`, see xref:user/external-interfaces/rest-"
+"control.adoc#sec-setting-a-control-value[Setting a control value]):"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#, no-wrap
+msgid ""
+"| evcc operating mode\n"
+"| Written value\n"
+"| Effect in OpenEMS\n"
+"\n"
+"| Normal\n"
+"| 0, once\n"
+"| see peculiarity below\n"
+"| Hold\n"
+"| 0, repeated every 30 seconds\n"
+"| Storage may **not discharge**; charging from PV surplus remains possible\n"
+"| Charge\n"
+"| minus maximum charging power, repeated every 30 seconds\n"
+"| Storage is charged with at least this power, from the grid if necessary; only if a maximum charging power is entered in evcc\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Repetition:** OpenEMS discards a control value that is not renewed within "
+"the Api-Timeout (default 60 seconds). evcc therefore repeats it every half "
+"timeout period in the Hold and Charge operating modes. The timeout can be "
+"set in the template (“watchdog”, default 60 s) and should match the Api-"
+"Timeout of the OpenEMS app."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**When evcc uses the operating modes:** e.g. “Hold” so that the home storage "
+"is not discharged into the car during fast charging (setting “lock battery "
+"discharge”), or “Charge” with a low dynamic electricity price (grid charging "
+"of the home storage). Without such settings, evcc stays on “Normal”."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Peculiarity (from the code of evcc and OpenEMS, not tried out):** For "
+"“Normal”, the template writes the value 0 once and does not repeat it. In "
+"OpenEMS, the value 0 means “do not discharge”. According to the code, when "
+"switching back to “Normal”, discharging therefore remains locked until the "
+"Api-Timeout expires (up to 60 seconds) before OpenEMS returns to normal "
+"control. According to the OpenEMS code, an empty value, on the other hand, "
+"cancels the control value immediately."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Not covered:** evcc also has the operating modes “Discharge to grid” and "
+"“Hold and charge”. The OpenEMS templates have no entry for these."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Total values only:** Individual meters, inverters or storage systems are "
+"not distinguished."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Control via one value only:** evcc only specifies an upper limit. All "
+"OpenEMS limits continue to apply, e.g. emergency reserve, battery limits and "
+"other control functions. Charging at the specified power only succeeds if "
+"the battery and inverter allow it (see xref:user/systems/fenecon-home-"
+"battery.adoc[FENECON Home battery])."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Interaction with control functions in OpenEMS:** A time-of-use tariff or "
+"grid-optimized charge in OpenEMS work independently of evcc. If evcc "
+"specifies “Charge” and OpenEMS something else at the same time, the stricter "
+"limit applies in each case. It is best if only one of the two systems "
+"controls the storage."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**No memory wear:** Control values are only held in RAM in OpenEMS; frequent "
+"writing is harmless (unlike with settings, see xref:user/external-interfaces/"
+"websocket.adoc#sec-note-do-not-write-the-configuration-frequently[Note])."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Unencrypted:** REST with basic authentication in plain text; Modbus/TCP "
+"with no login at all. Do not expose ports to the internet."
+msgstr ""
+
+#. type: #sec-limits
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Modbus without login:** Anyone who activates the Modbus write app allows "
+"every device on the network to control the storage."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid "**REST or Modbus?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"REST is easier to set up because the channels are addressed by name. Modbus "
+"does not need a login, but the register numbers must match your own system."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"**Why does the storage not discharge again immediately after car charging "
+"ends?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"See peculiarity above: the last “do not discharge” specification can still "
+"apply for up to 60 seconds."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid "**evcc reports no values, error 401 or connection refused.**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+msgid ""
+"Check the password (401) and the port: with OpenEMS, usually append "
+"`+:8084+` to the address."
+msgstr ""

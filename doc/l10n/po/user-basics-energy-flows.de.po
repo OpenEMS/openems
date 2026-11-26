@@ -1,0 +1,1065 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title =
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:1
+#, no-wrap
+msgid "OpenEMS: Production, consumption, grid and storage"
+msgstr "OpenEMS: Erzeugung, Verbrauch, Netz und Speicher"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:9
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:11
+msgid ""
+"This page explains the basic terms that appear everywhere in the web "
+"interface and in the history, and where the values come from: **What is "
+"measured and what does OpenEMS calculate?** This is particularly helpful "
+"when values seem implausible."
+msgstr ""
+"Diese Seite erklärt die Grundbegriffe, die in der Weboberfläche und in der "
+"Historie überall vorkommen, und woher die Werte kommen: **Was wird gemessen, "
+"was rechnet OpenEMS aus?** Das hilft vor allem dann, wenn Werte unplausibel "
+"erscheinen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:13
+#, no-wrap
+msgid "The basic terms"
+msgstr "Die Grundbegriffe"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:34
+#, no-wrap
+msgid ""
+"| Term\n"
+"| Meaning\n"
+"\n"
+"| **Production** (generation)\n"
+"| Electricity supplied by your own producers, usually the PV system. Includes AC producers (PV inverters, production meters) and DC producers (PV modules directly on the hybrid inverter).\n"
+"| **Grid purchase** (buy)\n"
+"| Electricity flowing from the public grid into the house.\n"
+"| **Grid feed-in** (sell)\n"
+"| Electricity flowing from the house into the public grid.\n"
+"| **Charging**\n"
+"| Electricity flowing into the home storage (battery).\n"
+"| **Discharging**\n"
+"| Electricity coming from the home storage.\n"
+"| **Consumption**\n"
+"| Electricity needed by all consumers in the house together: household, heat pump, wallbox, etc.\n"
+"| **State of charge** (SoC)\n"
+"| Charge level of the home storage in percent.\n"
+msgstr ""
+"| Begriff\n"
+"| Bedeutung\n"
+"\n"
+"| **Erzeugung**\n"
+"| Strom, den die eigenen Erzeuger liefern, meist die PV-Anlage. Umfasst AC-Erzeuger (PV-Wechselrichter, Erzeugungszähler) und DC-Erzeuger (PV-Module direkt am Hybrid-Wechselrichter).\n"
+"| **Netzbezug** (Bezug, Kauf)\n"
+"| Strom, der aus dem öffentlichen Netz ins Haus fließt.\n"
+"| **Netzeinspeisung** (Einspeisung, Verkauf)\n"
+"| Strom, der aus dem Haus ins öffentliche Netz fließt.\n"
+"| **Beladung**\n"
+"| Strom, der in den Hausspeicher (Batterie) fließt.\n"
+"| **Entladung**\n"
+"| Strom, der aus dem Hausspeicher kommt.\n"
+"| **Verbrauch**\n"
+"| Strom, den alle Verbraucher im Haus zusammen benötigen: Haushalt, Wärmepumpe, Wallbox usw.\n"
+"| **Ladezustand** (SoC)\n"
+"| Füllstand des Hausspeichers in Prozent.\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:37
+#, no-wrap
+msgid "Power and energy"
+msgstr "Leistung und Energie"
+
+#. type: #sec-power-and-energy
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:40
+msgid ""
+"**Power** (watts, W / kW) is the instantaneous value: “3 kW are flowing "
+"right now”."
+msgstr ""
+"**Leistung** (Watt, W / kW) ist der Augenblickswert: „gerade jetzt fließen 3 "
+"kW“."
+
+#. type: #sec-power-and-energy
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:41
+msgid ""
+"**Energy** (watt hours, Wh / kWh) is the amount over a period of time: “12 "
+"kWh were purchased today”."
+msgstr ""
+"**Energie** (Wattstunden, Wh / kWh) ist die Menge über eine Zeit: „heute "
+"wurden 12 kWh bezogen“."
+
+#. type: #sec-power-and-energy
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:43
+msgid ""
+"OpenEMS stores energy as a running **meter reading**, like the electricity "
+"meter in the basement. The energy of a day is the difference between the "
+"meter readings (see xref:user/data/history-rrd4j.adoc[History])."
+msgstr ""
+"OpenEMS speichert Energie als fortlaufenden **Zählerstand**, wie der "
+"Stromzähler im Keller. Die Energie eines Tages ist der Unterschied der "
+"Zählerstände (siehe xref:user/data/history-rrd4j.adoc[Historie])."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:45
+#, no-wrap
+msgid "Signs"
+msgstr "Vorzeichen"
+
+#. type: #sec-signs
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:48
+msgid "Some values have a sign that indicates the direction:"
+msgstr "Einige Werte haben ein Vorzeichen, das die Richtung angibt:"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:64
+#, no-wrap
+msgid ""
+"| Value\n"
+"| positive ({plus})\n"
+"| negative (−)\n"
+"\n"
+"| Grid power\n"
+"| Purchase from the grid\n"
+"| Feed-in to the grid\n"
+"| Storage power\n"
+"| Discharging\n"
+"| Charging\n"
+"| Production, consumption\n"
+"| always positive\n"
+"| –\n"
+msgstr ""
+"| Wert\n"
+"| positiv ({plus})\n"
+"| negativ (−)\n"
+"\n"
+"| Netzleistung\n"
+"| Bezug aus dem Netz\n"
+"| Einspeisung ins Netz\n"
+"| Speicherleistung\n"
+"| Entladung\n"
+"| Beladung\n"
+"| Erzeugung, Verbrauch\n"
+"| immer positiv\n"
+"| –\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:67
+#, no-wrap
+msgid "The energy balance"
+msgstr "Die Energiebilanz"
+
+#. type: #sec-the-energy-balance
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:70
+msgid ""
+"Everything that comes into the house must also go somewhere. This results in:"
+msgstr ""
+"Alles, was ins Haus hineinkommt, muss auch irgendwo hin. Daraus ergibt sich:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:74
+#, no-wrap
+msgid "Consumption = production + grid purchase − grid feed-in + discharging − charging\n"
+msgstr "Verbrauch = Erzeugung + Netzbezug − Netzeinspeisung + Entladung − Beladung\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:77
+msgid "or with signs:"
+msgstr "oder mit Vorzeichen:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:81
+#, no-wrap
+msgid "Consumption = production + grid power + storage power\n"
+msgstr "Verbrauch = Erzeugung + Netzleistung + Speicherleistung\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:84
+msgid ""
+"Example: PV delivers 5 kW, the storage charges with 2 kW (−2 kW), 1 kW goes "
+"into the grid (−1 kW). Consumption = 5 − 1 − 2 = 2 kW."
+msgstr ""
+"Beispiel: PV liefert 5 kW, der Speicher lädt mit 2 kW (−2 kW), ins Netz "
+"gehen 1 kW (−1 kW). Verbrauch = 5 − 1 − 2 = 2 kW."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:86
+#, no-wrap
+msgid "Where the values come from"
+msgstr "Woher die Werte kommen"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:89
+#, no-wrap
+msgid "What is measured"
+msgstr "Was gemessen wird"
+
+#. type: #sec-what-is-measured
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:92
+msgid "Measurements are only taken at a few points:"
+msgstr "Gemessen wird nur an wenigen Stellen:"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:108
+#, no-wrap
+msgid ""
+"| Measuring point\n"
+"| delivers\n"
+"\n"
+"| **Grid meter** (at the house connection)\n"
+"| Grid power per phase, meter readings for purchase and feed-in\n"
+"| **Production meter** or PV inverter\n"
+"| AC production per phase, production meter reading\n"
+"| **Hybrid inverter** or DC charge controller\n"
+"| DC production (PV directly on the storage system)\n"
+"| **Storage system**\n"
+"| Charging/discharging power, state of charge, capacity\n"
+"| other meters (e.g. wallbox, heat pump)\n"
+"| Power and energy of these individual consumers\n"
+msgstr ""
+"| Messstelle\n"
+"| liefert\n"
+"\n"
+"| **Netzzähler** (am Hausanschluss)\n"
+"| Netzleistung je Phase, Zählerstände für Bezug und Einspeisung\n"
+"| **Erzeugungszähler** bzw. PV-Wechselrichter\n"
+"| AC-Erzeugung je Phase, Zählerstand der Erzeugung\n"
+"| **Hybrid-Wechselrichter** bzw. DC-Laderegler\n"
+"| DC-Erzeugung (PV direkt am Speichersystem)\n"
+"| **Speichersystem**\n"
+"| Lade-/Entladeleistung, Ladezustand, Kapazität\n"
+"| weitere Zähler (z. B. Wallbox, Wärmepumpe)\n"
+"| Leistung und Energie dieser einzelnen Verbraucher\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:111
+msgid ""
+"**Important:** Whether a device measures its meter readings (energy) itself "
+"or whether OpenEMS calculates them from the power depends on the device or "
+"its connection. Many storage systems and some meters only supply power. "
+"OpenEMS then counts up the energy itself. These self-counted values are "
+"prone to jumps on restart (see xref:user/data/history-rrd4j.adoc[History])."
+msgstr ""
+"**Wichtig:** Ob ein Gerät seine Zählerstände (Energie) selbst misst oder ob "
+"OpenEMS sie aus der Leistung errechnet, hängt vom Gerät bzw. dessen "
+"Anbindung ab. Viele Speicher und manche Zähler liefern nur die Leistung. "
+"Dann zählt OpenEMS die Energie selbst hoch. Diese selbst gezählten Werte "
+"sind anfällig für Sprünge bei einem Neustart (siehe xref:user/data/history-"
+"rrd4j.adoc[Historie])."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:113
+#, no-wrap
+msgid "What is never measured: consumption"
+msgstr "Was nie gemessen wird: der Verbrauch"
+
+#. type: #sec-what-is-never-measured-consumption
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:116
+msgid ""
+"**The total consumption of the house is not measured in OpenEMS, but always "
+"calculated**, according to the energy balance above:"
+msgstr ""
+"**Der Gesamtverbrauch des Hauses wird in OpenEMS nicht gemessen, sondern "
+"immer berechnet**, nach der Energiebilanz oben:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:120
+#, no-wrap
+msgid "Consumption = grid power + AC production + AC power of the storage system\n"
+msgstr "Verbrauch = Netzleistung + AC-Erzeugung + AC-Leistung des Speichersystems\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:123
+msgid ""
+"Even an existing consumption meter is currently not used for this total."
+msgstr ""
+"Auch ein vorhandener Verbrauchszähler wird für diese Summe derzeit nicht "
+"verwendet."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:125
+msgid ""
+"It follows that: **Any measurement error in grid, production or storage ends "
+"up in consumption.** If, for example, a production meter is missing in the "
+"configuration or the grid meter measures a phase incorrectly, the "
+"consumption is wrong, in extreme cases even negative."
+msgstr ""
+"Daraus folgt: **Jeder Messfehler bei Netz, Erzeugung oder Speicher landet im "
+"Verbrauch.** Fehlt z. B. ein Erzeugungszähler in der Konfiguration oder "
+"misst der Netzzähler eine Phase falsch, ist der Verbrauch falsch, im "
+"Extremfall sogar negativ."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:127
+#, no-wrap
+msgid "The total values (_sum)"
+msgstr "Die Summenwerte (_sum)"
+
+#. type: #sec-the-total-values-sum
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:130
+msgid ""
+"OpenEMS combines the values of all devices in the component `+_sum+`. The "
+"web interface displays these values and they are stored in the history. They "
+"are recalculated every second."
+msgstr ""
+"OpenEMS fasst die Werte aller Geräte in der Komponente `+_sum+` zusammen. "
+"Diese Werte zeigt die Weboberfläche an, und sie werden in der Historie "
+"gespeichert. Jede Sekunde wird neu gerechnet."
+
+#. type: #sec-the-total-values-sum
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:132
+msgid "Explanation of the origin:"
+msgstr "Erklärung der Herkunft:"
+
+#. type: #sec-the-total-values-sum
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:134
+msgid ""
+"**Sum of the devices:** The values of all matching devices are added up. The "
+"measurement therefore takes place in the device; OpenEMS only adds."
+msgstr ""
+"**Summe der Geräte:** Die Werte aller passenden Geräte werden addiert. "
+"Gemessen wird also im Gerät; OpenEMS addiert nur."
+
+#. type: #sec-the-total-values-sum
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:135
+msgid ""
+"**Calculated:** The value is only created in `+_sum+` from other values. No "
+"device measures it."
+msgstr ""
+"**Berechnet:** Der Wert entsteht erst in `+_sum+` aus anderen Werten. Kein "
+"Gerät misst ihn."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:137
+#, no-wrap
+msgid "Power values"
+msgstr "Leistungen"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:178
+#, no-wrap
+msgid ""
+"| Channel\n"
+"| Meaning\n"
+"| Origin\n"
+"\n"
+"| `+GridActivePower+` (and L1–L3)\n"
+"| Grid power ({plus} purchase / − feed-in)\n"
+"| Sum of the grid meters\n"
+"| `+ProductionAcActivePower+` (and L1–L3)\n"
+"| AC production\n"
+"| Sum of the production meters / PV inverters\n"
+"| `+ProductionDcActualPower+`\n"
+"| DC production\n"
+"| Sum of the DC charge controllers\n"
+"| `+ProductionActivePower+`\n"
+"| Total production\n"
+"| calculated: AC {plus} DC\n"
+"| `+EssActivePower+`\n"
+"| Storage power at the inverter (AC; {plus} discharging / − charging)\n"
+"| Sum of the storage systems\n"
+"| `+EssActivePowerL1+`–`+L3+`\n"
+"| Storage power per phase\n"
+"| Sum; for storage systems without phase values **calculated** (total power ÷ 3)\n"
+"| `+EssDischargePower+`\n"
+"| Battery power ({plus} discharging / − charging); for hybrid systems on the battery side (DC)\n"
+"| Sum of the storage systems\n"
+"| `+EssSoc+`\n"
+"| State of charge\n"
+"| calculated: with several storage systems weighted by capacity; if a capacity is unknown, simple average\n"
+"| `+ConsumptionActivePower+` (and L1–L3)\n"
+"| Consumption\n"
+"| **calculated:** grid {plus} AC production {plus} AC storage power\n"
+"| `+UnmanagedConsumptionActivePower+`\n"
+"| Consumption without controlled consumers (e.g. wallboxes)\n"
+"| **calculated:** consumption − metered controlled consumers\n"
+"| `+GridGensetActivePower+`\n"
+"| Power of an emergency generator\n"
+"| Sum of the corresponding meters\n"
+msgstr ""
+"| Kanal\n"
+"| Bedeutung\n"
+"| Herkunft\n"
+"\n"
+"| `+GridActivePower+` (und L1–L3)\n"
+"| Netzleistung ({plus} Bezug / − Einspeisung)\n"
+"| Summe der Netzzähler\n"
+"| `+ProductionAcActivePower+` (und L1–L3)\n"
+"| AC-Erzeugung\n"
+"| Summe der Erzeugungszähler / PV-Wechselrichter\n"
+"| `+ProductionDcActualPower+`\n"
+"| DC-Erzeugung\n"
+"| Summe der DC-Laderegler\n"
+"| `+ProductionActivePower+`\n"
+"| Gesamterzeugung\n"
+"| berechnet: AC {plus} DC\n"
+"| `+EssActivePower+`\n"
+"| Speicherleistung am Wechselrichter (AC; {plus} Entladung / − Beladung)\n"
+"| Summe der Speichersysteme\n"
+"| `+EssActivePowerL1+`–`+L3+`\n"
+"| Speicherleistung je Phase\n"
+"| Summe; bei Speichern ohne Phasenwerte **berechnet** (Gesamtleistung ÷ 3)\n"
+"| `+EssDischargePower+`\n"
+"| Batterieleistung ({plus} Entladung / − Beladung); bei Hybrid-Systemen auf der Batterieseite (DC)\n"
+"| Summe der Speichersysteme\n"
+"| `+EssSoc+`\n"
+"| Ladezustand\n"
+"| berechnet: bei mehreren Speichern nach Kapazität gewichtet; ist eine Kapazität unbekannt, einfacher Mittelwert\n"
+"| `+ConsumptionActivePower+` (und L1–L3)\n"
+"| Verbrauch\n"
+"| **berechnet:** Netz {plus} AC-Erzeugung {plus} AC-Speicherleistung\n"
+"| `+UnmanagedConsumptionActivePower+`\n"
+"| Verbrauch ohne gesteuerte Verbraucher (z. B. Wallboxen)\n"
+"| **berechnet:** Verbrauch − gemessene gesteuerte Verbraucher\n"
+"| `+GridGensetActivePower+`\n"
+"| Leistung eines Notstromaggregats\n"
+"| Summe der entsprechenden Zähler\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:181
+#, no-wrap
+msgid "Energy flows (“where does the electricity go?”)"
+msgstr "Energieflüsse („wohin geht der Strom?“)"
+
+#. type: #sec-energy-flows-where-does-the-electricity-go
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:184
+msgid ""
+"For the energy flow chart, OpenEMS divides the power values: how much solar "
+"power goes into the house, how much into the storage, how much into the "
+"grid? **These values are completely calculated**, there is no measurement "
+"for them."
+msgstr ""
+"Für die Energiefluss-Grafik teilt OpenEMS die Leistungen auf: Wie viel "
+"Solarstrom geht ins Haus, wie viel in den Speicher, wie viel ins Netz? "
+"**Diese Werte sind vollständig berechnet**, es gibt dafür keine Messung."
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:202
+#, no-wrap
+msgid ""
+"| Channel\n"
+"| Meaning\n"
+"\n"
+"| `+ProductionToConsumptionPower+`\n"
+"| Solar → house\n"
+"| `+ProductionToEssPower+`\n"
+"| Solar → storage\n"
+"| `+ProductionToGridPower+`\n"
+"| Solar → grid\n"
+"| `+GridToConsumptionPower+`\n"
+"| Grid → house\n"
+"| `+EssToConsumptionPower+`\n"
+"| Storage → house\n"
+"| `+GridToEssPower+`\n"
+"| Grid → storage ({plus}) or storage → grid (−)\n"
+msgstr ""
+"| Kanal\n"
+"| Bedeutung\n"
+"\n"
+"| `+ProductionToConsumptionPower+`\n"
+"| Solar → Haus\n"
+"| `+ProductionToEssPower+`\n"
+"| Solar → Speicher\n"
+"| `+ProductionToGridPower+`\n"
+"| Solar → Netz\n"
+"| `+GridToConsumptionPower+`\n"
+"| Netz → Haus\n"
+"| `+EssToConsumptionPower+`\n"
+"| Speicher → Haus\n"
+"| `+GridToEssPower+`\n"
+"| Netz → Speicher ({plus}) bzw. Speicher → Netz (−)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:205
+msgid "The division follows fixed rules:"
+msgstr "Die Aufteilung folgt festen Regeln:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:207
+msgid "If the storage is discharging, it supplies the house first."
+msgstr "Entlädt der Speicher, versorgt er zuerst das Haus."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:208
+msgid "If the storage is charging, the charge comes from production first."
+msgstr "Lädt der Speicher, kommt die Ladung zuerst aus der Erzeugung."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:209
+msgid ""
+"The remaining production supplies the house; whatever is left goes into the "
+"grid."
+msgstr ""
+"Die übrige Erzeugung versorgt das Haus; was dann noch übrig ist, geht ins "
+"Netz."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:210
+msgid "The grid covers the rest of the consumption."
+msgstr "Den Rest des Verbrauchs deckt das Netz."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:211
+msgid "Any grid power still remaining is counted as grid ↔ storage."
+msgstr ""
+"Was dann noch an Netzleistung übrig bleibt, wird als Netz ↔ Speicher "
+"gewertet."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:213
+#, no-wrap
+msgid "Energy values (meter readings)"
+msgstr "Energien (Zählerstände)"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:248
+#, no-wrap
+msgid ""
+"| Channel\n"
+"| Meaning\n"
+"| Origin\n"
+"\n"
+"| `+GridBuyActiveEnergy+`\n"
+"| Grid purchase\n"
+"| Sum of the grid meters\n"
+"| `+GridSellActiveEnergy+`\n"
+"| Grid feed-in\n"
+"| Sum of the grid meters\n"
+"| `+ProductionAcActiveEnergy+`\n"
+"| AC production\n"
+"| Sum of the production meters\n"
+"| `+ProductionDcActiveEnergy+`\n"
+"| DC production\n"
+"| Sum of the DC charge controllers\n"
+"| `+ProductionActiveEnergy+`\n"
+"| Total production\n"
+"| calculated: AC {plus} DC\n"
+"| `+EssActiveChargeEnergy+` / `+EssActiveDischargeEnergy+`\n"
+"| Storage charging / discharging at the inverter (AC)\n"
+"| Sum of the storage systems\n"
+"| `+EssDcChargeEnergy+` / `+EssDcDischargeEnergy+`\n"
+"| Charging / discharging on the battery side (for hybrid systems)\n"
+"| Sum of the storage systems\n"
+"| `+ConsumptionActiveEnergy+`\n"
+"| Consumption\n"
+"| **calculated:** (discharging {plus} purchase {plus} production) − (charging {plus} feed-in {plus} self-consumption of the producers)\n"
+"| `+ProductionToConsumptionEnergy+`, `+ProductionToGridEnergy+`, `+ProductionToEssEnergy+`, `+GridToConsumptionEnergy+`, `+EssToConsumptionEnergy+`, `+GridToEssEnergy+`, `+EssToGridEnergy+`\n"
+"| Energy flows\n"
+"| **calculated:** counted up by OpenEMS from the calculated flow power values\n"
+msgstr ""
+"| Kanal\n"
+"| Bedeutung\n"
+"| Herkunft\n"
+"\n"
+"| `+GridBuyActiveEnergy+`\n"
+"| Netzbezug\n"
+"| Summe der Netzzähler\n"
+"| `+GridSellActiveEnergy+`\n"
+"| Netzeinspeisung\n"
+"| Summe der Netzzähler\n"
+"| `+ProductionAcActiveEnergy+`\n"
+"| AC-Erzeugung\n"
+"| Summe der Erzeugungszähler\n"
+"| `+ProductionDcActiveEnergy+`\n"
+"| DC-Erzeugung\n"
+"| Summe der DC-Laderegler\n"
+"| `+ProductionActiveEnergy+`\n"
+"| Gesamterzeugung\n"
+"| berechnet: AC {plus} DC\n"
+"| `+EssActiveChargeEnergy+` / `+EssActiveDischargeEnergy+`\n"
+"| Speicher-Beladung / -Entladung am Wechselrichter (AC)\n"
+"| Summe der Speichersysteme\n"
+"| `+EssDcChargeEnergy+` / `+EssDcDischargeEnergy+`\n"
+"| Beladung / Entladung auf der Batterieseite (bei Hybrid-Systemen)\n"
+"| Summe der Speichersysteme\n"
+"| `+ConsumptionActiveEnergy+`\n"
+"| Verbrauch\n"
+"| **berechnet:** (Entladung {plus} Bezug {plus} Erzeugung) − (Beladung {plus} Einspeisung {plus} Eigenverbrauch der Erzeuger)\n"
+"| `+ProductionToConsumptionEnergy+`, `+ProductionToGridEnergy+`, `+ProductionToEssEnergy+`, `+GridToConsumptionEnergy+`, `+EssToConsumptionEnergy+`, `+GridToEssEnergy+`, `+EssToGridEnergy+`\n"
+"| Energieflüsse\n"
+"| **berechnet:** von OpenEMS aus den berechneten Flussleistungen hochgezählt\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:251
+msgid ""
+"Note: For grid meters, the purchase is internally called “ProductionEnergy” "
+"in OpenEMS and the feed-in “ConsumptionEnergy”, from the meter's point of "
+"view. In `+_sum+` the names are unambiguous (Buy/Sell)."
+msgstr ""
+"Hinweis: Bei Netzzählern heißt der Bezug in OpenEMS intern "
+"„ProductionEnergy“ und die Einspeisung „ConsumptionEnergy“, aus Sicht des "
+"Zählers. In `+_sum+` sind die Namen eindeutig (Buy/Sell)."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:253
+#, no-wrap
+msgid "Other values"
+msgstr "Sonstige Werte"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:273
+#, no-wrap
+msgid ""
+"| Channel\n"
+"| Meaning\n"
+"| Origin\n"
+"\n"
+"| `+GridMode+`\n"
+"| Grid mode or island mode (emergency power)\n"
+"| from the storage system\n"
+"| `+GridBuyPrice+` / `+GridSellPrice+`\n"
+"| Current purchase / feed-in price\n"
+"| from the xref:user/storage-control/time-of-use-tariffs.adoc[tariff]\n"
+"| `+EssCapacity+`\n"
+"| Capacity of all storage systems\n"
+"| Sum of the storage systems\n"
+"| `+State+`\n"
+"| Most severe current fault state of all components\n"
+"| calculated\n"
+msgstr ""
+"| Kanal\n"
+"| Bedeutung\n"
+"| Herkunft\n"
+"\n"
+"| `+GridMode+`\n"
+"| Netzbetrieb oder Inselbetrieb (Notstrom)\n"
+"| vom Speichersystem\n"
+"| `+GridBuyPrice+` / `+GridSellPrice+`\n"
+"| aktueller Bezugs- / Einspeisepreis\n"
+"| aus dem xref:user/storage-control/time-of-use-tariffs.adoc[Tarif]\n"
+"| `+EssCapacity+`\n"
+"| Kapazität aller Speicher\n"
+"| Summe der Speichersysteme\n"
+"| `+State+`\n"
+"| schwerster aktueller Fehlerzustand aller Komponenten\n"
+"| berechnet\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:276
+#, no-wrap
+msgid "When consumption can become negative"
+msgstr "Wann der Verbrauch negativ werden kann"
+
+#. type: #sec-when-consumption-can-become-negative
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:279
+msgid ""
+"Physically, a house cannot have negative consumption. However, because "
+"consumption is **calculated** (grid {plus} AC production {plus} AC storage "
+"power), negative values arise as soon as one of these values is missing, too "
+"small or included with the wrong sign. Typical cases:"
+msgstr ""
+"Physikalisch kann ein Haus keinen negativen Verbrauch haben. Weil der "
+"Verbrauch aber **berechnet** wird (Netz {plus} AC-Erzeugung {plus} AC-"
+"Speicherleistung), entstehen negative Werte, sobald eine dieser Größen "
+"fehlt, zu klein oder mit falschem Vorzeichen eingeht. Typische Fälle:"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:307
+#, no-wrap
+msgid ""
+"| Case\n"
+"| What happens\n"
+"| Effect\n"
+"\n"
+"| **Producer missing in the configuration**\n"
+"| A PV system feeds in but is not set up as a producer in OpenEMS. The grid meter sees the feed-in (negative), the production is missing from the calculation.\n"
+"| Consumption too low; negative during feed-in\n"
+"| **Measured value fails**\n"
+"| A device temporarily does not supply a value, e.g. due to a communication fault. Missing values count as 0 in the total. If, for example, the PV inverter fails during feed-in, only the negative grid power remains.\n"
+"| briefly or permanently negative\n"
+"| **Wrong direction at the grid meter**\n"
+"| Current transformer mounted the wrong way round, phases swapped or meter set incorrectly. Purchase and feed-in are (partly) measured swapped.\n"
+"| Consumption too low or negative, often only on individual phases\n"
+"| **Grid meter in the wrong place**\n"
+"| The grid meter is located so that it does not capture part of the house, e.g. behind a sub-distribution board with PV feed-in.\n"
+"| Balance is not correct, consumption wrong\n"
+"| **Time offset between devices**\n"
+"| The devices are queried one after the other; their values do not come from exactly the same moment. With rapid changes (cloud, wallbox switching, storage adjusting), the values do not match for seconds.\n"
+"| brief negative peaks in the live view, usually without significance for the daily values\n"
+"| **Self-consumption of the inverter**\n"
+"| At night, a PV inverter draws a little power. A production meter then measures a small negative production.\n"
+"| Consumption too low by this amount (usually only a few watts)\n"
+"| **Storage power wrong**\n"
+"| The storage system reports a wrong AC power or a wrong sign.\n"
+"| Consumption wrong by this amount\n"
+msgstr ""
+"| Fall\n"
+"| was passiert\n"
+"| Auswirkung\n"
+"\n"
+"| **Erzeuger fehlt in der Konfiguration**\n"
+"| Eine PV-Anlage speist ein, ist aber in OpenEMS nicht als Erzeuger eingerichtet. Der Netzzähler sieht die Einspeisung (negativ), die Erzeugung fehlt in der Rechnung.\n"
+"| Verbrauch zu niedrig; bei Einspeisung negativ\n"
+"| **Messwert fällt aus**\n"
+"| Ein Gerät liefert vorübergehend keinen Wert, z. B. bei einer Kommunikationsstörung. Fehlende Werte zählen in der Summe als 0. Fällt etwa der PV-Wechselrichter aus, während eingespeist wird, bleibt nur die negative Netzleistung übrig.\n"
+"| kurzzeitig oder dauerhaft negativ\n"
+"| **Falsche Richtung beim Netzzähler**\n"
+"| Stromwandler verkehrt herum montiert, Phasen vertauscht oder Zähler falsch eingestellt. Bezug und Einspeisung werden (teilweise) vertauscht gemessen.\n"
+"| Verbrauch zu niedrig oder negativ, oft nur auf einzelnen Phasen\n"
+"| **Netzzähler an der falschen Stelle**\n"
+"| Der Netzzähler sitzt so, dass er einen Teil des Hauses nicht erfasst, z. B. hinter einem Unterverteiler mit PV-Einspeisung.\n"
+"| Bilanz stimmt nicht, Verbrauch falsch\n"
+"| **Zeitversatz zwischen Geräten**\n"
+"| Die Geräte werden nacheinander abgefragt; ihre Werte stammen nicht exakt aus demselben Augenblick. Bei schnellen Wechseln (Wolke, Wallbox schaltet, Speicher regelt um) passen die Werte für Sekunden nicht zusammen.\n"
+"| kurze negative Spitzen in der Live-Ansicht, meist ohne Bedeutung für die Tageswerte\n"
+"| **Eigenverbrauch des Wechselrichters**\n"
+"| Nachts zieht ein PV-Wechselrichter etwas Strom. Ein Erzeugungszähler misst dann eine kleine negative Erzeugung.\n"
+"| Verbrauch um diesen Betrag zu niedrig (meist nur wenige Watt)\n"
+"| **Speicherleistung falsch**\n"
+"| Das Speichersystem meldet eine falsche AC-Leistung oder ein falsches Vorzeichen.\n"
+"| Verbrauch um diesen Betrag falsch\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:310
+msgid ""
+"**Negative consumption energy** in the history is also possible. In this "
+"case, a meter reading of grid, production or storage has usually jumped "
+"back, e.g. after a restart (see xref:user/data/history-rrd4j.adoc[History])."
+msgstr ""
+"Auch **negative Verbrauchs-Energie** in der Historie ist möglich. Dann ist "
+"meist ein Zählerstand von Netz, Erzeugung oder Speicher zurückgesprungen, z. "
+"B. nach einem Neustart (siehe xref:user/data/history-rrd4j.adoc[Historie])."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:312
+msgid ""
+"**Procedure for negative consumption:** Look at grid power, production and "
+"storage power individually. Does each value on its own match reality, e.g. "
+"grid power compared with the electricity meter of the grid operator? If the "
+"error only occurs on one phase, it is almost always due to a current "
+"transformer."
+msgstr ""
+"**Vorgehen bei negativem Verbrauch:** Netzleistung, Erzeugung und "
+"Speicherleistung einzeln ansehen. Passt jeder Wert für sich zur Realität, z. "
+"B. Netzleistung im Vergleich mit dem Stromzähler des Netzbetreibers? Tritt "
+"der Fehler nur auf einer Phase auf, liegt es fast immer an einem "
+"Stromwandler."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:314
+#, no-wrap
+msgid "Cascaded meters"
+msgstr "Kaskadierte Zähler"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:317
+#, no-wrap
+msgid "What does “cascaded” mean?"
+msgstr "Was bedeutet „kaskadiert“?"
+
+#. type: #sec-what-does-cascaded-mean
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:320
+msgid ""
+"Meters are **cascaded** (connected in series) if one meter is located behind "
+"another in the electrical circuit. The front meter then **also** measures "
+"the electricity flowing through the rear one."
+msgstr ""
+"Zähler sind **kaskadiert** (hintereinander geschaltet), wenn ein Zähler im "
+"Stromkreis hinter einem anderen sitzt. Der vordere Zähler misst dann den "
+"Strom, der durch den hinteren fließt, **mit**."
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:325
+#, no-wrap
+msgid ""
+"Grid ── Meter A ──┬── House consumption\n"
+"                  └── Meter B ── PV system 2\n"
+msgstr ""
+"Netz ── Zähler A ──┬── Hausverbrauch\n"
+"                   └── Zähler B ── PV-Anlage 2\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:328
+msgid ""
+"Meter A measures everything that flows through it, including the share of "
+"meter B. Meter B only measures its branch."
+msgstr ""
+"Zähler A misst alles, was durch ihn fließt, also auch den Anteil von Zähler "
+"B. Zähler B misst nur seinen Zweig."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:330
+msgid "Typical examples:"
+msgstr "Typische Beispiele:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:332
+msgid "a **sub-meter** in a sub-distribution board behind the grid meter,"
+msgstr "ein **Unterzähler** in einer Unterverteilung hinter dem Netzzähler,"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:333
+msgid ""
+"two PV systems whose **production meters** are in series (e.g. PV 2 is "
+"connected via the line of PV 1),"
+msgstr ""
+"zwei PV-Anlagen, deren **Erzeugungszähler** hintereinander liegen (z. B. PV "
+"2 ist über die Leitung von PV 1 angeschlossen),"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:334
+msgid ""
+"a PV inverter that is connected to OpenEMS **itself** and is additionally "
+"measured via its own **production meter**."
+msgstr ""
+"ein PV-Wechselrichter, der in OpenEMS **selbst** angebunden ist und "
+"zusätzlich über einen eigenen **Erzeugungszähler** gemessen wird."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:336
+#, no-wrap
+msgid "How OpenEMS adds up"
+msgstr "Wie OpenEMS summiert"
+
+#. type: #sec-how-openems-adds-up
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:339
+msgid ""
+"OpenEMS does not know how the meters are wired. It simply adds up **all "
+"meters of one type**:"
+msgstr ""
+"OpenEMS weiß nicht, wie die Zähler verdrahtet sind. Es addiert stur **alle "
+"Zähler einer Art**:"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:355
+#, no-wrap
+msgid ""
+"| Meter type (setting “Type”)\n"
+"| is included in the total as\n"
+"\n"
+"| Grid (GRID)\n"
+"| Grid power, purchase, feed-in\n"
+"| Production (PRODUCTION); PV inverters automatically count as production\n"
+"| Production\n"
+"| Controlled consumer (MANAGED_CONSUMPTION_METERED), e.g. wallbox\n"
+"| only for calculating consumption without controlled consumers\n"
+"| Consumer (CONSUMPTION_METERED, CONSUMPTION_NOT_METERED)\n"
+"| **not at all** (only displayed)\n"
+"| Production and consumption (PRODUCTION_AND_CONSUMPTION)\n"
+"| **not at all** (currently not taken into account in the total)\n"
+msgstr ""
+"| Art des Zählers (Einstellung „Type“)\n"
+"| geht in die Summe ein als\n"
+"\n"
+"| Netz (GRID)\n"
+"| Netzleistung, Bezug, Einspeisung\n"
+"| Erzeugung (PRODUCTION); PV-Wechselrichter zählen automatisch als Erzeugung\n"
+"| Erzeugung\n"
+"| gesteuerter Verbraucher (MANAGED_CONSUMPTION_METERED), z. B. Wallbox\n"
+"| nur zur Berechnung des Verbrauchs ohne gesteuerte Verbraucher\n"
+"| Verbraucher (CONSUMPTION_METERED, CONSUMPTION_NOT_METERED)\n"
+"| **gar nicht** (wird nur angezeigt)\n"
+"| Erzeugung und Verbrauch (PRODUCTION_AND_CONSUMPTION)\n"
+"| **gar nicht** (derzeit nicht in der Summe berücksichtigt)\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:358
+#, no-wrap
+msgid "Effect on the total values"
+msgstr "Auswirkung auf die Gesamtwerte"
+
+#. type: #sec-effect-on-the-total-values
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:361
+msgid ""
+"If two meters **of the same type** are cascaded, the shared portion is "
+"**counted twice**:"
+msgstr ""
+"Sind zwei Zähler **derselben Art** kaskadiert, wird der gemeinsame Anteil "
+"**doppelt gezählt**:"
+
+#. type: Table
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:375
+#, no-wrap
+msgid ""
+"| Situation\n"
+"| Consequence\n"
+"\n"
+"| Two production meters in series, or PV inverter plus production meter for the same system\n"
+"| Production too high → consumption too high, energy flows wrong, self-consumption and self-sufficiency values too good\n"
+"| Grid meter plus a sub-meter that is also set as grid\n"
+"| Grid power, purchase and feed-in too high → consumption wrong, possibly negative during feed-in\n"
+"| Sub-meter set as consumer\n"
+"| no problem: consumer meters are not included in the total\n"
+"| Wallbox meter as controlled consumer\n"
+"| no problem for the total values; it is only subtracted from consumption to determine consumption without wallbox\n"
+msgstr ""
+"| Situation\n"
+"| Folge\n"
+"\n"
+"| Zwei Erzeugungszähler hintereinander, oder PV-Wechselrichter plus Erzeugungszähler für dieselbe Anlage\n"
+"| Erzeugung zu hoch → Verbrauch zu hoch, Energieflüsse falsch, Eigenverbrauchs- und Autarkiewerte zu gut\n"
+"| Netzzähler plus ein Unterzähler, der ebenfalls als Netz eingestellt ist\n"
+"| Netzleistung, Bezug und Einspeisung zu hoch → Verbrauch falsch, ggf. negativ, wenn eingespeist wird\n"
+"| Unterzähler als Verbraucher eingestellt\n"
+"| kein Problem: Verbraucherzähler gehen nicht in die Summe ein\n"
+"| Wallbox-Zähler als gesteuerter Verbraucher\n"
+"| kein Problem für die Gesamtwerte; er wird nur vom Verbrauch abgezogen, um den Verbrauch ohne Wallbox zu bestimmen\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:378
+#, no-wrap
+msgid "How to avoid double counting"
+msgstr "So vermeidet man Doppelzählung"
+
+#. type: #sec-how-to-avoid-double-counting
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:381
+msgid ""
+"Set **only one meter per energy flow** as grid or production. Set other "
+"meters in the same branch as consumers (then they do not count) or omit them "
+"in OpenEMS."
+msgstr ""
+"**Nur einen Zähler je Energiefluss** als Netz bzw. Erzeugung einstellen. "
+"Weitere Zähler im selben Zweig als Verbraucher einstellen (dann zählen sie "
+"nicht mit) oder in OpenEMS weglassen."
+
+#. type: #sec-how-to-avoid-double-counting
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:382
+msgid ""
+"A PV inverter that is directly connected does not need an additional "
+"production meter, or vice versa."
+msgstr ""
+"Ein PV-Wechselrichter, der direkt angebunden ist, braucht keinen "
+"zusätzlichen Erzeugungszähler, oder umgekehrt."
+
+#. type: #sec-how-to-avoid-double-counting
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:383
+msgid ""
+"Use **virtual meters**: With a “subtracting virtual meter” "
+"(`+Meter.Virtual.Subtract+`) a branch can be calculated out, e.g. “meter A "
+"minus meter B”. With an “adding virtual meter” (`+Meter.Virtual.Add+`) "
+"several meters can be combined. Virtual meters have the setting “Add to "
+"Sum”, which is **off** by default: they are then not included in the total "
+"and do not change the total values. If “Add to Sum” is switched on, the "
+"virtual meter counts in addition to the real meters. If it is to replace the "
+"real meters in the total, these must not also be set as grid or production, "
+"otherwise there is double counting again."
+msgstr ""
+"**Virtuelle Zähler** nutzen: Mit einem „Subtrahierenden virtuellen Zähler“ "
+"(`+Meter.Virtual.Subtract+`) lässt sich ein Zweig herausrechnen, z. B. "
+"„Zähler A minus Zähler B“. Mit einem „Addierenden virtuellen Zähler“ "
+"(`+Meter.Virtual.Add+`) lassen sich mehrere Zähler zusammenfassen. Virtuelle "
+"Zähler haben die Einstellung „Add to Sum“, standardmäßig **aus**: Sie gehen "
+"dann nicht in die Summe ein und verändern die Gesamtwerte nicht. Schaltet "
+"man „Add to Sum“ ein, zählt der virtuelle Zähler zusätzlich zu den echten "
+"Zählern. Soll er die echten Zähler in der Summe ersetzen, dürfen diese nicht "
+"ebenfalls als Netz bzw. Erzeugung eingestellt sein, sonst wird wieder "
+"doppelt gezählt."
+
+#. type: #sec-how-to-avoid-double-counting
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:384
+msgid ""
+"Likewise, **storage clusters** (several storage systems combined into one) "
+"are not counted additionally. Only the individual storage systems are "
+"included in the total."
+msgstr ""
+"Ebenso werden **Speicher-Cluster** (mehrere Speicher, die zu einem "
+"zusammengefasst sind) nicht zusätzlich gezählt. In die Summe gehen nur die "
+"einzelnen Speicher ein."
+
+#. type: #sec-how-to-avoid-double-counting
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:386
+msgid ""
+"**Check:** Compare the production displayed by OpenEMS with the display of "
+"the inverter or production meter. If it is significantly higher, go through "
+"the points above. The equation “production = consumption {plus} feed-in” "
+"does not help here: OpenEMS calculates the consumption itself from grid, "
+"production and storage, so it always balances, even if there is double "
+"counting."
+msgstr ""
+"**Prüfen:** Die Erzeugung, die OpenEMS anzeigt, mit der Anzeige des "
+"Wechselrichters oder des Erzeugungszählers vergleichen. Liegt sie deutlich "
+"darüber, die Punkte oben durchgehen. Die Gleichung „Erzeugung = Verbrauch "
+"{plus} Einspeisung“ hilft dabei nicht: OpenEMS berechnet den Verbrauch "
+"selbst aus Netz, Erzeugung und Speicher, deshalb geht sie immer auf, auch "
+"wenn doppelt gezählt wird."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:388
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:391
+msgid ""
+"**Consumption and energy flows are calculation results.** If they seem "
+"implausible, the cause is almost always in the grid, production or storage "
+"values or in a missing or incorrectly set measuring point."
+msgstr ""
+"**Verbrauch und Energieflüsse sind Rechenergebnisse.** Wirken sie "
+"unplausibel, liegt die Ursache fast immer bei Netz-, Erzeugungs- oder "
+"Speicherwerten oder bei einer fehlenden bzw. falsch eingestellten Messstelle."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:392
+msgid ""
+"**The total meter readings should only rise.** At startup, OpenEMS adopts "
+"the last stored reading. If a device meter jumps back (e.g. after a "
+"restart), this is transferred to the total. Negative values then appear in "
+"the history (see xref:user/data/history-rrd4j.adoc[History])."
+msgstr ""
+"**Die Summenzählerstände sollen nur steigen.** Beim Start übernimmt OpenEMS "
+"den letzten gespeicherten Stand. Springt ein Gerätezähler zurück (z. B. nach "
+"einem Neustart), überträgt sich das auf die Summe. In der Historie "
+"erscheinen dann negative Werte (siehe xref:user/data/history-"
+"rrd4j.adoc[Historie])."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:393
+msgid ""
+"**The seven energy flow meters** are counted up exclusively by OpenEMS. If "
+"OpenEMS is not running, this energy is completely missing there. The grid, "
+"production and storage meters, on the other hand, catch up if the devices "
+"supply their own meter readings."
+msgstr ""
+"**Die sieben Energiefluss-Zähler** werden ausschließlich von OpenEMS "
+"hochgezählt. Läuft OpenEMS nicht, fehlt diese Energie dort ganz. Die Zähler "
+"von Netz, Erzeugung und Speicher holen sie dagegen nach, wenn die Geräte "
+"eigene Zählerstände liefern."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:394
+msgid ""
+"**Excluding devices from the total:** Some devices have a setting that "
+"prevents them from being included in `+_sum+`, e.g. a meter whose power is "
+"already included in another. This prevents values from being counted twice."
+msgstr ""
+"**Geräte aus der Summe ausnehmen:** Manche Geräte haben eine Einstellung, "
+"mit der sie nicht in `+_sum+` eingerechnet werden, z. B. ein Zähler, dessen "
+"Leistung schon in einem anderen enthalten ist. So werden Werte nicht doppelt "
+"gezählt."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/basics/energy-flows.adoc:394
+msgid ""
+"**Querying values yourself:** All channels mentioned here can be read via "
+"xref:user/external-interfaces/rest-control.adoc[REST], for example `+_sum/"
+"ConsumptionActivePower+`."
+msgstr ""
+"**Werte selbst abfragen:** Alle hier genannten Kanäle lassen sich z. B. über "
+"xref:user/external-interfaces/rest-control.adoc[REST] lesen, etwa `+_sum/"
+"ConsumptionActivePower+`."

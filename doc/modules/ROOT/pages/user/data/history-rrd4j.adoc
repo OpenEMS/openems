@@ -1,0 +1,100 @@
+= OpenEMS: Storing the history (rrd4j)
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+
+__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development version, branch develop)__
+
+OpenEMS stores measured values directly on the device so that the web interface can display histories and energy amounts: power curves, “purchased today”, monthly and annual values. The storage is handled by **rrd4j**, a database with a fixed size. In addition, the history can also be kept in an InfluxDB or in the backend. This page deals with the local storage on the device.
+
+The second part explains **why energy values in the history are sometimes wrong** (negative values, huge outliers, zero values). It is based on the source code.
+
+[#sec-what-is-stored]
+== What is stored
+
+[cols="4*",options="header"]
+|===
+| Type
+| Examples
+| Interval
+| Retention
+
+| Instantaneous values
+| Power, voltage, temperature, state of charge
+| Average per 5 minutes
+| approx. **450 days**
+| Meter readings
+| Energy (purchase, feed-in, production …), operating hours
+| one value per hour
+| approx. **450 days**
+|===
+
+* **Older values are overwritten automatically.** After about 15 months they are no longer available in this storage. If you want a longer history, you also need an InfluxDB or the backend.
+* **Not every value** is stored, only the important ones. The “Persistence Priority” setting (default: HIGH) determines this. More stored values mean more write accesses and, on flash memory (SD card, eMMC), more wear.
+* Each value has its own file on the device. New files are only created as long as at least 100 MB are free.
+
+[#sec-how-energy-amounts-are-created]
+== How energy amounts are created
+
+The web interface shows energy amounts such as “12.3 kWh purchased today”. What is stored, however, is a **meter reading**, similar to the electricity meter in the basement. The energy amount of a period is the difference between the meter reading at the end and the one before the beginning:
+
+[source]
+----
+Energy today = meter reading now − meter reading yesterday at midnight
+----
+
+This is only correct **as long as the meter reading rises steadily**. Any jump in the meter reading appears directly as a wrong energy value.
+
+Where the meter readings come from:
+
+* Many devices have their **own meter** (e.g. the grid meter). It continues to run correctly even when OpenEMS restarts.
+* For devices that only report power, **OpenEMS counts itself**: power times time. After a restart, OpenEMS continues from the last stored meter reading.
+* The **total values** of the system (total purchase, total production, storage, energy flows such as “solar → house”, 17 values in total) are formed from the meters of the individual devices.
+
+[#sec-typical-error-patterns]
+== Typical error patterns
+
+[#sec-negative-values-after-a-restart]
+=== Negative values after a restart
+
+**What it looks like:** A day or month shows negative energy, often in large amounts.
+
+**Why:** If OpenEMS cannot read the last meter reading in time after a restart (waiting time 15 seconds) or no file exists for it yet, the self-counted meter starts again at 0. The meter reading jumps down, and the difference becomes negative. The total values adopt such jumps. Although the description in the source code says that only rising values are adopted, this is not checked.
+
+[#sec-huge-value-followed-by-a-negative-one]
+=== Huge value, followed by a negative one
+
+**What it looks like:** An hour or day shows a completely unrealistic energy amount, the following period a negative value.
+
+**Why:** The **highest** meter reading is stored per hour. A single wrong, too high measured value of a device (e.g. due to a transmission error) thus becomes the hourly value. An hour later the meter is correct again, and therefore lower.
+
+[#sec-small-negative-values]
+=== Small negative values
+
+**What it looks like:** Occasional slightly negative values.
+
+**Why:** Some devices report a meter reading that jumps back briefly by a few watt hours. This can be smoothed harmlessly.
+
+[#sec-unrealistically-high-value-on-the-first-day]
+=== Unrealistically high value on the first day
+
+**What it looks like:** On the day a device was added (or after a long break), a huge energy amount appears.
+
+**Why:** If there is no meter reading before the period, the entire meter reading is counted as energy. If a new device already has a high meter reading, the result is wrong.
+
+[#sec-energy-0-although-the-power-curve-looks-normal]
+=== Energy 0 although the power curve looks normal
+
+**Possible cause:** The meter reading was not counted further during this time, e.g. because a device did not supply any values after a restart. Since the history can also come from an InfluxDB or the backend, **first clarify which source the display comes from.**
+
+[#sec-missing-values-after-time-problems]
+=== Missing values after time problems
+
+If the clock of the device was once in the future (e.g. wrong time at startup), values with an “older” time are **discarded without a message** until the clock reaches this time again. Gaps arise during this time.
+
+[#sec-gaps-during-standstill]
+=== Gaps during standstill
+
+If OpenEMS is not running, nothing is stored. For devices with their own meter, the energy of this time appears collectively after the restart. For devices whose energy OpenEMS counts itself from the power, it is missing entirely.

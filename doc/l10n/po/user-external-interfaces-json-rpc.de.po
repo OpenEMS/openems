@@ -1,0 +1,353 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Title =
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "OpenEMS: JSON-RPC"
+msgstr "OpenEMS: JSON-RPC"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"JSON-RPC is the **common “language”** that the parts of OpenEMS use to talk "
+"to each other: the web interface with the system, the system with the "
+"backend, and third-party systems (e.g. a home automation system) with the "
+"system. If you only operate OpenEMS via the web interface, you will not come "
+"into contact with it. It becomes interesting when you want to query values "
+"from your own programs or control the system."
+msgstr ""
+"JSON-RPC ist die **gemeinsame „Sprache“**, in der sich die Teile von OpenEMS "
+"unterhalten: die Weboberfläche mit der Anlage, die Anlage mit dem Backend "
+"und Fremdsysteme (z. B. eine Hausautomation) mit der Anlage. Wer OpenEMS nur "
+"über die Weboberfläche bedient, kommt damit nicht in Berührung. Interessant "
+"wird es, wenn man Werte aus eigenen Programmen abfragen oder die Anlage "
+"steuern möchte."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "The principle"
+msgstr "Das Prinzip"
+
+#. type: #sec-the-principle
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid "Each message is a small text in JSON format. There are three types:"
+msgstr ""
+"Jede Nachricht ist ein kleiner Text im JSON-Format. Es gibt drei Arten:"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid ""
+"| Type\n"
+"| Meaning\n"
+"| Example\n"
+"\n"
+"| **Request**\n"
+"| “Please do something or give me something.”\n"
+"| “Give me the configuration.”\n"
+"| **Response**\n"
+"| Result or error message for a request\n"
+"| the configuration\n"
+"| **Notification**\n"
+"| Message without a response\n"
+"| “Here are the current measured values.”\n"
+msgstr ""
+"| Art\n"
+"| Bedeutung\n"
+"| Beispiel\n"
+"\n"
+"| **Anfrage**\n"
+"| „Bitte tu etwas oder gib mir etwas.“\n"
+"| „Gib mir die Konfiguration.“\n"
+"| **Antwort**\n"
+"| Ergebnis oder Fehlermeldung zu einer Anfrage\n"
+"| die Konfiguration\n"
+"| **Mitteilung**\n"
+"| Nachricht ohne Antwort\n"
+"| „Hier sind die aktuellen Messwerte.“\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid "A request looks like this, for example:"
+msgstr "Eine Anfrage sieht zum Beispiel so aus:"
+
+#. type: delimited block -
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "{\"jsonrpc\": \"2.0\", \"id\": \"1\", \"method\": \"getEdgeConfig\", \"params\": {}}\n"
+msgstr "{\"jsonrpc\": \"2.0\", \"id\": \"1\", \"method\": \"getEdgeConfig\", \"params\": {}}\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid "`+method+` says **what** is wanted."
+msgstr "`+method+` sagt, **was** gewünscht ist."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid "`+params+` contains the details."
+msgstr "`+params+` enthält die Angaben dazu."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"`+id+` is a freely chosen identifier. The response carries the same `+id+`."
+msgstr ""
+"`+id+` ist eine frei gewählte Kennung. Die Antwort trägt dieselbe `+id+`."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "Which routes"
+msgstr "Über welche Wege"
+
+#. type: #sec-which-routes
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid "The same requests work via different routes:"
+msgstr "Dieselben Anfragen funktionieren über verschiedene Wege:"
+
+#. type: #sec-which-routes
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"**xref:user/external-interfaces/websocket.adoc[Websocket]** – the permanent "
+"connection of the web interface, with live values."
+msgstr ""
+"**xref:user/external-interfaces/websocket.adoc[Websocket]** – die dauerhafte "
+"Verbindung der Weboberfläche, mit Live-Werten."
+
+#. type: #sec-which-routes
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"**xref:user/external-interfaces/rest-control.adoc[REST/HTTP]** – individual "
+"calls, ideal for scripts and home automation."
+msgstr ""
+"**xref:user/external-interfaces/rest-control.adoc[REST/HTTP]** – einzelne "
+"Aufrufe, ideal für Skripte und Hausautomation."
+
+#. type: #sec-which-routes
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"**Backend** – remote access via the central server (see xref:user/cloud-"
+"interfaces/backend-data-transfer.adoc[Data transfer to the backend])."
+msgstr ""
+"**Backend** – Fernzugriff über den zentralen Server (siehe xref:user/cloud-"
+"interfaces/backend-data-transfer.adoc[Datenübertragung zum Backend])."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "What you can do with it"
+msgstr "Was man damit tun kann"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid ""
+"| Task\n"
+"| Request\n"
+"| Required role\n"
+"\n"
+"| View configuration and all value names\n"
+"| `+getEdgeConfig+`\n"
+"| Guest\n"
+"| Retrieve histories (e.g. power over the day)\n"
+"| `+queryHistoricTimeseriesData+`\n"
+"| logged in\n"
+"| Retrieve energy amounts (e.g. purchased today)\n"
+"| `+queryHistoricTimeseriesEnergy+`\n"
+"| logged in\n"
+"| Export history as Excel\n"
+"| `+queryHistoricTimeseriesExportXlxs+`\n"
+"| logged in\n"
+"| Change a setting permanently\n"
+"| `+updateComponentConfig+`\n"
+"| Owner\n"
+"| Retrieve schedule\n"
+"| `+getSchedule+` to `+_energy+`\n"
+"| –\n"
+msgstr ""
+"| Aufgabe\n"
+"| Anfrage\n"
+"| nötige Rolle\n"
+"\n"
+"| Konfiguration und alle Werte-Namen ansehen\n"
+"| `+getEdgeConfig+`\n"
+"| Gast\n"
+"| Verläufe abrufen (z. B. Leistung über den Tag)\n"
+"| `+queryHistoricTimeseriesData+`\n"
+"| angemeldet\n"
+"| Energiemengen abrufen (z. B. Bezug heute)\n"
+"| `+queryHistoricTimeseriesEnergy+`\n"
+"| angemeldet\n"
+"| Historie als Excel exportieren\n"
+"| `+queryHistoricTimeseriesExportXlxs+`\n"
+"| angemeldet\n"
+"| Eine Einstellung dauerhaft ändern\n"
+"| `+updateComponentConfig+`\n"
+"| Eigentümer\n"
+"| Fahrplan abrufen\n"
+"| `+getSchedule+` an `+_energy+`\n"
+"| –\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"“Logged in” means: the source code does not require a specific role. Via "
+"REST, however, a login is always necessary, because REST checks the user "
+"name and password with every request."
+msgstr ""
+"„Angemeldet“ heißt: Der Quellcode verlangt keine bestimmte Rolle. Über REST "
+"ist trotzdem immer eine Anmeldung nötig, weil REST bei jeder Anfrage "
+"Benutzername und Passwort prüft."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"Some functions offer their own requests, e.g. the xref:user/schedule/"
+"overview.adoc[schedule] or the app center. Such requests are sent “wrapped” "
+"to the respective function (`+componentJsonApi+` with the ID of the "
+"function)."
+msgstr ""
+"Manche Funktionen bieten eigene Anfragen an, z. B. der xref:user/schedule/"
+"overview.adoc[Fahrplan] oder das App Center. Solche Anfragen werden "
+"„verpackt“ an die jeweilige Funktion geschickt (`+componentJsonApi+` mit der "
+"ID der Funktion)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid "User roles"
+msgstr "Benutzerrollen"
+
+#. type: #sec-user-roles
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"Each request runs on behalf of a logged-in user. OpenEMS has four roles:"
+msgstr ""
+"Jede Anfrage läuft im Namen eines angemeldeten Benutzers. OpenEMS kennt vier "
+"Rollen:"
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#, no-wrap
+msgid ""
+"| Role\n"
+"| for\n"
+"| may, among other things\n"
+"\n"
+"| Guest (GUEST)\n"
+"| Viewers\n"
+"| view values and histories\n"
+"| Owner (OWNER)\n"
+"| System operators\n"
+"| additionally change settings\n"
+"| Installer (INSTALLER)\n"
+"| Specialist companies\n"
+"| additionally see, install and remove certain apps in the app center\n"
+"| Admin (ADMIN)\n"
+"| Manufacturer / developer\n"
+"| everything\n"
+msgstr ""
+"| Rolle\n"
+"| für\n"
+"| darf u. a.\n"
+"\n"
+"| Gast (GUEST)\n"
+"| Zuschauer\n"
+"| Werte und Verläufe ansehen\n"
+"| Eigentümer (OWNER)\n"
+"| Anlagenbetreiber\n"
+"| zusätzlich Einstellungen ändern\n"
+"| Installateur (INSTALLER)\n"
+"| Fachbetrieb\n"
+"| zusätzlich bestimmte Apps im App Center sehen, installieren und entfernen\n"
+"| Admin (ADMIN)\n"
+"| Hersteller / Entwickler\n"
+"| alles\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"Details for the web interface are on the xref:user/external-interfaces/"
+"websocket.adoc[Websocket] page."
+msgstr ""
+"Details für die Weboberfläche stehen auf der Seite xref:user/external-"
+"interfaces/websocket.adoc[Websocket]."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"**Changing a setting is not the same as setting a control value.** A setting "
+"is stored permanently. A control value only applies temporarily and must be "
+"sent again regularly. See xref:user/external-interfaces/rest-"
+"control.adoc[Control via REST/JSON]."
+msgstr ""
+"**Einstellung ändern ist nicht dasselbe wie Steuerwert setzen.** Eine "
+"Einstellung wird dauerhaft gespeichert. Ein Steuerwert gilt nur "
+"vorübergehend und muss regelmäßig neu gesendet werden. Siehe xref:user/"
+"external-interfaces/rest-control.adoc[Steuern über REST/JSON]."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+msgid ""
+"Do not change settings every minute: in the long term, this puts a strain on "
+"the memory of the device (see xref:user/external-interfaces/"
+"websocket.adoc#sec-note-do-not-write-the-configuration-frequently[Note])."
+msgstr ""
+"Einstellungen nicht im Minutentakt ändern: Das belastet auf Dauer den "
+"Speicher des Geräts (siehe xref:user/external-interfaces/websocket.adoc#sec-"
+"note-do-not-write-the-configuration-frequently[Hinweis])."

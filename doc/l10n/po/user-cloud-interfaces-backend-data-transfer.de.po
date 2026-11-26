@@ -1,0 +1,449 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 12:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#, no-wrap
+msgid "Good to know"
+msgstr "Gut zu wissen"
+
+#. type: Title =
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "OpenEMS: Data transfer to the backend"
+msgstr "OpenEMS: Datenübertragung zum Backend"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"The **backend** is a central server to which systems can connect. It "
+"provides online monitoring on the move, the long-term history and remote "
+"access. This page describes **what the system sends to the backend and "
+"when**, and what it receives from there."
+msgstr ""
+"Das **Backend** ist ein zentraler Server, mit dem sich Anlagen verbinden "
+"können. Darüber laufen das Online-Monitoring von unterwegs, die Langzeit-"
+"Historie und der Fernzugriff. Diese Seite beschreibt, **was die Anlage wann "
+"an das Backend sendet** und was sie von dort bekommt."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"Whether anything is sent at all depends on the setup: without a backend "
+"connection, all data remains on the device. With plain OpenEMS, you operate "
+"the backend yourself or use that of a provider."
+msgstr ""
+"Ob überhaupt etwas gesendet wird, entscheidet die Einrichtung: Ohne Backend-"
+"Verbindung bleiben alle Daten auf dem Gerät. Bei reinem OpenEMS betreibt man "
+"das Backend selbst oder nutzt das eines Anbieters."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr "Einrichtung"
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"The connection is established by the function **Controller.Api.Backend** "
+"(usually `+ctrlBackend0+`)."
+msgstr ""
+"Die Verbindung stellt die Funktion **Controller.Api.Backend** her (meist "
+"`+ctrlBackend0+`)."
+
+#. type: Table
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Default\n"
+"| Meaning\n"
+"\n"
+"| Uri\n"
+"| –\n"
+"| Address of the backend, e.g. `+wss://…+`. Without an entry there is no connection.\n"
+"| Apikey\n"
+"| –\n"
+"| Access key. The backend uses it to recognize the system.\n"
+"| Proxy\n"
+"| –\n"
+"| optional, if the network requires a proxy\n"
+"| Persistence Priority\n"
+"| HIGH\n"
+"| which values are sent continuously\n"
+"| Aggregated values Persistence Priority\n"
+"| LOW\n"
+"| which values are sent as 5-minute values\n"
+"| Resend values Persistence Priority\n"
+"| HIGH\n"
+"| which values are resent after a connection failure\n"
+"| Api-Timeout\n"
+"| 60 s\n"
+"| how long a control value set via the backend applies without being renewed\n"
+msgstr ""
+"| Einstellung\n"
+"| Standard\n"
+"| Bedeutung\n"
+"\n"
+"| Uri\n"
+"| –\n"
+"| Adresse des Backends, z. B. `+wss://…+`. Ohne Angabe gibt es keine Verbindung.\n"
+"| Apikey\n"
+"| –\n"
+"| Zugangsschlüssel. Daran erkennt das Backend die Anlage.\n"
+"| Proxy\n"
+"| –\n"
+"| optional, falls das Netz einen Proxy verlangt\n"
+"| Persistence Priority\n"
+"| HIGH\n"
+"| welche Werte laufend gesendet werden\n"
+"| Aggregated values Persistence Priority\n"
+"| LOW\n"
+"| welche Werte als 5-Minuten-Werte gesendet werden\n"
+"| Resend values Persistence Priority\n"
+"| HIGH\n"
+"| welche Werte nach einem Verbindungsausfall nachgesendet werden\n"
+"| Api-Timeout\n"
+"| 60 s\n"
+"| wie lange ein über das Backend gesetzter Steuerwert ohne Erneuerung gilt\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "How the connection is established"
+msgstr "Wie die Verbindung aufgebaut wird"
+
+#. type: #sec-how-the-connection-is-established
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**The system establishes the connection itself**, outwards to the backend. "
+"Therefore no port has to be opened in the router."
+msgstr ""
+"**Die Anlage baut die Verbindung selbst auf**, nach außen zum Backend. Im "
+"Router muss deshalb kein Port freigegeben werden."
+
+#. type: #sec-how-the-connection-is-established
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"It is a permanent websocket connection. Interrupted connections are "
+"automatically re-established."
+msgstr ""
+"Es ist eine dauerhafte Websocket-Verbindung. Abgebrochene Verbindungen "
+"werden automatisch neu aufgebaut."
+
+#. type: #sec-how-the-connection-is-established
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"When establishing the connection, the system sends the **Apikey** and a "
+"random identifier that is newly generated at each program start. The user "
+"name and password of the system are not transmitted."
+msgstr ""
+"Beim Verbindungsaufbau schickt die Anlage den **Apikey** und eine zufällige "
+"Kennung, die bei jedem Programmstart neu erzeugt wird. Benutzername und "
+"Passwort der Anlage werden dabei nicht übertragen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "What is sent and when"
+msgstr "Was wann gesendet wird"
+
+#. type: Table
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid ""
+"| What\n"
+"| When\n"
+"| Content\n"
+"\n"
+"| **Configuration**\n"
+"| after the connection is established and at every change\n"
+"| all configured devices and functions with their settings and the list of their values\n"
+"| **Current values**\n"
+"| **every second** (per program cycle)\n"
+"| only values that have **changed**; once every 5 minutes all values in full\n"
+"| **5-minute values**\n"
+"| every 5 minutes, with a random delay of up to 4½ minutes\n"
+"| summarized values of the last 5 minutes: average, for meter readings the reading\n"
+"| **Resent values**\n"
+"| after a connection failure, at the earliest 5 minutes after reconnecting (randomly distributed, up to about an hour later)\n"
+"| the values stored locally in the meantime (from the xref:user/data/history-rrd4j.adoc[history])\n"
+"| **Schedule**\n"
+"| only as long as someone is viewing it via the backend\n"
+"| the current xref:user/schedule/overview.adoc[schedule] at each re-planning\n"
+"| **System log**\n"
+"| only as long as someone is following it via the backend\n"
+"| the current log lines of the system\n"
+"| **Responses**\n"
+"| on request\n"
+"| Responses to requests from the web interface, e.g. histories, settings, app center\n"
+msgstr ""
+"| Was\n"
+"| Wann\n"
+"| Inhalt\n"
+"\n"
+"| **Konfiguration**\n"
+"| nach dem Verbindungsaufbau und bei jeder Änderung\n"
+"| alle eingerichteten Geräte und Funktionen mit ihren Einstellungen und der Liste ihrer Werte\n"
+"| **Aktuelle Werte**\n"
+"| **jede Sekunde** (je Programmzyklus)\n"
+"| nur Werte, die sich **geändert** haben; alle 5 Minuten einmal alle Werte vollständig\n"
+"| **5-Minuten-Werte**\n"
+"| alle 5 Minuten, mit zufälliger Verzögerung von bis zu 4½ Minuten\n"
+"| zusammengefasste Werte der letzten 5 Minuten: Mittelwert, bei Zählerständen der Stand\n"
+"| **Nachgesendete Werte**\n"
+"| nach einem Verbindungsausfall, frühestens 5 Minuten nach dem Wiederverbinden (zufällig verteilt, bis etwa eine Stunde später)\n"
+"| die in der Zwischenzeit lokal gespeicherten Werte (aus der xref:user/data/history-rrd4j.adoc[Historie])\n"
+"| **Fahrplan**\n"
+"| nur solange jemand ihn über das Backend ansieht\n"
+"| der aktuelle xref:user/schedule/overview.adoc[Fahrplan] bei jeder Neuplanung\n"
+"| **Systemprotokoll**\n"
+"| nur solange jemand es über das Backend mitliest\n"
+"| die laufenden Protokollzeilen der Anlage\n"
+"| **Antworten**\n"
+"| auf Anfrage\n"
+"| Antworten auf Anfragen aus der Weboberfläche, z. B. Verläufe, Einstellungen, App Center\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"The random delay for the 5-minute values ensures that not all systems send "
+"in the same second."
+msgstr ""
+"Die zufällige Verzögerung bei den 5-Minuten-Werten sorgt dafür, dass nicht "
+"alle Anlagen zur selben Sekunde senden."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "Which values are sent"
+msgstr "Welche Werte gesendet werden"
+
+#. type: #sec-which-values-are-sent
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"Not every measured value goes to the backend. Each value has a **priority** "
+"(VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH). Only values with at least the set "
+"priority are sent:"
+msgstr ""
+"Nicht jeder Messwert geht an das Backend. Jeder Wert hat eine **Priorität** "
+"(VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH). Gesendet wird nur, was mindestens "
+"die eingestellte Priorität hat:"
+
+#. type: #sec-which-values-are-sent
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Continuously, every second:** values with priority HIGH or above, i.e. "
+"mainly the important total values such as grid, production, consumption and "
+"storage."
+msgstr ""
+"**Laufend, jede Sekunde:** Werte ab Priorität HIGH, also vor allem die "
+"wichtigen Summenwerte wie Netz, Erzeugung, Verbrauch und Speicher."
+
+#. type: #sec-which-values-are-sent
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**As 5-minute values:** values with priority LOW or above, i.e. "
+"significantly more detailed values of individual devices."
+msgstr ""
+"**Als 5-Minuten-Werte:** Werte ab Priorität LOW, also deutlich mehr "
+"Detailwerte einzelner Geräte."
+
+#. type: #sec-which-values-are-sent
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Resent:** values with priority HIGH or above. This setting should match "
+"the priority of the local history, because only what was stored locally can "
+"be resent."
+msgstr ""
+"**Nachgesendet:** Werte ab Priorität HIGH. Diese Einstellung sollte zur "
+"Priorität der lokalen Historie passen, denn nachgesendet werden kann nur, "
+"was lokal gespeichert wurde."
+
+#. type: #sec-which-values-are-sent
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid "Pure control values (write-only) are never sent."
+msgstr "Reine Steuerwerte (nur schreibbar) werden nie gesendet."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "After a connection failure"
+msgstr "Nach einem Verbindungsausfall"
+
+#. type: #sec-after-a-connection-failure
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"During the interruption, the per-second values are lost; there is no buffer."
+msgstr ""
+"Während der Unterbrechung gehen die sekündlichen Werte verloren; es gibt "
+"keinen Puffer."
+
+#. type: #sec-after-a-connection-failure
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid "The system notes in its local history **when it could not send**."
+msgstr ""
+"Die Anlage merkt sich in ihrer lokalen Historie, **wann sie nicht senden "
+"konnte**."
+
+#. type: #sec-after-a-connection-failure
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"After reconnecting, it first sends the configuration and all current values."
+msgstr ""
+"Nach dem Wiederverbinden schickt sie zuerst Konfiguration und alle aktuellen "
+"Werte."
+
+#. type: #sec-after-a-connection-failure
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"At the earliest after 5 minutes, randomly distributed up to about an hour "
+"later, the missing periods from the local history are resent, in sections of "
+"5 minutes. These values have the resolution of the local history (5-minute "
+"values)."
+msgstr ""
+"Frühestens nach 5 Minuten, zufällig verteilt bis etwa eine Stunde später, "
+"werden die fehlenden Zeiträume aus der lokalen Historie nachgesendet, in "
+"Abschnitten von 5 Minuten. Diese Werte haben die Auflösung der lokalen "
+"Historie (5-Minuten-Werte)."
+
+#. type: #sec-after-a-connection-failure
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"Without a local history (e.g. rrd4j deactivated), the gap in the backend "
+"remains."
+msgstr ""
+"Ohne lokale Historie (z. B. rrd4j deaktiviert) bleibt die Lücke im Backend "
+"bestehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid "What the system receives from the backend"
+msgstr "Was die Anlage vom Backend bekommt"
+
+#. type: Table
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#, no-wrap
+msgid ""
+"| What\n"
+"| What for\n"
+"\n"
+"| Requests from the web interface\n"
+"| Anyone operating the system on the move sends their requests via the backend. The user's xref:user/external-interfaces/websocket.adoc#sec-functions-and-user-roles[roles] in the backend apply.\n"
+"| Exchange electricity prices\n"
+"| as one of the price sources for xref:user/storage-control/time-of-use-tariffs.adoc[time-of-use tariffs]\n"
+"| Exchange rates\n"
+"| for converting prices into the currency of the system\n"
+msgstr ""
+"| Was\n"
+"| Wofür\n"
+"\n"
+"| Anfragen aus der Weboberfläche\n"
+"| Wer die Anlage von unterwegs bedient, schickt seine Anfragen über das Backend. Es gelten die xref:user/external-interfaces/websocket.adoc#sec-functions-and-user-roles[Rollen] des Benutzers im Backend.\n"
+"| Börsenstrompreise\n"
+"| als eine der Preisquellen für xref:user/storage-control/time-of-use-tariffs.adoc[dynamische Stromtarife]\n"
+"| Wechselkurse\n"
+"| zur Umrechnung der Preise in die Währung der Anlage\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"Prices and exchange rates are **subscribed to**: the backend sends them as "
+"soon as they change. If no backend is set up or it cannot be reached for "
+"more than 5 minutes, the system retrieves this data itself from the internet."
+msgstr ""
+"Preise und Wechselkurse werden **abonniert**: Das Backend schickt sie, "
+"sobald sie sich ändern. Ist kein Backend eingerichtet oder ist es länger als "
+"5 Minuten nicht erreichbar, holt die Anlage diese Daten selbst aus dem "
+"Internet."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Data volume:** The per-second values account for most of the data volume. "
+"Since only changed values are sent, the volume depends on how much is "
+"changing in the system."
+msgstr ""
+"**Datenmenge:** Die meiste Datenmenge machen die sekündlichen Werte aus. Da "
+"nur geänderte Werte gesendet werden, hängt die Menge davon ab, wie viel sich "
+"in der Anlage bewegt."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Data protection:** With the backend, measured values and the configuration "
+"leave the house. If you do not want this, do not set up a backend "
+"connection. The system is fully functional locally."
+msgstr ""
+"**Datenschutz:** Mit dem Backend verlassen Messwerte und die Konfiguration "
+"das Haus. Wer das nicht möchte, richtet keine Backend-Verbindung ein. Die "
+"Anlage funktioniert lokal vollständig."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Control via the backend:** Control values set via the backend also only "
+"apply until the Api-Timeout (see xref:user/external-interfaces/rest-"
+"control.adoc[Control via REST/JSON])."
+msgstr ""
+"**Steuern über das Backend:** Auch über das Backend gesetzte Steuerwerte "
+"gelten nur bis zum Api-Timeout (siehe xref:user/external-interfaces/rest-"
+"control.adoc[Steuern über REST/JSON])."
+
+#. type: #sec-good-to-know
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+msgid ""
+"**Troubleshooting:** If the system cannot send, the backend function shows a "
+"warning (“Unable to send”)."
+msgstr ""
+"**Fehlersuche:** Kann die Anlage nicht senden, zeigt die Backend-Funktion "
+"eine Warnung („Unable to send“)."
