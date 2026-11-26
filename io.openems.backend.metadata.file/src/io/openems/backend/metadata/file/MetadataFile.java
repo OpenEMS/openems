@@ -39,6 +39,7 @@ import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
@@ -132,6 +133,17 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			}
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public synchronized UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		this.refreshData();
+		var apikeysToEdgeIds = new HashMap<String, String>();
+		for (Entry<String, MyEdge> entry : this.edges.entrySet()) {
+			var edge = entry.getValue();
+			apikeysToEdgeIds.put(edge.getApikey(), edge.getId());
+		}
+		return new UpdateMetadataCache.Notification(apikeysToEdgeIds);
 	}
 
 	@Override
