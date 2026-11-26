@@ -16,7 +16,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Charge-Point is ready for charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Cable is plugged on Charge-Point and Electric-Vehicle
 		 * <li>RFID authorization is OK (if required)
@@ -41,14 +41,14 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 
 	/**
 	 * Gets the {@link ChargePointAbilities}.
-	 * 
+	 *
 	 * @return the {@link ChargePointAbilities}
 	 */
 	public ChargePointAbilities getChargePointAbilities();
 
 	/**
 	 * Apply {@link ChargePointActions}.
-	 * 
+	 *
 	 * @param actions the {@link ChargePointActions}
 	 */
 	public void apply(ChargePointActions actions);
@@ -71,7 +71,7 @@ public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 	/**
 	 * Gets the {@link MeterType} of an {@link EvseChargePoint}
 	 * {@link ElectricityMeter}.
-	 * 
+	 *
 	 * @return the {@link MeterType}
 	 */
 	@Override
