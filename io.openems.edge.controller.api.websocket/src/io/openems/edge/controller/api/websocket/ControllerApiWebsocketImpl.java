@@ -31,6 +31,7 @@ import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandler;
+import io.openems.edge.controller.api.websocket.externalauth.ExternalAuthentication;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -92,7 +93,7 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 		});
 		this.onRequest.setDebug(config.debugMode());
-		this.startServer(config.port(), POOL_SIZE);
+		this.startServer(config, POOL_SIZE);
 
 	}
 
@@ -108,11 +109,18 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 	/**
 	 * Create and start new server.
 	 *
-	 * @param port     the port
+	 * @param config   the configuration
 	 * @param poolSize number of threads dedicated to handle the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize) {
-		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize);
+	private synchronized void startServer(Config config, int poolSize) {
+		final var externalAuthentication = new ExternalAuthentication(ExternalAuthentication.Config.create(//
+				config.externalAuthEnabled(), //
+				config.externalAuthTrustedProxyCidrs(), //
+				config.externalAuthUserIdHeader(), //
+				config.externalAuthUserNameHeader(), //
+				config.externalAuthRoleHeader(), //
+				config.externalAuthDefaultRole()));
+		this.server = new WebsocketServer(this, "Websocket Api", config.port(), poolSize, externalAuthentication);
 		this.server.start();
 	}
 
