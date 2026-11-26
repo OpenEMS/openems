@@ -1,0 +1,199 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid "OpenEMS: Weather"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"OpenEMS gets weather data from the **Open-Meteo** service. The data is "
+"mainly needed for the xref:user/schedule/forecasts.adoc[solar yield "
+"forecast]. The web interface also uses it to show the current weather and a "
+"forecast."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"The function is called **Weather.OpenMeteo** and has **no settings of its "
+"own**."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"The **location** comes from the system settings (Meta). It must be correct "
+"there, otherwise the solar forecast will not match."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"An **access key** is not required. Without a key, the freely usable Open-"
+"Meteo access is used. The commercial access is only used if a manufacturer "
+"supplies its own key."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid "The system needs internet access."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid "Which data"
+msgstr ""
+
+#. type: #sec-which-data
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"**Forecast for 7 days**, in quarter hours: solar irradiation (total, direct, "
+"diffuse), temperature, snowfall and snow depth."
+msgstr ""
+
+#. type: #sec-which-data
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"Hourly and daily: weather condition (symbol), temperature, minimum and "
+"maximum values, sunshine duration."
+msgstr ""
+
+#. type: #sec-which-data
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"**Past weather:** To train the solar forecast, weather data of past days at "
+"the location is also retrieved."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid "How often it is updated"
+msgstr ""
+
+#. type: #sec-how-often-it-is-updated
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid "Immediately at startup."
+msgstr ""
+
+#. type: #sec-how-often-it-is-updated
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"After that **every 3 hours**, with a random delay of up to 5 minutes. The "
+"random delay prevents all systems from sending requests at the same time."
+msgstr ""
+
+#. type: #sec-how-often-it-is-updated
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid "If a request fails, it is retried after about 10 to 70 seconds."
+msgstr ""
+
+#. type: #sec-how-often-it-is-updated
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"If the forecast is outdated, it is no longer used. The basis for the solar "
+"forecast is then also missing."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid "What you see in OpenEMS"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid ""
+"| Value\n"
+"| Meaning\n"
+"\n"
+"| Current temperature\n"
+"| in °C\n"
+"| Current weather condition\n"
+"| as a weather code (symbol)\n"
+"| Sunshine duration today\n"
+"| in seconds\n"
+"| Minimum/maximum temperature today\n"
+"| in °C\n"
+"| HTTP status\n"
+"| Result of the last request (helps with troubleshooting)\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"In addition, forecast values are stored every hour, so they can be seen "
+"later in the history."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#, no-wrap
+msgid "If something is wrong"
+msgstr ""
+
+#. type: #sec-if-something-is-wrong
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid ""
+"**Solar forecast does not match at all:** First check the location in the "
+"system settings."
+msgstr ""
+
+#. type: #sec-if-something-is-wrong
+#: modules/ROOT/pages/user/schedule/weather.adoc
+msgid "**No weather data:** Check the internet connection and the HTTP status."
+msgstr ""

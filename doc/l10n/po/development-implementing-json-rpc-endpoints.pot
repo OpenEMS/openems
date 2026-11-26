@@ -1,0 +1,299 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title =
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "JSON-RPC endpoints"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"The UI, Backend and external programs communicate with the Edge via JSON-RPC "
+"(Websocket, REST `+/jsonrpc+`, forwarded via the Backend). The protocol is "
+"described in xref:component-communication/index.adoc[Component "
+"Communication]. A component can offer its own methods, e.g. the Controller "
+"for time-of-use tariffs offers the method `+getSchedule+`. How to call such "
+"requests from outside is described on the user page xref:user/external-"
+"interfaces/json-rpc.adoc[JSON-RPC]."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "Route of a request"
+msgstr ""
+
+#. type: #sec-route-of-a-request
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Methods of a component are not called directly, but wrapped in "
+"`+componentJsonApi+`:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"{\n"
+"  \"jsonrpc\": \"2.0\", \"id\": \"UUID\", \"method\": \"componentJsonApi\",\n"
+"  \"params\": {\n"
+"    \"componentId\": \"ctrlEssTimeOfUseTariff0\",\n"
+"    \"payload\": {\n"
+"      \"jsonrpc\": \"2.0\", \"id\": \"UUID\", \"method\": \"getSchedule\", \"params\": {}\n"
+"    }\n"
+"  }\n"
+"}\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"The `+ComponentRequestHandler+` (`+io.openems.edge.controller.api.common+`) "
+"binds **all** components that offer the interface `+ComponentJsonApi+` via "
+"OSGi reference (dynamic, any number). It looks for the component via "
+"`+componentId+` and passes `+payload+` on to its routes. If the ID is "
+"unknown, “Component with id '…' was not found” is returned."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "Offering an endpoint"
+msgstr ""
+
+#. type: #sec-offering-an-endpoint
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"The component implements `+ComponentJsonApi+` and names the interface in the "
+"`+implements+` list (otherwise it is not found as a service)."
+msgstr ""
+
+#. type: #sec-offering-an-endpoint
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"It overrides `+buildJsonApiRoutes(JsonApiBuilder builder)+` and registers "
+"its methods there."
+msgstr ""
+
+#. type: #sec-offering-an-endpoint
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid "Simple form (from `+TimeOfUseTariffControllerImpl+`):"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"@Override\n"
+"public void buildJsonApiRoutes(JsonApiBuilder builder) {\n"
+"    builder.handleRequest(GetScheduleRequest.METHOD, call -> {\n"
+"        return GetScheduleResponse.from(call.getRequest().getId(), this.id(),\n"
+"                this.componentManager.getClock(), this.ess, this.timedata, this.energyScheduleHandler);\n"
+"    });\n"
+"}\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Here the handler works with the raw `+JsonrpcRequest+`; the request class "
+"has a constant `+METHOD+` and a method `+from(JsonrpcRequest)+` that reads "
+"the parameters."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "Typed form"
+msgstr ""
+
+#. type: #sec-typed-form
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Newer endpoints describe request and response as a type "
+"(`+EndpointRequestType+`) with serializers. Example "
+"`+DisconnectOAuthConnection+`:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"public class DisconnectOAuthConnection\n"
+"        implements EndpointRequestType<DisconnectOAuthConnection.Request, EmptyObject> {\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"    public String getMethod() { return \"disconnectOAuthConnection\"; }\n"
+"    public JsonSerializer<Request> getRequestSerializer() { return Request.serializer(); }\n"
+"    public JsonSerializer<EmptyObject> getResponseSerializer() { return EmptyObject.serializer(); }\n"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"    public record Request(String identifier) {\n"
+"        public static JsonSerializer<Request> serializer() {\n"
+"            return jsonObjectSerializer(Request.class,\n"
+"                    json -> new Request(json.getString(\"identifier\")),\n"
+"                    obj -> JsonUtils.buildJsonObject().addProperty(\"identifier\", obj.identifier()).build());\n"
+"        }\n"
+"    }\n"
+"}\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid "Registration with description and role check:"
+msgstr ""
+
+#. type: delimited block -
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"builder.handleRequest(new DisconnectOAuthConnection(),\n"
+"        endpoint -> endpoint.setDescription(\"Disconnects an OAuth connection.\")\n"
+"                .setGuards(EdgeGuards.roleIsAtleast(Role.OWNER)),\n"
+"        call -> {\n"
+"            var request = call.getRequest();       // already as a record\n"
+"            ...\n"
+"            return EmptyObject.INSTANCE;\n"
+"        });\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"(The registration is an example; the role required by the original endpoint "
+"is in its component.)"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Advantage: reading the parameters is in one place, the handler receives "
+"finished objects, and the description appears in the endpoint overview."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "Roles and guards"
+msgstr ""
+
+#. type: #sec-roles-and-guards
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"An endpoint only checks roles if it sets **guards**. "
+"`+EndpointDefinitionBuilder+` starts with an empty guard list, and "
+"`+componentJsonApi+` itself does not set any."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid ""
+"| Guard (`+EdgeGuards+`)\n"
+"| Effect\n"
+"\n"
+"| `+roleIsAtleast(role)+`\n"
+"| User needs at least this role.\n"
+"| `+roleIsAtleastFromBackend(role)+`\n"
+"| only for requests coming via the Backend: at least this role\n"
+"| `+roleIsAtleastNotFromBackend(role)+`\n"
+"| only for local requests: at least this role\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Roles from low to high: GUEST, OWNER, INSTALLER, ADMIN. Example from the "
+"`+ComponentManager+`: `+getEdgeConfig+` requires GUEST; "
+"`+createComponentConfig+` requires INSTALLER via the Backend, ADMIN locally "
+"(both guards set at the same time)."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"**Recommendation:** Every endpoint sets a guard, at least "
+"`+roleIsAtleast(Role.GUEST)+`; endpoints that change something or provide "
+"confidential data accordingly higher."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#, no-wrap
+msgid "Other building blocks"
+msgstr ""
+
+#. type: #sec-other-building-blocks
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"`+call.get(EdgeKeys.USER_KEY)+` returns the logged-in user, e.g. for logging "
+"or your own checks."
+msgstr ""
+
+#. type: #sec-other-building-blocks
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"`+builder.delegate(…)+` forwards sub-requests to another builder; "
+"`+componentJsonApi+` itself is built this way."
+msgstr ""
+
+#. type: #sec-other-building-blocks
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Errors are reported as an exception (`+OpenemsNamedException+`, "
+"`+OpenemsException+`); it becomes the JSON-RPC error response."
+msgstr ""
+
+#. type: #sec-other-building-blocks
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+msgid ""
+"Requests with a long runtime block the caller until the response. It is "
+"better to prepare or cache computationally intensive work."
+msgstr ""

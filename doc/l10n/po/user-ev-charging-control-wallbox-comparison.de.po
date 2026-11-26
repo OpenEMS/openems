@@ -1,0 +1,764 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "OpenEMS: Wallbox control compared (OpenEMS, evcc, openWB)"
+msgstr "OpenEMS: Wallbox-Steuerung im Vergleich (OpenEMS, evcc, openWB)"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"This page compares how **OpenEMS**, **evcc** and **openWB 2** charge "
+"electric cars: which wallboxes they control, what charging modes there are, "
+"how they take the home storage into account and how load management works. "
+"The basis in each case is the source code (OpenEMS develop, evcc development "
+"version “master”, openWB 2 “core” master). None of this has been tried out. "
+"How the three systems exchange data **with each other** is on xref:user/"
+"third-party/overview.adoc[Third-party systems on OpenEMS]."
+msgstr ""
+"Diese Seite vergleicht, wie **OpenEMS**, **evcc** und **openWB 2** "
+"Elektroautos laden: welche Wallboxen sie ansteuern, welche Lademodi es gibt, "
+"wie sie den Hausspeicher berücksichtigen und wie das Lastmanagement "
+"funktioniert. Grundlage ist jeweils der Quellcode (OpenEMS develop, evcc "
+"Entwicklungsstand „master“, openWB 2 „core“ master). Ausprobiert wurde "
+"nichts davon. Wie die drei Systeme **miteinander** Daten austauschen, steht "
+"auf xref:user/third-party/overview.adoc[Fremdsysteme an OpenEMS]."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Note on evcc: In the development version and in the published version "
+"0.318.2 (latest version on 2026-11-01), the previous modes “PV” and "
+"“Min{plus}PV” are combined into one mode **“Smart”**. The old names are "
+"still accepted and converted to “Smart”."
+msgstr ""
+"Hinweis zu evcc: Im Entwicklungsstand und in der veröffentlichten Version "
+"0.318.2 (neueste Version am 01.11.2026) sind die bisherigen Modi „PV“ und "
+"„Min{plus}PV“ zu einem Modus **„Smart“** zusammengefasst. Die alten Namen "
+"werden noch angenommen und in „Smart“ umgewandelt."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "At a glance"
+msgstr "Auf einen Blick"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| OpenEMS\n"
+"| evcc\n"
+"| openWB 2\n"
+"\n"
+"| Basic idea\n"
+"| Energy management for storage, PV and consumers; charging is one function among many\n"
+"| pure charging control, complements an existing system\n"
+"| Wallbox with built-in control\n"
+"| Third-party wallboxes\n"
+"| yes, about 20 drivers\n"
+"| yes, very many (over 200 templates)\n"
+"| only openWB devices, smartWB/EVSE-WiFi and a general MQTT charge point\n"
+"| Vehicle state of charge (SoC) from the car\n"
+"| no; vehicle only as characteristic data (capacity, minimum/maximum power)\n"
+"| yes, around 70 vehicle templates (manufacturer clouds, etc.)\n"
+"| yes, around 25 vehicle modules\n"
+"| Immediate charging\n"
+"| Fast Charging\n"
+"| Now\n"
+"| Instant charging\n"
+"| PV surplus only\n"
+"| PV Surplus\n"
+"| Smart\n"
+"| PV charging\n"
+"| Minimum power {plus} surplus\n"
+"| PV Surplus with guaranteed charge\n"
+"| Smart with “always charge” (formerly Min{plus}PV)\n"
+"| PV charging with minimum current\n"
+"| Target by time\n"
+"| via time schedule with minimum charging amount and energy optimizer\n"
+"| Charging plan (target SoC or energy by time)\n"
+"| Target charging\n"
+"| Low electricity price\n"
+"| via energy optimizer with time-of-use tariff\n"
+"| “Smart charging” below price limit, optimizer\n"
+"| Eco charging\n"
+"| Fixed time windows\n"
+"| Time schedule (JSCalendar) per charge point\n"
+"| Charging plan\n"
+"| Time charging\n"
+"| Phase switching 1/3\n"
+"| yes (automatic, with lock times)\n"
+"| yes (automatic)\n"
+"| yes (automatic, adjustable delay)\n"
+"| Home storage during surplus charging\n"
+"| Car has priority; storage is not discharged into the car\n"
+"| adjustable: priority for storage up to SoC X, storage usable for the car from SoC Y\n"
+"| adjustable: priority for car, priority for storage or minimum SoC of the storage\n"
+"| Actively controlling the storage\n"
+"| yes (own control functions)\n"
+"| yes, if the storage is connected in a controllable way (with OpenEMS via REST/Modbus)\n"
+"| yes, for controllable storage; not with OpenEMS (read-only connection)\n"
+"| Load management (house connection)\n"
+"| only with the older charge point connection (multi-charge-point management)\n"
+"| yes, circuits with current and power limits, can be nested\n"
+"| yes, meter hierarchy with current limits per phase and power limit, unbalanced load\n"
+"| Several charge points\n"
+"| Cluster: even or by priority\n"
+"| Priority per charge point\n"
+"| via load management and charging modes\n"
+"| § 14a (dimming by grid operator)\n"
+"| in the code only for the storage, not for charge points\n"
+"| yes (relay, EEBus, etc.)\n"
+"| yes (controllable consumers)\n"
+msgstr ""
+"| \n"
+"| OpenEMS\n"
+"| evcc\n"
+"| openWB 2\n"
+"\n"
+"| Grundidee\n"
+"| Energiemanagement für Speicher, PV und Verbraucher; Laden ist eine Funktion unter vielen\n"
+"| reine Lade-Steuerung, ergänzt ein vorhandenes System\n"
+"| Wallbox mit eingebauter Steuerung\n"
+"| Fremde Wallboxen\n"
+"| ja, etwa 20 Treiber\n"
+"| ja, sehr viele (über 200 Vorlagen)\n"
+"| nur openWB-Geräte, smartWB/EVSE-WiFi und ein allgemeiner MQTT-Ladepunkt\n"
+"| Fahrzeug-Ladestand (SoC) aus dem Auto\n"
+"| nein; Fahrzeug nur als Kenndaten (Kapazität, Mindest-/Höchstleistung)\n"
+"| ja, rund 70 Fahrzeug-Vorlagen (Hersteller-Clouds u. a.)\n"
+"| ja, rund 25 Fahrzeug-Module\n"
+"| Sofortladen\n"
+"| Schnellladen\n"
+"| Schnell (Now)\n"
+"| Sofortladen\n"
+"| Nur PV-Überschuss\n"
+"| PV-Überschuss\n"
+"| Smart\n"
+"| PV-Laden\n"
+"| Mindestleistung {plus} Überschuss\n"
+"| PV-Überschuss mit garantierter Beladung\n"
+"| Smart mit „immer laden“ (früher Min{plus}PV)\n"
+"| PV-Laden mit Mindeststrom\n"
+"| Ziel bis Uhrzeit\n"
+"| über Zeitplan mit Mindest-Lademenge und Energie-Optimierer\n"
+"| Ladeplan (Ziel-SoC oder Energie bis Uhrzeit)\n"
+"| Zielladen\n"
+"| Günstiger Strompreis\n"
+"| über Energie-Optimierer bei dynamischem Stromtarif\n"
+"| „smartes Laden“ unter Preisgrenze, Optimierer\n"
+"| Eco-Laden\n"
+"| Feste Zeitfenster\n"
+"| Zeitplan (JSCalendar) je Ladepunkt\n"
+"| Ladeplan\n"
+"| Zeitladen\n"
+"| Phasenumschaltung 1/3\n"
+"| ja (automatisch, mit Sperrzeiten)\n"
+"| ja (automatisch)\n"
+"| ja (automatisch, Verzögerung einstellbar)\n"
+"| Hausspeicher beim Überschussladen\n"
+"| Auto hat Vorrang; Speicher wird nicht ins Auto entladen\n"
+"| einstellbar: Vorrang Speicher bis SoC X, Speicher ab SoC Y fürs Auto nutzbar\n"
+"| einstellbar: Vorrang Auto, Vorrang Speicher oder Mindest-SoC des Speichers\n"
+"| Speicher aktiv steuern\n"
+"| ja (eigene Steuerfunktionen)\n"
+"| ja, wenn der Speicher steuerbar angebunden ist (bei OpenEMS über REST/Modbus)\n"
+"| ja, für steuerbare Speicher; bei OpenEMS nicht (nur lesend angebunden)\n"
+"| Lastmanagement (Hausanschluss)\n"
+"| nur bei älterer Ladepunkt-Anbindung (Multiladepunkt Management)\n"
+"| ja, Stromkreise („circuits“) mit Strom- und Leistungsgrenzen, verschachtelbar\n"
+"| ja, Zähler-Hierarchie mit Stromgrenzen je Phase und Leistungsgrenze, Schieflast\n"
+"| Mehrere Ladepunkte\n"
+"| Cluster: gleichmäßig oder nach Priorität\n"
+"| Priorität je Ladepunkt\n"
+"| über Lastmanagement und Lademodi\n"
+"| § 14a (Dimmen durch Netzbetreiber)\n"
+"| im Code nur für den Speicher, nicht für Ladepunkte\n"
+"| ja (Relais, EEBus u. a.)\n"
+"| ja (steuerbare Verbraucher)\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Supported wallboxes"
+msgstr "Unterstützte Wallboxen"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "OpenEMS"
+msgstr "OpenEMS"
+
+#. type: #sec-openems
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "OpenEMS has two charge point connections side by side:"
+msgstr "OpenEMS hat zwei Ladepunkt-Anbindungen nebeneinander:"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| Connection\n"
+"| Wallboxes in the code\n"
+"| Control\n"
+"\n"
+"| **New charge point control (EVSE)**\n"
+"| Alfen, Alpitronic, Ambibox, Bender, Hardy Barth (cPH1 and others), Heidelberg Connect, KEBA (Modbus, UDP, Core), Mennekes, Voltie\n"
+"| xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and phase switching], cluster, time schedule, energy optimizer\n"
+"| **Older connection (EVCS)**\n"
+"| ABL, Alpitronic Hypercharger, go-e (HTTP, Modbus, Charger Home), Hardy Barth, Heidelberg Energy, KEBA (KeContact, P40), Mennekes, Spelsberg SMART, Webasto Next and Unite, OCPP charging stations (server; drivers for ABL and IES Keywatt), openWB (read only)\n"
+"| Control function “Controller Electric Vehicle Charging Station”, multi-charge-point management\n"
+msgstr ""
+"| Anbindung\n"
+"| Wallboxen im Code\n"
+"| Steuerung\n"
+"\n"
+"| **Neue Ladepunkt-Steuerung (EVSE)**\n"
+"| Alfen, Alpitronic, Ambibox, Bender, Hardy Barth (cPH1 und weitere), Heidelberg Connect, KEBA (Modbus, UDP, Core), Mennekes, Voltie\n"
+"| xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen und Phasenumschaltung], Cluster, Zeitplan, Energie-Optimierer\n"
+"| **Ältere Anbindung (EVCS)**\n"
+"| ABL, Alpitronic Hypercharger, go-e (HTTP, Modbus, Charger Home), Hardy Barth, Heidelberg Energy, KEBA (KeContact, P40), Mennekes, Spelsberg SMART, Webasto Next und Unite, OCPP-Ladesäulen (Server; Treiber für ABL und IES Keywatt), openWB (nur lesen)\n"
+"| Steuerfunktion „Controller Electric Vehicle Charging Station“, Multiladepunkt Management\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Some manufacturers exist in both connections. New apps in the app center use "
+"EVSE control for Alfen, KEBA and Mennekes (see xref:user/devices/"
+"cluster.adoc[Cluster])."
+msgstr ""
+"Einige Hersteller gibt es in beiden Anbindungen. Neue Apps im App Center "
+"nutzen für Alfen, KEBA und Mennekes die EVSE-Steuerung (siehe xref:user/"
+"devices/cluster.adoc[Cluster])."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "evcc"
+msgstr "evcc"
+
+#. type: #sec-evcc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"evcc comes with over 200 templates for “chargers” from around 185 brands, "
+"including almost all common wallboxes (ABL, Alfen, Easee, go-e, Hardy Barth, "
+"Heidelberg, KEBA, Mennekes, openWB, Tesla, Webasto, Zaptec and many more), "
+"general routes such as OCPP, EEBus and Modbus as well as switchable sockets "
+"and heat pumps or heating elements. For OpenEMS systems, there is **no** "
+"template that controls a wallbox connected to OpenEMS via OpenEMS; evcc "
+"always controls the wallbox directly."
+msgstr ""
+"evcc bringt über 200 Vorlagen für „Charger“ von rund 185 Marken mit, "
+"darunter fast alle verbreiteten Wallboxen (ABL, Alfen, Easee, go-e, Hardy "
+"Barth, Heidelberg, KEBA, Mennekes, openWB, Tesla, Webasto, Zaptec u. v. m.), "
+"allgemeine Wege wie OCPP, EEBus und Modbus sowie schaltbare Steckdosen und "
+"Wärmepumpen bzw. Heizstäbe. Für OpenEMS-Anlagen gibt es **keine** Vorlage, "
+"die eine an OpenEMS angeschlossene Wallbox über OpenEMS steuert; evcc "
+"steuert die Wallbox immer direkt."
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "openWB"
+msgstr "openWB"
+
+#. type: #sec-openwb
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "openWB 2 controls charge points via these modules:"
+msgstr "openWB 2 steuert Ladepunkte über diese Module:"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| Module\n"
+"| What\n"
+"\n"
+"| Internal openWB\n"
+"| the built-in charge point (also Duo with two charge points)\n"
+"| Secondary openWB, openWB series2 satellit, openWB Pro\n"
+"| other openWB devices, controlled by a central openWB\n"
+"| openWB adapter for DC chargers\n"
+"| DC chargers via an openWB adapter\n"
+"| smartWB / EVSE-WiFi\n"
+"| only third-party manufacturer with its own module\n"
+"| MQTT charge point\n"
+"| general charge point: openWB writes target current and phases via MQTT, an external program must pass this on to the actual wallbox\n"
+msgstr ""
+"| Modul\n"
+"| Was\n"
+"\n"
+"| Interne openWB\n"
+"| der eingebaute Ladepunkt (auch Duo mit zwei Ladepunkten)\n"
+"| Secondary openWB, openWB series2 satellit, openWB Pro\n"
+"| weitere openWB-Geräte, gesteuert von einer zentralen openWB\n"
+"| openWB Adapter für DC-Lader\n"
+"| DC-Lader über einen openWB-Adapter\n"
+"| smartWB / EVSE-WiFi\n"
+"| einziger Fremdhersteller mit eigenem Modul\n"
+"| MQTT-Ladepunkt\n"
+"| allgemeiner Ladepunkt: openWB schreibt Sollstrom und Phasen per MQTT, ein externes Programm muss das an die eigentliche Wallbox weitergeben\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"openWB therefore essentially controls its own hardware. Third-party "
+"wallboxes can only be integrated via smartWB or via the MQTT charge point "
+"with a self-built connection."
+msgstr ""
+"openWB steuert also im Wesentlichen eigene Hardware. Fremde Wallboxen lassen "
+"sich nur über smartWB oder über den MQTT-Ladepunkt mit selbst gebauter "
+"Anbindung einbinden."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Charging modes in detail"
+msgstr "Lademodi im Detail"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "OpenEMS (EVSE control)"
+msgstr "OpenEMS (EVSE-Steuerung)"
+
+#. type: #sec-openems-evse-control
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**No Charge**, **PV Surplus with guaranteed charge** (always at least at the "
+"lowest power, surplus on top), **PV Surplus**, **Fast Charging**."
+msgstr ""
+"**Keine Beladung**, **PV-Überschuss mit garantierter Beladung** (immer "
+"mindestens mit kleinster Leistung, Überschuss obendrauf), **PV-Überschuss**, "
+"**Schnellladen**."
+
+#. type: #sec-openems-evse-control
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Mode fixed, via time schedule or once until unplugged (“One-Shot”). Optional "
+"energy limit per charging session."
+msgstr ""
+"Modus fest, über Zeitplan oder einmalig bis zum Abstecken („One-Shot“). "
+"Optional Energiegrenze je Ladevorgang."
+
+#. type: #sec-openems-evse-control
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Smart**: Time schedule entries with minimum charging amount; the energy "
+"optimizer then plans (see xref:user/schedule/overview.adoc[Schedule], "
+"xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs])."
+msgstr ""
+"**Smart**: Zeitplan-Einträge mit Mindest-Lademenge; dann plant der Energie-"
+"Optimierer (siehe xref:user/schedule/overview.adoc[Fahrplan], xref:user/"
+"storage-control/time-of-use-tariffs.adoc[dynamische Stromtarife])."
+
+#. type: #sec-openems-evse-control
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Start after 10 to 20 seconds of sufficient surplus, pause only after about "
+"one minute without surplus, then 5 minutes lock time; details on xref:user/"
+"ev-charging-control/surplus-charging.adoc[Surplus charging]."
+msgstr ""
+"Start nach 10 bis 20 Sekunden ausreichendem Überschuss, Pause erst nach rund "
+"einer Minute ohne Überschuss, danach 5 Minuten Sperrzeit; Einzelheiten auf "
+"xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen]."
+
+#. type: #sec-openems-evse-control
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"The older connection only has “Force charging” (with minimum power, default "
+"7,360 W per phase) and “Optimized charging” (with optional minimum power), "
+"plus the priority car or storage (see below). Change between charging and "
+"pause after 120 or 30 seconds at the earliest."
+msgstr ""
+"Die ältere Anbindung kennt nur „Erzwungene Beladung“ (mit Mindestleistung, "
+"Voreinstellung 7.360 W je Phase) und „Optimierte Beladung“ (mit optionaler "
+"Mindestleistung), dazu die Priorität Auto oder Speicher (siehe unten). "
+"Wechsel zwischen Laden und Pause frühestens nach 120 bzw. 30 Sekunden."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "**Off**, **Now** (immediately at full power) and **Smart**."
+msgstr "**Aus**, **Schnell** (sofort mit voller Leistung) und **Smart**."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Smart** charges with PV surplus; with “always charge” (permanently or once "
+"until unplugged), charging takes place at least at minimum current. With a "
+"low electricity price below a limit, Smart charges fully (“smart charging”); "
+"with high feed-in remuneration it can reduce charging. An optimizer can plan "
+"start, stop and power itself."
+msgstr ""
+"**Smart** lädt mit PV-Überschuss; mit „immer laden“ (dauerhaft oder einmalig "
+"bis zum Abstecken) wird mindestens mit Mindeststrom geladen. Bei günstigem "
+"Strompreis unter einer Grenze lädt Smart voll („smartes Laden“), bei hoher "
+"Einspeisevergütung kann es das Laden zurücknehmen. Ein Optimierer kann "
+"Start, Stopp und Leistung selbst planen."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Charging plan**: target SoC or energy amount by a time; evcc selects the "
+"cheapest times."
+msgstr ""
+"**Ladeplan**: Ziel-SoC oder Energiemenge bis zu einer Uhrzeit; evcc wählt "
+"die günstigsten Zeiten."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Minimum SoC**: up to this vehicle SoC, fast charging always takes place; "
+"**charging limit** as SoC or energy."
+msgstr ""
+"**Mindest-SoC**: bis zu diesem Fahrzeug-SoC wird immer schnell geladen; "
+"**Ladegrenze** als SoC oder Energie."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Switching on and off with thresholds and delay (default 1 minute to switch "
+"on, 3 minutes to switch off)."
+msgstr ""
+"Ein- und Ausschalten mit Schwellen und Verzögerung (Voreinstellung 1 Minute "
+"zum Einschalten, 3 Minuten zum Ausschalten)."
+
+#. type: #sec-evcc-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Vehicle SoC comes from the vehicle cloud or the wallbox; without SoC, evcc "
+"works with energy."
+msgstr ""
+"Fahrzeug-SoC kommt aus der Fahrzeug-Cloud oder der Wallbox; ohne SoC "
+"arbeitet evcc mit Energie."
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| Mode\n"
+"| Behavior\n"
+"\n"
+"| Instant charging\n"
+"| immediately, optionally up to SoC or energy limit\n"
+"| PV charging\n"
+"| with surplus, optionally with minimum current and minimum SoC; switch on from 1,500 W surplus after 30 seconds, switch off after 60 seconds (defaults)\n"
+"| Eco charging\n"
+"| fully at a low price, otherwise like PV charging\n"
+"| Target charging\n"
+"| Target SoC or energy amount by time\n"
+"| Time charging\n"
+"| in fixed time windows\n"
+"| Bidirectional charging\n"
+"| provided for in the code\n"
+"| Stop\n"
+"| no charging\n"
+msgstr ""
+"| Modus\n"
+"| Verhalten\n"
+"\n"
+"| Sofortladen\n"
+"| sofort, optional bis SoC- oder Energiegrenze\n"
+"| PV-Laden\n"
+"| mit Überschuss, optional mit Mindeststrom und Mindest-SoC; Einschalten ab 1.500 W Überschuss nach 30 Sekunden, Abschalten nach 60 Sekunden (Voreinstellungen)\n"
+"| Eco-Laden\n"
+"| bei günstigem Preis voll, sonst wie PV-Laden\n"
+"| Zielladen\n"
+"| Ziel-SoC oder Energiemenge bis Uhrzeit\n"
+"| Zeitladen\n"
+"| in festen Zeitfenstern\n"
+"| Bidirektionales Laden\n"
+"| im Code vorgesehen\n"
+"| Stop\n"
+"| kein Laden\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"The modes are set per vehicle via “charging profiles”. Phase switching with "
+"delay (default 7 minutes)."
+msgstr ""
+"Die Modi werden je Fahrzeug über „Ladeprofile“ eingestellt. "
+"Phasenumschaltung mit Verzögerung (Voreinstellung 7 Minuten)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Home storage during charging"
+msgstr "Hausspeicher beim Laden"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| OpenEMS\n"
+"| evcc\n"
+"| openWB\n"
+"\n"
+"| Default\n"
+"| **Car before storage**: charging power of the storage counts as surplus; discharging of the storage does not count\n"
+"| also **car before storage**: charging power of the storage counts as surplus, discharging reduces it\n"
+"| **Car before storage** (“vehicle priority”)\n"
+"| Storage first\n"
+"| older connection only: priority “Storage”, car only receives surplus from storage SoC 97 %\n"
+"| “Storage priority up to SoC” (prioritySoc)\n"
+"| “Storage priority” or a mode with minimum SoC of the storage (thresholds, defaults 50 % and 70 %)\n"
+"| Using the storage for the car\n"
+"| no (during surplus charging)\n"
+"| “Discharge storage from SoC” (bufferSoc, bufferStartSoc), “battery boost” per charge point\n"
+"| Settings for discharge and reserve power (defaults 1,500 W and 2,000 W, each can be switched off); exact effect not examined here\n"
+"| Locking discharge into the car\n"
+"| Storage is not discharged into the car during surplus charging anyway; with Force, storage control decides\n"
+"| “Lock battery discharge” during fast charging (sets the storage to “Hold”)\n"
+"| Storage control “no discharge”, “house consumption only” (only with controllable storage)\n"
+msgstr ""
+"| \n"
+"| OpenEMS\n"
+"| evcc\n"
+"| openWB\n"
+"\n"
+"| Voreinstellung\n"
+"| **Auto vor Speicher**: Ladeleistung des Speichers zählt als Überschuss; Entladung des Speichers zählt nicht\n"
+"| ebenfalls **Auto vor Speicher**: Ladeleistung des Speichers zählt als Überschuss, Entladung verringert ihn\n"
+"| **Auto vor Speicher** („Fahrzeug Vorrang“)\n"
+"| Speicher zuerst\n"
+"| nur ältere Anbindung: Priorität „Storage“, Auto bekommt erst Überschuss ab Speicher-SoC 97 %\n"
+"| „Speicher-Vorrang bis SoC“ (prioritySoc)\n"
+"| „Speicher Vorrang“ oder ein Modus mit Mindest-SoC des Speichers (Schwellen, Voreinstellungen 50 % und 70 %)\n"
+"| Speicher fürs Auto nutzen\n"
+"| nein (beim Überschussladen)\n"
+"| „Speicher entladen ab SoC“ (bufferSoc, bufferStartSoc), „Batterie-Boost“ je Ladepunkt\n"
+"| Einstellungen für Entlade- und Reserveleistung (Voreinstellungen 1.500 W und 2.000 W, jeweils abschaltbar); genaue Wirkung hier nicht untersucht\n"
+"| Entladen ins Auto sperren\n"
+"| Speicher wird beim Überschussladen ohnehin nicht ins Auto entladen; bei Schnellladen entscheidet die Speichersteuerung\n"
+"| „Batterieentladung sperren“ beim Schnellladen (setzt den Speicher auf „Halten“)\n"
+"| Speicher-Steuerung „keine Entladung“, „nur Hausverbrauch“ (nur bei steuerbarem Speicher)\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**With OpenEMS as the storage system:** evcc can set the OpenEMS storage to "
+"“Hold” or “Charge” via the REST or Modbus write app (see xref:user/third-"
+"party/evcc.adoc[evcc]). openWB only reads OpenEMS and therefore cannot "
+"control the storage; its storage settings then only influence its own "
+"calculation of the surplus (see xref:user/third-party/openwb.adoc[openWB])."
+msgstr ""
+"**Mit OpenEMS als Speicher-System:** evcc kann den OpenEMS-Speicher über die "
+"REST- oder Modbus-Schreib-App auf „Halten“ oder „Laden“ setzen (siehe "
+"xref:user/third-party/evcc.adoc[evcc]). openWB liest OpenEMS nur und kann "
+"den Speicher daher nicht steuern; seine Speicher-Einstellungen beeinflussen "
+"dann nur die eigene Berechnung des Überschusses (siehe xref:user/third-party/"
+"openwb.adoc[openWB])."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Load management"
+msgstr "Lastmanagement"
+
+#. type: #sec-openems-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**EVSE cluster:** distributes surplus to several charge points (even or by "
+"priority). According to the code, it has no limit for the house connection."
+msgstr ""
+"**EVSE-Cluster:** verteilt Überschuss auf mehrere Ladepunkte (gleichmäßig "
+"oder nach Priorität). Eine Grenze für den Hausanschluss hat er laut Code "
+"nicht."
+
+#. type: #sec-openems-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Multi-charging point management** (older connection): protects the grid "
+"connection; limit per phase, minimum power per car (default 4,500 W), order "
+"of charging stations, optionally free discharge power of the storage. "
+"Details on xref:user/devices/cluster.adoc[Cluster]."
+msgstr ""
+"**Multiladepunkt Management** (ältere Anbindung): schützt den Netzanschluss; "
+"Grenze je Phase, Mindestleistung je Auto (Voreinstellung 4.500 W), "
+"Reihenfolge der Ladestationen, optional freie Entladeleistung des Speichers. "
+"Einzelheiten auf xref:user/devices/cluster.adoc[Cluster]."
+
+#. type: #sec-openems-2
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"Limits of wallbox and vehicle (minimum/maximum power single- and three-"
+"phase) are taken into account in EVSE control."
+msgstr ""
+"Grenzen von Wallbox und Fahrzeug (Mindest-/Höchstleistung ein- und "
+"dreiphasig) werden in der EVSE-Steuerung berücksichtigt."
+
+#. type: #sec-evcc-3
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Circuits**: Each circuit has a maximum current and/or maximum power, "
+"optionally a meter and a higher-level circuit. This allows house connection, "
+"sub-distribution and individual lines to be modeled. Limits can also come "
+"dynamically from outside (e.g. from the grid operator)."
+msgstr ""
+"**Stromkreise (circuits)**: Jeder Stromkreis hat eine Höchststromstärke und/"
+"oder Höchstleistung, optional einen Zähler und einen übergeordneten "
+"Stromkreis. So lassen sich Hausanschluss, Unterverteilung und einzelne "
+"Leitungen nachbilden. Grenzen können auch dynamisch von außen kommen (z. B. "
+"vom Netzbetreiber)."
+
+#. type: #sec-evcc-3
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "Charge points are given a **priority**."
+msgstr "Ladepunkte bekommen eine **Priorität**."
+
+#. type: #sec-openwb-3
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**Meter hierarchy**: Each meter (utility meter, intermediate meter) has "
+"current limits per phase (default 35 A) and optionally a power limit; the "
+"charge points are located below it."
+msgstr ""
+"**Zähler-Hierarchie**: Jeder Zähler (EVU-Zähler, Zwischenzähler) hat "
+"Stromgrenzen je Phase (Voreinstellung 35 A) und optional eine "
+"Leistungsgrenze; die Ladepunkte hängen darunter."
+
+#. type: #sec-openwb-3
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "**Unbalanced load limitation** adjustable."
+msgstr "**Schieflastbegrenzung** einstellbar."
+
+#. type: #sec-openwb-3
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid "If the meter fails, a substitute power applies (default 7,000 W)."
+msgstr ""
+"Bei Ausfall des Zählers gilt eine Ersatzleistung (Voreinstellung 7.000 W)."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Strengths and limits"
+msgstr "Stärken und Grenzen"
+
+#. type: Table
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Strengths\n"
+"| Limits\n"
+"\n"
+"| OpenEMS\n"
+"| one system for storage, PV, heat and charging; joint planning by the energy optimizer; gentle control with lock times; runs on the energy manager itself\n"
+"| fewer wallboxes; no vehicle SoC; load management for the house connection only with the older connection; two parallel charge point connections\n"
+"| evcc\n"
+"| very many wallboxes and vehicles; flexible storage rules; circuits; charging plans with prices\n"
+"| needs its own device; only controls the storage via its interface; with OpenEMS only coarse storage control (hold/charge)\n"
+"| openWB\n"
+"| everything in the wallbox; well-thought-out load management with meter hierarchy and unbalanced load; many charging modes\n"
+"| essentially only openWB hardware; read-only with OpenEMS\n"
+msgstr ""
+"| \n"
+"| Stärken\n"
+"| Grenzen\n"
+"\n"
+"| OpenEMS\n"
+"| ein System für Speicher, PV, Wärme und Laden; gemeinsame Planung durch den Energie-Optimierer; sanfte Regelung mit Sperrzeiten; läuft auf dem Energiemanager selbst\n"
+"| weniger Wallboxen; kein Fahrzeug-SoC; Lastmanagement für den Hausanschluss nur bei der älteren Anbindung; zwei parallele Ladepunkt-Anbindungen\n"
+"| evcc\n"
+"| sehr viele Wallboxen und Fahrzeuge; flexible Speicherregeln; Stromkreise; Ladepläne mit Preisen\n"
+"| braucht ein eigenes Gerät; steuert den Speicher nur über dessen Schnittstelle; mit OpenEMS nur grobe Speichersteuerung (Halten/Laden)\n"
+"| openWB\n"
+"| alles in der Wallbox; durchdachtes Lastmanagement mit Zähler-Hierarchie und Schieflast; viele Lademodi\n"
+"| im Wesentlichen nur openWB-Hardware; mit OpenEMS nur lesend\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#, no-wrap
+msgid "Which combination?"
+msgstr "Welche Kombination?"
+
+#. type: #sec-which-combination
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**OpenEMS only:** if the wallbox is supported by OpenEMS (preferably EVSE "
+"connection) and no vehicle SoC is required."
+msgstr ""
+"**Nur OpenEMS:** wenn die Wallbox von OpenEMS unterstützt wird (bevorzugt "
+"EVSE-Anbindung) und kein Fahrzeug-SoC nötig ist."
+
+#. type: #sec-which-combination
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**OpenEMS {plus} evcc:** if the wallbox is only supported by evcc or vehicle "
+"SoC and charging plans are important. In this case, do not additionally set "
+"up surplus charging in OpenEMS for this wallbox, and determine who controls "
+"the storage."
+msgstr ""
+"**OpenEMS {plus} evcc:** wenn die Wallbox nur von evcc unterstützt wird oder "
+"Fahrzeug-SoC und Ladepläne wichtig sind. Dann das Überschussladen in OpenEMS "
+"für diese Wallbox nicht zusätzlich einrichten und festlegen, wer den "
+"Speicher steuert."
+
+#. type: #sec-which-combination
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"**OpenEMS {plus} openWB:** openWB controls itself and reads the values from "
+"OpenEMS. OpenEMS can only display the openWB. For storage rules in openWB, "
+"note that openWB cannot control the OpenEMS storage."
+msgstr ""
+"**OpenEMS {plus} openWB:** openWB regelt selbst und liest die Werte von "
+"OpenEMS. OpenEMS kann die openWB nur anzeigen. Für Speicherregeln in openWB "
+"beachten, dass openWB den OpenEMS-Speicher nicht steuern kann."
+
+#. type: #sec-which-combination
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+msgid ""
+"The following applies in every combination: **only one system controls the "
+"same wallbox**, and OpenEMS control functions (e.g. time-of-use tariff) can "
+"interact with external specifications (see xref:user/third-party/"
+"overview.adoc[Third-party systems on OpenEMS])."
+msgstr ""
+"In jeder Kombination gilt: **nur ein System regelt dieselbe Wallbox**, und "
+"Steuerfunktionen von OpenEMS (z. B. dynamischer Stromtarif) können mit "
+"Vorgaben von außen zusammenwirken (siehe xref:user/third-party/"
+"overview.adoc[Fremdsysteme an OpenEMS])."

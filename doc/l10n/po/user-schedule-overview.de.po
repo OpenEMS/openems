@@ -1,0 +1,269 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/fundamentals/components-and-channels.adoc
+#: modules/ROOT/pages/development/fundamentals/cycle-and-ess-power.adoc
+#: modules/ROOT/pages/development/implementing/controller.adoc
+#: modules/ROOT/pages/development/implementing/modbus-device-drivers.adoc
+#: modules/ROOT/pages/development/testing/component-tests.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/data/history-rrd4j.adoc
+#: modules/ROOT/pages/user/devices/controllable-inverters.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/storage-control/ripple-control-receiver.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/storage-control/time-of-use-tariffs.adoc
+msgid ""
+"__As of: 2026-10-30 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Title =
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "OpenEMS: Schedule"
+msgstr "OpenEMS: Fahrplan"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"**OpenEMS has a schedule.** It shows what the system plans for the current "
+"and the next day, in quarter hours:"
+msgstr ""
+"**OpenEMS hat einen Fahrplan.** Er zeigt, was das System für den heutigen "
+"und den nächsten Tag plant, in Viertelstunden:"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "which **electricity price** applies,"
+msgstr "welcher **Strompreis** gilt,"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "how much **solar yield** and **consumption** are expected,"
+msgstr "wie viel **Solarertrag** und **Verbrauch** erwartet werden,"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"what the **storage** should do (e.g. “delayed discharge” or “charge from "
+"grid”),"
+msgstr ""
+"was der **Speicher** tun soll (z. B. „Entladung verzögern“ oder „Beladung "
+"aus dem Netz“),"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "and how **grid purchase** and **state of charge** develop as a result."
+msgstr "und wie sich daraus **Netzbezug** und **Ladezustand** entwickeln."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"For past periods of the day, the schedule shows the **measured values**. "
+"This way, one chart shows both what happened and what is planned."
+msgstr ""
+"Für vergangene Abschnitte des Tages zeigt der Fahrplan die **gemessenen "
+"Werte**. So sieht man in einer Grafik, was war und was geplant ist."
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The schedule is more than the forecast: it uses the xref:user/schedule/"
+"forecasts.adoc[forecasts] and shows what OpenEMS does with them."
+msgstr ""
+"Der Fahrplan ist mehr als die Prognose: Er nutzt die xref:user/schedule/"
+"forecasts.adoc[Prognosen] und zeigt, was OpenEMS daraus macht."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "Where to see it"
+msgstr "Wo man ihn sieht"
+
+#. type: #sec-where-to-see-it
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The web interface has its own **schedule page**. Since October 2026 it "
+"updates itself as soon as a new plan has been made. It also shows whether "
+"planning is in progress or has been completed."
+msgstr ""
+"In der Weboberfläche gibt es eine eigene **Fahrplan-Seite**. Seit Oktober "
+"2026 aktualisiert sie sich von selbst, sobald neu geplant wurde. Man sieht "
+"auch, ob gerade geplant wird oder ob die Planung abgeschlossen ist."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "How it is created"
+msgstr "Wie er entsteht"
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"OpenEMS collects forecasts, electricity prices (xref:user/storage-control/"
+"time-of-use-tariffs.adoc[tariffs]), the state of the storage and the grid "
+"limits."
+msgstr ""
+"OpenEMS sammelt Prognosen, Strompreise (xref:user/storage-control/time-of-"
+"use-tariffs.adoc[Tarife]), den Zustand des Speichers und die Netzgrenzen."
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"An optimizer tries out many possible sequences and selects the cheapest one "
+"that complies with all limits."
+msgstr ""
+"Ein Optimierer probiert viele mögliche Abläufe durch und wählt den "
+"günstigsten, der alle Grenzen einhält."
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The near future is planned in quarter hours, times further ahead in hours."
+msgstr ""
+"Die nahe Zukunft wird in Viertelstunden geplant, weiter entfernte Zeiten in "
+"Stunden."
+
+#. type: #sec-how-it-is-created
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The plan is renewed regularly, about every quarter of an hour, and "
+"immediately when settings are changed."
+msgstr ""
+"Die Planung wird regelmäßig erneuert, etwa jede Viertelstunde, und sofort, "
+"wenn Einstellungen geändert werden."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "What is included in the plan"
+msgstr "Was alles eingeplant wird"
+
+#. type: Table
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid ""
+"| Function\n"
+"| Role in the schedule\n"
+"\n"
+"| xref:user/storage-control/time-of-use-tariffs.adoc[Price control]\n"
+"| decides when the storage is conserved, charged or discharged\n"
+"| xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]\n"
+"| delays or limits charging (together with price control)\n"
+"| Charge points (wallbox)\n"
+"| plan the charging of vehicles\n"
+"| Heating elements (Askoma, my-PV)\n"
+"| plan the heating power\n"
+"| Emergency reserve, discharge limit, fixed storage power\n"
+"| are taken into account as constraints for the storage\n"
+msgstr ""
+"| Funktion\n"
+"| Rolle im Fahrplan\n"
+"\n"
+"| xref:user/storage-control/time-of-use-tariffs.adoc[Preissteuerung]\n"
+"| entscheidet, wann der Speicher geschont, geladen oder entladen wird\n"
+"| xref:user/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung]\n"
+"| verzögert oder drosselt die Beladung (zusammen mit der Preissteuerung)\n"
+"| Ladepunkte (Wallbox)\n"
+"| planen das Laden von Fahrzeugen\n"
+"| Heizstäbe (Askoma, my-PV)\n"
+"| planen die Heizleistung\n"
+"| Notstromreserve, Entladebegrenzung, feste Speicherleistung\n"
+"| werden als Rahmen für den Speicher berücksichtigt\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"Since October 2026 the schedule is also calculated if none of these "
+"controlling functions is active."
+msgstr ""
+"Seit Oktober 2026 wird der Fahrplan auch dann berechnet, wenn keine dieser "
+"steuernden Funktionen aktiv ist."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "How to read the schedule"
+msgstr "Fahrplan richtig lesen"
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid "**Past:** measured values in 5-minute steps."
+msgstr "**Vergangenheit:** Messwerte in 5-Minuten-Schritten."
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"**Future:** plan in quarter hours. It is based on forecasts and can change "
+"with each new plan."
+msgstr ""
+"**Zukunft:** Planung in Viertelstunden. Sie beruht auf Prognosen und kann "
+"sich mit jeder neuen Planung ändern."
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"If reality differs from the forecast (e.g. clouds, unexpected consumption), "
+"OpenEMS adjusts the plan the next time it plans."
+msgstr ""
+"Weicht die Wirklichkeit von der Prognose ab (z. B. Wolken, unerwarteter "
+"Verbrauch), passt OpenEMS den Plan bei der nächsten Planung an."
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The period covers the current day and, as soon as available, the next one."
+msgstr ""
+"Der Zeitraum umfasst den heutigen Tag und, sobald verfügbar, den nächsten."
+
+#. type: #sec-how-to-read-the-schedule
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"Without electricity prices and forecasts, no meaningful schedule can be "
+"created."
+msgstr ""
+"Ohne Strompreise und Prognosen kann kein sinnvoller Fahrplan entstehen."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/schedule/overview.adoc
+#, no-wrap
+msgid "For advanced users"
+msgstr "Für Fortgeschrittene"
+
+#. type: #sec-for-advanced-users
+#: modules/ROOT/pages/user/schedule/overview.adoc
+msgid ""
+"The schedule can also be retrieved via the interface, e.g. for your own "
+"evaluations. This is done with the request “getSchedule” to the component "
+"`+_energy+` (see xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]). For "
+"each quarter hour, the response contains prices, production, consumption, "
+"grid, storage and state of charge, as well as the planned state of each "
+"function involved."
+msgstr ""
+"Der Fahrplan lässt sich auch über die Schnittstelle abrufen, z. B. für "
+"eigene Auswertungen. Dazu dient die Anfrage „getSchedule“ an die Komponente "
+"`+_energy+` (siehe xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]). "
+"Die Antwort enthält je Viertelstunde Preise, Erzeugung, Verbrauch, Netz, "
+"Speicher und Ladezustand sowie den geplanten Zustand jeder beteiligten "
+"Funktion."

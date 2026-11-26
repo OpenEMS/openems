@@ -1,0 +1,751 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Limits"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Typical questions"
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/storage-control/grid-optimized-charge.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Settings"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "OpenEMS: Home Assistant integration"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"This page describes the Home Assistant integration **“Fenecon FEMS & "
+"OpenEMS”** (ha_openems, version 1.8.0, installation via HACS, at least Home "
+"Assistant 2026.8.0). It is a third-party project and **not** part of OpenEMS "
+"or FENECON. It is based on the source code of the integration and the "
+"OpenEMS source code; it has not been tried out here."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The page xref:user/third-party/overview.adoc[Third-party systems on OpenEMS] "
+"gives a comparison with evcc and openWB."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"In short: like the web interface, the integration connects to the system via "
+"the xref:user/external-interfaces/websocket.adoc[websocket], turns "
+"components into devices and values (“channels”) into entities in Home "
+"Assistant, receives the values live and can change **settings**. It only "
+"sets **control values** (e.g. “charge the storage with 2 kW now”) via an "
+"additional service that uses the xref:user/external-interfaces/rest-"
+"control.adoc[REST interface]."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Setting up the connection"
+msgstr ""
+
+#. type: #sec-setting-up-the-connection
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"When adding the integration, you specify the address, user name and "
+"password. For a local system, the user name is arbitrary (the instructions "
+"mention “x”); what matters is the password, which determines the role (see "
+"xref:user/external-interfaces/websocket.adoc#sec-functions-and-user-"
+"roles[User roles]). The connection type is selected under “More options”:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid ""
+"| Connection type\n"
+"| Address\n"
+"| Remote station\n"
+"\n"
+"| Direct connection to the system (default)\n"
+"| ws://system:8085/\n"
+"| Websocket interface of the Edge (Controller.Api.Websocket)\n"
+"| FEMS local\n"
+"| ws://system:80/websocket\n"
+"| Web interface of the FEMS, which forwards to the websocket\n"
+"| OpenEMS local\n"
+"| ws://host:8082/\n"
+"| your own OpenEMS backend (port 8082 is its default for the interface)\n"
+"| FENECON online monitoring\n"
+"| wss://portal.fenecon.de/…\n"
+"| FENECON backend via the internet\n"
+"| Custom address\n"
+"| free\n"
+"| e.g. behind a proxy\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"For all local types, the connection is **unencrypted** (ws, not wss). "
+"Password and data therefore pass through the home network in plain text. "
+"Home Assistant stores the credentials in its own configuration."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"For a backend with several systems, the integration queries the list of "
+"systems (20 at most) and creates one entry per system."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "How communication works"
+msgstr ""
+
+#. type: #sec-how-communication-works
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration uses the same commands as the web interface (see xref:user/"
+"external-interfaces/websocket.adoc#sec-what-happens-after-opening-the-web-"
+"interface[What happens after opening the web interface]). All requests to "
+"the system are wrapped in an “edgeRpc” envelope with the system ID. This "
+"also works with the direct connection because the Edge also understands this "
+"envelope."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "During setup"
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Open the connection and log in with user name and password. The integration "
+"logs in again with the password for each connection; a login token is not "
+"used."
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "Read the configuration of the system: which components exist."
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Query the list of channels (with type, unit, read/write access) for **each** "
+"component individually. With 20 to 50 components, this is the same number of "
+"requests."
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Read the host name of the system and the names (aliases) of the components "
+"once via a second, short connection. The device names are created from this."
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Save the result of steps 2 to 4 in the entry of the integration in Home "
+"Assistant."
+msgstr ""
+
+#. type: #sec-during-setup
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "Create a device for each component and an entity for each channel."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "At every start of Home Assistant"
+msgstr ""
+
+#. type: #sec-at-every-start-of-home-assistant
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "Open the connection and log in as above."
+msgstr ""
+
+#. type: #sec-at-every-start-of-home-assistant
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The components, channels and names are **not** read anew from the system. "
+"The integration uses the list saved during setup or the last reload."
+msgstr ""
+
+#. type: #sec-at-every-start-of-home-assistant
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "Create devices and entities from this list; existing ones are reused."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "When reloading"
+msgstr ""
+
+#. type: #sec-when-reloading
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "Steps 2 to 5 of setup run again if"
+msgstr ""
+
+#. type: #sec-when-reloading
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "you “reload” or reconfigure the entry in Home Assistant, or"
+msgstr ""
+
+#. type: #sec-when-reloading
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "the saved list is empty."
+msgstr ""
+
+#. type: #sec-when-reloading
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The same applies if the system could not be reached when Home Assistant "
+"started. Home Assistant then only repeats the attempt when it has fully "
+"started up. If the connection succeeds, the integration reads the list anew "
+"as when reloading."
+msgstr ""
+
+#. type: #sec-when-reloading
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The list is not read anew in the event of a connection failure with "
+"reconnection (see below) and when changing the options, i.e. when activating "
+"or deactivating components."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "During operation"
+msgstr ""
+
+#. type: #sec-during-operation
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration registers the system and the list of **activated** entities "
+"(“subscribe”). Only activated entities are subscribed to; all others cost "
+"nothing during operation."
+msgstr ""
+
+#. type: #sec-during-operation
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "The system sends the values of these channels about **every second**."
+msgstr ""
+
+#. type: #sec-during-operation
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"If entities are activated or deactivated, the integration adjusts the "
+"subscription within about 5 seconds."
+msgstr ""
+
+#. type: #sec-during-operation
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Optionally (“Limit data updates”), it only passes on the values to Home "
+"Assistant every N seconds. This reduces the amount of data in the Home "
+"Assistant database; the system still sends every second."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Connection failure"
+msgstr ""
+
+#. type: #sec-connection-failure
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"If no values arrive for **60 seconds**, the connection is considered lost."
+msgstr ""
+
+#. type: #sec-connection-failure
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "All entities then become “unavailable”."
+msgstr ""
+
+#. type: #sec-connection-failure
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration tries to re-establish the connection every 10 seconds, logs "
+"in again and subscribes again."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "What is not transferred"
+msgstr ""
+
+#. type: #sec-what-is-not-transferred
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**No history from the system.** The integration does not read any stored "
+"histories (see xref:user/data/history-rrd4j.adoc[History]). Home Assistant "
+"builds its own history from the live values. If Home Assistant is not "
+"running, a gap arises there even though the system continues to record."
+msgstr ""
+
+#. type: #sec-what-is-not-transferred
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Configuration changes in the system** (new component, new app) are not "
+"adopted automatically. To do this, you must “reload” the entry in Home "
+"Assistant. According to the code, the message from the system about a "
+"changed configuration is currently not evaluated."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "What appears in Home Assistant"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid ""
+"| OpenEMS\n"
+"| Home Assistant\n"
+"\n"
+"| System\n"
+"| Entry of the integration (name from the host name)\n"
+"| Component (e.g. ess0, meter0, ctrlEvcs0)\n"
+"| Device\n"
+"| Measured value (e.g. power, state of charge)\n"
+"| Sensor\n"
+"| Yes/no value (e.g. warnings)\n"
+"| Binary sensor\n"
+"| Yes/no setting\n"
+"| Switch\n"
+"| Setting with selection list\n"
+"| Select\n"
+"| Setting with number\n"
+"| Number (only for stored settings, see below)\n"
+"| Setting with time\n"
+"| Time (only for stored settings)\n"
+"| System update of the system\n"
+"| Update entity\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Default:** After setup, only some components and only a few channels "
+"within them are active, including the total values (`+_sum+`: consumption, "
+"production, grid, storage), state of charge and energy meter of the storage, "
+"power of meters and PV inverters, the emergency reserve, the charge point "
+"settings, grid-optimized charge, battery extension, § 14a and the release "
+"for charging from the grid. Further components can be added in the options "
+"of the integration, further entities activated in the entity list. The "
+"instructions advise against activating several hundred channels at the same "
+"time."
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The energy meters from `+_sum+` (grid purchase, feed-in, production, storage "
+"charge and discharge, see xref:user/basics/energy-flows.adoc[Energy flows]) "
+"are suitable for the Home Assistant **energy dashboard**."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Additional calculated values"
+msgstr ""
+
+#. type: #sec-additional-calculated-values
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"For batteries, the integration itself calculates the **voltage difference** "
+"between the highest and lowest cell, for the entire battery and per module. "
+"OpenEMS does not supply these values directly; they are created from the "
+"cell voltages (see xref:user/systems/fenecon-home-battery.adoc[FENECON Home "
+"battery]). For this, the cell voltage channels must be activated."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Ready-made cards"
+msgstr ""
+
+#. type: #sec-ready-made-cards
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration comes with templates for dashboard cards: charge point, grid-"
+"optimized charge, emergency reserve, heating element and a battery "
+"diagnostics dashboard. They need additional card extensions from HACS."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "What can be controlled"
+msgstr ""
+
+#. type: #sec-what-can-be-controlled
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "The integration has three write routes. They differ fundamentally:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid ""
+"| Route\n"
+"| What\n"
+"| How\n"
+"| Duration\n"
+"| Required role\n"
+"\n"
+"| Changing a setting\n"
+"| Switch, select, number, time; action “Update component configuration”\n"
+"| updateComponentConfig via the websocket\n"
+"| **permanent**, is stored\n"
+"| Owner\n"
+"| Setting a control value\n"
+"| Action “REST write sensor” on a sensor\n"
+"| POST to the REST interface of the system\n"
+"| temporary, only as long as repeated\n"
+"| according to the REST page Owner; REST write app required\n"
+"| System update\n"
+"| Update entity “Install”\n"
+"| Call to `+_host+` via the websocket\n"
+"| –\n"
+"| Owner\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration does not use the websocket command for setting control "
+"values (setChannelValue); in OpenEMS it is reserved for the Admin."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Each setting of a component (channels starting with “_Property”) becomes an "
+"entity:"
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Yes/no settings** always become switches, for **every** component. This "
+"also includes “enabled” (`+_PropertyEnabled+`), which can be used to switch "
+"off a component completely. These switches are deactivated by default but "
+"available."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Selection lists** are created if the system supplies the options or the "
+"integration knows them, e.g. charging mode and priority at the charge point, "
+"mode of grid-optimized charge, mode of the heating element, power "
+"distribution strategy (`+_power+`), risk level of the energy optimizer."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Numbers** only for settings for which the integration has stored limits: "
+"emergency reserve (percent), energy limit and minimum power values at the "
+"charge point, energy limit at the EVSE charge point, minimum running time of "
+"the heating element."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Times**: target time of grid-optimized charge, end time of the heating "
+"element."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"With the action **“Update component configuration”** "
+"(“update_component_config”), several settings of a component can be changed "
+"in **one** request. The integration only checks whether a value is a number, "
+"a switch value, a time or a valid selection; it does not check the minimum "
+"and maximum values of numbers. For charge points (ctrlEvcs), the integration "
+"sends both settings together when changing the charging mode and when "
+"switching on “Charging enabled”."
+msgstr ""
+
+#. type: #sec-settings
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Important – memory wear:** Every change to a setting is **stored "
+"permanently** in the system and restarts the function concerned. Automations "
+"that switch settings frequently (for example every minute) can wear out the "
+"flash memory of the system in the long term. See xref:user/external-"
+"interfaces/websocket.adoc#sec-note-do-not-write-the-configuration-"
+"frequently[Note: Do not write the configuration frequently]. Therefore only "
+"write settings in automations rarely and only when there is a real change."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "Control values via REST"
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"For ongoing control, e.g. specifying a storage power or switching a relay, "
+"there is the action **“REST write sensor”** (or “REST write binary sensor” "
+"for binary sensors). It only works if the app or component **“REST/JSON API "
+"read/write access”** (Controller.Api.Rest.ReadWrite) is set up in the "
+"system; the integration recognizes this during setup."
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration sends the value via HTTP to `+/rest/channel/component/"
+"channel+` of the system, with the same credentials as for the websocket (see "
+"xref:user/external-interfaces/rest-control.adoc#sec-setting-a-control-"
+"value[Setting a control value])."
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Because the system discards a control value after the Api-Timeout (default "
+"60 seconds), the integration **repeats** the value every 30 seconds by "
+"default. “Timeout” can be used to specify for how long; 0 means “until the "
+"next call for this entity”. “Update cycle 0” only sends once."
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"A control value is only held in RAM; this is the right route for frequent "
+"changes."
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"You **cannot** see in Home Assistant whether the value has arrived: the "
+"system does not report written control values back. Only errors (e.g. wrong "
+"password, “is not a Write Channel”) appear in the Home Assistant log."
+msgstr ""
+
+#. type: #sec-control-values-via-rest
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration always forms the REST address as an unencrypted address "
+"(http) from the host name of the websocket address and the port set in the "
+"REST app (default 8084). There is no address you can specify yourself for "
+"this. If the system is behind a proxy that only forwards the websocket under "
+"this host name and not the REST port, the integration cannot reach the REST "
+"app. This route does not exist with FENECON online monitoring."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid "System update"
+msgstr ""
+
+#. type: #sec-system-update
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The update entity queries the update status of the system every 12 hours and "
+"can start an update. This requires the Owner role and only works where the "
+"system itself offers a system update."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#, no-wrap
+msgid ""
+"| Limit\n"
+"| Consequence\n"
+"\n"
+"| Third-party project, not from the manufacturer\n"
+"| Changes to OpenEMS or FEMS can affect the integration at any time. According to the instructions, only a FENECON Home 10 with a few additional devices has been tested.\n"
+"| Guest role\n"
+"| Read only. Switches, selections etc. appear, but changing them fails.\n"
+"| Settings are stored permanently\n"
+"| Frequent switching wears out the memory of the system; use REST control values for ongoing control.\n"
+"| Control values only via REST\n"
+"| REST write app required, no feedback in Home Assistant, value must be repeated.\n"
+"| Dangerous switches available\n"
+"| E.g. “enabled” of each component. Anyone who activates such entities can switch off storage, meters or protective functions.\n"
+"| No history from the system\n"
+"| Gaps in Home Assistant when it is not running.\n"
+"| Configuration is not automatically updated\n"
+"| “Reload” after changes to the system.\n"
+"| Unencrypted connection in the home network\n"
+"| Do not expose port 8085 or 8084 to the internet.\n"
+"| Many entities\n"
+"| Load and data volume in Home Assistant; subscription only for activated entities.\n"
+"| Meter readings after restart of the system\n"
+"| According to the code of the integration, the system sometimes reports meter readings that are too low shortly after a restart. The option “Ignore decreasing if total increasing” discards such values so that the statistics in Home Assistant do not jump.\n"
+"| Several systems on one backend\n"
+"| At most 20 are listed.\n"
+"| System limits continue to apply\n"
+"| Emergency reserve, battery and grid limits restrict specifications; a control value is not always implemented in full.\n"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "**Can I have the storage charged or discharged from Home Assistant?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Yes, via the action “REST write sensor” on the entity for the setpoint power "
+"of the storage, e.g. `+ess0/SetActivePowerEquals+` (negative = charge). The "
+"prerequisite is the REST write app. The entity must be activated in Home "
+"Assistant for this. The integration repeats the value until the timeout "
+"expires or a new call arrives."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**Why does nothing change in Home Assistant after I have written a REST "
+"value?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The control value itself is not reported back. Only the effect can be seen, "
+"e.g. in the actual storage power."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**I set up a new app in the system, but it is missing in Home Assistant.**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Reload the entry of the integration and add the new component in the options."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"**The system log says “Unable to read value for Channel [meter1/"
+"ActivePower]” every second even though the meter is deactivated.**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The message does not come from the meter, but from the websocket interface: "
+"Home Assistant queries values of a component that is deactivated in the "
+"system. The integration also offers deactivated components, but the system "
+"does not supply any values for them and writes this warning in every cycle. "
+"Remedy: deselect the component in the options of the integration or "
+"deactivate its entities in Home Assistant. If the component is no longer "
+"needed in the system at all, you can also delete it there."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "**May I adjust the emergency reserve daily via automation?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"Occasionally yes. Each change is stored permanently; several times a day is "
+"still not critical, every minute is (see xref:user/external-interfaces/"
+"websocket.adoc#sec-note-do-not-write-the-configuration-frequently[Note])."
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid "**Websocket or REST for Home Assistant?**"
+msgstr ""
+
+#. type: #sec-typical-questions
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+msgid ""
+"The integration uses both: the websocket for live values and settings, REST "
+"only for control values. For a comparison, see xref:user/external-interfaces/"
+"websocket.adoc#sec-websocket-or-rest[Websocket or REST?]."
+msgstr ""

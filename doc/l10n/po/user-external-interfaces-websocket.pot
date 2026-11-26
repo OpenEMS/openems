@@ -1,0 +1,316 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/development/fundamentals/osgi-and-tools.adoc
+#: modules/ROOT/pages/user/cloud-interfaces/backend-data-transfer.adoc
+#: modules/ROOT/pages/user/external-interfaces/rest-control.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/schedule/weather.adoc
+#: modules/ROOT/pages/user/storage-control/section-14a-enwg.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#, no-wrap
+msgid "Setup"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+
+#. type: Title =
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "OpenEMS: Websocket"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"The websocket is the connection through which the **web interface** talks to "
+"the system. Unlike with individual queries, the connection remains open. The "
+"system sends the current values **every second**, so the display is always "
+"live."
+msgstr ""
+
+#. type: #sec-setup
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"The function is called **Controller.Api.Websocket** and is usually already "
+"set up."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid ""
+"| Setting\n"
+"| Default\n"
+"| Meaning\n"
+"\n"
+"| Port\n"
+"| 8085\n"
+"| Port for the web interface in the local network\n"
+"| Api-Timeout\n"
+"| 60 s\n"
+"| how long a control value applies without being renewed\n"
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "Local or via the internet"
+msgstr ""
+
+#. type: #sec-local-or-via-the-internet
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"**In the local network**, the web interface connects directly to the system."
+msgstr ""
+
+#. type: #sec-local-or-via-the-internet
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"**When on the move**, the web interface connects to the backend (central "
+"server). The system itself maintains a connection to it. The backend passes "
+"on the messages."
+msgstr ""
+
+#. type: #sec-local-or-via-the-internet
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"For the user, both look almost the same. What the system sends to the "
+"backend is described on the page xref:user/cloud-interfaces/backend-data-"
+"transfer.adoc[Data transfer to the backend]."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "What happens after opening the web interface"
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "The connection is established."
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "You log in with a password. The interface then remembers a login token."
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"The interface loads the configuration: which devices and functions exist."
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "It registers which values it currently wants to display."
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "From then on, these values arrive automatically **every second**."
+msgstr ""
+
+#. type: #sec-what-happens-after-opening-the-web-interface
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"If required, histories, settings, the app center, the xref:user/schedule/"
+"overview.adoc[schedule] or the system log are also retrieved."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "Functions and user roles"
+msgstr ""
+
+#. type: #sec-functions-and-user-roles
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"What a user may do depends on their **role**. A higher role may do "
+"everything that a lower one may do."
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid ""
+"| Role\n"
+"| for\n"
+"\n"
+"| Guest (GUEST)\n"
+"| view only\n"
+"| Owner (OWNER)\n"
+"| System operators\n"
+"| Installer (INSTALLER)\n"
+"| Specialist companies\n"
+"| Admin (ADMIN)\n"
+"| Manufacturer / developer\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "The following table applies to **direct access in the local network**:"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid ""
+"| Function\n"
+"| Required role\n"
+"\n"
+"| Log in\n"
+"| – (password)\n"
+"| View live values\n"
+"| none\n"
+"| View configuration\n"
+"| Guest\n"
+"| View histories and energy amounts\n"
+"| none\n"
+"| Excel export\n"
+"| logged in\n"
+"| View schedule\n"
+"| none\n"
+"| Follow system log\n"
+"| none\n"
+"| Change settings\n"
+"| Owner\n"
+"| App center, heat pump, charge points etc.\n"
+"| varies by function\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"Only make port 8085 accessible in your own home network and never expose it "
+"to the internet."
+msgstr ""
+
+#. type: Title ===
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "Note: Do not write the configuration frequently"
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"Every change to a setting, whether in the web interface, via the websocket "
+"or via xref:user/external-interfaces/rest-control.adoc[REST], is **written "
+"permanently to the memory of the device**. On a Debian installation, the "
+"files are located in `+/etc/openems.d/+`. In addition, the function "
+"concerned starts working with the new values, in some cases restarting."
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"Many energy management devices use **flash memory** (SD card, eMMC). Flash "
+"can only withstand a limited number of write operations. **If the "
+"configuration is written frequently, for example every minute by a script or "
+"a home automation system, this can in the long term lead to wear, data "
+"errors and ultimately failure of the storage medium.** In the worst case, "
+"the system will then no longer start properly."
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "Therefore:"
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"Use **settings** only for rare, permanent changes, e.g. to change an "
+"operating mode."
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"Use control values for **ongoing control** (e.g. charging/discharging "
+"power). They are only held in RAM, see xref:user/external-interfaces/rest-"
+"control.adoc[Control via REST/JSON]."
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid "Do not send unchanged values again as a setting."
+msgstr ""
+
+#. type: #sec-note-do-not-write-the-configuration-frequently
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"The xref:user/data/history-rrd4j.adoc[history] also writes regularly. The "
+"more values are stored, the higher the load."
+msgstr ""
+
+#. type: Title ==
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid "Websocket or REST?"
+msgstr ""
+
+#. type: Table
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Websocket\n"
+"| REST\n"
+"\n"
+"| Live values\n"
+"| automatically every second\n"
+"| only through repeated queries\n"
+"| Effort\n"
+"| higher (connection, login, registering the desired values)\n"
+"| low (one call)\n"
+"| Typical for\n"
+"| Web interface\n"
+"| Home automation, scripts\n"
+msgstr ""
+
+#. type: Plain text
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+msgid ""
+"The Home Assistant integration “Fenecon FEMS & OpenEMS” uses both routes, "
+"see xref:user/third-party/home-assistant.adoc[Home Assistant]."
+msgstr ""

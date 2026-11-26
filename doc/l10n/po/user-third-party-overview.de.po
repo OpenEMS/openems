@@ -1,0 +1,409 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2026-11-09 16:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#: modules/ROOT/pages/development/implementing/json-rpc-endpoints.adoc
+#: modules/ROOT/pages/user/basics/energy-flows.adoc
+#: modules/ROOT/pages/user/data/export.adoc
+#: modules/ROOT/pages/user/devices/cluster.adoc
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/external-interfaces/json-rpc.adoc
+#: modules/ROOT/pages/user/external-interfaces/websocket.adoc
+#: modules/ROOT/pages/user/io-control/heat-pumps-and-heating-elements.adoc
+#: modules/ROOT/pages/user/schedule/forecasts.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home-battery.adoc
+#: modules/ROOT/pages/user/systems/fenecon-home.adoc
+#: modules/ROOT/pages/user/third-party/evcc.adoc
+#: modules/ROOT/pages/user/third-party/home-assistant.adoc
+#: modules/ROOT/pages/user/third-party/openwb.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"__As of: 2026-11-01 · OpenEMS version 2026.11.0-SNAPSHOT (development "
+"version, branch develop)__"
+msgstr ""
+"__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, "
+"Branch develop)__"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/ev-charging-control/surplus-charging.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"The page xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox "
+"control compared] compares wallbox control with evcc and openWB."
+msgstr ""
+"Einen Vergleich der Wallbox-Steuerung mit evcc und openWB gibt die Seite "
+"xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox-Steuerung im "
+"Vergleich]."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/ev-charging-control/wallbox-comparison.adoc
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "At a glance"
+msgstr "Auf einen Blick"
+
+#. type: Title =
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "OpenEMS: Third-party systems on OpenEMS"
+msgstr "OpenEMS: Fremdsysteme an OpenEMS"
+
+#. type: Plain text
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"This page compares three widely used systems that work together with "
+"OpenEMS: **Home Assistant**, **evcc** and **openWB**. All three are "
+"independent projects and not part of OpenEMS. Details are on the pages "
+"xref:user/third-party/home-assistant.adoc[Home Assistant], xref:user/third-"
+"party/evcc.adoc[evcc] and xref:user/third-party/openwb.adoc[openWB]. The "
+"basis in each case is their source code and the OpenEMS source code; none of "
+"this has been tried out."
+msgstr ""
+"Diese Seite vergleicht drei verbreitete Systeme, die mit OpenEMS "
+"zusammenarbeiten: **Home Assistant**, **evcc** und **openWB**. Alle drei "
+"sind eigenständige Projekte und nicht Teil von OpenEMS. Einzelheiten stehen "
+"auf den Seiten xref:user/third-party/home-assistant.adoc[Home Assistant], "
+"xref:user/third-party/evcc.adoc[evcc] und xref:user/third-party/"
+"openwb.adoc[openWB]. Grundlage ist jeweils deren Quellcode und der OpenEMS-"
+"Quellcode; ausprobiert wurde nichts davon."
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Home Assistant\n"
+"| evcc\n"
+"| openWB\n"
+"\n"
+"| Purpose\n"
+"| Home automation, display, automations\n"
+"| PV surplus charging, grid charging at low tariffs\n"
+"| Wallbox with its own surplus charging\n"
+"| Route to OpenEMS\n"
+"| xref:user/external-interfaces/websocket.adoc[Websocket] (port 8085), additionally REST for control values\n"
+"| REST (port 8084) or Modbus/TCP (port 502)\n"
+"| REST (port 8084, fixed)\n"
+"| Required app in OpenEMS\n"
+"| none (websocket is standard); REST write app for control values\n"
+"| REST or Modbus app; write app for storage control\n"
+"| REST read app\n"
+"| Login\n"
+"| Password, determines the role\n"
+"| REST: password; Modbus: none\n"
+"| Password\n"
+"| Update\n"
+"| about every second (subscription)\n"
+"| every 30 seconds (evcc control cycle)\n"
+"| every 10 seconds (openWB control cycle)\n"
+"| Range of values\n"
+"| all channels of all components, selectable\n"
+"| only total values (grid, PV, storage)\n"
+"| Grid meter `+meter0+`, total values, storage `+ess0+`\n"
+"| Changing settings\n"
+"| yes (stored permanently)\n"
+"| no\n"
+"| no\n"
+"| Controlling the storage\n"
+"| yes, via REST control values (any value)\n"
+"| yes: hold, charge, normal\n"
+"| no\n"
+"| Opposite direction (OpenEMS reads the system)\n"
+"| no (but OpenEMS can send values to an MQTT broker, see below)\n"
+"| no\n"
+"| yes: OpenEMS reads an openWB charge point via MQTT without controlling it\n"
+"| Encryption in the home network\n"
+"| no (local ws)\n"
+"| no\n"
+"| no\n"
+msgstr ""
+"| \n"
+"| Home Assistant\n"
+"| evcc\n"
+"| openWB\n"
+"\n"
+"| Zweck\n"
+"| Hausautomation, Anzeige, Automationen\n"
+"| PV-Überschussladen, Netzladen bei günstigem Tarif\n"
+"| Wallbox mit eigenem Überschussladen\n"
+"| Weg zu OpenEMS\n"
+"| xref:user/external-interfaces/websocket.adoc[Websocket] (Port 8085), für Steuerwerte zusätzlich REST\n"
+"| REST (Port 8084) oder Modbus/TCP (Port 502)\n"
+"| REST (Port 8084, fest)\n"
+"| nötige App in OpenEMS\n"
+"| keine (Websocket ist Standard); für Steuerwerte REST-Schreib-App\n"
+"| REST- oder Modbus-App; Schreib-App für Speichersteuerung\n"
+"| REST-Lese-App\n"
+"| Anmeldung\n"
+"| Passwort, bestimmt die Rolle\n"
+"| REST: Passwort; Modbus: keine\n"
+"| Passwort\n"
+"| Aktualisierung\n"
+"| etwa jede Sekunde (Abonnement)\n"
+"| alle 30 Sekunden (evcc-Regelzyklus)\n"
+"| alle 10 Sekunden (openWB-Regelzyklus)\n"
+"| Umfang der Werte\n"
+"| alle Kanäle aller Komponenten, wählbar\n"
+"| nur Summenwerte (Netz, PV, Speicher)\n"
+"| Netzzähler `+meter0+`, Summenwerte, Speicher `+ess0+`\n"
+"| Einstellungen ändern\n"
+"| ja (dauerhaft gespeichert)\n"
+"| nein\n"
+"| nein\n"
+"| Speicher steuern\n"
+"| ja, über REST-Steuerwerte (beliebiger Wert)\n"
+"| ja: Halten, Laden, Normal\n"
+"| nein\n"
+"| Gegenrichtung (OpenEMS liest das System)\n"
+"| nein (aber OpenEMS kann Werte an einen MQTT-Broker senden, siehe unten)\n"
+"| nein\n"
+"| ja: OpenEMS liest einen openWB-Ladepunkt über MQTT, ohne ihn zu steuern\n"
+"| Verschlüsselung im Heimnetz\n"
+"| nein (lokal ws)\n"
+"| nein\n"
+"| nein\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "Which interface for what"
+msgstr "Welche Schnittstelle wofür"
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid ""
+"| Interface\n"
+"| Properties\n"
+"| used by\n"
+"\n"
+"| xref:user/external-interfaces/websocket.adoc[Websocket]\n"
+"| Permanent connection, values arrive by themselves every second, settings can be changed; more complex\n"
+"| Home Assistant, web interface\n"
+"| xref:user/external-interfaces/rest-control.adoc[REST/JSON]\n"
+"| Individual queries; patterns for several values; control values with Api-Timeout\n"
+"| evcc, openWB, Home Assistant (control values only)\n"
+"| Modbus/TCP\n"
+"| Register table, no login; addresses depend on the configuration\n"
+"| evcc (optional)\n"
+"| MQTT (direction OpenEMS ← openWB)\n"
+"| OpenEMS subscribes to messages from openWB\n"
+"| OpenEMS component “EVCS OpenWB”\n"
+"| MQTT (direction OpenEMS → broker)\n"
+"| OpenEMS sends values to an MQTT broker\n"
+"| Component “Controller Api MQTT”, see below\n"
+msgstr ""
+"| Schnittstelle\n"
+"| Eigenschaften\n"
+"| genutzt von\n"
+"\n"
+"| xref:user/external-interfaces/websocket.adoc[Websocket]\n"
+"| Dauerverbindung, Werte kommen von selbst jede Sekunde, Einstellungen ändern möglich; aufwendiger\n"
+"| Home Assistant, Weboberfläche\n"
+"| xref:user/external-interfaces/rest-control.adoc[REST/JSON]\n"
+"| einzelne Abfragen; Muster für mehrere Werte; Steuerwerte mit Api-Timeout\n"
+"| evcc, openWB, Home Assistant (nur Steuerwerte)\n"
+"| Modbus/TCP\n"
+"| Registertabelle, keine Anmeldung; Adressen hängen von der Konfiguration ab\n"
+"| evcc (wahlweise)\n"
+"| MQTT (Richtung OpenEMS ← openWB)\n"
+"| OpenEMS abonniert Nachrichten der openWB\n"
+"| OpenEMS-Komponente „EVCS OpenWB“\n"
+"| MQTT (Richtung OpenEMS → Broker)\n"
+"| OpenEMS sendet Werte an einen MQTT-Broker\n"
+"| Komponente „Controller Api MQTT“, siehe unten\n"
+
+#. type: Title ===
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "OpenEMS sends values via MQTT"
+msgstr "OpenEMS sendet Werte per MQTT"
+
+#. type: #sec-openems-sends-values-via-mqtt
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"Independently of the three systems, OpenEMS has the component **“Controller "
+"Api MQTT”**. It sends channel values to an MQTT broker, e.g. the Home "
+"Assistant broker. According to its description, changed values are sent "
+"immediately and all values additionally every 5 minutes, under topics such "
+"as `+edge/edge0/channel/_sum/GridActivePower+`. Topic filters and the "
+"persistence priority can be used to limit what is sent; the connection can "
+"be encrypted."
+msgstr ""
+"Unabhängig von den drei Systemen hat OpenEMS die Komponente **„Controller "
+"Api MQTT“**. Sie sendet Kanalwerte an einen MQTT-Broker, z. B. den Broker "
+"von Home Assistant. Laut Beschreibung werden geänderte Werte sofort und alle "
+"Werte zusätzlich alle 5 Minuten gesendet, unter Themen wie `+edge/edge0/"
+"channel/_sum/GridActivePower+`. Mit Themenfiltern und der Speicherpriorität "
+"lässt sich eingrenzen, was gesendet wird; die Verbindung kann verschlüsselt "
+"sein."
+
+#. type: #sec-openems-sends-values-via-mqtt
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"The description of the component also mentions subscribing to control "
+"topics. Nothing was found for this in the code of the component; according "
+"to the code it only **sends** and does not accept any commands."
+msgstr ""
+"Die Beschreibung der Komponente spricht auch davon, Steuer-Themen zu "
+"abonnieren. Im Code der Komponente wurde dafür nichts gefunden; nach dem "
+"Code **sendet** sie nur und nimmt keine Befehle an."
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "Control: settings or control values"
+msgstr "Steuern: Einstellungen oder Steuerwerte"
+
+#. type: #sec-control-settings-or-control-values
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"The same distinction applies to all three (see xref:user/external-interfaces/"
+"rest-control.adoc#sec-controlling-two-fundamentally-different-"
+"routes[Controlling: two fundamentally different routes]):"
+msgstr ""
+"Für alle drei gilt dieselbe Unterscheidung (siehe xref:user/external-"
+"interfaces/rest-control.adoc#sec-controlling-two-fundamentally-different-"
+"routes[Steuern: zwei grundverschiedene Wege]):"
+
+#. type: Table
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid ""
+"| \n"
+"| Setting\n"
+"| Control value\n"
+"\n"
+"| Example\n"
+"| Emergency reserve, charging mode, operating mode\n"
+"| Storage power, relay\n"
+"| Duration\n"
+"| stored permanently\n"
+"| only as long as renewed every < 60 s\n"
+"| Write frequently?\n"
+"| **no**, wears out the memory of the system\n"
+"| yes, harmless\n"
+"| Home Assistant\n"
+"| Switch, select, number, time\n"
+"| Action “write REST value” (repeated every 30 s)\n"
+"| evcc\n"
+"| –\n"
+"| Upper limit of the storage power (repeated every 30 s)\n"
+"| openWB\n"
+"| –\n"
+"| –\n"
+msgstr ""
+"| \n"
+"| Einstellung\n"
+"| Steuerwert\n"
+"\n"
+"| Beispiel\n"
+"| Notstromreserve, Lademodus, Betriebsart\n"
+"| Speicherleistung, Relais\n"
+"| Dauer\n"
+"| dauerhaft gespeichert\n"
+"| nur solange alle < 60 s erneuert\n"
+"| häufig schreiben?\n"
+"| **nein**, nutzt den Speicher der Anlage ab\n"
+"| ja, unbedenklich\n"
+"| Home Assistant\n"
+"| Schalter, Auswahl, Zahl, Uhrzeit\n"
+"| Aktion „REST-Wert schreiben“ (wiederholt alle 30 s)\n"
+"| evcc\n"
+"| –\n"
+"| Obergrenze der Speicherleistung (wiederholt alle 30 s)\n"
+"| openWB\n"
+"| –\n"
+"| –\n"
+
+#. type: Title ==
+#: modules/ROOT/pages/user/third-party/overview.adoc
+#, no-wrap
+msgid "What to consider when combining"
+msgstr "Was man beim Kombinieren beachten sollte"
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**Only one system controls the storage.** If Home Assistant, evcc and a "
+"control function in OpenEMS (e.g. xref:user/storage-control/time-of-use-"
+"tariffs.adoc[time-of-use tariff]) issue specifications at the same time, the "
+"strictest limit applies in each case. The result is then difficult to "
+"understand."
+msgstr ""
+"**Nur ein System steuert den Speicher.** Wenn Home Assistant, evcc und eine "
+"Steuerfunktion in OpenEMS (z. B. xref:user/storage-control/time-of-use-"
+"tariffs.adoc[dynamischer Stromtarif]) gleichzeitig Vorgaben machen, gilt "
+"jeweils die strengste Grenze. Das Ergebnis ist dann schwer nachzuvollziehen."
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**Only one system controls surplus charging.** evcc, openWB and xref:user/ev-"
+"charging-control/surplus-charging.adoc[surplus charging in OpenEMS] see the "
+"same surplus. If two of them run on the same wallbox or on different "
+"wallboxes without coordination, they work against each other."
+msgstr ""
+"**Nur ein System regelt das Überschussladen.** evcc, openWB und das "
+"xref:user/ev-charging-control/surplus-charging.adoc[Überschussladen in "
+"OpenEMS] sehen denselben Überschuss. Laufen zwei davon auf dieselbe Wallbox "
+"oder auf verschiedene Wallboxen ohne Absprache, regeln sie gegeneinander."
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**OpenEMS limits always apply.** Emergency reserve, battery and grid limits, "
+"and xref:user/storage-control/section-14a-enwg.adoc[§ 14a] restrict any "
+"external specification (see xref:user/systems/fenecon-home-"
+"battery.adoc[FENECON Home battery])."
+msgstr ""
+"**Grenzen von OpenEMS gelten immer.** Notstromreserve, Batterie- und "
+"Netzgrenzen, xref:user/storage-control/section-14a-enwg.adoc[§ 14a] "
+"schränken jede Vorgabe von außen ein (siehe xref:user/systems/fenecon-home-"
+"battery.adoc[FENECON-Home-Batterie])."
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**Fixed names.** evcc and openWB mainly read `+_sum+`, openWB additionally "
+"the fixed `+meter0+` and `+ess0+`. If the naming differs, the values are not "
+"correct."
+msgstr ""
+"**Feste Namen.** evcc und openWB lesen vor allem `+_sum+`, openWB zusätzlich "
+"fest `+meter0+` und `+ess0+`. Bei abweichender Benennung stimmen die Werte "
+"nicht."
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**Do not expose ports to the internet.** All three use unencrypted "
+"connections in the home network; Modbus has no login at all."
+msgstr ""
+"**Ports nicht ins Internet freigeben.** Alle drei nutzen im Heimnetz "
+"unverschlüsselte Verbindungen; Modbus ganz ohne Anmeldung."
+
+#. type: #sec-what-to-consider-when-combining
+#: modules/ROOT/pages/user/third-party/overview.adoc
+msgid ""
+"**Load from queries.** Each connection queries regularly. This is not "
+"critical at the intervals described here; many additional scripts with short "
+"intervals increase the load on the system."
+msgstr ""
+"**Lasten durch Abfragen.** Jede Anbindung fragt regelmäßig ab. Das ist bei "
+"den hier beschriebenen Takten unkritisch; viele zusätzliche Skripte mit "
+"kurzen Takten erhöhen die Last der Anlage."
