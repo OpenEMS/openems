@@ -103,7 +103,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -182,23 +182,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.hasExternalAmbientHeating;
 	}
 
-	@Override
-	public String floorThermometer_target() {
-		return generateReferenceTargetFilter(this.id(), this.floorThermometer_id());
-	}
-
-	@Override
-	public String ambientThermometer_target() {
-		return generateReferenceTargetFilter(this.id(), this.ambientThermometer_id());
-	}
-
-	@Override
-	public String floorRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.floorRelays());
-	}
-
-	@Override
-	public String infraredRelayComponents_target() {
-		return generateReferenceTargetFilter(this.id(), this.infraredRelays());
-	}
 }
