@@ -1,5 +1,6 @@
 package io.openems.edge.victron.battery;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverters.SCALE_FACTOR_MINUS_1_AND_INVERT;
@@ -102,7 +103,20 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID);
+		if (config.nominalBatteryVoltage() <= 0) {
+			throw new IllegalArgumentException("Nominal battery voltage must be greater than zero.");
+		}
+		if (config.batterySource() == BatterySource.DBUS_AGGREGATOR
+				&& (!Double.isFinite(config.dischargeMinVoltage()) || config.dischargeMinVoltage() <= 0
+						|| config.dischargeMinVoltage() > Integer.MAX_VALUE)) {
+			throw new IllegalArgumentException(
+					"Minimum discharge voltage must be a positive, finite value within the supported range for the D-Bus battery aggregator.");
+		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+
+		if (config.batterySource() == BatterySource.DBUS_AGGREGATOR) {
+			this._setDischargeMinVoltage((int) Math.ceil(config.dischargeMinVoltage()));
+		}
 
 		if (this.ess != null) {
 			this.ess.setBattery(this);
@@ -155,75 +169,45 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void installListener() {
-		this.getCapacityInAmphoursChannel().onUpdate(value -> {
+		this.getCapacityInAmphoursChannel().onUpdate(value -> this.updateCapacityAndUsableSoc());
+		this.getSocChannel().onUpdate(value -> this.updateCapacityAndUsableSoc());
+	}
 
-			if (this.ess == null) {
-				this.logError(this.log, "No ESS reference available.");
-				return;
-			}
+	private void updateCapacityAndUsableSoc() {
+		var capacityAh = this.getCapacityInAmphours().get();
+		if (capacityAh == null) {
+			return;
+		}
+		if (capacityAh < 0) {
+			this.logError(this.log, "Invalid battery capacity received: " + capacityAh + " Ah.");
+			return;
+		}
 
-			// Check if value is null or invalid
-			if (value == null) {
-				this.logError(this.log, "Invalid capacity value received.");
-				return;
-			}
+		var capacityWh = (int) Math.round(capacityAh * this.config.nominalBatteryVoltage());
+		this._setCapacity(capacityWh);
 
-			this.logDebug(this.log, "Listener triggered with incoming capacity: " + value);
+		var soc = this.getSoc().get();
+		if (soc == null || this.ess == null) {
+			return;
+		}
 
-			// Safely get SoC, checking for null
-			Integer soc = this.getSoc().orElse(null);
-			if (soc == null || soc <= 0) {
-				this.logDebug(this.log, "installListener: Invalid SoC (" + soc + "), exiting.");
-				return;
-			}
+		this.checkSocControllers();
+		var minSoc = Math.max(0, Math.min(this.minSocPercentage, 100));
+		var maxSoc = Math.max(minSoc, Math.min(this.maxSocPercentage, 100));
+		int usableSoc;
+		if (soc <= minSoc) {
+			usableSoc = 0;
+		} else if (soc >= maxSoc) {
+			usableSoc = 100;
+		} else {
+			usableSoc = (int) (((double) (soc - minSoc) / (maxSoc - minSoc)) * 100);
+		}
+		var usableCapacityWh = (int) (capacityWh * ((double) (soc - minSoc) / 100));
+		var maxUsableCapacityWh = (int) (capacityWh * ((double) (maxSoc - minSoc) / 100));
+		usableCapacityWh = Math.max(0, Math.min(usableCapacityWh, maxUsableCapacityWh));
 
-			this.logDebug(this.log, "Current State of Charge (SoC): " + soc);
-
-			// Update SoC limits
-			this.checkSocControllers();
-			this.logDebug(this.log,
-					"SoC limits updated - MinSoC: " + this.minSocPercentage + ", MaxSoC: " + this.maxSocPercentage);
-
-			// Calculate total capacity Ah, handling division by zero
-			double socPercentage = soc / 100.0;
-			if (socPercentage == 0) {
-				this.logError(this.log, "Cannot calculate total capacity because SoC is 0.");
-				return;
-			}
-			int totalCapacityAh = (int) (value.get() / socPercentage);
-			this.logDebug(this.log, "Calculated total capacity (Ah): " + totalCapacityAh);
-
-			// Calculate total capacity in watt-hours
-			int totalCapacityWh = totalCapacityAh * BATTERY_VOLTAGE;
-
-			// Calculate the usable SoC within the MinSoC and MaxSoC limits
-			int useableSoc = soc > this.maxSocPercentage ? 100
-					: soc < this.minSocPercentage ? 0
-							: (int) (((double) (soc - this.minSocPercentage)
-									/ (this.maxSocPercentage - this.minSocPercentage)) * 100);
-			this.logDebug(this.log, "Normalized usable SoC: " + useableSoc + "% based on current SoC: " + soc);
-
-			// Calculate the usable capacity based on MinSoC and MaxSoC limits
-			// First, calculate the percentage of capacity that can be used between MinSoC
-			// and MaxSoC
-			double usableCapacityRange = (this.maxSocPercentage - this.minSocPercentage) / 100.0;
-			// Usable capacity within min and max SoC range
-			int totalUsableCapacityWh = (int) (totalCapacityWh * usableCapacityRange);
-
-			// Now calculate the current usable capacity based on the usable SoC
-			int useableCapacityWh = (int) (totalUsableCapacityWh * (useableSoc / 100.0));
-
-			// Ensure useableCapacityWh is within valid bounds (0 to totalUsableCapacityWh)
-			useableCapacityWh = Math.max(Math.min(useableCapacityWh, totalUsableCapacityWh), 0);
-
-			// Set the capacities in ESS
-			this._setCapacity(totalCapacityWh);
-			this.ess._setUseableSoc(useableSoc);
-			this.ess._setUseableCapacity(useableCapacityWh);
-
-			this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc
-					+ "[%] Capacity real|usable " + totalCapacityWh + "|" + useableCapacityWh + " [Wh]");
-		});
+		this.ess._setUseableSoc(usableSoc);
+		this.ess._setUseableCapacity(usableCapacityWh);
 	}
 
 	@Override
@@ -234,6 +218,46 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
+		if (this.config.batterySource() == BatterySource.DBUS_AGGREGATOR) {
+			return this.defineDbusAggregatorModbusProtocol();
+		}
+
+		return this.defineCanBmsModbusProtocol();
+	}
+
+	private ModbusProtocol defineDbusAggregatorModbusProtocol() {
+		return new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(259, Priority.HIGH,
+						this.m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(259), SCALE_FACTOR_MINUS_2)),
+				new FC3ReadRegistersTask(261, Priority.HIGH,
+						this.m(Battery.ChannelId.CURRENT, new SignedWordElement(261), SCALE_FACTOR_MINUS_1),
+						this.m(VictronBattery.ChannelId.TEMPERATURE, new SignedWordElement(262),
+								SCALE_FACTOR_MINUS_1)),
+				new FC3ReadRegistersTask(266, Priority.HIGH,
+						this.m(Battery.ChannelId.SOC, new UnsignedWordElement(266), SCALE_FACTOR_MINUS_1)),
+				new FC3ReadRegistersTask(305, Priority.HIGH,
+						this.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(305),
+								SCALE_FACTOR_MINUS_1)),
+				new FC3ReadRegistersTask(307, Priority.HIGH,
+						this.m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(307),
+								SCALE_FACTOR_MINUS_1),
+						this.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(308),
+								SCALE_FACTOR_MINUS_1),
+						this.m(VictronBattery.ChannelId.CAPACITY_IN_AMPHOURS, new UnsignedWordElement(309),
+								SCALE_FACTOR_MINUS_1)),
+				new FC3ReadRegistersTask(1289, Priority.HIGH,
+						this.m(VictronBattery.ChannelId.NUMBER_OF_CELLS_PER_BATTERY,
+								new UnsignedWordElement(1289)),
+						this.m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1290),
+								SCALE_FACTOR_1),
+						this.m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1291),
+								SCALE_FACTOR_1)),
+				new FC3ReadRegistersTask(1297, Priority.HIGH,
+						this.m(VictronBattery.ChannelId.ALLOW_TO_CHARGE, new UnsignedWordElement(1297)),
+						this.m(VictronBattery.ChannelId.ALLOW_TO_DISCHARGE, new UnsignedWordElement(1298))));
+	}
+
+	private ModbusProtocol defineCanBmsModbusProtocol() {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(259, Priority.HIGH,
 						this.m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(259), SCALE_FACTOR_MINUS_2),
@@ -334,8 +358,8 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 						this.m(VictronBattery.ChannelId.BATTERIES_PARALLEL, new UnsignedWordElement(1287)),
 						this.m(VictronBattery.ChannelId.BATTERIES_SERIES, new UnsignedWordElement(1288)),
 						this.m(VictronBattery.ChannelId.NUMBER_OF_CELLS_PER_BATTERY, new UnsignedWordElement(1289)),
-						this.m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1290), SCALE_FACTOR_MINUS_2),
-						this.m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1291), SCALE_FACTOR_MINUS_2),
+						this.m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1290), SCALE_FACTOR_1),
+						this.m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1291), SCALE_FACTOR_1),
 						this.m(VictronBattery.ChannelId.SHUTDOWNS_DUE_ERROR, new UnsignedWordElement(1292)),
 						this.m(VictronBattery.ChannelId.DIAGNOSTICS_1ST_LAST_ERROR, new UnsignedWordElement(1293)),
 						this.m(VictronBattery.ChannelId.DIAGNOSTICS_2ND_LAST_ERROR, new UnsignedWordElement(1294)),

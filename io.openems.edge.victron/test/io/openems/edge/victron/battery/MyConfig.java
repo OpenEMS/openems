@@ -10,6 +10,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String alias;
 		private boolean enabled;
 		private String modbusId;
+		private int modbusUnitId = 225;
+		private BatterySource batterySource = BatterySource.CAN_BMS;
+		private double nominalBatteryVoltage = 48;
+		private double dischargeMinVoltage;
 		private String essId;
 		private boolean debugMode;
 
@@ -33,6 +37,26 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
+			return this;
+		}
+
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setBatterySource(BatterySource batterySource) {
+			this.batterySource = batterySource;
+			return this;
+		}
+
+		public Builder setNominalBatteryVoltage(double nominalBatteryVoltage) {
+			this.nominalBatteryVoltage = nominalBatteryVoltage;
+			return this;
+		}
+
+		public Builder setDischargeMinVoltage(double dischargeMinVoltage) {
+			this.dischargeMinVoltage = dischargeMinVoltage;
 			return this;
 		}
 
@@ -85,6 +109,26 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public BatterySource batterySource() {
+		return this.builder.batterySource;
+	}
+
+	@Override
+	public double nominalBatteryVoltage() {
+		return this.builder.nominalBatteryVoltage;
+	}
+
+	@Override
+	public double dischargeMinVoltage() {
+		return this.builder.dischargeMinVoltage;
 	}
 
 	@Override

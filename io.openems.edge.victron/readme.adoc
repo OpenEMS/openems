@@ -6,6 +6,19 @@ Implementation of Victron Battery Inverter.
 == Compatibility 
 - Victron Multiplus 2GX ESS
 
+== Battery sources
+
+`Victron.Battery` reads the selected battery service from the Victron GX Modbus/TCP server. The default source is the CAN-bus BMS (Unit-ID 225). To use the virtual battery produced by `dbus-battery-aggregator`, configure:
+
+* Battery source: `DBUS_AGGREGATOR`
+* Modbus Unit-ID: `99` (the aggregator's default DeviceInstance)
+* Nominal battery voltage: the nominal voltage of the battery bank, in V (decimal values are supported; use the rated nominal voltage, not the charge voltage)
+* Minimum discharge voltage: the BMS-approved minimum voltage of the battery bank, in V (decimals are rounded up to the next whole volt for the integer channel)
+
+The aggregator combines its serial batteries into one battery service; configure one `Victron.Battery` component for that aggregate rather than one component per physical pack. The minimum discharge voltage is required because the aggregate service does not provide it. Confirm the DeviceInstance and Modbus register values on the GX before enabling battery control.
+
+Battery capacity is reported by the Victron Modbus service in Ah and converted to OpenEMS Wh using the configured nominal battery voltage.
+
 
 Open Issues:
 
