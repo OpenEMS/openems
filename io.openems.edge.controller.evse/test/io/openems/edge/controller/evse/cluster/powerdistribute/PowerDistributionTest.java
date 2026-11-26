@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.DisplayName;
@@ -348,6 +349,58 @@ class PowerDistributionTest {
 
 			var execution = sut.execute(DistributionStrategy.EQUAL_POWER);
 			assertNotEquals(0, execution.get(0).getApplySetPointInMilliAmpere());
+		}
+	}
+
+	@Nested
+	@DisplayName("testAutomaticPhaseSwitch()")
+	class TestAutomaticPhaseSwitch {
+
+		/**
+		 * Required minimum sample count for a 5-second Core-Cycle-Time, mirroring
+		 * {@code Types.History.calculateMinSampleCount(Duration window, double
+		 * requiredFractionOfExpectedSampleCount)}: within the 2-minute window this
+		 * allows for at most 24 samples (120s / 5s); 90% of that is 22. With the
+		 * previous fixed threshold of 60 samples this could never be reached, so
+		 * automatic phase switching would never trigger with such a slow Cycle-Time.
+		 */
+		private static final int MIN_SAMPLE_COUNT = 22;
+		private static final Duration CYCLE_TIME = Duration.ofSeconds(5);
+		private static final int IDEAL_SET_POINT_IN_WATT = 11_040; // above the 4100 W switch threshold
+
+		@Test
+		void switchesToThreePhaseOnceMinSampleCountReached() {
+			final var history = new Types.History();
+			var ct = CalculateTester.generateControllers(1) //
+					.set(0, c -> c //
+							.setMode(FORCE) //
+							.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+							.setHistory(history) //
+							.setChargePointAbilities(cp -> cp //
+									.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+									.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+							// oppositePhaseApplySetPoint for AUTOMATIC phase switching is derived from
+							// the EV's three-phase limit (default 6-16 A = 4140-11040 W), not from
+							// setPhaseSwitchManual's own (optional, unused here) set-point argument.
+							.setElectricVehicleAbilities(ev -> ev //
+									.setCanInterrupt(true)));
+
+			// one sample short of the required minimum: must not switch yet
+			for (int i = 0; i < MIN_SAMPLE_COUNT - 2; i++) {
+				history.addEntry(ct.clock.instant(), IDEAL_SET_POINT_IN_WATT, IDEAL_SET_POINT_IN_WATT,
+						IDEAL_SET_POINT_IN_WATT, true);
+				ct.clock.leap(CYCLE_TIME.toSeconds(), SECONDS);
+			}
+			var beforeThreshold = ct.execute(DistributionStrategy.EQUAL_POWER);
+			assertNull(beforeThreshold.get(0).getPhaseSwitchDirection());
+
+			// the sample that reaches the required minimum: must switch now
+			history.addEntry(ct.clock.instant(), IDEAL_SET_POINT_IN_WATT, IDEAL_SET_POINT_IN_WATT,
+					IDEAL_SET_POINT_IN_WATT, true);
+			ct.clock.leap(CYCLE_TIME.toSeconds(), SECONDS);
+
+			var afterThreshold = ct.execute(DistributionStrategy.EQUAL_POWER);
+			assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, afterThreshold.get(0).getPhaseSwitchDirection());
 		}
 	}
 }
