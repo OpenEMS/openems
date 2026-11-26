@@ -11,6 +11,7 @@ import { TourService } from "src/app/shared/tour/tour.service";
 import { TutorialTargetId } from "src/app/shared/tour/tutorial-target-id";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment } from "src/environments";
 
 @Component({
     selector: "live",
@@ -29,12 +30,13 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 export class LiveComponent implements OnDestroy, OnInit {
     @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
 
-    protected edge: Edge | null = null;
-    protected config: EdgeConfig | null = null;
-    protected widgets: Widgets | null = null;
-    protected showRefreshDragDown: boolean = false;
-    protected showNewFooter: boolean = false;
-    protected isTablet: boolean = false;
+    private edge: Edge | null = null;
+    private config: EdgeConfig | null = null;
+    private widgets: Widgets | null = null;
+    private showRefreshDragDown: boolean = false;
+    private showNewFooter: boolean = false;
+    private isTablet: boolean = false;
+    private readonly energyMonitor = environment.energyMonitor ?? "ring";
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private interval: ReturnType<typeof setInterval> | undefined;
@@ -44,10 +46,10 @@ export class LiveComponent implements OnDestroy, OnInit {
 
     constructor(
         public service: Service,
-        protected utils: Utils,
-        protected websocket: Websocket,
+        private utils: Utils,
+        private websocket: Websocket,
         private dataService: DataService,
-        protected navigationService: NavigationService,
+        private navigationService: NavigationService,
         userService: UserService,
         private layoutRefresh: LayoutRefreshService,
     ) {
@@ -91,10 +93,10 @@ export class LiveComponent implements OnDestroy, OnInit {
         this.stopOnDestroy.complete();
     }
 
-    protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) =>
+    private handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) =>
         this.dataService.refresh(ev);
 
-    protected checkIfRefreshNeeded() {
+    private checkIfRefreshNeeded() {
         this.interval = setInterval(async () => {
             if (this.edge?.isOnline === false) {
                 this.showRefreshDragDown = false;
