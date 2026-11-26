@@ -1,0 +1,123 @@
+= OpenEMS: JSON-RPC
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/external-interfaces/json-rpc.adoc[OpenEMS: JSON-RPC]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+JSON-RPC ist die **gemeinsame „Sprache“**, in der sich die Teile von OpenEMS unterhalten: die Weboberfläche mit der Anlage, die Anlage mit dem Backend und Fremdsysteme (z. B. eine Hausautomation) mit der Anlage. Wer OpenEMS nur über die Weboberfläche bedient, kommt damit nicht in Berührung. Interessant wird es, wenn man Werte aus eigenen Programmen abfragen oder die Anlage steuern möchte.
+
+[#sec-das-prinzip]
+== Das Prinzip
+
+Jede Nachricht ist ein kleiner Text im JSON-Format. Es gibt drei Arten:
+
+[cols="3*",options="header"]
+|===
+| Art
+| Bedeutung
+| Beispiel
+
+| **Anfrage**
+| „Bitte tu etwas oder gib mir etwas.“
+| „Gib mir die Konfiguration.“
+| **Antwort**
+| Ergebnis oder Fehlermeldung zu einer Anfrage
+| die Konfiguration
+| **Mitteilung**
+| Nachricht ohne Antwort
+| „Hier sind die aktuellen Messwerte.“
+|===
+
+Eine Anfrage sieht zum Beispiel so aus:
+
+[source]
+----
+{"jsonrpc": "2.0", "id": "1", "method": "getEdgeConfig", "params": {}}
+----
+
+* `+method+` sagt, **was** gewünscht ist.
+* `+params+` enthält die Angaben dazu.
+* `+id+` ist eine frei gewählte Kennung. Die Antwort trägt dieselbe `+id+`.
+
+[#sec-ueber-welche-wege]
+== Über welche Wege
+
+Dieselben Anfragen funktionieren über verschiedene Wege:
+
+* **xref:user/de/external-interfaces/websocket.adoc[Websocket]** – die dauerhafte Verbindung der Weboberfläche, mit Live-Werten.
+* **xref:user/de/external-interfaces/rest-control.adoc[REST/HTTP]** – einzelne Aufrufe, ideal für Skripte und Hausautomation.
+* **Backend** – Fernzugriff über den zentralen Server (siehe xref:user/de/cloud-interfaces/backend-data-transfer.adoc[Datenübertragung zum Backend]).
+
+[#sec-was-man-damit-tun-kann]
+== Was man damit tun kann
+
+[cols="3*",options="header"]
+|===
+| Aufgabe
+| Anfrage
+| nötige Rolle
+
+| Konfiguration und alle Werte-Namen ansehen
+| `+getEdgeConfig+`
+| Gast
+| Verläufe abrufen (z. B. Leistung über den Tag)
+| `+queryHistoricTimeseriesData+`
+| angemeldet
+| Energiemengen abrufen (z. B. Bezug heute)
+| `+queryHistoricTimeseriesEnergy+`
+| angemeldet
+| Historie als Excel exportieren
+| `+queryHistoricTimeseriesExportXlxs+`
+| angemeldet
+| Eine Einstellung dauerhaft ändern
+| `+updateComponentConfig+`
+| Eigentümer
+| Fahrplan abrufen
+| `+getSchedule+` an `+_energy+`
+| –
+|===
+
+„Angemeldet“ heißt: Der Quellcode verlangt keine bestimmte Rolle. Über REST ist trotzdem immer eine Anmeldung nötig, weil REST bei jeder Anfrage Benutzername und Passwort prüft.
+
+Manche Funktionen bieten eigene Anfragen an, z. B. der xref:user/de/schedule/overview.adoc[Fahrplan] oder das App Center. Solche Anfragen werden „verpackt“ an die jeweilige Funktion geschickt (`+componentJsonApi+` mit der ID der Funktion).
+
+[#sec-benutzerrollen]
+== Benutzerrollen
+
+Jede Anfrage läuft im Namen eines angemeldeten Benutzers. OpenEMS kennt vier Rollen:
+
+[cols="3*",options="header"]
+|===
+| Rolle
+| für
+| darf u. a.
+
+| Gast (GUEST)
+| Zuschauer
+| Werte und Verläufe ansehen
+| Eigentümer (OWNER)
+| Anlagenbetreiber
+| zusätzlich Einstellungen ändern
+| Installateur (INSTALLER)
+| Fachbetrieb
+| zusätzlich bestimmte Apps im App Center sehen, installieren und entfernen
+| Admin (ADMIN)
+| Hersteller / Entwickler
+| alles
+|===
+
+Details für die Weboberfläche stehen auf der Seite xref:user/de/external-interfaces/websocket.adoc[Websocket].
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* **Einstellung ändern ist nicht dasselbe wie Steuerwert setzen.** Eine Einstellung wird dauerhaft gespeichert. Ein Steuerwert gilt nur vorübergehend und muss regelmäßig neu gesendet werden. Siehe xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON].
+* Einstellungen nicht im Minutentakt ändern: Das belastet auf Dauer den Speicher des Geräts (siehe xref:user/de/external-interfaces/websocket.adoc#sec-hinweis-konfiguration-nicht-haeufig-schreiben[Hinweis]).

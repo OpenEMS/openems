@@ -1,0 +1,852 @@
+= Running in Docker
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: en
+
+Diese Seite auf Deutsch: xref:development/de/deployment/docker.adoc[OpenEMS-Entwicklung: Betrieb in Docker]
+
+__As of: 2026-11-06 · OpenEMS version 2026.12.0-SNAPSHOT (development version, branch develop)__
+
+The first steps are described in xref:edge/deploy/docker.adoc[Deploy OpenEMS Edge to Docker], xref:backend/deploy/docker.adoc[Deploy OpenEMS Backend to Docker] and xref:ui/deploy/docker.adoc[Deploy the UI with Docker]. This page adds what happens inside the images: structure, start sequence, ports, volumes, environment variables, how to build and replace parts, and known pitfalls.
+
+The statements are derived from the files under `+tools/docker/+` and the Java code. Where something was tried out, it says so.
+
+[#sec-overview]
+== Overview
+
+[cols="4*",options="header"]
+|===
+| Image (Docker Hub)
+| Dockerfile
+| Content
+| Ports in the container
+
+| `+openems/edge+`
+| `+tools/docker/edge/Dockerfile+`
+| OpenEMS Edge (`+openems-edge.jar+`)
+| 8080 Apache Felix Web Console, 8085 Websocket for the UI
+| `+openems/ui-edge+`
+| `+tools/docker/ui/Dockerfile.edge+`
+| Angular UI {plus} nginx, proxy to an Edge
+| 80, 443
+| `+openems/backend+`
+| `+tools/docker/backend/Dockerfile+`
+| central Backend with Edge Manager
+| 8079 Apache Felix Web Console, 8082 UI Websocket, 8083 Edge Manager
+| `+openems/backend-edge+`
+| `+tools/docker/backend-edge/Dockerfile+`
+| Backend Edge Application, to which the Edges connect
+| 8078 Apache Felix Web Console, 8081 Edge Websocket
+| `+openems/ui-backend+`
+| `+tools/docker/ui/Dockerfile.backend+`
+| Angular UI {plus} nginx, proxy to the Backend
+| 80, 443
+|===
+
+In addition, there is `+.devcontainer/+` (development environment for VS Code: JDK 25, Node.js 22, Angular CLI) and `+.gitpod.Dockerfile+` or `+tools/gitpod/+` for Gitpod. These images are for development, not for operation.
+
+[cols="3*",options="header"]
+|===
+| Port
+| Service
+| Set via
+
+| 8080 / 8079 / 8078
+| Felix HTTP (Apache Felix Web Console `+/system/console+`)
+| `+-Dorg.apache.felix.http.port+` in the start script
+| 8085
+| Edge: “Controller Api Websocket”
+| component `+ctrlApiWebsocket0+`, field `+port+`
+| 8084
+| Edge: REST/JSON API (not in the default configuration)
+| component, field `+port+` (default 8084)
+| 8082
+| Backend: `+Ui.Websocket+`
+| field `+port+`
+| 8083
+| Backend: `+Edge.Manager+` (remote station for the Backend Edge Application)
+| field `+port+`
+| 8081
+| Backend-Edge: `+Backend.Edge.App+` (remote station for the Edges)
+| field `+port+`
+|===
+
+[#sec-structure-of-the-java-images-edge-backend-backend-edge]
+== Structure of the Java images (Edge, Backend, Backend-Edge)
+
+All three Dockerfiles are built the same way and differ only in the Gradle task, JAR name, ports and default JVM options.
+
+[#sec-stage-1-build]
+=== Stage 1: build
+
+[source]
+----
+ARG JAVA_VERSION=25
+ARG JAVA_PACKAGE=jre
+
+FROM --platform=$BUILDPLATFORM eclipse-temurin:${JAVA_VERSION}-jdk-alpine AS build_edge
+RUN apk add --no-cache dos2unix bash
+COPY tools/docker/edge/root/ /opt/root/
+RUN find /opt/root/ -type f -print0 | xargs -0 dos2unix
+WORKDIR /src
+ENV OEMS_EDGE_OUTPUT=/opt/openems-edge.jar
+RUN --mount=type=bind,target=.,readwrite \
+    --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-build-cache buildEdge
+----
+
+* **The build context is the root directory of the repository.** The source code is not copied, but mounted via `+--mount=type=bind,readwrite+`. Write accesses of the build (e.g. `+generated/+`) end up in a throwaway layer and do not change the working tree.
+* `+--mount=type=cache,target=/root/.gradle+` keeps Gradle dependencies between builds. This requires BuildKit.
+* `+--platform=$BUILDPLATFORM+`: the build stage always runs in the architecture of the build machine, because the result is a platform-independent JAR. Only the runtime stage is built for the target architecture.
+* The Gradle tasks `+buildEdge+`, `+buildBackend+` and `+buildBackendEdge+` write their JAR to the path from `+OEMS_EDGE_OUTPUT+`, `+OEMS_BACKEND_OUTPUT+` or `+OEMS_BACKEND_EDGE_OUTPUT+`.
+* `+dos2unix+` on the start scripts prevents problems if the repository was checked out on Windows with CRLF.
+
+[#sec-stages-2-and-3-runtime]
+=== Stages 2 and 3: runtime
+
+[source]
+----
+FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
+... add the Adoptium APK repository ...
+RUN apk add --update --no-cache rsync dos2unix temurin-${JAVA_VERSION}-${JAVA_PACKAGE}
+
+FROM base_container
+COPY --from=build_edge --chown=abc:abc /opt/root/ /
+COPY --from=build_edge --chown=abc:abc /opt/openems-edge.jar /opt/openems/openems-edge.jar
+RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+ENV EXTRA_JVM_OPTS="-XX:+ExitOnOutOfMemoryError"
+VOLUME /var/opt/openems/config
+VOLUME /var/opt/openems/data
+EXPOSE 8080 8085
+----
+
+* **The base is the linuxserver.io Alpine image** with the tag `+edge+` (Alpine development branch). It provides the init system s6-overlay, the user `+abc+` and the helper `+lsiown+`. Because `+edge+` is a moving tag, two builds of the same commit can contain different base packages.
+* **Java** comes as a Temurin JRE from the Adoptium APK repository, version from `+JAVA_VERSION+` (default 25, matching `+javac.target: 25+` in `+cnf/build.bnd+`).
+* There is **no `+HEALTHCHECK+`** in the Dockerfiles. `+docker ps+` therefore only shows “Up”, not “healthy”.
+
+[#sec-start-sequence-s6-overlay]
+== Start sequence (s6-overlay)
+
+The entry point is `+/init+` of s6-overlay. The services are under `+/etc/s6-overlay/s6-rc.d/+` in the respective `+root/+` directory.
+
+[cols="3*",options="header"]
+|===
+| Service
+| Type
+| Task
+
+| `+init-adduser+`
+| oneshot
+| Sets UID/GID of the user `+abc+` from `+PUID+`/`+PGID+` (default 911/911), shows the banner.
+| `+init-openems-config+`
+| oneshot
+| If `+/var/opt/openems/config+` is empty, the default configuration is copied from `+/var/lib/openems-default-config/+` (Backend additionally `+metadata.json+`, see below).
+| `+init-permissions+`
+| oneshot
+| `+lsiown -R abc:abc /opt/openems /var/opt/openems+`
+| `+svc-openems-edge+` (or `+-backend+`, `+-backend-edge+`)
+| longrun
+| Starts Java as user `+abc+`.
+|===
+
+[#sec-java-call-of-the-edge]
+=== Java call of the Edge
+
+[source]
+----
+/usr/bin/java \
+  -Dosgi.clean=true \
+  -Dorg.apache.felix.eventadmin.Timeout=0 \
+  -Dorg.apache.felix.http.host=0.0.0.0 \
+  -Dorg.apache.felix.http.port=8080 \
+  -Dfelix.cm.dir=/var/opt/openems/config \
+  -Dopenems.data.dir=/var/opt/openems/data \
+  -Djava.net.preferIPv4Stack=true \
+  $EXTRA_JVM_OPTS \
+  -jar /opt/openems/openems-edge.jar
+----
+
+* `+felix.cm.dir+` and `+openems.data.dir+` override the paths `+c:/openems/…+` from `+EdgeApp.bndrun+`.
+* `+org.apache.felix.http.host=0.0.0.0+`: the Apache Felix Web Console listens on all interfaces of the container. If port 8080 is published, the console is reachable from outside.
+* `pass:c[-XX:+ExitOnOutOfMemoryError]` is part of the default value of `+EXTRA_JVM_OPTS+`: if memory runs out, the JVM exits and s6 restarts the service. **If you set `+EXTRA_JVM_OPTS+` yourself, the default value is replaced**; include this option if you want to keep it.
+* Backend and Backend-Edge additionally have `pass:c[-XX:+UseZGC -XX:+UseCompactObjectHeaders]` in the default value.
+* **Readiness check:** `+s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z 127.0.0.1 8080"+` reports the service as ready as soon as the Felix port responds (up to 300 attempts at intervals of 1 s). This only takes effect within s6, not as a Docker health check.
+
+[#sec-default-configuration-of-the-edge]
+=== Default configuration of the Edge
+
+At the first start, these files are copied to `+/var/opt/openems/config+`:
+
+[cols="2*",options="header"]
+|===
+| File
+| Component
+
+| `+Core/*.config+`
+| `+_appManager+`, `+_componentManager+`, `+_cycle+`, `+_energy+`, `+_meta+`, `+_predictorManager+`, `+_serialNumber+`, `+_sum+`
+| `+Scheduler/AllAlphabetically/default.config+`
+| `+scheduler0+` (all Controllers alphabetically)
+| `+Controller/Api/Websocket/default.config+`
+| `+ctrlApiWebsocket0+`, port 8085, `+apiTimeout+` 60 s
+|===
+
+No devices, no Backend connection, no REST API, no Timedata (rrd4j). The check “directory empty?” only applies at the very first start. If you want to provide your own default configuration, put it in `+tools/docker/edge/root/var/lib/openems-default-config/+` and rebuild the image, or fill the volume before the first start.
+
+[#sec-environment-variables-java-images]
+=== Environment variables (Java images)
+
+[cols="3*",options="header"]
+|===
+| Variable
+| Default
+| Effect
+
+| `+EXTRA_JVM_OPTS+`
+| see above
+| Additional JVM options, e.g. `+-Xmx512m+`, `+-Duser.timezone=Europe/Berlin+` or `+-agentlib:jdwp=…+` for debugging.
+| `+PUID+` / `+PGID+`
+| 911 / 911
+| UID/GID of the user `+abc+`. Important for bind mounts instead of named volumes and for access to devices such as `+/dev/ttyUSB0+`.
+| `+TZ+`
+| –
+| Time zone of the JVM. On Linux, Java adopts the variable `+TZ+`; the time zone data (`+tzdata+`) is installed by the linuxserver base image. Not set in the OpenEMS code.
+|===
+
+[#sec-operating-the-edge-with-the-ui]
+== Operating the Edge with the UI
+
+The Compose file is in xref:edge/deploy/docker.adoc[Deploy OpenEMS Edge to Docker] and in `+tools/docker/edge/docker-compose.yml+`. How to log in is described there and in xref:gettingstarted.adoc[Getting Started].
+
+* **Port 8085 does not need to be published** if only the UI from the container is used: the UI connects to `+ws(s)://<site>/openems-edge+` (`+ui/src/themes/openems/environments/edge-docker.ts+`), and nginx forwards this to the Edge in the Compose network. Publishing is only needed for direct clients (e.g. `+ng serve+` on the development machine or scripts).
+* The Apache Felix Web Console is also no longer needed after setup. In operation, port 8080 should not be open to the network or should only be bound to `+127.0.0.1+` (`+127.0.0.1:8080:8080+`).
+
+[#sec-data-and-configuration]
+=== Data and configuration
+
+[cols="3*",options="header"]
+|===
+| Volume
+| Path in the container
+| Content
+
+| `+openems-edge-conf+`
+| `+/var/opt/openems/config+`
+| Configuration Admin files (`+*.config+`), one file per component
+| `+openems-edge-data+`
+| `+/var/opt/openems/data+`
+| Data of the components, e.g. rrd4j history
+|===
+
+Backup:
+
+[source]
+----
+docker run --rm -v openems-edge-conf:/src:ro -v "$PWD":/dst alpine \
+  tar czf /dst/openems-edge-conf.tgz -C /src .
+----
+
+Note: Compose prefixes volume names with the project name (usually the directory name, e.g. `+edge_openems-edge-conf+`). `+docker volume ls+` shows the real name.
+
+[#sec-paths-on-the-docker-host]
+==== Paths on the Docker host
+
+On a normal Docker installation (Ubuntu, Debian), named volumes are located under `+/var/lib/docker/volumes/<project>_<volume>/_data+`. This does not apply if Docker is installed as a Snap (then `+/var/snap/docker/common/var-lib-docker/volumes/…+`), runs in rootless mode or has its own `+data-root+`. The actual path is shown by:
+
+[source]
+----
+docker volume inspect <project>_openems-edge-conf --format '{{.Name}}: {{.Mountpoint}}'
+----
+
+Root permissions are required for `+/var/lib/docker+`. The files belong to the user `+abc+` in the container (UID 911).
+
+[#sec-accessing-files]
+==== Accessing files
+
+In the Compose file of the repository, the container is called `+openems_edge+`; `+docker ps+` shows the real name.
+
+[source]
+----
+docker exec -it openems_edge bash                    # as root
+docker exec -it -u abc openems_edge bash             # as the user of the Edge
+docker exec -u abc openems_edge ls -R /var/opt/openems/config
+docker cp openems_edge:/var/opt/openems/config ./config-copy
+----
+
+Only edit `+.config+` files directly when the container is stopped (`+docker compose stop openems-edge+`) and do not change owner and permissions. Reason: Felix Configuration Admin (version 1.9.26) keeps the configurations in memory (`+CachingPersistenceManagerProxy+`) and does not re-read the files during operation. A change to the file therefore only takes effect after a restart. If the same configuration is saved beforehand via the UI, Configuration Admin writes the state from memory to the file, and the manual change is gone. During operation, it is better to make changes via the UI or the Apache Felix Web Console.
+
+[#sec-restarting]
+=== Restarting
+
+In the directory of the Compose file:
+
+[cols="3*",options="header"]
+|===
+| Command
+| Effect
+| When
+
+| `+docker compose restart <service>+`
+| restarts the existing container with its previous settings
+| restart the Edge, e.g. after changing `+.config+` files
+| `+docker compose up -d <service>+`
+| recreates the container if the Compose file has changed
+| after changing `+hostname+`, `+environment+` (e.g. `+EXTRA_JVM_OPTS+`), ports, mounts or image
+| `+docker compose up -d --force-recreate <service>+`
+| always recreates the container
+| if only the content of a bind mount has changed and you want to be sure
+|===
+
+The volumes are retained in all three cases. There is no `+systemctl restart openems+` in the container as on a Debian installation; the Edge is started and monitored by s6.
+
+Restarting only the Java process, without the container (derived from the structure of s6-overlay v3, not checked in the container):
+
+[source]
+----
+docker exec openems_edge ls /run/service                     # check the path
+docker exec openems_edge s6-svc -r /run/service/svc-openems-edge
+----
+
+[#sec-update]
+=== Update
+
+[source]
+----
+docker compose pull
+docker compose up -d
+----
+
+Configuration and data are retained in the volumes. `+Core.Host+` recognizes the container by the file `+/.dockerenv+` and then uses `+OperatingSystemDocker+`. Network settings, network information, system restart and system update are not implemented there; the UI receives an error message or does not offer an update. Updates in Docker operation are done via new images.
+
+[#sec-building-images-yourself]
+== Building images yourself
+
+In the root directory of the repository:
+
+[source]
+----
+docker build . -t openems_edge         -f tools/docker/edge/Dockerfile
+docker build . -t openems_ui-edge      -f tools/docker/ui/Dockerfile.edge
+docker build . -t openems_backend      -f tools/docker/backend/Dockerfile
+docker build . -t openems_backend-edge -f tools/docker/backend-edge/Dockerfile
+docker build . -t openems_ui-backend   -f tools/docker/ui/Dockerfile.backend
+----
+
+Then enter `+image: openems_edge+` etc. in the Compose file, or have Compose build it directly:
+
+[source]
+----
+  openems-edge:
+    build:
+      context: /path/to/openems
+      dockerfile: tools/docker/edge/Dockerfile
+    image: openems_edge:dev
+----
+
+* **Close Eclipse** or at least stop the automatic build. If another program accesses the project files during the build, according to the README the build aborts with “failed to solve: error from sender: context canceled”.
+* The build context comprises the entire repository, and there is no `+.dockerignore+`. `+ui/node_modules+`, `+build/+`, `+generated/+` and `+.metadata+` (Eclipse) are therefore also transferred. This makes the build slower (not measured).
+* **For a different architecture** (e.g. arm64 for a Raspberry Pi, built on an amd64 machine) with buildx (not tried out):
+
+[source]
+----
+docker buildx build --platform linux/arm64 -t openems_edge:arm64 \
+  -f tools/docker/edge/Dockerfile --load .
+----
+
+[#sec-ui-image]
+=== UI image
+
+[source]
+----
+ARG NODE=24
+ARG NPM=11
+ARG VERSION="openems,openems-edge-docker,prod"
+
+FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui
+COPY ui/ /src/
+...
+RUN npm install -g "npm@${NPM}" && npm ci && node_modules/.bin/ng build -c "$VERSION"
+
+FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
+RUN apk add --update --no-cache nginx openssl bash dos2unix rsync gettext
+...
+COPY --from=build_ui --chown=abc:abc /src/target/ /var/www/html/openems/
+----
+
+* `+VERSION+` selects the Angular configuration from `+ui/angular.json+`: theme (`+openems+`), environment (`+openems-edge-docker+` or `+openems-backend-docker+`) and `+prod+`. A separate theme can be built with `+--build-arg VERSION=…+` if it is entered in `+angular.json+`.
+* Unlike the Java images, `+ui/+` is copied into the image here via `+COPY+`. `+npm ci+` deletes an existing `+node_modules+` and reinstalls; a local `+node_modules+` only increases the build context.
+
+[#sec-replacing-the-program-and-the-ui]
+== Replacing the program and the UI
+
+This section describes how to replace the program (JAR) and the UI in a running Docker installation without building an image, and how to test an Edge beforehand as a clone. Check the names of containers and volumes beforehand with `+docker compose ps+` and `+docker volume ls+`.
+
+[#sec-replacing-the-program-jar]
+=== Replacing the program (JAR)
+
+The start command in the container always calls `+/opt/openems/openems-edge.jar+`, with `+-Dosgi.clean=true+`. The bundle cache is therefore emptied at every start, so a new JAR takes full effect.
+
+* **New official image:** see <<sec-update,Update>>.
+* **Your own JAR:** build it in the repository and place it over the JAR in the image.
+
+[source]
+----
+./gradlew buildEdge                      # creates build/openems-edge.jar
+sha256sum build/openems-edge.jar
+# copy it to the Docker host, then in the Compose file:
+#   volumes:
+#     - ./openems-edge.jar:/opt/openems/openems-edge.jar:ro
+docker compose up -d --force-recreate openems-edge
+docker exec openems_edge sha256sum /opt/openems/openems-edge.jar
+----
+
+The state of the working directory is built, including changes that have not been checked in, e.g. to `+EdgeApp.bndrun+`.
+
+[#sec-replacing-it-directly-by-copying]
+==== Replacing it directly by copying
+
+Without changing the Compose file and without recreating the container, the JAR can also be overwritten directly. The container is stopped for this so that the running JVM does not read the JAR while it is being overwritten (not tried out).
+
+**JAR bound via bind mount:** overwrite the file on the host. `+cp+` on an existing file writes to the same file; the bind mount then points to the new content without recreating. With `+:ro+`, only access from the container is blocked.
+
+**JAR in the image, without bind mount:** copy it into the container with `+docker cp+`.
+
+[source]
+----
+docker stop openems_edge
+docker cp build/openems-edge.jar openems_edge:/opt/openems/openems-edge.jar
+docker start openems_edge
+docker exec openems_edge sha256sum /opt/openems/openems-edge.jar
+----
+
+A JAR copied with `+docker cp+` ends up in the writable layer of the container. It is retained with `+docker stop+`/`+start+` and `+docker restart+`, but is lost as soon as the container is recreated. For a permanent replacement, use the bind mount.
+
+[#sec-replacing-the-ui]
+=== Replacing the UI
+
+* **Official image:** `+docker compose pull openems-ui+` and `+docker compose up -d openems-ui+`. Changed nginx templates do not reach an existing volume `+/etc/nginx+` (see <<sec-ui-pitfalls,UI pitfalls>>).
+* **Your own UI:** build it with the same Angular configuration as the Dockerfile and place the result over the web directory of the container `+/var/www/html/openems+`. The build result is in `+ui/target+`.
+
+[source]
+----
+cd ui
+npm ci
+node_modules/.bin/ng build -c "openems,openems-edge-docker,prod"
+ls target/index.html
+# copy the content of ui/target to the Docker host, then in the Compose file:
+#   volumes:
+#     - ./openems-www:/var/www/html/openems:ro
+docker compose up -d --force-recreate openems-ui
+----
+
+Then reload the page in the browser without cache. These steps are derived from the Dockerfile and Compose file and have not been tried out.
+
+[#sec-loading-bundles-via-fileinstall]
+=== Loading bundles via FileInstall
+
+The bundle `+org.apache.felix.fileinstall+` is part of the Edge and monitors a directory: it installs bundles (`+.jar+`) and configurations (`+.cfg+`, `+.config+`) placed there during operation. The start script of the image does not set `+felix.fileinstall.dir+`. Without this, FileInstall uses `+./load+`, relative to the working directory of the JVM, i.e. the service directory of s6. This is neither in a volume nor in a bind mount, so the directory in the container should have its own location.
+
+**1. Create the folder on the host,** in the Compose directory. The Edge runs as `+abc+` in the container, and the files must be readable for this user:
+
+[source]
+----
+mkdir -p load
+chmod a+rX load
+----
+
+**2. Change the Compose file,** for the Edge service:
+
+[source]
+----
+    environment:
+      - EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -Dfelix.fileinstall.dir=/opt/openems/load
+    volumes:
+      - ./load:/opt/openems/load:ro
+----
+
+The start script splits the options at spaces, so the path must not contain any.
+
+**3. Recreate the container.** `+docker compose restart+` is not sufficient because environment and mounts change. The volumes are retained.
+
+[source]
+----
+docker compose up -d <service>
+----
+
+**4. Check:** copy a bundle to the folder. It must appear as `+Active+` in the Apache Felix Web Console under `+/system/console/bundles+`. FileInstall checks the directory every 2 seconds (`+felix.fileinstall.poll+`, default 2000 ms).
+
+* **New at every start:** the image starts with `+-Dosgi.clean=true+`, so the file must remain in the folder.
+* **Bundle missing in the UI:** `+EdgeConfigWorker+` only reads the Factories when rebuilding the `+EdgeConfig+`, i.e. on the first build and when a configuration is deleted. It does not react to new bundles. A bundle loaded later is then missing under “Install components”. Remedy: create a configuration in the Apache Felix Web Console and delete it again.
+* **Security:** anyone who can write to the folder can execute code in the Edge. `+:ro+` only protects against write access from the container.
+
+[#sec-cloning-an-edge-for-testing]
+=== Cloning an Edge for testing
+
+A clone is a second container with copies of the configuration and data, its own ports and its own name. The original continues to run unchanged. The clone receives the same configuration and thus queries and controls the same devices, in parallel with the original. It therefore first starts without a network.
+
+**1. Read out the structure of the original:**
+
+[source]
+----
+docker inspect openems_edge --format '{{range .Mounts}}{{.Type}} {{if eq .Type "volume"}}{{.Name}}{{else}}{{.Source}}{{end}} {{.Destination}}{{println}}{{end}}'
+docker inspect openems_edge --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -v -E '^(PATH|HOME|LANG|S6_|LSIO_|TERM|XDG_|VIRTUAL_ENV)'
+----
+
+**2. Copy configuration and data.** Stop the original briefly so that the data (rrd4j) is not written during copying. `+SRC_CONF+` and `+SRC_DATA+` are the volume names from step 1:
+
+[source]
+----
+docker stop openems_edge
+docker volume create clone-conf
+docker volume create clone-data
+docker run --rm --network none -v "$SRC_CONF":/from:ro -v clone-conf:/to alpine cp -a /from/. /to/
+docker run --rm --network none -v "$SRC_DATA":/from:ro -v clone-data:/to alpine cp -a /from/. /to/
+docker start openems_edge
+----
+
+**3. Compose file of the clone, first start without a network:**
+
+[source]
+----
+services:
+  openems-edge-clone:
+    image: openems/edge:latest
+    container_name: openems-edge-clone
+    hostname: openems-edge-clone
+    restart: "no"
+    network_mode: none
+    volumes:
+      - clone-conf:/var/opt/openems/config:rw
+      - clone-data:/var/opt/openems/data:rw
+volumes:
+  clone-conf:
+    external: true
+  clone-data:
+    external: true
+----
+
+Errors from Bridges that cannot reach their device without a network are expected here; `+UnsupportedClassVersionError+` and errors when starting bundles must not occur.
+
+**4. With network and UI.** Only when step 3 is clean and it is clear how the clone may access devices: remove `+network_mode: none+`, bind ports only to `+127.0.0.1+` and add `+openems/ui-edge+` with `+WEBSOCKET_HOST+` pointing to the clone. Do not adopt the Modbus port of the original so that Modbus clients do not accidentally connect to the clone.
+
+**5. Delete the clone.** First check what is being deleted; only names of the clone may appear. `+docker volume rm+` permanently deletes the copies; the volumes of the original remain untouched.
+
+[source]
+----
+docker ps -a --format '{{.Names}}' | grep clone
+docker volume ls | grep clone
+docker compose down
+docker volume rm clone-conf clone-data
+----
+
+A clone built this way was tried out with a Java 25 image and a bound JAR; deleting it was not.
+
+[#sec-ui-container-in-detail]
+== UI container in detail
+
+[#sec-environment-variables]
+=== Environment variables
+
+[cols="3*",options="header"]
+|===
+| Variable
+| Default
+| Effect
+
+| `+WEBSOCKET_HOST+`
+| `+<hostname>+` (placeholder)
+| Target of the proxy for `+/openems-edge+` or `+/openems-backend+` and `+/rest+`. **If the placeholder remains, the container stops with `+sleep infinity+`** and reports this in the log.
+| `+WEBSOCKET_PORT+`
+| 8085 (Edge UI) or 8082 (Backend UI)
+| port of the Websocket
+| `+REST_PORT+`
+| 8084
+| port for `+/rest+`
+| `+ENABLE_HTTPS+`
+| false
+| `+TEST+`/`+TESTING+`/`+SNAKEOIL+`: generate a self-signed certificate. `+PROD+`/`+PRODUCTION+`/`+TRUE+`/`+YES+`/`+1+`: own certificate expected. Otherwise HTTP only.
+| `+UI_WEBSOCKET+`
+| –
+| Older format `+ws://host:port+`; only evaluated if `+WEBSOCKET_HOST+` still contains the placeholder.
+|===
+
+[#sec-sequence-at-startup]
+=== Sequence at startup
+
+. `+/defaults/nginx/+` is copied to `+/etc/nginx/+` with `+rsync --ignore-existing+`.
+. The finished `+.conf+` files are created from `+/etc/nginx/site-confs/80-*.conf.tpl+` (and with HTTPS `+443-*.conf.tpl+`) via `+envsubst+`. Only `+$WEBSOCKET_HOST+`, `+$WEBSOCKET_PORT+` and `+$REST_PORT+` are replaced. The generated files are rewritten at every start.
+. nginx starts in the foreground.
+
+Proxy rules of the Edge UI (`+root-edge/defaults/nginx/site-confs/80-openems.conf.tpl+`):
+
+[source]
+----
+location / {
+    try_files $uri $uri/ /index.html;
+}
+location /openems-edge {
+    proxy_pass http://$WEBSOCKET_HOST:$WEBSOCKET_PORT;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    ...
+}
+location /rest {
+    proxy_pass http://$WEBSOCKET_HOST:$REST_PORT/rest;
+    ...
+}
+----
+
+[#sec-ui-pitfalls]
+=== UI pitfalls
+
+* **`+/etc/nginx+` is a volume.** Because of `+--ignore-existing+`, changed templates from a newer image do not reach an existing volume. After an image update with changed nginx files, delete the volume `+openems-ui-conf+` or compare the files by hand. Conversely, your own changes to the `+.tpl+` files are retained; changes to the generated `+.conf+` files are lost at the next start.
+* **`+/rest+` leads nowhere** as long as no REST/JSON API is set up on the Edge on port 8084 (not in the default configuration).
+* **HTTPS with your own certificate:** put `+cert.crt+` and `+cert.key+` in `+/etc/nginx/keys/+` (e.g. via bind mount). If they are missing with `+ENABLE_HTTPS=PROD+`, the container stops with `+sleep infinity+`.
+
+[#sec-backend-with-backend-edge-ui-and-influxdb]
+== Backend with Backend-Edge, UI and InfluxDB
+
+The Compose files are in xref:backend/deploy/docker.adoc[Deploy OpenEMS Backend to Docker].
+
+[source]
+----
+Edge (Controller Api Backend)
+   |  ws:8081
+   v
+backend-edge (Backend.Edge.App)
+   |  ws:8083
+   v
+backend (Edge.Manager, Ui.Websocket,      <--ws:8082--  ui-backend (nginx)
+         Metadata.File, Timedata.*)                         ^
+   |  http:8086                                             |  http:80
+   v                                                     Browser
+InfluxDB
+----
+
+The Edges do **not** connect to the container `+openems/backend+`, but to `+openems/backend-edge+` on port 8081. The Compose file `+tools/docker/backend/docker-compose.yml+` contains Backend, UI and InfluxDB, but **no** Backend-Edge container; port 8083 is published there so that a separately started Backend-Edge container can connect.
+
+[#sec-connecting-backend-edge-to-the-backend]
+=== Connecting Backend-Edge to the Backend
+
+The default configuration of Backend-Edge (`+Backend/Edge/App.config+`) contains `+uri="ws://localhost:8083"+`. In the container, `+localhost+` points to the Backend-Edge container itself. After the first start, set the field **Uri** of the “Backend Edge Application” to the Backend container in the Apache Felix Web Console of Backend-Edge (`+http://<host>:8078/system/console/configMgr+`):
+
+[source]
+----
+ws://openems-backend:8083
+----
+
+**Do not use an underscore in the host name.** `+BackendEdgeServerApp+` creates a `+java.net.URI+` from it. Tried out with Java 23:
+
+[source]
+----
+ws://openems_backend:8083  host=null             port=-1
+ws://openems-backend:8083  host=openems-backend  port=8083
+----
+
+`+java.net.URI+` does not recognize host names with an underscore as a host. That the Websocket connection therefore fails is concluded from this and has not been checked in the running system. Therefore choose service and container names with a hyphen in the Compose file, as in `+tools/docker/backend/docker-compose.yml+`.
+
+[#sec-default-configuration-of-the-backend]
+=== Default configuration of the Backend
+
+[cols="2*",options="header"]
+|===
+| File
+| Content
+
+| `+Edge/Manager.config+`
+| port 8083, pool 10
+| `+Ui/Websocket.config+`
+| port 8082, pool 10
+| `+Metadata/File.config+`
+| `+path="/var/opt/openems/metadata.json"+`
+| `+Timedata/Dummy.config+`
+| `+timedata0+`, does not store anything
+|===
+
+**Metadata:** At the first start, `+/var/lib/openems-default-metadata/metadata.json+` is copied to `+/var/opt/openems/metadata.json+`. It contains two demo Edges (`+edge0+`, `+edge1+`) with example Apikeys and setup passwords from the public repository. Replace these entries with your own values before productive use.
+
+**Caution, according to the script not in the volume:** `+/var/opt/openems/metadata.json+` is located next to the volumes `+…/config+` and `+…/data+`, not in them. If the container is recreated (e.g. after `+docker compose pull+`), the file is gone. Since the configuration volume is then no longer empty, the init script does not copy it again. According to the code, `+Metadata.File+` then cannot read the file, writes a warning to the log and knows no Edge, so no Edge can log in (not tried out). Remedy: in `+Metadata.File+`, set the path to `+/var/opt/openems/data/metadata.json+` and copy the file there, or bind the file via bind mount:
+
+[source]
+----
+    volumes:
+      - ./metadata.json:/var/opt/openems/metadata.json:rw
+----
+
+[#sec-connecting-influxdb]
+=== Connecting InfluxDB
+
+[source]
+----
+docker exec openems-influxdb influx setup \
+  --username openems \
+  --password <your-password> \
+  --org openems.io \
+  --bucket openems \
+  --force
+docker exec openems-influxdb influx auth list
+----
+
+* The command must match the actual container name; the Compose files use `+openems-influxdb+` with a hyphen.
+* Use your own password. The password and token do not belong in the Compose file in Git.
+* Then delete `+Timedata.Dummy+` in the Apache Felix Web Console of the Backend (`+http://<host>:8079/system/console/configMgr+`) and create `+Timedata.InfluxDB+` with the URL `+http://openems-influxdb:8086+` and the token from `+influx auth list+` as ApiKey.
+
+[#sec-connecting-an-edge-to-the-backend]
+=== Connecting an Edge to the Backend
+
+On the Edge, create the component “Controller Api Backend” (`+ctrlBackend0+`) with Uri `+ws://<docker-host>:8081+` (Backend-Edge, not Backend) and the Apikey of the Edge from `+metadata.json+`. If the Edge runs in the same Compose project, `+ws://openems-backend-edge:8081+` is possible.
+
+[#sec-hardware-access-from-the-edge-container]
+== Hardware access from the Edge container
+
+[cols="3*",options="header"]
+|===
+| Connection
+| In the container
+| Remark
+
+| Modbus/TCP, HTTP devices in the LAN
+| works via the Docker bridge network
+| Outgoing connections to the LAN do not need a port release.
+| Modbus RTU via USB-RS485
+| pass the device through: `+devices: ["/dev/ttyUSB0:/dev/ttyUSB0"]+`
+| The user `+abc+` needs permissions on the device, e.g. via `+group_add+` with the GID of the group `+dialout+` of the host or matching `+PUID+`/`+PGID+`. The native Linux library of jSerialComm 2.11.4 is built against glibc, while Alpine uses musl. Neither the Edge Dockerfile nor the linuxserver base image installs the compatibility layer `+gcompat+`. Check with `+apk info -e gcompat+` in the container and install it if necessary.
+| Devices that address the Edge (Modbus/TCP API, port 502)
+| publish the port
+| see <<sec-modbus-tcp,Modbus/TCP>>
+| Discovery via broadcast/mDNS
+| usually not in the bridge network
+| If necessary `+network_mode: host+`; the `+ports+` entries are then omitted.
+| GPIO, I²C, relays on the device itself
+| only by passing the devices through
+| 
+|===
+
+The time of the Edge comes from the host. For correct daily values and tariffs, the host must be synchronized via NTP.
+
+[#sec-modbus-tcp]
+=== Modbus/TCP
+
+[cols="3*",options="header"]
+|===
+| Direction
+| Component
+| Docker
+
+| Edge reads devices in the LAN (Edge is master)
+| `+Bridge.Modbus.Tcp+` with IP and port of the device
+| Nothing necessary; outgoing connections go through the bridge network
+| Others read the Edge (Edge is slave)
+| `+Controller.Api.ModbusTcp.ReadOnly+` or `+.ReadWrite+`
+| publish the port
+|===
+
+Defaults of the slave interface according to the code (`+CommonConfig+`): port 502 (`+DEFAULT_PORT+`), components `+_sum+`, at most 5 simultaneous connections (`+DEFAULT_MAX_CONCURRENT_CONNECTIONS+`).
+
+A host port can only be assigned once; if several Edges run on one host, each gets its own host port (e.g. `+5020:502+`). New ports are only adopted by a recreated container (`+docker compose up -d <service>+`); `+restart+` is not sufficient.
+
+Port below 1024: The Edge runs as `+abc+` in the container. Docker sets `+net.ipv4.ip_unprivileged_port_start=0+` in the container if the container has its own network (not `+network_mode: host+`) and the kernel knows the setting. With `+network_mode: host+`, the setting of the host applies. If “Permission denied” appears in the log, set e.g. port 1502 in the component and publish it as `+5020:1502+`.
+
+[#sec-troubleshooting-if-the-edge-does-not-read-a-device]
+==== Troubleshooting if the Edge does not read a device
+
+Narrow down step by step whether it is due to the network, the container or the device:
+
+[source]
+----
+# 1. Does the host reach the device?
+nc -zv -w 3 <IP> 502
+
+# 2. Does the container reach the device?
+docker exec openems_edge bash -c 'timeout 3 bash -c "</dev/tcp/<IP>/502" && echo open || echo closed'
+
+# 3. Error messages of the Bridge (without the lines of the debug log Controller)
+docker compose logs --tail=2000 openems-edge | grep -v ctrlDebugLog | grep -i -E 'modbus|<bridge-id>' | tail -40
+
+# 4. Modbus request without Edge, directly from the host (package mbpoll)
+mbpoll -m tcp -a 1 -t 4 -r 40001 -c 2 -o 5 -1 <IP>
+----
+
+* The lines of `+ctrlDebugLog0+` only show states (e.g. “Modbus Communication failed”). The Bridge writes the actual error message as `+ERROR [e.modbus.api.task.AbstractTask] Execute failed …+`. If this is not sufficient, temporarily set “Log-Verbosity” in the Bridge to `+READS_AND_WRITES+` and reset it afterwards.
+* “Connection refused” or errors already with `+nc+`: network, firewall, port or Modbus switched off on the device.
+* “Socket timeout reading response - Read timed out”: the TCP connection is up, but the device does not respond in time. The Bridge waits for a fixed **500 ms** (`+AbstractModbusBridge.DEFAULT_TIMEOUT+`, set in `+BridgeModbusTcpImpl+`, not configurable). If the device responds more slowly, every request fails, even though the address and Unit-ID are correct.
+* `+mbpoll+` counts registers from 1: `+-r 40001+` corresponds to address 40000 of the Bridge. For SunSpec devices, this request returns `+21365 28243+` (`+0x5375 0x6E53+` = “SunS”), which confirms reachability and Unit-ID. `+-o+` extends the waiting time.
+
+[#sec-development-workflows]
+== Development workflows
+
+[cols="2*",options="header"]
+|===
+| Goal
+| Procedure
+
+| Test your own change as in operation
+| Build the image from your fork, use it in the Compose file, keep the same volumes.
+| Debug the Edge in Eclipse, UI in the container
+| `+tools/docker/ui/docker-compose.yml+`, see xref:ui/deploy/docker.adoc[Deploy the UI with Docker].
+| Debug the Edge in the container
+| `pass:c[EXTRA_JVM_OPTS=-XX:+ExitOnOutOfMemoryError -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005]` and publish port 5005; in Eclipse “Remote Java Application” to `+<host>:5005+` (not tried out with this image).
+| Test only a new JAR, without an image build
+| `+./gradlew buildEdge+` locally, place the JAR over `+/opt/openems/openems-edge.jar+` via bind mount.
+| Simulate several Edges
+| Several Edge services with their own volumes and different host ports in one Compose file; each with its own Apikey on the Backend.
+|===
+
+[#sec-resources]
+== Resources
+
+* The Edge targets weak hardware (about 1 GB RAM). Without `+-Xmx+`, the JVM in the container by default takes a quarter of the memory visible to the container as the heap limit. On a host with a lot of RAM, it is advisable to set the heap with `+EXTRA_JVM_OPTS+` or a memory limit (`+mem_limit+`).
+* Backend and InfluxDB need significantly more depending on the number of Edges. There are no figures for this in the code or documentation.
+
+[#sec-summary-of-the-pitfalls]
+== Summary of the pitfalls
+
+[cols="3*",options="header"]
+|===
+| Problem
+| Cause
+| Remedy
+
+| UI container does not start, log: “WEBSOCKET_HOST contains <hostname> placeholder”
+| `+WEBSOCKET_HOST+` not set
+| set the variable
+| Backend-Edge does not connect to the Backend
+| default configuration `+ws://localhost:8083+`
+| change Uri to `+ws://openems-backend:8083+`
+| Connection with `+ws://openems_backend:…+` fails
+| `+java.net.URI+` does not recognize a host name with an underscore
+| hyphenated names
+| Edges can no longer log in after the container is recreated
+| `+metadata.json+` outside the volumes
+| put the file in the data volume or bind it via bind mount
+| Changed nginx templates from a new UI image have no effect
+| `+rsync --ignore-existing+` on the volume `+/etc/nginx+`
+| create the volume anew or compare
+| Build aborts with “context canceled”
+| Eclipse accesses files
+| close Eclipse
+| Apache Felix Web Console reachable from outside
+| `+http.host=0.0.0.0+` and published port
+| bind the port only to `+127.0.0.1+` or do not publish it
+| Start aborts with “not a directory” when bind mounting a file
+| source file was missing at the first start, Docker created a directory
+| remove the directory, create the file, restart
+| Change to `+hostname+` or `+environment+` has no effect
+| `+docker compose restart+` does not adopt the Compose file
+| `+docker compose up -d <service>+`
+| Host name of the Edge is a random hex string
+| host name of the container = container ID
+| set `+hostname:+` in the Compose file
+| Container switches or limits real devices
+| configuration of a real system copied to the volume
+| disable switching Controllers and outputs, set inverters to read-only; better use your own test configuration
+| Modbus “Read timed out”, even though port 502 is reachable
+| device responds more slowly than the fixed 500 ms of the Bridge
+| check with `+mbpoll -o 5+`; the cause is on the device, not in Docker
+| `+apk add+` in your own build fails with “DNS: transient error”
+| `+docker build+` runs in the default network `+bridge+` without working name resolution
+| `+docker build --network host+`
+|===

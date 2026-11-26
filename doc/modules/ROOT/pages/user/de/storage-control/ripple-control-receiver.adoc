@@ -1,0 +1,156 @@
+= OpenEMS: Rundsteuerempfänger
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/storage-control/ripple-control-receiver.adoc[OpenEMS: Ripple control receiver]
+
+__Stand: 30.10.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+Mit einem **Rundsteuerempfänger** (RSE) kann der Netzbetreiber die Einspeisung einer PV-Anlage aus der Ferne begrenzen, z. B. bei Netzüberlastung. Üblich sind die Stufen **0 %, 30 % und 60 %** der Anlagenleistung (sowie 100 % = keine Begrenzung). Der Empfänger schaltet dafür Kontakte, die das Energiemanagement auswertet.
+
+Der Rundsteuerempfänger ist nicht dasselbe wie die xref:user/de/storage-control/section-14a-enwg.adoc[§14a-Steuerung]: Der RSE begrenzt die **Einspeisung**, §14a den **Netzbezug** (beim Speicher: die Ladeleistung).
+
+[#sec-zwei-varianten]
+== Zwei Varianten
+
+OpenEMS kennt zwei Arten, einen Rundsteuerempfänger einzubinden:
+
+[cols="3*",options="header"]
+|===
+| Variante
+| Anschluss
+| Wer begrenzt
+
+| **Rundsteuerempfänger** („externe Limitierung“)
+| am **Wechselrichter**
+| der Wechselrichter selbst; OpenEMS schaltet nur dessen RSE-Funktion ein
+| **Dynamischer Rundsteuerempfänger**
+| an den **Eingängen des Steuerrechners**
+| OpenEMS: Es berechnet die erlaubte Einspeisung und gibt sie an den Wechselrichter weiter
+|===
+
+Bei FENECON-Home- und Commercial-Systemen wählt man die Variante in der System-App unter „Externe Limitierung“: **Keine Limitierung**, **Rundsteuerempfänger** oder **Dynamischer Rundsteuerempfänger**.
+
+* Beim **Home 10** (Generation 1) gibt es nur ein Häkchen „Rundsteuerempfänger aktiviert?“; das entspricht der ersten Variante. Der dynamische Rundsteuerempfänger wird beim Home 10 nicht angeboten.
+* Den dynamischen Rundsteuerempfänger richten die Apps für **Home 6, Home 10 Gen2, Home 15, Home 20, Home 30** und für die Commercial-Systeme 50 Gen3 und 100 ein. Voraussetzung ist ein Steuerrechner mit eigenen digitalen Eingängen.
+
+[#sec-dynamischer-rundsteuerempfaenger-im-detail]
+== Dynamischer Rundsteuerempfänger im Detail
+
+Die Funktion heißt **Controller.Ess.RippleControlReceiver** (meist `+ctrlEssRippleControlReceiver0+`).
+
+[#sec-anschluss]
+=== Anschluss
+
+[cols="3*",options="header"]
+|===
+| Eingang (Standard)
+| Stufe
+| erlaubte Einspeisung
+
+| `+…/DigitalInput2+`
+| 0 %
+| keine Einspeisung
+| `+…/DigitalInput3+`
+| 30 %
+| 30 %
+| `+…/DigitalInput4+`
+| 60 %
+| 60 %
+| kein Eingang aktiv
+| 100 %
+| keine Begrenzung durch den RSE
+|===
+
+Der erste digitale Eingang ist bei diesen Systemen für die xref:user/de/storage-control/section-14a-enwg.adoc[§14a-Steuerung] reserviert.
+
+* Sind mehrere Eingänge gleichzeitig aktiv, gilt die **strengste** Stufe: 0 % vor 30 % vor 60 %.
+* Die Eingänge werden **invertiert** ausgewertet (im Code als Eigenheit der Relaisplatine vermerkt): Eine Stufe ist aktiv, wenn der Eingang „aus“ meldet. Liefert ein Eingang keinen Wert, gilt er als nicht aktiv.
+* Im **Inselbetrieb** wird nicht begrenzt.
+
+[#sec-worauf-sich-die-prozente-beziehen]
+=== Worauf sich die Prozente beziehen
+
+Die Prozentwerte beziehen sich auf die **maximale Scheinleistung des Speicher-/Hybrid-Wechselrichters**:
+
+[source]
+----
+erlaubte Einspeisung = maximale Wechselrichterleistung × Stufe
+Beispiel: 10 kVA-Wechselrichter, Stufe 30 %  →  höchstens 3.000 W Einspeisung
+----
+
+Ist die maximale Wechselrichterleistung (noch) nicht bekannt, setzt OpenEMS bei aktiver Stufe vorsichtshalber **0 W** als Grenze.
+
+Gilt gleichzeitig eine allgemeine Einspeisegrenze (z. B. 60 %-Regel aus den Systemeinstellungen), wird der **kleinere** der beiden Werte verwendet.
+
+[#sec-was-mit-dem-ueberschuss-passiert]
+=== Was mit dem Überschuss passiert
+
+Die erlaubte Einspeisung wirkt auf zwei Ebenen:
+
+* **Wechselrichter:** Die Grenze wird als Einspeisebegrenzung an den Wechselrichter übertragen. Er regelt die PV-Leistung so, dass am Netzanschluss nicht mehr eingespeist wird.
+* **Speicher:** Die xref:user/de/storage-control/grid-optimized-charge.adoc[netzdienliche Beladung] übernimmt die vom RSE erlaubte Einspeisung als ihre Grenze. Der Speicher lädt dann den Teil der PV-Leistung, der nicht eingespeist werden darf. So geht möglichst wenig Solarstrom durch die Abregelung verloren. Ist die xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung] aktiv, ist die netzdienliche Beladung abgeschaltet (siehe nächster Abschnitt).
+
+Erst wenn der Speicher voll ist oder nicht schnell genug laden kann, wird die PV-Leistung tatsächlich abgeregelt.
+
+[#sec-zusammenspiel-mit-der-preissteuerung]
+=== Zusammenspiel mit der Preissteuerung
+
+Ist die xref:user/de/storage-control/time-of-use-tariffs.adoc[Preissteuerung] aktiv, berücksichtigt **weder die Planung noch die laufende Steuerung** die RSE-Stufe:
+
+* **Planung:** Der Energie-Optimierer rechnet im xref:user/de/schedule/overview.adoc[Fahrplan] nur mit der Einspeisegrenze aus den Systemeinstellungen bzw. der Absicherung des Netzanschlusses. Eine RSE-Stufe ließe sich ohnehin nicht vorab planen, weil sie nicht vorhersehbar ist.
+* **Laufender Betrieb:** Die Preissteuerung schützt eine Einspeisegrenze, indem sie den Speicher mehr laden lässt („Einspeiselimitierung vermeiden“). Dabei verwendet sie ebenfalls nur die Grenze aus den Systemeinstellungen, nicht die RSE-Stufe.
+
+Die Begrenzung selbst bleibt trotzdem wirksam, weil der Wechselrichter sie einhält. Es kann aber PV-Leistung abgeregelt werden, die der Speicher hätte aufnehmen können. Das gilt z. B. dann, wenn der Fahrplan gerade verzögertes oder gedrosseltes Laden vorsieht, weil der Speicher erst später geladen werden soll.
+
+Ohne Preissteuerung (bzw. im Modus „Aus“) arbeitet die netzdienliche Beladung, und sie berücksichtigt die RSE-Stufe.
+
+[#sec-was-aufgezeichnet-wird]
+=== Was aufgezeichnet wird
+
+[cols="2*",options="header"]
+|===
+| Wert
+| Bedeutung
+
+| `+RestrictionMode+`
+| aktuelle Stufe: keine Begrenzung, 0 %, 30 % oder 60 %
+| `+CumulatedRestrictionTime+`
+| Gesamtdauer aller Begrenzungen in Sekunden (über alle Stufen zusammen)
+|===
+
+Beide Werte werden mit hoher Priorität in der xref:user/de/data/history-rrd4j.adoc[Historie] gespeichert. Damit lässt sich nachvollziehen, wann und wie lange der Netzbetreiber die Einspeisung begrenzt hat.
+
+[#sec-anzeige-in-der-weboberflaeche]
+=== Anzeige in der Weboberfläche
+
+* Im **Netz-Widget** erscheint während einer Begrenzung eine Zeile „Einspeiselimitierung“ mit der erlaubten Einspeisung in Prozent und dem Hinweis auf den Rundsteuerempfänger.
+* In der **Netz-Historie** werden Zeiträume mit Begrenzung im Diagramm markiert, ebenso wie §14a-Eingriffe und Inselbetrieb.
+
+[#sec-reihenfolge]
+=== Reihenfolge
+
+Der RSE-Controller läuft in der festen Reihenfolge der Regelfunktionen direkt nach der §14a-Begrenzung und vor allen anderen Speicher-Funktionen.
+
+[#sec-variante-rundsteuerempfaenger-am-wechselrichter]
+== Variante „Rundsteuerempfänger am Wechselrichter“
+
+Bei dieser Variante ist der Empfänger direkt am Wechselrichter angeschlossen. OpenEMS schaltet in dessen Einstellungen nur die Funktion „Ripple Control Receiver“ ein. Die Begrenzung führt der Wechselrichter selbst durch. Daraus folgt:
+
+* OpenEMS kennt die aktuelle Stufe **nicht** und zeichnet sie nicht auf.
+* Die netzdienliche Beladung weiß nichts von der Begrenzung. Der Speicher lädt deshalb nicht gezielt den Teil, der nicht eingespeist werden darf. Der Wechselrichter regelt die PV-Leistung direkt ab.
+
+Für die Kombination mit einem Speicher ist deshalb die **dynamische** Variante die bessere Wahl, sofern das System sie unterstützt.
+
+[#sec-gut-zu-wissen]
+== Gut zu wissen
+
+* Die Prozentstufen beziehen sich in OpenEMS auf die Leistung des **Speicher-/Hybrid-Wechselrichters**, nicht auf die installierte PV-Leistung (kWp). Bei Anlagen, deren PV-Leistung deutlich davon abweicht, kann das von der Vorgabe des Netzbetreibers abweichen. Im Zweifel mit dem Netzbetreiber bzw. Installateur klären.
+* Die Zuordnung der Eingänge ist fest: Eingang 2 = 0 %, Eingang 3 = 30 %, Eingang 4 = 60 %. Die Verdrahtung muss dazu passen.
+* Der RSE begrenzt nur die Einspeisung. Eigenverbrauch und Speicherbeladung bleiben möglich.
