@@ -10,6 +10,7 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, RippleControlReceiverRes
 import { ChartAnnotationState, GridMode } from "src/app/shared/type/general";
 import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { SharedControllerOrtsnetzAuslastung } from "../../../Controller/OrtsnetzAuslastung/shared/shared";
 import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
 import { transformRcrValues } from "../history/shared-grid";
 
@@ -273,6 +274,13 @@ export namespace SharedGrid {
             return null;
         }
         const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge, "grid");
+        const ortsnetzAuslastung = config
+            .getComponentsByFactory("Controller.Ortsnetz-Auslastung")
+            .filter((component) => component.isEnabled)
+            .map(
+                (component) =>
+                    new NavigationTree(...SharedControllerOrtsnetzAuslastung.getNavigationTree(translate, component)),
+            );
 
         return new NavigationTree(
             "grid",
@@ -281,6 +289,7 @@ export namespace SharedGrid {
             translate.instant("GENERAL.GRID"),
             "icon",
             [
+                ...ortsnetzAuslastung,
                 NavigationConstants.CommonNodes.HISTORY(translate, "grid", [
                     ...gridMeters.map((el) =>
                         gridMeters.length === 1

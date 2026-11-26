@@ -201,6 +201,10 @@
                       <Controller_EnerixControl [componentId]="widget.componentId"></Controller_EnerixControl>
                     </ion-col>
 
+                    <ion-col size="12" *ngSwitchCase="'Controller.Ortsnetz-Auslastung'" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
+                      <Controller_OrtsnetzAuslastung [componentId]="widget.componentId"></Controller_OrtsnetzAuslastung>
+                    </ion-col>
+
                     <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
                       <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
                     </ion-col>
