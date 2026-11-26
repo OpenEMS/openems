@@ -1,0 +1,80 @@
+* User Documentation
+** xref:user/overview.adoc[Overview]
+** Basics
+*** xref:user/basics/energy-flows.adoc[Production, consumption, grid and storage]
+** Existing systems
+*** xref:user/systems/fenecon-home.adoc[FENECON Home]
+*** xref:user/systems/fenecon-home-battery.adoc[FENECON Home battery]
+** Devices
+*** xref:user/devices/cluster.adoc[Cluster]
+*** xref:user/devices/controllable-inverters.adoc[Controllable inverters]
+** Storage systems control
+*** xref:user/storage-control/grid-optimized-charge.adoc[Grid-optimized charge]
+*** xref:user/storage-control/ripple-control-receiver.adoc[Ripple control receiver]
+*** xref:user/storage-control/time-of-use-tariffs.adoc[Time-of-use tariffs]
+*** xref:user/storage-control/section-14a-enwg.adoc[§ 14a EnWG]
+** EV charging station control
+*** xref:user/ev-charging-control/surplus-charging.adoc[Surplus charging and phase switching (EVSE)]
+*** xref:user/ev-charging-control/wallbox-comparison.adoc[Wallbox control compared (OpenEMS, evcc, openWB)]
+** I/O control
+*** xref:user/io-control/heat-pumps-and-heating-elements.adoc[Controlling heat pumps and heating elements]
+** Schedule
+*** xref:user/schedule/overview.adoc[Overview]
+*** xref:user/schedule/forecasts.adoc[Forecasts for consumption and production]
+*** xref:user/schedule/weather.adoc[Weather]
+** External interfaces
+*** xref:user/external-interfaces/rest-control.adoc[Control via REST/JSON]
+*** xref:user/external-interfaces/json-rpc.adoc[JSON-RPC]
+*** xref:user/external-interfaces/websocket.adoc[Websocket]
+** Cloud interfaces
+*** xref:user/cloud-interfaces/backend-data-transfer.adoc[Data transfer to the backend]
+** Third-party systems
+*** xref:user/third-party/overview.adoc[Third-party systems on OpenEMS]
+*** xref:user/third-party/evcc.adoc[evcc]
+*** xref:user/third-party/home-assistant.adoc[Home Assistant integration]
+*** xref:user/third-party/openwb.adoc[openWB]
+** Data
+*** xref:user/data/export.adoc[Exporting data]
+*** xref:user/data/history-rrd4j.adoc[Storing the history (rrd4j)]
+** Troubleshooting
+*** xref:user/troubleshooting/log-entries.adoc[Understanding log entries]
+** Deutsch
+*** xref:user/de/overview.adoc[Übersicht]
+*** Grundlagen
+**** xref:user/de/basics/energy-flows.adoc[Erzeugung, Verbrauch, Netz und Speicher]
+*** Bestehende Systeme
+**** xref:user/de/systems/fenecon-home.adoc[FENECON Home]
+**** xref:user/de/systems/fenecon-home-battery.adoc[FENECON-Home-Batterie]
+*** Geräte
+**** xref:user/de/devices/cluster.adoc[Cluster]
+**** xref:user/de/devices/controllable-inverters.adoc[Steuerbare Wechselrichter]
+*** Speichersystem-Steuerung
+**** xref:user/de/storage-control/time-of-use-tariffs.adoc[Dynamische Stromtarife]
+**** xref:user/de/storage-control/grid-optimized-charge.adoc[Netzdienliche Beladung]
+**** xref:user/de/storage-control/ripple-control-receiver.adoc[Rundsteuerempfänger]
+**** xref:user/de/storage-control/section-14a-enwg.adoc[§ 14a EnWG]
+*** E-Auto-Ladestation-Steuerung
+**** xref:user/de/ev-charging-control/surplus-charging.adoc[Überschussladen und Phasenumschaltung (EVSE)]
+**** xref:user/de/ev-charging-control/wallbox-comparison.adoc[Wallbox-Steuerung im Vergleich (OpenEMS, evcc, openWB)]
+*** I/O-Steuerung
+**** xref:user/de/io-control/heat-pumps-and-heating-elements.adoc[Wärmepumpe und Heizstab steuern]
+*** Fahrplan
+**** xref:user/de/schedule/overview.adoc[Überblick]
+**** xref:user/de/schedule/forecasts.adoc[Prognosen für Verbrauch und Erzeugung]
+**** xref:user/de/schedule/weather.adoc[Wetter]
+*** Externe Schnittstellen
+**** xref:user/de/external-interfaces/json-rpc.adoc[JSON-RPC]
+**** xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON]
+**** xref:user/de/external-interfaces/websocket.adoc[Websocket]
+*** Cloud-Schnittstellen
+**** xref:user/de/cloud-interfaces/backend-data-transfer.adoc[Datenübertragung zum Backend]
+*** Fremdsysteme
+**** xref:user/de/third-party/overview.adoc[Fremdsysteme an OpenEMS]
+**** xref:user/de/third-party/evcc.adoc[evcc]
+**** xref:user/de/third-party/home-assistant.adoc[Home-Assistant-Integration]
+**** xref:user/de/third-party/openwb.adoc[openWB]
+*** Daten
+**** xref:user/de/data/export.adoc[Daten exportieren]
+**** xref:user/de/data/history-rrd4j.adoc[Speicherung der Historie (rrd4j)]
+*** Fehlersuche
+**** xref:user/de/troubleshooting/log-entries.adoc[Log-Einträge verstehen]

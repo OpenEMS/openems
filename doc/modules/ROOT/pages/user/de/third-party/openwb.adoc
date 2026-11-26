@@ -1,0 +1,189 @@
+= OpenEMS: openWB
+:sectanchors:
+:toc:
+:toclevels: 3
+:experimental:
+:icons: font
+:page-lang: de
+:toc-title: Inhalt
+:table-caption: Tabelle
+
+This page in English: xref:user/third-party/openwb.adoc[OpenEMS: openWB]
+
+__Stand: 01.11.2026 · OpenEMS-Version 2026.11.0-SNAPSHOT (Entwicklungsstand, Branch develop)__
+
+openWB ist eine Wallbox mit eigener Lade-Steuerung (Software „openWB 2“). Zwischen openWB und OpenEMS gibt es **zwei voneinander unabhängige Anbindungen**, eine in jede Richtung:
+
+[cols="4*",options="header"]
+|===
+| Richtung
+| Wer liest wen?
+| Weg
+| Steuert etwas?
+
+| openWB liest OpenEMS
+| openWB fragt Netz, PV und Speicher bei OpenEMS ab, um Überschuss zu laden
+| REST-Schnittstelle von OpenEMS (Port 8084)
+| nein
+| OpenEMS liest openWB
+| OpenEMS übernimmt Leistung und Zustand eines openWB-Ladepunkts
+| MQTT-Broker der openWB
+| nein
+|===
+
+Grundlage sind der Quellcode von openWB 2 („core“) und der OpenEMS-Quellcode. Ausprobiert wurde hier keine der beiden Anbindungen. Einen Vergleich mit Home Assistant und evcc gibt die Seite xref:user/de/third-party/overview.adoc[Fremdsysteme an OpenEMS].
+
+[#sec-openwb-liest-openems]
+== openWB liest OpenEMS
+
+[#sec-einrichten]
+=== Einrichten
+
+In openWB gibt es dafür das Gerät **„openEMS, Fenecon FEMS, CENTURIO 10, Kaco Hy-Control“**. Einzugeben sind nur die **IP-Adresse** der Anlage und das **Passwort**. Als Benutzername verwendet openWB fest „x“; bei OpenEMS zählt nur das Passwort.
+
+Zum Gerät legt man bis zu drei Komponenten an:
+
+[cols="2*",options="header"]
+|===
+| Komponente in openWB
+| Bedeutung
+
+| Zähler
+| Netzanschluss (EVU-Zähler)
+| Wechselrichter
+| PV-Erzeugung
+| Speicher
+| Hausbatterie; Einstellung „Nummer“: 1 = `+ess0+`, jede andere Zahl = `+ess2+`
+|===
+
+**Voraussetzung in OpenEMS:** die App bzw. Komponente „REST/JSON-API Lesezugriff“ (Controller.Api.Rest.ReadOnly) oder „… Lese-/Schreibzugriff“ auf dem Standardport **8084**. openWB fragt fest diesen Port an. Lesen geht laut OpenEMS-Code schon mit der Rolle Gast. Siehe xref:user/de/external-interfaces/rest-control.adoc[Steuern über REST/JSON].
+
+[#sec-welche-werte-gelesen-werden]
+=== Welche Werte gelesen werden
+
+[cols="3*",options="header"]
+|===
+| openWB-Komponente
+| Wert in openWB
+| Kanal in OpenEMS
+
+.5+| Zähler
+| Leistung gesamt und je Phase
+| `+meter0/ActivePower+`, `+ActivePowerL1…L3+`
+| Spannung je Phase
+| `+meter0/VoltageL1…L3+`
+| Frequenz
+| `+meter0/Frequency+`
+| Bezug (Zählerstand)
+| `+_sum/GridBuyActiveEnergy+`
+| Einspeisung (Zählerstand)
+| `+_sum/GridSellActiveEnergy+`
+.2+| Wechselrichter
+| Leistung
+| `+_sum/ProductionActivePower+` (Vorzeichen umgedreht)
+| Zählerstand
+| `+_sum/ProductionActiveEnergy+`
+.3+| Speicher
+| Ladezustand
+| `+ess0/Soc+` bzw. `+ess2/Soc+`
+| Lade- und Entladeenergie
+| `+ess0/DcChargeEnergy+`, `+DcDischargeEnergy+`
+| Leistung
+| **berechnet** aus `+_sum+`: Netz {plus} Erzeugung − Verbrauch
+|===
+
+Einheiten (z. B. W oder kW) liest openWB aus der Antwort mit und rechnet sie um. Die Werte werden in jedem Regelzyklus von openWB abgefragt (Voreinstellung 10 Sekunden).
+
+[#sec-wie-abgefragt-wird]
+=== Wie abgefragt wird
+
+* openWB nutzt die Möglichkeit von OpenEMS, mit **Mustern** (regulären Ausdrücken) mehrere Werte in einer Anfrage zu lesen, z. B. alle passenden Werte von `+meter0+` und `+_sum+` auf einmal.
+* Beim Start prüft openWB, ob die Anlage Muster über Komponenten hinweg versteht. Wenn ja, genügt **eine** Anfrage je Komponente; sonst teilt openWB die Abfrage auf mehrere Anfragen auf. Der aktuelle OpenEMS-Code versteht beides.
+* Ein Kommentar im openWB-Code sagt, dass Anlagen mit der kombinierten Abfrage nicht zu häufig abgefragt werden sollten.
+
+[#sec-grenzen]
+=== Grenzen
+
+* **Feste Namen:** openWB setzt voraus, dass der Netzzähler `+meter0+` heißt und der Speicher `+ess0+` (bzw. `+ess2+`). Bei anderer Benennung, etwa wenn `+meter0+` ein Verbraucherzähler ist, stimmen die Werte nicht.
+* **Speicherleistung ist abgeleitet:** Sie kommt nicht vom Speicher selbst, sondern aus den Summenwerten. Bei mehreren Speichern ist es die Summe aller, der Ladezustand aber nur der von `+ess0+`.
+* **Wechselrichter = gesamte Erzeugung:** Es wird die Summe aller PV-Quellen gelesen (AC und DC), nicht ein einzelner Wechselrichter.
+* **Nur lesen:** openWB steuert über diese Anbindung nichts in OpenEMS, auch nicht den Speicher.
+* **Port fest 8084:** Läuft die REST-Schnittstelle auf einem anderen Port oder nur hinter einem Proxy, funktioniert die Anbindung nicht.
+* **Unverschlüsselt:** HTTP mit Basic-Authentifizierung; das Passwort geht im Klartext durch das Netz.
+* Im openWB-Code fiel ein Rückfallweg beim Zähler auf, der für sehr alte Anlagen ohne Musterabfrage gedacht ist. Er greift auf ein Passwort-Feld zu, das die Zähler-Komponente nirgends setzt. In Python bricht ein solcher Zugriff mit einem Fehler ab, der Rückfallweg kann also nicht funktionieren. Mit aktuellem OpenEMS wird dieser Weg nicht benutzt.
+
+[#sec-openems-liest-openwb]
+== OpenEMS liest openWB
+
+[#sec-einrichten-2]
+=== Einrichten
+
+In OpenEMS gibt es die Komponente **„EVCS OpenWB“** (Evcs.OpenWB). Sie liest einen internen Ladepunkt einer openWB der Serie 2. Dazu braucht es zusätzlich eine **„Bridge MQTT“**, die mit dem MQTT-Broker der openWB verbunden ist.
+
+[cols="2*",options="header"]
+|===
+| Einstellung
+| Bedeutung
+
+| MQTT Bridge ID
+| ID der MQTT-Bridge (Standard `+mqtt0+`)
+| Chargepoint
+| interner Ladepunkt 0 oder 1 (bei openWB Duo zwei Ladepunkte)
+| Phase rotation
+| Phasenlage des Anschlusses
+|===
+
+Die MQTT-Bridge braucht Adresse und Port des Brokers. In der Konfiguration von openWB 2 ist der Broker im unsicheren Modus auf Port **1883** ohne Anmeldung erreichbar, im sicheren Modus verschlüsselt auf Port **8883**. Lesen ist für alle erlaubt (`+openWB/#+`). Für den sicheren Modus richtet openWB ein selbst signiertes Zertifikat ein (das „Snakeoil“-Zertifikat von Debian). Die MQTT-Bridge von OpenEMS hat zwar Felder für einen eigenen Zertifikatsspeicher („Trust Store“, „Key Store“), wertet sie im Code aber nicht aus. Sie vertraut nur den Stammzertifikaten, die mit Java ausgeliefert werden. Ein selbst signiertes Zertifikat gehört nicht dazu, deshalb kommt die verschlüsselte Verbindung zur openWB nicht zustande. Für die Bridge bleibt der unverschlüsselte Port 1883.
+
+[#sec-welche-werte-gelesen-werden-2]
+=== Welche Werte gelesen werden
+
+OpenEMS abonniert die Nachrichten unter `+openWB/internal_chargepoint/0/get/…+` (bzw. `+…/1/…+`) und übernimmt:
+
+[cols="2*",options="header"]
+|===
+| openWB-Nachricht
+| Wert in OpenEMS
+
+| power, powers
+| Ladeleistung gesamt und je Phase
+| voltages, currents
+| Spannung und Strom je Phase
+| imported
+| Energiezähler (geladene Energie) und daraus die Energie der Ladesitzung
+| plug_state, charge_state
+| Stecker gesteckt, lädt
+| phases_in_use
+| genutzte Phasen
+| fault_state
+| Fehlerzustand
+|===
+
+Der Ladepunkt erscheint in OpenEMS als **gemessener Verbraucher** und geht damit in Verbrauch und Energieflüsse ein (siehe xref:user/de/basics/energy-flows.adoc[Energieflüsse]).
+
+[#sec-grenzen-2]
+=== Grenzen
+
+* **Nur lesen:** Die Komponente ist ein reiner Messwert-Ladepunkt. OpenEMS kann die openWB damit **nicht steuern** (kein Überschussladen durch OpenEMS, keine Leistungsvorgabe). Überschussladen macht in dieser Kombination die openWB selbst, mit den Werten aus dem ersten Abschnitt.
+* Nur **interne** Ladepunkte der openWB, keine weiteren Ladepunkte, die die openWB verwaltet.
+* Der Energiezähler der openWB wird als absoluter Zählerstand übernommen.
+* In OpenEMS gibt es für die openWB keine App im App-Center; Bridge und Komponente werden als Komponenten angelegt.
+
+[#sec-typische-fragen]
+== Typische Fragen
+
+**Kann openWB den OpenEMS-Speicher steuern, z. B. nicht ins Auto entladen?**
+
+Über diese Anbindung nicht; openWB liest nur. Ein solches Verhalten muss in OpenEMS selbst eingestellt werden.
+
+**openWB zeigt falsche Netzwerte.**
+
+Prüfen, ob in OpenEMS der Netzzähler wirklich `+meter0+` heißt. openWB fragt fest diesen Namen ab.
+
+**Brauche ich die Schreib-App von OpenEMS für openWB?**
+
+Nein. Für openWB genügt die Lese-App; für OpenEMS → openWB braucht es keine REST-App, sondern die MQTT-Bridge.
+
+**Laden beide Systeme gleichzeitig mit Überschuss?**
+
+Wenn OpenEMS die openWB nur liest (wie oben), regelt allein die openWB. Wer zusätzlich in OpenEMS ein Überschussladen für andere Ladepunkte nutzt, sollte bedenken, dass beide Systeme denselben Überschuss sehen (siehe xref:user/de/ev-charging-control/surplus-charging.adoc[Überschussladen]).
