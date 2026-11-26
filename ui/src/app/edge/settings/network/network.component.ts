@@ -9,6 +9,7 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Role } from "src/app/shared/type/role";
+import { InetUtils } from "src/app/shared/utils/inet/inet.utils";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
 import { GetNetworkConfigRequest } from "./getNetworkConfigRequest";
@@ -42,8 +43,6 @@ export class NetworkComponent implements OnInit {
 
     public edge: Edge | null = null;
     protected forms: InterfaceForm[] = [];
-    protected ipRegex: RegExp =
-        /^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}\/(?:3[0-2]|[0-2]?[0-9])$/;
 
     constructor(
         private translate: TranslateService,
@@ -180,7 +179,7 @@ export class NetworkComponent implements OnInit {
 
         if (iface.model.addressesList) {
             for (const addr of iface.model.addressesList) {
-                if (!this.ipRegex.test(addr)) {
+                if (InetUtils.isNetworkAddress(addr) !== InetUtils.IpType.IPv4) {
                     this.service.toast(this.translate.instant("EDGE.NETWORK.VALID_ADDRESS_WARNING"), "danger");
                     return [];
                 }
