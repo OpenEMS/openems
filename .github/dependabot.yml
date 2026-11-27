@@ -32,6 +32,9 @@ updates:
       tribuo:
         patterns:
           - "org.tribuo:*"
+      ocpp:
+        patterns:
+          - "eu.chargetime.ocpp:*"
       olcut:
         patterns:
           - "com.oracle.labs.olcut:*"

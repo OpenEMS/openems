@@ -1,13 +1,12 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { States } from "src/app/shared/ngrx-store/states";
+import { States } from "src/app/shared/states/states";
 
 /**
  * Initiates a OAuth connection.
  *
- * <p>
  * Request:
  *
- * <pre>
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
@@ -16,12 +15,11 @@ import { States } from "src/app/shared/ngrx-store/states";
  *     "identifier": string
  *   }
  * }
- * </pre>
+ * ```
  *
- * <p>
  * Response:
  *
- * <pre>
+ * ```json
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
@@ -32,22 +30,20 @@ import { States } from "src/app/shared/ngrx-store/states";
  *     "state": string,
  *     "redirectUri": string,
  *     "codeChallenge"?: string,
- *     "codeChallengeMethod"?: string,
+ *     "codeChallengeMethod"?: string
  *   }
  * }
- * </pre>
+ * ```
  */
 export namespace InitiateConnect {
-
     export const METHOD: string = "initiateConnect";
 
     export class Request extends JsonrpcRequest {
-
         protected override requiredState: States = States.WEBSOCKET_CONNECTED;
 
         public constructor(
             public override readonly params: {
-                identifier: string,
+                identifier: string;
             },
         ) {
             super(METHOD, params);
@@ -55,22 +51,19 @@ export namespace InitiateConnect {
     }
 
     export class Response extends JsonrpcResponseSuccess {
-
         public constructor(
             public override readonly id: string,
             override readonly result: {
-                url: string,
-                clientId: string,
-                scopes: string[],
-                state: string,
-                redirectUri: string,
-                codeChallenge?: string,
-                codeChallengeMethod?: string,
-            }
+                url: string;
+                clientId: string;
+                scopes: string[];
+                state: string;
+                redirectUri: string;
+                codeChallenge?: string;
+                codeChallengeMethod?: string;
+            },
         ) {
             super(id, result);
         }
-
     }
-
 }

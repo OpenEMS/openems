@@ -1,0 +1,24 @@
+{
+    "STORAGE": {
+        "ADMIN_MODAL": {
+            "BUTTONS": {
+                "RESTART": "Effectuer à nouveau",
+                "START": "Effectuer"
+            },
+            "SOH": {
+                "CAPACITY_MEASURING": "Mesure de la capacité",
+                "ENABLED_INFO": "Le contrôleur ESS SoH Cycle est activé",
+                "ERROR": "Une erreur s'est produite pendant le cycle SoH. Veuillez consulter les journaux système pour plus de détails.",
+                "INFO": "Mesure la capacité de la batterie en effectuant un cycle de test et calcule ainsi l'état de santé (SoH). Le processus peut durer plusieurs heures selon le type et la taille de la batterie. Il est recommandé de n'effectuer le cycle de test que lorsque la batterie n'est pas utilisée.",
+                "MEASURED_CAPACITY": "Capacité mesurée",
+                "PV_OFF_CONFIRMATION": "Je confirme par la présente que l'installation photovoltaïque de l'onduleur a été mise hors tension via l'interrupteur DC intégré.",
+                "RESTART_CONFIRMATION_TITLE": "Confirmer la nouvelle exécution",
+                "RESTART_WARNING": "Le redémarrage du cycle SoH réinitialise les mesures en cours et lance un nouveau cycle. Êtes-vous sûr de vouloir redémarrer ?",
+                "SOH_PERCENT": "SoH",
+                "STATE_MACHINE_LABEL": "État",
+                "TITLE": "Détermination de la capacité",
+                "TITLE_TIP": "visible uniquement pour les administrateurs"
+            }
+        }
+    }
+}

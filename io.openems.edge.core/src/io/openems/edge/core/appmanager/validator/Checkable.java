@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.Map;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 
 public interface Checkable {
@@ -26,7 +27,7 @@ public interface Checkable {
 	 * @param language the language of the message
 	 * @return the message
 	 */
-	public String getErrorMessage(Language language);
+	public OpenemsNamedException getValidationError(Language language);
 
 	/**
 	 * Gets the error message if the check was successful.
@@ -34,7 +35,7 @@ public interface Checkable {
 	 * @param language the language of the message
 	 * @return the message
 	 */
-	public String getInvertedErrorMessage(Language language);
+	public OpenemsNamedException getInvertedValidationError(Language language);
 
 	/**
 	 * Sets the properties.

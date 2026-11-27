@@ -66,7 +66,6 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
-import io.openems.edge.energy.api.Version;
 
 /**
  * Describes a Keba evcs App.
@@ -294,7 +293,6 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				}
 			}
 			case EVSE -> {
-				appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var wiring = this.getEnum(p, SingleOrThreePhase.class, Property.WIRING);
 				switch (hardwareType) {
 				case P30 -> {

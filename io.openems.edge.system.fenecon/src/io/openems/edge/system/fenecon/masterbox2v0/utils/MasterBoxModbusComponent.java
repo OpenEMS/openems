@@ -6,10 +6,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.system.fenecon.masterbox2v0.MasterBox2v0;
 
 /**
- * This is an interface for a MasterBox component that has its modbus communication
- * outsourced in the base component {@link MasterBox2v0}. It maps the read value
- * of the copies of the channels from the ioc component to the actual channel of
- * the component.
+ * This is an interface for a MasterBox component that has its modbus
+ * communication outsourced in the base component {@link MasterBox2v0}. It maps
+ * the read value of the copies of the channels from the ioc component to the
+ * actual channel of the component.
  */
 public interface MasterBoxModbusComponent extends OpenemsComponent {
 

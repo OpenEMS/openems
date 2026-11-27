@@ -1,6 +1,6 @@
 {
     "SCHEDULER_JS_CALENDAR": {
-        "SELECTION_PLACEHOLDER": "Controller",
-        "SELECTION_LABEL": "Controller"
+        "SELECTION_LABEL": "Controller",
+        "SELECTION_PLACEHOLDER": "Controller"
     }
 }

@@ -1,13 +1,11 @@
-// @ts-strict-ignore
 import { Injectable, WritableSignal, signal } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
-import { ChannelAddress, Edge, Service } from "../../shared";
+import { ChannelAddress, CurrentData, Edge, Service } from "../../shared";
 
 @Injectable({ providedIn: "root" })
 export abstract class DataService {
-
     /** Used to retrieve values */
-    public currentValue: WritableSignal<{ allComponents: { [id: string]: any } }> = signal({ allComponents: {} });
+    public currentValue: WritableSignal<CurrentData> = signal({ allComponents: {} });
     public lastUpdated: WritableSignal<Date | null> = signal(new Date());
 
     protected edge: Edge | null = null;
@@ -17,26 +15,25 @@ export abstract class DataService {
     constructor(service: Service) {
         service.getCurrentEdge().then((edge) => {
             this.edge = edge;
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
-                .subscribe(() => this.lastUpdated.set(new Date()));
+            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(() => this.lastUpdated.set(new Date()));
         });
     }
 
     /**
-   * Gets the values from passed channelAddresses
-   *
-   * @param channelAddress the channelAddresses to be subscribed
-   * @param edge the edge
-   * @param componentId the componentId
-   */
+     * Gets the values from passed channelAddresses
+     *
+     * @param channelAddress The channelAddresses to be subscribed
+     * @param edge The edge
+     * @param componentId The componentId
+     */
     public abstract subscribeChannels(channelAddress: ChannelAddress[], edge: Edge, componentId?: string): void;
 
     /**
-   * Unsubscribes from passed channels
-   *
-   * @param channels the channels
-   */
-    public abstract unsubscribeFromChannels(channels: ChannelAddress[]);
+     * Unsubscribes from passed channels
+     *
+     * @param channels The channels
+     */
+    public abstract unsubscribeFromChannels(channels: ChannelAddress[]): void;
 
-    public abstract refresh(ev: CustomEvent);
+    public abstract refresh(ev: CustomEvent): void;
 }

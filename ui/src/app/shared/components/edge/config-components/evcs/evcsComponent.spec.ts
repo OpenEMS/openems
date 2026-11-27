@@ -19,15 +19,10 @@ describe("EvcsComponent", () => {
     });
 
     it("power channel should be 'ChargePower' when edge is null", () => {
-        const result = EvcsComponent.from(
-            config.getComponent("evcs1"),
-            config,
-            null,
-        );
+        const result = EvcsComponent.from(config.getComponent("evcs1"), config, null);
         expect(result.powerChannel.channelId).toBe("ChargePower");
         expect(result.energyChannel.channelId).toBe("ActiveConsumptionEnergy");
     });
-
 
     it("power channel should be 'ActivePower' for mennekes", () => {
         const result = EvcsComponent.from(
@@ -38,5 +33,4 @@ describe("EvcsComponent", () => {
         expect(result.powerChannel.channelId).toBe("ActivePower");
         expect(result.energyChannel.channelId).toBe("ActiveProductionEnergy");
     });
-
 });

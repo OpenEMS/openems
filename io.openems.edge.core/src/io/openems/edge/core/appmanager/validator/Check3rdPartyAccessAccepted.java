@@ -6,6 +6,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
@@ -32,12 +34,12 @@ public class Check3rdPartyAccessAccepted extends AbstractCheckable implements Ch
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, COMPONENT_NAME + ".Message");
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_3RD_PARTY_ACCESS_ACCEPTED.exception(language);
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 }

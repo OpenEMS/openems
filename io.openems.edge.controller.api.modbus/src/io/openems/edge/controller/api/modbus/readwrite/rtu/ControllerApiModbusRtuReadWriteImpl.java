@@ -118,6 +118,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusReadWrite
 		params.setParity(this.config.parity().getValue());
 		params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 		params.setEcho(false);
+		params.disableRs485Control();
 		return ModbusSlaveFactory.createSerialSlave(params);
 	}
 

@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Mode mode = Mode.OFF;
 		private String jsCalendar = "[]";
 		private int maxHeatPower;
+		private double effectiveStorageVolume = 500;
 
 		private Builder() {
 		}
@@ -50,6 +51,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaxHeatPower(int maxHeatPower) {
 			this.maxHeatPower = maxHeatPower;
+			return this;
+		}
+
+		public Builder setEffectiveStorageVolume(double effectiveStorageVolume) {
+			this.effectiveStorageVolume = effectiveStorageVolume;
 			return this;
 		}
 
@@ -102,6 +108,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxHeatPower() {
 		return this.builder.maxHeatPower;
+	}
+
+	@Override
+	public double effectiveStorageVolume() {
+		return this.builder.effectiveStorageVolume;
 	}
 
 	@Override

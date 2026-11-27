@@ -77,14 +77,73 @@ public final class PropertyAssertions<//
 		return this;
 	}
 
-	private PropertyAssertions<APP, PROPERTY, PARAMETER> assertVisibility(PROPERTY modelProperty, Object value,
-			boolean expectedVisible) {
+	/**
+	 * Verifies that the property has no default value.
+	 * 
+	 * @return this
+	 */
+	public PropertyAssertions<APP, PROPERTY, PARAMETER> hasNoDefaultValue() {
+		assertTrue(this.property.def().getDefaultValue() == null, //
+				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId()
+						+ "] unexpectedly has a default value");
+		return this;
+	}
+
+	/**
+	 * Verifies that the property is required.
+	 * 
+	 * @return this
+	 */
+	public PropertyAssertions<APP, PROPERTY, PARAMETER> isRequired() {
+		assertTrue(this.property.def().isRequired(), //
+				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId() + "] is not required");
+		return this;
+	}
+
+	/**
+	 * Verifies the min value.
+	 * 
+	 * @param expectedMin expected min value
+	 * @return this
+	 */
+	public PropertyAssertions<APP, PROPERTY, PARAMETER> min(int expectedMin) {
+		final var field = this.getField();
+		final var templateOptions = field.getAsJsonObject("templateOptions");
+		assertTrue(templateOptions.has("min"), //
+				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId() + "] has no min value");
+		assertEquals(expectedMin, templateOptions.get("min").getAsInt(), //
+				() -> "Unexpected min value for property [" + this.property.name() + "] of app [" + this.app.getAppId()
+						+ "]");
+		return this;
+	}
+
+	/**
+	 * Verifies that value has max value.
+	 * 
+	 * @param expectedMax expected max value
+	 * @return this
+	 */
+	public PropertyAssertions<APP, PROPERTY, PARAMETER> max(int expectedMax) {
+		final var field = this.getField();
+		final var templateOptions = field.getAsJsonObject("templateOptions");
+		assertTrue(templateOptions.has("max"), //
+				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId() + "] has no max value");
+		assertEquals(expectedMax, templateOptions.get("max").getAsInt(), //
+				() -> "Unexpected max value for property [" + this.property.name() + "] of app [" + this.app.getAppId()
+						+ "]");
+		return this;
+	}
+
+	private JsonObject getField() {
 		final var fieldSupplier = this.property.def().getField();
 		assertNotNull(fieldSupplier, //
 				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId() + "] has no field");
+		return getFieldValue(fieldSupplier, this.app, this.property, Language.DEFAULT, this.parameter).build();
+	}
 
-		final var field = getFieldValue(fieldSupplier, this.app, this.property, Language.DEFAULT, this.parameter)
-				.build();
+	private PropertyAssertions<APP, PROPERTY, PARAMETER> assertVisibility(PROPERTY modelProperty, Object value,
+			boolean expectedVisible) {
+		final var field = this.getField();
 		final var expressionProperties = field.getAsJsonObject("expressionProperties");
 		assertNotNull(expressionProperties, //
 				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId()

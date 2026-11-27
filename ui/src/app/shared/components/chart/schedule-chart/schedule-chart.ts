@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -93,9 +93,7 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
             ticks: {
                 ...this.options.scales.x.ticks,
                 display: false,
-                color: getComputedStyle(
-                    document.documentElement,
-                ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
+                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks"),
             },
             grid: {
                 display: false,
@@ -107,9 +105,7 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
                 display: false,
             },
             ticks: {
-                color: getComputedStyle(
-                    document.documentElement,
-                ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
+                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks"),
             },
         };
 

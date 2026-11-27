@@ -62,6 +62,12 @@ public final class AllowedChannels {
 				.put("_sum/GridBuyPrice", DataType.DOUBLE) //
 				.put("_sum/GridSellPrice", DataType.DOUBLE) //
 				.put("_sum/UnmanagedConsumptionActivePower", DataType.LONG) //
+				.put("_sum/ProductionToConsumptionPower", DataType.LONG) //
+				.put("_sum/ProductionToGridPower", DataType.LONG) //
+				.put("_sum/ProductionToEssPower", DataType.LONG) //
+				.put("_sum/GridToConsumptionPower", DataType.LONG) //
+				.put("_sum/EssToConsumptionPower", DataType.LONG) //
+				.put("_sum/GridToEssPower", DataType.LONG) //
 				.putAll(multiChannels(ctrlIoHeatPump, "Status", DataType.LONG)) //
 				.putAll(multiChannels(ess, "Soc", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ActivePower", DataType.LONG)) //
@@ -146,6 +152,13 @@ public final class AllowedChannels {
 				.put("_sum/GridModeOffGridTime", DataType.LONG) //
 				.put("_sum/EssActiveChargeEnergy", DataType.LONG) //
 				.put("_sum/EssActiveDischargeEnergy", DataType.LONG) //
+				.put("_sum/ProductionToConsumptionEnergy", DataType.LONG) //
+				.put("_sum/ProductionToGridEnergy", DataType.LONG) //
+				.put("_sum/ProductionToEssEnergy", DataType.LONG) //
+				.put("_sum/GridToConsumptionEnergy", DataType.LONG) //
+				.put("_sum/EssToConsumptionEnergy", DataType.LONG) //
+				.put("_sum/GridToEssEnergy", DataType.LONG) //
+				.put("_sum/EssToGridEnergy", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariffDischarge0/DelayedTime", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariff0/DelayedTime", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariff0/ChargedTime", DataType.LONG) //

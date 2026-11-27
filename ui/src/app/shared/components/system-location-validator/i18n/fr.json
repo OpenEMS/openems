@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "L'adresse correcte n'est pas listée ? Modifiez vos informations ci-dessus et relancez la validation.",
+        "ADDRESS_LIST_NOTE_PROFILE": "L'adresse correcte n'est pas listée ? Le cas échéant, modifiez vos informations ci-dessus et relancez la validation.",
+        "ADDRESS_LIST_TITLE": "Quelle adresse correspond à l'emplacement de {{ edgeShortName }}{{ id }} ?",
+        "APPLY_BUTTON_LABEL": "Appliquer",
+        "BUTTON_LABEL_INSTALLATION": "Effectuer la validation",
+        "BUTTON_LABEL_PROFILE": "Valider l'adresse",
+        "GEO_CODE_RESULT_LABEL": "Veuillez sélectionner l'adresse correspondante :",
+        "UNKNOWN_ADDRESS": "Les coordonnées sont saisies manuellement par la suite pour la gamme complète de fonctionnalités dans les paramètres du système."
+    }
+}

@@ -2,12 +2,13 @@ package io.openems.edge.common.channel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -49,7 +50,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnUpdate(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId1, //
 			final ChannelId channelId2, //
 			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
@@ -96,7 +97,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V> Disposable subscribeOnUpdate(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId, //
 			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
 	) {
@@ -143,7 +144,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnSetNextValue(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId1, //
 			final ChannelId channelId2, //
 			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
@@ -191,7 +192,7 @@ public final class ChannelUtils {
 	 * @return a {@link Disposable} to remove the callback
 	 */
 	public static <T extends OpenemsComponent, V> Disposable subscribeOnSetNextValue(//
-			final List<T> components, //
+			final Collection<T> components, //
 			final ChannelId channelId, //
 			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
 	) {
@@ -224,6 +225,40 @@ public final class ChannelUtils {
 		subscription.accept(channel.getNextValue());
 
 		return () -> channel.removeOnSetNextValueCallback(subscription);
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every setNextValue() call
+	 * of the Channel.
+	 *
+	 * @param <T>          the type of the Component
+	 * @param <V1>         the type of the first Channel Value
+	 * @param <V2>         the type of the second Channel Value
+	 * @param component    the {@link OpenemsComponent}
+	 * @param channelId1   the {@link ChannelId} of the first channel
+	 * @param channelId2   the {@link ChannelId} of the second channel
+	 * @param subscription the callback {@link Consumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnSetNextValue(//
+			T component, //
+			ChannelId channelId1, //
+			ChannelId channelId2, //
+			Consumer<Tuple2<Value<V1>, Value<V2>>> subscription //
+	) {
+		final var currentValue = new AtomicReference<Tuple2<Value<V1>, Value<V2>>>(Tuple2.of(null, null));
+
+		final var subscription1 = ChannelUtils.<T, V1>subscribeOnSetNextValue(component, channelId1, value -> {
+			subscription.accept(currentValue.updateAndGet(v -> v.withA(value)));
+		});
+		final var subscription2 = ChannelUtils.<T, V2>subscribeOnSetNextValue(component, channelId2, value -> {
+			subscription.accept(currentValue.updateAndGet(v -> v.withB(value)));
+		});
+
+		return () -> {
+			subscription1.dispose();
+			subscription2.dispose();
+		};
 	}
 
 	/**
@@ -348,6 +383,27 @@ public final class ChannelUtils {
 	public static void setValue(OpenemsComponent component, ChannelId channelId, Object value)
 			throws IllegalArgumentException {
 		component.channel(channelId).setNextValue(value);
+	}
+
+	/**
+	 * Set next value of a {@link Channel} if the read value is not equal.
+	 *
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the value differs from the current Read-Value.
+	 *
+	 * @param component the {@link OpenemsComponent}
+	 * @param channelId the {@link ChannelId}
+	 * @param value     value to be set
+	 * @throws IllegalArgumentException on error
+	 */
+	public static void setValueIfNotRead(OpenemsComponent component, ChannelId channelId, Object value)
+			throws IllegalArgumentException {
+		final var channel = component.channel(channelId);
+		if (Objects.equals(channel.value().get(), value)) {
+			return;
+		}
+		channel.setNextValue(value);
 	}
 
 	/**

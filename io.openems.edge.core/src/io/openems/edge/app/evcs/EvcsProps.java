@@ -86,7 +86,7 @@ public final class EvcsProps {
 			BundleProvider parameter, //
 			FieldGroupBuilder field //
 	) {
-		final var gridConnectionPointFuseLimit = app.getMeta().getGridConnectionPointFuseLimit();
+		final var gridConnectionPointFuseLimit = app.getMeta().getGridLimit().fuseCurrent();
 
 		field.hideKey();
 		field.setPopupInput(property, DisplayType.NUMBER);
@@ -108,7 +108,8 @@ public final class EvcsProps {
 								"App.Evcs.Cluster.maxChargeFromGrid.short.label"))
 						.setInputType(NUMBER) //
 						.setMin(0) //
-						.setMax(gridConnectionPointFuseLimit * 230 * 3).isRequired(true) //
+						.setMax(gridConnectionPointFuseLimit * 230 * 3) //
+						.isRequired(true) //
 						.setDefaultValue(Math.round(gridConnectionPointFuseLimit * 0.9F) * 230 * 3)//
 						.setUnit(Unit.WATT, language) //
 						.build())

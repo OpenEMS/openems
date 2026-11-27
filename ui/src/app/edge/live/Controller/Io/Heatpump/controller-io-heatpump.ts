@@ -7,7 +7,7 @@ import { ControllerIoHeatpumpBaseModeComponent } from "./basemode/basemode";
 import { ControllerIoHeatpumpComponent } from "./flat/flat";
 import { ControllerIoHeatpumpModalComponent } from "./modal/modal";
 import { ControllerIoHeatpumpHomeComponent } from "./new-navigation/new-navigation";
-import { HeatPumpScheduleComponent } from "./schedule/schedule.component";
+import { ControllerIoHeatpumpScheduleComponent } from "./schedule/schedule.component";
 import { ControllerIoHeatpumpSettingsComponent } from "./settings/settings";
 
 @NgModule({
@@ -21,13 +21,13 @@ import { ControllerIoHeatpumpSettingsComponent } from "./settings/settings";
         ControllerIoHeatpumpComponent,
         ControllerIoHeatpumpModalComponent,
         ControllerIoHeatpumpHomeComponent,
-        HeatPumpScheduleComponent,
+        ControllerIoHeatpumpScheduleComponent,
     ],
     exports: [
         ControllerIoHeatpumpHomeComponent,
         ControllerIoHeatpumpComponent,
         ControllerIoHeatpumpModalComponent,
-        HeatPumpScheduleComponent,
+        ControllerIoHeatpumpScheduleComponent,
     ],
 })
 export class ControllerIoHeatpumpModule {}

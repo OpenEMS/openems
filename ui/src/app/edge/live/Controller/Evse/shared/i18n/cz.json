@@ -1,0 +1,73 @@
+{
+    "EVSE_SINGLE": {
+        "HOME": {
+            "ACTUAL_MODE": {
+                "LABEL": "Aktivní režim"
+            },
+            "ENERGY_SINCE_START": "Energie od začátku nabíjení",
+            "MODE": {
+                "FORCE": "Rychlé",
+                "LABEL": "Základní režim",
+                "MINIMUM": "Minimální",
+                "SURPLUS": "PV",
+                "ZERO": "Vypnuto"
+            },
+            "POWER": "Výkon",
+            "STATE_MACHINE": {
+                "CHARGING": "Nabíjí se",
+                "EV_CONNECTED": "EV připojeno",
+                "EV_NOT_CONNECTED": "EV není připojeno",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Nabíjení ukončeno energetickým limitem",
+                "FINISHED_EV_STOP": "Nabíjení ukončeno vozidlem EV",
+                "LABEL": "Stav",
+                "PHASE_SWITCH": "Ruční přepínání fází",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Přepnutí na 1fázové",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Přepnutí na 3fázové"
+            },
+            "VEHICLES": "Vozidla z App Center"
+        },
+        "SCHEDULE": {
+            "ACCEPT": "Přijmout",
+            "ADD": "Přidat",
+            "ADD_ERROR": "Úlohu nebylo možné přidat",
+            "ADD_SUCCESS": "Úloha byla úspěšně přidána",
+            "DAY": {
+                "FRIDAY": "Pátek",
+                "MONDAY": "Pondělí",
+                "SATURDAY": "Sobota",
+                "SUNDAY": "Neděle",
+                "THURSDAY": "Čtvrtek",
+                "TUESDAY": "Úterý",
+                "WEDNESDAY": "Středa"
+            },
+            "DELETE": "Smazat",
+            "DELETE_ERROR": "Úlohu nebylo možné smazat",
+            "DELETE_SUCCESS": "Úloha byla úspěšně smazána",
+            "DURATION": "Doba trvání",
+            "EDIT": "Upravit",
+            "EDIT_ERROR": "Úlohu nebylo možné upravit",
+            "EDIT_SUCCESS": "Úloha byla úspěšně upravena",
+            "END": "Konec",
+            "FREQ": {
+                "DAILY": "Denně",
+                "MONTHLY": "Měsíčně",
+                "WEEKLY": "Týdně",
+                "YEARLY": "Ročně"
+            },
+            "FREQUENCY": "Opakování",
+            "MODE": "Nabíjecí režim",
+            "MODE_SELECTION_PLACEHOLDER": "Vybrat",
+            "SMART_EVENT_TITLE": "Chytré nabíjení {{kwh}} kWh",
+            "START": "Začátek",
+            "VALIDATION_ERROR_1": "Zadejte prosím čas začátku",
+            "VALIDATION_ERROR_2": "Zadejte prosím čas konce",
+            "VALIDATION_ERROR_3": "Vyberte prosím nabíjecí režim",
+            "VALIDATION_ERROR_4": "Zadejte prosím čas začátku ve formátu HH:mm a pouze po čtvrthodinách (00, 15, 30 nebo 45 minut)",
+            "VALIDATION_ERROR_5": "Zadejte prosím čas konce ve formátu HH:mm a pouze po čtvrthodinách (00, 15, 30 nebo 45 minut)",
+            "VALIDATION_ERROR_6": "Čas konce musí být po čase začátku"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Energetický limit"
+        }
+    }
+}

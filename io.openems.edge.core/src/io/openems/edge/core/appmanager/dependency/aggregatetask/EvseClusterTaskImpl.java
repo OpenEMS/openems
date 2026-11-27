@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -43,10 +43,12 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 )
 public class EvseClusterTaskImpl implements EvseClusterTask {
 
+	private static final String CTRL_IDS = "ctrl.ids";
+	private static final String EVSE_CLUSTER_FACTORY_ID = "Evse.Controller.Cluster";
+
 	private final ComponentManager componentManager;
 
-	private List<String> evseIdsToAdd = new LinkedList<String>();
-	private List<String> evseIdsToDelete = new LinkedList<String>();
+	private final Map<String, Integer> evseIdDeltas = new LinkedHashMap<>();
 
 	@Activate
 	public EvseClusterTaskImpl(@Reference ComponentManager componentManager) {
@@ -61,15 +63,22 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 		));
 	}
 
-	private void execute(List<AppConfiguration> otherAppConfigurations, User user) throws OpenemsNamedException {
-		if (this.evseIdsToAdd.isEmpty() && this.evseIdsToDelete.isEmpty()) {
+	private void execute(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		var evseIdsToAdd = this.getEvseIdsToAdd();
+		var evseIdsToDelete = new LinkedList<>(this.getEvseIdsToDelete());
+
+		var otherEvseIds = AppConfiguration
+				.flatMap(otherAppConfigurations, EvseClusterTask.class, ClusterConfiguration::evseIds)//
+				.toList();
+		evseIdsToDelete.removeAll(otherEvseIds);
+
+		if (evseIdsToAdd.isEmpty() && evseIdsToDelete.isEmpty()) {
 			return;
 		}
 
-		var clusterControllers = this.componentManager.getEdgeConfig()
-				.getComponentsByFactory("Evse.Controller.Cluster");
+		var clusterControllers = this.componentManager.getEdgeConfig().getComponentsByFactory(EVSE_CLUSTER_FACTORY_ID);
 		if (clusterControllers.isEmpty()) {
-			if (this.evseIdsToAdd.isEmpty()) {
+			if (evseIdsToAdd.isEmpty()) {
 				return;
 			}
 			throw new OpenemsException("No Cluster Controller!");
@@ -77,50 +86,72 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 
 		var clusterController = clusterControllers.getFirst();
 
-		Optional<JsonElement> idsProperty = clusterController.getProperty("ctrl.ids");
-		List<String> evseIds = idsProperty.map(s -> {
-			return new LinkedList<>(JsonSerializerUtil.stringSerializer().toListSerializer().deserialize(s));
-		}).orElse(new LinkedList<>());
+		Optional<JsonElement> idsProperty = clusterController.getProperty(CTRL_IDS);
+		List<String> evseIds = idsProperty
+				.map(s -> new LinkedList<>(JsonSerializerUtil.stringSerializer().toListSerializer().deserialize(s)))
+				.orElse(new LinkedList<>());
 
-		if (!this.evseIdsToAdd.isEmpty()) {
-			evseIds.addAll(this.evseIdsToAdd);
+		if (!evseIdsToAdd.isEmpty()) {
+			evseIds.addAll(evseIdsToAdd);
 		}
-		if (!this.evseIdsToDelete.isEmpty()) {
-			evseIds.removeAll(this.evseIdsToDelete);
+		if (!evseIdsToDelete.isEmpty()) {
+			evseIds.removeAll(evseIdsToDelete);
 		}
 
 		evseIds = new LinkedList<>(new LinkedHashSet<>(evseIds));
 
-		var jsonArray = JsonUtils.generateJsonArray(evseIds, input -> new JsonPrimitive(input));
+		var jsonArray = JsonUtils.generateJsonArray(evseIds, s -> new JsonPrimitive(Objects.requireNonNull(s)));
 		this.componentManager.handleUpdateComponentConfigRequest(user, //
 				new UpdateComponentConfig.Request(clusterController.getId(),
-						List.of(new Property("ctrl.ids", jsonArray))));
+						List.of(new Property(CTRL_IDS, jsonArray))));
 	}
 
 	@Override
 	public void aggregate(ClusterConfiguration instance, ClusterConfiguration oldConfig) {
 		if (instance != null) {
-			this.evseIdsToAdd.addAll(instance.evseIds());
+			this.addDelta(instance.evseIds(), 1);
 		}
 		if (oldConfig != null) {
-			this.evseIdsToDelete.addAll(oldConfig.evseIds());
+			this.addDelta(oldConfig.evseIds(), -1);
 		}
-		this.evseIdsToAdd.removeAll(this.evseIdsToDelete);
 	}
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.execute(otherAppConfigurations, user);
+		this.execute(user, otherAppConfigurations);
 	}
 
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.execute(otherAppConfigurations, user);
+		this.execute(user, otherAppConfigurations);
 	}
 
 	@Override
 	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
-		return new EvseClusterExecutionConfiguration(this.evseIdsToAdd, this.evseIdsToDelete);
+		return new EvseClusterExecutionConfiguration(this.getEvseIdsToAdd(), this.getEvseIdsToDelete());
+	}
+
+	private void addDelta(List<String> evseIds, int delta) {
+		for (var evseId : new LinkedHashSet<>(evseIds)) {
+			var newDelta = this.evseIdDeltas.merge(evseId, delta, Integer::sum);
+			if (newDelta == 0) {
+				this.evseIdDeltas.remove(evseId);
+			}
+		}
+	}
+
+	private List<String> getEvseIdsToAdd() {
+		return this.evseIdDeltas.entrySet().stream() //
+				.filter(entry -> entry.getValue() > 0) //
+				.map(Map.Entry::getKey) //
+				.toList();
+	}
+
+	private List<String> getEvseIdsToDelete() {
+		return this.evseIdDeltas.entrySet().stream() //
+				.filter(entry -> entry.getValue() < 0) //
+				.map(Map.Entry::getKey) //
+				.toList();
 	}
 
 	private record EvseClusterExecutionConfiguration(//
@@ -143,13 +174,11 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 				return JsonNull.INSTANCE;
 			}
 			return JsonUtils.buildJsonObject() //
-					.add("evse.ids.toAdd", this.evseIdsToAdd.stream().map(t -> {
-						return new JsonPrimitive(t);
-					}).collect(JsonUtils.toJsonArray()))
+					.add("evse.ids.toAdd",
+							this.evseIdsToAdd.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray()))
 
-					.add("evse.ids.toDelete", this.evseIdsToAdd.stream().map(t -> {
-						return new JsonPrimitive(t);
-					}).collect(JsonUtils.toJsonArray()))//
+					.add("evse.ids.toDelete",
+							this.evseIdsToDelete.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray()))//
 					.build();
 		}
 	}
@@ -161,25 +190,28 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 			final ClusterConfiguration config, //
 			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
-		var clusterControllers = this.componentManager.getEdgeConfig()
-				.getComponentsByFactory("Evse.Controller.Cluster");
+		var clusterControllers = this.componentManager.getEdgeConfig().getComponentsByFactory(EVSE_CLUSTER_FACTORY_ID);
 
 		if (clusterControllers.isEmpty() && !config.evseIds().isEmpty()) {
 			errors.add("cluster controller not exists");
 			return;
 		}
+		if (clusterControllers.isEmpty()) {
+			return;
+		}
 
 		var clusterController = clusterControllers.getFirst();
-		var rawIds = clusterController.getProperty("ctrl.ids").get().getAsJsonArray().asList().stream()
-				.map(je -> je.getAsString()).toList();
+		var rawIds = clusterController.getProperty(CTRL_IDS)
+				.map(ids -> JsonSerializerUtil.stringSerializer().toListSerializer().deserialize(ids))
+				.orElse(List.of());
 
 		var missing = new ArrayList<>(config.evseIds());
 
 		missing.removeAll(rawIds);
 
 		if (!missing.isEmpty()) {
-			errors.add("EvseId '" + missing.stream().collect(Collectors.joining(", ")) + "' "
-					+ (missing.size() > 1 ? "are" : "is") + " not added on " + clusterController.getId());
+			errors.add("EvseId '" + String.join(", ", missing) + "' " + (missing.size() > 1 ? "are" : "is")
+					+ " not added on " + clusterController.getId());
 		}
 	}
 
@@ -191,7 +223,6 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 
 	@Override
 	public void reset() {
-		this.evseIdsToAdd = new LinkedList<>();
-		this.evseIdsToDelete = new LinkedList<>();
+		this.evseIdDeltas.clear();
 	}
 }

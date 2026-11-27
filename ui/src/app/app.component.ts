@@ -10,7 +10,7 @@ import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
-import { RouteService } from "./shared/service/route.service";
+import { RouteService } from "./shared/service/route/route.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -67,7 +67,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
                 // Hide footer for history detail views
                 const segments = e.url.split("/");
-                this.isHistoryDetailView = segments.slice(0, -1).includes("history");
+                this.isHistoryDetailView = segments.slice(0, -1).includes("history") && !segments.includes("export");
             }),
         );
 

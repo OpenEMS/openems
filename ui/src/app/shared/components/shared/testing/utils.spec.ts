@@ -8,7 +8,7 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
 import { PlatFormService } from "src/app/platform.service";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
@@ -33,6 +33,8 @@ export const BASE_TEST_BED: TestModuleMetadata = {
 };
 
 function setTranslateParams(): Promise<void> {
+    localStorage.LANGUAGE = "de";
+
     return new Promise<void>((res) => {
         const translateService = TestBed.inject(TranslateService);
         translateService.addLangs(["de"]);
@@ -88,6 +90,7 @@ export namespace TestingUtils {
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule(testModuleMetadata).compileComponents();
         await setTranslateParams();
+        localStorage.LANGUAGE = "de";
 
         // Inject services and return them as an object with service names as keys
         const result = services.reduce((arr, el) => {

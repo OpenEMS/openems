@@ -1,4 +1,4 @@
-import { alertCircleOutline, checkmarkDoneCircleOutline, flame, heart, informationCircleOutline, warningOutline, } from "ionicons/icons";
+import { alertCircleOutline, analyticsOutline, bagCheckOutline, calendarOutline, checkmarkDoneCircleOutline, cogOutline, flame, heart, heartOutline, homeOutline, informationCircleOutline, personOutline, removeOutline, reorderThreeOutline, timerOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -11,8 +11,11 @@ export const OemMeta: BaseMeta = {
     },
     icons: {
         COMMON: {
+            USER: personOutline,
+            SETTINGS: cogOutline,
+            COCKPIT: homeOutline,
             CONSUMPTION: "assets/img/icon/consumption.svg",
-            SELFCONSUMPTION: "assets/img/icon/selfconsumption.svg",
+            SELFCONSUMPTION: bagCheckOutline,
             GENERATOR: "assets/img/icon/generator.svg",
             GRID: "assets/img/icon/grid.svg",
             GRID_STORAGE: "assets/img/icon/gridStorage.svg",
@@ -21,6 +24,7 @@ export const OemMeta: BaseMeta = {
             OFFGRID: "assets/img/icon/offgrid.svg",
             PRODUCTION: "assets/img/icon/production.svg",
             STORAGE: "assets/img/icon/storage.svg",
+            SCHEDULE: analyticsOutline,
             WEATHER: {
                 CLEAR_DAY: "assets/img/icon/clear_day.svg",
                 CLEAR_NIGHT: "assets/img/icon/clear_night.svg",
@@ -39,14 +43,17 @@ export const OemMeta: BaseMeta = {
                 CLOUD_OFFLINE_OUTLINE: "icons/common/offline/cloud_offline_outline.svg",
             },
             TIME_OF_USE: {
-                TIME_OF_USE: "icons/common/time_of_use/time_of_use.svg",
-                TIME_OF_USE_THIN: "icons/common/time_of_use/time_of_use-thin.svg",
+                TIME_OF_USE: timerOutline,
+                TIME_OF_USE_THIN: timerOutline,
             },
-            FAVORITES: heart,
+            FAVORITES: heartOutline,
+            FAVORITES_FILLED: heart,
         },
         COMPONENT: {
             HEATPUMP: flame,
             EVCS: "assets/img/icon/evcs.svg",
+            EVCS_PHASE_SWITCHING_1: removeOutline,
+            EVCS_PHASE_SWITCHING_3: reorderThreeOutline,
             HEATING_ELEMENT: flame,
         },
         STATUS: {
@@ -56,7 +63,7 @@ export const OemMeta: BaseMeta = {
             INFO: informationCircleOutline,
         },
         BATTERY_EXTENSION: null,
-        ENERGY_JOURNEY: null,
+        ENERGY_JOURNEY: calendarOutline,
         WRAP_UP: null,
     },
     images: {
@@ -66,6 +73,8 @@ export const OemMeta: BaseMeta = {
             HARDY_BARTH: null,
             ALPITRONIC: null,
             MENNEKES: null,
+            VOLTIE: null,
+            ALFEN: null,
             SIMULATOR: "assets/img/product_pictures/Evse.ChargePoint.Simulator.webp",
         },
         LOGO: {
@@ -140,7 +149,10 @@ export const OemMeta: BaseMeta = {
                 },
             },
         },
-        DATA_PROTECTION: null,
+        DATA_PROTECTION: "https://openems.io/",
+        GTC: (): string | null => {
+            return "https://openems.io/";
+        },
         REDIRECT: {
             BETA_SURVEY: null,
             BETA_CHANGE_LOG: null,
@@ -167,12 +179,15 @@ export const OemMeta: BaseMeta = {
             CONTROLLER_API_MODBUSTCP_READWRITE: "io.openems.edge.controller.api.modbus/readme.adoc",
             CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
             CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
-            EVCS_KEBA: null,
-            EVCS_HARDY_BARTH: null,
-            EVCS_MENNEKES: null,
-            EVCS_GO_E: null,
-            EVCS_IES: null,
-            EVCS_ALPITRONIC_HYPER: null,
+            EVCS_KEBA: "io.openems.edge.evse.chargepoint.keba/readme.adoc",
+            EVCS_KEBA_HELP:
+                "https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.evse.chargepoint.keba/readme.adoc",
+            EVCS_HARDY_BARTH: "io.openems.edge.evse.chargepoint.hardybarth/readme.adoc",
+            EVCS_MENNEKES: "io.openems.edge.evse.chargepoint.mennekes/readme.adoc",
+            EVSE_ALFEN: "io.openems.edge.evse.chargepoint.alfen/readme.adoc",
+            EVCS_GO_E: "io.openems.edge.evse.chargepoint.goe/readme.adoc",
+            EVCS_IES: "io.openems.edge.evcs.ocpp.ies.keywatt.singleccs/readme.adoc",
+            EVCS_ALPITRONIC_HYPER: "io.openems.edge.evse.chargepoint.alpitronic/readme.adoc",
             SETTINGS_ALERTING: null,
             SETTINGS_NETWORK_CONFIGURATION: null,
             WEATHER_WIDGET: null,
@@ -221,14 +236,8 @@ export const OemMeta: BaseMeta = {
             SYSTEM: {
                 HOME: {
                     HOME_10: "#",
-                    HOME_20_30: {
-                        DE: "#",
-                        EN: "#",
-                    },
-                    HOME_GEN_2: {
-                        DE: "#",
-                        EN: "#",
-                    },
+                    HOME_20_30: "#",
+                    HOME_GEN_2: "#",
                 },
                 COMMERCIAL: {
                     COMMERCIAL_30: "#",
@@ -236,15 +245,13 @@ export const OemMeta: BaseMeta = {
                     COMMERCIAL_50_GEN_3: "#",
                     COMMERCIAL_92: "#",
                     COMMERCIAL_92_CLUSTER: "#",
-                    COMMERCIAL_92_OVERVIEW: "#",
                     COMMERCIAL_100: "#",
                 },
             },
 
-            RUNDSTEUER: {
-                HOME: "#",
+            RIPPLE_CONTROL: {
+                HOME_10_GEN_1: "#",
                 HOME_GEN_2: "#",
-                HOME_6_10_15: "#",
                 HOME_20_30: "#",
                 COMMERCIAL_50_GEN_3: "#",
             },

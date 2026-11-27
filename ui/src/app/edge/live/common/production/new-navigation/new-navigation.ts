@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2, } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -34,7 +34,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         service: Service,
         user: User | null,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
         productionMeterComponents: EdgeConfig.Component[],
         chargerComponents: EdgeConfig.Component[],
     ): Promise<OeFormlyView> {
@@ -42,31 +42,6 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         const lines: OeFormlyField[] = [];
 
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
-            // TODO INTERSOLAR
-            if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
-                const energyToday = energyScheduler.schedule.calculateEnergyFromPower("today", "ProductionActivePower");
-                const energyTomorrow = energyScheduler.schedule.calculateEnergyFromPower(
-                    "tomorrow",
-                    "ProductionActivePower",
-                );
-                lines.push({
-                    type: "stats-line",
-                    stats: [
-                        {
-                            name: translate.instant("EDGE.HISTORY.TODAY"),
-                            value: energyToday.history,
-                            unit: "kWh",
-                            predictionValue: energyToday.prediction,
-                        },
-                        {
-                            name: translate.instant("EDGE.HISTORY.TOMORROW"),
-                            value: energyTomorrow.prediction,
-                            unit: "kWh",
-                        },
-                    ],
-                });
-            }
-
             lines.push(
                 {
                     type: "component-line",
@@ -134,7 +109,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: true,
+            useCiFont: true,
         };
     }
 

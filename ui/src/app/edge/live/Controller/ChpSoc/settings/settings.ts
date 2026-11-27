@@ -51,19 +51,19 @@ export class ControllerChpSettingsComponent extends AbstractFormlyComponent<ChpV
 
         AssertionUtils.assertIsDefined(component);
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(component.id, ControllerChpFlatComponent.PROPERTY_MODE),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "lowThreshold",
             currentData,
             new ChannelAddress(component.id, "_PropertyLowThreshold"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "highThreshold",
             currentData,
             new ChannelAddress(component.id, "_PropertyHighThreshold"),

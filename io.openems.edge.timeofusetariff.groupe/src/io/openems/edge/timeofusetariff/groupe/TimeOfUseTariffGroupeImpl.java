@@ -3,7 +3,6 @@ package io.openems.edge.timeofusetariff.groupe;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
-import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static java.util.Collections.emptyMap;
@@ -40,6 +39,7 @@ import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.services.currency.CurrencyExchange;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -69,6 +69,9 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 	private HttpBridgeTimeService timeService;
+
+	@Reference
+	private CurrencyExchange currencyExchange;
 
 	@Reference
 	private Meta meta;
@@ -163,9 +166,15 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException {
 		this.channel(TimeOfUseTariffGroupe.ChannelId.HTTP_STATUS_CODE).setNextValue(response.status().code());
 
-		final var groupeCurrency = Currency.CHF.name(); // Swiss Franc
-		final var globalCurrency = this.meta.getCurrency();
-		final double exchangeRate = getExchangeRateOrElse(groupeCurrency, globalCurrency, 1.);
+		final var groupeCurrency = Currency.CHF.getJavaCurrency(); // Swiss Franc
+		final var globalCurrency = this.meta.getCurrency().getJavaCurrency();
+		final double exchangeRate;
+		if (globalCurrency == null) {
+			this.logWarn(this.log, "Global currency is not configured. Using exchange rate 1.0.");
+			exchangeRate = 1.0;
+		} else {
+			exchangeRate = this.currencyExchange.getExchangeRate(groupeCurrency, globalCurrency).orElse(1.0);
+		}
 
 		// Parse the response for the prices
 		this.prices.set(parsePrices(response.data(), exchangeRate));

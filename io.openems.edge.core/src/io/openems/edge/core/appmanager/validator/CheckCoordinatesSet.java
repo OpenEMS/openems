@@ -6,6 +6,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.common.meta.Meta;
 
@@ -31,12 +33,12 @@ public class CheckCoordinatesSet extends AbstractCheckable implements Checkable 
 	}
 
 	@Override
-	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, COMPONENT_NAME + ".Message");
+	public OpenemsNamedException getValidationError(Language language) {
+		return OpenemsError.EDGE_APP_VALIDATION_CHECK_COORDINATES_SET.exception(language);
 	}
 
 	@Override
-	public String getInvertedErrorMessage(Language language) {
+	public OpenemsNamedException getInvertedValidationError(Language language) {
 		throw new UnsupportedOperationException();
 	}
 }

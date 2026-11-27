@@ -28,7 +28,7 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class GridBuyPriceChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeData24hForChannel("GridBuyPrice");
+        const data = this.data.summarizeData24hForChannel("GridBuyPrice", this.service.historyPeriod.value.from);
 
         return [
             {

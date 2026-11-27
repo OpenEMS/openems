@@ -3,7 +3,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 

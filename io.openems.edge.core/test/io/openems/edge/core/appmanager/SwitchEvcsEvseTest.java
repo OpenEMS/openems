@@ -1,23 +1,21 @@
 package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.ImmutableList;
 
@@ -34,8 +32,10 @@ import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManag
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SwitchEvcsEvseTest {
 
 	private OpenemsApp kebaApp;
@@ -47,7 +47,7 @@ public class SwitchEvcsEvseTest {
 	@Spy
 	private ComponentManager cmSpy;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.amtb = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -63,7 +63,7 @@ public class SwitchEvcsEvseTest {
 		final var schedulerTask = this.amtb.addSchedulerByCentralOrderAggregateTask(componentTask);
 
 		this.cmSpy = spy(this.amtb.componentManger);
-		doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
+		lenient().doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
 				any(User.class), //
 				any(UpdateComponentConfig.Request.class));
 
@@ -241,6 +241,53 @@ public class SwitchEvcsEvseTest {
 	}
 
 	@Test
+	public void testUpdatingKebaVehicleKeepsNewVehicleProtectedFromDelete() throws Exception {
+		var vehicleAppInstance1 = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, //
+				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "0000-0000-0000", "EV1",
+						JsonUtils.buildJsonObject().build()));
+		var vehicleAppInstance2 = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, //
+				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "0000-0000-0000", "EV2",
+						JsonUtils.buildJsonObject().build()));
+
+		var kebaInstance = this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new Request(this.kebaApp.getAppId(), null, "testApp", JsonUtils.buildJsonObject()//
+						.addProperty("ARCHITECTURE_TYPE", "EVSE") //
+						.addProperty("HARDWARE_TYPE", "P40") //
+						.addProperty("IP", "192.168.25.11") //
+						.addProperty("PHASE_ROTATION", "L1_L2_L3") //
+						.addProperty("ELECTRIC_VEHICLE_ID", vehicleAppInstance1.instance().instanceId.toString())
+						.addProperty("MODBUS_UNIT_ID", 255) //
+						.addProperty("READ_ONLY", false) //
+						.build()));
+
+		this.amtb.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+				new UpdateAppInstance.Request(kebaInstance.instance().instanceId, "testApp", JsonUtils.buildJsonObject()//
+						.addProperty("ARCHITECTURE_TYPE", "EVSE") //
+						.addProperty("HARDWARE_TYPE", "P40") //
+						.addProperty("IP", "192.168.25.11") //
+						.addProperty("PHASE_ROTATION", "L1_L2_L3") //
+						.addProperty("ELECTRIC_VEHICLE_ID", vehicleAppInstance2.instance().instanceId.toString())
+						.addProperty("MODBUS_UNIT_ID", 255) //
+						.addProperty("READ_ONLY", false) //
+						.build()));
+
+		var updatedKeba = this.amtb.sut.getInstantiatedApps().stream()//
+				.filter(i -> i.appId.equals(this.kebaApp.getAppId()))//
+				.findFirst()//
+				.orElseThrow();
+		assertEquals(vehicleAppInstance2.instance().instanceId.toString(),
+				updatedKeba.properties.get("ELECTRIC_VEHICLE_ID").getAsString());
+
+		assertThrows(OpenemsNamedException.class,
+				() -> this.amtb.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
+						new DeleteAppInstance.Request(vehicleAppInstance2.instance().instanceId)),
+				"Expected the newly referenced vehicle to stay protected by the EVSE dependency.");
+
+		assertTrue(updatedKeba.dependencies.stream()
+				.anyMatch(d -> d.instanceId.equals(vehicleAppInstance2.instance().instanceId)));
+	}
+
+	@Test
 	public void testMixedEvcsToEvse() throws Exception {
 		this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new Request(this.hardyApp.getAppId(), null, "testApp", JsonUtils.buildJsonObject()//
@@ -326,8 +373,8 @@ public class SwitchEvcsEvseTest {
 		var hardwareTypes = kebas.stream().map(t -> t.properties.get("HARDWARE_TYPE")).map(t -> t.getAsString())
 				.toList();
 
-		assertTrue("Expected one KEBA to be P30", hardwareTypes.contains("P30"));
-		assertTrue("Expected one KEBA to be P40", hardwareTypes.contains("P40"));
+		assertTrue(hardwareTypes.contains("P30"), "Expected one KEBA to be P30");
+		assertTrue(hardwareTypes.contains("P40"), "Expected one KEBA to be P40");
 		assertEquals(1, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 	}
 
@@ -376,15 +423,6 @@ public class SwitchEvcsEvseTest {
 
 		var response = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
 
-		// Assert update version of EnergyScheduler
-		var captor = ArgumentCaptor.forClass(UpdateComponentConfig.Request.class);
-		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
-		var capturedRequest = captor.getValue();
-		boolean hasV1Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.name().equals("version")
-						&& p.value().getAsString().equals(io.openems.edge.energy.api.Version.V1_ESS_ONLY.name()));
-		assertTrue(hasV1Version);
-
 		assertEquals(2, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Keba")).toList().size());
 		assertEquals(1, response.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 	}
@@ -416,15 +454,6 @@ public class SwitchEvcsEvseTest {
 		assertTrue(responseCanHandle.canSwitch());
 
 		var response = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
-
-		// Assert update version of EnergyScheduler
-		var captor = ArgumentCaptor.forClass(UpdateComponentConfig.Request.class);
-		verify(this.cmSpy).handleUpdateComponentConfigRequest(eq(DUMMY_ADMIN), captor.capture());
-		var capturedRequest = captor.getValue();
-		boolean hasV2Version = capturedRequest.properties().stream()//
-				.anyMatch(p -> p.name().equals("version") && p.value().getAsString()
-						.equals(io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE.name()));
-		assertTrue(hasV2Version);
 
 		assertEquals(2, response.apps().stream().filter(t -> t.appId.equals("App.Evse.ElectricVehicle.Generic"))
 				.toList().size());

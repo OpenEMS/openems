@@ -1,6 +1,6 @@
+import { ChartOptions } from "chart.js";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { NavigationComponent } from "../../action-sheet-modal";
 import { NavigationService } from "../../service/navigation.service";
 
 export namespace ViewUtils {
@@ -25,6 +25,8 @@ export namespace ViewUtils {
         const allHeaders = Array.from(document.querySelectorAll<HTMLElement>("ion-header"));
 
         const allIonFooters = Array.from(document.querySelectorAll<HTMLElement>("ion-footer"));
+        const favoriteButtonContent = (document.querySelector<HTMLElement>("oe-favorite-button")?.children ??
+            []) as HTMLCollectionOf<HTMLElement>;
 
         const isVisible = (el: HTMLElement) => {
             const rect = el.getBoundingClientRect();
@@ -39,9 +41,8 @@ export namespace ViewUtils {
 
             return true;
         };
-
         return {
-            headers: allHeaders.filter(isVisible),
+            headers: [...allHeaders, ...favoriteButtonContent].filter(isVisible),
             footers: allIonFooters.filter(isVisible),
         };
     }
@@ -53,46 +54,54 @@ export namespace ViewUtils {
     export function getViewHeightInPx(position: TSignalValue<NavigationService["position"]> | null) {
         const { header, footer } = ViewUtils.getTotalHeaderFooterHeight();
 
+        const parentPaddingTopAndBottom =
+            NumberUtils.multiplySafely(
+                NumberUtils.parseNumberSafelyOrElse(
+                    getComputedStyle(document.documentElement).getPropertyValue("--ion-padding"),
+                    0,
+                ),
+                2,
+            ) ?? 0;
         if (position == null || position == "disabled") {
             return getWindowVisualViewPort() - header - footer;
         }
-        if (position === "bottom") {
-            const actionSheetModal = getActionSheetModalHeightInPx();
-            return getWindowVisualViewPort() - header - footer - actionSheetModal;
-        }
-
-        return getWindowVisualViewPort() - header - footer;
+        return getWindowVisualViewPort() - header - footer - parentPaddingTopAndBottom;
     }
 
     export function getActionSheetModalHeightInPx() {
-        return getWindowVisualViewPort() * NavigationComponent.INITIAL_BREAKPOINT;
-    }
-
-    export function getConfirmButtonHeight() {
-        // button has fixed size of 56 px
-        // TODO: get actual height of the button
-        return 72;
-    }
-
-    export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
-        if (position == "bottom") {
-            const combinedHeight = getConfirmButtonHeight() + getActionSheetModalHeightInPx();
-            return (combinedHeight / getWindowVisualViewPort()) * 100;
-        }
-        return 0;
+        return getWindowVisualViewPort();
     }
 
     /**
      * Gets the available chart content height in [vh].
      *
-     * @param windowHeight the window height
-     * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
-     * @returns the available height
+     * @param windowHeight The window height
+     * @param customChartHeightPercentage Optional chart height in percent (0–100) to scale the available height to.
+     * @returns The available height
      */
-    export function getChartContentHeightInVh(position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+    export function getChartContentHeightInVh(
+        position: TSignalValue<NavigationService["position"]> | null,
+        customChartHeightPercentage?: number | null,
+    ): number | null {
         if (customChartHeightPercentage != null) {
-            return NumberUtils.multiplySafely(NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100), customChartHeightPercentage / 100);
+            return NumberUtils.multiplySafely(
+                NumberUtils.multiplySafely(
+                    NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()),
+                    100,
+                ),
+                customChartHeightPercentage / 100,
+            );
         }
-        return NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100);
+        return NumberUtils.multiplySafely(
+            NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()),
+            100,
+        );
+    }
+
+    export function getChartOptionsPadding(options: ChartOptions<any>) {
+        return NumberUtils.multiplySafely(
+            NumberUtils.divideSafely(options?.layout?.padding?.["top"], getWindowVisualViewPort()) ?? 0,
+            100,
+        );
     }
 }

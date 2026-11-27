@@ -1,77 +1,73 @@
 {
     "EVSE_SINGLE": {
-        "SETTINGS": {
-            "ENERGY_LIMIT": "Energy limit"
-        },
         "HOME": {
-            "MODE": {
-                "LABEL": "Base Mode",
-                "ZERO": "Off",
-                "MINIMUM": "Minimal",
-                "SURPLUS": "PV",
-                "FORCE": "Fast"
-            },
-            "STATE_MACHINE": {
-                "LABEL": "State",
-                "EV_NOT_CONNECTED": "EV not connected",
-                "EV_CONNECTED": "EV connected",
-                "CHARGING": "Charging",
-                "FINISHED_EV_STOP": "Charging finished by EV",
-                "FINISHED_ENERGY_SESSION_LIMIT": "Charging finished by energy limit",
-                "PHASE_SWITCH_TO_THREE_PHASE": "Switch to 3-phase",
-                "PHASE_SWITCH_TO_SINGLE_PHASE": "Switch to 1-phase",
-                "PHASE_SWITCH": "Manual Phaseswitch"
-            },
-            "POWER": "Power",
-            "ENERGY_SINCE_START": "Energy since the last charge start",
-            "VEHICLES": "App Center Vehicles",
             "ACTUAL_MODE": {
                 "LABEL": "Actual Mode"
-            }
+            },
+            "ENERGY_SINCE_START": "Energy since the last charge start",
+            "MODE": {
+                "FORCE": "Fast",
+                "LABEL": "Base Mode",
+                "MINIMUM": "Minimal",
+                "SURPLUS": "PV",
+                "ZERO": "Off"
+            },
+            "POWER": "Power",
+            "STATE_MACHINE": {
+                "CHARGING": "Charging",
+                "EV_CONNECTED": "EV connected",
+                "EV_NOT_CONNECTED": "EV not connected",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Charging finished by energy limit",
+                "FINISHED_EV_STOP": "Charging finished by EV",
+                "LABEL": "State",
+                "PHASE_SWITCH": "Manual Phaseswitch",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Switch to 1-phase",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Switch to 3-phase"
+            },
+            "VEHICLES": "App Center Vehicles"
         },
         "SCHEDULE": {
-            "EDIT": "Edit",
             "ACCEPT": "Accept",
-            "DELETE": "Delete",
-            "EDIT_TASK": "Edit task",
-            "START": "Start",
-            "END": "End",
-            "DURATION": "Duration",
-            "MODE": "Charging mode",
-            "FREQUENCY": "Repeat",
             "ADD": "Add",
-            "SMART_EVENT_TITLE": "Smart charging of {{kwh}} kWh",
+            "ADD_ERROR": "Task could not be added",
+            "ADD_SUCCESS": "Task successfully added",
             "DAY": {
-                "MONDAY": "Monday",
-                "TUESDAY": "Tuesday",
-                "WEDNESDAY": "Wednesday",
-                "THURSDAY": "Thursday",
                 "FRIDAY": "Friday",
+                "MONDAY": "Monday",
                 "SATURDAY": "Saturday",
-                "SUNDAY": "Sunday"
+                "SUNDAY": "Sunday",
+                "THURSDAY": "Thursday",
+                "TUESDAY": "Tuesday",
+                "WEDNESDAY": "Wednesday"
             },
+            "DELETE": "Delete",
+            "DELETE_ERROR": "Task could not be deleted",
+            "DELETE_SUCCESS": "Task successfully deleted",
+            "DURATION": "Duration",
+            "EDIT": "Edit",
+            "EDIT_ERROR": "Task could not be customized",
+            "EDIT_SUCCESS": "Task successfully adjusted",
+            "END": "End",
             "FREQ": {
                 "DAILY": "Daily",
-                "WEEKLY": "Weekly",
                 "MONTHLY": "Monthly",
+                "WEEKLY": "Weekly",
                 "YEARLY": "Yearly"
             },
+            "FREQUENCY": "Repeat",
+            "MODE": "Charging mode",
             "MODE_SELECTION_PLACEHOLDER": "Select",
+            "SMART_EVENT_TITLE": "Smart charging of {{kwh}} kWh",
+            "START": "Start",
             "VALIDATION_ERROR_1": "Please specify start time",
             "VALIDATION_ERROR_2": "Please specify end time",
             "VALIDATION_ERROR_3": "Please select charging mode",
             "VALIDATION_ERROR_4": "Please specify the start time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
             "VALIDATION_ERROR_5": "Please specify the end time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
-            "VALIDATION_ERROR_6": "End time must be after start time",
-            "VALIDATION_ERROR_7": "Start time or duration is missing",
-            "VALIDATION_ERROR_8": "Please specify repetition",
-            "VALIDATION_ERROR_9": "Set at least one rotation",
-            "ADD_SUCCESS": "Task successfully added",
-            "ADD_ERROR": "Task could not be added",
-            "EDIT_SUCCESS": "Task successfully adjusted",
-            "EDIT_ERROR": "Task could not be customized",
-            "DELETE_SUCCESS": "Task successfully deleted",
-            "DELETE_ERROR": "Task could not be deleted"
+            "VALIDATION_ERROR_6": "End time must be after start time"
+        },
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Energy limit"
         }
     }
 }

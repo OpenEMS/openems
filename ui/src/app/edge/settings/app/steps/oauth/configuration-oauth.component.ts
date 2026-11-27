@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, Input, signal, untracked } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CookieService } from "ngx-cookie-service";
@@ -12,7 +12,7 @@ import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/vie
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
@@ -41,7 +41,7 @@ export class ConfigurationOAuthComponent {
     >;
 
     protected environment: Environment = environment;
-    protected connectionState: ConnectionState = "VALIDATING";
+    protected connectionState = signal<ConnectionState>("VALIDATING");
     protected isApp: boolean = false;
 
     private readonly channelSubscriptionId = uuidv4();
@@ -80,7 +80,7 @@ export class ConfigurationOAuthComponent {
                 .pipe(filter((currentData) => currentData !== null))
                 .subscribe((currentData) => {
                     const channelValue: number = currentData.channel[channel.toString()];
-                    this.connectionState = mapChannelValueToConnectionState(channelValue);
+                    untracked(() => this.connectionState.set(mapChannelValueToConnectionState(channelValue)));
                 });
 
             onCleanup(() => {
@@ -95,7 +95,7 @@ export class ConfigurationOAuthComponent {
     protected async initiateConnect() {
         const identifier = this.getOAuthProvider();
         const edge = this.edge;
-        if (!edge || !identifier || this.connectionState === "CONNECTED") {
+        if (!edge || !identifier || this.connectionState() === "CONNECTED") {
             return;
         }
 
@@ -117,6 +117,9 @@ export class ConfigurationOAuthComponent {
                 JSON.stringify({
                     state: result.state,
                     href: window.location.pathname,
+                    queryParams: {
+                        appId: this.routeService.getQueryParam<string>("appId") ?? "",
+                    },
                     oauthprovider: identifier,
                 }),
                 { expires: 1, path: "/" },
@@ -154,7 +157,7 @@ export class ConfigurationOAuthComponent {
 
     protected async disconnectOAuthConnection() {
         const identifier = this.getOAuthProvider();
-        if (!identifier || this.connectionState !== "CONNECTED") {
+        if (!identifier || this.connectionState() !== "CONNECTED") {
             return;
         }
         await this.edge?.sendRequest(
@@ -193,7 +196,12 @@ export class ConfigurationOAuthComponent {
         }
 
         // remove query params from url
-        this.router.navigate([this.router.url.split("?")[0]]);
+        const appId = this.routeService.getQueryParam<string>("appId");
+        this.router.navigate([this.router.url.split("?")[0]], {
+            queryParams: {
+                appId: appId ?? "",
+            },
+        });
 
         if (code === undefined || code === null) {
             return;

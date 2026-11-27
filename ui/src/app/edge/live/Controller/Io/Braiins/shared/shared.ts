@@ -75,7 +75,7 @@ export namespace ControllerBraiinsShared {
     ): NavigationTree {
         const scheduleChildren: NavigationTree[] = [
             new NavigationTree(
-                "edit-task",
+                id + "-edit-task",
                 { baseString: "edit-task" },
                 { name: "create-outline" },
                 translate.instant("JS_SCHEDULE.EDIT_TASK"),
@@ -85,7 +85,7 @@ export namespace ControllerBraiinsShared {
                 { showOrder: "HIDE" },
             ),
             new NavigationTree(
-                "add-task",
+                id + "-add-task",
                 { baseString: "add-task" },
                 { name: "add-outline" },
                 translate.instant("JS_SCHEDULE.ADD_TASK"),
@@ -98,7 +98,7 @@ export namespace ControllerBraiinsShared {
 
         const children: NavigationTree[] = [
             new NavigationTree(
-                "mode",
+                id + "-mode",
                 { baseString: "mode" },
                 { name: "checkmark-done-outline", color: "medium" },
                 translate.instant("BRAIINS_SINGLE.MODE.LABEL"),
@@ -107,7 +107,7 @@ export namespace ControllerBraiinsShared {
                 null,
             ),
             new NavigationTree(
-                "schedule",
+                id + "-schedule",
                 { baseString: "schedule" },
                 { name: "calendar-outline", color: "warning" },
                 translate.instant("HEAT.SCHEDULE.SCHEDULE"),

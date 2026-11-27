@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.openems.backend.common.jsonrpc.syncable.SyncableRepository;
 import io.openems.backend.edge.client.WebsocketClient;
 import io.openems.backend.edge.server.WebsocketServer;
+import io.openems.backend.edge.syncable.SyncableManager;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -38,13 +40,19 @@ public class BackendEdgeServerApp {
 	private final WebsocketClient client;
 	private final CyclicTask cyclicTask;
 
+	@Reference
+	private SyncableRepository syncableRepository;
+
+	@Reference
+	private SyncableManager syncableManager;
+
 	private WebsocketServer server;
 
 	@Activate
 	public BackendEdgeServerApp(@Reference ConfigurationAdmin cm, Config config) throws URISyntaxException {
 		this.config = config;
 		this.cache = new Cache(this::evaluateServerStart);
-		
+
 		final var message = "OpenEMS Backend Edge Application version [" + OpenemsConstants.VERSION + "] started";
 		final var line = Strings.repeat("=", message.length());
 		this.log.info(line);
@@ -55,9 +63,7 @@ public class BackendEdgeServerApp {
 		this.client = new WebsocketClient("Backend.Edge.Client", new URI(config.uri()), config.id(),
 				config.clientPoolSize(), //
 				this::evaluateServerStart, //
-				this::sendRequestToEdge, //
-				this::sendNotificationToEdge, //
-				this.cache::update);
+				this);
 		this.client.start();
 
 		// Prepare Cyclic-Task
@@ -71,7 +77,15 @@ public class BackendEdgeServerApp {
 		this.client.deactivate();
 	}
 
-	private CompletableFuture<JsonrpcResponseSuccess> sendRequestToEdge(String edgeId, JsonrpcRequest request) {
+	/**
+	 * Sends the given request to the specified edge id. When the edge is not
+	 * available, a JSONRPC_SEND_FAILED OpenemsError is thrown.
+	 * 
+	 * @param edgeId  Edge id to send the request to.
+	 * @param request Request to send.
+	 * @return Returns the response from the edge as a CompletableFuture.
+	 */
+	public CompletableFuture<JsonrpcResponseSuccess> sendRequestToEdge(String edgeId, JsonrpcRequest request) {
 		var server = this.server;
 		if (server != null) {
 			return server.sendRequestToEdge(edgeId, request);
@@ -80,7 +94,15 @@ public class BackendEdgeServerApp {
 		}
 	}
 
-	private void sendNotificationToEdge(String edgeId, JsonrpcNotification notification) {
+	/**
+	 * Sends the given notification to the specified edge id. When the fems is not
+	 * available, nothing it sent. The send operation is async, but there is
+	 * currently no way to wait.
+	 *
+	 * @param edgeId       Edge id to send the request to.
+	 * @param notification Notification to send.
+	 */
+	public void sendNotificationToEdge(String edgeId, JsonrpcNotification notification) {
 		var server = this.server;
 		if (server != null) {
 			server.sendNotificationToEdge(edgeId, notification);
@@ -125,11 +147,40 @@ public class BackendEdgeServerApp {
 	}
 
 	private synchronized WebsocketServer createServer() {
-		return new WebsocketServer("Backend.Edge.Server", this.config.port(), this.config.serverPoolSize(),
-				this.client::sendRequestToEdgeManager, //
-				this.client::sendNotificationToEdgeManager, //
-				this.cache::authenticateApikey, //
+		return new WebsocketServer("Backend.Edge.Server", this.config.port(), this.config.serverPoolSize(), this,
 				this.cyclicTask::connectedEdgesChanged);
 	}
 
+	/**
+	 * Sends a {@link JsonrpcRequest} to the Edge-Manager.
+	 *
+	 * @param edgeId  the Edge-ID
+	 * @param request the {@link JsonrpcRequest}
+	 * @return a promise for a successful JSON-RPC Response
+	 */
+	public CompletableFuture<JsonrpcResponseSuccess> sendRequestToEdgeManager(String edgeId, JsonrpcRequest request) {
+		return this.client.sendRequestToEdgeManager(edgeId, request);
+	}
+
+	/**
+	 * Sends a {@link JsonrpcNotification} to the Edge-Manager.
+	 *
+	 * @param edgeId       the Edge-ID
+	 * @param notification the {@link JsonrpcNotification}
+	 */
+	public void sendNotificationToEdgeManager(String edgeId, JsonrpcNotification notification) {
+		this.client.sendNotificationToEdgeManager(edgeId, notification);
+	}
+
+	public SyncableRepository getSyncableRepository() {
+		return this.syncableRepository;
+	}
+
+	public SyncableManager getSyncableManager() {
+		return this.syncableManager;
+	}
+
+	public Cache getCache() {
+		return this.cache;
+	}
 }

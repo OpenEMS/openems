@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-navigation-view [title]="Schedule" [component]="component" [formGroup]="formGroup">
+  <oe-navigation-view [forceFavorite]="true" [title]="Schedule" [component]="component" [formGroup]="formGroup">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     @if (sectionTitle() !== null) {
       <h2 class="ion-margin-start ion-margin-bottom">{{ sectionTitle() }}</h2>

@@ -91,7 +91,7 @@ export class FlatComponent extends AbstractFlatWidget {
                     const buffer = new ArrayBuffer(len);
                     const view = new Uint8Array(buffer);
                     for (let i = 0; i < len; i++) {
-                        view[i] = binary.charCodeAt(i);
+                        view[i] = binary.codePointAt(i) ?? Number.NaN;
                     }
                     const data: Blob = new Blob([view], {
                         type: FlatComponent.EXCEL_TYPE,

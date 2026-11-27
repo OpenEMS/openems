@@ -14,13 +14,13 @@ import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.session.Language;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.TextProvider;
 
 /**
  * Provides static meta information for a {@link Channel} using Builder pattern.

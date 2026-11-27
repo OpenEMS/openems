@@ -2,8 +2,9 @@ import { computed, Directive, effect, inject, runInInjectionContext, signal, unt
 import { Router } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
-import { States } from "../../ngrx-store/states";
+import { States } from "../../states/states";
 import { ObjectUtils } from "../../utils/object/object-utils";
+import { RouteService } from "../route/route.service";
 import { Service } from "../service";
 import { Websocket } from "../websocket";
 import { AUTHENTICATION_STATE, OAuthService } from "./oauth.service";
@@ -20,22 +21,27 @@ export class AuthService {
     private oAuthService = inject(OAuthService);
     private service = inject(Service);
     private router = inject(Router);
+    private routeService = inject(RouteService);
 
     constructor() {
         const context = effect(() => {
             const websocketStatus = this.service.websocket.state();
-            const oauthredirectstate =
-                this.cookieService.get("oauthredirectstate");
+            const oauthredirectstate = this.cookieService.get("oauthredirectstate");
             const oauthRedirectStateHref =
-                ObjectUtils.parseFromString<{ href: string }>(
-                    oauthredirectstate,
-                )?.href ?? null;
-
+                ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
+            const oauthRedirectStateQueryParams =
+                ObjectUtils.parseFromString<{ queryParams: Record<string, string> }>(oauthredirectstate)?.queryParams ??
+                null;
+            const queryParams = this.routeService.getQueryParams()?.() ?? null;
+            const queryParamsFromRoute = queryParams?.toNavigatableQueryParams() ?? null;
             if (
                 oauthRedirectStateHref != null &&
+                oauthRedirectStateQueryParams !== null &&
                 oauthRedirectStateHref != OAuthCallBackComponent.ID
             ) {
-                this.router.navigateByUrl(oauthRedirectStateHref);
+                this.router.navigate([oauthRedirectStateHref], {
+                    queryParams: { ...oauthRedirectStateQueryParams, ...queryParamsFromRoute },
+                });
                 return;
             }
 
@@ -78,12 +84,8 @@ export class AuthService {
                         const state = websocket.state();
 
                         if (
-                            States.isAtLeast(
-                                state,
-                                States.WEBSOCKET_CONNECTED,
-                            ) &&
-                            this.oAuthService.getCurrentState() !=
-                            AUTHENTICATION_STATE.AUTHENTICATING &&
+                            States.isAtLeast(state, States.WEBSOCKET_CONNECTED) &&
+                            this.oAuthService.getCurrentState() != AUTHENTICATION_STATE.AUTHENTICATING &&
                             !States.isAtLeast(state, States.AUTHENTICATED) &&
                             OAuthService.isOAuth(this.cookieService)
                         ) {

@@ -129,6 +129,7 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	/**
 	 * Returns informations about the last transfer that happend on this bus.
+	 * 
 	 * @return {@link ModbusTransferInfo} instance or null
 	 */
 	public ModbusTransferInfo getLastTransferInfo();

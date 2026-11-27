@@ -20,6 +20,16 @@
 		</repository>
 	</repositories>
 	<dependencies>
+		<!--
+		This file defines the "Maven Central" Bnd repository (see cnf/build.bnd).
+		Policy: declare every dependency of the OSGi runtime explicitly, including
+		transitive ones. The BndPomRepository would provide transitive dependencies
+		implicitly, but only an explicit and complete list makes this file a
+		reliable SBOM and protects against unnoticed changes of upstream
+		dependency graphs. When adding a dependency, also add its compile- and
+		runtime-scope transitive dependencies at the same version; skip optional,
+		provided and test scopes.
+		-->
 		<!-- biz -->
 		<dependency>
 			<!--
@@ -42,7 +52,7 @@
 			-->
 			<groupId>com.fathzer</groupId>
 			<artifactId>javaluator</artifactId>
-			<version>3.0.6</version>
+			<version>3.0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fazecast</groupId>
@@ -69,6 +79,26 @@
 			<version>2.22</version>
 		</dependency>
 		<dependency>
+			<!--
+			Jackson Core: Core JSON processing (streaming) API
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
+			<!--
+			Jackson Databind: General data-binding functionality
+			Changelog:
+				https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+			-->
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.22.3</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.rzymek</groupId>
 			<artifactId>opczip</artifactId>
 			<version>1.2.0</version>
@@ -78,7 +108,7 @@
 			Gson: A Java serialization/deserialization library to convert Java Objects into JSON and back
 			Changelog: https://github.com/google/gson/releases
 			Wrapper: io.openems.wrapper/gson.bnd
-			Keep in sync with default buildpath in cnf/build.bnd
+			Keep in sync with buildpath "com.google.gson" in cnf/build.bnd
 			-->
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -88,17 +118,17 @@
 			<!--
 			Guava: Google Core Libraries For Java
 			Changelog: https://github.com/google/guava/releases
-			Keep in sync with default buildpath in cnf/build.bnd
+			Keep in sync with buildpath "com.google.guava" in cnf/build.bnd
 			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.7.1-jre</version>
+			<version>33.7.2-jre</version>
 		</dependency>
 		<dependency>
 			<!--
 			Guava InternalFutureFailureAccess and InternalFutures
 			Changelog: https://github.com/google/guava/releases
-			Keep in sync with default buildpath cnf/build.bnd
+			Keep in sync with buildpath "com.google.guava.failureaccess" cnf/build.bnd
 			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
@@ -111,7 +141,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.36.0</version>
+			<version>4.36.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -123,7 +153,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>5.0.0</version>
+			<version>5.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -135,7 +165,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.6.0</version>
+			<version>4.6.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -174,6 +204,7 @@
 			<!--
 			Square’s meticulous HTTP client for Java and Kotlin: OkHttp
 			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			Update files:
 			- io.openems.wrapper/bnd.bnd
 			-->
 			<groupId>com.squareup.okhttp3</groupId>
@@ -187,7 +218,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.18.1</version>
+			<version>3.18.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -230,22 +261,52 @@
 		</dependency>
 		<!-- eu -->
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP OCPP Common Package
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>common</artifactId>
-			<version>1.0.2</version>
+			<artifactId>ocpp-common</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP 1.6 with JSON transport
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>OCPP-J</artifactId>
-			<version>1.0.2</version>
+			<artifactId>ocpp-json</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.edge.evcs.ocpp. -->
+			<!--
+			Java OCA OCPP OCPP 1.6J
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
 			<groupId>eu.chargetime.ocpp</groupId>
-			<artifactId>v1_6</artifactId>
-			<version>1.1.0</version>
+			<artifactId>ocpp16j</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java OCA OCPP 1.6 base dependency package
+			Changelog: https://github.com/ChargeTimeEU/Java-OCA-OCPP/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/eu.chargetime.ocpp.bnd
+			-->
+			<groupId>eu.chargetime.ocpp</groupId>
+			<artifactId>ocpp16</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<!-- fr -->
 		<dependency>
@@ -290,13 +351,49 @@
 		</dependency>
 		<dependency>
 			<!--
+			Prometheus Metrics Core
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-core</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Instrumentation JVM
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Exporter HTTP Server
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Prometheus Metrics Tracer Initializer
+			Changelog: https://github.com/prometheus/client_java/releases
+			-->
+			<groupId>io.prometheus</groupId>
+			<artifactId>prometheus-metrics-tracer-initializer</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<dependency>
+			<!--
 			OpenEMS fork of j2mod - A Java Modbus implementation
 			Changelog: https://github.com/OpenEMS/j2mod/releases
 			Original: https://github.com/steveohara/j2mod/releases
 			-->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.3.0-openems.2</version>
+			<version>3.4.0-openems.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
@@ -339,7 +436,7 @@
 			-->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.20.0</version>
+			<version>3.21.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -393,7 +490,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>2.0.4</version>
+			<version>2.0.8</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -451,6 +548,16 @@
 			<version>2.3.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Java annotation for documenting the @API status of types and members in Java APIs
+			Changelog: https://github.com/apiguardian-team/apiguardian/releases
+			Keep in sync with testpath "org.apiguardian.api" in cnf/build.bnd
+			-->
+			<groupId>org.apiguardian</groupId>
+			<artifactId>apiguardian-api</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
 			<version>4.13.2_1</version>
@@ -462,7 +569,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.85</version>
+			<version>1.86</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -471,7 +578,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.85.2</version>
+			<version>1.86</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -511,42 +618,52 @@
 		</dependency>
 		<dependency>
 			<!--
+			Java Hamcrest
+			Changelog: https://github.com/hamcrest/JavaHamcrest/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<!--
 			Java mDNS Library
 			Changelog: https://github.com/jmdns/jmdns/releases
 			-->
 			<groupId>org.jmdns</groupId>
 			<artifactId>jmdns</artifactId>
-			<version>3.6.3</version>
+			<version>3.6.4</version>
 		</dependency>
 		<dependency>
 			<!--
 			Mockito JUnit 5 support
 			Changelog: https://github.com/mockito/mockito/releases
-			Keep in sync with openems.mockito.version in cnf/build.bnd
+			Keep in sync with testpath "org.mockito.junit-jupiter" in cnf/build.bnd
 			-->
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>5.23.0</version>
+			<version>5.24.0</version>
 		</dependency>
 		<dependency>
 			<!--
 			Byte Buddy is a Java library for creating Java classes at run time
 			Changelog: https://github.com/raphw/byte-buddy/releases
-			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			Keep in sync with testpath "net.bytebuddy.byte-buddy" in cnf/build.bnd
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.12</version>
+			<version>1.18.15</version>
 		</dependency>
 		<dependency>
 			<!--
 			The Byte Buddy agent offers convenience for attaching an agent to the VM
 			Changelog: https://github.com/raphw/byte-buddy/releases
-			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			Keep in sync with testpath "net.bytebuddy.byte-buddy-agent" in cnf/build.bnd
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.12</version>
+			<version>1.18.15</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -598,7 +715,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.4.10</version>
+			<version>2.4.21</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -629,12 +746,13 @@
 			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.23.1</version>
+			<version>1.23.2</version>
 		</dependency>
 		<dependency>
 			<!--
 			JUnit Jupiter API
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-api" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -646,6 +764,7 @@
 			<!--
 			JUnit Jupiter Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -657,6 +776,7 @@
 			<!--
 			JUnit Jupiter Params
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-jupiter-params" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -668,6 +788,7 @@
 			<!--
 			JUnit Platform Commons
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-commons" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -679,6 +800,7 @@
 			<!--
 			JUnit Platform Engine API
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -690,6 +812,7 @@
 			<!--
 			JUnit Platform Launcher
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-platform-launcher" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -701,6 +824,7 @@
 			<!--
 			JUnit Vintage Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with testpath "junit-vintage-engine" in cnf/build.bnd
 			Update files:
 			- cnf/build.bnd
 			-->
@@ -710,9 +834,19 @@
 		</dependency>
 		<dependency>
 			<!--
+			A library for instantiating Java objects
+			Changelog: https://github.com/easymock/objenesis/releases
+			Keep in sync with testpath "org.objenesis" in cnf/build.bnd
+			-->
+			<groupId>org.objenesis</groupId>
+			<artifactId>objenesis</artifactId>
+			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<!--
 			Open Test Alliance for the JVM
 			Changelog: https://github.com/ota4j-team/opentest4j/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Keep in sync with testpath "org.opentest4j" in cnf/build.bnd
 			-->
 			<groupId>org.opentest4j</groupId>
 			<artifactId>opentest4j</artifactId>
@@ -802,10 +936,13 @@
 			<version>1.3.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by Apache Felix Web Management Console -->
+			<!--
+			OWASP Java Encoder: Collection of high-performance encoders for Java
+			Changelog: https://github.com/OWASP/owasp-java-encoder/releases
+			-->
 			<groupId>org.owasp.encoder</groupId>
 			<artifactId>encoder</artifactId>
-			<version>1.4.0</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->
@@ -864,31 +1001,6 @@
 			<groupId>org.tribuo</groupId>
 			<artifactId>tribuo-util-tokenization</artifactId>
 			<version>4.3.2</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-core</artifactId>
-			<version>1.3.8</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
-			<version>1.3.8</version>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>prometheus-metrics-exporter-httpserver</artifactId>
-			<version>1.3.2</version>
-		</dependency>
-		<dependency>
-			<!--
-			A library for instantiating Java objects
-			Changelog: https://github.com/easymock/objenesis/releases
-			Keep in sync with openems.mockito.version in cnf/build.bnd
-			-->
-			<groupId>org.objenesis</groupId>
-			<artifactId>objenesis</artifactId>
-			<version>3.6</version>
 		</dependency>
 	</dependencies>
 </project>

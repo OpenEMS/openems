@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.services.currency.DummyCurrencyExchange;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -412,6 +413,7 @@ public class TimeOfUseTariffGroupeImplTest {
 								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("currencyExchange", new DummyCurrencyExchange()) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.build()) //

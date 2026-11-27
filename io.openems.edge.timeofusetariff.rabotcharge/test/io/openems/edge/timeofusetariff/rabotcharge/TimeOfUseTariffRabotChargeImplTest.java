@@ -19,8 +19,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.timeofusetariff.rabotcharge.RabotChargeApi.PriceComponents;
 import io.openems.edge.common.test.DummyOAuthBackend;
+import io.openems.edge.timeofusetariff.rabotcharge.RabotChargeApi.PriceComponents;
 
 public class TimeOfUseTariffRabotChargeImplTest {
 
@@ -197,20 +197,21 @@ public class TimeOfUseTariffRabotChargeImplTest {
 
 			// Mock Token Endpoint
 			if (url.contains("/connect/token")) {
-				return HttpResponse.ok(JsonUtils.buildJsonObject()
-						.addProperty("access_token", "mock_partner_token_xyz")
-						.addProperty("refresh_token", "dummy_refresh_token_value") // Required for OpenEMS standard parsing
-						.addProperty("expires_in", 3600)
+				return HttpResponse.ok(JsonUtils.buildJsonObject()//
+						.addProperty("access_token", "mock_partner_token_xyz") //
+						// Required for OpenEMS standard parsing
+						.addProperty("refresh_token", "dummy_refresh_token_value") //
+						.addProperty("expires_in", 3600) //
 						.build().toString());
 			}
 
 			// Mock Customer Link Endpoint (REQUIRED TO AVOID DEADLOCK)
 			if (url.contains("/customers/link")) {
-				return HttpResponse.ok(JsonUtils.buildJsonObject()
-						.addProperty("authorizationUrl", "https://mock-rabot-auth-url")
+				return HttpResponse.ok(JsonUtils.buildJsonObject() //
+						.addProperty("authorizationUrl", "https://mock-rabot-auth-url") //
 						.build().toString());
 			}
-			
+
 			if (url.endsWith("/customers") || url.endsWith("/customers/")) {
 				return HttpResponse.ok(SAMPLE_CUSTOMERS_JSON);
 			}
@@ -257,19 +258,19 @@ public class TimeOfUseTariffRabotChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onBeforeProcessImage(() -> {
-							
+
 							// initiateConnect() -> queues getPartnerToken
 							var connectFuture = sut.initiateConnect();
-							
+
 							// Process token request -> queues createCustomerLink
-							executor.update(); 
-							
+							executor.update();
+
 							// Process link request -> safely completes connectFuture
-							executor.update(); 
-							
+							executor.update();
+
 							// safely extract the state without deadlocking
 							var response = connectFuture.join();
-							
+
 							// Simulate OAuth callback completion
 							sut.connectCode(response.state(), "75741496");
 
@@ -279,7 +280,7 @@ public class TimeOfUseTariffRabotChargeImplTest {
 							executor.update(); // day-ahead polling timer scheduled
 							executor.update(); // fires market prices endpoint
 							executor.update(); // parses payload & updates OpenEMS state channel
-						})
+						}) //
 						.output(new ChannelAddress("ctrl0", "HttpStatusCode"), HttpStatus.OK.code()));
 	}
 

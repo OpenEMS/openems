@@ -55,20 +55,20 @@ export class ControllerIoHeatpumpBaseModeComponent extends AbstractFormlyCompone
 
             if (value === BaseMode.AUTOMATIC) {
                 if (mode !== HeatpumpMode.AUTOMATIC) {
-                    this.form.controls["mode"].setValue(HeatpumpMode.AUTOMATIC);
-                    this.form.controls["mode"].markAsDirty();
+                    this.form().controls["mode"].setValue(HeatpumpMode.AUTOMATIC);
+                    this.form().controls["mode"].markAsDirty();
                 }
                 return;
             }
 
             if (mode !== HeatpumpMode.MANUAL) {
-                this.form.controls["mode"].setValue(HeatpumpMode.MANUAL);
-                this.form.controls["mode"].markAsDirty();
+                this.form().controls["mode"].setValue(HeatpumpMode.MANUAL);
+                this.form().controls["mode"].markAsDirty();
             }
 
             if (value.toString() !== manualState.toString()) {
-                this.form.controls["manualState"].setValue(value);
-                this.form.controls["manualState"].markAsDirty();
+                this.form().controls["manualState"].setValue(value);
+                this.form().controls["manualState"].markAsDirty();
             }
         });
 

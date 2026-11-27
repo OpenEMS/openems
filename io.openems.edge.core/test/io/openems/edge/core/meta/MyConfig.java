@@ -4,6 +4,8 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
+import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.EnvironmentStatus;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 
 @SuppressWarnings("all")
@@ -26,6 +28,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String timezone = "";
 		private String gridSoftLimit = "[]";
 		private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance = ThirdPartyUsageAcceptance.UNDECIDED;
+		private Environment environment = Environment.STABLE;
+		private EnvironmentStatus environmentStatus = EnvironmentStatus.STABLE;
 
 		private Builder() {
 		}
@@ -97,6 +101,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
 			this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
+			return this;
+		}
+
+		public Builder setEnvironment(Environment environment) {
+			this.environment = environment;
+			return this;
+		}
+
+		public Builder setEnvironmentStatus(EnvironmentStatus environmentStatus) {
+			this.environmentStatus = environmentStatus;
 			return this;
 		}
 
@@ -194,5 +208,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public ThirdPartyUsageAcceptance thirdPartyUsageAcceptance() {
 		return this.builder.thirdPartyUsageAcceptance;
+	}
+
+	@Override
+	public Environment environment() {
+		return this.builder.environment;
+	}
+
+	@Override
+	public EnvironmentStatus environmentStatus() {
+		return this.builder.environmentStatus;
 	}
 }

@@ -7,7 +7,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { JsCalendar } from "src/app/shared/components/schedule/js-calendar-task";
 import { ScheduleComponent } from "src/app/shared/components/schedule/schedule.component";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { HeatpumpPayload } from "./heatpump-payload";
 
 @Component({
@@ -17,7 +17,7 @@ import { HeatpumpPayload } from "./heatpump-payload";
     providers: [{ provide: DataService, useClass: LiveDataService }],
     imports: [ScheduleComponent, ComponentsBaseModule, CommonUiModule],
 })
-export class HeatPumpScheduleComponent extends AbstractModal {
+export class ControllerIoHeatpumpScheduleComponent extends AbstractModal {
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected payload = model(new HeatpumpPayload());
     private readonly routeService: RouteService = inject(RouteService);

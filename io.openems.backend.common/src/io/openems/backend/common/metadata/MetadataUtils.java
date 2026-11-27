@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.google.gson.JsonObject;
+
 import io.openems.common.channel.Level;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;

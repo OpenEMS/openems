@@ -3,15 +3,17 @@ package io.openems.backend.uiwebsocket.impl;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
 import io.openems.backend.common.jsonrpc.request.GetEmsTypeRequest;
 import io.openems.backend.common.jsonrpc.request.GetLatestSetupProtocolCoreInfoRequest;
@@ -48,6 +50,7 @@ import io.openems.common.jsonrpc.request.GetEdgeRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeScheduleRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateEdgeSettingsRequest;
 import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
@@ -66,12 +69,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private static final OpenemsNamedException RATE_LIMIT_EXCEPTION = OpenemsError.JSONRPC_TOO_MANY_REQUESTS
 			.exception();
 
-	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
+	private final Logger log;
 
 	private final UiWebsocketImpl parent;
 
 	public OnRequest(UiWebsocketImpl parent) {
 		this.parent = parent;
+		this.log = AbstractOpenemsBackendComponent.getComponentLogger(this.getClass(), parent);
 	}
 
 	@Override
@@ -186,7 +190,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param wsData  the WebSocket attachment
 	 * @param request the {@link AuthenticateWithTokenRequest}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithTokenRequest(WsData wsData,
 			AuthenticateWithTokenRequest request) {
@@ -238,7 +241,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param wsData  the WebSocket attachment
 	 * @param request the {@link AuthenticateWithPasswordRequest}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) {
@@ -262,7 +264,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param requestId the ID of the original {@link JsonrpcRequest}
 	 * @param user      the authenticated {@link User}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId, User user) {
 		wsData.setToken(user.getToken());
@@ -277,7 +278,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param wsData  the WebSocket attachment
 	 * @param request the {@link RegisterUserRequest}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserRequest(WsData wsData,
 			RegisterUserRequest request) {
@@ -297,7 +297,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param wsData  the WebSocket attachment
 	 * @param request the {@link LogoutRequest}
 	 * @return the JSON-RPC Success Response Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, LogoutRequest request) {
 		wsData.logout();
@@ -331,6 +330,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 		case SubscribeSystemLogRequest.METHOD ->
 			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
+		case SubscribeScheduleRequest.METHOD ->
+			this.handleSubscribeScheduleRequest(wsData, edgeId, user, SubscribeScheduleRequest.from(request));
 		case SimulationRequest.METHOD -> this.handleSimulationRequest(edgeId, user, SimulationRequest.from(request));
 		default -> {
 			// unable to handle; try generic handler
@@ -413,15 +414,50 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesRequest(WsData wsData, User user,
 			SubscribeEdgesRequest request) throws OpenemsNamedException {
+		final var edgesToSubscribe = request.getEdges();
 
-		for (var edgeId : request.getEdges()) {
+		for (var edgeId : edgesToSubscribe) {
 			this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, SubscribeEdgesRequest.METHOD);
 		}
-		// Register subscription in WsData
-		wsData.handleSubscribeEdgesRequest(request.getEdges());
+
+		synchronized (wsData.updateSubscriptionsLock) {
+			this.updateEdgeSubscriptions(wsData, edgesToSubscribe);
+		}
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	protected void updateEdgeSubscriptions(WsData wsData, Set<String> edges) {
+		if (edges.isEmpty()) {
+			this.parent.removeEdgeSubscriptions(wsData);
+			wsData.clearSubscribedEdges();
+			return;
+		}
+
+		final var currentEdges = wsData.getSubscribedEdges();
+
+		if (currentEdges.isEmpty()) {
+			this.parent.addEdgeSubscriptions(wsData, edges);
+			wsData.addSubscribedEdges(edges);
+			return;
+		}
+
+		final var edgesToUnsubscribe = currentEdges.stream() //
+				.filter(edgeId -> !edges.contains(edgeId)) //
+				.collect(Collectors.toSet());
+		final var edgesToSubscribe = edges.stream() //
+				.filter(edgeId -> !currentEdges.contains(edgeId)) //
+				.collect(Collectors.toSet());
+
+		if (!edgesToUnsubscribe.isEmpty()) {
+			this.parent.removeEdgeSubscriptions(wsData, edgesToUnsubscribe);
+			wsData.removeSubscribedEdges(edgesToUnsubscribe);
+		}
+		if (!edgesToSubscribe.isEmpty()) {
+			this.parent.addEdgeSubscriptions(wsData, edgesToSubscribe);
+			wsData.addSubscribedEdges(edgesToSubscribe);
+		}
 	}
 
 	/**
@@ -441,6 +477,25 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// Forward to Edge
 		return this.parent.edgeManager.handleSubscribeSystemLogRequest(edgeId, user, role, wsData.getId(), request);
+	}
+
+	/**
+	 * Handles a {@link SubscribeScheduleRequest}.
+	 *
+	 * @param wsData  the WebSocket attachment
+	 * @param edgeId  the Edge-ID
+	 * @param user    the {@link User}
+	 * @param request the {@link SubscribeScheduleRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeScheduleRequest(WsData wsData, String edgeId,
+			User user, SubscribeScheduleRequest request) throws OpenemsNamedException {
+		final var role = this.parent.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST,
+				SubscribeScheduleRequest.METHOD);
+
+		// Forward to Edge
+		return this.parent.edgeManager.handleSubscribeScheduleRequest(edgeId, user, role, wsData.getId(), request);
 	}
 
 	/**

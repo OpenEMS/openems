@@ -7,11 +7,11 @@ import { environment } from "src/environments";
 import { JsonrpcRequest } from "../../jsonrpc/base";
 import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { User } from "../../jsonrpc/shared";
-import { States } from "../../ngrx-store/states";
+import { States } from "../../states/states";
 import { Language } from "../../type/language";
 import { TSignalValue } from "../../type/utility";
 import { StringUtils } from "../../utils/string/string.utils";
-import { RouteService } from "../route.service";
+import { RouteService } from "../route/route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
 import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
@@ -187,7 +187,6 @@ export class OAuthService {
 
             const currentUrl = this.routeService.currentUrl();
             const isAuthenticatedNavi = (currentUrl?.split("/")?.length ?? 0) > 2;
-
             if (isAuthenticatedNavi && currentUrl != null) {
                 this.router.navigateByUrl(currentUrl);
                 res();

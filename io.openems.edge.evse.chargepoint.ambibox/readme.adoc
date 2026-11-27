@@ -1,0 +1,86 @@
+= Ambibox ambiCHARGE Home
+
+Bidirectional EV charger with Modbus/TCP interface.
+
+== Overview
+
+This bundle implements the Ambibox ambiCHARGE Home charger as an OpenEMS
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.api[EVSE Charge-Point]
+for charge management. Bidirectional discharge (Vehicle-to-Home) management is not
+standardized in OpenEMS yet and is out of scope of this bundle.
+
+The implementation is based on the protocol description "User Interface (Modbus
+TCP) - v1" and the EVCC Ambibox charger implementation
+(https://github.com/evcc-io/evcc/blob/master/charger/ambibox.go[evcc ambibox.go]).
+
+== Modbus/TCP protocol
+
+All values are 32 bit (2 Modbus registers, big endian, most significant word
+first). Each physical connector occupies its own register block; one OpenEMS
+component is configured per connector.
+
+.Input Registers (FC4)
+[cols="1,3,2,1"]
+|===
+|Offset |Parameter |Datatype |Unit
+|0 |Sleep |int32 |0: awake; 1: asleep
+|2 |Current AC |float32 |A
+|4/6/8 |Current AC Phase 1..3 |float32 |A
+|10 |Voltage AC |float32 |V
+|12/14/16 |Voltage AC Phase 1..3 |float32 |V
+|18 |Power AC |int32 |W
+|20 |Power Factor |float32 |-
+|22 |Grid Frequency |float32 |Hz
+|26 |Energy AC import |float32 |Wh
+|28 |Energy AC export |float32 |Wh
+|30 |Voltage DC |float32 |V
+|32 |Current DC |float32 |A
+|34 |Power DC |int32 |W
+|36 |Number Phases |uint32 |-
+|38 |Minimum PowerAC |int32 |W
+|40 |Maximum PowerAC |int32 |W
+|42 |Inverter State |enum(uint32) |-
+|44 |Inverter Error |enum(uint32) |flag set
+|46 |Inverter Temperature |float32 |°C
+|48 |Capacity (EV battery) |float32 |Wh
+|50/52 |Min/Max State of Charge |float32 |%
+|54 |State of Charge |float32 |%
+|56 |State of Health |float32 |%
+|58 |Time to full SoC |uint32 |s
+|60 |Number Cycles |uint32 |-
+|62/64 |Min/Max Charge Power (EV) |uint32 |W
+|66/68 |Min/Max Discharge Power (EV) |uint32 |W
+|70 |Battery State |enum(uint32) |-
+|72 |Battery Temperature |float32 |°C
+|74 |Battery Error |enum(uint32) |flag set
+|76 |Control Mode |enum(uint32) |-
+|78 |Power DC (Battery) |int32 |W
+|80 |Charge Protocol |enum(uint32) |-
+|82 |Session State |enum(uint32) |-
+|84 |EV connected |bool |-
+|86 |Seconds to departure |uint32 |s
+|88 |Departure SoC |float32 |%
+|90 |Departure Energy |uint32 |Wh
+|92/94 |Min/Max Energy Request |uint32 |Wh
+|96 |EvCharger Error |enum(uint32) |flag set
+|98 |Energy AC import session |float32 |Wh
+|100 |Energy AC export session |float32 |Wh
+|102 |Replug Required |bool |-
+|===
+
+.Holding Registers (EV Charger)
+[cols="1,3,2,1"]
+|===
+|Offset |Parameter |Datatype |Unit
+|0 |Target Power AC |int32 |W (negative value = charge, see below)
+|2 |Wake Up |uint32 |1 (only valid value)
+|===
+
+== Target Power AC sign convention
+
+Following the EVCC implementation, a negative target power value commands the
+charger to charge the electric vehicle; positive values would discharge it
+(which is not used by this bundle). The OpenEMS channel `SetTargetPower` is
+positive for charging; the sign is inverted when writing the Modbus register.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.ambibox[Source Code icon:github[]]

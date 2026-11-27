@@ -1,5 +1,4 @@
 {
-    "version": "0.2.0",
     "configurations": [
         {
             "type": "chrome",
@@ -15,5 +14,6 @@
             "port": 9222,
             "webRoot": "${workspaceRoot}"
         }
-    ]
+    ],
+    "version": "0.2.0"
 }

@@ -48,15 +48,15 @@ export namespace SharedControllerIoHeatpump {
             icon: { name: "settings-outline", color: "medium", size: "large" },
             lines: [
                 {
+                    type: "name-line",
+                    name: translate.instant("GENERAL.AUTOMATIC"),
+                    style: {
+                        name: { fontSize: "large", fontWeight: "bold" },
+                    },
+                },
+                {
                     type: "info-line",
-                    name: [
-                        {
-                            text: translate.instant("GENERAL.AUTOMATIC"),
-                        },
-                        {
-                            text: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP"),
-                        },
-                    ],
+                    name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.AUTOMATIC_DESCRIPTION"),
                 },
                 ...getFormlyAutomaticView(translate, () => false),
             ],
@@ -321,17 +321,7 @@ export namespace SharedControllerIoHeatpump {
         component: EdgeConfig.Component,
         edge: Edge,
     ): ConstructorParameters<typeof NavigationTree> {
-        const children: NavigationTree[] = [
-            new NavigationTree(
-                "history",
-                { baseString: "history" },
-                { name: "stats-chart-outline", color: "warning" },
-                translate.instant("GENERAL.HISTORY"),
-                "label",
-                [],
-                null,
-            ),
-        ];
+        const children: NavigationTree[] = [NavigationConstants.CommonNodes.HISTORY(translate, component.id)];
 
         if (EdgePermission.isHeatpumpTimeScheduleAndBaseModeAvailable(edge)) {
             children.push(
@@ -377,10 +367,7 @@ export namespace SharedControllerIoHeatpump {
             );
         }
 
-        children.push(
-            NavigationConstants.CommonNodes.SETTINGS(translate),
-            NavigationConstants.CommonNodes.INFO(translate, { source: component.id }),
-        );
+        children.push(NavigationConstants.CommonNodes.SETTINGS(translate, component.id));
 
         return new NavigationTree(
             component.id,

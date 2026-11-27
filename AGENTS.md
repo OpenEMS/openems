@@ -12,12 +12,16 @@ Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 
 ## Working Style
 
-- Prefer small, focused diffs and avoid unrelated reformatting.
+- Prefer small, focused diffs. Formatting changes to files you touch are not considered unrelated churn: run the project's formatter on every file you change (see `ui/AGENTS.md` for the UI), even if it reformats pre-existing lines in those files.
+- Java files must be equivalent to the output of Eclipse "Source > Format" (JDT default profile) plus "Organize Imports"; no custom formatter profile is used. See `.github/skills/oe-java-format/SKILL.md` for how to apply and verify this, including headless verification.
 - Prefer self-explanatory code with clear names and simple structure. Add comments only when they explain non-obvious intent, constraints, or tradeoffs. Comments should be only in English.
 - Preserve existing behavior unless a change is explicitly requested.
 - Follow nearby code and existing FEMS/OpenEMS utilities, modules, helper APIs, and configuration patterns before adding abstractions.
+- Use the existing Utils classes where possible (e.g. `io.openems.common.utils.*` like `JsonUtils`, `TextProvider`, `ReflectionUtils`, or `io.openems.edge.common.channel.ChannelUtils`) instead of hand-rolled helpers; this applies to production code and tests.
 - Run the narrowest relevant validation for the changed area.
 - Do not bump dependencies, wrappers, plugins, or introduce new frameworks unless explicitly requested.
+- `cnf/pom.xml` must explicitly declare every Maven dependency of the OSGi runtime, including transitive ones, so it acts as a complete and reliable SBOM. When adding a dependency, also add its compile- and runtime-scope transitive dependencies at the same version (skip `optional`, `provided`, and `test` scopes) and verify with the app resolve tasks (e.g. `.\gradlew.bat :io.openems.backend.application:resolve.BackendApp`).
+- Never create a Git commit without asking the user first. Leave changes uncommitted for review; commit only after the user explicitly confirms (or asks you to commit).
 
 ## Java / Edge / Backend
 
@@ -25,6 +29,7 @@ Main stacks: Java 21, Gradle, OSGi/bnd workspace, JUnit, Angular/Ionic.
 - Device capabilities are expressed through natures like `ManagedSymmetricEss`, `ElectricityMeter`, and `EssDcCharger`.
 - Implementation classes must explicitly list all parent interfaces of child natures; otherwise OpenEMS nature detection does not work.
 - Channels are the main runtime data exchange mechanism; prefer existing typed `ChannelId` patterns and static imports for channel IDs/constants.
+- Prefer `ChannelUtils.setValue(component, ChannelId, value)` (and the matching `ChannelUtils` variants) over generated `_set...()` methods or direct `channel.setNextValue()` calls.
 - Edge logic is cycle/event driven via `EdgeEventConstants` topics. For controller changes, consider scheduler order, channel interactions, ESS/grid/PV/load energy flow, and production debugging.
 - Modbus devices should use the existing `io.openems.edge.bridge.modbus` protocol/register mapping patterns.
 - Checkstyle is enforced via `cnf/checkstyle.xml` with zero warnings.

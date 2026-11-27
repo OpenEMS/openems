@@ -145,4 +145,52 @@ public class ControllerPvInverterSellToGridLimitImplTest {
 						.output("pvInverter0", ACTIVE_POWER_LIMIT, 16000)) //
 				.deactivate();
 	}
+
+	@Test
+	public void setpointIsClampedToZeroTest() throws Exception {
+		new ControllerTest(new ControllerPvInverterSellToGridLimitImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyElectricityMeter("meter0")) //
+				.addComponent(new DummyManagedSymmetricPvInverter("pvInverter0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setMeterId("meter0") //
+						.setAsymmetricMode(false) //
+						.setMaximumSellToGridPower(5_000) //
+						.setPvInverterId("pvInverter0") //
+						.build())
+				.next(new TestCase() //
+						.input("meter0", ACTIVE_POWER, -6000) //
+						.input("pvInverter0", ACTIVE_POWER, 500) //
+						.output("pvInverter0", ACTIVE_POWER_LIMIT, 0)) //
+				.next(new TestCase() //
+						.input("meter0", ACTIVE_POWER, -5000) //
+						.input("pvInverter0", ACTIVE_POWER, 500) //
+						.output("pvInverter0", ACTIVE_POWER_LIMIT, 500)) //
+				.deactivate();
+	}
+
+	@Test
+	public void negativeLimitTest() throws Exception {
+		new ControllerTest(new ControllerPvInverterSellToGridLimitImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyElectricityMeter("meter0")) //
+				.addComponent(new DummyManagedSymmetricPvInverter("pvInverter0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setMeterId("meter0") //
+						.setAsymmetricMode(false) //
+						.setMaximumSellToGridPower(-1_000) //
+						.setPvInverterId("pvInverter0") //
+						.build())
+				.next(new TestCase() //
+						.input("meter0", ACTIVE_POWER, 0) //
+						.input("pvInverter0", ACTIVE_POWER, 500) //
+						.output("pvInverter0", ACTIVE_POWER_LIMIT, 0)) //
+				.next(new TestCase() //
+						.input("meter0", ACTIVE_POWER, 2000) //
+						.input("pvInverter0", ACTIVE_POWER, 0) //
+						.output("pvInverter0", ACTIVE_POWER_LIMIT, 1000)) //
+				.deactivate();
+	}
 }

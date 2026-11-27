@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, output, } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addDays, addMonths, addWeeks, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfWeek, endOfYear, isAfter, isBefore, isFuture, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears, } from "date-fns";
@@ -16,6 +16,10 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
+            :host {
+                width: max-content;
+            }
+
             ion-button.pickdate-styles {
                 background: transparent !important;
                 box-shadow: none !important;
@@ -52,6 +56,7 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 })
 export class PickDateComponent implements OnInit, OnDestroy {
     @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
+    public historyPeriodsChange = output<DefaultTypes.HistoryPeriod>();
     public disableArrow: boolean | null = null;
     protected isAllowedToSeeDay: boolean = true;
 
@@ -60,6 +65,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
+
+    // TODO remove
+    private cdRef = inject(ChangeDetectorRef);
 
     constructor(
         public service: Service,
@@ -490,6 +498,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         await popover.present();
         popover.onDidDismiss().then(() => {
             this.checkArrowAutomaticForwarding();
+            this.cdRef.detectChanges();
         });
     }
 

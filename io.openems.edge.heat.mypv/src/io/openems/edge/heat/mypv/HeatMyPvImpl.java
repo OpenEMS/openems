@@ -33,6 +33,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -50,6 +51,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
+import io.openems.edge.heat.api.RemainingHeatEnergyCalculator;
 import io.openems.edge.heat.mypv.statemachine.Context;
 import io.openems.edge.heat.mypv.statemachine.StateMachine;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -83,7 +85,8 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3);
 	private final StateMachine stateMachine;
 
-	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
+	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, //
+			EnergyScheduler.ScheduleContext> energyScheduleHandler;
 
 	private volatile Config config = null;
 	private volatile JSCalendar.Tasks<HeatMyPvPayload> tasks = JSCalendar.Tasks.empty();
@@ -160,8 +163,9 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 		var protocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)), //
-						m(Heat.ChannelId.TEMPERATURE, new SignedWordElement(1001)), //
-						new DummyRegisterElement(1002, 1060), //
+						m(Heat.ChannelId.TEMPERATURE, new UnsignedWordElement(1001)), //
+						m(Heat.ChannelId.TARGET_TEMPERATURE, new UnsignedWordElement(1002)), //
+						new DummyRegisterElement(1003, 1060), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new SignedWordElement(1061)), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedWordElement(1062)), //
 						new DummyRegisterElement(1063, 1066), //
@@ -228,6 +232,7 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 
 		setValue(this, HeatMyPv.ChannelId.STATE_MACHINE, this.stateMachine.getCurrentState());
 		setValue(this, HeatMyPv.ChannelId.MODE, ChannelMode.fromMode(currentMode));
+		setValue(this, Heat.ChannelId.REMAINING_HEAT_ENERGY, this.calculateRemainingHeatEnergyWh());
 	}
 
 	private void runStateMachine(Mode mode) throws OpenemsNamedException {
@@ -245,6 +250,11 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 			return activeTask.payload().mode();
 		}
 		return this.config.mode();
+	}
+
+	private Integer calculateRemainingHeatEnergyWh() {
+		return RemainingHeatEnergyCalculator.calculate(this.config.effectiveStorageVolume(),
+				this.getTemperatureChannel().value().get(), this.getTargetTemperatureChannel().value().get());
 	}
 
 	@Override

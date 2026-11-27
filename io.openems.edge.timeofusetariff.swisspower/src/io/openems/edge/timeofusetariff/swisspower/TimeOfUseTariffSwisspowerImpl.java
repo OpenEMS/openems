@@ -4,11 +4,9 @@ import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
-import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Clock;
 import java.time.Duration;
@@ -44,6 +42,7 @@ import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.services.currency.CurrencyExchange;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -81,6 +80,9 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
+
+	@Reference
+	private CurrencyExchange currencyExchange;
 
 	@Reference
 	private Meta meta;
@@ -196,12 +198,18 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException, IOException {
+	private void handleEndpointResponse(HttpResponse<String> response) throws OpenemsNamedException {
 		this.setChannelValues(response.status().code(), false, false, false);
 
-		final var swissPowerCurrency = Currency.CHF.name(); // Swiss Franc
-		final var globalCurrency = this.meta.getCurrency();
-		final double exchangeRate = getExchangeRateOrElse(swissPowerCurrency, globalCurrency, 1.);
+		final var swissPowerCurrency = Currency.CHF.getJavaCurrency(); // Swiss Franc
+		final var globalCurrency = this.meta.getCurrency().getJavaCurrency();
+		final double exchangeRate;
+		if (globalCurrency == null) {
+			this.logWarn(this.log, "Global currency is not configured. Using exchange rate 1.0.");
+			exchangeRate = 1.0;
+		} else {
+			exchangeRate = this.currencyExchange.getExchangeRate(swissPowerCurrency, globalCurrency).orElse(1.);
+		}
 
 		// Parse the response for the prices
 		this.prices.set(parsePrices(response.data(), exchangeRate));

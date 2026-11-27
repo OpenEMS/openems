@@ -7,6 +7,7 @@ import java.util.List;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.update.jsonrpc.GetUpdateables.Response;
 
@@ -32,7 +33,8 @@ public class GetUpdateables implements EndpointRequestType<EmptyObject, Response
 		public record UpdateableMetadata(//
 				String id, //
 				String name, //
-				String description //
+				String description, //
+				Role requiredMinRole //
 		) {
 
 			/**
@@ -46,13 +48,15 @@ public class GetUpdateables implements EndpointRequestType<EmptyObject, Response
 					return new GetUpdateables.Response.UpdateableMetadata(//
 							json.getString("id"), //
 							json.getString("name"), //
-							json.getString("description") //
+							json.getString("description"), //
+							json.getEnum("requiredMinRole", Role.class) //
 					);
 				}, obj -> {
 					return JsonUtils.buildJsonObject() //
 							.addProperty("id", obj.id()) //
 							.addProperty("name", obj.name()) //
 							.addProperty("description", obj.description()) //
+							.addProperty("requiredMinRole", obj.requiredMinRole()) //
 							.build();
 				});
 			}

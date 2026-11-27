@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
@@ -35,7 +35,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         service: Service,
         user: User | null,
         edge: Edge,
-        energyScheduler: EnergySchedulerV2,
+        energyScheduler: EnergyScheduler,
         evcss: EvcsComponent[],
         consumptionMeters: EdgeConfig.Component[],
     ): Promise<OeFormlyView> {
@@ -43,34 +43,6 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         const lines: OeFormlyField[] = [];
 
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
-            // TODO INTERSOLAR
-            if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
-                const energyToday = energyScheduler.schedule.calculateEnergyFromPower(
-                    "today",
-                    "ConsumptionActivePower",
-                );
-                const energyTomorrow = energyScheduler.schedule.calculateEnergyFromPower(
-                    "tomorrow",
-                    "ConsumptionActivePower",
-                );
-                lines.push({
-                    type: "stats-line",
-                    stats: [
-                        {
-                            name: translate.instant("EDGE.HISTORY.TODAY"),
-                            value: energyToday.history,
-                            unit: "kWh",
-                            predictionValue: energyToday.prediction,
-                        },
-                        {
-                            name: translate.instant("EDGE.HISTORY.TOMORROW"),
-                            value: energyTomorrow.prediction,
-                            unit: "kWh",
-                        },
-                    ],
-                });
-            }
-
             lines.push(
                 {
                     type: "component-line",
@@ -158,7 +130,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         return {
             title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
-            isCommonWidget: true,
+            useCiFont: true,
             lines: lines,
             component: new EdgeConfig.Component(),
         };
@@ -169,7 +141,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
         const user = this.userService.currentUser();
-        const energy = new EnergySchedulerV2(config);
+        const energy = new EnergyScheduler(config);
 
         this.evcss = EvcsComponent.getComponents(config, edge);
         this.consumptionMeters = config

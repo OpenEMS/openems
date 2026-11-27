@@ -55,9 +55,9 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 
 		final var id = getAsString(params, "edgeId");
 		final var array = getAsJsonArray(params, "userSettings");
-		
+
 		final var settings = new ArrayList<UserAlertingSettings>();
-		
+
 		for (final var user : array) {
 			var userJsonObject = user.getAsJsonObject();
 			try {
@@ -68,17 +68,19 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 
 				settings.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
 			} catch (Exception e) {
-				throw new OpenemsNamedException(OpenemsError.JSON_PARSE_FAILED, "Error parsing SetUserAlertingConfigsRequest", e);
+				throw new OpenemsNamedException(OpenemsError.JSON_PARSE_FAILED,
+						"Error parsing SetUserAlertingConfigsRequest", e);
 			}
 		}
-		
+
 		return new SetUserAlertingConfigsRequest(request, id, settings);
 	}
 
 	private final String edgeId;
 	private final List<UserAlertingSettings> userSettings;
 
-	private SetUserAlertingConfigsRequest(JsonrpcRequest request, String edgeId, List<UserAlertingSettings> userSettings) {
+	private SetUserAlertingConfigsRequest(JsonrpcRequest request, String edgeId,
+			List<UserAlertingSettings> userSettings) {
 		super(request, SetUserAlertingConfigsRequest.METHOD);
 		this.edgeId = edgeId;
 		this.userSettings = userSettings;

@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -217,10 +219,43 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		} catch (OpenemsNamedException e) {
 			errors.add(e.getMessage());
 		}
+		this.waitForComponentsToBeCreated(errors, 15, ChronoUnit.SECONDS);
 
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	private void waitForComponentsToBeCreated(List<String> errors, int count, ChronoUnit unit) {
+		if (this.createdComponents.isEmpty()) {
+			return;
+		}
+
+		final var timeoutAt = Instant.now().plus(count, unit);
+		while (Instant.now().isBefore(timeoutAt)) {
+			final var missingComponents = this.createdComponents.stream() //
+					.map(ComponentDef::id) //
+					.filter(id -> this.componentManager.getEdgeConfig().getComponent(id).isEmpty()) //
+					.toList();
+
+			if (missingComponents.isEmpty()) {
+				return;
+			}
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				errors.add("Interrupted while waiting for components to be created.");
+				return;
+			}
+		}
+
+		final var missingComponents = this.createdComponents.stream() //
+				.map(ComponentDef::id) //
+				.filter(id -> this.componentManager.getEdgeConfig().getComponent(id).isEmpty()) //
+				.collect(Collectors.joining(","));
+		errors.add("Timed out waiting for components to be created: " + missingComponents);
 	}
 
 	/**

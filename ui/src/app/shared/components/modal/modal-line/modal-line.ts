@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { IonInput, IonRange } from "@ionic/angular";
+import { IonInput } from "@ionic/angular";
 import { Converter } from "../../shared/converter";
 import { AbstractModalLine } from "../abstract-modal-line";
 import { ButtonLabel } from "../modal-button/modal-button";
@@ -22,28 +22,11 @@ export class ModalLineComponent extends AbstractModalLine {
         | { type: "INPUT"; properties?: { unit: "W"; type: IonInput["type"] } }
         /* the available select options*/
         | { type: "SELECT"; options: { value: string; name: string }[] }
-        /* the properties for range slider*/
-        | {
-              type: "RANGE";
-              properties: {
-                  /* ticks*/ tickMin: number;
-                  tickMax: number;
-                  tickFormatter?: IonRange["pinFormatter"];
-                  unit: "H" | string;
-                  step?: number;
-                  pinFormatter: IonRange["pinFormatter"];
-                  label?: IonRange["label"];
-                  snaps?: boolean;
-              };
-          }
         | { type: "TEXT"; valueConverter?: Converter }
         | { type: "BUTTON"; button: ButtonLabel };
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
-
-    /** Range */
-    protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 
     /** Toggle */
     protected toggleOnEnter(event: KeyboardEvent, controlName: string) {

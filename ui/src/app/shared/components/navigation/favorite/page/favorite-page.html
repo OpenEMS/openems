@@ -1,0 +1,20 @@
+<ion-router-outlet></ion-router-outlet>
+@if (children() != null && children()?.length > 0) {
+  <ion-content>
+    <oe-forward-navigation-options></oe-forward-navigation-options>
+  </ion-content>
+} @else {
+  <ion-content>
+    <ion-grid style="height: 100%" class="ion-padding ion-align-content-center">
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="auto">
+          <ion-text class="ion-font-weight-bolder" style="color: var(--ion-color-svg)">{{ "FAVORITES.INFO" | translate }}</ion-text>
+        </ion-col>
+        <ion-col size="auto" class="ion">
+          <ion-icon style="transform: scale(1.5); color: var(--ion-color-svg)" name="oe-favorites"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <ion-row class="ion-text-align-center ion-justify-content-center">{{ description() }}</ion-row>
+    </ion-grid>
+  </ion-content>
+}

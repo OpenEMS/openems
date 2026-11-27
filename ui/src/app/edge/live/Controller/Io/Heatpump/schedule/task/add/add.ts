@@ -13,7 +13,7 @@ import { HeatpumpPayload } from "../../heatpump-payload";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AddTaskComponent, CommonUiModule],
 })
-export class HeatPumpAddTaskComponent extends JsCalendarAddTaskComponent {
+export class ControllerIoHeatpumpAddTaskComponent extends JsCalendarAddTaskComponent {
     public payload = model<HeatpumpPayload>(new HeatpumpPayload());
     public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
     protected baseModeOptions: { value: BaseMode; label: string }[] = Object.values(BaseMode).map((baseMode) => ({

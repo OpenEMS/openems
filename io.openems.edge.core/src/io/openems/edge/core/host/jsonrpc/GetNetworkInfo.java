@@ -10,9 +10,8 @@ import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
-import io.openems.edge.core.host.jsonrpc.GetNetworkInfo.Response;
 
-public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response> {
+public class GetNetworkInfo implements EndpointRequestType<EmptyObject, GetNetworkInfo.Response> {
 
 	@Override
 	public String getMethod() {
@@ -48,13 +47,13 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 	public record NetworkInfoWrapper(String hardwareInterface, List<NetworkInfoAddress> ips) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Route}.
+		 * Returns a {@link JsonSerializer} for a {@link Route}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetNetworkInfo.NetworkInfoWrapper> serializer() {
-			return jsonObjectSerializer(GetNetworkInfo.NetworkInfoWrapper.class, json -> {
-				return new GetNetworkInfo.NetworkInfoWrapper(//
+		public static JsonSerializer<NetworkInfoWrapper> serializer() {
+			return jsonObjectSerializer(NetworkInfoWrapper.class, json -> {
+				return new NetworkInfoWrapper(//
 						json.getString("hardwareInterface"), //
 						json.getList("ips", NetworkInfoAddress.serializer()) //
 				);
@@ -77,13 +76,13 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 	) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Route}.
+		 * Returns a {@link JsonSerializer} for a {@link Route}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetNetworkInfo.Route> serializer() {
-			return jsonObjectSerializer(GetNetworkInfo.Route.class, json -> {
-				return new GetNetworkInfo.Route(//
+		public static JsonSerializer<Route> serializer() {
+			return jsonObjectSerializer(Route.class, json -> {
+				return new Route(//
 						json.getString("dst"), //
 						json.getString("dev"), //
 						json.getString("protocol"), //
@@ -109,12 +108,12 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 	public record Response(List<NetworkInfoWrapper> networkInterfaces, List<Route> route) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Response}.
+		 * Returns a {@link JsonSerializer} for a {@link Response}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetNetworkInfo.Response> serializer() {
-			return jsonObjectSerializer(GetNetworkInfo.Response.class, json -> {
+		public static JsonSerializer<Response> serializer() {
+			return jsonObjectSerializer(Response.class, json -> {
 				return new Response(//
 						json.getList("networkInterfaces", NetworkInfoWrapper.serializer()), //
 						json.getList("routes", Route.serializer()) //

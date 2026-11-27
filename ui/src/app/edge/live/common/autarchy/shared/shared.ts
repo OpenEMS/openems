@@ -21,7 +21,7 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: true,
+        useCiFont: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {
@@ -48,18 +48,7 @@ export namespace SharedAutarchy {
             { name: "oe-grid", color: "normal" },
             translate.instant("GENERAL.AUTARCHY"),
             "label",
-            [
-                new NavigationTree(
-                    "history",
-                    { baseString: "history" },
-                    { name: "stats-chart-outline", color: "warning" },
-                    translate.instant("GENERAL.HISTORY"),
-                    "label",
-                    [],
-                    null,
-                ),
-                NavigationConstants.CommonNodes.INFO(translate, { source: "autarchy" }),
-            ],
+            [NavigationConstants.CommonNodes.HISTORY(translate, "autarchy")],
             null,
         ).toConstructorParams();
     }

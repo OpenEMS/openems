@@ -72,7 +72,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 								if (s.isEmpty()) {
 									return null;
 								}
-								return new JsonPrimitive("xxx");
+								return new JsonPrimitive(CommonProps.MASKED_PASSWORD);
 							})//
 							.orElse(null);
 				}))), //
@@ -173,7 +173,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 									.addProperty("serialNumber", serialNumber) //
 									.addProperty("fullSerialNumber", fullSerialNumber)//
 									.addProperty("invert", invert)//
-									.onlyIf(password != null && !password.equals("xxx"), b -> {
+									.onlyIf(password != null && !password.equals(CommonProps.MASKED_PASSWORD), b -> {
 										b.addProperty("password", password);
 									}) //
 									.build()) //

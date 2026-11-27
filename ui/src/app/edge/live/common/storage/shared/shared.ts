@@ -8,9 +8,11 @@ import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
+import { Widget } from "src/app/shared/type/widget";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { SharedControllerEnerixControl } from "../../../Controller/EnerixControl/shared/shared";
 import { SharedEssFixDigitalPowerControl } from "../../../Controller/Ess/FixActivePower/shared/shared";
 import { SharedGridOptimizedCharge } from "../../../Controller/Ess/GridOptimizedCharge/shared/shared";
 import { SharedControllerEssTimeOfUseTariff } from "../../../Controller/Ess/TimeOfUseTariff/shared/shared";
@@ -117,6 +119,16 @@ export namespace SharedStorage {
                             ...SharedControllerPeakShavingAsymmetric.getNavigationTree(translate, component),
                         ),
                 ),
+
+            ...config
+                .getComponentsByFactory("Controller.Clever-PV")
+                .filter((component) => {
+                    return component.isEnabled && component.getPropertyFromComponent<boolean>("readOnly") === false;
+                })
+                .map(
+                    (component) =>
+                        new NavigationTree(...SharedControllerEnerixControl.getNavigationTree(translate, component)),
+                ),
         ];
 
         const essComponents = config
@@ -147,24 +159,14 @@ export namespace SharedStorage {
             "System.Fenecon.Industrial.S",
             "System.Fenecon.Industrial.M",
             "System.Fenecon.Industrial.L",
-            "System.Fenecon.Industrial.L",
             "System.Fenecon.Industrial.Xl",
         );
 
-        const newConfig: EdgeConfig = new EdgeConfig(edge, {
-            factories: structuredClone(config.factories),
-            components: Object.entries(structuredClone(config.components)).reduce(
-                (acc: EdgeConfig["components"], [id, component]) => {
-                    if (systemComponents.some((c) => c.id === id)) {
-                        acc[id] = component;
-                    }
-                    return acc;
-                },
-                {},
-            ),
-        } as EdgeConfig);
+        const systemWidgets: Widget[] = systemComponents
+            .filter((component) => component.isEnabled)
+            .map((component) => ({ name: component.factoryId, componentId: component.id, alias: component.alias }));
 
-        const systemNavigationTrees = Widgets.getControllerNavigationTrees(edge, translate, newConfig);
+        const systemNavigationTrees = Widgets.getControllerNavigationTrees(edge, translate, config, systemWidgets);
 
         return new NavigationTree(
             "storage",
@@ -177,10 +179,13 @@ export namespace SharedStorage {
                     ? systemNavigationTrees.map((el) => new NavigationTree(...el))
                     : []),
                 ...essController,
-                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
-                NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),
-                NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
-                NavigationConstants.CommonNodes.INFO(translate, { source: "storage" }),
+                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success", "storage"),
+                NavigationConstants.CommonNodes.HISTORY(translate, "storage", historyChildren),
+                NavigationConstants.CommonNodes.SETTINGS(
+                    translate,
+                    "storage",
+                    hasAtLeastOneController ? "LOW" : "HIDE",
+                ),
             ],
             null,
             { isCommonWidget: true },

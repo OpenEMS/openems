@@ -6,7 +6,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 import { HeatScheduleComponent } from "./schedule.component";
@@ -14,11 +14,17 @@ import { HeatScheduleComponent } from "./schedule.component";
 describe("ControllerHeatScheduleComponent", () => {
     let fixture: ComponentFixture<HeatScheduleComponent>;
     let component: HeatScheduleComponent;
-    let routeServiceMock: { getRouteParam: jasmine.Spy<(paramName: string) => string>; currentUrl: () => null };
+    let routeServiceMock: {
+        params: {};
+        getRouteParam: jasmine.Spy<(paramName: string) => string>;
+        currentUrl: () => null;
+        getCurrentUrlWithoutLeading: () => string | null;
+    };
     const edgeMock = {
         subscribeChannels: jasmine.createSpy("subscribeChannels"),
         unsubscribeFromChannels: jasmine.createSpy("unsubscribeFromChannels"),
         currentData: new Subject<any>(),
+        roleIsAtLeast: jasmine.createSpy("roleIsAtLeast").and.returnValue(true),
     };
     const configMock = {
         components: {},
@@ -35,8 +41,10 @@ describe("ControllerHeatScheduleComponent", () => {
 
     beforeEach(async () => {
         routeServiceMock = {
+            params: {},
             getRouteParam: jasmine.createSpy("getRouteParam").and.returnValue("heat0"),
             currentUrl: () => null,
+            getCurrentUrlWithoutLeading: () => "",
         };
 
         await TestBed.configureTestingModule({

@@ -5,7 +5,7 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { CurrentDataUtils } from "src/app/shared/type/currentdata";
 import { Mode } from "src/app/shared/type/general";
@@ -489,7 +489,10 @@ export namespace SharedIoChannelSingleThreshold {
             { name: "aperture-outline", color: "normal" },
             label,
             "label",
-            [NavigationConstants.CommonNodes.HISTORY(translate), NavigationConstants.CommonNodes.SETTINGS(translate)],
+            [
+                NavigationConstants.CommonNodes.HISTORY(translate, id),
+                NavigationConstants.CommonNodes.SETTINGS(translate, id),
+            ],
             null,
         );
     }

@@ -18,7 +18,7 @@ export type Edges = [
         role: "admin" | "installer" | "owner" | "guest";
         isOnline: boolean;
         lastmessage: Date;
-        firstSetupProtocol: Date;
+        firstSetupProtocol: Date | null;
     },
 ];
 
@@ -54,9 +54,7 @@ export class User {
      * @param user The user
      * @returns The user if passed User is valid, else null
      */
-    public static from(
-        user: AuthenticateResponse["result"]["user"],
-    ): User | null {
+    public static from(user: AuthenticateResponse["result"]["user"]): User | null {
         if (user == null) {
             return null;
         }
@@ -117,13 +115,16 @@ export class User {
         return Role.isAtLeast(this.globalRole, role);
     }
 
+    public isAtMost(role: Role) {
+        return Role.isAtMost(this.globalRole, role);
+    }
+
     public getNavigationTree(
         navigationTree: NavigationTree,
         translate: TranslateService,
         components: { [id: string]: EdgeConfig.Component },
     ) {
-        const showNewUI =
-            navigationTree != null || this.getUseNewUIFromSettings();
+        const showNewUI = navigationTree != null || this.getUseNewUIFromSettings();
         if (!showNewUI) {
             return;
         }

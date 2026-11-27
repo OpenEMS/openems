@@ -1,10 +1,12 @@
 // @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ModalComponent } from "../modal/modal";
+import { SharedGridOptimizedCharge } from "../shared/shared";
 
 @Component({
     selector: "Controller_Ess_GridOptimizedCharge",
@@ -21,10 +23,15 @@ export class FlatComponent extends AbstractFlatWidget {
     public delayChargeMaximumChargeLimit: number | null = null;
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    public isDisabledByTimeOfUse: boolean = false;
 
     protected modalComponent: Modal | null = null;
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
+
+        const config = this.edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+        this.isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component);
     }
 
     protected getModalComponent(): Modal {
@@ -32,6 +39,7 @@ export class FlatComponent extends AbstractFlatWidget {
             component: ModalComponent,
             componentProps: {
                 component: this.component,
+                edge: this.edge,
             },
         };
     }

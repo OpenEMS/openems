@@ -1,6 +1,12 @@
 package io.openems.edge.goodwe.stsbox;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Hashtable;
+
 import org.junit.jupiter.api.Test;
+import org.osgi.framework.FrameworkUtil;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -9,15 +15,31 @@ import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 
-public class GoodWeStsBoxImplTest {
+class GoodWeStsBoxImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void testFilter() throws Exception {
+		final var filter = FrameworkUtil.createFilter("(&(id=)(enabled=true))");
+
+		final var properties = new Hashtable<String, Object>();
+		properties.put("enabled", true);
+
+		assertFalse(filter.match(properties));
+
+		properties.put("id", "meter0");
+		assertFalse(filter.match(properties));
+
+		properties.put("id", "");
+		assertTrue(filter.match(properties));
+	}
+
+	@Test
+	void test() throws Exception {
 		getComponentTest(60);
 	}
 
 	@Test
-	public void testRunTimeConversion() throws Exception {
+	void testRunTimeConversion() throws Exception {
 		getComponentTest(90) //
 				.next(new TestCase() //
 						.output(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, 15));

@@ -1,10 +1,14 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -22,6 +26,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
@@ -43,6 +48,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
@@ -152,6 +158,15 @@ public class FeneconCommercial92ClusterSlave
 				components.add(ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)));
 			}
 
+			final var gpioId = FunctionUtils
+					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
+
+			final List<DependencyDeclaration> dependencies = Lists.newArrayList();
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
+			}
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //
 					.addTask(Tasks.staticIp(//
@@ -160,6 +175,7 @@ public class FeneconCommercial92ClusterSlave
 					// Gets the following ip with preconfigured router
 					// new InterfaceConfiguration("eth0") //
 					// .addIp("Communication to master", "10.5.0." + (10 + position) + "/24")))
+					.addDependencies(dependencies) //
 					.build();
 		};
 	}

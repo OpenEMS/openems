@@ -38,6 +38,9 @@ testem.log
 .gradle/
 /generated/
 
+# nvm
+.nvmrc
+
 ### Eclipse ###
 
 .metadata

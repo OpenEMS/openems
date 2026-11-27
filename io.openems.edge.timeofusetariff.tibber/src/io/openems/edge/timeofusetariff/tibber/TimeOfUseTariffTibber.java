@@ -9,13 +9,13 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public interface TimeOfUseTariffTibber extends TimeOfUseTariff, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER) //
+		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.text("The HTTP status code")), //
-		STATUS_TIMEOUT(Doc.of(Level.WARNING) //
+		STATUS_TIMEOUT(Doc.of(Level.WARNING)//
 				.text("Unable to update prices from Tibber: timout while reading from server")), //
-		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING) //
+		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING)//
 				.text("Unable to update prices from Tibber: access token authentication failed")), //
-		STATUS_SERVER_ERROR(Doc.of(Level.WARNING) //
+		STATUS_SERVER_ERROR(Doc.of(Level.WARNING)//
 				.text("Unable to update prices from Tibber: unexpected server error")), //
 		FILTER_IS_REQUIRED(Doc.of(Level.WARNING) //
 				.text("Found multiple 'Homes'. Please configure either an ID (format UUID) "

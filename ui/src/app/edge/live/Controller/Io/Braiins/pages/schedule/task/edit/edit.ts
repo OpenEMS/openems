@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -11,7 +10,7 @@ import { TSignalValue } from "src/app/shared/type/utility";
 import { ControllerBraiinsShared } from "../../../../shared/shared";
 import { ControllerBraiinsManualPayload } from "../../js-calender-utils";
 
-type PayloadMode = Parameters<ControllerBraiinsManualPayload["setValue"]>[0]["mode"];
+type PayloadMode = NonNullable<Parameters<ControllerBraiinsManualPayload["setValue"]>[0]>["mode"];
 
 type ModeOption = {
     value: PayloadMode;

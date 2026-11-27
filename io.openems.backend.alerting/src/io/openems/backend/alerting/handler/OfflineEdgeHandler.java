@@ -98,7 +98,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		}
 
 		final var params = pack.stream().map(OfflineEdgeMessage::getContext).toList();
-		
+
 		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params) //
 				.whenComplete((sentMessages, error) -> {
 					if (error == null) {
@@ -293,11 +293,11 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	public HandlerMetrics getMetrics() {
 		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
 	}
-	
+
 	private boolean waitforInit() {
 		return this.initMetadata != null && !this.initMetadata.isDone();
 	}
-	
+
 	@Override
 	public String debugLog() {
 		if (this.waitforInit()) {

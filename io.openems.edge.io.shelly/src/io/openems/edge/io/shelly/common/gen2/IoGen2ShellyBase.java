@@ -2,6 +2,7 @@ package io.openems.edge.io.shelly.common.gen2;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DynamicStateChannelDoc;
 import io.openems.edge.common.channel.StateChannel;
@@ -9,7 +10,6 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
 
 public interface IoGen2ShellyBase extends OpenemsComponent {

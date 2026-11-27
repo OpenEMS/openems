@@ -1,24 +1,24 @@
 {
-  "PROFILE": {
-    "SYSTEM_LOCATION_VALIDATOR": {
-      "TITLE": "Systemstandort",
-      "SUCCESS_MESSAGE": "Systemstandort erfolgreich aktualisiert."
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "CATEGORY_FILTER": "App-Kategorien",
+                "STATUS_AVAILABLE": "Verfügbar",
+                "STATUS_FILTER": "Verfügbarkeit",
+                "STATUS_INCOMPATIBLE": "Inkompatibel",
+                "STATUS_INSTALLED": "Installiert"
+            }
+        }
     },
-    "SYSTEM_PROTOCOL": {
-      "LABEL": "Systemprotokoll",
-      "DOWNLOAD": "Download",
-      "TITLE": "Aktuelles"
+    "PROFILE": {
+        "SYSTEM_LOCATION_VALIDATOR": {
+            "SUCCESS_MESSAGE": "Systemstandort erfolgreich aktualisiert.",
+            "TITLE": "Systemstandort"
+        },
+        "SYSTEM_PROTOCOL": {
+            "DOWNLOAD": "Download",
+            "LABEL": "Systemprotokoll",
+            "TITLE": "Aktuelles"
+        }
     }
-  },
-  "EDGE": {
-    "CONFIG": {
-      "APP": {
-        "STATUS_INSTALLED": "Installiert",
-        "STATUS_AVAILABLE": "Verfügbar",
-        "STATUS_INCOMPATIBLE": "Inkompatibel",
-        "STATUS_FILTER": "Verfügbarkeit",
-        "CATEGORY_FILTER": "App-Kategorien"
-      }
-    }
-  }
 }

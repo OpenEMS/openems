@@ -326,22 +326,26 @@ public class PowerDistribution {
 
 			@Override
 			public int ownActiveMax() {
-				return this.limitActivePowerMax != null ? this.limitActivePowerMax : 0;
+				return this.limitActivePowerMax != null //
+						? Math.min(this.limitActivePowerMax, this.maxApparentPower) //
+						: 0;
 			}
 
 			@Override
 			public int ownActiveMin() {
-				return this.limitActivePowerMin != null ? this.limitActivePowerMin : 0;
+				return this.limitActivePowerMin != null //
+						? Math.max(this.limitActivePowerMin, -this.maxApparentPower) //
+						: 0;
 			}
 
 			@Override
 			public int ownReactiveMax() {
-				return this.limitReactivePowerMax != null ? this.limitReactivePowerMax : this.maxApparentPower;
+				return minInt(this.maxApparentPower, this.limitReactivePowerMax);
 			}
 
 			@Override
 			public int ownReactiveMin() {
-				return this.limitReactivePowerMin != null ? this.limitReactivePowerMin : -this.maxApparentPower;
+				return maxInt(-this.maxApparentPower, this.limitReactivePowerMin);
 			}
 		}
 	}

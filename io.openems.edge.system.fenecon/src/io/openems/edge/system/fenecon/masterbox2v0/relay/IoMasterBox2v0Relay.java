@@ -12,52 +12,52 @@ public interface IoMasterBox2v0Relay extends DigitalOutput, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_1(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_1(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 
-		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_2(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_2(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 
-		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_3(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_3(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_3)),
 
-		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_4(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_4(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_4)),
 
-		DEBUG_RELAY_5(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_5(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_5(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_5(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_5)),
 
-		DEBUG_RELAY_6(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_6(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_6(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_6(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_6));
 
 		private final Doc doc;

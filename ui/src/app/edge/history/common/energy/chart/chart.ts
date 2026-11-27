@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ViewChild, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -29,8 +29,6 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     ],
 })
 export class ChartComponent extends AbstractHistoryChart {
-    @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
-
     public static getChartData(
         config: EdgeConfig | null,
         chartType: "line" | "bar",
@@ -274,7 +272,8 @@ export class ChartComponent extends AbstractHistoryChart {
         return ChartComponent.getChartData(this.config, this.chartType, this.translate);
     }
 
-    public override calculateViewHeight(): string {
-        return ViewUtils.getChartContentHeightInVh(this.navigationService.position()) / 1.5 + "dvh";
+    public override calculateViewHeight() {
+        const position = this.navigationService.position();
+        return ViewUtils.getChartContentHeightInVh(position) / 1.5 + "dvh";
     }
 }

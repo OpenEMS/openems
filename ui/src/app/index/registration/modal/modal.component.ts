@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
@@ -18,11 +17,13 @@ import { environment } from "src/environments";
     standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
-    protected formGroup: FormGroup;
-    protected activeSegment: string = "installer";
     protected readonly countries = COUNTRY_OPTIONS(this.translate);
+    protected readonly spinnerId = uuidv4();
+
+    protected formGroup!: FormGroup;
+    protected activeSegment: string = "installer";
     protected docsLink: string | null = null;
-    protected spinnerId: string | null = uuidv4();
+    protected gtcLink: string | null = null;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -35,6 +36,7 @@ export class RegistrationModalComponent implements OnInit {
     ngOnInit() {
         this.formGroup = this.getForm(this.activeSegment);
         this.docsLink = DocsUtils.createDataProtectionLink(this.service);
+        this.gtcLink = environment.links.GTC(this.translate.getCurrentLang());
     }
 
     /**
@@ -126,7 +128,7 @@ export class RegistrationModalComponent implements OnInit {
                     confirmPassword: new FormControl("", Validators.required),
                     isElectrician: new FormControl(false, Validators.requiredTrue),
                     acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
-                    acceptAgb: new FormControl(false, Validators.requiredTrue),
+                    acceptGtc: new FormControl(false, Validators.requiredTrue),
                     subscribeNewsletter: new FormControl(false),
                 },
                 {},
@@ -145,7 +147,7 @@ export class RegistrationModalComponent implements OnInit {
                 password: new FormControl("", Validators.required),
                 confirmPassword: new FormControl("", Validators.required),
                 acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
-                acceptAgb: new FormControl(false, Validators.requiredTrue),
+                acceptGtc: new FormControl(false, Validators.requiredTrue),
             });
         }
     }

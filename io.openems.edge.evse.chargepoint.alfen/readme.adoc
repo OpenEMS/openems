@@ -1,0 +1,79 @@
+= EVSE Charge-Point Alfen
+
+Implementation for the Alfen NG9xx charging station series.
+
+== Supported devices
+
+- Eve Single S-line
+- Eve Single Pro-line
+- Eve Double Pro-line
+
+== Communication
+
+This component communicates via Modbus/TCP.
+
+== Configuration
+
+[cols="1,1,1,1"]
+|===
+|Property |Type |Default |Description
+
+|id
+|String
+|evseChargePoint0
+|Unique ID of this Component
+
+|alias
+|String
+|
+|Human-readable name of this Component
+
+|enabled
+|Boolean
+|true
+|Is this Component enabled?
+
+|readOnly
+|Boolean
+|false
+|Defines that this charge point is read only
+
+|modbus_id
+|String
+|modbus0
+|ID of Modbus bridge
+
+|modbusUnitId
+|Integer
+|1
+|The Unit-ID of the Modbus device
+
+|phaseRotation
+|PhaseRotation
+|L1_L2_L3
+|Apply standard or rotated wiring
+
+|wiring
+|SingleOrThreePhase
+|THREE_PHASE
+|Physical wiring of the charge point. `SINGLE_PHASE` disables phase switching
+
+|minCurrent
+|Integer
+|6000
+|Minimum charging current in mA
+
+|maxCurrent
+|Integer
+|32000
+|Maximum charging current in mA
+|===
+
+== Features
+
+- Supports reading of meter values (voltage, current, power, energy)
+- Supports setting charging current
+- Supports 1-phase and 3-phase charging
+- Automatic phase detection based on current flow
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.alfen[Source Code icon:github[]]

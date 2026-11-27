@@ -2,12 +2,12 @@ package io.openems.common.jsonrpc.notification;
 
 import java.util.Map;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.types.DataTable;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -30,15 +30,18 @@ import io.openems.common.utils.JsonUtils;
 public abstract sealed class AbstractDataNotification extends JsonrpcNotification
 		permits TimestampedDataNotification, AggregatedDataNotification, ResendDataNotification {
 
-	private final TreeBasedTable<Long, String, JsonElement> data;
+	private final DataTable data;
 
-	protected static TreeBasedTable<Long, String, JsonElement> parseParams(//
+	protected static DataTable parseParams(//
 			final JsonObject params //
 	) throws OpenemsNamedException {
-		var data = TreeBasedTable.<Long, String, JsonElement>create();
+		var data = new DataTable();
 		for (var e1 : params.entrySet()) {
 			var timestamp = Long.parseLong(e1.getKey());
 			var jTime = JsonUtils.getAsJsonObject(e1.getValue());
+			if (!jTime.isEmpty()) {
+				data.reserveRow(timestamp, jTime.size());
+			}
 			for (var e2 : jTime.entrySet()) {
 				data.put(timestamp, e2.getKey(), e2.getValue());
 			}
@@ -46,7 +49,7 @@ public abstract sealed class AbstractDataNotification extends JsonrpcNotificatio
 		return data;
 	}
 
-	protected AbstractDataNotification(String method, TreeBasedTable<Long, String, JsonElement> data) {
+	protected AbstractDataNotification(String method, DataTable data) {
 		super(method);
 		this.data = data;
 	}
@@ -89,7 +92,7 @@ public abstract sealed class AbstractDataNotification extends JsonrpcNotificatio
 		return p;
 	}
 
-	public TreeBasedTable<Long, String, JsonElement> getData() {
+	public DataTable getData() {
 		return this.data;
 	}
 

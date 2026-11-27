@@ -104,8 +104,25 @@ describe("NumberUtils", () => {
         });
 
         it("should return orElse for values other than 0 or 1", () => {
-            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, false)).toBeFalse();
-            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, true)).toBeTrue();
+            expect(NumberUtils.numberToBooleanOrElse(2, false)).toBeFalse();
+            expect(NumberUtils.numberToBooleanOrElse(2, true)).toBeTrue();
+        });
+
+        it("should preserve boolean inputs", () => {
+            expect(NumberUtils.numberToBooleanOrElse(false, true)).toBeFalse();
+            expect(NumberUtils.numberToBooleanOrElse(true, false)).toBeTrue();
+        });
+
+        it("should return false for missing or invalid inputs with a false fallback", () => {
+            for (const value of [null, undefined, 2, -1, NaN, Infinity]) {
+                expect(NumberUtils.numberToBooleanOrElse(value, false)).toBeFalse();
+            }
+        });
+
+        it("should return true for missing or invalid inputs with a true fallback", () => {
+            for (const value of [null, undefined, 2, -1, NaN, Infinity]) {
+                expect(NumberUtils.numberToBooleanOrElse(value, true)).toBeTrue();
+            }
         });
     });
 });

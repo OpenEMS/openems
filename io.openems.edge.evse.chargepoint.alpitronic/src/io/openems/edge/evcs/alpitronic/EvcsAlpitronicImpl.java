@@ -2,7 +2,10 @@ package io.openems.edge.evcs.alpitronic;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -27,15 +30,21 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
+import io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,6 +59,7 @@ import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evse.chargepoint.alpitronic.common.Alpitronic;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.AvailableState;
+import io.openems.edge.evse.chargepoint.alpitronic.enums.SelectedConnector;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
@@ -69,6 +79,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		implements Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter, OpenemsComponent, ModbusComponent, EventHandler,
 		Alpitronic, EvcsAlpitronic, TimedataProvider {
+
+	private static final int MAX_FIRMWARE_VERSION_READ_ERRORS = 5;
+	private static final SemanticVersion FALLBACK_FIRMWARE_VERSION = new SemanticVersion(2, 5, 0);
 
 	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicImpl.class);
 	/** Modbus offset for multiple connectors. */
@@ -90,6 +103,11 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 	private volatile Timedata timedata = null;
 
 	protected Config config;
+
+	final ModbusProtocol modbusProtocol;
+
+	private SemanticVersion detectedFirmwareVersion = null;
+	private boolean protocolConfigured = false;
 
 	/**
 	 * Calculates the value for total energy in [Wh_Σ].
@@ -121,7 +139,34 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 
 		// Automatically calculate L1/l2/L3 values from sum
 		ElectricityMeter.calculatePhasesFromActivePower(this);
-		// TODO consider CURRENT and VOLTAGE also
+		this.addCalculateVoltageAndCurrentListeners();
+
+		// Initialize empty ModbusProtocol; tasks added dynamically
+		// post-firmware-detection
+		this.modbusProtocol = new ModbusProtocol(this);
+	}
+
+	private void addCalculateVoltageAndCurrentListeners() {
+		this.getChargingVoltageChannel().onSetNextValue(value -> {
+			var milliVoltage = toMilliValue(value.get());
+			setValue(this, ElectricityMeter.ChannelId.VOLTAGE, milliVoltage);
+			setValue(this, ElectricityMeter.ChannelId.VOLTAGE_L1, milliVoltage);
+			setValue(this, ElectricityMeter.ChannelId.VOLTAGE_L2, milliVoltage);
+			setValue(this, ElectricityMeter.ChannelId.VOLTAGE_L3, milliVoltage);
+		});
+
+		this.getChargingCurrentChannel().onSetNextValue(value -> {
+			var milliCurrent = toMilliValue(value.get());
+			var phaseCurrent = TypeUtils.divide(milliCurrent, 3);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT, milliCurrent);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L1, phaseCurrent);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L2, phaseCurrent);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L3, phaseCurrent);
+		});
+	}
+
+	private static Integer toMilliValue(Double value) {
+		return value == null ? null : (int) Math.round(value * 1_000D);
 	}
 
 	@Activate
@@ -139,6 +184,9 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		Evcs.addCalculatePowerLimitListeners(this);
 
 		this.applyConfig(context, config);
+
+		// Detect firmware version asynchronously
+		this.detectFirmwareVersion();
 	}
 
 	@Modified
@@ -188,90 +236,237 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	@Override
-	protected ModbusProtocol defineModbusProtocol() {
-		var modbusProtocol = new ModbusProtocol(this,
+	private void detectFirmwareVersion() {
+		final var consecutiveReadErrors = new AtomicInteger(0);
+		final var lastReadErrorState = new AtomicReference<Task.ExecuteState>(null);
 
-				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
-						m(Alpitronic.ChannelId.RAW_CHARGE_POWER_SET,
-								new UnsignedDoublewordElement(this.offset.apply(0)))),
+		ModbusUtils.readElementsOnce(FunctionCode.FC4, this.modbusProtocol, (executeState, value) -> {
+			if (value != null) {
+				consecutiveReadErrors.set(0);
+				lastReadErrorState.set(null);
+				return false;
+			}
 
-				new FC16WriteRegistersTask(this.offset.apply(0),
-						m(Alpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT,
-								new UnsignedDoublewordElement(this.offset.apply(0))),
-						m(Alpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
-								new UnsignedDoublewordElement(this.offset.apply(2)))),
+			if (executeState instanceof Task.ExecuteState.Error) {
+				if (lastReadErrorState.getAndSet(executeState) != executeState) {
+					consecutiveReadErrors.incrementAndGet();
+				}
+				return consecutiveReadErrors.get() < MAX_FIRMWARE_VERSION_READ_ERRORS;
+			}
 
-				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
-						m(EvcsAlpitronic.ChannelId.RAW_STATUS, new UnsignedWordElement(this.offset.apply(0))),
-						// TODO consider ElectricityMeter VOLTAGE
-						m(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE,
-								new UnsignedDoublewordElement(this.offset.apply(1)), SCALE_FACTOR_MINUS_2),
-						// TODO consider ElectricityMeter CURRENT
-						m(EvcsAlpitronic.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(this.offset.apply(3)),
-								SCALE_FACTOR_MINUS_2),
-						/*
-						 * TODO: Test charge power register with newer firmware versions. Register value
-						 * was always 0 with versions < 1.7.2.
-						 */
-						m(Alpitronic.ChannelId.RAW_CHARGE_POWER, new UnsignedDoublewordElement(this.offset.apply(4))),
-						m(Alpitronic.ChannelId.CHARGED_TIME, new UnsignedWordElement(this.offset.apply(6))),
-						m(Alpitronic.ChannelId.CHARGED_ENERGY, new UnsignedWordElement(this.offset.apply(7)),
-								SCALE_FACTOR_MINUS_2).onUpdateCallback(e -> {
-									if (e == null) {
-										return;
-									}
+			consecutiveReadErrors.set(0);
+			lastReadErrorState.set(null);
+			return true;
+		}, new UnsignedWordElement(46), new UnsignedWordElement(47), new UnsignedWordElement(48)).thenAccept(result -> {
+			var values = result.values();
+			var major = values.get(0);
+			var minor = values.get(1);
+			var patch = values.get(2);
 
-									/**
-									 * The internal session energy is set to 0 when the charging process has
-									 * finished. The SessionEnergy Channel should still contain the current value
-									 * for visualization.
-									 */
-									if (e == 0) {
-										switch (this.getStatus()) {
-										case UNDEFINED:
-										case NOT_READY_FOR_CHARGING:
-										case STARTING:
-											this._setEnergySession(0);
-											return;
-										case CHARGING:
-										case CHARGING_REJECTED:
-										case ENERGY_LIMIT_REACHED:
-										case ERROR:
-										case READY_FOR_CHARGING:
-											// Ignore 0 value
-											return;
-										}
-									}
-									this._setEnergySession(e * 10);
-								}),
-						// TODO: Implement SocEvcs Nature & map SoC register
-						m(Alpitronic.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
-								SCALE_FACTOR_MINUS_2),
-						m(Alpitronic.ChannelId.CONNECTOR_TYPE, new UnsignedWordElement(this.offset.apply(9))),
+			this.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MAJOR).setNextValue(major);
+			this.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MINOR).setNextValue(minor);
+			this.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_PATCH).setNextValue(patch);
 
-						/*
-						 * Not equals MaximumPower or MinimumPower e.g. EvMaxChargingPower is 99kW, but
-						 * ChargePower is 40kW because of temperature, current SoC or
-						 * MaximumHardwareLimit.
-						 */
-						m(Alpitronic.ChannelId.EV_MAX_CHARGING_POWER,
-								new UnsignedDoublewordElement(this.offset.apply(10))),
-						m(Alpitronic.ChannelId.EV_MIN_CHARGING_POWER,
-								new UnsignedDoublewordElement(this.offset.apply(12))),
-						m(Alpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(this.offset.apply(14))),
-						m(Alpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(this.offset.apply(16)),
-								INVERT))
+			SemanticVersion.fromNullable(major, minor, patch).ifPresentOrElse(this::configureProtocolForVersion,
+					() -> this.configureFallbackFirmwareVersion("Firmware version detection failed after "
+							+ MAX_FIRMWARE_VERSION_READ_ERRORS + " attempts; fallback to " + FALLBACK_FIRMWARE_VERSION
+							+ ". Last state: " + result.executeState()));
+		}).exceptionally(e -> {
+			this.configureFallbackFirmwareVersion("Firmware version detection failed; fallback to "
+					+ FALLBACK_FIRMWARE_VERSION + ". Reason: " + e.getMessage());
+			return null;
+		});
+	}
 
-		);
+	private void configureFallbackFirmwareVersion(String logMessage) {
+		this.logInfo(this.log, logMessage);
+		this.configureProtocolForVersion(FALLBACK_FIRMWARE_VERSION);
+	}
 
-		// Calculates charge power by existing Channels.
+	private void configureProtocolForVersion(SemanticVersion version) {
+		if (this.protocolConfigured) {
+			this.detectedFirmwareVersion = version;
+			return;
+		}
+		this.detectedFirmwareVersion = version;
+
+		this.addCommonStationTasks();
+
+		if (AlpitronicVersionUtils.isVersion18(version)) {
+			this.addProtocolTasksV18();
+		} else if (AlpitronicVersionUtils.isVersion23(version)) {
+			this.addProtocolTasksV23();
+		} else if (AlpitronicVersionUtils.isVersion24(version)) {
+			this.addProtocolTasksV24();
+		} else {
+			// Default to v2.5+
+			this.addProtocolTasksV25();
+		}
+
+		// Calculates charge power by existing Channels
 		this.addCalculatePowerListeners();
 
-		// Map raw status to evcs status.
+		// Map raw status to evcs status
 		this.addStatusListener();
 
-		return modbusProtocol;
+		// Log detected version
+		this.logInfo(this.log, "Detected Alpitronic firmware version: " + version);
+		this.protocolConfigured = true;
+	}
+
+	/**
+	 * Adds common station-level Modbus read tasks.
+	 */
+	private void addCommonStationTasks() {
+		// Common tasks for station-level registers
+		this.modbusProtocol.addTask(new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
+				m(Alpitronic.ChannelId.RAW_CHARGE_POWER_SET, new UnsignedDoublewordElement(this.offset.apply(0)))));
+
+		this.modbusProtocol.addTask(new FC16WriteRegistersTask(this.offset.apply(0),
+				m(Alpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT, new UnsignedDoublewordElement(this.offset.apply(0)))));
+		final var reactivePowerWriteAddress = this.getSetpointReactivePowerWriteAddress();
+		this.modbusProtocol.addTask(
+				new FC16WriteRegistersTask(reactivePowerWriteAddress, m(Alpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
+						new UnsignedDoublewordElement(reactivePowerWriteAddress))));
+	}
+
+	private int getSetpointReactivePowerWriteAddress() {
+		if (this.detectedFirmwareVersion != null && AlpitronicVersionUtils.isVersion18(this.detectedFirmwareVersion)) {
+			return this.offset.apply(2);
+		}
+		return 2;
+	}
+
+	private ElementToChannelConverter connectorTypeConverter(boolean isVersion25OrLater) {
+		return new ElementToChannelConverter(value -> SelectedConnector
+				.fromRawValue(TypeUtils.getAsType(OpenemsType.INTEGER, value), isVersion25OrLater));
+	}
+
+	private void addProtocolTasksV23OrLater(boolean isVersion25OrLater) {
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
+				m(EvcsAlpitronic.ChannelId.RAW_STATUS, new UnsignedWordElement(this.offset.apply(0))),
+				m(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE, new UnsignedDoublewordElement(this.offset.apply(1)),
+						SCALE_FACTOR_MINUS_2),
+				m(EvcsAlpitronic.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(this.offset.apply(3)),
+						SCALE_FACTOR_MINUS_2),
+				m(Alpitronic.ChannelId.RAW_CHARGE_POWER, new UnsignedDoublewordElement(this.offset.apply(4))),
+				m(Alpitronic.ChannelId.CHARGED_TIME, new UnsignedWordElement(this.offset.apply(6))),
+				m(Alpitronic.ChannelId.CHARGED_ENERGY, new UnsignedWordElement(this.offset.apply(7)),
+						SCALE_FACTOR_MINUS_2).onUpdateCallback(this.createChargedEnergyCallback()),
+				m(Alpitronic.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)), SCALE_FACTOR_MINUS_2),
+				m(Alpitronic.ChannelId.CONNECTOR_TYPE, new UnsignedWordElement(this.offset.apply(9)),
+						this.connectorTypeConverter(isVersion25OrLater)),
+				m(Alpitronic.ChannelId.EV_MAX_CHARGING_POWER, new UnsignedDoublewordElement(this.offset.apply(10))),
+				m(Alpitronic.ChannelId.EV_MIN_CHARGING_POWER, new UnsignedDoublewordElement(this.offset.apply(12)))));
+
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(this.offset.apply(32), Priority.LOW,
+				m(EvcsAlpitronic.ChannelId.TOTAL_CHARGED_ENERGY,
+						new UnsignedQuadruplewordElement(this.offset.apply(32)))));
+
+		// Station-level VAR registers for v2.3+
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(49, Priority.LOW,
+				m(Alpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(49)),
+				m(Alpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51), INVERT)));
+	}
+
+	/**
+	 * Adds version-specific Modbus tasks for firmware v1.8.x.
+	 */
+	private void addProtocolTasksV18() {
+		// v1.8: connector-level VAR registers, reactive power at offset+2
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
+				m(EvcsAlpitronic.ChannelId.RAW_STATUS, new UnsignedWordElement(this.offset.apply(0))),
+				m(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE, new UnsignedDoublewordElement(this.offset.apply(1)),
+						SCALE_FACTOR_MINUS_2),
+				m(EvcsAlpitronic.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(this.offset.apply(3)),
+						SCALE_FACTOR_MINUS_2),
+				m(Alpitronic.ChannelId.RAW_CHARGE_POWER, new UnsignedDoublewordElement(this.offset.apply(4))),
+				m(Alpitronic.ChannelId.CHARGED_TIME, new UnsignedWordElement(this.offset.apply(6))),
+				m(Alpitronic.ChannelId.CHARGED_ENERGY, new UnsignedWordElement(this.offset.apply(7)),
+						SCALE_FACTOR_MINUS_2).onUpdateCallback(this.createChargedEnergyCallback()),
+				m(Alpitronic.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)), SCALE_FACTOR_MINUS_2),
+				m(Alpitronic.ChannelId.CONNECTOR_TYPE, new UnsignedWordElement(this.offset.apply(9)),
+						this.connectorTypeConverter(false)),
+				m(Alpitronic.ChannelId.EV_MAX_CHARGING_POWER, new UnsignedDoublewordElement(this.offset.apply(10))),
+				m(Alpitronic.ChannelId.EV_MIN_CHARGING_POWER, new UnsignedDoublewordElement(this.offset.apply(12))),
+				m(Alpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(this.offset.apply(14))),
+				m(Alpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(this.offset.apply(16)),
+						INVERT)));
+	}
+
+	/**
+	 * Adds version-specific Modbus tasks for firmware v2.3.x.
+	 */
+	private void addProtocolTasksV23() {
+		// v2.3: station-level VAR registers, reactive power at station-level (register
+		// 2),
+		// added TOTAL_CHARGED_ENERGY
+		this.addProtocolTasksV23OrLater(false);
+	}
+
+	/**
+	 * Adds version-specific Modbus tasks for firmware v2.4.x.
+	 */
+	private void addProtocolTasksV24() {
+		// v2.4: all v2.3 features + MAX_CHARGING_POWER_AC
+		this.addProtocolTasksV23();
+
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(this.offset.apply(36), Priority.LOW, m(
+				EvcsAlpitronic.ChannelId.MAX_CHARGING_POWER_AC, new UnsignedDoublewordElement(this.offset.apply(36)))));
+	}
+
+	/**
+	 * Adds version-specific Modbus tasks for firmware v2.5.x and later.
+	 */
+	private void addProtocolTasksV25() {
+		this.addProtocolTasksV23OrLater(true);
+
+		// v2.5+: all v2.4 features + MAX_CHARGING_POWER_AC
+		this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(this.offset.apply(36), Priority.LOW, m(
+				EvcsAlpitronic.ChannelId.MAX_CHARGING_POWER_AC, new UnsignedDoublewordElement(this.offset.apply(36)))));
+
+		// v2.5+ may have additional features like apparent power handling
+		// (currently implemented via existing RAW_CHARGE_POWER)
+	}
+
+	/**
+	 * Creates a callback for handling charged energy register updates.
+	 *
+	 * <p>
+	 * The hardware resets CHARGED_ENERGY to 0 when a charging session ends. This
+	 * callback preserves the channel value unless the status indicates not-ready.
+	 *
+	 * @return a Consumer for handling energy updates
+	 */
+	private Consumer<Integer> createChargedEnergyCallback() {
+		return e -> {
+			if (e == null) {
+				return;
+			}
+
+			/**
+			 * The internal session energy is set to 0 when the charging process has
+			 * finished. The SessionEnergy Channel should still contain the current value
+			 * for visualization.
+			 */
+			if (e == 0) {
+				switch (this.getStatus()) {
+				case UNDEFINED:
+				case NOT_READY_FOR_CHARGING:
+				case STARTING:
+					this._setEnergySession(0);
+					return;
+				case CHARGING:
+				case CHARGING_REJECTED:
+				case ENERGY_LIMIT_REACHED:
+				case ERROR:
+				case READY_FOR_CHARGING:
+					// Ignore 0 value
+					return;
+				}
+			}
+			this._setEnergySession(e * 10);
+		};
 	}
 
 	/*
@@ -279,16 +474,28 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 	 * firmware versions.
 	 */
 	private void addCalculatePowerListeners() {
-
-		// Calculate power from voltage and current
-		final Consumer<Value<Double>> calculatePower = ignore -> {
-			this._setActivePower(TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(//
-					this.getChargingVoltageChannel().getNextValue().get(), //
-					this.getChargingCurrentChannel().getNextValue().get() //
-			)));
-		};
-		this.getChargingVoltageChannel().onSetNextValue(calculatePower);
-		this.getChargingCurrentChannel().onSetNextValue(calculatePower);
+		// Only calculate if version < 2.5 (older versions return 0 on power register)
+		if (this.detectedFirmwareVersion != null
+				&& !AlpitronicVersionUtils.isVersion25OrLater(this.detectedFirmwareVersion)) {
+			// Calculate power from voltage and current
+			final Consumer<Value<Double>> calculatePower = ignore -> {
+				var voltage = this.getChargingVoltageChannel().getNextValue().get();
+				var current = this.getChargingCurrentChannel().getNextValue().get();
+				this._setActivePower(voltage != null && current != null ? TypeUtils.getAsType(OpenemsType.INTEGER,
+						TypeUtils.multiply(//
+								voltage, //
+								current //
+				)) : null);
+			};
+			this.getChargingVoltageChannel().onSetNextValue(calculatePower);
+			this.getChargingCurrentChannel().onSetNextValue(calculatePower);
+		} else {
+			// v2.5+: Use RAW_CHARGE_POWER directly
+			this.channel(Alpitronic.ChannelId.RAW_CHARGE_POWER).onSetNextValue(power -> {
+				var value = power.get();
+				this._setActivePower(value != null ? (Integer) value : null);
+			});
+		}
 	}
 
 	private void addStatusListener() {
@@ -312,6 +519,11 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 				-> Status.UNDEFINED;
 			});
 		});
+	}
+
+	@Override
+	protected ModbusProtocol defineModbusProtocol() {
+		return this.modbusProtocol;
 	}
 
 	@Override
@@ -365,7 +577,8 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "Limit:" + this.getSetChargePowerLimit().orElse(null) + "|" + this.getStatus().getName();
+		var versionPrefix = this.detectedFirmwareVersion != null ? this.detectedFirmwareVersion.toString() + "|" : "";
+		return versionPrefix + "Limit:" + this.getSetChargePowerLimit().orElse(null) + "|" + this.getStatus().getName();
 	}
 
 	@Override

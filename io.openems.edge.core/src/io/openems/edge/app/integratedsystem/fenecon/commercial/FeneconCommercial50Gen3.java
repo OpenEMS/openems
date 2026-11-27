@@ -16,6 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpio
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -23,6 +24,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predict
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
@@ -375,6 +377,10 @@ public class FeneconCommercial50Gen3 extends
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();

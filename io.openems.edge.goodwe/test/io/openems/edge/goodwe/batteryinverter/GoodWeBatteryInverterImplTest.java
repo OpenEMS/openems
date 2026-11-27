@@ -1,41 +1,10 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
-import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.ACTIVE_POWER;
-import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER;
-import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId.ACTUAL_POWER;
-import static io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId.CURRENT;
-import static io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId.VOLTAGE;
 import static io.openems.edge.goodwe.GoodWeConstants.DEFAULT_UNIT_ID;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.calculateWbmsChargeMaxCurrent;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.calculateWbmsDischargeMaxCurrent;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.doSetBmsVoltage;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_MODE;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_SET;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.GOODWE_TYPE;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_EXPORT;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_IMPORT;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.METER_COMMUNICATE_STATUS;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT1_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT1_P;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT2_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT2_P;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT3_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MPPT3_P;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV1_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV1_V;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV2_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV2_V;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV3_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV3_V;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV4_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV4_V;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV5_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV5_V;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV6_I;
-import static io.openems.edge.goodwe.common.GoodWe.ChannelId.TWO_S_PV6_V;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,38 +13,68 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl;
+import io.openems.edge.battery.fenecon.home.BatteryInverterPort;
 import io.openems.edge.battery.test.DummyBattery;
+import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
+import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.test.DummyRippleControlReceiver;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.goodwe.battery.cluster.AbstractGoodWeBatteryCluster;
+import io.openems.edge.goodwe.battery.cluster.GoodWeBatteryClusterFeneconHomeImpl;
 import io.openems.edge.goodwe.charger.mppt.twostring.GoodWeChargerMpptTwoStringImpl;
 import io.openems.edge.goodwe.charger.mppt.twostring.MpptPort;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
 import io.openems.edge.goodwe.common.GoodWe;
+import io.openems.edge.goodwe.common.GoodWePowerSetting;
+import io.openems.edge.goodwe.common.enums.BatteryPort;
+import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
+import io.openems.edge.goodwe.common.enums.EnableDisableOrUndefined;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
@@ -83,6 +82,7 @@ import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
+import io.openems.edge.goodwe.common.enums.SafetyParameterEnums;
 import io.openems.edge.goodwe.common.enums.WaveformDetection;
 
 @SuppressWarnings("deprecation")
@@ -126,16 +126,16 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(GRID_ACTIVE_POWER, 0) //
-						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, -2000) //
-						.input(MAX_AC_EXPORT, 2000) //
-						.input("charger0", ACTUAL_POWER, 2000) //
+						.input(Sum.ChannelId.GRID_ACTIVE_POWER, 0) //
+						.input(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, 0) //
+						.input(GoodWe.ChannelId.MAX_AC_IMPORT, -2000) //
+						.input(GoodWe.ChannelId.MAX_AC_EXPORT, 2000) //
+						.input("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -162,15 +162,15 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(GRID_ACTIVE_POWER, 0) //
-						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, -2000) //
-						.input(MAX_AC_EXPORT, 2000) //
+						.input(Sum.ChannelId.GRID_ACTIVE_POWER, 0) //
+						.input(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, 0) //
+						.input(GoodWe.ChannelId.MAX_AC_IMPORT, -2000) //
+						.input(GoodWe.ChannelId.MAX_AC_EXPORT, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), -1000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -197,15 +197,15 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(GRID_ACTIVE_POWER, 0) //
-						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, -2000) //
-						.input(MAX_AC_EXPORT, 2000) //
+						.input(Sum.ChannelId.GRID_ACTIVE_POWER, 0) //
+						.input(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, 0) //
+						.input(GoodWe.ChannelId.MAX_AC_IMPORT, -2000) //
+						.input(GoodWe.ChannelId.MAX_AC_EXPORT, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.DISCHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.DISCHARGE_BAT) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -232,14 +232,14 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input(GRID_ACTIVE_POWER, 2000) //
-						.input(ACTIVE_POWER, 4000) //
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input(Sum.ChannelId.GRID_ACTIVE_POWER, 2000) //
+						.input(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, 4000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 6000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -279,13 +279,14 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input("charger0", ACTUAL_POWER, 10000) //
-						.input("battery0", CHARGE_MAX_CURRENT, 20).onExecuteWriteCallbacks(() -> {
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 10000) //
+						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 20) //
+						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 10000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -312,13 +313,13 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input(MAX_AC_IMPORT, 3000) //
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input(GoodWe.ChannelId.MAX_AC_IMPORT, 3000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 3000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -345,13 +346,13 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input(MAX_AC_EXPORT, 8000) //
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input(GoodWe.ChannelId.MAX_AC_EXPORT, 8000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 8000, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -378,13 +379,13 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input(MAX_AC_IMPORT, 0) //
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input(GoodWe.ChannelId.MAX_AC_IMPORT, 0) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 0, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -411,13 +412,13 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
-						.input(MAX_AC_EXPORT, 0) //
+						.input(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, MeterCommunicateStatus.OK) //
+						.input(GoodWe.ChannelId.MAX_AC_EXPORT, 0) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 0, 0);
 						}) //
-						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0L));
+						.output(GoodWe.ChannelId.EMS_POWER_MODE, EmsPowerMode.AUTO) //
+						.output(GoodWe.ChannelId.EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -469,7 +470,7 @@ class GoodWeBatteryInverterImplTest {
 				.next(new TestCase(), 10) //
 
 				.next(new TestCase("Limited by MaxApparentPower and PV") //
-						.input(MAX_APPARENT_POWER, 55000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 55000) //
 						.input("battery0", Battery.ChannelId.VOLTAGE, 500) //
 						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 110) //
 						.input("battery0", Battery.ChannelId.DISCHARGE_MAX_CURRENT, 110) //
@@ -479,36 +480,36 @@ class GoodWeBatteryInverterImplTest {
 							assertEquals(55_000, (int) inverter.getGoodweType().maxBatChargeP);
 							assertEquals(55_000, (int) inverter.getGoodweType().maxBatDischargeP);
 						}) //
-						.output(MAX_AC_IMPORT, -50000) // (55kW - 5kW PV)
-						.output(MAX_AC_EXPORT, 55000)) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -50000) // (55kW - 5kW PV)
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 55000)) //
 
 				.next(new TestCase("Limited to zero, because of missing values") //
-						.input(MAX_APPARENT_POWER, null) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, null) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
-						.output(MAX_AC_IMPORT, 0) //
-						.output(MAX_AC_EXPORT, 0)) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, 0) //
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 0)) //
 
 				.next(new TestCase("Limited by max DC-power (55kW -/+ PV)") //
-						.input(MAX_APPARENT_POWER, 60000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 60000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
-						.output(MAX_AC_IMPORT, -50000) //
-						.output(MAX_AC_EXPORT, 60000)) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -50000) //
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 60000)) //
 
 				.next(new TestCase("Limited by Battery") //
 						.input("battery0", Battery.ChannelId.VOLTAGE, 600) //
 						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 50) //
 						.input("battery0", Battery.ChannelId.DISCHARGE_MAX_CURRENT, 50) //
-						.input(MAX_APPARENT_POWER, 50_000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 50_000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
 						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K) //
-						.output(MAX_AC_IMPORT, -25_000) //
-						.output(MAX_AC_EXPORT, 35_000)) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -25_000) //
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 35_000)) //
 
 				.next(new TestCase("Limited by MaxApparentPower") //
 						/*
@@ -518,13 +519,13 @@ class GoodWeBatteryInverterImplTest {
 						.input("battery0", Battery.ChannelId.VOLTAGE, 700) //
 						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 100) //
 						.input("battery0", Battery.ChannelId.DISCHARGE_MAX_CURRENT, 100) //
-						.input(MAX_APPARENT_POWER, 50_000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 50_000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
 						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K) //
-						.output(MAX_AC_IMPORT, -50_000) //
-						.output(MAX_AC_EXPORT, 50_000)) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -50_000) //
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 50_000)) //
 		; //
 	}
 
@@ -581,34 +582,39 @@ class GoodWeBatteryInverterImplTest {
 						.input("battery0", Battery.ChannelId.VOLTAGE, null) //
 						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 5) //
 						.input("battery0", Battery.ChannelId.DISCHARGE_MAX_CURRENT, -2) //
-						.input(MAX_APPARENT_POWER, 10000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 10000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
-						.output(MAX_AC_IMPORT, 0) //
-						.output(MAX_AC_EXPORT, 5000) //
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, 0) //
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 5000) //
 				) //
 
 				.next(new TestCase("Limited by max battery MaxCurrent & Force Charge") //
 						.input("battery0", Battery.ChannelId.VOLTAGE, 600) //
 						.input("battery0", Battery.ChannelId.CHARGE_MAX_CURRENT, 10) //
 						.input("battery0", Battery.ChannelId.DISCHARGE_MAX_CURRENT, -2) //
-						.input(MAX_APPARENT_POWER, 10000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 10000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
-						.output(MAX_AC_IMPORT, -1000) // 600V x 10A = 6kW allowed import minus 5kW DC-PV
-						.output(MAX_AC_EXPORT, 3800)) // 600V x -2A = -1.2kW allowed export plus 5kW DC-PV
+
+						// 600V x 10A = 6kW allowed import minus 5kW DC-PV
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -1000)
+						// 600V x -2A = -1.2kW allowed export plus 5kW DC-PV
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, 3800))
 
 				.next(new TestCase("Limited to force charge values without DC-PV") //
 						.input("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, null) //
-						.input(MAX_APPARENT_POWER, 10000) //
+						.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 10000) //
 						.onExecuteWriteCallbacks(() -> {
 							inverter.run(battery0, 0, 0);
 						}) //
-						.output(MAX_AC_IMPORT, -6000) // 600V x 10A = 6kW allowed import without DC-PV
-						.output(MAX_AC_EXPORT, -1200)) // 600V x -2A = -1.2kW allowed export without DC-PV
-		;
+
+						// 600V x 10A = 6kW allowed import without DC-PV
+						.output(GoodWe.ChannelId.MAX_AC_IMPORT, -6000)
+						// 600V x -2A = -1.2kW allowed export without DC-PV
+						.output(GoodWe.ChannelId.MAX_AC_EXPORT, -1200));
 	}
 
 	@Test
@@ -695,50 +701,50 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(MPPT1_I, 20) //
-						.input(MPPT1_P, 2000) //
-						.input(TWO_S_PV1_I, 10) //
-						.input(TWO_S_PV2_I, 10) //
-						.input(TWO_S_PV1_V, 240) //
-						.input(TWO_S_PV2_V, 240) //
+						.input(GoodWe.ChannelId.MPPT1_I, 20) //
+						.input(GoodWe.ChannelId.MPPT1_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV1_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV2_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV1_V, 240) //
+						.input(GoodWe.ChannelId.TWO_S_PV2_V, 240) //
 
 						// Values applied in the next cycle
-						.output("charger0", ACTUAL_POWER, 0) //
-						.output("charger1", ACTUAL_POWER, 0) //
-						.output("charger0", CURRENT, null) //
-						.output("charger1", CURRENT, null) //
-						.output("charger0", VOLTAGE, null) //
-						.output("charger1", VOLTAGE, null)) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger0", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger1", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger0", EssDcCharger.ChannelId.VOLTAGE, null) //
+						.output("charger1", EssDcCharger.ChannelId.VOLTAGE, null)) //
 				.next(new TestCase() //
-						.output("charger0", ACTUAL_POWER, 1000) //
-						.output("charger1", ACTUAL_POWER, 1000) //
-						.output("charger0", CURRENT, 10) //
-						.output("charger1", CURRENT, 10) //
-						.output("charger0", VOLTAGE, 240) //
-						.output("charger1", VOLTAGE, 240)) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger0", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger1", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger0", EssDcCharger.ChannelId.VOLTAGE, 240) //
+						.output("charger1", EssDcCharger.ChannelId.VOLTAGE, 240)) //
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(MPPT1_I, 20) //
-						.input(MPPT1_P, 2000) //
-						.input(TWO_S_PV1_I, 5) //
-						.input(TWO_S_PV2_I, 15) //
-						.output("charger0", ACTUAL_POWER, 1000) //
-						.output("charger1", ACTUAL_POWER, 1000)) //
+						.input(GoodWe.ChannelId.MPPT1_I, 20) //
+						.input(GoodWe.ChannelId.MPPT1_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV1_I, 5) //
+						.input(GoodWe.ChannelId.TWO_S_PV2_I, 15) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 1000)) //
 				.next(new TestCase() //
-						.output("charger0", ACTUAL_POWER, 500) //
-						.output("charger1", ACTUAL_POWER, 1500)) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(MPPT1_I, 20) //
-						.input(MPPT1_P, 2000) //
-						.input(TWO_S_PV1_I, 20) //
-						.input(TWO_S_PV2_I, 0) //
-						.output("charger0", ACTUAL_POWER, 500) //
-						.output("charger1", ACTUAL_POWER, 1500)) //
+						.input(GoodWe.ChannelId.MPPT1_I, 20) //
+						.input(GoodWe.ChannelId.MPPT1_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV1_I, 20) //
+						.input(GoodWe.ChannelId.TWO_S_PV2_I, 0) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 				.next(new TestCase() //
-						.output("charger0", ACTUAL_POWER, 2000) //
-						.output("charger1", ACTUAL_POWER, 0) //
+						.output("charger0", EssDcCharger.ChannelId.ACTUAL_POWER, 2000) //
+						.output("charger1", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
 				);
 
 		/*
@@ -769,50 +775,50 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(MPPT2_I, 20) //
-						.input(MPPT2_P, 2000) //
-						.input(TWO_S_PV3_I, 10) //
-						.input(TWO_S_PV4_I, 10) //
-						.input(TWO_S_PV3_V, 240) //
-						.input(TWO_S_PV4_V, 240) //
+						.input(GoodWe.ChannelId.MPPT2_I, 20) //
+						.input(GoodWe.ChannelId.MPPT2_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV3_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV4_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV3_V, 240) //
+						.input(GoodWe.ChannelId.TWO_S_PV4_V, 240) //
 
 						// Values applied in the next cycle
-						.output("charger2", ACTUAL_POWER, 0) //
-						.output("charger3", ACTUAL_POWER, 0) //
-						.output("charger2", CURRENT, null) //
-						.output("charger3", CURRENT, null) //
-						.output("charger2", VOLTAGE, null) //
-						.output("charger3", VOLTAGE, null)) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger2", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger3", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger2", EssDcCharger.ChannelId.VOLTAGE, null) //
+						.output("charger3", EssDcCharger.ChannelId.VOLTAGE, null)) //
 				.next(new TestCase() //
-						.output("charger2", ACTUAL_POWER, 1000) //
-						.output("charger3", ACTUAL_POWER, 1000) //
-						.output("charger2", CURRENT, 10) //
-						.output("charger3", CURRENT, 10) //
-						.output("charger2", VOLTAGE, 240) //
-						.output("charger3", VOLTAGE, 240)) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger2", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger3", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger2", EssDcCharger.ChannelId.VOLTAGE, 240) //
+						.output("charger3", EssDcCharger.ChannelId.VOLTAGE, 240)) //
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(MPPT2_I, 20) //
-						.input(MPPT2_P, 2000) //
-						.input(TWO_S_PV3_I, 5) //
-						.input(TWO_S_PV4_I, 15) //
-						.output("charger2", ACTUAL_POWER, 1000) //
-						.output("charger3", ACTUAL_POWER, 1000)) //
+						.input(GoodWe.ChannelId.MPPT2_I, 20) //
+						.input(GoodWe.ChannelId.MPPT2_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV3_I, 5) //
+						.input(GoodWe.ChannelId.TWO_S_PV4_I, 15) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 1000)) //
 				.next(new TestCase() //
-						.output("charger2", ACTUAL_POWER, 500) //
-						.output("charger3", ACTUAL_POWER, 1500)) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(MPPT2_I, 20) //
-						.input(MPPT2_P, 2000) //
-						.input(TWO_S_PV3_I, 20) //
-						.input(TWO_S_PV4_I, 0) //
-						.output("charger2", ACTUAL_POWER, 500) //
-						.output("charger3", ACTUAL_POWER, 1500)) //
+						.input(GoodWe.ChannelId.MPPT2_I, 20) //
+						.input(GoodWe.ChannelId.MPPT2_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV3_I, 20) //
+						.input(GoodWe.ChannelId.TWO_S_PV4_I, 0) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 				.next(new TestCase() //
-						.output("charger2", ACTUAL_POWER, 2000) //
-						.output("charger3", ACTUAL_POWER, 0) //
+						.output("charger2", EssDcCharger.ChannelId.ACTUAL_POWER, 2000) //
+						.output("charger3", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
 				);
 
 		/*
@@ -843,50 +849,50 @@ class GoodWeBatteryInverterImplTest {
 						.setStartStop(StartStopConfig.START) //
 						.build()) //
 				.next(new TestCase() //
-						.input(MPPT3_I, 20) //
-						.input(MPPT3_P, 2000) //
-						.input(TWO_S_PV5_I, 10) //
-						.input(TWO_S_PV6_I, 10) //
-						.input(TWO_S_PV5_V, 240) //
-						.input(TWO_S_PV6_V, 240) //
+						.input(GoodWe.ChannelId.MPPT3_I, 20) //
+						.input(GoodWe.ChannelId.MPPT3_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV5_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV6_I, 10) //
+						.input(GoodWe.ChannelId.TWO_S_PV5_V, 240) //
+						.input(GoodWe.ChannelId.TWO_S_PV6_V, 240) //
 
 						// Values applied in the next cycle
-						.output("charger4", ACTUAL_POWER, 0) //
-						.output("charger5", ACTUAL_POWER, 0) //
-						.output("charger4", CURRENT, null) //
-						.output("charger5", CURRENT, null) //
-						.output("charger4", VOLTAGE, null) //
-						.output("charger5", VOLTAGE, null)) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
+						.output("charger4", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger5", EssDcCharger.ChannelId.CURRENT, null) //
+						.output("charger4", EssDcCharger.ChannelId.VOLTAGE, null) //
+						.output("charger5", EssDcCharger.ChannelId.VOLTAGE, null)) //
 				.next(new TestCase() //
-						.output("charger4", ACTUAL_POWER, 1000) //
-						.output("charger5", ACTUAL_POWER, 1000) //
-						.output("charger4", CURRENT, 10) //
-						.output("charger5", CURRENT, 10) //
-						.output("charger4", VOLTAGE, 240) //
-						.output("charger5", VOLTAGE, 240)) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger4", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger5", EssDcCharger.ChannelId.CURRENT, 10) //
+						.output("charger4", EssDcCharger.ChannelId.VOLTAGE, 240) //
+						.output("charger5", EssDcCharger.ChannelId.VOLTAGE, 240)) //
 
 				// Chargers with different current values
 				.next(new TestCase() //
-						.input(MPPT3_I, 20) //
-						.input(MPPT3_P, 2000) //
-						.input(TWO_S_PV5_I, 5) //
-						.input(TWO_S_PV6_I, 15) //
-						.output("charger4", ACTUAL_POWER, 1000) //
-						.output("charger5", ACTUAL_POWER, 1000)) //
+						.input(GoodWe.ChannelId.MPPT3_I, 20) //
+						.input(GoodWe.ChannelId.MPPT3_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV5_I, 5) //
+						.input(GoodWe.ChannelId.TWO_S_PV6_I, 15) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 1000) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 1000)) //
 				.next(new TestCase() //
-						.output("charger4", ACTUAL_POWER, 500) //
-						.output("charger5", ACTUAL_POWER, 1500)) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 
 				.next(new TestCase() //
-						.input(MPPT3_I, 20) //
-						.input(MPPT3_P, 2000) //
-						.input(TWO_S_PV5_I, 20) //
-						.input(TWO_S_PV6_I, 0) //
-						.output("charger4", ACTUAL_POWER, 500) //
-						.output("charger5", ACTUAL_POWER, 1500)) //
+						.input(GoodWe.ChannelId.MPPT3_I, 20) //
+						.input(GoodWe.ChannelId.MPPT3_P, 2000) //
+						.input(GoodWe.ChannelId.TWO_S_PV5_I, 20) //
+						.input(GoodWe.ChannelId.TWO_S_PV6_I, 0) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 500) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 1500)) //
 				.next(new TestCase() //
-						.output("charger4", ACTUAL_POWER, 2000) //
-						.output("charger5", ACTUAL_POWER, 0) //
+						.output("charger4", EssDcCharger.ChannelId.ACTUAL_POWER, 2000) //
+						.output("charger5", EssDcCharger.ChannelId.ACTUAL_POWER, 0) //
 				);
 	}
 
@@ -1272,14 +1278,14 @@ class GoodWeBatteryInverterImplTest {
 
 		var test = getComponentTest(component, GridCode.VDE_4105) //
 				.next(new TestCase() //
-						.input(GOODWE_TYPE, GoodWeType.GOODWE_5K_BT));
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.GOODWE_5K_BT));
 
 		assertEquals(
 				"Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter. Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt",
 				docForState14.getText());
 
 		test.next(new TestCase() //
-				.input(GOODWE_TYPE, GoodWeType.FENECON_FHI_10_DAH));
+				.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_10_DAH));
 
 		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter.",
 				docForState14.getText());
@@ -1287,14 +1293,18 @@ class GoodWeBatteryInverterImplTest {
 
 	@Test
 	void testWaveFormDetectionWith4105() throws Exception {
-		getComponentTest(GridCode.VDE_4105, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
-				.next(new TestCase()
+		getComponentTest(GridCode.VDE_4105, //
+				new TestCase() //
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+				.next(new TestCase() //
 						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.HIGH_PRECISION));
 	}
 
 	@Test
 	void testWaveFormDetectionWith4110() throws Exception {
-		getComponentTest(GridCode.VDE_4110, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+		getComponentTest(GridCode.VDE_4110, //
+				new TestCase() //
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
 				.next(new TestCase() //
 						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K) //
 						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.DETECTION_DISABLED));
@@ -1354,8 +1364,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(100, result);
@@ -1373,7 +1383,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(0, result);
@@ -1391,8 +1401,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, wbmsMaxCharge, null, null, null, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, true), 100);
 
 		assertEquals(100, result);
@@ -1410,7 +1420,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsChargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, true), 100);
 
 		assertEquals(0, result);
@@ -1428,8 +1438,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(100, result);
@@ -1447,7 +1457,7 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(false, false), 100);
 
 		assertEquals(0, result);
@@ -1465,8 +1475,8 @@ class GoodWeBatteryInverterImplTest {
 
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
-						null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null, null,
-						null, null, lock),
+						null, null, null, null, null, null, null, wbmsMaxDischarge, null, null, null, null, null, null,
+						null, null, null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(true, false), 100);
 
 		assertEquals(100, result);
@@ -1484,10 +1494,921 @@ class GoodWeBatteryInverterImplTest {
 		final var result = calculateWbmsDischargeMaxCurrent(battery,
 				new GoodWeBatteryInverterImpl.BatteryLimitsChannel(null, null, null, null, null, null, null, null, null,
 						null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-						lock),
+						null, lock),
 				new GoodWeBatteryInverterImpl.ClusterInfo(true, false), 100);
 
 		assertEquals(0, result);
+	}
+
+	@Nested
+	class FeedInLimitationTests {
+
+		@ParameterizedTest(name = "configuredLimit={0}")
+		@CsvSource({ //
+				"0", //
+				"10_000", //
+				"33_000", //
+				"40_000", //
+				"60_000" //
+		})
+		void testHome30UsesConfiguredExtendedFeedPowerRegardlessOfFuseLimit(int configuredLimit) throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(Math.min(22_170, configuredLimit)) //
+							.setFuseCurrent(32) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, configuredLimit));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 29_900) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							// No limit can be higher than the grid-fuse-limit
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, Math.min(22_170, configuredLimit)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
+		void testCommercialInvertersUseExtendedFeedPowerForHighLimit(GoodWeType goodWeType) throws Exception {
+			// FENECON_50K/FENECON_100K go through the restored legacy limit
+			// calculation (like every non-Home30 type), but always write the value
+			// into the 32-bit EXTENDED_FEED_POWER_PARA_SET register - FEED_POWER_PARA_SET
+			// (16-bit) is intentionally never written for these types.
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(70_000) //
+							.setFuseCurrent(110) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, 70_000));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 80_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// gridSellHardLimit(70_000) < maxApparentPower(80_000) -> enabled
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 70_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@EnumSource(value = GoodWeType.class, names = { "FENECON_50K", "FENECON_100K" })
+		void testCommercialInvertersDisableFeedInLimitWhenBelowMaxApparentPower(GoodWeType goodWeType)
+				throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(62_353) //
+							.setFuseCurrent(90) //
+							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, goodWeType) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 50_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// gridSellHardLimit (fuse: 90 A = 62_353 W) >= maxApparentPower(50_000)
+							// -> no limitation needed, value falls back to maxApparentPower
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 50_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "NO_LIMITATION,40000", "DYNAMIC_LIMITATION,-1", "DYNAMIC_LIMITATION,-1000" })
+		void testHome30FallsBackToHardLimitForInvalidOrInactiveConfiguredLimit(GridFeedInLimitationType limitationType,
+				int configuredLimit) throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(22_170) //
+							.setFuseCurrent(32) //
+							.setGridSellLimit(limitationType, configuredLimit));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 25_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 22_170) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest(name = "limitationType={0}")
+		@EnumSource(value = GridFeedInLimitationType.class, //
+				names = { "NO_LIMITATION", "DYNAMIC_LIMITATION", "UNDEFINED" })
+		void testFuseLimitAppliesBelowMaxApparentPower(GridFeedInLimitationType limitationType) throws Exception {
+			// No configured limit: resulting hard limit comes from fuse calculation,
+			// regardless of limitation type.
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(9_699) //
+							.setFuseCurrent(14) //
+							.setGridSellLimit(limitationType, null));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 15_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 9_699));
+		}
+
+		@ParameterizedTest(name = "limitationType={0}")
+		@EnumSource(value = GridFeedInLimitationType.class, //
+				names = { "NO_LIMITATION", "DYNAMIC_LIMITATION", "UNDEFINED" })
+		void testHome30UsesFuseBasedGridSellHardLimitBelowMaxApparentPower(GridFeedInLimitationType limitationType)
+				throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(29_791) //
+							.setFuseCurrent(43) //
+							.setGridSellLimit(limitationType, null));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 29_791) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testNoLimitationUsesFuseLimitAboveMaxApparentPower() throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(41_569) //
+							.setFuseCurrent(60) //
+							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// Fuse limit (41_569 W) is above maxApparentPower(30_000) -> restored
+							// legacy behavior disables the limitation and falls back to
+							// maxApparentPower, keeping the value within the signed 16-bit register.
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 30_000));
+		}
+
+		@Test
+		void testUndefinedMaxApparentPowerSkipsLegacyWrite() throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// Without a defined maxApparentPower the legacy handler must not write
+							// anything - there is no safe fallback value for the signed 16-bit
+							// register.
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testLegacyFeedPowerParaSetIsClampedAndWarnsWhenExceedingSignedWordMaximum() throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(138_564) //
+							.setFuseCurrent(200) // fuse-based limit: 138_564 W
+							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, null) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K) //
+							// gridSellHardLimit (138_564) >= maxApparentPower(40_000) -> disabled,
+							// value falls back to maxApparentPower, which exceeds the signed
+							// 16-bit register maximum (32_767) and must be clamped.
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 40_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, false) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, 32_767) //
+							.output(GoodWe.ChannelId.FEED_POWER_LIMIT_EXCEEDS_SUPPORTED_MAXIMUM, true));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "40000,9000", "5000,5000", "0,0" })
+		void testRippleControlReceiverRestrictionAppliesMinimumLimit(int configuredLimit, int expectedLimit)
+				throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setFuseCurrent(32) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, configuredLimit));
+			final var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.THIRTY_PERCENT);
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							// RCR: 30_000 x 30% = 9_000 W
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, expectedLimit) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testRippleControlReceiverWithoutRestrictionUsesFuseLimit() throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(41_569) //
+							.setFuseCurrent(60) //
+							.setGridSellLimit(GridFeedInLimitationType.NO_LIMITATION, 0));
+			final var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							// P = sqrt(3) * 400 * 60 * 1 = 41.569
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 41569)
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@Test
+		void testRippleControlReceiverSkipsWriteUntilMaxApparentPowerIsAvailable() throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setFuseCurrent(60) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, 40_000));
+			var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.THIRTY_PERCENT);
+			var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, null) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null)) //
+					.next(new TestCase() //
+							.input(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, 30_000) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, 9_000) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		@ParameterizedTest
+		@CsvSource({ "40000", "0" })
+		void testHome30WithoutActiveRcrDoesNotRequireMaxApparentPower(int configuredLimit) throws Exception {
+			final var meta = new DummyMeta() //
+					.withGridLimit(l -> l //
+							.setGridSellHardLimit(Math.min(22_170, configuredLimit)) //
+							.setFuseCurrent(32) //
+							.setGridSellLimit(GridFeedInLimitationType.DYNAMIC_LIMITATION, configuredLimit));
+			final var rcr = new DummyRippleControlReceiver("rcr0") //
+					.withRestrictionLevel(EssRestrictionLevel.NO_RESTRICTION);
+			final var ess = new GoodWeBatteryInverterImpl();
+
+			activateForFeedInLimitationTest(ess, meta, rcr) //
+					.next(new TestCase() //
+							.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_FHI_29_9_DAH) //
+							.onExecuteWriteCallbacks(() -> ess.run(new DummyBattery("battery0"), 0, 0)) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, Math.min(22_170, configuredLimit)) //
+							.output(GoodWe.ChannelId.FEED_POWER_ENABLE, true) //
+							.output(GoodWe.ChannelId.FEED_POWER_PARA_SET, null));
+		}
+
+		/**
+		 * Builds and activates a {@link GoodWeBatteryInverterImpl} together with its
+		 * {@link ComponentTest} for the handleGridFeed() tests.
+		 *
+		 * @param ess  the {@link GoodWeBatteryInverterImpl} to activate
+		 * @param meta the {@link DummyMeta} to inject
+		 * @param rcr  the {@link ControllerEssRippleControlReceiver} to inject, or
+		 *             {@code null} to leave the reference unset
+		 * @return the activated {@link ComponentTest}
+		 * @throws Exception on error
+		 */
+		private static ComponentTest activateForFeedInLimitationTest(GoodWeBatteryInverterImpl ess, DummyMeta meta,
+				ControllerEssRippleControlReceiver rcr) throws Exception {
+			var test = new ComponentTest(ess) //
+					.addReference("meta", meta) //
+					.addReference("power", new DummyPower()) //
+					.addReference("cm", new DummyConfigurationAdmin()) //
+					.addReference("componentManager", new DummyComponentManager()) //
+					.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+					.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+					.addReference("sum", new DummySum());
+			if (rcr != null) {
+				test.addReference("rcr", rcr);
+			}
+			return test.activate(MyConfig.create() //
+					.setId("batteryInverter0") //
+					.setModbusId("modbus0") //
+					.setModbusUnitId(DEFAULT_UNIT_ID) //
+					.setSafetyCountry(SafetyCountry.GERMANY) //
+					.setMpptForShadowEnable(EnableDisable.ENABLE) //
+					.setBackupEnable(EnableDisable.ENABLE) //
+					.setFeedPowerEnable(EnableDisable.DISABLE) //
+					.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+					.setControlMode(ControlMode.SMART) //
+					.setStartStop(StartStopConfig.START) //
+					.build());
+		}
+	}
+
+	static final class DummyBatteryFeneconHomeImpl extends BatteryFeneconHomeImpl {
+
+		private String id;
+		private BatteryInverterPort inverterPort = BatteryInverterPort.PORT_1;
+
+		public DummyBatteryFeneconHomeImpl setId(String id) {
+			this.id = id;
+			return this;
+		}
+
+		public DummyBatteryFeneconHomeImpl setInverterPort(BatteryInverterPort inverterPort) {
+			this.inverterPort = inverterPort;
+			return this;
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public BatteryInverterPort getBatteryInverterPort() {
+			return this.inverterPort;
+		}
+
+	}
+
+	@Test
+	void testUpdatePowerCluster() throws Exception {
+
+		final var battery1 = new DummyBatteryFeneconHomeImpl() //
+				.setId("battery1") //
+				.setInverterPort(BatteryInverterPort.PORT_1);
+		final var battery2 = new DummyBatteryFeneconHomeImpl() //
+				.setId("battery2") //
+				.setInverterPort(BatteryInverterPort.PORT_2);
+
+		final var cluster = new GoodWeBatteryClusterFeneconHomeImpl();
+		new ComponentTest(cluster) //
+				.addReference("addBattery", battery1) //
+				.addReference("addBattery", battery2);
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(cluster, 0, 0);
+				}) //
+				.input(GoodWe.ChannelId.P_BATTERY1, 1000) //
+				.input(GoodWe.ChannelId.P_BATTERY2, 2000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_1, 1000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_2, 2000) //
+				.output(HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, 3000) //
+		);
+	}
+
+	@Test
+	void testUpdatePowerSingleBattery() throws Exception {
+
+		final var battery = new BatteryFeneconHomeImpl();
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(battery, 0, 0);
+				}) //
+				.input(GoodWe.ChannelId.P_BATTERY1, 1000) //
+				.input(GoodWe.ChannelId.P_BATTERY2, 2000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_1, 1000) //
+				.output(GoodWe.ChannelId.DC_DISCHARGE_POWER_BATTERY_2, null) //
+				.output(HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, 1000) //
+		);
+	}
+
+	@Test
+	void testUpdateBatteryLimits() throws Exception {
+
+		final var battery1 = new DummyBattery("battery1") //
+				.withVoltage(401) //
+				.withCurrent(11) //
+				.withSoc(31) //
+				.withSoh(32) //
+				.withMaxCellTemperature(200) //
+				.withMinCellTemperature(200) //
+				.withChargeMaxCurrent(91) //
+				.withDischargeMaxCurrent(92) //
+				.withChargeMaxVoltage(411) //
+				.withDischargeMinVoltage(412) //
+		;
+
+		final var battery2 = new DummyBattery("battery2") //
+				.withVoltage(402) //
+				.withCurrent(12) //
+				.withSoc(33) //
+				.withSoh(34) //
+				.withMaxCellTemperature(210) //
+				.withMinCellTemperature(210) //
+				.withChargeMaxCurrent(93) //
+				.withDischargeMaxCurrent(94) //
+				.withChargeMaxVoltage(413) //
+				.withDischargeMinVoltage(414) //
+		;
+
+		final AbstractGoodWeBatteryCluster cluster = mock();
+		when(cluster.getBatteries()).thenReturn(
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery1, battery2), List.of(battery1, battery2)));
+		when(cluster.getChargeMaxCurrent()).thenReturn(new Value<>(null, 100));
+		when(cluster.getDischargeMaxCurrent()).thenReturn(new Value<>(null, 100));
+		when(cluster.getVoltage()).thenReturn(new Value<>(null, 401));
+
+		final var inverter = new GoodWeBatteryInverterImpl();
+		final var test = getComponentTest(inverter, GridCode.VDE_4105);
+		test.next(new TestCase()//
+				.onBeforeWriteCallbacks(() -> {
+					inverter.run(cluster, 0, 0);
+				})
+
+				// battery 1
+				.input(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, 0) //
+				.input(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, 0) //
+
+				.output(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, BatteryProtocol.EMS_USE) //
+				.output(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, 25) //
+				.output(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, 25) //
+				.output(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, 411) //
+				.output(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.BMS_CAPACITY, 50) //
+				.output(GoodWe.ChannelId.WBMS_VERSION, 1) //
+				.output(GoodWe.ChannelId.WBMS_STRINGS, 9) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, 411) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT, 1) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, 412) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT, 1) //
+				.output(GoodWe.ChannelId.WBMS_VOLTAGE, 401) //
+				.output(GoodWe.ChannelId.WBMS_CURRENT, 11) //
+				.output(GoodWe.ChannelId.WBMS_SOC, 31) //
+				.output(GoodWe.ChannelId.WBMS_SOH, 32) //
+				.output(GoodWe.ChannelId.WBMS_TEMPERATURE, 200) //
+				.output(GoodWe.ChannelId.WBMS_WARNING_CODE, 0) //
+				.output(GoodWe.ChannelId.WBMS_ALARM_CODE, 0) //
+				.output(GoodWe.ChannelId.WBMS_STATUS, 0) //
+				.output(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, null) //
+				.output(GoodWe.ChannelId.BATTERY_1_LOCK, null) //
+
+				// battery 2
+				.input(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX, 0) //
+				.input(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX, 0) //
+
+				.output(GoodWe.ChannelId.BATTERY_2_PROTOCOL, BatteryProtocol.EMS_USE) //
+				.output(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX, 25) //
+				.output(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX, 25) //
+				.output(GoodWe.ChannelId.BATTERY_2_CHARGE_VOLTAGE_MAX, 413) //
+				.output(GoodWe.ChannelId.BATTERY_2_VOLTAGE_UNDER_MIN, 414) //
+				.output(GoodWe.ChannelId.BATTERY_2_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BATTERY_2_OFFLINE_SOC_UNDER_MIN, 0) //
+				.output(GoodWe.ChannelId.BATTERY_2_OFFLINE_VOLTAGE_UNDER_MIN, 414) //
+				.output(GoodWe.ChannelId.BATTERY_2_CAPACITY, 50) //
+				.output(GoodWe.ChannelId.WBMS_VERSION_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_STRINGS_2, 9) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE_2, 413) //
+				.output(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE_2, 414) //
+				.output(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT_2, 1) //
+				.output(GoodWe.ChannelId.WBMS_VOLTAGE_2, 402) //
+				.output(GoodWe.ChannelId.WBMS_CURRENT_2, 12) //
+				.output(GoodWe.ChannelId.WBMS_SOC_2, 33) //
+				.output(GoodWe.ChannelId.WBMS_SOH_2, 34) //
+				.output(GoodWe.ChannelId.WBMS_TEMPERATURE_2, 210) //
+				.output(GoodWe.ChannelId.WBMS_WARNING_CODE_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_ALARM_CODE_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_STATUS_2, 0) //
+				.output(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION_2, null) //
+				.output(GoodWe.ChannelId.BATTERY_2_LOCK, null) //
+		);
+	}
+
+	@Test
+	void testappendV3Tasks() throws Exception {
+		final var bridge = new DummyModbusBridge("modbus1")
+				.withRegisters(43506, 0x0064, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0046, 0x00A0)
+				.withRegisters(43610, 0x0005, 0x000A, 0x0000, 0x044C, 0x0384, 0x139C, 0x1374, 0x001E, 0x003C, 0x0000,
+						0x047E, 0x0352, 0x13EC, 0x12F2) //
+				.withRegisters(43640, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x012C, 0x01F4, 0x0438, 0x012C, 0x0398,
+						0xFED4, 0x04B0, 0x01F4, 0x0320, 0xFE0C, 0x0000, 0x0000, 0x0000, 0x0000, 0x0003, 0x0000, 0x0000,
+						0x03E8, 0x03E8, 0x02BC, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x044C, 0x00C8, 0x0384, 0x0384, 0x047E, 0x012C, 0x0352,
+						0x0064, 0x0000, 0x0000, 0x0032, 0x0000, 0x1388, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x01F4, 0x02BC, 0x00C8, 0x0000, 0x0320, 0x0384, 0x03E8, 0x03B6, 0x0000, 0x07D0, 0x07D0, 0x0000,
+						0x0000, 0x0438, 0x0000, 0x0000, 0x0000, 0x0006, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0001, 0x0000) //
+				.withRegisters(43780, 0x0000, 0x0000, 0x1388, 0x0000, 0x0190, 0x00C8, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x139C, 0x0003, 0x0000, 0x0064,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x1388, 0x0000, 0x0258, 0x0078,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001,
+						0x1374, 0x0005, 0x0000, 0x0096, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xFF9C, 0x05DC, 0x02BC,
+						0xFA24, 0x012C, 0x09C4, 0xFED4, 0xF63C, 0x01F4, 0x01F4, 0xFE0C, 0xFE0C, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x000A, 0x0000, 0x0000, 0x000A, 0x0014) //
+				.withRegisters(43910, 0x0398, 0x0000, 0x01F4, 0x04B0, 0x0000, 0x03E8, 0x0320, 0x0000, 0x05DC, 0x044C,
+						0x0000, 0x07D0, 0x0384, 0x0000, 0x0BB8, 0x047E, 0x0000, 0x01F4, 0x0352, 0x0000, 0x03E8, 0x0438,
+						0x0000, 0x05DC, 0x13EC, 0x0000, 0x07D0, 0x12F2, 0x0000, 0x0BB8, 0x139C, 0x0000, 0x01F4, 0x1374,
+						0x0000, 0x03E8, 0x13EC, 0x0000, 0x05DC, 0x12F2, 0x0000, 0x07D0, 0x139C, 0x0000, 0x0BB8, 0x1374,
+						0x0000, 0x01F4, 0x0398, 0x0000, 0x03E8, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0032, 0x0000, 0x0050, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0001, 0x86A0, 0x0001, 0x86A0, 0x0000, 0x0000, 0x0000, 0x0000, 0x04B0, 0x0320,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0005, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x044C) //
+				.withRegisters(44040, 0x0384, 0x0064, 0x047E, 0x0096, 0x0352, 0x00C8, 0x0438, 0x00FA, 0x0398, 0x0014,
+						0x04B0, 0x001E, 0x0320, 0x0032, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x044C, 0x0384, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x047E, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+						0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0352, 0x0064, 0x0438, 0x0096, 0x0398, 0x00C8,
+						0x04B0, 0x00FA, 0x0320, 0x0014, 0x044C, 0x001E, 0x0384, 0x0032) //
+				.withRegisters(44150, 0x0000, 0xBB80, 0x0000, 0x05DC, 0xAFC8, 0x0000, 0x07D0, 0xC830, 0x0000, 0x0BB8,
+						0xA314, 0x0000, 0x01F4, 0x9F2C, 0x0000, 0x03E8) //
+				.withRegisters(44166, 0xC830, 0x0000, 0x05DC); //
+
+		var sut = new GoodWeBatteryInverterImpl();
+
+		final var test = new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", bridge) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus1") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
+						.build()); //
+
+		sut.getGoodweTypeChannel().setNextValue(GoodWeType.FENECON_100K);
+		sut.getGoodweTypeChannel().nextProcessImage();
+		sut.getDspFmVersionMasterChannel().setNextValue(1);
+		sut.getDspFmVersionMasterChannel().nextProcessImage();
+		sut.getDspBetaVersionChannel().setNextValue(212);
+		sut.getDspBetaVersionChannel().nextProcessImage();
+
+		sut.addPowerSettingTasks();
+
+		test.next(new TestCase(), 10);
+
+		test.next(new TestCase() //
+				.activateStrictMode() //
+				.withIgnoredChannelsForStrictMode(channelIdsExceptGoodWePowerSettings())
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_GENERAL_OUTPUT_ACTIVE_POWER, 100) //
+				.outputReadValue(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, FixedPowerFactor.LAGGING_0_93) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_FIXED_Q_VALUE, 160)
+				// -- block starting at 43610 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_OBSERVATION_TIME, 5) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_SOFT_RAMP_UP_GRADIENT, 10) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_LOWER_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_UPPER_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_LOWER_FREQUENCY, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RAMP_UP_UPPER_FREQUENCY, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_OBSERVATION_TIME, 30) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_GRADIENT, 60) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_LOWER_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_UPPER_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_LOWER_FREQUENCY, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_UPPER_FREQUENCY, 48500) //
+
+				// -- block starting at 43640 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_ENABLE_QU_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_EXTENDED_FUNCTIONS,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_CURVE_MODE, SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PU_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_OUTPUT_RESPONSE_MODE,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_CURVE_COS_PHI_P, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_RECONNECTION_GRADIENT_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_CURVE_MODE,
+						SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_OVEREXCITED_SLOPE, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_UNDEREXCITED_SLOPE, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_UNDEREXCITED_SLOPE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COS_PHI_P_OVEREXCITED_SLOPE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_LOCK_IN_POWER, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_COS_PHI, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_COS_PHI, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_COS_PHI, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_LOCK_OUT_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V1_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V1_VALUE, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V2_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V2_VALUE, -300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V3_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V3_VALUE, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V4_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_V4_VALUE, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_TIME_CONSTANT, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QU_VOLTAGE_DEAD_BAND, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V1_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V1_VALUE, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V2_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V2_VALUE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V3_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V3_VALUE, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V4_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_V4_VALUE, 100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_GRADIENT_MODE, 50) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PU_PT1_TIME_CONSTANT_PT1_MODE, 5000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_A_POINT_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_B_POINT_POWER, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_C_POINT_POWER, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_COS_PHI, 950) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_EXTENDED_FUNCTIONS,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_LOCK_OUT_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_TIME_CONSTANT, 600) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_CP_SOFT_RAMP_UP_GRADIENT_ENABLE, true) //
+
+				// -- block starting at 43780 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_OVERFREQUENZY_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
+						EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_QP_CURVE, EnableCurve.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_CURVE_MODE, SafetyParameterEnums.Rpm.Mode.BASIC) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_SLOPE, 400) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_TIME, 20000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_START, 50000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_THRESHOLD, 50000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_FSTOP_ENABLE, false) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_POINT, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_DELAY_WAITING_TIME, 3000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_OVERFREQUENCY_HYSTERESIS_SLOPE, 100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_SLOPE, 600) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_TIME, 12) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_FSTOP_ENABLE, true) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_HYSTERESIS_POINT, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_DELAY_WAITING_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_APM_PF_UNDERFREQUENCY_HYSTERESIS_SLOPE, 150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P1_POWER, -100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P1_REACTIVE_POWER, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P2_POWER, 700) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P2_REACTIVE_POWER, -1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P3_POWER, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P3_REACTIVE_POWER, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P4_POWER, -300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P4_REACTIVE_POWER, -2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P5_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P5_REACTIVE_POWER, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P6_POWER, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_P6_REACTIVE_POWER, -500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_TIME_CONSTANT, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_OVEREXCITED_SLOPE, 10) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_RPM_QP_UNDEREXCITED_SLOPE, 20) //
+
+				// -- block starting at 43910 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_CURRENT_DISTRIBUTION_MODE,
+						SafetyParameterEnums.Vrt.CurrentDistributionMode.REACTIVE_POWER_PRIO) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_MODE,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_MODE_END,
+						SafetyParameterEnums.Vrt.GeneralRecoveryMode.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ZERO_CURRENT_MODE_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SLOPE, 100000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SLOPE, 100000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_1_VALUE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_1_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_1_VALUE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_1_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_2_VALUE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_2_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_2_VALUE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_2_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_3_VALUE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_3_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_3_VALUE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_3_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_4_VALUE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_UNDER_VOLT_STAGE_4_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_4_VALUE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_OVER_VOLT_STAGE_4_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_1_VALUE, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_1_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_1_VALUE, 48500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_1_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_2_VALUE, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_2_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_2_VALUE, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_2_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_3_VALUE, 51000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_3_TRIP_TIME, 1500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_3_VALUE, 48500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_3_TRIP_TIME, 2000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_4_VALUE, 50200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_UNDER_FREQ_STAGE_4_TRIP_TIME, 3000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_4_VALUE, 49800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FPP_OVER_FREQ_STAGE_4_TRIP_TIME, 500L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_TEN_MIN_OVERVOLT_STAGE_VALUE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VPP_TEN_MIN_STAGE_TRIP_TIME, 1000L) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_ACTIVE_POWER_RECOVERY_SPEED, 50) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_VRT_REACTIVE_POWER_RECOVERY_SPEED, 80) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ENTER_THRESHOLD, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_EXIT_ENDPOINT, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_K1_SLOPE, 5) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD, 1100) //
+
+				// -- block starting at 44040 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ZERO_CURRENT_MODE_ENABLE,
+						EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV1_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV1_TIME, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV2_VOLTAGE, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV2_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV3_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV3_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV4_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV4_TIME, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV5_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV5_TIME, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV6_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV6_TIME, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV7_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_LVRT_UV7_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ENTER_HIGH_CROSSING, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_EXIT_HIGH_CROSSING, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_K2_SLOPE, 8) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD, 1150) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV1_VOLTAGE, 850) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV1_TIME, 1000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV2_VOLTAGE, 1080) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV2_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV3_VOLTAGE, 920) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV3_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV4_VOLTAGE, 1200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV4_TIME, 2500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV5_VOLTAGE, 800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV5_TIME, 200) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV6_VOLTAGE, 1100) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV6_TIME, 300) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV7_VOLTAGE, 900) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_HVRT_OV7_TIME, 500) //
+
+				// -- block starting at 44150 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_ENABLE, EnableDisableOrUndefined.DISABLE) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF1_FREQUENCY, 4800) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF1_TIME, 1500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF2_FREQUENCY, 4500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF2_TIME, 2000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF3_FREQUENCY, 5124) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_UF3_TIME, 3000) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF1_FREQUENCY, 4174) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF1_TIME, 500) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF2_FREQUENCY, 4074) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF2_TIME, 1000) //
+
+				// -- block starting at 44166 --
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF3_FREQUENCY, 5124) //
+				.outputReadValue(GoodWePowerSetting.ChannelId.V2_FRT_OF3_TIME, 1500) //
+
+		);
+	}
+
+	private static List<ChannelId> channelIdsExceptGoodWePowerSettings() {
+
+		final var excludingChannels = Stream.of(//
+				GoodWePowerSetting.ChannelId.V2_APM_GENERAL_POWER_GRADIENT, //
+				GoodWePowerSetting.ChannelId.V2_RPM_D_POINT_POWER, //
+				GoodWePowerSetting.ChannelId.V2_RPM_E_POINT_POWER, //
+				GoodWePowerSetting.ChannelId.V2_RPM_E_POINT_COS_PHI, //
+				GoodWePowerSetting.ChannelId.V2_RPM_COSPHIP_LOCK_IN_VOLTAGE, //
+				GoodWePowerSetting.ChannelId.V2_RPM_ENABLE_FIXED_Q //
+		);
+
+		final var debugChannels = Arrays.stream(GoodWePowerSetting.ChannelId.values())
+				.filter(c -> c.toString().startsWith("DEBUG"));
+
+		final var debugAndExcludingChannels = Stream.concat(debugChannels, excludingChannels);
+
+		final var singles = Stream.of(//
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY //
+		);
+
+		final var fromArrays = Stream.<ChannelId[]>of(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
+				GoodWe.ChannelId.values(), //
+				GoodWeBatteryInverter.ChannelId.values()) //
+				.flatMap(Stream::of);
+
+		return Stream.concat(debugAndExcludingChannels, Stream.concat(singles, fromArrays)).toList();
+	}
+
+	@Test
+	void testMapBatteriesToPortFeneconHomeAnyOrder() {
+		final GoodWeBatteryClusterFeneconHomeImpl cluster = mock();
+
+		final BatteryFeneconHome battery1 = mock();
+		when(battery1.getBatteryInverterPort()).thenReturn(BatteryInverterPort.PORT_1);
+		final BatteryFeneconHome battery2 = mock();
+		when(battery2.getBatteryInverterPort()).thenReturn(BatteryInverterPort.PORT_2);
+
+		final var batteries = List.of(battery1, battery2);
+
+		for (var params : List.of(//
+				ImmutableSortedSet.<Battery>copyOf(Ordering.explicit(battery1, battery2), batteries), //
+				ImmutableSortedSet.<Battery>copyOf(Ordering.explicit(battery2, battery1), batteries) //
+		)) {
+			when(cluster.getBatteries()).thenReturn(params);
+
+			final var batteriesByPort = GoodWeBatteryInverterImpl.mapBatteriesToPort(cluster);
+
+			assertEquals(2, batteriesByPort.size());
+			assertEquals(battery1, batteriesByPort.get(BatteryPort.PORT_1));
+			assertEquals(battery2, batteriesByPort.get(BatteryPort.PORT_2));
+		}
+	}
+
+	@Test
+	void testMapBatteriesToPortAnyOrder() {
+		final GoodWeBatteryClusterFeneconHomeImpl cluster = mock();
+
+		final Battery battery1 = mock();
+		final Battery battery2 = mock();
+		final var batteries = List.of(battery1, battery2);
+
+		for (var params : List.of(//
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery1, battery2), batteries), //
+				ImmutableSortedSet.copyOf(Ordering.explicit(battery2, battery1), batteries) //
+		)) {
+			when(cluster.getBatteries()).thenReturn(params);
+
+			final var batteriesByPort = GoodWeBatteryInverterImpl.mapBatteriesToPort(cluster);
+
+			assertEquals(2, batteriesByPort.size());
+			assertEquals(params.first(), batteriesByPort.get(BatteryPort.PORT_1));
+			assertEquals(params.last(), batteriesByPort.get(BatteryPort.PORT_2));
+		}
 	}
 
 }

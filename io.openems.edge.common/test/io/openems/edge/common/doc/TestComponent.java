@@ -4,12 +4,12 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.test.DummyOptionsEnum;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DynamicStateChannelDoc;
 import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
-import io.openems.edge.common.type.TextProvider;
 
 public class TestComponent extends AbstractDummyOpenemsComponent<TestComponent> implements OpenemsComponent {
 

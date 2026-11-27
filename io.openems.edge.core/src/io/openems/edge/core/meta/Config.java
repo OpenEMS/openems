@@ -7,6 +7,8 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.PropertyChannel;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
+import io.openems.edge.common.meta.types.Environment;
+import io.openems.edge.common.meta.types.EnvironmentStatus;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 
 @ObjectClassDefinition(//
@@ -50,11 +52,17 @@ import io.openems.edge.common.meta.types.SubdivisionCode;
 	@AttributeDefinition(name = "Timezone", description = "The local time zone, e.g. 'Europe/Berlin'.")
 	String timezone() default "";
 
-	@AttributeDefinition(name = "Grid-Buy Soft-Limit [W]", description = "A Schedule for Soft-Limits on the grid. Controllers will try to achieve this Soft-Limit, e.g. via Peak-Shaving with an ESS.")
+	@AttributeDefinition(name = "Grid-Buy Soft-Limit [W]", description = "A Schedule of manually configured Soft-Limits on the grid. Controllers will try to achieve this Soft-Limit, e.g. via Peak-Shaving with an ESS. Limits are capped at the Hard-Limit and gaps use the Hard-Limit internally.")
 	String gridBuySoftLimit() default "[]";
 
 	@AttributeDefinition(name = "Third-Party Usage Acceptance", description = "Indicates whether the user has accepted, declined, or not yet decided on third-party usage.")
 	ThirdPartyUsageAcceptance thirdPartyUsageAcceptance() default ThirdPartyUsageAcceptance.UNDECIDED;
+
+	@AttributeDefinition(name = "Environment", description = "Defines whether the system is running in the Stable or Beta environment.")
+	Environment environment() default Environment.STABLE;
+
+	@AttributeDefinition(name = "Environment Status", description = "Automatically determined environment status, including whether Beta is set manually or enforced by a component.")
+	EnvironmentStatus environmentStatus() default EnvironmentStatus.STABLE;
 
 	String webconsole_configurationFactory_nameHint() default "Core Meta";
 }

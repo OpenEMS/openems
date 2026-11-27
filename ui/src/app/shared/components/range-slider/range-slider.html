@@ -1,0 +1,18 @@
+<ng-container [formGroup]="formGroup">
+  <ion-range style="width: 100%; padding-top: 8px" color="dark" pin="true" [min]="properties().tickMin ?? 1" [max]="rangeMax" [step]="properties().step ?? 1" [formControlName]="controlName" debounce="500" [pinFormatter]="properties().pinFormatter ?? DEFAULT_PIN_FORMATTER" [pin]="true" [snaps]="properties().snaps ?? false">
+    <ion-label slot="start">
+      @if (properties().unit) {
+        {{ properties().tickMin | unitvalue: properties().unit : properties().keepValue ?? false }}
+      } @else {
+        {{ properties().tickMin | converter: (properties().tickFormatter ? properties().tickFormatter : null) }}
+      }
+    </ion-label>
+    <ion-label slot="end">
+      @if (properties().unit) {
+        {{ rangeMax | unitvalue: properties().unit : properties().keepValue ?? false }}
+      } @else {
+        {{ rangeMax | converter: (properties().tickFormatter ? properties().tickFormatter : null) }}
+      }
+    </ion-label>
+  </ion-range>
+</ng-container>

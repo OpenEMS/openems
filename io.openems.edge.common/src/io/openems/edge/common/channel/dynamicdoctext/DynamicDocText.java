@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.session.Language;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.type.TextProvider;
 
 public class DynamicDocText {
 	private final Logger log = LoggerFactory.getLogger(DynamicDocText.class);

@@ -7,6 +7,7 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.convertMilliAmpereTo
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertWattToAmpere;
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertWattToMilliAmpere;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonNull;
 
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
@@ -77,6 +79,21 @@ class ProfileTest {
 
 		assertEquals(original, deserialized);
 		assertNull(deserialized.phaseSwitch());
+	}
+
+	@Test
+	void testChargePointAbilitiesSerializerWithPhaseSwitchWithoutZeroSetPoint() {
+		var original = ChargePointAbilities.create()
+				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 32))
+				.setPhaseSwitchManualWithoutZeroSetPoint(PhaseSwitchDirection.TO_SINGLE_PHASE)
+				.build();
+		var serializer = ChargePointAbilities.serializer();
+
+		var deserialized = serializer.deserialize(serializer.serialize(original).getAsJsonObject());
+
+		assertEquals(original, deserialized);
+		assertInstanceOf(ApplyPhaseSwitch.PhaseSwitchAbility.ManualWithoutZeroSetPoint.class,
+				deserialized.phaseSwitch().ability());
 	}
 
 	@Test

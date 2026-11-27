@@ -12,12 +12,12 @@ public interface MasterBox2v0Meter extends OpenemsComponent, ElectricityMeter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		TIME_STAMP(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
+		TIME_STAMP(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		STATUS(Doc.of(StateEnergyMeter.values()) //
-				.accessMode(AccessMode.READ_ONLY) //
+		STATUS(Doc.of(StateEnergyMeter.values())//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;

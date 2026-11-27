@@ -1,5 +1,7 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareGen2OrGen3;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.util.Arrays;
@@ -63,18 +65,24 @@ public final class FeneconCommercialComponents {
 	 * Creates a slave cluster battery {@link ComponentDef}. Battery is connected to
 	 * port 1.
 	 *
-	 * @param bundle    the translation bundle
-	 * @param batteryId the id of the battery
+	 * @param bundle         the translation bundle
+	 * @param batteryId      the id of the battery
+	 * @param deviceHardware the device hardware
 	 * @return the {@link ComponentDef}
 	 */
 	public static ComponentDef clusterBatterySlave1(//
 			ResourceBundle bundle, //
-			String batteryId //
+			String batteryId, //
+			OpenemsAppInstance deviceHardware //
 	) {
+
+		final var startUpRelay = isHardwareInstalledForMasterBox(deviceHardware) //
+				? "io0/Relay6" //
+				: "io0/Relay4";
 		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", 1),
 				"Battery.Fenecon.Home",
 				new ComponentProperties(List.of(ComponentProperties.Property.of("batteryStartUpRelay") //
-						.withValue("io0/Relay4"),
+						.withValue(startUpRelay),
 						ComponentProperties.Property.of("enabled") //
 								.withValue(true),
 						ComponentProperties.Property.of("inverterPort") //
@@ -132,9 +140,9 @@ public final class FeneconCommercialComponents {
 			final String modbusIdExternal, //
 			final OpenemsAppInstance deviceHardware //
 	) {
-		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
-				? "/dev/bus0"
-				: "/dev/busUSB3";
+		final var portName = isHardwareGen2OrGen3(deviceHardware) //
+				? "/dev/busUSB3" //
+				: "/dev/bus0";
 
 		final var properties = Lists.newArrayList(//
 				ComponentProperties.Property.of("enabled") //
@@ -491,12 +499,14 @@ public final class FeneconCommercialComponents {
 	 * Creates a default gridMeter dependency for a FENECON Commercial 92.
 	 *
 	 * @param bundle the translation bundle
+	 * @param target the configuration target
 	 * @return the {@link DependencyDeclaration}
 	 */
 	public static DependencyDeclaration gridMeter(//
-			final ResourceBundle bundle //
+			final ResourceBundle bundle, //
+			final ConfigurationTarget target //
 	) {
-		return gridMeterBase(bundle);
+		return gridMeterBase(bundle, target);
 	}
 
 	/**
@@ -505,15 +515,18 @@ public final class FeneconCommercialComponents {
 	 * @param bundle      the translation bundle
 	 * @param gridMeterId the id of the grid meter
 	 * @param modbusId    the id of the modbus bridge
+	 * @param target      the configuration target
 	 * @return the {@link DependencyDeclaration}
 	 */
 	public static DependencyDeclaration gridMeterWithOldDependency(//
 			final ResourceBundle bundle, //
 			final String gridMeterId, //
-			final String modbusId //
+			final String modbusId, //
+			final ConfigurationTarget target //
 	) {
 		return gridMeterBase(//
 				bundle, //
+				target, //
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.Meter.Kdk") //
 						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
@@ -528,6 +541,7 @@ public final class FeneconCommercialComponents {
 
 	private static DependencyDeclaration gridMeterBase(//
 			final ResourceBundle bundle, //
+			final ConfigurationTarget target, //
 			final DependencyDeclaration.AppDependencyConfig... extraAppConfigs //
 	) {
 		var configs = Stream.concat(//
@@ -536,7 +550,9 @@ public final class FeneconCommercialComponents {
 				.toArray(DependencyDeclaration.AppDependencyConfig[]::new);
 
 		return new DependencyDeclaration("GRID_METER", //
-				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				target == ConfigurationTarget.ADD //
+						? DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING //
+						: DependencyDeclaration.CreatePolicy.NEVER, //
 				DependencyDeclaration.UpdatePolicy.ALWAYS, //
 				DependencyDeclaration.DeletePolicy.IF_MINE, //
 				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //

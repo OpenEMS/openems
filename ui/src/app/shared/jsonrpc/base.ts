@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
-import { States } from "../ngrx-store/states";
+import { States } from "../states/states";
 
 export abstract class JsonrpcMessage {
     public readonly jsonrpc: string = "2.0";
 
-    protected constructor(
-    ) { }
+    protected constructor() {}
 
-    public static from(message: any): JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError {
+    public static from(
+        message: any,
+    ): JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError {
         if ("method" in message && "params" in message) {
             if ("id" in message) {
                 return new JsonrpcRequest(message.id, message.method, message.params);
@@ -19,15 +20,14 @@ export abstract class JsonrpcMessage {
         } else if ("error" in message) {
             return new JsonrpcResponseError(message.id, message.error);
         } else {
-            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.stringify(message));
+            throw new Error(
+                "JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.stringify(message),
+            );
         }
     }
-
-
 }
 
 export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
-
     protected requiredState: States = States.AUTHENTICATED;
     protected constructor(
         public readonly method: string,
@@ -61,9 +61,7 @@ export class JsonrpcNotification extends AbstractJsonrpcRequest {
 }
 
 export abstract class JsonrpcResponse extends JsonrpcMessage {
-    public constructor(
-        public readonly id: string,
-    ) {
+    public constructor(public readonly id: string) {
         super();
     }
 }
@@ -81,9 +79,9 @@ export class JsonrpcResponseError extends JsonrpcResponse {
     public constructor(
         public override readonly id: string,
         public readonly error: {
-            code: number,
-            message: string,
-            data?: {}
+            code: number;
+            message: string;
+            data?: {};
         },
     ) {
         super(id);

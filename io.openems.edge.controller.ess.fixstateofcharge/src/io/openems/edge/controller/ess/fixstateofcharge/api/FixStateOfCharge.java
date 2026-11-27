@@ -485,4 +485,5 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	public default void _setCtrlWasSelfTerminated(boolean value) {
 		this.getCtrlWasSelfTerminatedChannel().setNextValue(value);
 	}
+
 }

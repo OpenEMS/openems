@@ -194,6 +194,10 @@ update_bndrun() {
 		)
 	;;
 	esac
+	if [[ "$1" != "EdgeApp" ]]; then
+		# Backend only: registers the Prometheus Tracer for 'io.openems.backend.metrics.prometheus'
+		entries+=('io.prometheus.metrics-tracer-initializer')
+	fi
 	printf "%s\n" "${entries[@]}" | LC_ALL=C sort -u | while IFS= read -r D; do
 		echo -e "\tbnd.identity;id='$D',\\" >> "$bndrun.new"
 	done

@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * A Modbus 'ReadTask' is holding references to one or more Modbus
@@ -9,4 +10,5 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * inherits from ReadTask.
  */
 public non-sealed interface ReadTask extends Task {
+	void setPriority(Priority priority);
 }

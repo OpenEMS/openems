@@ -1,12 +1,19 @@
 <ngx-spinner name="user"></ngx-spinner>
 <oe-navigation-view>
   <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-item lines="none">
+          <ion-label class="ion-text-center"> {{ "MENU.USER" | translate }} </ion-label>
+        </ion-item>
+      </ion-col>
+    </ion-row>
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="8" size-xl="4">
         @if ((service.metadata | async)?.user; as user) {
           <ion-card>
             <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-icon slot="start" size="large" color="primary" name="oe-user"></ion-icon>
               <ion-label class="ion-text-wrap">
                 {{ "MENU.USER" | translate }}
               </ion-label>
@@ -58,7 +65,7 @@
         @if (isAllowedToSeeUserDetails) {
           <ion-card>
             <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-icon slot="start" size="large" color="primary" name="oe-user"></ion-icon>
               <ion-label class="ion-text-wrap">
                 <span translate> REGISTER.FORM.CONTACT_DETAILS </span>
                 @if (companyInformationFields.length > 0) {
@@ -85,7 +92,7 @@
         @if (companyInformationFields.length > 0) {
           <ion-card>
             <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-icon slot="start" size="large" color="primary" name="oe-user"></ion-icon>
               <ion-label class="ion-text-wrap"> {{ "REGISTER.FORM.CONTACT_DETAILS" | translate }} ({{ "REGISTER.FORM.COMPANY" | translate }}) </ion-label>
             </ion-item>
             <ion-card-content>
@@ -140,7 +147,7 @@
                 }
               </ion-select>
             </ion-item>
-            @if (environment.theme === "FENECON" || environment.theme === "FENECONBeta") {
+            @if (isThemeSelectionAvailable) {
               <ion-item id="theme-switcher" lines="none" class="page-content">
                 <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="userTheme" interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" [label]="'ABOUT.THEME' | translate">
                   @for (theme of themes; track theme) {
@@ -155,17 +162,16 @@
               <ion-item lines="none">
                 <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode </ion-checkbox>
               </ion-item>
-              @if (useNewUi !== null) {
-                <ion-item [disabled]="newNavigationForced" lines="none">
-                  <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi" translate>ABOUT.NEW_UI </ion-checkbox>
-                </ion-item>
-              }
               @if (environment.backend === "OpenEMS Edge") {
                 <ion-note class="ion-padding">
                   <small> The language can not be changed permanently in the local online-monitoring for technical reasons.</small>
                 </ion-note>
               }
             }
+
+            <ion-item lines="none">
+              <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi" translate>ABOUT.NEW_UI </ion-checkbox>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>

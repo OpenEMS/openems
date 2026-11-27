@@ -8,11 +8,12 @@ import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
-import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/back-button";
+import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/navigation-back-button";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { environment } from "src/environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
@@ -53,6 +54,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     protected keyForFreeApps: string;
     protected isFreeApp: boolean = false;
     protected isPreInstalledApp: boolean = false;
+    protected readonly environment = environment;
 
     private appId: string | null = null;
     private appName: string | null = null;
@@ -94,18 +96,17 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         this.appId = this.routeService.getQueryParam("appId");
         this.appName = this.routeService.getQueryParam("name");
         const appId = this.appId;
+
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
 
-            this.edge
-                .sendRequest(
-                    this.websocket,
-                    new AppCenter.Request({
-                        payload: new AppCenterIsAppFree.Request({
-                            appId: this.appId,
-                        }),
+            this.sendEnvironmentalRequest(
+                new AppCenter.Request({
+                    payload: new AppCenterIsAppFree.Request({
+                        appId: this.appId,
                     }),
-                )
+                }),
+            )
                 .then((response) => {
                     const result = (response as AppCenterIsAppFree.Response).result;
                     this.isFreeApp = result.isAppFree;
@@ -133,15 +134,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     }
                     this.keyForFreeApps = newKeyForFreeApps;
                     // update free apps
-                    this.edge
-                        .sendRequest(
-                            this.websocket,
-                            new AppCenter.Request({
-                                payload: new AppCenterGetPossibleApps.Request({
-                                    key: this.keyForFreeApps,
-                                }),
+                    this.sendEnvironmentalRequest(
+                        new AppCenter.Request({
+                            payload: new AppCenterGetPossibleApps.Request({
+                                key: this.keyForFreeApps,
                             }),
-                        )
+                        }),
+                    )
                         .then((response) => {
                             const result = (response as AppCenterGetPossibleApps.Response).result;
                             this.isPreInstalledApp = result.bundles.some((bundle) => {
@@ -149,6 +148,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                                     return app.appId == this.appId;
                                 });
                             });
+                        })
+                        .catch(() => {
+                            // request is skipped in local environment - see sendEnvironmentalRequest
                         })
                         .finally(() => {
                             this.increaseReceivedResponse();
@@ -197,8 +199,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     });
             }
             // set app descriptor
-            edge.sendRequest(
-                this.websocket,
+            this.sendEnvironmentalRequest(
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new GetAppDescriptor.Request({ appId: appId }),
@@ -208,12 +209,15 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     const descriptor = (response as GetAppDescriptor.Response).result;
                     this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
                 })
-                .catch(
+                .catch((err) => {
+                    if (environment.backend == "OpenEMS Edge") {
+                        return;
+                    }
                     InstallAppComponent.errorToast(
                         this.service,
                         (error) => "Error while receiving AppDescriptor for App[" + appId + "]: " + error,
-                    ),
-                )
+                    );
+                })
                 .finally(() => {
                     this.increaseReceivedResponse();
                     this.cdRef.markForCheck();
@@ -291,5 +295,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             cssClass: "auto-height",
         });
         return await modal.present();
+    }
+
+    private sendEnvironmentalRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+        if (environment.backend !== "OpenEMS Backend") {
+            this.service.stopSpinner(this.spinnerId);
+            return Promise.reject();
+        }
+        return this.edge.sendRequest(this.websocket, request);
     }
 }

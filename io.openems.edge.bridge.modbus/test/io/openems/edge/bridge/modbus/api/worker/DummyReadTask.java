@@ -5,7 +5,7 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class DummyReadTask extends AbstractDummyTask implements ReadTask {
 
-	private final Priority priority;
+	private Priority priority;
 
 	public DummyReadTask(String name, long delay, Priority priority) {
 		super(name, delay);
@@ -20,5 +20,10 @@ public class DummyReadTask extends AbstractDummyTask implements ReadTask {
 	@Override
 	public Priority getPriority() {
 		return this.priority;
+	}
+
+	@Override
+	public void setPriority(Priority priority) {
+		this.priority = priority;
 	}
 }

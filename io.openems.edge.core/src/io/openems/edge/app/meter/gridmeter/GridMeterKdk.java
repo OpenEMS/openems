@@ -170,9 +170,9 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanSee(Role.ADMIN) //
-				.setCanInstall(Role.ADMIN) //
-				.setCanDelete(Role.ADMIN) //
+				.setCanSee(Role.INSTALLER) //
+				.setCanInstall(Role.ADMIN, Role.INSTALLER) //
+				.setCanDelete(Role.INSTALLER) //
 				.build();
 	}
 

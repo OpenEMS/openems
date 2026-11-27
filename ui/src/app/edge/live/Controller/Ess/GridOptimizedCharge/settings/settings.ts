@@ -47,12 +47,10 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
     }
 
     protected override generateView(): OeFormlyView<GridOptimizedChargeViewModel> {
-        const edge = this.service.currentEdge();
-        AssertionUtils.assertIsDefined(edge);
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-        this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
-        AssertionUtils.assertIsDefined(this.component);
+        const edge = this.getEdge();
+        const config = this.getConfig();
+        this.component = this.getComponent();
+
         const isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component);
         const isEeg2025Installed = SharedGridOptimizedCharge.isEeg2025Installed(config);
         const isEeg2025Supported = SharedGridOptimizedCharge.isEeg2025Supported(config);
@@ -70,7 +68,8 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
     }
 
     protected override getFormGroup(): FormGroup {
-        return SharedGridOptimizedCharge.getFormGroup();
+        this.component ??= this.getComponent();
+        return SharedGridOptimizedCharge.getFormGroup(this.component);
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
@@ -85,31 +84,31 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
         this.chargeStartEpochSeconds = currentData.allComponents[component.id + "/PredictedChargeStartEpochSeconds"];
 
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "mode",
             currentData,
             new ChannelAddress(component.id, "_PropertyMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "delayChargeState",
             currentData,
             new ChannelAddress(component.id, "DelayChargeState"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "workMode",
             currentData,
             new ChannelAddress(component.id, "_PropertyWorkMode"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "manualTargetTime",
             currentData,
             new ChannelAddress(component.id, "_PropertyManualTargetTime"),
         );
         this.setFormControlSafelyWithChannel(
-            this.form,
+            this.form(),
             "delayChargeRiskLevel",
             currentData,
             new ChannelAddress(component.id, "_PropertyDelayChargeRiskLevel"),

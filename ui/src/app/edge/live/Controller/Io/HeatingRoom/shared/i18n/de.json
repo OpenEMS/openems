@@ -1,0 +1,17 @@
+{
+    "IO_HEATING_ROOM": {
+        "HOME": {
+            "AMBIENT_ACTUAL": "Umgebungstemperatur (Ist)",
+            "AMBIENT_TARGET": "Umgebungstemperatur (Soll)",
+            "FLOOR_ACTUAL": "Bodentemperatur (Ist)",
+            "FLOOR_TARGET": "Bodentemperatur (Soll)",
+            "POWER_CONSUMPTION": "Leistungsaufnahme",
+            "UPCOMING_EVENTS": "Bevorstehende Termine"
+        },
+        "MODE": {
+            "MANUAL_HIGH": "Hoch",
+            "MANUAL_LOW": "Niedrig",
+            "TITLE": "Heizmodus"
+        }
+    }
+}

@@ -1,9 +1,9 @@
 package io.openems.edge.app.evcs;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -274,11 +274,12 @@ public class TestEvcsCluster {
 		final var expectedIds = Arrays.stream(ids).collect(Collectors.toList());
 		final var message = "actual: " + Arrays.stream(evcsIds).collect(Collectors.joining(", ")) //
 				+ ", expected: " + expectedIds.stream().collect(Collectors.joining(", "));
-		assertEquals(message, expectedIds.size(), evcsIds.length);
-		assertTrue(message, //
+		assertEquals(expectedIds.size(), evcsIds.length, message);
+		assertTrue(//
 				Arrays.stream(evcsIds) //
 						.collect(Collectors.toList()) //
-						.containsAll(expectedIds));
+						.containsAll(expectedIds),
+				message);
 	}
 
 	private AddAppInstance.Response installKeba(String ip)

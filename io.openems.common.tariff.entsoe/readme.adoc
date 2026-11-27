@@ -1,0 +1,23 @@
+= EPEX SPOT / ENTSO-E
+
+This implementation uses the https://transparency.entsoe.eu/[ENTSO-E Transparency Platform] to receive day-ahead electricity prices for European bidding zones.
+The ENTSO-E spot price component (```Tariff.SpotTariff.ENTSO-E```) is available in Backend and Edge versions of OpenEMS.
+
+== Stability
+
+The servers are often not reachable or prices are missing or incomplete. Please use this API with caution.
+
+== Authentication
+
+To request a (free) authentication token, please see chapter *"How to get security token?"* in the official API documentation:
+https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token
+
+== Configuration
+
+The component expects the following configuration inputs:
+
+* *securityToken*: Security token for ENTSO-E API
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.common.tariff.entsoe[Source Code Common icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.spottariff/src/io/openems/edge/timeofusetariff/spottariff/provider/entsoe[Source Code Edge icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.tariff/src/io/openems/backend/tariff/provider/entsoe[Source Code Backend icon:github[]]

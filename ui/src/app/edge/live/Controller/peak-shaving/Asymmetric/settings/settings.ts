@@ -61,7 +61,7 @@ export class ControllerPeakShavingAsymmetricSettingsComponent extends AbstractFo
             return;
         }
         SharedControllerPeakShaving.setSettingsCurrentData(
-            this.form,
+            this.form(),
             currentData,
             this.component.id,
             this.setFormControlSafelyWithChannel.bind(this),

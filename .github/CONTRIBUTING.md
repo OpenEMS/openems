@@ -43,10 +43,10 @@ When submitting a feature request, please be clear about the intended outcome an
 
 We welcome pull-requests! While we will consider all submissions, we cannot promise that every request will be accepted.
 
-To increase your changes of a merged pull-requests and help us review your code, please follow our [coding guidelines](https://openems.github.io/openems.io/openems/latest/contribute/coding-guidelines.html).
+To increase your changes of a merged pull-requests and help us review your code, please follow our [coding guidelines](https://openems.github.io/openems.io/openems/latest/development/coding-guidelines.html).
 
 ## 📁 Documentation
 
 The documentation site for OpenEMS is hosted on [https://openems.github.io/openems.io/openems/latest](https://openems.github.io/openems.io/openems/latest). We greatly appreciate contributions that improve the quality and clarity of our documentation.
 
-If you would like to contribute by updating or adding a page, please refer to our  [Contribute/Documentation](https://openems.github.io/openems.io/openems/latest/contribute/documentation.html) guide for detailed instructions on how to contribute effectively to the OpenEMS documentation.
+If you would like to contribute by updating or adding a page, please refer to our  [Contribute/Documentation](https://openems.github.io/openems.io/openems/latest/development/documentation.html) guide for detailed instructions on how to contribute effectively to the OpenEMS documentation.

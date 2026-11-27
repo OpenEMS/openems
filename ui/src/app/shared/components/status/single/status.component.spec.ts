@@ -78,6 +78,26 @@ describe("StatusComponent", () => {
         expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "State"));
         expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "testChannel"));
     });
+
+    it("Test unsubscribe of Channels", async () => {
+        await statusComponent.ngOnInit();
+        spyOn<any>(statusComponent, "getStateChannels")
+            .withArgs(testComponent.id)
+            .and.resolveTo({ ["testChannel"]: new ChannelAddress(testComponent.id, "testChannel") });
+        await statusComponent.subscribeInfoChannels(testComponent);
+
+        const edge = statusComponent.edge;
+        expect(edge).toBeDefined();
+        const unsubscribeSpy = spyOn(edge!, "unsubscribeFromChannels");
+
+        statusComponent.unsubscribeInfoChannels(testComponent);
+
+        expect(unsubscribeSpy).toHaveBeenCalledWith("oe-status-single", TestBed.inject(Websocket), [
+            new ChannelAddress(testComponent.id, "testChannel"),
+        ]);
+        expect(statusComponent.onInfoChannels).toEqual([]);
+        expect(statusComponent.subscribedInfoChannels).toEqual([new ChannelAddress(testComponent.id, "State")]);
+    });
 });
 
 // TODO should be some common method

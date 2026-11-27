@@ -103,4 +103,51 @@ export namespace StringUtils {
 
         return match ? Number.parseInt(match, 10) : null;
     }
+
+    /**
+     * Replaces a segment of a path string at the specified index with a new value.
+     *
+     * @param path The path
+     * @param index The index to split
+     * @param replacement The replacement for the given index
+     * @param splitBy The delimiter to split the path by (default is "/")
+     * @returns The modified path with the segment replaced, or null if the path is null.
+     */
+    export function replaceSegment(
+        path: string | null,
+        index: number,
+        replacement: string,
+        splitBy: string = "/",
+    ): string | null {
+        if (path == null) {
+            return null;
+        }
+        const segments = StringUtils.splitBy(path, splitBy) ?? [];
+        segments[index] = replacement;
+        return segments.join(splitBy);
+    }
+
+    /**
+     * Replaces a segment of a path string at the specified index with a new value.
+     *
+     * @param path The path
+     * @param index The index to split
+     * @param replacement The replacement for the given index
+     * @param splitBy The delimiter to split the path by (default is "/")
+     * @returns The modified path with the segment replaced, or null if the path is null.
+     */
+    export function replaceSegmentOrElse(
+        path: string | null,
+        index: number,
+        replacement: string,
+        orElse: string,
+        splitBy: string = "/",
+    ): string {
+        const result = StringUtils.replaceSegment(path, index, replacement, splitBy);
+
+        if (result == null) {
+            return orElse;
+        }
+        return result;
+    }
 }

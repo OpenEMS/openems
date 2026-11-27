@@ -9,6 +9,7 @@ import { ControllerEvseSingleShared } from "../../../../shared/shared";
 import { EvseManualPayload } from "../../js-calender-utils";
 
 @Component({
+    selector: "oe-evse",
     templateUrl: "./add.html",
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AddTaskComponent, CommonUiModule],

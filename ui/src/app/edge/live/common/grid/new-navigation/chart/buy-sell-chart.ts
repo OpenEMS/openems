@@ -29,7 +29,7 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class GridBuySellChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeData24hForChannel("GridActivePower");
+        const data = this.data.summarizeData24hForChannel("GridActivePower", this.service.historyPeriod.value.from);
         const history = ScheduleChartComponent.normalizePositiveNegativeLines(data.history);
         const prediction = ScheduleChartComponent.normalizePositiveNegativeLines(data.prediction);
 

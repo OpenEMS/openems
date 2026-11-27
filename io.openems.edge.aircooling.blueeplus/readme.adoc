@@ -1,0 +1,71 @@
+= Blue E Plus Cooling Unit
+
+OpenEMS integration for Blue E Plus cooling units using Modbus communication.
+
+== Overview
+
+The `io.openems.edge.aircooling.blueeplus` bundle provides integration of Blue E Plus cooling units into OpenEMS. It communicates with the cooling unit through Modbus and provides access to temperature setpoints, temperature values, operating statuses, monitoring categories, alarms, system messages and remote-control functions.
+
+The component supports reading device data and writing configurable parameters such as temperature setpoints, alarm thresholds and remote-control settings.
+
+== Supported Devices
+
+.Blue E Plus
+
+* Type: Cooling unit
+* Communication: Modbus
+* Modbus Function Codes: FC3, FC4 and FC16
+* Typical Use: Cooling unit monitoring, configuration and remote control
+
+== Components
+
+=== <<_blue_e_plus_cooling_unit,Blue E Plus Cooling Unit>>
+
+*Name*: Air Cooling BlueEPlus
+
+*Factory-PID*: `AirCooling.BlueEPlus`
+
+.Implemented Natures/Interfaces
+
+* `BlueEPlus`
+* `OpenemsComponent`
+* `ModbusComponent`
+
+*Description*: Provides Modbus integration for Blue E Plus cooling units. The component reads temperature values, device statuses, monitoring information and error information, and supports writing configuration and control parameters to the cooling unit.
+
+*Use Cases*:
+
+* Monitor internal, ambient and external temperatures
+* Configure internal, ambient and external temperature thresholds
+* Monitor cooling system operation
+* Monitor internal and external air circuits
+* Monitor internal and external fans
+* Monitor compressor and electronic expansion valve (EEV) status
+* Monitor filter, door, electronics and condensate conditions
+* Monitor system messages and error-list status
+* Configure standard control setpoints and alarm thresholds
+* Configure outlet temperature setpoints and alarm thresholds
+* Configure remote door control
+* Configure remote temperature input
+
+.*Configuration*:
+
+* `id` (String): Unique ID of this component (default: `"airCooling0"`)
+* `alias` (String): Human-readable name of this component; defaults to the Component-ID (default: `""`)
+* `enabled` (Boolean): Enables or disables this component (default: `true`)
+* `modbus_id` (String): ID of the Modbus bridge used for communication (default: `"modbus0"`)
+* `modbusUnitId` (Integer): Modbus Unit-ID of the cooling unit
+
+=== Modbus Communication
+
+The component uses the OpenEMS Modbus framework for communication with the Blue E Plus cooling unit.
+
+* Function Code 16 (`FC16`) is used to write configuration and control registers.
+* Function Code 3 (`FC3`) is used to read configuration and control registers.
+* Function Code 4 (`FC4`) is used to read input registers containing operational status and monitoring information.
+
+Temperature values and setpoints using a scale factor of `10^-2` are converted using the OpenEMS `SCALE_FACTOR_MINUS_2` converter.
+
+[[_blue_e_plus_cooling_unit]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.aircooling.blueeplus[Source Code icon:github]

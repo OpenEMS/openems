@@ -530,6 +530,26 @@ public class TimeRangeValues<T> {
 			return this.setByPosition(position, value);
 		}
 
+		public int getPositionsAmount() {
+			return this.values.length;
+		}
+
+		/**
+		 * Returns true when all timeslots have a value set, false if at least one
+		 * timeslot is missing a value.
+		 *
+		 * @return true when all timeslots have a value set, false if at least one
+		 *         timeslot is missing a value.
+		 */
+		public boolean isComplete() {
+			for (var value : this.values) {
+				if (value == null) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 		/**
 		 * Fills all missing timeslots with value from previous timeslots.
 		 *

@@ -21,8 +21,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.types.GridLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -51,16 +51,18 @@ class GlobalOptimizationContextTest {
 	void before() throws OpenemsNamedException {
 		this.cm = new DummyComponentManager(CLOCK);
 		this.meta = new DummyMeta()//
-				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(CLOCK)//
-						.add(t -> t//
-								.setStart("06:00") //
-								.setDuration(Duration.ofHours(12)) //
-								.addRecurrenceRule(b -> b //
-										.setFrequency(DAILY)) //
-								.setPayload(new GridBuySoftLimit(2000))) //
-						.add(t -> t//
-								.setPayload(new GridBuySoftLimit(6000))) //
-						.build());
+				.withGridLimit(l -> l //
+						.setFuseCurrent(32) //
+						.setGridBuySoftLimit(JSCalendar.Tasks.<GridLimit.Power>create(CLOCK)//
+								.add(t -> t//
+										.setStart("06:00") //
+										.setDuration(Duration.ofHours(12)) //
+										.addRecurrenceRule(b -> b //
+												.setFrequency(DAILY)) //
+										.setPayload(new GridLimit.Power(2000))) //
+								.add(t -> t//
+										.setPayload(new GridLimit.Power(6000))) //
+								.build()));
 		this.sum = new DummySum() //
 				.withEssCapacity(10000) //
 				.withEssSoc(50) //

@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.google.gson.JsonElement;
 
-import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
@@ -26,6 +25,7 @@ import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.bridge.http.oauth.HttpBridgeOAuthService;
 import io.openems.common.bridge.http.oauth.HttpBridgeOAuthServiceDefinition;
 import io.openems.common.bridge.http.oauth.model.GetTokens;
+import io.openems.common.logger.DebugLoggable;
 
 @Component
 public class OAuthRegistryImpl implements OAuthRegistry, DebugLoggable {

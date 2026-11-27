@@ -81,9 +81,10 @@ public class RestHandler extends Handler.Abstract {
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
 						var password = credentials.substring(p + 1).trim();
-						return this.parent.authService.authenticateWithPassword(username, password).thenCompose(result -> {
-							return this.parent.metadata.getUserByExternalId(result.userId());
-						});
+						return this.parent.authService.authenticateWithPassword(username, password)
+								.thenCompose(result -> {
+									return this.parent.metadata.getUserByExternalId(result.userId());
+								});
 					}
 				} catch (Exception e) {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();

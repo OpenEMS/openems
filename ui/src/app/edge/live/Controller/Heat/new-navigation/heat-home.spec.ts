@@ -1,5 +1,5 @@
 import { TimeLineChartComponent } from "src/app/shared/components/chart/timeline-chart/timeline-chart";
-import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergyScheduler } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { CHANNEL_LINE, CHART_LINE, DummyConfig, LINE_INFO } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
@@ -28,7 +28,7 @@ function expectView(
     viewContext: OeFormlyViewTester.Context,
     testContext: TestContext,
     view: OeFormlyViewTester.View,
-    energyScheduler: EnergySchedulerV2 = mockEnergySchedulerWithSchedule(),
+    energyScheduler: EnergyScheduler = mockEnergySchedulerWithSchedule(),
 ): void {
     expect(
         OeFormlyViewTester.apply(
@@ -38,10 +38,10 @@ function expectView(
     ).toEqual(view);
 }
 
-function mockEnergySchedulerWithSchedule(): EnergySchedulerV2 {
+function mockEnergySchedulerWithSchedule(): EnergyScheduler {
     return {
         schedule: {},
-    } as EnergySchedulerV2;
+    } as EnergyScheduler;
 }
 
 function createComponent(testContext: TestContext, component: EdgeConfig.Component): any {
@@ -130,12 +130,6 @@ describe("ControllerHeatHomeComponent", () => {
                 {
                     title: "my-PV",
                     lines: [
-                        CHANNEL_LINE("Status", "No heating"),
-                        CHANNEL_LINE("Heating output", "0 W"),
-                        CHANNEL_LINE("Current temperature", "74 °C"),
-                        LINE_INFO(
-                            "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
-                        ),
                         {
                             type: "image-line",
                             img: {
@@ -148,11 +142,17 @@ describe("ControllerHeatHomeComponent", () => {
                                 },
                             },
                         },
+                        CHANNEL_LINE("Status", "No heating"),
+                        CHANNEL_LINE("Heating output", "0 W"),
+                        CHANNEL_LINE("Current temperature", "74 °C"),
+                        LINE_INFO(
+                            "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+                        ),
                     ],
                 },
                 {
                     schedule: GetSchedule.Response.empty,
-                } as EnergySchedulerV2,
+                } as EnergyScheduler,
             );
         });
 

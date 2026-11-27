@@ -2,6 +2,7 @@ package io.openems.edge.app.common.props;
 
 import static io.openems.edge.app.common.components.CommonComponents.externMeter;
 import static io.openems.edge.app.common.components.CommonComponents.internMeter;
+import static io.openems.edge.app.common.components.CommonComponents.internMeterWithGen3;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.core.appmanager.AbstractOpenemsApp.getTranslationBundle;
 
@@ -322,10 +323,15 @@ public final class MeterIntegrationUtil {
 			throw new OpenemsException("Intern meter already in use");
 		}
 
-		String meterId = isHardwareInstalledForMasterBox(deviceHardware) ? getMasterboxMeterId(app.getComponentUtil())
-				: MeterIntegrationUtil.getNextMeterId(app);
+		final String meterId;
+		if (isHardwareInstalledForMasterBox(deviceHardware)) {
+			meterId = getMasterboxMeterId(app.getComponentUtil());
+			dependencies.add(internMeterWithGen3(app.getComponentManager(), meterId));
+		} else {
+			meterId = MeterIntegrationUtil.getNextMeterId(app);
+			dependencies.add(internMeter(l, meterId));
+		}
 
-		dependencies.add(internMeter(l, meterId));
 		return meterId;
 	}
 

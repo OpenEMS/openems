@@ -16,6 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMet
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -25,6 +26,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predict
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
@@ -146,7 +148,7 @@ public class FeneconCommercial100
 				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
 				.setDefaultValue(ConnectedBatterySystems.ONE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class, ConnectedBatterySystems.TWO), l);
+					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -358,7 +360,7 @@ public class FeneconCommercial100
 				final var battery2Id = "battery2";
 				components.add(
 						FeneconCommercialComponents.clusterBattery(bundle, batteryId, List.of(battery1Id, battery2Id)));
-				components.add(FeneconCommercialComponents.clusterBatterySlave1(bundle, battery1Id));
+				components.add(FeneconCommercialComponents.clusterBatterySlave1(bundle, battery1Id, deviceHardware));
 				components.add(FeneconCommercialComponents.clusterBatterySlave2(bundle, battery2Id));
 				components.add(FeneconCommercialComponents.modbusForClusterSlaveBattery2(bundle, t,
 						modbusIdExternalMeters, deviceHardware));
@@ -420,6 +422,10 @@ public class FeneconCommercial100
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();

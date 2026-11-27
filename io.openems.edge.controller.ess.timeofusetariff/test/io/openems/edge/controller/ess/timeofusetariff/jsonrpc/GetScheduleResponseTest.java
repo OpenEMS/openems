@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -30,7 +30,6 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
 import io.openems.edge.energy.api.Environment;
-import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -74,7 +73,7 @@ public class GetScheduleResponseTest {
 		}
 
 		// Simulate future Schedule
-		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, Version.V2_ENERGY_SCHEDULABLE, ess, timedata);
+		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, ess, timedata);
 		var esh = ctrl.getEnergyScheduleHandler();
 		esh.initialize(new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, null, null, null, null, //
 				new GlobalOptimizationContext.Ess(0, 0, 0, 0), Periods.empty()));

@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.openems.common.session.Language;
+import io.openems.common.utils.TextProvider;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.type.TextProvider;
 
 class StringChannelParameterProviderImpl extends ChannelParameterProvider<String>
 		implements StringChannelParameterProvider {

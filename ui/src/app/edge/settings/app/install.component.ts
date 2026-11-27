@@ -7,11 +7,11 @@ import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
-import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/back-button";
+import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/navigation-back-button";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { extractErrorMessage } from "../../../shared/utils/error/error.utils";
@@ -19,6 +19,7 @@ import { AddAppInstance } from "./jsonrpc/addAppInstance";
 import { Flags } from "./jsonrpc/flag/flags";
 import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
+import { prepareProperties } from "./jsonrpc/shared";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
@@ -166,7 +167,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
             )
                 .then((response) => {
                     const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
-
                     this.fields = GetAppAssistant.getInitialFields(appAssistant.fields, {});
                     this.appName = appAssistant.name;
                     this.model = {};
@@ -204,21 +204,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         this.obtainKey()
             .then((key) => {
                 this.service.startSpinnerTransparentBackground(this.appId);
-                // remove alias field from properties
                 const alias = this.form().value["ALIAS"];
-                const clonedFields = {};
-                for (const item in this.form().value) {
-                    if (item !== "ALIAS") {
-                        clonedFields[item] = this.form().value[item];
-                    }
-                }
+                const properties = prepareProperties(this.form().value, this.fields);
 
                 let request: JsonrpcRequest = new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new AddAppInstance.Request({
                         appId: this.appId,
                         alias: alias,
-                        properties: clonedFields,
+                        properties: properties,
                         ...(key && { key: key }),
                     }),
                 });
@@ -236,7 +230,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                     .sendRequest(this.websocket, request)
                     .then((response) => {
                         const result = (response as AddAppInstance.Response).result;
-
                         if (result.instance) {
                             result.instanceId = result.instance.instanceId;
                             this.model = result.instance.properties;
@@ -268,6 +261,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                             this.router.navigate(["../"], {
                                 ...navigationExtras,
                                 relativeTo: this.route,
+                                queryParams: {
+                                    name: this.appName,
+                                    appId: this.appId,
+                                },
                             });
                         }
                     })

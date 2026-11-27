@@ -128,18 +128,16 @@ public class UserServiceImpl implements UserService {
 		this.users.clear();
 		this.usersFromConfig.clear();
 
+		final var language = config.language() == null ? Language.DEFAULT : config.language();
 		this.users.add(//
-				new ManagedUser("admin", "Admin", config.language(), Role.ADMIN, config.adminPassword(),
-						config.adminSalt()));
+				new ManagedUser("admin", "Admin", language, Role.ADMIN, config.adminPassword(), config.adminSalt()));
 		this.users.add(//
-				new ManagedUser("installer", "Installer", config.language(), Role.INSTALLER, config.installerPassword(),
+				new ManagedUser("installer", "Installer", language, Role.INSTALLER, config.installerPassword(),
 						config.installerSalt()));
 		this.users.add(//
-				new ManagedUser("owner", "Owner", config.language(), Role.OWNER, config.ownerPassword(),
-						config.ownerSalt()));
+				new ManagedUser("owner", "Owner", language, Role.OWNER, config.ownerPassword(), config.ownerSalt()));
 		this.users.add(//
-				new ManagedUser("guest", "Guest", config.language(), Role.GUEST, config.guestPassword(),
-						config.guestSalt()));
+				new ManagedUser("guest", "Guest", language, Role.GUEST, config.guestPassword(), config.guestSalt()));
 
 		if (config.users() == null || config.users().isBlank()) {
 			return;

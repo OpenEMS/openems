@@ -76,7 +76,19 @@
           }"
         >
         </oe-checkbox>
-        <oe-checkbox [form]="{ formGroup: formGroup, controlName: 'acceptAgb' }" [attributes]="{ labelPlacement: 'end', text: 'REGISTER.FORM.ACCEPT_AGB' | translate }"></oe-checkbox>
+        <oe-checkbox
+          [form]="{ formGroup: formGroup, controlName: 'acceptGtc' }"
+          [attributes]="{
+            labelPlacement: 'end',
+            text:
+              'REGISTER.FORM.ACCEPT_GTC'
+              | translate
+                : {
+                    link: gtcLink,
+                  },
+          }"
+        >
+        </oe-checkbox>
         <ion-item>
           <ion-text [innerHTML]="'REGISTER.FORM.SUBSCRIBE_NEWSLETTER' | translate"></ion-text>
         </ion-item>
@@ -137,7 +149,19 @@
           }"
         >
         </oe-checkbox>
-        <oe-checkbox [form]="{ formGroup: formGroup, controlName: 'acceptAgb' }" [attributes]="{ labelPlacement: 'end', text: 'REGISTER.FORM.ACCEPT_AGB' | translate }"></oe-checkbox>
+        <oe-checkbox
+          [form]="{ formGroup: formGroup, controlName: 'acceptGtc' }"
+          [attributes]="{
+            labelPlacement: 'end',
+            text:
+              'REGISTER.FORM.ACCEPT_GTC'
+              | translate
+                : {
+                    link: gtcLink,
+                  },
+          }"
+        >
+        </oe-checkbox>
         <ion-item>
           <ion-text [innerHTML]="'REGISTER.FORM.SUBSCRIBE_NEWSLETTER' | translate"></ion-text>
         </ion-item>

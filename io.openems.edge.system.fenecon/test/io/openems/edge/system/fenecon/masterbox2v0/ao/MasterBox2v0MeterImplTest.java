@@ -2,7 +2,7 @@ package io.openems.edge.system.fenecon.masterbox2v0.ao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.component.OpenemsComponent;

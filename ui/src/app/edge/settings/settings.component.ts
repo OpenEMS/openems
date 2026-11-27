@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal, } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -18,7 +18,7 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonUiModule, RouterModule, FlatWidgetButtonComponent, ComponentsBaseModule],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, AfterViewInit, OnDestroy {
     public edge: Edge | null = null;
     public environment = environment;
 
@@ -30,10 +30,12 @@ export class SettingsComponent implements OnInit {
 
     protected isEdgeBackend = signal(environment.backend === "OpenEMS Edge");
 
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly translate = inject(TranslateService);
+
     constructor(
         protected utils: Utils,
         private service: Service,
-        private translate: TranslateService,
         private readonly userService: UserService,
     ) {}
 
@@ -52,5 +54,15 @@ export class SettingsComponent implements OnInit {
                 ),
             );
         });
+    }
+
+    ngAfterViewInit() {
+        this.navigationService.headerTitle.set({ text: this.translate.instant("MENU.EDGE_SYSTEM_SETTINGS") });
+    }
+
+    ngOnDestroy() {
+        if (this.navigationService.headerTitle()?.text == this.translate.instant("MENU.EDGE_SYSTEM_SETTINGS")) {
+            this.navigationService.headerTitle.set({ text: null });
+        }
     }
 }

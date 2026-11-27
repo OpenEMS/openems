@@ -55,8 +55,8 @@ public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 		if (debugMode == DebugMode.DETAILED) {
 			this.metricService = this.httpBridge.createService(HttpBridgeMetricServiceDefinition.byUrl());
 		}
-		this.httpBridge.createService(
-				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.DEFAULT.withContextId(id)));
+		this.httpBridge.createService(new HttpBridgeLoggingServiceDefinition(
+				HttpBridgeLoggingServiceConfiguration.DEFAULT.withContextId(id)));
 
 		this.cycleService = this.httpBridge.createService(this.getHttpBridgeCycleServiceDefinition());
 

@@ -3,7 +3,7 @@ import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetOneTasks } from "src/app/shared/jsonrpc/request/getOneTasks";
 import { GetOneTasksResponse, OneTask } from "src/app/shared/jsonrpc/response/getOneTasksResponse";
-import { RouteService } from "src/app/shared/service/route.service";
+import { RouteService } from "src/app/shared/service/route/route.service";
 import { AbstractModal } from "../../modal/abstractModal";
 import { JsCalendar } from "../js-calendar-task";
 

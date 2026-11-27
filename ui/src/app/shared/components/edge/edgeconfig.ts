@@ -32,81 +32,17 @@ export class EdgeConfig {
     public readonly natures: { [id: string]: EdgeConfig.Nature } = {};
 
     /** UI-Widgets. */
-    public readonly widgets: Widgets;
+    public widgets: Widgets = new Widgets([], []);
 
-    constructor(edge: Edge, source?: EdgeConfig) {
+    constructor(edge: Edge, source?: EdgeConfig, blockRefresh: boolean = false) {
         if (source) {
-            this.components = Object.entries(source.components).reduce(
-                (obj, [k, v]) => {
-                    const component = EdgeConfig.Component.of(v);
-                    if (component == null) {
-                        return obj;
-                    }
-
-                    obj[k] = component;
-                    return obj;
-                },
-                {} as { [id: string]: EdgeConfig.Component },
-            );
-
+            this.mergeComponents(source.components);
             this.factories = source.factories;
         }
 
-        // initialize Components
-        for (const componentId in this.components) {
-            const component = this.components[componentId];
-            component.id = componentId;
-            if ("enabled" in component.properties) {
-                component.isEnabled = component.properties["enabled"];
-            } else {
-                component.isEnabled = true;
-            }
+        if (!blockRefresh) {
+            this.refresh(edge);
         }
-
-        // initialize Factorys
-        for (const factoryId in this.factories) {
-            const factory = this.factories[factoryId];
-            factory.id = factoryId;
-            factory.componentIds = [];
-
-            // Fill 'natures' map
-            for (const natureId of factory.natureIds) {
-                if (!(natureId in this.natures)) {
-                    const parts = natureId.split(".");
-                    const name = parts[parts.length - 1];
-                    this.natures[natureId] = {
-                        id: natureId,
-                        name: name,
-                        factoryIds: [],
-                    };
-                }
-                this.natures[natureId].factoryIds.push(factoryId);
-            }
-        }
-
-        if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
-            console.warn("Factory definitions are missing.");
-        } else {
-            for (const componentId in this.components) {
-                const component = this.components[componentId];
-                if (component.factoryId === "") {
-                    continue; // Singleton components have no factory-PID
-                }
-                const factory = this.factories[component.factoryId];
-                if (!factory) {
-                    console.warn(
-                        "Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.",
-                    );
-                    continue;
-                }
-
-                // Complete 'factories' map
-                factory.componentIds.push(componentId);
-            }
-        }
-
-        // Initialize Widgets
-        this.widgets = Widgets.parseWidgets(edge, this);
     }
 
     /** Lists all available Factories, grouped by category. */
@@ -868,6 +804,99 @@ export class EdgeConfig {
     public getPropertyFromComponentId<T>(id: EdgeConfig.Component["id"], property: string): T | null {
         const component = this.getComponent(id);
         return component?.properties[property] ?? null;
+    }
+
+    /**
+     * Merges the given Components into this config and recomputes derived state (factories, natures, widgets), without
+     * allocating a new EdgeConfig instance.
+     *
+     * @param edge The edge, needed to re-parse widgets
+     * @param components The Components to merge in, keyed by Component-ID
+     */
+    public updateComponents(edge: Edge, components: { [id: string]: EdgeConfig.Component }): void {
+        this.mergeComponents(components);
+        this.refresh(edge);
+    }
+
+    /** Merges parsed Components into {@link components} in place. */
+    private mergeComponents(components: { [id: string]: EdgeConfig.Component }): void {
+        for (const [id, source] of Object.entries(components)) {
+            const component = EdgeConfig.Component.of(source);
+            if (component == null) {
+                continue;
+            }
+            this.components[id] = component;
+        }
+    }
+
+    /** Recomputes Component defaults, the 'factories'/'natures' maps and Widgets from the current 'components'. */
+    private refresh(edge: Edge): void {
+        // initialize Components
+        for (const componentId in this.components) {
+            const component = this.components[componentId];
+            component.id = componentId;
+            if ("enabled" in component.properties) {
+                component.isEnabled = component.properties["enabled"];
+            } else {
+                component.isEnabled = true;
+            }
+        }
+
+        // reset previously derived state so repeated calls don't accumulate stale entries
+        for (const natureId in this.natures) {
+            delete this.natures[natureId];
+        }
+
+        // initialize Factorys
+        for (const factoryId in this.factories) {
+            const factory = this.factories[factoryId];
+            factory.id = factoryId;
+            factory.componentIds = [];
+
+            // Fill 'natures' map
+            for (const natureId of factory.natureIds) {
+                if (!(natureId in this.natures)) {
+                    const parts = natureId.split(".");
+                    const name = parts[parts.length - 1];
+                    this.natures[natureId] = {
+                        id: natureId,
+                        name: name,
+                        factoryIds: [],
+                    };
+                }
+                this.natures[natureId].factoryIds.push(factoryId);
+            }
+        }
+
+        if (Object.keys(this.components).length != 0 && Object.keys(this.factories).length == 0) {
+            console.warn("Factory definitions are missing.");
+        } else {
+            for (const componentId in this.components) {
+                const component = this.components[componentId];
+                if (component.factoryId === "") {
+                    continue; // Singleton components have no factory-PID
+                }
+                const factory = this.factories[component.factoryId];
+                if (!factory) {
+                    console.warn(
+                        "Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.",
+                    );
+                    continue;
+                }
+
+                // Complete 'factories' map
+                factory.componentIds.push(componentId);
+            }
+        }
+
+        // Initialize Widgets
+        this.widgets = Widgets.parseWidgets(edge, this);
+    }
+}
+
+export class PlainEdgeConfig extends EdgeConfig {
+    constructor(edge: Edge, config?: any) {
+        super(edge, config);
     }
 }
 

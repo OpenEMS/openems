@@ -52,6 +52,7 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth.PathProvider;
 import io.openems.edge.meter.api.PhaseRotation;
 
@@ -318,6 +319,34 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 	}
 
 	/**
+	 * Triggers a phase switch.
+	 * 
+	 * @param phaseSwitch the intended
+	 *                    {@link io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection}
+	 */
+	public void triggerPhaseSwitch(ApplyPhaseSwitch.PhaseSwitchDirection phaseSwitch) {
+		String phase = switch (phaseSwitch) {
+		case TO_SINGLE_PHASE -> "1";
+		case TO_THREE_PHASE -> "3";
+		case null -> null;
+		};
+
+		if (phase == null) {
+			return;
+		}
+		this.httpBridge //
+				.requestJson(this.createEndpoint(PUT, "/api", JsonUtils.buildJsonObject() //
+						.addProperty("salia/phase_switching/setphase", phase) //
+						.build())) //
+				.thenAccept(t -> {
+					switch (this.logVerbosity) {
+					case NONE -> FunctionUtils.doNothing();
+					case DEBUG_LOG, WRITES, READS -> this.logInfo("Triggered PhaseSwitch to " + phase + " phase");
+					}
+				});
+	}
+
+	/**
 	 * Handles a Response from a http call for the endpoint /api GET.
 	 * 
 	 * @param response      the {@link HttpResponse} to be handled
@@ -345,7 +374,28 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 							path.jsonPaths());
 					setValue(this.parent, channelId, value);
 				});
+		final var deviceRole = this.updateDeviceRole(json);
+		this.updatePhaseSwitchingNotSlave(json, deviceRole);
 		this.updateChannels(json, phaseRotation);
+	}
+
+	private DeviceRole updateDeviceRole(JsonObject json) {
+		final var modelName = getValueFromJson(OpenemsType.STRING, json,
+				value -> TypeUtils.<String>getAsType(OpenemsType.STRING, value), "device", "modelname");
+		final var product = getValueFromJson(OpenemsType.STRING, json,
+				value -> TypeUtils.<String>getAsType(OpenemsType.STRING, value), "device", "product");
+		final var deviceRole = DeviceRole.fromModelNameAndProduct(modelName, product);
+		setValue(this.parent, HardyBarth.ChannelId.DEVICE_ROLE, deviceRole.getValue());
+		return deviceRole;
+	}
+
+	private void updatePhaseSwitchingNotSlave(JsonObject json, DeviceRole deviceRole) {
+		final var phaseSwitchingStatus = getValueFromJson(OpenemsType.STRING, json,
+				value -> TypeUtils.<String>getAsType(OpenemsType.STRING, value), "secc", "port0", "salia",
+				"phase_switching", "status");
+		final var hasPhaseSwitchingApi = "idle".equals(phaseSwitchingStatus) || "progress".equals(phaseSwitchingStatus);
+		setValue(this.parent, HardyBarth.ChannelId.PHASE_SWITCHING_NOT_SLAVE,
+				hasPhaseSwitchingApi && deviceRole == DeviceRole.MASTER);
 	}
 
 	/**

@@ -6,7 +6,7 @@
     </tr>
   </table>
 }
-<div [style.height]="viewHeight" id="chart-area" class="semi-transparent-background">
+<div [style.height]="chartHeight()" [style.visibility]="chartHeightRevision() < 1 ? 'hidden' : 'visible'" id="chart-area" class="semi-transparent-background">
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
   @if (!loading) {
     <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>

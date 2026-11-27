@@ -14,9 +14,9 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.EvseSingleState;
 import io.openems.edge.controller.evse.single.LogVerbosity;
 import io.openems.edge.controller.evse.single.Mode;
-import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -50,12 +50,13 @@ public class ControllerEvseClusterImplTest {
 				.build());
 
 		sut.test() //
-				.next(new TestCase("Force Next State UNDEFINED (but not called)") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS)
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.UNDEFINED)) //
+				.next(new TestCase("Force Next EvseSingleState.UNDEFINED (but not called)") //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.UNDEFINED)) //
 				.next(new TestCase("EV_NOT_CONNECTED") //
-						.timeleap(clock, 1, ChronoUnit.SECONDS)
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.EV_NOT_CONNECTED));
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
+								EvseSingleState.EV_NOT_CONNECTED));
 
 		singleSut.chargePoint().withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 32000)) //
@@ -67,7 +68,8 @@ public class ControllerEvseClusterImplTest {
 				.next(new TestCase("EV_NOT_CONNECTED") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // minimum
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.EV_NOT_CONNECTED)); //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
+								EvseSingleState.EV_NOT_CONNECTED)); //
 
 		singleSut.chargePoint().withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 32000)) //
@@ -79,20 +81,33 @@ public class ControllerEvseClusterImplTest {
 				.next(new TestCase("EV_NOT_CONNECTED transition") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // minimum
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.EV_NOT_CONNECTED)) //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
+								EvseSingleState.EV_NOT_CONNECTED)) //
+				.next(new TestCase("UNDEFINED") //
+						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000))
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.UNDEFINED)) //
 				.next(new TestCase("EV_CONNECTED") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // minimum
 						.input(chargePoint.id(), EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true) //
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.EV_CONNECTED)) //
-				.next(new TestCase("CHARGING") //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
+								EvseSingleState.EV_CONNECTED)) //
+				.next(new TestCase("EV_CONNECTED because no power") //
+						.timeleap(clock, 20, ChronoUnit.SECONDS)
+						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)).output(single.id(),
+								ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.EV_CONNECTED)) //
+				.next(new TestCase("Add power consumption") //
+						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_POWER, 4123)) //
+				.next(new TestCase("CHARGING start") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6181)) // rising
-						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_POWER, 4123) //
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.CHARGING)) //
+						.onAfterControllersCallbacks(() -> assertSetPoint.accept(10187))
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.CHARGING)) //
+				.next(new TestCase("CHARGING rising") //
+						.timeleap(clock, 1, ChronoUnit.SECONDS)
+						.onAfterControllersCallbacks(() -> assertSetPoint.accept(10493)) // rising
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.CHARGING)) //
 				.next(new TestCase("CHARGING finished") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6367)) // rising
 						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0)) //
 				.next(new TestCase("CHARGING fill History...") //
@@ -101,23 +116,27 @@ public class ControllerEvseClusterImplTest {
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // -> set minimum
 						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1500) //
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.FINISHED_EV_STOP)) //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
+								EvseSingleState.FINISHED_EV_STOP)) //
 				.next(new TestCase("FINISHED_EV_STOP but again charging") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(chargePoint.id(), ElectricityMeter.ChannelId.ACTIVE_POWER, 4123) //
 						.output(single.id(), ControllerEvseSingle.ChannelId.SESSION_ENERGY, 1500)) //
 				.next(new TestCase("CHARGING") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
+						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000))) //
+				.next(new TestCase("CHARGING") //
+						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6181))) // rising
 				.next(new TestCase("CHARGING") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(single.id(), ControllerEvseSingle.ChannelId.SESSION_ENERGY, 1500) // actually apply
-						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.CHARGING)) //
+						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, EvseSingleState.CHARGING)) //
 				.next(new TestCase("FINISHED_ENERGY_SESSION_LIMIT") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(0)) // -> set zero
 						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE,
-								State.FINISHED_ENERGY_SESSION_LIMIT)) //
+								EvseSingleState.FINISHED_ENERGY_SESSION_LIMIT)) //
 		;
 
 		// Debug-Log

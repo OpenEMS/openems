@@ -115,11 +115,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), this.getWbmsChargeMaxCurrent().get(),
-				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get());
+				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get(), 1);
 
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(activePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled());
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled(), 1);
 	}
 
 	@Override
@@ -138,12 +138,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updatePowerAndEnergyChannels(this.getSoc().get(), null);
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE ->
+			this.updatePowerAndEnergyChannels(this.getSoc().get());
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
-			break;
 		}
 	}
 

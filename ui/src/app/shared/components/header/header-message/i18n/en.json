@@ -1,8 +1,8 @@
 {
-  "SYSTEM_STATUS_MESSAGE": {
-    "OK": "Everything is ok",
-    "INFO": "Everything is ok",
-    "FAULT": "",
-    "WARNING": ""
-  }
+    "SYSTEM_STATUS_MESSAGE": {
+        "FAULT": "",
+        "INFO": "Everything is ok",
+        "OK": "Everything is ok",
+        "WARNING": ""
+    }
 }

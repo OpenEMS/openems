@@ -1,10 +1,10 @@
 package io.openems.backend.edge.client;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 
 import org.java_websocket.WebSocket;
 
+import io.openems.backend.edge.application.BackendEdgeServerApp;
 import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -16,14 +16,13 @@ import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	private final String name;
-	private final BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdge;
+	private final BackendEdgeServerApp app;
 
 	public OnRequest(//
 			String name, //
-			BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdge //
-	) {
+			BackendEdgeServerApp app) {
 		this.name = name;
-		this.sendRequestToEdge = sendRequestToEdge;
+		this.app = app;
 	}
 
 	@Override
@@ -58,7 +57,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throws OpenemsNamedException {
 		final var edgeId = request.getEdgeId();
 		final var payload = request.getPayload();
-		var responseFuture = this.sendRequestToEdge.apply(edgeId, payload);
+		var responseFuture = this.app.sendRequestToEdge(edgeId, payload);
 
 		// Wrap Response
 		var result = new CompletableFuture<JsonrpcResponseSuccess>();

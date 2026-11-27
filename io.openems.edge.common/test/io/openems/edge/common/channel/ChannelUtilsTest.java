@@ -255,6 +255,36 @@ class ChannelUtilsTest {
 	}
 
 	@Test
+	void testSubscribeOnSetNextValueTwoChannels() {
+		final var component1 = new DummyComponent("comp1");
+
+		Consumer<Tuple2<Value<Integer>, Value<String>>> onUpdate = mock();
+		final var unsubscribe = ChannelUtils.subscribeOnSetNextValue(component1,
+				DummyComponent.ChannelId.INTEGER_CHANNEL, DummyComponent.ChannelId.STRING_CHANNEL, onUpdate);
+
+		var inOrder = inOrder(onUpdate);
+
+		inOrder.verify(onUpdate, times(2)).accept(any());
+
+		component1.getIntegerChannel().setNextValue(1);
+		inOrder.verify(onUpdate).accept(argThat(values -> {
+			return values.a().get() == 1 && values.b().get() == null;
+		}));
+
+		component1.getStringChannel().setNextValue("a");
+		inOrder.verify(onUpdate).accept(argThat(values -> {
+			return values.a().get() == 1 && values.b().get().equals("a");
+		}));
+
+		unsubscribe.dispose();
+
+		component1.getIntegerChannel().setNextValue(10);
+		component1.getStringChannel().setNextValue("aa");
+
+		inOrder.verifyNoMoreInteractions();
+	}
+
+	@Test
 	void testSubscribeOnSetNextValueMultipleComponentsTwoChannels() {
 		final var component1 = new DummyComponent("comp1");
 		final var component2 = new DummyComponent("comp2");

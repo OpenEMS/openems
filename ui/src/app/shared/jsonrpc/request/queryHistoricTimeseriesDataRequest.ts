@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { format } from "date-fns";
 import { Resolution } from "src/app/edge/history/shared";
 import { ChannelAddress } from "../../../shared/type/channeladdress";
@@ -14,7 +13,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  *   "id": UUID,
  *   "method": "queryHistoricTimeseriesData",
  *   "params": {
- *     "timezone": Number,
+ *     "timezone": String,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
  *     "channels": ChannelAddress[]
@@ -27,10 +26,10 @@ export class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
     private static METHOD: string = "queryHistoricTimeseriesData";
 
     public constructor(
-        private fromDate: Date,
-        private toDate: Date,
-        private channels: ChannelAddress[],
-        private resolution: Resolution,
+        fromDate: Date,
+        toDate: Date,
+        channels: ChannelAddress[],
+        resolution: Resolution,
     ) {
         super(QueryHistoricTimeseriesDataRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -39,11 +38,6 @@ export class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
             channels: JsonRpcUtils.channelsToStringArray(channels),
             resolution: resolution,
         });
-        // delete local fields, otherwise they are sent with the JSON-RPC Request
-        delete this.fromDate;
-        delete this.toDate;
-        delete this.channels;
-        delete this.resolution;
     }
 
 }

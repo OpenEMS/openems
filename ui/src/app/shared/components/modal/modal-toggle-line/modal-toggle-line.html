@@ -4,19 +4,19 @@
       <tr [style.text-indent]="textIndent">
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_left" [style]="lineStyle?.name ?? {}">
-          @if (displayName) {
-            {{ displayName }}
+          @if (displayName()) {
+            {{ displayName() }}
           }
         </td>
         <!-- Value of Parameter on the right side -->
-        @if (displayValue) {
+        @if (displayValue()) {
           <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_right">
             <!-- 'Normal' line, name and value  -->
-            <span [innerHTML]="displayValue"></span>
+            <span [innerHTML]="displayValue()"></span>
           </td>
         }
         @if (formGroup) {
-          <td [formGroup]="formGroup" [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)' : ''" class="align_right">
+          <td [formGroup]="formGroup" [style]="this.service.isSmartphoneResolution() ? 'transform: scale(0.7)' : ''" class="align_right">
             <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md" [formControlName]="controlName"> </ion-toggle>
           </td>
         }

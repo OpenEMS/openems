@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
@@ -45,7 +44,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		var terminal1Test = new ComponentTest(terminal1).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io1") //
@@ -57,7 +55,6 @@ public class IoShellyPro4PmTest {
 		;
 
 		final var terminal2Test = new ComponentTest(terminal2).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io2") //
@@ -68,7 +65,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		final var terminal3Test = new ComponentTest(terminal3).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io3") //
@@ -79,7 +75,6 @@ public class IoShellyPro4PmTest {
 						.build());
 
 		final var terminal4Test = new ComponentTest(terminal4).addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setDevice", device) //
 				.activate(MyTerminalConfig.create() //
 						.setId("io4") //

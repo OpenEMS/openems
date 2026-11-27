@@ -1,0 +1,12 @@
+{
+    "SYSTEM_LOCATION_VALIDATOR": {
+        "ADDRESS_LIST_NOTE_INSTALLATION": "Správná adresa není uvedena? Upravte výše své údaje a proveďte validaci znovu.",
+        "ADDRESS_LIST_NOTE_PROFILE": "Správná adresa není uvedena? Případně změňte výše své údaje a proveďte validaci znovu.",
+        "ADDRESS_LIST_TITLE": "Která adresa odpovídá umístění {{ edgeShortName }}{{ id }}?",
+        "APPLY_BUTTON_LABEL": "Použít",
+        "BUTTON_LABEL_INSTALLATION": "Provést validaci",
+        "BUTTON_LABEL_PROFILE": "Validovat adresu",
+        "GEO_CODE_RESULT_LABEL": "Vyberte prosím odpovídající adresu:",
+        "UNKNOWN_ADDRESS": "Souřadnice se následně ručně doplní pro plnou funkčnost v nastavení systému."
+    }
+}

@@ -32,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -49,6 +50,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.sma.ess.enums.PowerSupplyStatus;
 import io.openems.edge.sma.ess.enums.SetControlMode;
+import io.openems.edge.sma.ess.enums.SunnyIslandDeviceType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -126,9 +128,13 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setActivePowerChannel = this.channel(EssSmaSunnyIsland.ChannelId.SET_ACTIVE_POWER);
 		IntegerWriteChannel setReactivePowerChannel = this.channel(EssSmaSunnyIsland.ChannelId.SET_REACTIVE_POWER);
 
+		// The set-points apply per device. In mode 'ALL', Master and Slaves (3 devices,
+		// one per phase) share the total power calculated by the Power-Solver.
+		final var devices = this.config.phase() == SingleOrAllPhase.ALL ? 3 : 1;
+
 		setControlMode.setNextWriteValue(SetControlMode.START);
-		setActivePowerChannel.setNextWriteValue(activePower);
-		setReactivePowerChannel.setNextWriteValue(reactivePower);
+		setActivePowerChannel.setNextWriteValue(activePower / devices);
+		setReactivePowerChannel.setNextWriteValue(reactivePower / devices);
 	}
 
 	@Override
@@ -167,6 +173,14 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(30231, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedDoublewordElement(30231),
 								new ElementToChannelConverter(v -> {
+									// Sunny Island -11 does not provide register 30231 (returns 0xFFFFFFFF):
+									// use fixed value depending on the device type
+									EnumReadChannel deviceTypeChannel = this
+											.channel(EssSmaSunnyIsland.ChannelId.DEVICE_TYPE);
+									SunnyIslandDeviceType deviceType = deviceTypeChannel.value().asEnum();
+									if (deviceType.getMaxApparentPower() != null) {
+										v = deviceType.getMaxApparentPower();
+									}
 									if (v == null) {
 										return null;
 									}

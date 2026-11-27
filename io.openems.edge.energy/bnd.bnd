@@ -3,17 +3,12 @@ Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
-# TODO remove emergencycapacityreserve, limittotaldischarge and limiter14a from buildpath after v1
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.braiinsos,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.controller.ess.emergencycapacityreserve,\
-	io.openems.edge.controller.ess.limiter14a,\
-	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.ess.timeofusetariff,\
 	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
